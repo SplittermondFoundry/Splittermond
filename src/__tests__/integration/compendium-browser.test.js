@@ -30,6 +30,20 @@ export function compendiumBrowserTest(context) {
             expect(game.i18n.localize("splittermond.skillLabel.deathmagic")).to.equal("Todesmagie");
         });
 
+        it("i18n contains a format function that translates the given string, inserting templateArgs", async () => {
+            expect(game.i18n).to.have.property("format");
+            expect(game.i18n.format("splittermond.chatCard.spellMessage.tooManyHandlers", {action: "Handlung"}))
+                .to.equal("Es gibt mehr als einen eingetragenen Bearbeiter für die Aktion 'Handlung'. Bitte wenden Sie sich an den Entwickler.");
+        });
+
+        it("i18n contains a format function ignores strings without templates", async () => {
+            expect(game.i18n.format("splittermond.skillLabel.deathmagic", {})).to.equal("Todesmagie");
+        });
+
+        it("i18n contains a format function ignores no template args input", async () => {
+            expect(game.i18n.format("splittermond.skillLabel.deathmagic")).to.equal("Todesmagie");
+        });
+
         it("deepClone clones deeply", () => {
             const probe = {
                topLevel :{secondLevel: "value2", deleteMe:""},

@@ -3,27 +3,33 @@ import type {ChatMessage, ChatMessageTypes, Hooks, Roll, Socket, User} from "./f
 export const foundryApi = new class FoundryApi {
 
     /**
-     * @param {string} messageKey the key to an entry in the localization file
+     * @param messageKey the key to an entry in the localization file
+     * @param templateArgs the arguments to be inserted into the localized string
      */
-    reportError(messageKey: string): void {
+    reportError(messageKey: string, templateArgs?:Record<string, string>): void {
+        const message = templateArgs ? this.format(messageKey, templateArgs) : this.localize(messageKey);
         //@ts-ignore
-        ui.notifications.error(this.localize(messageKey));
+        ui.notifications.error(message);
     }
 
     /**
-     * @param {string} messageKey the key to an entry in the localization file
+     * @param messageKey the key to an entry in the localization file
+     * @param templateArgs the arguments to be inserted into the localized string
      */
-    warnUser(messageKey: string): void {
+    warnUser(messageKey: string, templateArgs?:Record<string, string>): void {
+        const message = templateArgs ? this.format(messageKey, templateArgs) : this.localize(messageKey);
         //@ts-ignore
-        ui.notifications.warn(this.localize(messageKey));
+        ui.notifications.warn(message);
     }
 
     /**
-     * @param {string} messageKey the key to an entry in the localization file
+     * @param messageKey the key to an entry in the localization file
+     * @param templateArgs the arguments to be inserted into the localized string
      */
-    informUser(messageKey: string): void {
+    informUser(messageKey: string, templateArgs?:Record<string, string>): void {
+        const message = templateArgs ? this.format(messageKey, templateArgs) : this.localize(messageKey);
         // @ts-ignore
-        ui.notifications.info(this.localize(messageKey));
+        ui.notifications.info(message);
     }
 
     get messages(): { get: (id: string) => ChatMessage } {
@@ -39,6 +45,11 @@ export const foundryApi = new class FoundryApi {
     createChatMessage(chatData: object): Promise<ChatMessage> {
         //@ts-ignore
         return ChatMessage.create(chatData);
+    }
+
+    createItem(data: object): Promise<Item>{
+        //@ts-ignore
+        return Item.create(data);
     }
 
     /**
@@ -57,6 +68,15 @@ export const foundryApi = new class FoundryApi {
     localize(messageKey: string): string {
         //@ts-ignore
         return game.i18n.localize(messageKey);
+    }
+
+    /**
+     * @param messageKey the key to an entry in the localization file
+     * @param templateArgs the arguments to be inserted into the localized string
+     */
+    format(messageKey: string, templateArgs: Record<string,string>): string {
+        //@ts-ignore
+        return game.i18n.format(messageKey, templateArgs);
     }
 
     get chatMessageTypes(): typeof ChatMessageTypes {

@@ -1,7 +1,7 @@
 import "../../foundryMocks.js";
 import {expect} from 'chai';
 import SplittermondSpellItem from "../../../../module/item/spell.js";
-import {getSpellAvailabilityParser} from "../../../../module/item/availabilityParser.js";
+import {getSpellAvailabilityParser} from "../../../../module/item/availabilityParser.ts";
 import {describe} from "mocha";
 import {initializeSpellCostManagement} from "../../../../module/util/costs/spellCostManagement.ts";
 import {Cost} from "../../../../module/util/costs/Cost.ts";

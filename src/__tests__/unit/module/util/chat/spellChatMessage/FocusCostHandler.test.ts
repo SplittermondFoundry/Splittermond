@@ -347,7 +347,6 @@ describe("FocusCostActionHandler", () => {
             expect(agent.consumeCost.calledWith(
                 "focus",
                 expectedCost.render(),
-                //@ts-expect-error spell reference is not typed yet
                 underTest.spellReference.getItem().name)
             ).to.be.true;
         });
@@ -474,6 +473,5 @@ function setNecessaryDefaultsForSpellproperties(spellMock: SinonStubbedInstance<
         exhaustedFocus: true,
         channelizedFocus: true,
     } as Record<keyof typeof splittermond.spellEnhancement, boolean>));
-    //@ts-expect-error name is a property that is not typed yet.
     spellMock.name = "name";
 }

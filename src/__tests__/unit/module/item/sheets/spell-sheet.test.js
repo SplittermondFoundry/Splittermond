@@ -4,7 +4,7 @@ import {createHtml} from "../../../../handlebarHarness.ts";
 import {produceJQuery} from "../../../../jQueryHarness.js";
 import SplittermondSpellSheet from "../../../../../module/item/sheets/spell-sheet.js";
 import SplittermondSpellItem from "../../../../../module/item/spell.js";
-import {getSpellAvailabilityParser} from "../../../../../module/item/availabilityParser.js";
+import {getSpellAvailabilityParser} from "../../../../../module/item/availabilityParser.ts";
 import {simplePropertyResolver} from "../../../../util.js";
 
 

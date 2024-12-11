@@ -37,7 +37,11 @@
     "chatCard": {
       "noGMConnected": "Aktion kann nicht ausgeführt werden, da kein berechtigter Nutzer (Spielleiter) verbunden ist.",
       "messageNotFound": "Die zu ändernde Nachricht wurde nicht im Chat Log gefunden.",
-      "actionNotFound": "Die gewählte Aktion konnte nicht ausgeführt werden, da der Empfänger sie nicht kennt. Bitte erstellen Sie einen Fehlerbericht."
+      "actionNotFound": "Die gewählte Aktion konnte nicht ausgeführt werden, da der Empfänger sie nicht kennt. Bitte erstellen Sie einen Fehlerbericht.",
+      "spellMessage": {
+        "noHandler": "Es ist kein Bearbeiter für die Aktion '{action}' eingetragen. Bitte wenden Sie sich an den Entwickler.",
+        "tooManyHandlers": "Es gibt mehr als einen eingetragenen Bearbeiter für die Aktion '{action}'. Bitte wenden Sie sich an den Entwickler."
+      }
     },
     "start": "Start",
     "value": "Wert",
@@ -351,6 +355,27 @@
         "short": "KW",
         "long": "Körperlicher Widerstand"
       }
+    },
+    "skillAbbreviation": {
+      "antimagic": "Bann",
+      "controlmagic": "Beherrschung",
+      "motionmagic": "Bewegung",
+      "insightmagic": "Erkenntnis",
+      "stonemagic": "Fels",
+      "firemagic": "Feuer",
+      "healmagic": "Heilung",
+      "illusionmagic": "Illusion",
+      "combatmagic": "Kampf",
+      "lightmagic": "Licht",
+      "naturemagic": "Natur",
+      "shadowmagic": "Schatten",
+      "fatemagic": "Schicksal",
+      "protectionmagic": "Schutz",
+      "enhancemagic": "Stärkung",
+      "deathmagic": "Tod",
+      "transformationmagic": "Verwandlung",
+      "watermagic": "Wasser",
+      "windmagic": "Wind"
     },
     "skillLabel": {
       "melee": "Handgemenge",

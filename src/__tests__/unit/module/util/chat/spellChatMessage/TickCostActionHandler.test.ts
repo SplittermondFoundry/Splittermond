@@ -150,6 +150,5 @@ function setNecessaryDefaultsForSpellproperties(spellMock: SinonStubbedInstance<
         range: true,
         effectArea: true,
     }as Record<keyof typeof splittermond.spellEnhancement, boolean>));
-    //@ts-expect-error name is a property that is not typed yet.
     spellMock.name = "name";
 }

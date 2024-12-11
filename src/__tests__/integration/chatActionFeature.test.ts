@@ -8,11 +8,11 @@ import SplittermondSpellItem from "../../module/item/spell";
 import {CheckReport} from "../../module/actor/CheckReport";
 import SplittermondItem from "../../module/item/item";
 import {SpellRollMessage} from "../../module/util/chat/spellChatMessage/SpellRollMessage";
+import {QuenchContext} from "./resources/types";
 
 declare const game: any;
 declare const ChatMessage: ChatMessage;
 declare const Hooks: Hooks;
-type QuenchContext = { describe: Mocha.SuiteFunction, it: Mocha.TestFunction, expect: Chai.ExpectStatic };
 
 export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
     const {describe, it, expect} = context;

@@ -174,6 +174,5 @@ function setNecessaryDefaultsForSpellproperties(spellMock: SinonStubbedInstance<
         effectArea: true,
     }as Record<keyof typeof splittermond.spellEnhancement, boolean>));
     sandbox.stub(spellMock, "damage").get(()=> "1W6");
-    //@ts-expect-error name is a property that is not typed yet.
     spellMock.name = "name";
 }

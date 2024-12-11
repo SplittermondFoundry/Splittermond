@@ -1,4 +1,3 @@
-import {getMasteryAvailabilityParser} from "../../item/availabilityParser.js";
 import {produceMasteryTags} from "../../item/tags/masteryTags.js";
 import {initializeMetadata} from "./metadataInitializer.js";
 

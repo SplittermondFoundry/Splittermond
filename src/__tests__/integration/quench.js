@@ -3,6 +3,7 @@ import {itemTest} from "./item.test.js";
 import {chatActionFeatureTest} from "./chatActionFeature.test.ts";
 import {dataModelTest} from "./dataModel.test.ts.js";
 import {DamageRollTest} from "./DamageRoll.test.js";
+import {foundryTypeDeclarationsTest} from "./foundryTypes.test";
 
 
 function registerQuenchTests(quench) {
@@ -11,6 +12,7 @@ function registerQuenchTests(quench) {
     quench.registerBatch("chatSystem", chatActionFeatureTest);
     quench.registerBatch("dataModel", dataModelTest);
     quench.registerBatch("damageRoll", DamageRollTest);
+    quench.registerBatch("foundry types ", foundryTypeDeclarationsTest);
 }
 
 export function init() {

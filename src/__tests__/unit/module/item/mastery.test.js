@@ -1,7 +1,7 @@
 import foundryMocks from "../../foundryMocks.js";
 import SplittermondMasteryItem from "../../../../module/item/mastery.js";
 import {expect} from 'chai';
-import {getMasteryAvailabilityParser} from "../../../../module/item/availabilityParser.js";
+import {getMasteryAvailabilityParser} from "../../../../module/item/availabilityParser.ts";
 
 describe("availableInList",() => {
     const mastery = new SplittermondMasteryItem({},{splittermond: {ready: true}}, getMasteryAvailabilityParser({localize: (str) => str.split(".").pop()}, ["staffs", "swords"]));

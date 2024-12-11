@@ -7,7 +7,7 @@ import {initializeSpellItemPreparation} from "./prepareSpellItemIndex.js";
 import {initializeMasteryItemPreparation} from "./prepareMasteryItemIndex.js";
 import {initializeMetadata} from "./metadataInitializer.js";
 import {prepareWeaponItemIndex} from "./prepareWeaponsIndex.js";
-import {getMasteryAvailabilityParser, getSpellAvailabilityParser} from "../../item/availabilityParser.js";
+import {getMasteryAvailabilityParser, getSpellAvailabilityParser} from "../../item/availabilityParser.ts";
 
 
 /**

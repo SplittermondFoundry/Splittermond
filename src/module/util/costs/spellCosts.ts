@@ -1,10 +1,10 @@
 import {parseCostString} from "./costParser";
 import {Cost, CostModifier} from "./Cost";
-import type {SplittermondSpellType} from "../../data/SplittermondSpellData";
 import {SpellCostReductionManager} from "./spellCostManagement";
 import {PrimaryCost} from "./PrimaryCost";
+import {SplittermondSpellSystemData} from "module/data/ItemSystemData";
 
-type SpellCostCalculationInput = Pick<SplittermondSpellType, "skill" | "spellType" | "costs" | "enhancementCosts">;
+type SpellCostCalculationInput = Pick<SplittermondSpellSystemData, "skill" | "spellType" | "costs" | "enhancementCosts">;
 
 export function calculateReducedSpellCosts(spellData:SpellCostCalculationInput, spellCostReductionManager:SpellCostReductionManager):string {
     const reductions = getApplicableReductions(spellData, spellCostReductionManager);

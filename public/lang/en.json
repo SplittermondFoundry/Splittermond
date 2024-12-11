@@ -4,7 +4,11 @@
     "chatCard": {
       "noGMConnected": "Action cannot be performed, because no authorized user (GM) is connected",
       "messageNotFound": "Message to update not found in the chat log",
-      "actionNotFound": "The selected action could not be executed, because the recipient does not know it. Please file a bug report."
+      "actionNotFound": "The selected action could not be executed, because the recipient does not know it. Please file a bug report.",
+      "spellMessage": {
+        "noHandler": "No handler registered for action '{action}'. Please contact the developer.",
+        "tooManyHandlers": "More than one handler registered for action '{action}'. Please contact the developer"
+      }
     }
   }
 }

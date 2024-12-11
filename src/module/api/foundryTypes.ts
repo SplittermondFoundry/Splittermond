@@ -69,6 +69,8 @@ declare global {
 
     class Item extends FoundryDocument {
         readonly actor: Actor
+        name: string;
+        type:string;
     }
 
     class TokenDocument extends FoundryDocument {

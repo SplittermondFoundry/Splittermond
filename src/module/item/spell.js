@@ -1,7 +1,7 @@
 import SplittermondItem from "./item.js";
 import AttackableItem from "./attackable-item.js";
 
-import {getSpellAvailabilityParser} from "./availabilityParser.js";
+import {getSpellAvailabilityParser} from "./availabilityParser.ts";
 import {produceSpellAvailabilityTags} from "./tags/spellTags.js";
 import {parseCostString, parseSpellEnhancementDegreesOfSuccess} from "../util/costs/costParser.ts";
 import {calculateReducedEnhancementCosts, calculateReducedSpellCosts} from "../util/costs/spellCosts.ts";
