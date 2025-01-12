@@ -39,7 +39,7 @@ export default class Skill extends Modifiable {
     }
 
     get points() {
-        if (this._skillValue == null) {
+        if (this._skillValue === null) {
             return parseInt(this.actor.system.skills[this.id].points);
         } else {
             return this._skillValue - (this.attribute1?.value || 0) - (this.attribute2?.value || 0);
