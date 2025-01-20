@@ -18,6 +18,16 @@
   "styles": [
     "splittermond.css"
   ],
+  "documentTypes": {
+    "Actor": {
+      "character": {
+        "htmlFields": ["biography"],
+        "filePathFields": {
+
+        }
+      }
+    }
+  },
   "packs": [
     {
       "name": "species",

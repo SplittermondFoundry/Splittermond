@@ -1,7 +1,6 @@
 {
   "Actor": {
     "types": [
-      "character",
       "npc"
     ],
     "templates": {
@@ -298,34 +297,6 @@
           "T": 0
         }
       }
-    },
-    "character": {
-      "templates": [
-        "attributes",
-        "skills",
-        "biography",
-        "health",
-        "focus",
-        "currency"
-      ],
-      "splinterpoints": {
-        "value": 3,
-        "max": 3
-      },
-      "experience": {
-        "heroLevel": 1,
-        "free": 0,
-        "spent": 0,
-        "nextLevelValue": 100
-      },
-      "species": {
-        "value": "",
-        "size": 5
-      },
-      "sex": "",
-      "ancestry": "",
-      "culture": "",
-      "education": ""
     },
     "npc": {
       "templates": [

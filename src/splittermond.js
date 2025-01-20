@@ -34,6 +34,7 @@ import {foundryApi} from "./module/api/foundryApi.ts";
 import {canEditMessageOf} from "./module/util/chat.js";
 
 import './less/splittermond.less';
+import {CharacterDataModel} from "./module/actor/dataModel/CharacterDataModel";
 
 
 $.fn.closestData = function (dataName, defaultValue = "") {
@@ -87,6 +88,7 @@ Hooks.once("init", function () {
     }
 
     CONFIG.Actor.documentClass = SplittermondActor;
+    CONFIG.Actor.dataModels.character = CharacterDataModel;
     CONFIG.Item.documentClass = SplittermondItem;
     CONFIG.Combat.documentClass = SplittermondCombat;
     CONFIG.ui.combat = SplittermondCombatTracker;
