@@ -22,9 +22,11 @@
     "Actor": {
       "character": {
         "htmlFields": ["biography"],
-        "filePathFields": {
-
-        }
+        "filePathFields": {}
+      },
+      "npc": {
+        "htmlFields": ["biography"],
+        "filePathFields": {}
       }
     }
   },
