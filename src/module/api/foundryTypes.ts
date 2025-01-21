@@ -85,7 +85,10 @@ declare global {
 
         readonly id: string
         readonly documentName: string
-        readonly parent?: FoundryDocument
+        readonly parent: FoundryDocument|undefined
+        toObject(source?:boolean): object
+        getFlag(scope: string, key: string): unknown;
+        updateSource(data: object): void;
 
         prepareBaseData(): void;
 
@@ -94,6 +97,11 @@ declare global {
          */
         prepareDerivedData(): void;
     }
+
+    const CONFIG:{
+        Item: {documentClass: Function, dataModels:Record<string, unknown>} & Record<string, unknown>
+        Actor: {documentClass: Function, dataModels:Record<string, unknown>} & Record<string, unknown>
+    } & Record<string, unknown>
 }
 
 export interface MergeObjectOptions {

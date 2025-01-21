@@ -18,7 +18,7 @@ declare const game: any;
 declare const ChatMessage: ChatMessage;
 declare const Hooks: Hooks;
 
-export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
+export function chatActionFeatureTest(context: QuenchContext) {
     const {describe, it, expect} = context;
     const splittermondMessageConfig = {
         blind: false,
@@ -30,7 +30,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
 
     describe("SplittermondChatCard", () => {
         it("should post a message in the chat", async () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const message = new SplittermondTestRollMessage({title: "a"});
             const chatCard = SplittermondChatCard.create(actor, message, splittermondMessageConfig);
 
@@ -43,7 +43,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
         });
 
         it("should rerender the same chat card on update", async () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const message = new SplittermondTestRollMessage({title: "title"});
             const chatCard = SplittermondChatCard.create(actor, message, splittermondMessageConfig);
 
@@ -62,7 +62,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
         });
 
         it("should be able to reproduce a message from handled chat action", async () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const message = new SplittermondTestRollMessage({title: "title"});
             const chatCard = SplittermondChatCard.create(actor, message, splittermondMessageConfig);
             await chatCard.sendToChat();
@@ -74,7 +74,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
         });
 
         it("should be able to reproduce a message from local handled chat action", async () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const message = new SplittermondTestRollMessage({title: "title"});
             const chatCard = SplittermondChatCard.create(actor, message, splittermondMessageConfig);
             await chatCard.sendToChat();
@@ -92,7 +92,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
 
     describe("SpellRollMessage", () => {
         it("actor should consume enhanced spell", async () => {
-            const actor = getActorWithItemOfType(this, "spell");
+            const actor = getActorWithItemOfType(it, "spell");
             await actor.update({
                 system: {
                     focus: {
@@ -103,6 +103,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
                 }
             });
             const spell = actor.items.find((item:SplittermondItem) => item.type === "spell");
+            console.log(spell);
             const chatMessage = createSampleChatMessage(actor, spell);
 
             await chatMessage.sendToChat()
@@ -172,7 +173,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
         });
 
         it("should produce a speaker from actor", () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const speaker = foundryApi.getSpeaker({actor});
 
             expect(speaker, "speaker is an object").to.be.an("object");
@@ -182,7 +183,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
         });
 
         it("should return a message id when creating a chat message", async () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const speaker = foundryApi.getSpeaker({actor});
             const sampleMessageContent = {
                 user: foundryApi.currentUser.id,
@@ -202,7 +203,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
         });
 
         it("should post a message in the chat", async () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const speaker = foundryApi.getSpeaker({actor});
             const sampleMessageContent = {
                 user: foundryApi.currentUser.id,
@@ -225,7 +226,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
         });
 
         it("should accept a roll as string", async () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const speaker = foundryApi.getSpeaker({actor});
             const roll = JSON.stringify(await foundryApi.roll("1d6").evaluate())
             const sampleMessageContent = {
@@ -240,7 +241,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
         });
 
         it("should accept a roll as object ", async () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const speaker = foundryApi.getSpeaker({actor});
             const roll = await foundryApi.roll("1d12").evaluate();
             const sampleMessageContent = {
@@ -255,7 +256,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
         });
 
         it("should accept a whisper property", async () => {
-            const actor = getActor(this);
+            const actor = getActor(it);
             const speaker = foundryApi.getSpeaker({actor});
             const roll = JSON.stringify(await foundryApi.roll("1d19").evaluate())
             const sampleMessageContent = {
@@ -319,7 +320,7 @@ export function chatActionFeatureTest(this:unknown, context: QuenchContext) {
             });
             const sampleMessageContent = {
                 user: foundryApi.currentUser.id,
-                speaker: foundryApi.getSpeaker({actor: getActor(this)}),
+                speaker: foundryApi.getSpeaker({actor: getActor(it)}),
                 content: "Random text content",
             };
             const message = await foundryApi.createChatMessage(sampleMessageContent)

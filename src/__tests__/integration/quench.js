@@ -1,5 +1,5 @@
 import {compendiumBrowserTest} from "./compendium-browser.test.js";
-import {itemTest} from "./item.test.js";
+import {itemTest} from "./item.test";
 import {chatActionFeatureTest} from "./chatActionFeature.test.ts";
 import {dataModelTest} from "./dataModel.test.ts.js";
 import {DamageRollTest} from "./DamageRoll.test.js";

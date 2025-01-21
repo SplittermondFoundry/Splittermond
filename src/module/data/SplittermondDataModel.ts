@@ -6,11 +6,11 @@
  */
 type DataModel<T, PARENT> = {
     parent: PARENT extends never ? never : PARENT | null;
-    toObject(source?:boolean): T
+    toObject(source?: boolean): T
     getFlag(scope: string, key: string): unknown,
     updateSource(data: Partial<T>): void,
 }
-export type DataModelConstructorInput<T> = {[K in keyof T]: T[K] extends DataModel<infer U, any>? DataModelConstructorInput<U>:T[K]};
+export type DataModelConstructorInput<T> = { [K in keyof T]: T[K] extends DataModel<infer U, any> ? DataModelConstructorInput<U> : T[K] };
 type DataModelConstructor = new <T, PARENT extends DataModel<any, any> | never>(data: DataModelConstructorInput<T>, ...args: any[]) => DataModel<T, PARENT>;
 /**technically Readonly<T> is already part of the {@link DataModel} type, but because of all the generics, we cannot add it there*/
 type SplittermondDataModelConstructor = new<T, PARENT extends DataModel<any, any> | never = never>(data: DataModelConstructorInput<T>, ...args: any[]) => DataModel<T, PARENT> & Readonly<T>;
@@ -26,8 +26,7 @@ const FoundryDataModelConstructor = foundry.abstract.DataModel as DataModelConst
  */
 const SplittermondDataModel =
     class<T, PARENT extends DataModel<any, any> | never = never> extends FoundryDataModelConstructor<T, PARENT> {
-} as SplittermondDataModelConstructor;
-
+    } as SplittermondDataModelConstructor;
 
 
 /**
@@ -39,7 +38,7 @@ type DataFieldOption<T, REQ extends boolean, NULL extends boolean> = {
     trim?: boolean;
     blank?: boolean;
     nullable?: NULL;
-    initial?: NULL extends false ? T: T|null;
+    initial?: NULL extends false ? T : T | null;
     validate?: (x: T) => boolean;
 }
 
@@ -58,6 +57,8 @@ type BooleanField<REQ, NULL> = { __brand: "BooleanField" };
 // @ts-ignore: unused-parameters
 type StringField<REQ, NULL> = { __brand: "StringField" };
 // @ts-ignore: unused-parameters
+type HTMLField<REQ, NULL> = { __brand: "HtmlField" };
+// @ts-ignore: unused-parameters
 type NumberField<REQ, NULL> = { __brand: "NumberField" };
 // @ts-ignore: unused-parameters
 type ArrayField<A, REQ, NULL> = { __brand: "ArrayField" };
@@ -69,10 +70,12 @@ type DataField<T = unknown, REQ extends boolean = true, NULL extends boolean = f
     ObjectField<REQ, NULL>
     | BooleanField<REQ, NULL>
     | StringField<REQ, NULL>
+    | HTMLField<REQ, NULL>
     | NumberField<REQ, NULL>
     | ArrayField<T, REQ, NULL>
     | EmbeddedDataField<T, REQ, NULL>
     | SchemaField<T, REQ, NULL>;
+
 interface DataFields {
     ObjectField: new<REQ extends boolean, NULL extends boolean>(x: DataFieldOption<unknown, REQ, NULL>) => ObjectField<REQ, NULL>;
     BooleanField: new <REQ extends boolean, NULL extends boolean> (x: DataFieldOption<boolean, REQ, NULL>) => BooleanField<REQ, NULL>;
@@ -81,6 +84,7 @@ interface DataFields {
     ArrayField: new <A, REQ extends boolean, NULL extends boolean>(x: A, y: DataFieldOption<unknown, REQ, NULL>) => ArrayField<A, REQ, NULL>;
     EmbeddedDataField: new <E extends DataModel<any, unknown>, REQ extends boolean, NULL extends boolean>(x: new (...args: any) => E, y: DataFieldOption<unknown, REQ, NULL>) => EmbeddedDataField<E, REQ, NULL>;
     SchemaField: new <S extends Record<string, DataField>, REQ extends boolean, NULL extends boolean>(x: S, y: DataFieldOption<unknown, REQ, NULL>) => SchemaField<S, REQ, NULL>;
+    HTMLField: new <REQ extends boolean, NULL extends boolean>(x: DataFieldOption<string, REQ, NULL>) => HTMLField<REQ, NULL>;
 }
 
 //@ts-ignore
@@ -99,11 +103,12 @@ type DataFieldMapper<T> =
     T extends ObjectField<infer REQ, infer NULL> ? ObjectFieldMap<REQ, NULL> :
         T extends BooleanField<infer REQ, infer NULL> ? BooleanFieldMap<REQ, NULL> :
             T extends StringField<infer REQ, infer NULL> ? StringFieldMap<REQ, NULL> :
-                T extends NumberField<infer REQ, infer NULL> ? NumberFieldMap<REQ, NULL> :
-                    T extends ArrayField<infer A, infer REQ, infer NULL> ? ArrayFieldMap<A, REQ, NULL> :
-                        T extends EmbeddedDataField<infer E, infer REQ, infer NULL> ? EmbeddedDataFieldMap<E, REQ, NULL> :
-                            T extends SchemaField<infer S, infer REQ, infer NULL> ? SchemaFieldMap<S, REQ, NULL> :
-                                never;
+                T extends HTMLField<infer REQ, infer NULL> ? StringFieldMap<REQ, NULL> : //yes, HTML fields are just strings
+                    T extends NumberField<infer REQ, infer NULL> ? NumberFieldMap<REQ, NULL> :
+                        T extends ArrayField<infer A, infer REQ, infer NULL> ? ArrayFieldMap<A, REQ, NULL> :
+                            T extends EmbeddedDataField<infer E, infer REQ, infer NULL> ? EmbeddedDataFieldMap<E, REQ, NULL> :
+                                T extends SchemaField<infer S, infer REQ, infer NULL> ? SchemaFieldMap<S, REQ, NULL> :
+                                    never;
 type ObjectFieldMap<REQ, NULL> = object | WithReq<REQ> | WithNull<NULL>;
 type BooleanFieldMap<REQ, NULL> = boolean | WithReq<REQ> | WithNull<NULL>;
 type StringFieldMap<REQ, NULL> = string | WithReq<REQ> | WithNull<NULL>;

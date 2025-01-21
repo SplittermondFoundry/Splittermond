@@ -18,6 +18,150 @@
   "styles": [
     "splittermond.css"
   ],
+  "documentTypes": {
+    "Actor": {
+      "character": {
+        "htmlFields": [
+          "biography"
+        ],
+        "filePathFields": {}
+      },
+      "npc": {
+        "htmlFields": [
+          "biography"
+        ],
+        "filePathFields": {}
+      }
+    },
+    "Item": {
+      "ancestry": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "armor": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "culture": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "culturelore": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "education": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "equipment": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "language": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "mastery": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "moonsign": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "npcattack": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "npcfeature": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "projectile": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "resource": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "shield": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "species": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "spell": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "spelleffect": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "statuseffect": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "strength": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "weakness": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "weapon": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      }
+    }
+  },
   "packs": [
     {
       "name": "species",
