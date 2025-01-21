@@ -50,4 +50,25 @@ export function foundryTypeDeclarationsTest(context: QuenchContext) {
             });
         });
     });
+
+    describe("CONFIG", () => {
+        it("should have a property called Item", () => {
+            expect(CONFIG, "CONFIG does not have a property called Item").to.have.property("Item");
+        });
+
+        it("should have a property called Actor", () => {
+            expect(CONFIG, "CONFIG does not have a property called Actor").to.have.property("Actor");
+        });
+
+        it("should have required Item properties", () => {
+            expect(CONFIG.Item.dataModels, "CONFIG.Item is not initialized").to.deep.contain.keys(["education", "resource", "ancestry", "culturelore"]);
+        });
+
+        it("should have splittermond properties", () => {
+            const underTest = CONFIG.splittermond;
+            expect(underTest, "CONFIG does not have a property called splittermond").to.be.an("object");
+            expect(underTest instanceof Object && "Item" in underTest && underTest.Item,
+                "CONFIG.splittermond does not have a property called splittermond").to.be.an("object");
+        });
+    });
 }
