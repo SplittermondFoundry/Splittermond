@@ -25,7 +25,7 @@ function ItemProjectileDataModelSchema() {
     };
 }
 
-type ProjectileDataModelType = DataModelSchemaType<typeof ItemProjectileDataModelSchema>
+export type ProjectileDataModelType = DataModelSchemaType<typeof ItemProjectileDataModelSchema>
 
 export class ProjectileDataModel extends SplittermondDataModel<ProjectileDataModelType,SplittermondItem> {
     static defineSchema = ItemProjectileDataModelSchema;

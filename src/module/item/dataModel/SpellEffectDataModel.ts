@@ -10,7 +10,7 @@ function ItemSpellEffectDataModelSchema() {
     };
 }
 
-type SpellEffectDataModelType = DataModelSchemaType<typeof ItemSpellEffectDataModelSchema>;
+export type SpellEffectDataModelType = DataModelSchemaType<typeof ItemSpellEffectDataModelSchema>;
 
 export class SpellEffectDataModel extends SplittermondDataModel<SpellEffectDataModelType, SplittermondItem> {
     static defineSchema = ItemSpellEffectDataModelSchema;

@@ -9,7 +9,7 @@ function ItemResourceDataModelSchema() {
     };
 }
 
-type ResourceDataModelType = DataModelSchemaType<typeof ItemResourceDataModelSchema>;
+export type ResourceDataModelType = DataModelSchemaType<typeof ItemResourceDataModelSchema>;
 
 export class ResourceDataModel extends SplittermondDataModel<ResourceDataModelType, SplittermondItem> {
     static defineSchema = ItemResourceDataModelSchema;

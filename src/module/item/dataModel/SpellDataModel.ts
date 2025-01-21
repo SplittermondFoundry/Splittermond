@@ -33,7 +33,7 @@ function SpellDataModelSchema() {
     };
 }
 
-type SpellDataModelType = DataModelSchemaType<typeof SpellDataModelSchema>
+export type SpellDataModelType = DataModelSchemaType<typeof SpellDataModelSchema>
 
 export class SpellDataModel extends SplittermondDataModel<SpellDataModelType, SplittermondSpellItem> {
     static defineSchema= SpellDataModelSchema;

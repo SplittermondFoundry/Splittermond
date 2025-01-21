@@ -10,7 +10,7 @@ function ItemMoonsignDataModelSchema() {
     };
 }
 
-type MoonsignDataModelType = DataModelSchemaType<typeof ItemMoonsignDataModelSchema>;
+export type MoonsignDataModelType = DataModelSchemaType<typeof ItemMoonsignDataModelSchema>;
 
 export class MoonsignDataModel extends SplittermondDataModel<MoonsignDataModelType, SplittermondItem> {
     static defineSchema = ItemMoonsignDataModelSchema;

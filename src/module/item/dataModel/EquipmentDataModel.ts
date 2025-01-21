@@ -22,7 +22,7 @@ function ItemEquipmentDataModelSchema() {
     };
 }
 
-type EquipmentDataModelType = DataModelSchemaType<typeof ItemEquipmentDataModelSchema>
+export type EquipmentDataModelType = DataModelSchemaType<typeof ItemEquipmentDataModelSchema>
 
 export class EquipmentDataModel extends SplittermondDataModel<EquipmentDataModelType,SplittermondEquipmentItem> {
     static defineSchema = ItemEquipmentDataModelSchema;

@@ -12,7 +12,7 @@ function ItemSpeciesDataModelSchema() {
     };
 }
 
-type SpeciesDataModelType = DataModelSchemaType<typeof ItemSpeciesDataModelSchema>;
+export type SpeciesDataModelType = DataModelSchemaType<typeof ItemSpeciesDataModelSchema>;
 
 export class SpeciesDataModel extends SplittermondDataModel<SpeciesDataModelType, SplittermondItem> {
     static defineSchema = ItemSpeciesDataModelSchema;

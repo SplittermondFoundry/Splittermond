@@ -14,8 +14,8 @@ function StatusEffectDataModelSchema() {
     };
 }
 
-type StatusEffectDataModelType = DataModelSchemaType<typeof StatusEffectDataModelSchema>
+export type StatusEffectDataModelType = DataModelSchemaType<typeof StatusEffectDataModelSchema>
 
 export class StatusEffectDataModel extends SplittermondDataModel<StatusEffectDataModelType, SplittermondItem> {
-    static = StatusEffectDataModelSchema;
+    static defineSchema = StatusEffectDataModelSchema;
 }

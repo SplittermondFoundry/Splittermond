@@ -12,7 +12,7 @@ function ItemEducationDataModelSchema() {
     };
 }
 
-type EducationDataModelType = DataModelSchemaType<typeof ItemEducationDataModelSchema>;
+export type EducationDataModelType = DataModelSchemaType<typeof ItemEducationDataModelSchema>;
 
 export class EducationDataModel extends SplittermondDataModel<EducationDataModelType, SplittermondItem> {
     static defineSchema = ItemEducationDataModelSchema;

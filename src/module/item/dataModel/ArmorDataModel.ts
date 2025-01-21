@@ -15,7 +15,7 @@ function ItemArmorDataModelSchema() {
         equipped: new fields.BooleanField({ required: true, nullable: false, initial: false }),
     };
 }
-type ArmorDataModelType = DataModelSchemaType<typeof ItemArmorDataModelSchema>
+export type ArmorDataModelType = DataModelSchemaType<typeof ItemArmorDataModelSchema>
 
 export class ArmorDataModel extends SplittermondDataModel<ArmorDataModelType, SplittermondShieldItem> {
     static defineSchema= ItemArmorDataModelSchema;

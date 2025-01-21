@@ -16,7 +16,7 @@ function ItemCultureDataModelSchema() {
     };
 }
 
-type CultureDataModelType = DataModelSchemaType<typeof ItemCultureDataModelSchema>;
+export type CultureDataModelType = DataModelSchemaType<typeof ItemCultureDataModelSchema>;
 
 export class CultureDataModel extends SplittermondDataModel<CultureDataModelType, SplittermondItem> {
     static defineSchema = ItemCultureDataModelSchema;

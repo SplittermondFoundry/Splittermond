@@ -9,7 +9,7 @@ function ItemNpcFeatureDataModelSchema() {
     };
 }
 
-type NpcFeatureDataModelType = DataModelSchemaType<typeof ItemNpcFeatureDataModelSchema>;
+export type NpcFeatureDataModelType = DataModelSchemaType<typeof ItemNpcFeatureDataModelSchema>;
 
 export class NpcFeatureDataModel extends SplittermondDataModel<NpcFeatureDataModelType, SplittermondItem> {
     static defineSchema = ItemNpcFeatureDataModelSchema;

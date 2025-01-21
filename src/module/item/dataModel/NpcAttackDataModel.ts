@@ -14,7 +14,7 @@ function ItemNpcAttackDataModelSchema() {
     };
 }
 
-type NpcAttackDataModelType = DataModelSchemaType<typeof ItemNpcAttackDataModelSchema>;
+export type NpcAttackDataModelType = DataModelSchemaType<typeof ItemNpcAttackDataModelSchema>;
 
 export class NpcAttackDataModel extends SplittermondDataModel<NpcAttackDataModelType, SplittermondNpcAttackItem> {
     static defineSchema = ItemNpcAttackDataModelSchema;

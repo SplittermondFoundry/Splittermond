@@ -10,7 +10,7 @@ function CultureLoreDataModelSchema() {
     };
 }
 
-type CultureLoreDataModelType = DataModelSchemaType<typeof CultureLoreDataModelSchema>
+export type CultureLoreDataModelType = DataModelSchemaType<typeof CultureLoreDataModelSchema>
 
 export class CultureLoreDataModel extends SplittermondDataModel<CultureLoreDataModelType, SplittermondItem> {
     static defineSchema = CultureLoreDataModelSchema;

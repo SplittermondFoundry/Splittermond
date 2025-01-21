@@ -13,7 +13,7 @@ function ItemMasteryDataModelSchema() {
         level: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
     };
 }
-type MasteryDataModelType = DataModelSchemaType<typeof ItemMasteryDataModelSchema>
+export type MasteryDataModelType = DataModelSchemaType<typeof ItemMasteryDataModelSchema>
 
 export class MasteryDataModel extends SplittermondDataModel<MasteryDataModelType, SplittermondMasteryItem> {
     static defineSchema= ItemMasteryDataModelSchema;

@@ -8,7 +8,7 @@ function ItemLanguageDataModelSchema() {
     };
 }
 
-type LanguageDataModelType = DataModelSchemaType<typeof ItemLanguageDataModelSchema>;
+export type LanguageDataModelType = DataModelSchemaType<typeof ItemLanguageDataModelSchema>;
 
 export class LanguageDataModel extends SplittermondDataModel<LanguageDataModelType, SplittermondItem> {
     static defineSchema = ItemLanguageDataModelSchema;

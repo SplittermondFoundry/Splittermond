@@ -11,7 +11,7 @@ function ItemAncestryDataModelSchema() {
     };
 }
 
-type AncestryDataModelType = DataModelSchemaType<typeof ItemAncestryDataModelSchema>;
+export type AncestryDataModelType = DataModelSchemaType<typeof ItemAncestryDataModelSchema>;
 
 export class AncestryDataModel extends SplittermondDataModel<AncestryDataModelType, SplittermondItem> {
     static defineSchema = ItemAncestryDataModelSchema;

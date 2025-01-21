@@ -15,7 +15,7 @@ function ItemStrengthDataModelSchema() {
     };
 }
 
-type StrengthDataModelType = DataModelSchemaType<typeof ItemStrengthDataModelSchema>;
+export type StrengthDataModelType = DataModelSchemaType<typeof ItemStrengthDataModelSchema>;
 
 export class StrengthDataModel extends SplittermondDataModel<StrengthDataModelType, SplittermondItem> {
     static defineSchema = ItemStrengthDataModelSchema;

@@ -15,7 +15,7 @@ function ItemShieldDataModelSchema() {
         equipped: new fields.BooleanField({ required: true, nullable: false, initial: false }),
     };
 }
-type ShieldDataModelType = DataModelSchemaType<typeof ItemShieldDataModelSchema>
+export type ShieldDataModelType = DataModelSchemaType<typeof ItemShieldDataModelSchema>
 
 export class ShieldDataModel extends SplittermondDataModel<ShieldDataModelType, SplittermondShieldItem> {
     static defineSchema= ItemShieldDataModelSchema;
