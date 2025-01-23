@@ -4,6 +4,10 @@ import {MasteryDataModel} from "../../module/item/dataModel/MasteryDataModel.js"
 import {QuenchContext} from "./resources/types";
 import {SpellDataModel} from "../../module/item/dataModel/SpellDataModel";
 import SplittermondSpellItem from "../../module/item/spell";
+import {itemCreator} from "../../module/data/ItemCreator";
+import ItemImporter from "../../module/util/item-importer";
+import * as Machtexplosion from "../resources/importSamples/GRW/spells/Machtexplosion.resource";
+import sinon from "sinon";
 
 declare const Item: any;
 declare const game: any;
@@ -92,5 +96,22 @@ export function itemTest(this:any, context: QuenchContext) {
 
             await Item.deleteDocuments([item.id]);
         });
+    });
+    it("can import a spell", async () => {
+        const sandbox = sinon.createSandbox();
+        sandbox.stub(ItemImporter, "_folderDialog").returns(Promise.resolve(""));
+        sandbox.stub(ItemImporter, "_skillDialog").returns(Promise.resolve("fightmagic"));
+        const itemCreatorSpy = sandbox.spy(itemCreator, "createSpell");
+
+        const probe =sandbox.createStubInstance(ClipboardEvent);
+        sandbox.stub(probe,"clipboardData").get(()=>({getData:()=>Machtexplosion.input}));
+        await ItemImporter.pasteEventhandler(probe);
+
+        const item = await itemCreatorSpy.lastCall.returnValue
+        expect(item.system).to.deep.equal(Machtexplosion.expected.system);
+        expect("img" in item && item.img).to.equal("icons/svg/daze.svg")
+
+        sandbox.restore();
+        await Item.deleteDocuments([item.id]);
     });
 }
