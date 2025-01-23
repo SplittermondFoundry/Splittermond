@@ -1,9 +1,9 @@
 import ItemImporter from "../../../../../module/util/item-importer";
-import * as Machtexplosion from "./GRW/spells/Machtexplosion.resource";
-import * as Maskerade from "./GRW/spells/Maskerade.resource";
-import * as Stahlhaut from "./GRW/spells/Stahlhaut.resource";
-import * as Bannmagie from "./GRW/masteries/Bannmagie.resource";
-import * as BannendeHand from "./GRW/masteries/BannendeHand.resource";
+import * as Machtexplosion from "../../../../resources/importSamples/GRW/spells/Machtexplosion.resource";
+import * as Maskerade from "../../../../resources/importSamples/GRW/spells/Maskerade.resource";
+import * as Stahlhaut from "../../../../resources/importSamples/GRW/spells/Stahlhaut.resource";
+import * as Bannmagie from "../../../../resources/importSamples/GRW/masteries/Bannmagie.resource";
+import * as BannendeHand from "../../../../resources/importSamples/GRW/masteries/BannendeHand.resource";
 import {describe, it} from "mocha";
 import sinon, {SinonSandbox, SinonStub} from "sinon";
 import {itemCreator} from "../../../../../module/data/ItemCreator";
