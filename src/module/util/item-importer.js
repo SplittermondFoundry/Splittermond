@@ -163,8 +163,7 @@ export default class ItemImporter {
 
         // Import NPC
         if (rawData.includes("Fertigkeiten:")) {
-            this.importNpc(rawData);
-            return;
+            return this.importNpc(rawData);
         }
 
         // Import Strengths
@@ -914,7 +913,7 @@ export default class ItemImporter {
 
         }
 
-        Actor.create(actorData, { renderSheet: true });
+        return foundryApi.createActor(actorData, { renderSheet: true });
 
     }
 }
