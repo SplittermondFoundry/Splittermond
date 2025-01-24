@@ -1,9 +1,9 @@
-import type {QuenchContext} from "./resources/types";
+import type {QuenchBatchContext} from "@ethaks/fvtt-quench";
 
 declare const foundry: any;
 const mergeObject = foundry.utils.mergeObject;
 
-export function mergeObjectTest(context: QuenchContext) {
+export function mergeObjectTest(context: QuenchBatchContext) {
     const {describe, it, expect} = context;
 
     describe('mergeObject', () => {

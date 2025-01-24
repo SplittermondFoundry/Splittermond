@@ -29,6 +29,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/rpgframework-cloud/splittermond-fvtt#readme",
   "devDependencies": {
+    "@ethaks/fvtt-quench": "^0.9.2",
     "@tsconfig/node20": "^20.1.4",
     "@types/chai": "^5.0.0",
     "@types/gulp": "^4.0.17",

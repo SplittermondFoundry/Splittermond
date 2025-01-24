@@ -1,18 +1,18 @@
 import {foundryApi} from "../../module/api/foundryApi";
 import {splittermond} from "../../module/config.js";
 import {MasteryDataModel} from "../../module/item/dataModel/MasteryDataModel.js";
-import {QuenchContext} from "./resources/types";
 import {SpellDataModel} from "../../module/item/dataModel/SpellDataModel";
 import SplittermondSpellItem from "../../module/item/spell";
 import {itemCreator} from "../../module/data/ItemCreator";
 import ItemImporter from "../../module/util/item-importer";
 import * as Machtexplosion from "../resources/importSamples/GRW/spells/Machtexplosion.resource";
 import sinon from "sinon";
+import type {QuenchBatchContext} from "@ethaks/fvtt-quench";
 
 declare const Item: any;
 declare const game: any;
 
-export function itemTest(this:any, context: QuenchContext) {
+export function itemTest(this:any, context: QuenchBatchContext) {
     const {describe, it, expect} = context;
     describe("foundry API compatibility", () => {
         it("has an actor attached if on an actor", () => {
