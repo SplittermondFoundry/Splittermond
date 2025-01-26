@@ -2,6 +2,14 @@ import {DataModelSchemaType, SplittermondDataModel} from "../../data/Splittermon
 import {fields} from "../../data/SplittermondDataModel";
 import SplittermondActor from "../actor";
 
+function npcAttribute(){
+    return new fields.SchemaField({
+        species: new fields.NumberField({required: true, nullable: false, initial: 0}),
+        initial: new fields.NumberField({required: true, nullable: false, initial: 0}),
+        advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
+        value: new fields.NumberField({required: true, nullable: false, initial: 0}),
+    }, {required: true, nullable: false});
+}
 function NpcDataModelSchema() {
     return {
         derivedAttributes: new fields.SchemaField({
@@ -41,46 +49,14 @@ function NpcDataModelSchema() {
             {required: true, nullable: false, initial: []}),
         biography: new fields.StringField({required: true, nullable: false}),
         attributes: new fields.SchemaField({
-            charisma: new fields.SchemaField({
-                species: new fields.NumberField({required: true, nullable: false, initial: 0}),
-                initial: new fields.NumberField({required: true, nullable: false, initial: 2}),
-                advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            agility: new fields.SchemaField({
-                species: new fields.NumberField({required: true, nullable: false, initial: 0}),
-                initial: new fields.NumberField({required: true, nullable: false, initial: 2}),
-                advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            intuition: new fields.SchemaField({
-                species: new fields.NumberField({required: true, nullable: false, initial: 0}),
-                initial: new fields.NumberField({required: true, nullable: false, initial: 2}),
-                advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            constitution: new fields.SchemaField({
-                species: new fields.NumberField({required: true, nullable: false, initial: 0}),
-                initial: new fields.NumberField({required: true, nullable: false, initial: 2}),
-                advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            mystic: new fields.SchemaField({
-                species: new fields.NumberField({required: true, nullable: false, initial: 0}),
-                initial: new fields.NumberField({required: true, nullable: false, initial: 2}),
-                advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            strength: new fields.SchemaField({
-                species: new fields.NumberField({required: true, nullable: false, initial: 0}),
-                initial: new fields.NumberField({required: true, nullable: false, initial: 2}),
-                advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            mind: new fields.SchemaField({
-                species: new fields.NumberField({required: true, nullable: false, initial: 0}),
-                initial: new fields.NumberField({required: true, nullable: false, initial: 2}),
-                advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            willpower: new fields.SchemaField({
-                species: new fields.NumberField({required: true, nullable: false, initial: 0}),
-                initial: new fields.NumberField({required: true, nullable: false, initial: 2}),
-                advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
+            charisma: npcAttribute(),
+            agility: npcAttribute(),
+            intuition: npcAttribute(),
+            constitution: npcAttribute(),
+            mystic: npcAttribute(),
+            strength: npcAttribute(),
+            mind: npcAttribute(),
+            willpower: npcAttribute()
         }, {required: true, nullable: false}),
         skills: new fields.SchemaField({
             melee: new fields.SchemaField({
