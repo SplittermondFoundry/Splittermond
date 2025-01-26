@@ -1,5 +1,5 @@
 import SplittermondCompendium from "./compendium.js";
-import {itemCreator} from "../data/EntityCreator.ts";
+import {actorCreator, itemCreator} from "../data/EntityCreator.ts";
 import {foundryApi} from "../api/foundryApi";
 import {splittermond} from "../config.js";
 import {importSpell as spellImporter} from "./item-importer/spellImporter";
@@ -101,7 +101,7 @@ export default class ItemImporter {
         let weaponRegex = `(.*?\\s*.*?)\\s+(?:Dorf|Kleinstadt|Großstadt|Metropole)\\s+(?:([0-9]+ [LST]|-|–)(?:\\s*\\/\\s*[0-9]+\\s[LST])?)\\s+([0-9]+|-|–)\\s+([0-9]+|-|–)\\s+([UGFMA]|-|–)\\s+([0-9+\\-W]+)\\s+([0-9]+)\\s+((AUS|BEW|INT|KON|MYS|STÄ|VER|WIL|\\+){3})\\s+(((AUS|BEW|INT|KON|MYS|STÄ|VER|WIL|)\\s*[0-9],?\\s*)*|–)\\s+((?:${splittermond.weaponFeatures.join("|").replace(/\s+/, "\\s+")}|\\s+|\s*[\\-–]\s*)\\s*[0-9]*\\s*,?\\s*)+`;
         let test = rawData.match(new RegExp(weaponRegex, "gm"));
         if (test && test.length > 0) {
-            let skills = CONFIG.splittermond.skillGroups.fighting.map(s => foundryApi.localize(`splittermond.skillLabel.${s}`)).join('|');
+            let skills = splittermond.skillGroups.fighting.map(s => foundryApi.localize(`splittermond.skillLabel.${s}`)).join('|');
             weaponRegex = `${skills}|${weaponRegex}`;
             test = rawData.match(new RegExp(weaponRegex, "gm"));
             if (test.length > 0) {
@@ -111,11 +111,11 @@ export default class ItemImporter {
                 for (let k = 0; k < test.length; k++) {
                     const m = test[k].trim().replace(/\s{2,}/gm, " ").replace("(*)", "");
                     if (m.match(new RegExp(skills, "gm"))) {
-                        skill = CONFIG.splittermond.skillGroups.fighting.find(s => foundryApi.localize(`splittermond.skillLabel.${s}`).trim().toLowerCase() === m.trim().toLowerCase());
+                        skill = splittermond.skillGroups.fighting.find(s => foundryApi.localize(`splittermond.skillLabel.${s}`).trim().toLowerCase() === m.trim().toLowerCase());
                         continue;
                     }
                     if (skill === "") {
-                        skill = await this._skillDialog(CONFIG.splittermond.skillGroups.fighting);
+                        skill = await this._skillDialog(splittermond.skillGroups.fighting);
                     }
 
                     this.importWeapon(m, skill, folder);
@@ -249,7 +249,7 @@ export default class ItemImporter {
                 name: token[1].trim(),
                 folder: folder,
                 system: {
-                    modifier: CONFIG.splittermond.modifier[token[1].trim().toLowerCase()] || ""
+                    modifier: splittermond.modifier[token[1].trim().toLowerCase()] || ""
                 }
             }
             let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -279,7 +279,7 @@ export default class ItemImporter {
                     quantity: 1,
                     level: parseInt(token[2]),
                     onCreationOnly: token[3] === "*",
-                    modifier: CONFIG.splittermond.modifier[token[1].trim().toLowerCase()] || ""
+                    modifier: splittermond.modifier[token[1].trim().toLowerCase()] || ""
                 }
             }
             let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -305,7 +305,7 @@ export default class ItemImporter {
             type: "shield",
             name: tokens[1].trim(),
             folder: folder,
-            img: CONFIG.splittermond.icons.shield[tokens[1].trim()] || CONFIG.splittermond.icons.shield.default,
+            img: splittermond.icons.shield[tokens[1].trim()] || splittermond.icons.shield.default,
             system: {}
         };
 
@@ -351,7 +351,7 @@ export default class ItemImporter {
             type: "armor",
             name: tokens[1].trim(),
             folder: folder,
-            img: CONFIG.splittermond.icons.armor[tokens[1].trim()] || CONFIG.splittermond.icons.armor.default,
+            img: splittermond.icons.armor[tokens[1].trim()] || splittermond.icons.armor.default,
             system: {}
         };
 
@@ -392,7 +392,7 @@ export default class ItemImporter {
     static async importWeapon(rawData, skill = "", folder = "") {
         rawData = rawData.replace(/\n/g, " ");
         if (skill === "") {
-            skill = await this._skillDialog(CONFIG.splittermond.skillGroups.fighting);
+            skill = await this._skillDialog(splittermond.skillGroups.fighting);
         }
 
 
@@ -403,7 +403,7 @@ export default class ItemImporter {
         let itemData = {
             type: "weapon",
             name: tokens[1].trim().replace(/[0-9]/g, ""),
-            img: CONFIG.splittermond.icons.weapon[tokens[1].trim()] || CONFIG.splittermond.icons.weapon.default,
+            img: splittermond.icons.weapon[tokens[1].trim()] || splittermond.icons.weapon.default,
             folder: folder,
             system: {}
         };
@@ -497,53 +497,34 @@ export default class ItemImporter {
                 biography: "<p>" + (temp.slice(1)?.join(" ")?.replace(/\n/g, "") || "") + "</p>",
                 attributes: {
                     "charisma": {
-                        "species": 0,
-                        "initial": 0,
-                        "advances": 0,
                         "value": 0
                     },
                     "agility": {
-                        "species": 0,
-                        "initial": 0,
-                        "advances": 0,
                         "value": 0
                     },
                     "intuition": {
-                        "species": 0,
-                        "initial": 0,
-                        "advances": 0,
                         "value": 0
                     },
                     "constitution": {
-                        "species": 0,
-                        "initial": 0,
-                        "advances": 0,
                         "value": 0
                     },
                     "mystic": {
-                        "species": 0,
-                        "initial": 0,
-                        "advances": 0,
                         "value": 0
                     },
                     "strength": {
-                        "species": 0,
-                        "initial": 0,
-                        "advances": 0,
                         "value": 0
                     },
                     "mind": {
-                        "species": 0,
-                        "initial": 0,
-                        "advances": 0,
                         "value": 0
                     },
                     "willpower": {
-                        "species": 0,
-                        "initial": 0,
-                        "advances": 0,
                         "value": 0
                     }
+                },
+                currency:{
+                    S:0,
+                    L:0,
+                    T:0,
                 },
                 derivedAttributes: {
                     "size": {
@@ -675,15 +656,15 @@ export default class ItemImporter {
                     case /Fertigkeiten:/.test(tokenizedData[i]):
                         tokenizedData[i + 1].replace(/\n/g, " ").replace("  ", " ").split(",").forEach(skillStr => {
                             let skillData = skillStr.trim().match(/(.*?)\s+([0-9]+)/);
-                            let skill = [...CONFIG.splittermond.skillGroups.general, ...CONFIG.splittermond.skillGroups.magic, ...CONFIG.splittermond.skillGroups.fighting].find(i => foundryApi.localize(`splittermond.skillLabel.${i}`).toLowerCase() === skillData[1].trim().toLowerCase());
+                            let skill = [...splittermond.skillGroups.general, ...splittermond.skillGroups.magic, ...splittermond.skillGroups.fighting].find(i => foundryApi.localize(`splittermond.skillLabel.${i}`).toLowerCase() === skillData[1].trim().toLowerCase());
                             let skillValue = parseInt(skillData[2]) || 0;
                             actorData.system.skills[skill] = {
                                 value: skillValue
                             };
-                            if (CONFIG.splittermond.skillAttributes[skill]) {
+                            if (splittermond.skillAttributes[skill]) {
                                 actorData.system.skills[skill].points = actorData.system.skills[skill].value;
-                                actorData.system.skills[skill].points -= parseInt(actorData.system.attributes[CONFIG.splittermond.skillAttributes[skill][0]].value) || 0;
-                                actorData.system.skills[skill].points -= parseInt(actorData.system.attributes[CONFIG.splittermond.skillAttributes[skill][1]].value) || 0;
+                                actorData.system.skills[skill].points -= parseInt(actorData.system.attributes[splittermond.skillAttributes[skill][0]].value) || 0;
+                                actorData.system.skills[skill].points -= parseInt(actorData.system.attributes[splittermond.skillAttributes[skill][1]].value) || 0;
                                 if (skill === "stealth") {
                                     actorData.system.skills[skill].points -= 5 - parseInt(actorData.system.derivedAttributes.size.value);
                                 }
@@ -691,7 +672,7 @@ export default class ItemImporter {
                         });
                         break;
                     case /Waffen Wert Schaden WGS.*/.test(tokenizedData[i]):
-                        let weaponRegExpStr = `([\\s\\S]*?)\\s+([0-9]+)\\s+([0-9W+\\-]+)\\s+([0-9]+)(?:\\s+Tick[s]?)?\\s+([\\-–]+|[0-9]+|[0-9]+\\s*m)?\\s?([0-9]+)\\-1?W6\\s*((?:${CONFIG.splittermond.weaponFeatures.join("|").replace(/\s+/, "\\s+")}|\\s+|\s*[\\-–]\s*)\\s*[0-9]*\\s*,?\\s*)*[\r\n]*`;
+                        let weaponRegExpStr = `([\\s\\S]*?)\\s+([0-9]+)\\s+([0-9W+\\-]+)\\s+([0-9]+)(?:\\s+Tick[s]?)?\\s+([\\-–]+|[0-9]+|[0-9]+\\s*m)?\\s?([0-9]+)\\-1?W6\\s*((?:${splittermond.weaponFeatures.join("|").replace(/\s+/, "\\s+")}|\\s+|\s*[\\-–]\s*)\\s*[0-9]*\\s*,?\\s*)*[\r\n]*`;
                         let weaponData = tokenizedData[i + 1].trim().match(new RegExp(weaponRegExpStr, "g")).map(weaponStr => {
                             weaponStr = weaponStr.trim().replace(/\s/g, " ").replace(/\s{2,}/g, " ");
                             let weaponMatch = weaponStr.match(new RegExp(`(.*?)\\s+([0-9]+)\\s+([0-9W+\\-]+)\\s+([0-9]+)(?:\\s+Tick[s]?)?\\s+([\\-–]+|[0-9]+|[0-9]+\\s*m)?\\s?([0-9]+)\\-1?W6\\s*(.*)`));
@@ -712,7 +693,7 @@ export default class ItemImporter {
                                 weaponData = {
                                     type: "npcattack",
                                     name: data.name,
-                                    img: CONFIG.splittermond.icons.weapon[data.name] || CONFIG.splittermond.icons.weapon.default,
+                                    img: splittermond.icons.weapon[data.name] || splittermond.icons.weapon.default,
                                     system: {}
                                 };
                             } else {
@@ -742,7 +723,7 @@ export default class ItemImporter {
                         let masteries = [];
                         tokenizedData[i + 1].replace(/\n/g, " ").replace("  ", " ").match(/[^(]+\s*\([^)]+\),?/g)?.forEach((skillEntryStr) => {
                             let masteryEntryData = skillEntryStr.trim().match(/([^(]+)\s*\(([^)]+)\)/);
-                            let skill = [...CONFIG.splittermond.skillGroups.general, ...CONFIG.splittermond.skillGroups.magic, ...CONFIG.splittermond.skillGroups.fighting].find(i => foundryApi.localize(`splittermond.skillLabel.${i}`).toLowerCase() === masteryEntryData[1].trim().toLowerCase());
+                            let skill = [...splittermond.skillGroups.general, ...splittermond.skillGroups.magic, ...splittermond.skillGroups.fighting].find(i => foundryApi.localize(`splittermond.skillLabel.${i}`).toLowerCase() === masteryEntryData[1].trim().toLowerCase());
                             let level = 1;
                             masteryEntryData[2].split(/[,;:]/).forEach((masteryStr) => {
                                 masteryStr = masteryStr.trim();
@@ -820,7 +801,7 @@ export default class ItemImporter {
                         tokenizedData[i + 1].replace(/\n/g, " ").replace("  ", " ").split(/[;,]/)?.forEach(skillEntryStr => {
                             let spellEntryData = skillEntryStr.trim().match(/(:?([^ ]{3,})?\s*([0IV]+):)?\s*([^]+)/);
                             if (spellEntryData[2]) {
-                                let newSkill = CONFIG.splittermond.skillGroups.magic.find(i => foundryApi.localize(`splittermond.skillLabel.${i}`).toLowerCase().startsWith(spellEntryData[2].toLowerCase()));
+                                let newSkill = splittermond.skillGroups.magic.find(i => foundryApi.localize(`splittermond.skillLabel.${i}`).toLowerCase().startsWith(spellEntryData[2].toLowerCase()));
                                 if (newSkill) {
                                     skill = newSkill;
                                 }
@@ -906,14 +887,14 @@ export default class ItemImporter {
                         break;
                 }
             } catch (e) {
-                ui.notifications.error(game.i18n.format("splittermond.error.parseError", { section: tokenizedData[i] }));
-                console.log(game.i18n.format("splittermond.error.parseError", { section: tokenizedData[i] }) + tokenizedData[i + 1]);
+                foundryApi.reportError("splittermond.error.parseError", { section: tokenizedData[i] });
+                console.log(foundryApi.format("splittermond.error.parseError", { section: tokenizedData[i] }) + tokenizedData[i + 1]);
             }
 
 
         }
 
-        return foundryApi.createActor(actorData, { renderSheet: true });
+        return actorCreator.createNpc(actorData, { renderSheet: true });
 
     }
 }
