@@ -6,12 +6,11 @@ import * as Bannmagie from "../../../../resources/importSamples/GRW/masteries/Ba
 import * as BannendeHand from "../../../../resources/importSamples/GRW/masteries/BannendeHand.resource";
 import {describe, it} from "mocha";
 import sinon, {SinonSandbox, SinonStub} from "sinon";
-import {itemCreator} from "../../../../../module/data/ItemCreator";
+import {itemCreator} from "../../../../../module/data/EntityCreator";
 import {expect} from "chai";
 import {foundryApi} from "../../../../../module/api/foundryApi";
 import {initLocalizer} from "./poorMansLocalizer";
 
-declare const game: any;
 global.ClipboardEvent = class {
     constructor(private text: string) {
     }

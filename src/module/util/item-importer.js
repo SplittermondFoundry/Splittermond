@@ -1,5 +1,5 @@
 import SplittermondCompendium from "./compendium.js";
-import {itemCreator} from "../data/ItemCreator";
+import {itemCreator} from "../data/EntityCreator.ts";
 import {foundryApi} from "../api/foundryApi";
 import {splittermond} from "../config.js";
 import {importSpell as spellImporter} from "./item-importer/spellImporter";

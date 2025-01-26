@@ -1,7 +1,7 @@
 import SplittermondSpellItem from "../../item/spell";
 import {splittermond} from "../../config";
 import {foundryApi} from "../../api/foundryApi";
-import {itemCreator} from "../../data/ItemCreator";
+import {itemCreator} from "../../data/EntityCreator";
 import {getSpellAvailabilityParser} from "../../item/availabilityParser";
 import {SplittermondSpellSystemData} from "../../data/ItemSystemData";
 
