@@ -1,20 +1,25 @@
-import {simplePropertyResolver} from "../util.js";
+import {simplePropertyResolver} from "../util";
+import {QuenchBatchContext} from "@ethaks/fvtt-quench";
 
-export function compendiumBrowserTest(context) {
+declare const game:any;
+declare const deepClone:any;
+declare class Collection{}
+
+export function compendiumBrowserTest(context:QuenchBatchContext) {
     const {describe, it, expect} = context;
 
     describe("foundry API compatibility", () => {
         it("game.packs can be sorted by documentName", () => {
             expect(game.packs.filter).to.be.a("function");
-            expect(game.packs.filter(pack => pack.documentName === "Item")).to.have.length.greaterThan(0);
-            expect(game.packs.filter(pack => pack.documentName === "Item")).and.to.have.length.lessThan(game.packs.size);
+            expect(game.packs.filter((pack:any) => pack.documentName === "Item")).to.have.length.greaterThan(0);
+            expect(game.packs.filter((pack:any) => pack.documentName === "Item")).and.to.have.length.lessThan(game.packs.size);
         });
 
         it("receives an index with objects that have the expected properties", async () => {
             const searchParam = {fields: ["system.skill", "name"]};
-            const firstItemCompendium = game.packs.find(p => p.documentName === "Item")
+            const firstItemCompendium = game.packs.find((p:any) => p.documentName === "Item")
             if (!firstItemCompendium) {
-                this.skip();
+                it.skip("No item compendium found");
             }
             const index = await firstItemCompendium.getIndex(searchParam);
             expect(index).to.be.instanceOf(Collection).and.to.have.length.greaterThan(0);
@@ -58,7 +63,7 @@ export function compendiumBrowserTest(context) {
     describe("getData", () => {
         it("should return an object with the expected properties", async () => {
             if(game.packs.length === 0) {
-                this.skip();
+                it.skip("No compendiums found");
             }
             const data = await game.splittermond.compendiumBrowser.getData();
             expect(data).to.have.property("items");
