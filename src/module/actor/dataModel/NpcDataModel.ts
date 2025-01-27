@@ -1,15 +1,7 @@
-import {DataModelSchemaType, SplittermondDataModel} from "../../data/SplittermondDataModel";
-import {fields} from "../../data/SplittermondDataModel";
+import {DataModelSchemaType, fields, SplittermondDataModel} from "../../data/SplittermondDataModel";
 import SplittermondActor from "../actor";
+import {NpcAttribute} from "./NpcAttribute";
 
-function npcAttribute(){
-    return new fields.SchemaField({
-        species: new fields.NumberField({required: true, nullable: false, initial: 0}),
-        initial: new fields.NumberField({required: true, nullable: false, initial: 0}),
-        advances: new fields.NumberField({required: true, nullable: false, initial: 0}),
-        value: new fields.NumberField({required: true, nullable: false, initial: 0}),
-    }, {required: true, nullable: false});
-}
 function NpcDataModelSchema() {
     return {
         derivedAttributes: new fields.SchemaField({
@@ -49,14 +41,14 @@ function NpcDataModelSchema() {
             {required: true, nullable: false, initial: []}),
         biography: new fields.StringField({required: true, nullable: false}),
         attributes: new fields.SchemaField({
-            charisma: npcAttribute(),
-            agility: npcAttribute(),
-            intuition: npcAttribute(),
-            constitution: npcAttribute(),
-            mystic: npcAttribute(),
-            strength: npcAttribute(),
-            mind: npcAttribute(),
-            willpower: npcAttribute()
+            charisma: new fields.EmbeddedDataField(NpcAttribute, {required: true, nullable: false}),
+            agility: new fields.EmbeddedDataField(NpcAttribute, {required: true, nullable: false}),
+            intuition: new fields.EmbeddedDataField(NpcAttribute, {required: true, nullable: false}),
+            constitution: new fields.EmbeddedDataField(NpcAttribute, {required: true, nullable: false}),
+            mystic: new fields.EmbeddedDataField(NpcAttribute, {required: true, nullable: false}),
+            strength: new fields.EmbeddedDataField(NpcAttribute, {required: true, nullable: false}),
+            mind: new fields.EmbeddedDataField(NpcAttribute, {required: true, nullable: false}),
+            willpower: new fields.EmbeddedDataField(NpcAttribute, {required: true, nullable: false})
         }, {required: true, nullable: false}),
         skills: new fields.SchemaField({
             melee: new fields.SchemaField({
@@ -313,4 +305,9 @@ type NpcDataModelSchemaType = DataModelSchemaType<typeof NpcDataModelSchema>
 
 export class NpcDataModel extends SplittermondDataModel<NpcDataModelSchemaType, SplittermondActor> {
     static defineSchema = NpcDataModelSchema;
+
+    static migrateData(source:unknown){
+        console.log("Migrating NPC data");
+        super.migrateData(source)
+    }
 }

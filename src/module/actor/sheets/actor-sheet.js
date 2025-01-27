@@ -39,7 +39,7 @@ export default class SplittermondActorSheet extends ActorSheet {
         sheetData.fightingSkills = {};
         CONFIG.splittermond.skillGroups.fighting.filter(s => !sheetData.hideSkills
             || (sheetData.data.system.skills[s]?.points || 0) > 0
-            || this.actor.items.find(i => i.type == "mastery" && i.system.skill == s)).forEach(skill => {
+            || this.actor.items.find(i => i.type === "mastery" && i.system.skill === s)).forEach(skill => {
                 if (!sheetData.data.system.skills[skill]) {
                     sheetData.data.system[skill] = {
                         points: 0
