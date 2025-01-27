@@ -13,7 +13,8 @@ type DataModel<T, PARENT> = {
 export type DataModelConstructorInput<T> = { [K in keyof T]: T[K] extends DataModel<infer U, any> ? DataModelConstructorInput<U> : T[K] };
 type DataModelConstructor = new <T, PARENT extends DataModel<any, any> | never>(data: DataModelConstructorInput<T>, ...args: any[]) => DataModel<T, PARENT>;
 /**technically Readonly<T> is already part of the {@link DataModel} type, but because of all the generics, we cannot add it there*/
-type SplittermondDataModelConstructor = new<T, PARENT extends DataModel<any, any> | never = never>(data: DataModelConstructorInput<T>, ...args: any[]) => DataModel<T, PARENT> & Readonly<T>;
+type SplittermondDataModelConstructor = (new<T, PARENT extends DataModel<any, any> | never = never>(data: DataModelConstructorInput<T>, ...args: any[]) => DataModel<T, PARENT> & Readonly<T>)
+& {migrateData: (source: unknown) => unknown};
 
 //@ts-ignore
 const FoundryDataModelConstructor = foundry.abstract.DataModel as DataModelConstructor;

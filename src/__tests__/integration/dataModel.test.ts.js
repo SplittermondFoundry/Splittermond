@@ -22,6 +22,10 @@ export function dataModelTest(context) {
             }
         }
 
+        it("defines a migrate data method", () => {
+            expect(TestParent.migrateData).to.be.a("function");
+        });
+
         it("injects a parent into embedded data", () => {
             const underTest = new TestParent({child: {name: "test"}});
 
