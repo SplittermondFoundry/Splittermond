@@ -123,5 +123,73 @@ export const expected = {
             },
         },
         type: "Humanoider, Monster",
-    }
+    },
+    items:[
+        {
+            name: "Umreißen",
+            system: {
+                level: 1,
+                skill: "slashing",
+            },
+            type: "mastery",
+        },
+        {
+            name: "Rundumschlag",
+            system: {
+                level: 2,
+                skill: "slashing",
+            },
+            type: "mastery",
+        },
+        {
+            name: "Schmetterschlag",
+            system: {
+                level: 2,
+                skill: "slashing",
+            },
+            type: "mastery",
+        },
+        {
+            name: "Schmerzwiderstand I",
+            system: {
+                level: 2,
+                skill: "endurance",
+            },
+            type: "mastery",
+        },
+        {
+            name: "Dämmersicht",
+            system: {},
+            type: "npcfeature",
+        },
+        {
+            name: "Erschöpfungsresistenz 2",
+            system: {},
+            type: "npcfeature",
+        },
+        {
+            name: "Schmerzresistenz",
+            system: {},
+            type: "npcfeature",
+        },
+        {
+            name: "Kriegshammer",
+            system: {
+                description: "18 Lunare",
+                physicalProperties: {
+                    availability: null,
+                    complexity: null,
+                    damageLevel: null,
+                    durability: null,
+                    hardness: null,
+                    price: "18 L",
+                    quality: null,
+                    quantity: 1,
+                    sufferedDamage: null,
+                    weight: 0,
+                },
+            },
+            type: "equipment",
+        },
+    ],
 }
