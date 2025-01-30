@@ -7,6 +7,7 @@ import * as BannendeHand from "../../../../resources/importSamples/GRW/masteries
 import * as Baumwandler from "../../../../resources/importSamples/GRW/NSC/Baumwandler.resource";
 import * as Oger from "../../../../resources/importSamples/GRW/NSC/Oger.resource";
 import * as Vorarbeiter from "../../../../resources/importSamples/Hexenkönigin/Vorarbeiter.resource";
+import * as Regenbogenschwinge from "../../../../resources/importSamples/Hexenkönigin/Regenbogenschwinge.resource";
 import {describe, it} from "mocha";
 import sinon, {SinonSandbox, SinonStub} from "sinon";
 import {actorCreator, itemCreator} from "../../../../../module/data/EntityCreator";
@@ -142,7 +143,7 @@ describe("ItemImporter", () => {
 
         //This input comes with a mangled attribute table. We cannot reliably reconstruct the attributes and derived
         //attributes here.
-        [Vorarbeiter].forEach((resource) => {
+        [Vorarbeiter,Regenbogenschwinge].forEach((resource) => {
             it(`should import npc ${resource.testname}`, async () => {
                 const text = resource.input;
 
