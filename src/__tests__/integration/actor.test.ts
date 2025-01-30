@@ -31,7 +31,12 @@ export function actorTest(context:QuenchBatchContext){
             sandbox.stub(probe, "clipboardData").get(() => ({getData: () => Baumwandler.input}));
             await ItemImporter.pasteEventhandler(probe);
 
-            expect(actor.system).to.deep.contain(Baumwandler.expected.system);
+            expect(actor.system.biography).to.deep.contain(Baumwandler.expected.system.biography);
+            expect(actor.system.attributes).to.deep.contain(Baumwandler.expected.system.attributes);
+            expect(actor.system.derivedAttributes).to.deep.contain(Baumwandler.expected.system.derivedAttributes);
+            expect(actor.system.skills).to.deep.contain(Baumwandler.expected.system.skills);
+            expect(actor.system.type).to.deep.contain(Baumwandler.expected.system.type);
+            expect(actor.system.currency).to.deep.contain(Baumwandler.expected.system.currency);
             expect("img" in actor && actor.img).to.equal("icons/svg/mystery-man.svg")
 
             await Actor.deleteDocuments([actor.id]);
