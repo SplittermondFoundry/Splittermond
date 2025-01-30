@@ -4,23 +4,24 @@ import {SplittermondMasterySystemData, SplittermondSpellSystemData} from "module
 import SplittermondMasteryItem from "../item/mastery";
 import SplittermondActor from "../actor/actor";
 import {CharacterDataModel} from "../actor/dataModel/CharacterDataModel";
-import {NpcDataModel} from "../actor/dataModel/NpcDataModel";
+import {NpcDataModelType} from "../actor/dataModel/NpcDataModel";
+import {DataModelConstructorInput} from "./SplittermondDataModel";
 
 export const itemCreator = {
-    createSpell(data: {type: "spell", system: SplittermondSpellSystemData}): Promise<SplittermondSpellItem> {
+    createSpell(data: {type: "spell", system: Partial<SplittermondSpellSystemData>}): Promise<SplittermondSpellItem> {
         return foundryApi.createItem(data) as Promise<SplittermondSpellItem>;
     },
 
-    createMastery(data:{type: "mastery", system: SplittermondMasterySystemData}): Promise<SplittermondMasteryItem> {
+    createMastery(data:{type: "mastery", system: Partial<SplittermondMasterySystemData>}): Promise<SplittermondMasteryItem> {
         return foundryApi.createItem(data) as Promise<SplittermondMasteryItem>;
     }
 }
 
 export const actorCreator = {
-    createCharacter(data: {type:"character",system: CharacterDataModel},options?:Record<string,unknown>): Promise<SplittermondActor> {
+    createCharacter(data: {type:"character",system: Partial<DataModelConstructorInput<CharacterDataModel>>},options?:Record<string,unknown>): Promise<SplittermondActor> {
         return foundryApi.createActor(data,options) as Promise<SplittermondActor>;
     },
-    createNpc(data: {type:"npc",system: NpcDataModel}, options:Record<string,unknown>): Promise<SplittermondActor> {
+    createNpc(data: {type:"npc",system: Partial<DataModelConstructorInput<NpcDataModelType>>}, options:Record<string,unknown>): Promise<SplittermondActor> {
         return foundryApi.createActor(data,options) as Promise<SplittermondActor>;
     }
 }

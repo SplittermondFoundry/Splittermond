@@ -9,6 +9,10 @@
         "noHandler": "No handler registered for action '{action}'. Please contact the developer.",
         "tooManyHandlers": "More than one handler registered for action '{action}'. Please contact the developer"
       }
+    },
+    "message": {
+      "itemImported": "The item \"{name}\" was imported as \"{type}\"!",
+      "mangledTableData": "Tabellendata is corrupted. Please check attributes and derived values."
     }
   }
 }

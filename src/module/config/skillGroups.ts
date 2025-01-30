@@ -52,7 +52,7 @@ const magicSkills = ["antimagic",
         "deathmagic",
         "transformationmagic",
         "watermagic",
-        "windmagic"];
+        "windmagic"] as const;
 export const skillGroups ={
     fighting : fightingSkills,
     general: generalSkills,

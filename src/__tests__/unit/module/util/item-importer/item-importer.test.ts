@@ -13,6 +13,7 @@ import {actorCreator, itemCreator} from "../../../../../module/data/EntityCreato
 import {expect} from "chai";
 import {foundryApi} from "../../../../../module/api/foundryApi";
 import {initLocalizer} from "./poorMansLocalizer";
+import SplittermondCompendium from "../../../../../module/util/compendium";
 
 global.ClipboardEvent = class {
     constructor(private text: string) {
@@ -29,6 +30,11 @@ describe("ItemImporter", () => {
         sandbox.stub(foundryApi, "localize").callsFake(initLocalizer());
         sandbox.stub(foundryApi, "format").callsFake(initLocalizer());
         sandbox.stub(foundryApi, "informUser");
+        sandbox.stub(foundryApi, "warnUser");
+        sandbox.stub(SplittermondCompendium, "findItem").callsFake((type, name)=>{
+            const fakeItem= {_id:1, type, name, system:{} };
+            return Promise.resolve({...fakeItem, toObject:()=>fakeItem});
+        })
     });
     afterEach(() => {
         sandbox.restore();
@@ -118,20 +124,36 @@ describe("ItemImporter", () => {
 
                     expect(npcCreationStub.calledOnce).to.be.true;
                     expect(npcCreationStub.lastCall.args[0].system).to.deep.equal(resource.expected.system)
+                    expect(npcCreationStub.lastCall.args[0].items).to.deep.equal(resource.expected.items)
                 });
             });
         });
     });
 
     describe("Imports from adventure books",()=>{
+        let npcCreationStub: SinonStub;
+        beforeEach(() => {
+            npcCreationStub = sandbox.stub(actorCreator, "createNpc").returns(Promise.resolve({} as any));
+            sandbox.stub(foundryApi, "reportError").callsFake(() => {});
+            sandbox.stub(ItemImporter, "_folderDialog").returns(Promise.resolve("folderId"));
+            sandbox.stub(ItemImporter, "_skillDialog").returns(Promise.resolve("fightmagic"));
+        });
+        afterEach(() => sandbox.restore());
+
+        //This input comes with a mangled attribute table. We cannot reliably reconstruct the attributes and derived
+        //attributes here.
         [Vorarbeiter].forEach((resource) => {
-            it.skip(`should import npc ${resource.testname}`, async () => {
+            it(`should import npc ${resource.testname}`, async () => {
                 const text = resource.input;
 
                 await ItemImporter.pasteEventhandler(new ClipboardEvent(text));
 
                 expect(npcCreationStub.calledOnce).to.be.true;
-                expect(npcCreationStub.lastCall.args[0].system).to.deep.equal(resource.expected.system)
+                expect(npcCreationStub.lastCall.args[0].system.biography).equals(resource.expected.system.biography);
+                expect(Object.values(npcCreationStub.lastCall.args[0].system.attributes).map((a:any)=>a.value)).not.all.members([0]);
+                expect(Object.values(npcCreationStub.lastCall.args[0].system.derivedAttributes).map((a:any)=>a.value)).not.all.members([0]);
+                expect(npcCreationStub.lastCall.args[0].system.skills).to.deep.equal(resource.expected.system.skills)
+                expect(npcCreationStub.lastCall.args[0].items).to.deep.equal(resource.expected.items)
             });
         });
     })

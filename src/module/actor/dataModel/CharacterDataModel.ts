@@ -317,7 +317,7 @@ function CharacterDataModelSchema() {
     };
 }
 
-type CharacterDataModelType = DataModelSchemaType<typeof CharacterDataModelSchema>;
+export type CharacterDataModelType = DataModelSchemaType<typeof CharacterDataModelSchema>;
 
 export class CharacterDataModel extends SplittermondDataModel<CharacterDataModelType, SplittermondActor> {
     static defineSchema= CharacterDataModelSchema;
