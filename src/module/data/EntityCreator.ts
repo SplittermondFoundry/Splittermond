@@ -18,10 +18,10 @@ export const itemCreator = {
 }
 
 export const actorCreator = {
-    createCharacter(data: {type:"character",system: Partial<DataModelConstructorInput<CharacterDataModel>>},options?:Record<string,unknown>): Promise<SplittermondActor> {
+    createCharacter(data: {type:"character",name:string, system: Partial<DataModelConstructorInput<CharacterDataModel>>},options?:Record<string,unknown>): Promise<SplittermondActor> {
         return foundryApi.createActor(data,options) as Promise<SplittermondActor>;
     },
-    createNpc(data: {type:"npc",system: Partial<DataModelConstructorInput<NpcDataModelType>>}, options:Record<string,unknown>): Promise<SplittermondActor> {
+    createNpc(data: {type:"npc",name:string,system: Partial<DataModelConstructorInput<NpcDataModelType>>}, options:Record<string,unknown>): Promise<SplittermondActor> {
         return foundryApi.createActor(data,options) as Promise<SplittermondActor>;
     }
 }
