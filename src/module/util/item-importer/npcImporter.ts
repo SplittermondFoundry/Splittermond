@@ -27,7 +27,7 @@ export async function importNpc(rawData: string) {
     type ActorDataType = {
         items: PartialItemData<SplittermondItemDataModelType>[],
         system: NpcCreationData,
-        name?: string,
+        name: string,
         type: "npc"
     };
     let actorData: ActorDataType = {

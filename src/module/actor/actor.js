@@ -11,6 +11,7 @@ import Attack from "./attack.js";
 import ActiveDefense from "./active-defense.js";
 import { parseCostString } from "../util/costs/costParser.ts";
 import { initializeSpellCostManagement } from "../util/costs/spellCostManagement.ts";
+import {foundryApi} from "../api/foundryApi";
 
 /**
  * @property {SplittermondSpellData} system
@@ -547,251 +548,281 @@ export default class SplittermondActor extends Actor {
         return this.modifier.value("damagereduction");
     }
 
-    async importFromJSON(json) {
+    async importFromJSON(json,updateActor) {
         const data = JSON.parse(json);
 
         // If Genesis-JSON-Export
         if (data.jsonExporterVersion && data.system === "SPLITTERMOND") {
-            const genesisData = data;
-            let newData = this.toObject();
-            let newItems = [];
-            newData.system = {};
+            updateActor = updateActor ?? await askUserAboutActorOverwrite();
+            const importedGenesisData = await this.#importGenesisData(data,updateActor);
+            json = JSON.stringify(importedGenesisData);
+        }
 
-            newData.system.species = {
-                value: genesisData.race
+        return super.importFromJSON(json);
+    }
+
+    /**
+     * @param {Record<string,unknown>} data
+     * @param {boolean} updateActor
+     * @returns {Promise<Partial<CharacterData>| undefined>}
+     */
+    async #importGenesisData(data, updateActor) {
+        const genesisData = data;
+        let newData = this.toObject();
+        let newItems = [];
+        newData.system = {};
+
+        newData.system.species = {
+            value: genesisData.race
+        }
+        newData.name = genesisData.name;
+        newData.system.sex = genesisData.gender;
+        newData.system.culture = genesisData.culture;
+        newData.system.ancestry = genesisData.background;
+        newData.system.education = genesisData.education;
+        newData.system.experience = {
+            free: genesisData.freeExp,
+            spent: genesisData.investedExp
+        };
+        newData.system.currency = {
+            S: 0,
+            L: 0,
+            T: 0
+        };
+        let moonSignDescription = genesisData.moonSign.description.replace(/Grad [1234]:/g, (m) => "<strong>" + m + "</strong>");
+        moonSignDescription = "<p>" + moonSignDescription.split("\n").join("</p><p>") + "</p>";
+
+        let moonSignImage = "systems/splittermond/images/moonsign/" + data.moonSign.name.split(" ").join("_").toLowerCase() + ".png";
+        let moonsignObj = {
+            type: "moonsign",
+            name: genesisData.moonSign.name,
+            img: moonSignImage,
+            system: {
+                description: moonSignDescription
             }
-            newData.name = genesisData.name;
-            newData.system.sex = genesisData.gender;
-            newData.system.culture = genesisData.culture;
-            newData.system.ancestry = genesisData.background;
-            newData.system.education = genesisData.education;
-            newData.system.experience = {
-                free: genesisData.freeExp,
-                spent: genesisData.investedExp
-            };
-            newData.system.currency = {
-                S: 0,
-                L: 0,
-                T: 0
-            };
-            let moonSignDescription = genesisData.moonSign.description.replace(/Grad [1234]:/g, (m) => "<strong>" + m + "</strong>");
-            moonSignDescription = "<p>" + moonSignDescription.split("\n").join("</p><p>") + "</p>";
+        }
+        let moonsignIds = this.items.filter(i => i.type === "moonsign")?.map(i => {
+            return i.id;
+        });
+        if (moonsignIds) {
+            if (moonsignIds.length > 0) {
+                moonsignObj._id = moonsignIds[0];
+            }
+        }
+        newItems.push(moonsignObj);
 
-            let moonSignImage = "systems/splittermond/images/moonsign/" + data.moonSign.name.split(" ").join("_").toLowerCase() + ".png";
-            let moonsignObj = {
-                type: "moonsign",
-                name: genesisData.moonSign.name,
-                img: moonSignImage,
+
+        genesisData.weaknesses.forEach((w) => {
+            newItems.push({
+                type: "weakness",
+                name: w
+            })
+        });
+        genesisData.languages.forEach((w) => {
+            newItems.push({
+                type: "language",
+                name: w
+            })
+        });
+        genesisData.cultureLores.forEach((w) => {
+            newItems.push({
+                type: "culturelore",
+                name: w
+            })
+        });
+        newData.system.attributes = duplicate(this.system.attributes);
+        genesisData.attributes.forEach((a) => {
+            const id = a.id.toLowerCase();
+            if (CONFIG.splittermond.attributes.includes(id)) {
+                newData.system.attributes[id].species = 0;
+                newData.system.attributes[id].initial = a.startValue;
+                newData.system.attributes[id].advances = a.value - a.startValue;
+            }
+
+            if (id === "size") {
+                newData.system.species.size = a.value;
+            }
+
+        });
+        newData.system.skills = duplicate(this.system.skills);
+        genesisData.skills.forEach((s) => {
+            let id = s.id.toLowerCase();
+            if (newData.system.skills[id]) {
+                newData.system.skills[id].points = s.points;
+
+                s.masterships.forEach((m) => {
+                    let modifierStr = CONFIG.splittermond.modifier[m.id] || "";
+                    let description = m.longDescription;
+                    if (modifierStr === "" && m.specialization) {
+                        let emphasisName = /(.*) [1-9]/.exec(m.name);
+                        if (emphasisName) {
+                            modifierStr = `${id}/${emphasisName[1]} +${m.level}`;
+                        }
+                        description = game.i18n.localize(`splittermond.emphasis`);
+                    }
+                    let newMastership = {
+                        type: "mastery",
+                        name: m.name,
+                        system: {
+                            skill: id,
+                            level: m.level,
+                            description: description,
+                            modifier: modifierStr
+                        }
+                    }
+
+                    newItems.push(newMastership);
+                })
+            } else {
+                console.log("undefined Skill:" + id);
+            }
+
+        });
+
+        genesisData.powers.forEach((s) => {
+            newItems.push({
+                type: "strength",
+                name: s.name,
                 system: {
-                    description: moonSignDescription
+                    quantity: s.count,
+                    description: s.longDescription,
+                    modifier: CONFIG.splittermond.modifier[s.id] || ""
                 }
+            })
+        });
+
+        genesisData.resources.forEach((r) => {
+            newItems.push({
+                type: "resource",
+                name: r.name,
+                system: {
+                    value: r.value,
+                    description: r.description
+                }
+            })
+        });
+
+        genesisData.spells.forEach((s) => {
+            let damage = /([0-9]*[wWdD][0-9]{1,2}[ \-+0-9]*)/.exec(s.longDescription);
+            if (damage) {
+                damage = damage[0] || "";
+            } else {
+                damage = "";
             }
-            let moonsignIds = this.items.filter(i => i.type === "moonsign")?.map(i => {
-                return i.id;
-            });
-            if (moonsignIds) {
-                if (moonsignIds.length > 0) {
-                    moonsignObj._id = moonsignIds[0];
-                }
+            let skill = "";
+            if (s.school === "Arkane Kunde") {
+                skill = "arcanelore";
+            } else {
+                skill = CONFIG.splittermond.skillGroups.magic.find(skill => {
+                    return s.school.toLowerCase() === game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase()
+                });
             }
-            newItems.push(moonsignObj);
 
 
-            genesisData.weaknesses.forEach((w) => {
-                newItems.push({
-                    type: "weakness",
-                    name: w
-                })
-            });
-            genesisData.languages.forEach((w) => {
-                newItems.push({
-                    type: "language",
-                    name: w
-                })
-            });
-            genesisData.cultureLores.forEach((w) => {
-                newItems.push({
-                    type: "culturelore",
-                    name: w
-                })
-            });
-            newData.system.attributes = duplicate(this.system.attributes);
-            genesisData.attributes.forEach((a) => {
-                const id = a.id.toLowerCase();
-                if (CONFIG.splittermond.attributes.includes(id)) {
-                    newData.system.attributes[id].species = 0;
-                    newData.system.attributes[id].initial = a.startValue;
-                    newData.system.attributes[id].advances = a.value - a.startValue;
-                }
-
-                if (id === "size") {
-                    newData.system.species.size = a.value;
-                }
-
-            });
-            newData.system.skills = duplicate(this.system.skills);
-            genesisData.skills.forEach((s) => {
-                let id = s.id.toLowerCase();
-                if (newData.system.skills[id]) {
-                    newData.system.skills[id].points = s.points;
-
-                    s.masterships.forEach((m) => {
-                        let modifierStr = CONFIG.splittermond.modifier[m.id] || "";
-                        let description = m.longDescription;
-                        if (modifierStr === "" && m.specialization) {
-                            let emphasisName = /(.*) [1-9]/.exec(m.name);
-                            if (emphasisName) {
-                                modifierStr = `${id}/${emphasisName[1]} +${m.level}`;
-                            }
-                            description = game.i18n.localize(`splittermond.emphasis`);
-                        }
-                        let newMastership = {
-                            type: "mastery",
-                            name: m.name,
-                            system: {
-                                skill: id,
-                                level: m.level,
-                                description: description,
-                                modifier: modifierStr
-                            }
-                        }
-
-                        newItems.push(newMastership);
-                    })
-                } else {
-                    console.log("undefined Skill:" + id);
-                }
-
-            });
-
-            genesisData.powers.forEach((s) => {
-                newItems.push({
-                    type: "strength",
-                    name: s.name,
-                    system: {
-                        quantity: s.count,
-                        description: s.longDescription,
-                        modifier: CONFIG.splittermond.modifier[s.id] || ""
+            newItems.push({
+                type: "spell",
+                name: s.name,
+                img: CONFIG.splittermond.icons.spell[s.id] || CONFIG.splittermond.icons.spell.default,
+                system: {
+                    description: s.longDescription,
+                    skill: skill,
+                    skillLevel: s.schoolGrade,
+                    costs: s.focus,
+                    difficulty: s.difficulty,
+                    damage: damage.trim(),
+                    range: s.castRange,
+                    castDuration: s.castDuration,
+                    effectDuration: s.spellDuration,
+                    enhancementCosts: s.enhancement,
+                    enhancementDescription: s.enhancementDescription,
+                    degreeOfSuccessOptions: {
+                        castDuration: s.enhancementOptions?.search("Auslösezeit") >= 0,
+                        consumedFocus: s.enhancementOptions?.search("Verzehrter Fokus") >= 0,
+                        exhaustedFocus: s.enhancementOptions?.search("Erschöpfter Fokus") >= 0,
+                        channelizedFocus: s.enhancementOptions?.search("Kanalisierter Fokus") >= 0,
+                        effectDuration: s.enhancementOptions?.search("Wirkungsdauer") >= 0,
+                        damage: s.enhancementOptions?.search("Schaden") >= 0,
+                        range: s.enhancementOptions?.search("Reichweite") >= 0,
+                        effectArea: s.enhancementOptions?.search("Wirkungsbereich") >= 0
                     }
-                })
-            });
-
-            genesisData.resources.forEach((r) => {
-                newItems.push({
-                    type: "resource",
-                    name: r.name,
-                    system: {
-                        value: r.value,
-                        description: r.description
-                    }
-                })
-            });
-
-            genesisData.spells.forEach((s) => {
-                let damage = /([0-9]*[wWdD][0-9]{1,2}[ \-+0-9]*)/.exec(s.longDescription);
-                if (damage) {
-                    damage = damage[0] || "";
-                } else {
-                    damage = "";
                 }
-                let skill = "";
-                if (s.school === "Arkane Kunde") {
-                    skill = "arcanelore";
-                } else {
-                    skill = CONFIG.splittermond.skillGroups.magic.find(skill => {
-                        return s.school.toLowerCase() === game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase()
-                    });
+            })
+        });
+
+        genesisData.armors.forEach((a) => {
+            newItems.push({
+                type: "armor",
+                name: a.name,
+                img: CONFIG.splittermond.icons.armor[a.name] || CONFIG.splittermond.icons.armor.default,
+                system: {
+                    defenseBonus: a.defense,
+                    tickMalus: a.tickMalus,
+                    handicap: a.handicap,
+                    damageReduction: a.damageReduction,
+                    features: a.features.map(f => `${f.name}`)?.join(', ')
                 }
+            })
+        });
+
+        genesisData.shields.forEach((s) => {
+            newItems.push({
+                type: "shield",
+                name: s.name,
+                img: CONFIG.splittermond.icons.shield[s.name] || CONFIG.splittermond.icons.shield.default,
+                system: {
+                    skill: CONFIG.splittermond.skillGroups.fighting.find(skill => {
+                        return s.skill.toLowerCase() === game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase()
+                    }),
+                    defenseBonus: s.defensePlus,
+                    tickMalus: s.tickMalus,
+                    handicap: s.handicap,
+                    features: s.features.map(f => `${f.name}`)?.join(', ')
+                }
+            })
+        });
 
 
+        genesisData.meleeWeapons.forEach((w) => {
+            if (w.name !== "Waffenlos") {
                 newItems.push({
-                    type: "spell",
-                    name: s.name,
-                    img: CONFIG.splittermond.icons.spell[s.id] || CONFIG.splittermond.icons.spell.default,
-                    system: {
-                        description: s.longDescription,
-                        skill: skill,
-                        skillLevel: s.schoolGrade,
-                        costs: s.focus,
-                        difficulty: s.difficulty,
-                        damage: damage.trim(),
-                        range: s.castRange,
-                        castDuration: s.castDuration,
-                        effectDuration: s.spellDuration,
-                        enhancementCosts: s.enhancement,
-                        enhancementDescription: s.enhancementDescription,
-                        degreeOfSuccessOptions: {
-                            castDuration: s.enhancementOptions?.search("Auslösezeit") >= 0,
-                            consumedFocus: s.enhancementOptions?.search("Verzehrter Fokus") >= 0,
-                            exhaustedFocus: s.enhancementOptions?.search("Erschöpfter Fokus") >= 0,
-                            channelizedFocus: s.enhancementOptions?.search("Kanalisierter Fokus") >= 0,
-                            effectDuration: s.enhancementOptions?.search("Wirkungsdauer") >= 0,
-                            damage: s.enhancementOptions?.search("Schaden") >= 0,
-                            range: s.enhancementOptions?.search("Reichweite") >= 0,
-                            effectArea: s.enhancementOptions?.search("Wirkungsbereich") >= 0
-                        }
-                    }
-                })
-            });
-
-            genesisData.armors.forEach((a) => {
-                newItems.push({
-                    type: "armor",
-                    name: a.name,
-                    img: CONFIG.splittermond.icons.armor[a.name] || CONFIG.splittermond.icons.armor.default,
-                    system: {
-                        defenseBonus: a.defense,
-                        tickMalus: a.tickMalus,
-                        handicap: a.handicap,
-                        damageReduction: a.damageReduction,
-                        features: a.features.map(f => `${f.name}`)?.join(', ')
-                    }
-                })
-            });
-
-            genesisData.shields.forEach((s) => {
-                newItems.push({
-                    type: "shield",
-                    name: s.name,
-                    img: CONFIG.splittermond.icons.shield[s.name] || CONFIG.splittermond.icons.shield.default,
+                    type: "weapon",
+                    name: w.name,
+                    img: CONFIG.splittermond.icons.weapon[w.name] || CONFIG.splittermond.icons.weapon.default,
                     system: {
                         skill: CONFIG.splittermond.skillGroups.fighting.find(skill => {
-                            return s.skill.toLowerCase() === game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase()
+                            return w.skill.toLowerCase() === game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase()
                         }),
-                        defenseBonus: s.defensePlus,
-                        tickMalus: s.tickMalus,
-                        handicap: s.handicap,
-                        features: s.features.map(f => `${f.name}`)?.join(', ')
+                        attribute1: w.attribute1Id.toLowerCase(),
+                        attribute2: w.attribute2Id.toLowerCase(),
+                        features: w.features.map(f => `${f.name}`)?.join(', '),
+                        damage: w.damage,
+                        weaponSpeed: w.weaponSpeed,
                     }
                 })
-            });
 
+            }
+        });
 
-            genesisData.meleeWeapons.forEach((w) => {
-                if (w.name !== "Waffenlos") {
-                    newItems.push({
-                        type: "weapon",
-                        name: w.name,
-                        img: CONFIG.splittermond.icons.weapon[w.name] || CONFIG.splittermond.icons.weapon.default,
-                        system: {
-                            skill: CONFIG.splittermond.skillGroups.fighting.find(skill => {
-                                return w.skill.toLowerCase() === game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase()
-                            }),
-                            attribute1: w.attribute1Id.toLowerCase(),
-                            attribute2: w.attribute2Id.toLowerCase(),
-                            features: w.features.map(f => `${f.name}`)?.join(', '),
-                            damage: w.damage,
-                            weaponSpeed: w.weaponSpeed,
-                        }
-                    })
-
+        genesisData.longRangeWeapons.forEach((w) => {
+            const itemData = newItems.find(i => i.name === w.name && i.type === "weapon");
+            if (itemData) {
+                itemData.system.secondaryAttack = {
+                    skill: CONFIG.splittermond.skillGroups.fighting.find(skill => {
+                        return w.skill.toLowerCase() === game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase()
+                    }),
+                    attribute1: w.attribute1Id.toLowerCase(),
+                    attribute2: w.attribute2Id.toLowerCase(),
+                    features: w.features.map(f => `${f.name}`)?.join(', '),
+                    damage: w.damage,
+                    weaponSpeed: w.weaponSpeed,
+                    range: w.range
                 }
-            });
-
-            genesisData.longRangeWeapons.forEach((w) => {
-                const itemData = newItems.find(i => i.name === w.name && i.type === "weapon");
-                if (itemData) {
-                    itemData.system.secondaryAttack = {
+            } else {
+                newItems.push({
+                    type: "weapon",
+                    name: w.name,
+                    img: CONFIG.splittermond.icons.weapon[w.name] || CONFIG.splittermond.icons.weapon.default,
+                    system: {
                         skill: CONFIG.splittermond.skillGroups.fighting.find(skill => {
                             return w.skill.toLowerCase() === game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase()
                         }),
@@ -802,100 +833,58 @@ export default class SplittermondActor extends Actor {
                         weaponSpeed: w.weaponSpeed,
                         range: w.range
                     }
-                } else {
-                    newItems.push({
-                        type: "weapon",
-                        name: w.name,
-                        img: CONFIG.splittermond.icons.weapon[w.name] || CONFIG.splittermond.icons.weapon.default,
-                        system: {
-                            skill: CONFIG.splittermond.skillGroups.fighting.find(skill => {
-                                return w.skill.toLowerCase() === game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase()
-                            }),
-                            attribute1: w.attribute1Id.toLowerCase(),
-                            attribute2: w.attribute2Id.toLowerCase(),
-                            features: w.features.map(f => `${f.name}`)?.join(', '),
-                            damage: w.damage,
-                            weaponSpeed: w.weaponSpeed,
-                            range: w.range
-                        }
-                    })
+                })
+            }
+
+        });
+
+        genesisData.items.forEach((e) => {
+            newItems.push({
+                type: "equipment",
+                name: e.name,
+                img: CONFIG.splittermond.icons.equipment[e.name] || CONFIG.splittermond.icons.equipment.default,
+                system: {
+                    quantity: e.count
                 }
-
             });
+        });
 
-            genesisData.items.forEach((e) => {
-                newItems.push({
-                    type: "equipment",
-                    name: e.name,
-                    img: CONFIG.splittermond.icons.equipment[e.name] || CONFIG.splittermond.icons.equipment.default,
-                    system: {
-                        quantity: e.count
-                    }
-                });
-            });
-
-            if (genesisData.telare) {
-                newData.system.currency.S = Math.floor(genesisData.telare / 10000);
-                newData.system.currency.L = Math.floor(genesisData.telare / 100) - newData.system.currency.S * 100;
-                newData.system.currency.T = Math.floor(genesisData.telare) - newData.system.currency.L * 100 - newData.system.currency.S * 10000;
-            }
-
-            let p = new Promise((resolve, reject) => {
-                let dialog = new Dialog({
-                    title: "Import",
-                    content: "<p>" + game.i18n.localize("splittermond.updateOrOverwriteActor") + "</p>",
-                    buttons: {
-                        overwrite: {
-                            label: game.i18n.localize("splittermond.overwrite"),
-                            callback: html => {
-                                resolve(false);
-                            }
-                        },
-                        update: {
-                            label: game.i18n.localize("splittermond.update"),
-                            callback: html => {
-                                resolve(true);
-                            }
-                        }
-                    }
-                });
-                dialog.render(true);
-            });
-
-            let updateActor = await p;
-
-            if (updateActor) {
-                let updateItems = [];
-
-                newItems = newItems.filter((i) => {
-                    let foundItem = this.items.find((im) => im.type === i.type && im.name.trim().toLowerCase() === i.name.trim().toLowerCase());
-                    if (foundItem) {
-                        i._id = foundItem.id;
-                        delete i.img;
-                        updateItems.push(duplicate(i));
-                        return false;
-                    }
-                    return true;
-                });
-
-                newData.system.currency = this.system.currency;
-
-                await this.update(newData);
-                await this.updateEmbeddedDocuments("Item", updateItems);
-                await this.createEmbeddedDocuments("Item", newItems);
-
-                return this.update(newData);
-
-            }
-            newData.name = genesisData.name;
-            newData.prototypeToken.name = genesisData.name;
-            newData.prototypeToken.actorLink = true;
-            newData.items = duplicate(newItems);
-            json = JSON.stringify(newData);
+        if (genesisData.telare) {
+            newData.system.currency.S = Math.floor(genesisData.telare / 10000);
+            newData.system.currency.L = Math.floor(genesisData.telare / 100) - newData.system.currency.S * 100;
+            newData.system.currency.T = Math.floor(genesisData.telare) - newData.system.currency.L * 100 - newData.system.currency.S * 10000;
         }
 
 
-        return super.importFromJSON(json);
+
+        if (updateActor) {
+            let updateItems = [];
+
+            newItems = newItems.filter((i) => {
+                let foundItem = this.items.find((im) => im.type === i.type && im.name.trim().toLowerCase() === i.name.trim().toLowerCase());
+                if (foundItem) {
+                    i._id = foundItem.id;
+                    delete i.img;
+                    updateItems.push(duplicate(i));
+                    return false;
+                }
+                return true;
+            });
+
+            newData.system.currency = this.system.currency;
+
+            await this.update(newData);
+            await this.updateEmbeddedDocuments("Item", updateItems);
+            await this.createEmbeddedDocuments("Item", newItems);
+
+            return this.update(newData);
+
+        }
+        newData.name = genesisData.name;
+        newData.prototypeToken.name = genesisData.name;
+        newData.prototypeToken.actorLink = true;
+        newData.items = duplicate(newItems);
+        return newData;
     }
 
     /** @returns {{pointSpent:boolean, getBonus(skillName:SplittermondSkill): number}} splinterpoints spent */
@@ -1388,4 +1377,32 @@ export default class SplittermondActor extends Actor {
         this.setFlag('splittermond', 'originId', this._id);
         return super.toCompendium(pack);
     }
+}
+
+
+/**
+ * @returns {Promise<boolean>}
+ */
+async function askUserAboutActorOverwrite(){
+    return new Promise((resolve) => {
+        let dialog = new Dialog({
+            title: "Import",
+            content: "<p>" + foundryApi.localize("splittermond.updateOrOverwriteActor") + "</p>",
+            buttons: {
+                overwrite: {
+                    label: foundryApi.localize("splittermond.overwrite"),
+                    callback: html => {
+                        resolve(false);
+                    }
+                },
+                update: {
+                    label: foundryApi.localize("splittermond.update"),
+                    callback: html => {
+                        resolve(true);
+                    }
+                }
+            }
+        });
+        dialog.render(true);
+    });
 }

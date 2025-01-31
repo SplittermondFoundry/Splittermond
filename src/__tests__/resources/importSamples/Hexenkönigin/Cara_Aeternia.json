@@ -1,0 +1,1521 @@
+{
+  "jsonExporterVersion": "1.5.0",
+  "system": "SPLITTERMOND",
+  "name": "Cara Aeternia",
+  "race": "Mensch",
+  "culture": "Patalis",
+  "background": "Frei erschaffen",
+  "birthplace": null,
+  "education": "Frei erschaffen",
+  "cultureLores": [
+    "Patalis"
+  ],
+  "languages": [
+    "Basargnomisch",
+    "Patalisch"
+  ],
+  "moonSign": {
+    "name": "Omen des schwarzen Mondes",
+    "description": "Omen des schwarzen Mondes\nGRW S. 82\n\nGrad 1: Spielleiter muss Probe gegen Splitterträger wiederholen\nGrad 2: Probenwiederholung mit 3 Punkten Malus\nGrad 4: Gefährte darf 1 Würfel einer Probe erneut würfeln sofern kein Patzer\n"
+  },
+  "freeExp": 9444,
+  "investedExp": 571,
+  "hairColor": null,
+  "eyeColor": null,
+  "furColor": null,
+  "size": 0,
+  "weight": 0,
+  "deity": "Iosaris",
+  "gender": null,
+  "weaknesses": [],
+  "attributes": [
+    {
+      "name": "Ausstrahlung",
+      "id": "CHARISMA",
+      "shortName": "AUS",
+      "startValue": 4,
+      "value": 6
+    },
+    {
+      "name": "Beweglichkeit",
+      "id": "AGILITY",
+      "shortName": "BEW",
+      "startValue": 3,
+      "value": 4
+    },
+    {
+      "name": "Intuition",
+      "id": "INTUITION",
+      "shortName": "INT",
+      "startValue": 2,
+      "value": 4
+    },
+    {
+      "name": "Konstitution",
+      "id": "CONSTITUTION",
+      "shortName": "KON",
+      "startValue": 2,
+      "value": 2
+    },
+    {
+      "name": "Mystik",
+      "id": "MYSTIC",
+      "shortName": "MYS",
+      "startValue": 3,
+      "value": 5
+    },
+    {
+      "name": "Stärke",
+      "id": "STRENGTH",
+      "shortName": "STÄ",
+      "startValue": 1,
+      "value": 1
+    },
+    {
+      "name": "Verstand",
+      "id": "MIND",
+      "shortName": "VER",
+      "startValue": 2,
+      "value": 5
+    },
+    {
+      "name": "Willenskraft",
+      "id": "WILLPOWER",
+      "shortName": "WIL",
+      "startValue": 3,
+      "value": 4
+    },
+    {
+      "name": "Splitterpunkte",
+      "id": "SPLINTER",
+      "shortName": "SPL",
+      "startValue": 0,
+      "value": 8
+    },
+    {
+      "name": "Größenklasse",
+      "id": "SIZE",
+      "shortName": "GK",
+      "startValue": 0,
+      "value": 5
+    },
+    {
+      "name": "Geschwindigkeit",
+      "id": "SPEED",
+      "shortName": "GSW",
+      "startValue": 0,
+      "value": 9
+    },
+    {
+      "name": "Initiative",
+      "id": "INITIATIVE",
+      "shortName": "INI",
+      "startValue": 0,
+      "value": 6
+    },
+    {
+      "name": "Lebenspunkte",
+      "id": "LIFE",
+      "shortName": "LP",
+      "startValue": 0,
+      "value": 7
+    },
+    {
+      "name": "Fokus",
+      "id": "FOCUS",
+      "shortName": "FO",
+      "startValue": 0,
+      "value": 38
+    },
+    {
+      "name": "Verteidigung",
+      "id": "DEFENSE",
+      "shortName": "VTD",
+      "startValue": 0,
+      "value": 23
+    },
+    {
+      "name": "Schadensreduktion",
+      "id": "DAMAGE_REDUCTION",
+      "shortName": "SR",
+      "startValue": 0,
+      "value": 0
+    },
+    {
+      "name": "Geistiger Widerstand",
+      "id": "MINDRESIST",
+      "shortName": "GW",
+      "startValue": 0,
+      "value": 27
+    },
+    {
+      "name": "Körperlicher Widerstand",
+      "id": "BODYRESIST",
+      "shortName": "KW",
+      "startValue": 0,
+      "value": 24
+    }
+  ],
+  "skills": [
+    {
+      "name": "Handgemenge",
+      "id": "melee",
+      "attribute1": "BEW",
+      "attribute2": "STÄ",
+      "value": 5,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Hiebwaffen",
+      "id": "slashing",
+      "attribute1": null,
+      "attribute2": null,
+      "value": 0,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Kettenwaffen",
+      "id": "chains",
+      "attribute1": null,
+      "attribute2": null,
+      "value": 0,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Klingenwaffen",
+      "id": "blades",
+      "attribute1": null,
+      "attribute2": null,
+      "value": 1,
+      "points": 1,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Schusswaffen",
+      "id": "longrange",
+      "attribute1": null,
+      "attribute2": null,
+      "value": 0,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Stangenwaffen",
+      "id": "staffs",
+      "attribute1": null,
+      "attribute2": null,
+      "value": 0,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Wurfwaffen",
+      "id": "throwing",
+      "attribute1": null,
+      "attribute2": null,
+      "value": 0,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Akrobatik",
+      "id": "acrobatics",
+      "attribute1": "BEW",
+      "attribute2": "STÄ",
+      "value": 11,
+      "points": 6,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Alchemie",
+      "id": "alchemy",
+      "attribute1": "MYS",
+      "attribute2": "VER",
+      "value": 10,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Anführen",
+      "id": "leadership",
+      "attribute1": "AUS",
+      "attribute2": "WIL",
+      "value": 19,
+      "points": 9,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Sammeln",
+          "id": "troopup",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 104",
+          "specialization": false
+        },
+        {
+          "name": "Inspirieren",
+          "id": "inspire",
+          "level": 2,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 104",
+          "specialization": false
+        }
+      ]
+    },
+    {
+      "name": "Arkane Kunde",
+      "id": "arcanelore",
+      "attribute1": "MYS",
+      "attribute2": "VER",
+      "value": 10,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Athletik",
+      "id": "athletics",
+      "attribute1": "BEW",
+      "attribute2": "STÄ",
+      "value": 5,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Darbietung",
+      "id": "performance",
+      "attribute1": "AUS",
+      "attribute2": "WIL",
+      "value": 12,
+      "points": 2,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Diplomatie",
+      "id": "diplomacy",
+      "attribute1": "AUS",
+      "attribute2": "VER",
+      "value": 23,
+      "points": 12,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Stil und Grazie",
+          "id": "stylegrace",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 110",
+          "specialization": false
+        },
+        {
+          "name": "Scharfe Zunge",
+          "id": "sharptongue",
+          "level": 2,
+          "shortDescription": "",
+          "longDescription": "Der Abenteurer ist für seine scharfe Zunge berühmt und berüchtigt. Er braucht keine Chilis beim Essen",
+          "page": "GRW 110",
+          "specialization": false
+        }
+      ]
+    },
+    {
+      "name": "Edelhandwerk",
+      "id": "clscraft",
+      "attribute1": "INT",
+      "attribute2": "VER",
+      "value": 9,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Empathie",
+      "id": "empathy",
+      "attribute1": "INT",
+      "attribute2": "VER",
+      "value": 21,
+      "points": 12,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Rede mit mir",
+          "id": "speaktome",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 113",
+          "specialization": false
+        }
+      ]
+    },
+    {
+      "name": "Entschlossenheit",
+      "id": "determination",
+      "attribute1": "AUS",
+      "attribute2": "WIL",
+      "value": 19,
+      "points": 9,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Eiserner Wille",
+          "id": "ironwill",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 114",
+          "specialization": false
+        }
+      ]
+    },
+    {
+      "name": "Fingerfertigkeit",
+      "id": "dexterity",
+      "attribute1": "AUS",
+      "attribute2": "BEW",
+      "value": 10,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Geschichte und Mythen",
+      "id": "history",
+      "attribute1": "MYS",
+      "attribute2": "VER",
+      "value": 22,
+      "points": 12,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Einzelner Themenbereich 1",
+          "id": "theme",
+          "level": 1,
+          "shortDescription": null,
+          "longDescription": null,
+          "page": null,
+          "specialization": true
+        }
+      ]
+    },
+    {
+      "name": "Handwerk",
+      "id": "craftmanship",
+      "attribute1": "KON",
+      "attribute2": "VER",
+      "value": 7,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Heilkunde",
+      "id": "heal",
+      "attribute1": "INT",
+      "attribute2": "VER",
+      "value": 9,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Heimlichkeit",
+      "id": "stealth",
+      "attribute1": "BEW",
+      "attribute2": "INT",
+      "value": 8,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Jagdkunst",
+      "id": "hunting",
+      "attribute1": "KON",
+      "attribute2": "VER",
+      "value": 7,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Länderkunde",
+      "id": "countrylore",
+      "attribute1": "INT",
+      "attribute2": "VER",
+      "value": 9,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Naturkunde",
+      "id": "nature",
+      "attribute1": "INT",
+      "attribute2": "VER",
+      "value": 9,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Redegewandtheit",
+      "id": "eloquence",
+      "attribute1": "AUS",
+      "attribute2": "WIL",
+      "value": 22,
+      "points": 12,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Ablenken",
+          "id": "distract",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "Der Abenteurer hat gelernt, sich aus dem Kampf zu lösen (GRW 159), indem er seinen Gegner kurzzeitig ablenkt. Er kann zu diesem Zweck statt der üblichen Akrobatik-Probe eine Probe auf Redegewandtheit ablegen.",
+          "page": "GRW 124",
+          "specialization": false
+        },
+        {
+          "name": "Nicht ins Gesicht",
+          "id": "notintheface",
+          "level": 2,
+          "shortDescription": "",
+          "longDescription": "Der Abenteurer kann seinen Gegner im Kampf verwirren. Gelingt ihm eine Redegewandtheit-Probe gegen den Geistigen Widerstand des Gegners, erhält dieser auf seinen Angriff gegen den Abenteurer einen Malus in Höhe von 1 Punkt (+1 pro Erfolgsgrad). Diese sofortige Reaktion dauert 3 Ticks.",
+          "page": "GRW 126",
+          "specialization": false
+        },
+        {
+          "name": "Können diese Augen lügen?",
+          "id": "wouldilietoyou",
+          "level": 3,
+          "shortDescription": "",
+          "longDescription": "Der Abenteurer schafft es mühelos, sich das Vertrauen anderer zu erschleichen. Für alle Proben zur sozialen Interaktion zählt die Einstellung von Spielleitercharakteren um eine Stufe besser.",
+          "page": "GRW 126",
+          "specialization": false
+        }
+      ]
+    },
+    {
+      "name": "Schlösser und Fallen",
+      "id": "locksntraps",
+      "attribute1": "INT",
+      "attribute2": "BEW",
+      "value": 8,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Schwimmen",
+      "id": "swim",
+      "attribute1": "STÄ",
+      "attribute2": "KON",
+      "value": 3,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Seefahrt",
+      "id": "seafaring",
+      "attribute1": "BEW",
+      "attribute2": "KON",
+      "value": 7,
+      "points": 1,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Straßenkunde",
+      "id": "streetlore",
+      "attribute1": "AUS",
+      "attribute2": "INT",
+      "value": 11,
+      "points": 1,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Tierführung",
+      "id": "animals",
+      "attribute1": "AUS",
+      "attribute2": "BEW",
+      "value": 10,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Überleben",
+      "id": "survival",
+      "attribute1": "INT",
+      "attribute2": "KON",
+      "value": 6,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Wahrnehmung",
+      "id": "perception",
+      "attribute1": "INT",
+      "attribute2": "WIL",
+      "value": 14,
+      "points": 6,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Zähigkeit",
+      "id": "endurance",
+      "attribute1": "KON",
+      "attribute2": "WIL",
+      "value": 6,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Bannmagie",
+      "id": "antimagic",
+      "attribute1": "MYS",
+      "attribute2": "WIL",
+      "value": 9,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Beherrschungsmagie",
+      "id": "controlmagic",
+      "attribute1": "MYS",
+      "attribute2": "WIL",
+      "value": 18,
+      "points": 9,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Willensbrecher",
+          "id": "willbreaker",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 203",
+          "specialization": false
+        },
+        {
+          "name": "Schläfer",
+          "id": "sleeper",
+          "level": 2,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 203",
+          "specialization": false
+        }
+      ]
+    },
+    {
+      "name": "Bewegungsmagie",
+      "id": "motionmagic",
+      "attribute1": "MYS",
+      "attribute2": "BEW",
+      "value": 9,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Erkenntnismagie",
+      "id": "insightmagic",
+      "attribute1": "MYS",
+      "attribute2": "VER",
+      "value": 10,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Felsmagie",
+      "id": "stonemagic",
+      "attribute1": "MYS",
+      "attribute2": "KON",
+      "value": 7,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Feuermagie",
+      "id": "firemagic",
+      "attribute1": "MYS",
+      "attribute2": "AUS",
+      "value": 11,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Heilungsmagie",
+      "id": "healmagic",
+      "attribute1": "MYS",
+      "attribute2": "AUS",
+      "value": 11,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Illusionsmagie",
+      "id": "illusionmagic",
+      "attribute1": "MYS",
+      "attribute2": "AUS",
+      "value": 23,
+      "points": 12,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Hand des Zauberers",
+          "id": "castershand",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 201",
+          "specialization": false
+        },
+        {
+          "name": "Trübung des Blicks",
+          "id": "disturbclairvoyance",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 208",
+          "specialization": false
+        }
+      ]
+    },
+    {
+      "name": "Kampfmagie",
+      "id": "combatmagic",
+      "attribute1": "MYS",
+      "attribute2": "STÄ",
+      "value": 6,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Lichtmagie",
+      "id": "lightmagic",
+      "attribute1": "MYS",
+      "attribute2": "AUS",
+      "value": 20,
+      "points": 9,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Leuchtkraft",
+          "id": "luminance",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 210",
+          "specialization": false
+        }
+      ]
+    },
+    {
+      "name": "Naturmagie",
+      "id": "naturemagic",
+      "attribute1": "MYS",
+      "attribute2": "AUS",
+      "value": 11,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Schattenmagie",
+      "id": "shadowmagic",
+      "attribute1": "MYS",
+      "attribute2": "INT",
+      "value": 21,
+      "points": 12,
+      "modifier": 0,
+      "masterships": [
+        {
+          "name": "Blick in die Dunkelheit",
+          "id": "darknessview",
+          "level": 1,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 212",
+          "specialization": false
+        },
+        {
+          "name": "Schützende Schatten",
+          "id": "protectingshadows",
+          "level": 2,
+          "shortDescription": "",
+          "longDescription": "",
+          "page": "GRW 212",
+          "specialization": false
+        }
+      ]
+    },
+    {
+      "name": "Schicksalsmagie",
+      "id": "fatemagic",
+      "attribute1": "MYS",
+      "attribute2": "AUS",
+      "value": 11,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Schutzmagie",
+      "id": "protectionmagic",
+      "attribute1": "MYS",
+      "attribute2": "AUS",
+      "value": 11,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Stärkungsmagie",
+      "id": "enhancemagic",
+      "attribute1": "MYS",
+      "attribute2": "STÄ",
+      "value": 6,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Todesmagie",
+      "id": "deathmagic",
+      "attribute1": "MYS",
+      "attribute2": "VER",
+      "value": 10,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Verwandlungsmagie",
+      "id": "transformationmagic",
+      "attribute1": "MYS",
+      "attribute2": "KON",
+      "value": 7,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Wassermagie",
+      "id": "watermagic",
+      "attribute1": "MYS",
+      "attribute2": "INT",
+      "value": 9,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    },
+    {
+      "name": "Windmagie",
+      "id": "windmagic",
+      "attribute1": "MYS",
+      "attribute2": "VER",
+      "value": 10,
+      "points": 0,
+      "modifier": 0,
+      "masterships": []
+    }
+  ],
+  "powers": [
+    {
+      "name": "Zusätzliche Splitterpunkte",
+      "id": "addsplinter",
+      "count": 1,
+      "shortDescription": "",
+      "longDescription": "Das Schicksal ist dem Abenteurer in besonderem Maße gewogen. Er erhält 5 zusätzliche Sammelmünzen.",
+      "page": "GRW 74"
+    },
+    {
+      "name": "Soziales Gespür",
+      "id": "sensesocial",
+      "count": 1,
+      "shortDescription": "",
+      "longDescription": "",
+      "page": "GRW 73"
+    },
+    {
+      "name": "Erhöhter Fokuspool",
+      "id": "focuspool",
+      "count": 4,
+      "shortDescription": "",
+      "longDescription": "",
+      "page": "GRW 72"
+    },
+    {
+      "name": "Priester",
+      "id": "priest",
+      "count": 1,
+      "shortDescription": "",
+      "longDescription": "",
+      "page": "GRW 73"
+    },
+    {
+      "name": "Literat",
+      "id": "literate",
+      "count": 1,
+      "shortDescription": "",
+      "longDescription": "",
+      "page": "GRW 73"
+    }
+  ],
+  "resources": [
+    {
+      "name": "Ansehen",
+      "value": 0,
+      "description": null
+    },
+    {
+      "name": "Stand",
+      "value": 4,
+      "description": null
+    },
+    {
+      "name": "Kontakte",
+      "value": 0,
+      "description": null
+    },
+    {
+      "name": "Vermögen",
+      "value": 4,
+      "description": null
+    }
+  ],
+  "spells": [
+    {
+      "name": "Blenden",
+      "id": "glare",
+      "value": 20,
+      "school": "Lichtmagie",
+      "schoolGrade": 1,
+      "difficulty": "KW",
+      "focus": "4V1",
+      "castDuration": "3T",
+      "castRange": "5m",
+      "spellDuration": "",
+      "enhancement": "1 EG/+1V1",
+      "page": "GRW 224",
+      "longDescription": "I",
+      "enhancementDescription": "Das Ziel erhält den Zustand Geblendet 2.",
+      "enhancementOptions": "Erschöpfter Fokus, Verzehrter Fokus, Reichweite, Auslösezeit"
+    },
+    {
+      "name": "Dunkelheit",
+      "id": "darkness",
+      "value": 21,
+      "school": "Schattenmagie",
+      "schoolGrade": 1,
+      "difficulty": "18",
+      "focus": "K4V1",
+      "castDuration": "1T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K1V1",
+      "page": "GRW 225",
+      "longDescription": "",
+      "enhancementDescription": "Die Lichtverhältnisse sinken um insgesamt 2 Stufen.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsbereich, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Einstellung verbessern",
+      "id": "increaseattitude",
+      "value": 18,
+      "school": "Beherrschungsmagie",
+      "schoolGrade": 0,
+      "difficulty": "GW",
+      "focus": "K1",
+      "castDuration": "3T",
+      "castRange": "Ber.",
+      "spellDuration": "K",
+      "enhancement": "2 EG/+K1V1",
+      "page": "GRW 226",
+      "longDescription": "",
+      "enhancementDescription": "Die Einstellung verbessert sich um insgesamt 2 Stufen (maximal auf Hilfsbereit).",
+      "enhancementOptions": "Kanalisierter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Einstellung verschlechtern",
+      "id": "decreaseattitude",
+      "value": 18,
+      "school": "Beherrschungsmagie",
+      "schoolGrade": 0,
+      "difficulty": "GW",
+      "focus": "K1",
+      "castDuration": "3T",
+      "castRange": "Ber.",
+      "spellDuration": "K",
+      "enhancement": "2 EG/+K1V1",
+      "page": "GRW 226",
+      "longDescription": "",
+      "enhancementDescription": "Die Einstellung verschlechtert sich um insgesamt 2 Stufen (maximal auf Feindlich).",
+      "enhancementOptions": "Kanalisierter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Erinnerungslücke",
+      "id": "memorygap",
+      "value": 18,
+      "school": "Beherrschungsmagie",
+      "schoolGrade": 3,
+      "difficulty": "GW",
+      "focus": "12V3",
+      "castDuration": "10T",
+      "castRange": "Ber.",
+      "spellDuration": "",
+      "enhancement": "2 EG/+3V3",
+      "page": "GRW 227",
+      "longDescription": "",
+      "enhancementDescription": "Sämtliche Erinnerungen an Ereignisse seit der letzten Ruhephase werden entfernt.",
+      "enhancementOptions": "Erschöpfter Fokus, Verzehrter Fokus, Auslösezeit"
+    },
+    {
+      "name": "Erkenntnis stören",
+      "id": "disturbinsight",
+      "value": 23,
+      "school": "Illusionsmagie",
+      "schoolGrade": 1,
+      "difficulty": "18",
+      "focus": "K4V1",
+      "castDuration": "1T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K1V1",
+      "page": "GRW 227",
+      "longDescription": "",
+      "enhancementDescription": "Der Bonus erhöht sich auf 3 Punkte.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Furcht",
+      "id": "fear",
+      "value": 18,
+      "school": "Beherrschungsmagie",
+      "schoolGrade": 1,
+      "difficulty": "GW",
+      "focus": "4V1",
+      "castDuration": "4T",
+      "castRange": "5m",
+      "spellDuration": "60 T",
+      "enhancement": "2 EG/+1V1",
+      "page": "GRW 230",
+      "longDescription": "",
+      "enhancementDescription": "Das Ziel ist nicht in der Lage, den Zauberer anzugreifen. Dieser Effekt hält genauso lange an wie der Zustand Angsterfüllt.",
+      "enhancementOptions": "Erschöpfter Fokus, Verzehrter Fokus, Reichweite, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Gedankenschutz",
+      "id": "protectmind",
+      "value": 18,
+      "school": "Beherrschungsmagie",
+      "schoolGrade": 2,
+      "difficulty": "21",
+      "focus": "K8V2",
+      "castDuration": "4T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K2V2",
+      "page": "GRW 230",
+      "longDescription": "",
+      "enhancementDescription": "Der Bonus erhöht sich auf 4 Punkte.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Gleißende Barriere",
+      "id": "blazingbarrier",
+      "value": 20,
+      "school": "Lichtmagie",
+      "schoolGrade": 1,
+      "difficulty": "18",
+      "focus": "K4V1",
+      "castDuration": "3T",
+      "castRange": "5m",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K1V1",
+      "page": "GRW 232",
+      "longDescription": "Der Zauberer erschafft eine schnurgerade und unverrückbare Wand aus gleißendem Licht von 20 cm Dicke mit einer beliebig verteilbaren Fläche von bis zu 10 m². Ihre Härte beträgt 2 Punkte, ihre Haltbarkeit 6 Punkte. Die Barriere erhöht die Lichtverhältnisse im Umkreis von 5 Metern um 2 Stufen. Sie kann zerstört werden, was den Zauber beendet. Die maximale Wirkungsweite kanalisierter Zauber (S. 195) gilt für diesen Zauber als verzehnfacht.",
+      "enhancementDescription": "Wird die Wand im Nahkampf attackiert, erhalten die Angreifer den Zustand Geblendet 1.Außerdem verbessert sie die Lichtverhältnisse im Umkreis von 5 Metern um insgesamt 3 Stufen.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Reichweite, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Gleißender Schild",
+      "id": "blazingshield",
+      "value": 20,
+      "school": "Lichtmagie",
+      "schoolGrade": 2,
+      "difficulty": "21",
+      "focus": "K8V2",
+      "castDuration": "5T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "2 EG/+K2V2",
+      "page": "GRW 232",
+      "longDescription": "Der Zauberer umgibt sich mit einem Schild aus gleißendem Licht. Wird er im Nahkampf attackiert, erhalten die Angreifer den Zustand Geblendet 1. Zudem verbessern sich die Lichtverhältnisse im Umkreis von 10 Metern um 1 Stufe.",
+      "enhancementDescription": "Angreifer im Nahkampf erhalten den Zustand Geblendet 2, die Lichtverhältnisse verbessern sich um insgesamt 2 Stufen.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Halluzination",
+      "id": "hallucination",
+      "value": 23,
+      "school": "Illusionsmagie",
+      "schoolGrade": 3,
+      "difficulty": "GW",
+      "focus": "K12V3",
+      "castDuration": "14T",
+      "castRange": "10m",
+      "spellDuration": "K",
+      "enhancement": "2 EG/+K3V3",
+      "page": "GRW 233",
+      "longDescription": "",
+      "enhancementDescription": "Es kann eine zweite Halluzination erschaffen werden.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Reichweite, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Katzenaugen",
+      "id": "cateyes",
+      "value": 21,
+      "school": "Schattenmagie",
+      "schoolGrade": 1,
+      "difficulty": "18",
+      "focus": "K4V1",
+      "castDuration": "1T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K1V1",
+      "page": "GRW 233",
+      "longDescription": "",
+      "enhancementDescription": "Die Lichtverhältnisse verbessern sich für den Zauberer um insgesamt 2 Stufen.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Licht",
+      "id": "light",
+      "value": 20,
+      "school": "Lichtmagie",
+      "schoolGrade": 0,
+      "difficulty": "15",
+      "focus": "K1",
+      "castDuration": "1T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K1V1",
+      "page": "GRW 236",
+      "longDescription": "",
+      "enhancementDescription": "Die Lichtverhältnisse verbessern sich um insgesamt 2 Stufen.",
+      "enhancementOptions": "Kanalisierter Fokus, Wirkungsbereich, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Lichtbann",
+      "id": "lightban",
+      "value": 21,
+      "school": "Schattenmagie",
+      "schoolGrade": 3,
+      "difficulty": "24",
+      "focus": "12V3",
+      "castDuration": "11T",
+      "castRange": "10m",
+      "spellDuration": "",
+      "enhancement": "2 EG/+3V3",
+      "page": "GRW 236",
+      "longDescription": "",
+      "enhancementDescription": "Es wird ein Zauber bis Grad 5 aufgehoben.",
+      "enhancementOptions": "Erschöpfter Fokus, Verzehrter Fokus, Reichweite, Auslösezeit"
+    },
+    {
+      "name": "Lichtertanz",
+      "id": "dancinglights",
+      "value": 23,
+      "school": "Illusionsmagie",
+      "schoolGrade": 0,
+      "difficulty": "15",
+      "focus": "1",
+      "castDuration": "1T",
+      "castRange": "10m",
+      "spellDuration": "1 m",
+      "enhancement": "3 EG/+1V1",
+      "page": "GRW 236",
+      "longDescription": "",
+      "enhancementDescription": "Der Bonus auf Darbietung-Proben erhöht sich auf 3 Punkte.",
+      "enhancementOptions": "Erschöpfter Fokus, Reichweite, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Magische Finte",
+      "id": "magicfeint",
+      "value": 23,
+      "school": "Illusionsmagie",
+      "schoolGrade": 1,
+      "difficulty": "18",
+      "focus": "4V1",
+      "castDuration": "1T",
+      "castRange": "Ber.",
+      "spellDuration": "15 T",
+      "enhancement": "2 EG/+1V1",
+      "page": "GRW 237",
+      "longDescription": "",
+      "enhancementDescription": "Normale Angriffe gegen den Zauberer erhalten einen Malus in Höhe von 1 Punkt.",
+      "enhancementOptions": "Erschöpfter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Maskerade",
+      "id": "masquerade",
+      "value": 23,
+      "school": "Illusionsmagie",
+      "schoolGrade": 4,
+      "difficulty": "27",
+      "focus": "K16V4",
+      "castDuration": "4m",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K4V4",
+      "page": "GRW 238",
+      "longDescription": "",
+      "enhancementDescription": "Die Maskerade erstreckt sich auch auf Stimme und Geruch, sofern sie dem Zauberer bekannt sind. Ist die Person einem Gegenüber gut bekannt, vermag dieser die Täuschung zu erkennen, wenn er sich mindestens 5 Minuten lang mit dem Zauberer auseinandersetzt und ihm eine vergleichende Empathie-Probe gegen die Redegewandtheit des Zauberers gelingt. ",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Moral erhöhen",
+      "id": "increasemorale",
+      "value": 18,
+      "school": "Beherrschungsmagie",
+      "schoolGrade": 1,
+      "difficulty": "18",
+      "focus": "K4V1",
+      "castDuration": "2T",
+      "castRange": "Ber.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K1V1",
+      "page": "GRW 238",
+      "longDescription": "",
+      "enhancementDescription": "Das Ziel wird zusätzlich immun gegen den Zustand Panisch, wenn es ihm noch nicht unterliegt.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Schatten beleben",
+      "id": "animateshadow",
+      "value": 21,
+      "school": "Schattenmagie",
+      "schoolGrade": 3,
+      "difficulty": "24",
+      "focus": "K12V3",
+      "castDuration": "9T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K3V3",
+      "page": "GRW 241",
+      "longDescription": "",
+      "enhancementDescription": "Die abgeleiteten Werte des Wesens entsprechen den um 2 Punkte gesenkten abgeleiteten Werten des Zauberers. Der Malus auf Proben beträgt nur noch 2 Punkte.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Schattenpfeil",
+      "id": "shadowarrow",
+      "value": 21,
+      "school": "Schattenmagie",
+      "schoolGrade": 2,
+      "difficulty": "VTD",
+      "focus": "6V2",
+      "castDuration": "7T",
+      "castRange": "10m",
+      "spellDuration": "",
+      "enhancement": "2 EG/+2V1",
+      "page": "GRW 242",
+      "longDescription": "",
+      "enhancementDescription": "Das Ziel erhält zusätzlich für 30 Ticks den Zustand Blutend 1.",
+      "enhancementOptions": "Erschöpfter Fokus, Verzehrter Fokus, Reichweite, Auslösezeit"
+    },
+    {
+      "name": "Schattenschleier",
+      "id": "shadowveil",
+      "value": 21,
+      "school": "Schattenmagie",
+      "schoolGrade": 0,
+      "difficulty": "15",
+      "focus": "K1",
+      "castDuration": "1T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K1V1",
+      "page": "GRW 242",
+      "longDescription": "",
+      "enhancementDescription": "Die Hitzestufe ist für ihn um 2 Stufen gesenkt.",
+      "enhancementOptions": "Kanalisierter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Stimme kopieren",
+      "id": "copyvoice",
+      "value": 23,
+      "school": "Illusionsmagie",
+      "schoolGrade": 3,
+      "difficulty": "24",
+      "focus": "K12V3",
+      "castDuration": "9T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "1 EG/+K3V3",
+      "page": "GRW 246",
+      "longDescription": "",
+      "enhancementDescription": "Eine etwaige Redegewandtheit-Probe des Zauberers, um die Sprechweise überzeugend zu imitieren, erhält einen Bonus in Höhe von 3 Punkten.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Suggestion",
+      "id": "suggestion",
+      "value": 18,
+      "school": "Beherrschungsmagie",
+      "schoolGrade": 2,
+      "difficulty": "GW",
+      "focus": "K8V2",
+      "castDuration": "7T",
+      "castRange": "Ber.",
+      "spellDuration": "K",
+      "enhancement": "2 EG/+K2V2",
+      "page": "GRW 247",
+      "longDescription": "",
+      "enhancementDescription": "Das Ziel wird die Suggestion selbst dann als seine Idee erachten, wenn Offensichtliches dagegen spricht, aber weiterhin seinen eigenen moralischen Grundsätzen folgen.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Trugbild",
+      "id": "phantasmagoria",
+      "value": 23,
+      "school": "Illusionsmagie",
+      "schoolGrade": 2,
+      "difficulty": "21",
+      "focus": "K8V2",
+      "castDuration": "6T",
+      "castRange": "5m",
+      "spellDuration": "K",
+      "enhancement": "2 EG/+K2V2",
+      "page": "GRW 248",
+      "longDescription": "",
+      "enhancementDescription": "Die Illusion kann auch bewegt sein.",
+      "enhancementOptions": "Kanalisierter Fokus, Verzehrter Fokus, Reichweite, Wirkungsdauer, Auslösezeit"
+    },
+    {
+      "name": "Wahrer Blick",
+      "id": "truesight",
+      "value": 23,
+      "school": "Illusionsmagie",
+      "schoolGrade": 2,
+      "difficulty": "15",
+      "focus": "K1",
+      "castDuration": "1T",
+      "castRange": "Zaub.",
+      "spellDuration": "K",
+      "enhancement": "2 EG/+K1V1",
+      "page": "GRW 251",
+      "longDescription": "",
+      "enhancementDescription": "Die Probe geht gegen die normale Schwierigkeit des Illusionszaubers.",
+      "enhancementOptions": "Kanalisierter Fokus, Wirkungsdauer, Auslösezeit"
+    }
+  ],
+  "armors": [],
+  "shields": [],
+  "meleeWeapons": [
+    {
+      "name": "Waffenlos",
+      "skill": "Handgemenge",
+      "attribute1": "BEW",
+      "attribute1Id": "AGILITY",
+      "attribute2": "STÄ",
+      "attribute2Id": "STRENGTH",
+      "value": 5,
+      "features": [
+        {
+          "name": "Entwaffnend",
+          "level": 1,
+          "description": "Für jede Stufe dieses Merkmals zählt die Last dieser Waffe um 1 Punkt erhöht, wenn es um die erlaubte Nutzung des Manövers Entwaffnen geht.",
+          "page": "GRW 186"
+        },
+        {
+          "name": "Stumpf",
+          "level": 0,
+          "description": "Der von der Waffe verursachte Schaden zählt vollständig als Betäubungsschaden. Dies gilt auch für zusätzlichen Schaden aus Manövern, nicht aber aus Quellen wie etwa Zaubern.",
+          "page": "GRW 186"
+        },
+        {
+          "name": "Umklammern",
+          "level": 0,
+          "description": "Mit dieser Waffe ist das Manöver Umklammern einsetzbar.",
+          "page": "GRW 186"
+        }
+      ],
+      "damage": "1W6",
+      "weaponSpeed": 5,
+      "characterTickMalus": 0,
+      "calculatedSpeed": 5,
+      "relic": false,
+      "personalized": false,
+      "load": 0,
+      "price": 0,
+      "availability": null,
+      "quality": 0,
+      "complexity": null,
+      "durability": 0
+    },
+    {
+      "name": "Dolch",
+      "skill": "Klingenwaffen",
+      "attribute1": "BEW",
+      "attribute1Id": "AGILITY",
+      "attribute2": "INT",
+      "attribute2Id": "INTUITION",
+      "value": 9,
+      "features": [
+        {
+          "name": "Wurffähig",
+          "level": 0,
+          "description": "Die Nahkampfwaffe kann auch als Wurfwaffe mit eigenen Werten verwendet werden.",
+          "page": "GRW 186"
+        }
+      ],
+      "damage": "1W6+3",
+      "weaponSpeed": 5,
+      "characterTickMalus": 0,
+      "calculatedSpeed": 5,
+      "relic": false,
+      "personalized": false,
+      "load": 1,
+      "price": 300,
+      "availability": "VILLAGE",
+      "quality": 4,
+      "complexity": "INEXPERIENCED",
+      "durability": 8
+    }
+  ],
+  "longRangeWeapons": [
+    {
+      "name": "Dolch",
+      "value": 8,
+      "skill": "Wurfwaffen",
+      "attribute1": "BEW",
+      "attribute1Id": "AGILITY",
+      "attribute2": "INT",
+      "attribute2Id": "INTUITION",
+      "damage": "1W6+1",
+      "weaponSpeed": 4,
+      "characterTickMalus": 0,
+      "calculatedSpeed": 4,
+      "range": 5,
+      "features": [
+        {
+          "name": "Improvisiert",
+          "level": 0,
+          "description": "Diese Gegenstände des Alltags sind eigentlich nicht für den Kampf geeignet. Allerdings verbessern sich ihr Schaden und ihre Waffengeschwindigkeit um je 2 Punkte, wenn der Kämpfer über die Meisterschaft Improvisation in der entsprechenden Kampffertigkeit verfügt.",
+          "page": "GRW 186"
+        },
+        {
+          "name": "Nahkampftauglich",
+          "level": 0,
+          "description": "Die Fernkampfwaffe kann auch als Nahkampfwaffe mit eigenen Werten verwendet werden.",
+          "page": "GRW 186"
+        }
+      ],
+      "relic": false,
+      "personalized": false,
+      "load": 1,
+      "price": 300,
+      "availability": "VILLAGE",
+      "quality": 4,
+      "complexity": "INEXPERIENCED",
+      "durability": 8
+    }
+  ],
+  "items": [
+    {
+      "name": "Decke ",
+      "count": 1,
+      "relic": false,
+      "personalized": false,
+      "load": 1,
+      "price": 10,
+      "availability": "VILLAGE",
+      "quality": 0,
+      "complexity": "INEXPERIENCED",
+      "durability": 1
+    },
+    {
+      "name": "Essgeschirr und -besteck",
+      "count": 1,
+      "relic": false,
+      "personalized": false,
+      "load": 1,
+      "price": 20,
+      "availability": "VILLAGE",
+      "quality": 0,
+      "complexity": "INEXPERIENCED",
+      "durability": 3
+    },
+    {
+      "name": "Fackel",
+      "count": 5,
+      "relic": false,
+      "personalized": false,
+      "load": 1,
+      "price": 1,
+      "availability": "VILLAGE",
+      "quality": 0,
+      "complexity": "INEXPERIENCED",
+      "durability": 3
+    },
+    {
+      "name": "Feuerstein, Stahl und Zunder",
+      "count": 1,
+      "relic": false,
+      "personalized": false,
+      "load": 0,
+      "price": 20,
+      "availability": "VILLAGE",
+      "quality": 0,
+      "complexity": "INEXPERIENCED",
+      "durability": 4
+    },
+    {
+      "name": "Proviant (je Tagesration)",
+      "count": 3,
+      "relic": false,
+      "personalized": false,
+      "load": 1,
+      "price": 10,
+      "availability": "VILLAGE",
+      "quality": 0,
+      "complexity": "INEXPERIENCED",
+      "durability": 1
+    }
+  ],
+  "notes": null,
+  "telare": 0
+}

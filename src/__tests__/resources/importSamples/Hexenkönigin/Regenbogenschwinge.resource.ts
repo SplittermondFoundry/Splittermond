@@ -235,6 +235,7 @@ export const expected = {
                     weight: 0,
                 },
             },
+
             type: "equipment",
         },
     ],
