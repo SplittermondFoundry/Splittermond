@@ -13,7 +13,6 @@ import SplittermondItem from "../../../../../../module/item/item";
 export function setUpMockActor(sandbox: SinonSandbox): SinonStubbedInstance<SplittermondActor> {
     const actorMock = sandbox.createStubInstance(SplittermondActor);
     sandbox.stub(foundryApi, "getActor").returns(actorMock);
-    //@ts-expect-error actor is not typed yet
     actorMock.system = {}
     Object.defineProperty(actorMock, "documentName", {value: "Actor", enumerable: true});
     Object.defineProperty(actorMock, "id", {value: "1", enumerable: true});

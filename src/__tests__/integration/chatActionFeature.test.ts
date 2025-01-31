@@ -12,13 +12,13 @@ import SplittermondSpellItem from "../../module/item/spell";
 import {CheckReport} from "../../module/actor/CheckReport";
 import SplittermondItem from "../../module/item/item";
 import {SpellRollMessage} from "../../module/util/chat/spellChatMessage/SpellRollMessage";
-import {QuenchContext} from "./resources/types";
+import type {QuenchBatchContext} from "@ethaks/fvtt-quench";
 
 declare const game: any;
 declare const ChatMessage: ChatMessage;
 declare const Hooks: Hooks;
 
-export function chatActionFeatureTest(context: QuenchContext) {
+export function chatActionFeatureTest(context: QuenchBatchContext) {
     const {describe, it, expect} = context;
     const splittermondMessageConfig = {
         blind: false,

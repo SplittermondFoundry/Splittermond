@@ -61,10 +61,11 @@ export interface Roll {
 }
 
 declare global {
-    type Collection<T> = ReadonlyMap<string, T>
+    type Collection<T> = ReadonlyMap<string, T> & ReadonlyArray<T>
 
     class Actor extends FoundryDocument {
         items: Collection<Item>
+        system: Record<string, any>
     }
 
     class Item extends FoundryDocument {

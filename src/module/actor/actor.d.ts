@@ -10,6 +10,7 @@ declare class SplittermondActor extends Actor {
     async rollMagicFumble(eg:number, costs?:string, skill?:SplittermondSkill):Promise<void>;
     async addTicks(value:number, message?:string, askPlayer?:boolean):Promise<void>;
     consumeCost(type:"health"|"focus", valueStr:string, description:unknown):void;
+    importFromJSON(json:string, overwriteData?):Promise<unknown>;
     attacks: Attack[]
 }
 export default SplittermondActor;

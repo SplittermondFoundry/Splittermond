@@ -1,8 +1,8 @@
-import {QuenchContext} from "./resources/types";
+import type {QuenchBatchContext} from "@ethaks/fvtt-quench";
 
 declare const game: any
 
-export function foundryTypeDeclarationsTest(context: QuenchContext) {
+export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     const {describe, it, expect} = context;
 
     describe("Item", () => {
