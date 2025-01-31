@@ -12,6 +12,7 @@ declare namespace foundry {
        class DataModel {
            constructor(data: any, context?:any);
            static defineSchema(): any;
+           static migrateData():any;
            toObject(): any;
            getFlag():any;
            updateSource():any;
@@ -99,7 +100,7 @@ export function dataModelTest(context:QuenchBatchContext) {
 
     describe("references API", () => {
         it("should get an actor by id", async () => {
-            const sampleActor = getActor()
+            const sampleActor = getActor(it)
             const fromApi = foundryApi.getActor(sampleActor.id)
 
             expect(fromApi).to.equal(sampleActor);
@@ -172,8 +173,8 @@ export function dataModelTest(context:QuenchBatchContext) {
         })
 
         it("should be able to read the document type from the document name field", () => {
-            expect(getActor().documentName).to.equal("Actor");
-            expect(getUnlinkedToken().documentName).to.equal("Token");
+            expect(getActor(it).documentName).to.equal("Actor");
+            expect(getUnlinkedToken(it).documentName).to.equal("Token");
         })
     });
 
