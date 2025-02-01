@@ -307,7 +307,6 @@ export class NpcDataModel extends SplittermondDataModel<NpcDataModelType, Splitt
     static defineSchema = NpcDataModelSchema;
 
     static migrateData(source:unknown){
-        console.log("Migrating NPC data");
         super.migrateData(source)
     }
 }
