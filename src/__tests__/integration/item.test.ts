@@ -1,15 +1,19 @@
 import {foundryApi} from "../../module/api/foundryApi";
 import {splittermond} from "../../module/config.js";
 import {MasteryDataModel} from "../../module/item/dataModel/MasteryDataModel.js";
-import {QuenchContext} from "./resources/types";
 import {SpellDataModel} from "../../module/item/dataModel/SpellDataModel";
 import SplittermondSpellItem from "../../module/item/spell";
+import {itemCreator} from "../../module/data/EntityCreator";
+import ItemImporter from "../../module/util/item-importer";
+import * as Machtexplosion from "../resources/importSamples/GRW/spells/Machtexplosion.resource";
+import sinon from "sinon";
+import type {QuenchBatchContext} from "@ethaks/fvtt-quench";
 
 declare const Item: any;
 declare const game: any;
 
-export function itemTest(this:any, context: QuenchContext) {
-    const {describe, it, expect} = context;
+export function itemTest(this:any, context: QuenchBatchContext) {
+    const {describe, it, expect, afterEach} = context;
     describe("foundry API compatibility", () => {
         it("has an actor attached if on an actor", () => {
             const actorWithItem = game.actors.filter((actor:Actor) => actor.items.size > 0)
@@ -93,4 +97,24 @@ export function itemTest(this:any, context: QuenchContext) {
             await Item.deleteDocuments([item.id]);
         });
     });
+    describe("import test",() => {
+        const sandbox = sinon.createSandbox();
+        afterEach(() => sandbox.restore());
+
+        it("can import a spell", async () => {
+            sandbox.stub(ItemImporter, "_folderDialog").returns(Promise.resolve(""));
+            sandbox.stub(ItemImporter, "_skillDialog").returns(Promise.resolve("fightmagic"));
+            const itemCreatorSpy = sandbox.spy(itemCreator, "createSpell");
+
+            const probe =sandbox.createStubInstance(ClipboardEvent);
+            sandbox.stub(probe,"clipboardData").get(()=>({getData:()=>Machtexplosion.input}));
+            await ItemImporter.pasteEventhandler(probe);
+
+            const item = await itemCreatorSpy.lastCall.returnValue
+            expect(item.system).to.deep.equal(Machtexplosion.expected.system);
+            expect("img" in item && item.img).to.equal("icons/svg/daze.svg")
+
+            await Item.deleteDocuments([item.id]);
+        });
+    })
 }

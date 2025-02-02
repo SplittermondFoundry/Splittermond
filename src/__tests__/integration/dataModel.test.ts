@@ -1,10 +1,29 @@
 import {getActor, getSpell, getUnlinkedToken} from "./fixtures.js";
-import {AgentReference} from "../../module/data/references/AgentReference.ts";
-import {foundryApi} from "../../module/api/foundryApi.ts";
-import {ItemReference} from "../../module/data/references/ItemReference.ts";
-import {OnAncestorReference} from "../../module/data/references/OnAncestorReference.ts";
+import {AgentReference} from "../../module/data/references/AgentReference";
+import {foundryApi} from "../../module/api/foundryApi";
+import {ItemReference} from "../../module/data/references/ItemReference";
+import {OnAncestorReference} from "../../module/data/references/OnAncestorReference";
+import {QuenchBatchContext} from "@ethaks/fvtt-quench";
 
-export function dataModelTest(context) {
+declare const DataModelValidationError: any;
+declare namespace foundry {
+   const data:any;
+   namespace abstract {
+       class DataModel {
+           constructor(data: any, context?:any);
+           static defineSchema(): any;
+           static migrateData():any;
+           toObject(): any;
+           getFlag():any;
+           updateSource():any;
+           parent:any;
+           [x:string]: any
+
+       }
+   }
+}
+
+export function dataModelTest(context:QuenchBatchContext) {
     const {describe, it, expect} = context;
     describe("foundry data model API", () => {
         const TestChild = class extends foundry.abstract.DataModel {
@@ -15,6 +34,7 @@ export function dataModelTest(context) {
             }
         };
         const TestParent = class extends foundry.abstract.DataModel {
+
             static defineSchema() {
                 return {
                     child: new foundry.data.fields.EmbeddedDataField(TestChild, {required: true, blank: false}),
@@ -50,7 +70,7 @@ export function dataModelTest(context) {
                         number: new foundry.data.fields.NumberField({
                             required: true,
                             blank: false,
-                            validate: (value) => {
+                            validate: (value:number) => {
                                 if (value <= 0) throw new DataModelValidationError()
                             }
                         })
@@ -80,7 +100,7 @@ export function dataModelTest(context) {
 
     describe("references API", () => {
         it("should get an actor by id", async () => {
-            const sampleActor = getActor()
+            const sampleActor = getActor(it)
             const fromApi = foundryApi.getActor(sampleActor.id)
 
             expect(fromApi).to.equal(sampleActor);
@@ -93,7 +113,7 @@ export function dataModelTest(context) {
         })
 
         it("should get a token by id and scene", async () => {
-            const sampleToken = getUnlinkedToken(this);
+            const sampleToken = getUnlinkedToken(it);
 
             const sceneId = sampleToken.parent.id;
             const fromAPI = foundryApi.getToken(sceneId, sampleToken.id);
@@ -110,7 +130,7 @@ export function dataModelTest(context) {
 
     describe("ItemReference", () => {
         it("should find an item in a top level collection", () => {
-            const /**@type SplittermondSpellItem */ sampleItem = getSpell(this);
+            const /**@type SplittermondSpellItem */ sampleItem = getSpell(it);
 
             const underTest = ItemReference.initialize(sampleItem);
 
@@ -118,9 +138,9 @@ export function dataModelTest(context) {
         });
 
         it("should find an item in an actor's collection", async () => {
-            const /**@type SplittermondSpellItem */ sampleItem = getSpell(this);
-            const sampleActor = getActor(this);
-            const itemOnActor = await sampleActor.createEmbeddedDocuments("Item", [sampleItem]).then(a => a[0]);
+            const /**@type SplittermondSpellItem */ sampleItem = getSpell(it);
+            const sampleActor = getActor(it);
+            const itemOnActor = await sampleActor.createEmbeddedDocuments("Item", [sampleItem]).then((a:unknown[]) => a[0]);
 
             const underTest = ItemReference.initialize(itemOnActor);
 
@@ -132,29 +152,29 @@ export function dataModelTest(context) {
 
     describe("AgentReference", () => {
         it("should return an actor from a reference", () => {
-            const sampleActor = getActor(this);
+            const sampleActor = getActor(it);
             const reference = AgentReference.initialize(sampleActor);
 
             expect(reference.getAgent()).to.equal(sampleActor);
         });
 
         it("should return a token from an actor reference", () => {
-            const sampleToken = getUnlinkedToken(this);
+            const sampleToken = getUnlinkedToken(it);
             const reference = AgentReference.initialize(sampleToken.actor);
 
             expect(reference.getAgent()).to.equal(sampleToken.actor);
         });
 
         it("should return a actor from a token input", () => {
-            const sampleToken = getUnlinkedToken(this);
+            const sampleToken = getUnlinkedToken(it);
             const reference = AgentReference.initialize(sampleToken);
 
             expect(reference.getAgent()).to.equal(sampleToken.actor);
         })
 
         it("should be able to read the document type from the document name field", () => {
-            expect(getActor().documentName).to.equal("Actor");
-            expect(getUnlinkedToken().documentName).to.equal("Token");
+            expect(getActor(it).documentName).to.equal("Actor");
+            expect(getUnlinkedToken(it).documentName).to.equal("Token");
         })
     });
 

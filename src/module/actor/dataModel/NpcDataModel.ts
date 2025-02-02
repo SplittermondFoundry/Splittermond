@@ -301,13 +301,12 @@ function NpcDataModelSchema() {
     };
 }
 
-type NpcDataModelSchemaType = DataModelSchemaType<typeof NpcDataModelSchema>
+export type NpcDataModelType = DataModelSchemaType<typeof NpcDataModelSchema>
 
-export class NpcDataModel extends SplittermondDataModel<NpcDataModelSchemaType, SplittermondActor> {
+export class NpcDataModel extends SplittermondDataModel<NpcDataModelType, SplittermondActor> {
     static defineSchema = NpcDataModelSchema;
 
     static migrateData(source:unknown){
-        console.log("Migrating NPC data");
         super.migrateData(source)
     }
 }

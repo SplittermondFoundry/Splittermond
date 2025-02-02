@@ -47,9 +47,14 @@ export const foundryApi = new class FoundryApi {
         return ChatMessage.create(chatData);
     }
 
-    createItem(data: object): Promise<Item>{
+    createItem(data: object, options:object={}): Promise<Item>{
         //@ts-ignore
-        return Item.create(data);
+        return Item.create(data, options);
+    }
+
+    createActor(data:object, options:object={}): Promise<Actor>{
+        //@ts-ignore
+        return Actor.create(data, options);
     }
 
     /**
