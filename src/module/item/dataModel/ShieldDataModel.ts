@@ -6,7 +6,7 @@ import {getDefense, getDescriptorFields, getPhysicalProperties} from "./commonFi
 function ItemShieldDataModelSchema() {
     return {
         ...getDescriptorFields(),
-        physicalProperties: getPhysicalProperties(),
+        ...getPhysicalProperties(),
         defense: getDefense(),
         modifier: new fields.StringField({ required: true, nullable: false }),
         skill: new fields.StringField({ required: true, nullable: false }),

@@ -266,7 +266,7 @@ export async function importNpc(rawData: string) {
                     let masteries: PartialItemData<MasteryDataModelType>[] = [];
                     tokenizedData[i + 1].replace(/\n/g, " ").replace("  ", " ").match(/[^(]+\s*\([^)]+\),?/g)?.forEach((skillEntryStr) => {
                         let masteryEntryData = skillEntryStr.trim().match(/([^(]+)\s*\(([^)]+)\)/);
-                        if(!masteryEntryData){
+                        if (!masteryEntryData) {
                             return;
                         }
                         let skill = [...splittermond.skillGroups.general, ...splittermond.skillGroups.magic, ...splittermond.skillGroups.fighting].find(i => foundryApi.localize(`splittermond.skillLabel.${i}`).toLowerCase() === masteryEntryData[1].trim().toLowerCase());
@@ -414,25 +414,23 @@ export async function importNpc(rawData: string) {
                         let description = lootEntryData[2];
                         if (lootEntryData[2]) {
                             const priceMatch = lootEntryStr.match(/([0-9]+) (L?|T?|S?)(.*)/);
-                            price = priceMatch ? `${priceMatch[1]} ${priceMatch[2]}`: "0";
+                            price = priceMatch ? `${priceMatch[1]} ${priceMatch[2]}` : "0";
                         }
                         actorData.items.push({
                             type: "equipment",
                             name: lootEntryData[1].trim(),
                             system: {
                                 description,
-                                physicalProperties: {
-                                    quantity: 1,
-                                    price,
-                                    weight:0,
-                                    hardness: null,
-                                    complexity:null,
-                                    availability:null,
-                                    quality:null,
-                                    durability:null,
-                                    sufferedDamage:null,
-                                    damageLevel:null
-                                }
+                                quantity: 1,
+                                price,
+                                weight: 0,
+                                hardness: null,
+                                complexity: "U",
+                                availability: null,
+                                quality: 0,
+                                durability: null,
+                                sufferedDamage: null,
+                                damageLevel: null
                             }
                         });
                     });
@@ -477,10 +475,10 @@ function handleMangledTableData(rawData: string, tokenizedData: string[]) {
     const attributes = attributeResult.record;
     const derivedAttributes = fillRecord(derivedAttributes2, attributeResult.source, /\s[1-9][0-9]?\s/).record;
     tokenizedData = tokenizedData.map(line => {
-        for(const key of attributeKeys) {
+        for (const key of attributeKeys) {
             line = replaceKeyValue(key, attributes[key]).in(line)
         }
-        for(const key of derivedAttributes2) {
+        for (const key of derivedAttributes2) {
             line = replaceKeyValue(key, derivedAttributes[key]).in(line)
         }
         return line;
@@ -524,7 +522,7 @@ function findKeyValue<T extends string>(keyPattern: T, valuePattern: RegExp) {
             return {source, record: {}}
         }
         source = replaceKeyValue(key, value).in(source);
-        return {source,  record: {[key]: value}}
+        return {source, record: {[key]: value}}
 
     }
 
@@ -535,8 +533,8 @@ function findKeyValue<T extends string>(keyPattern: T, valuePattern: RegExp) {
     }
 }
 
-function replaceKeyValue(key:string, value:string){
-    function replace(source: string){
+function replaceKeyValue(key: string, value: string) {
+    function replace(source: string) {
         const keyIndex = source.indexOf(key);
         const beforeKey = source.slice(0, keyIndex);
         const recordRemoved = source.slice(keyIndex)
@@ -546,5 +544,5 @@ function replaceKeyValue(key:string, value:string){
         return beforeKey + recordRemoved;
     }
 
-    return {in: (source:string)=>replace(source)};
+    return {in: (source: string) => replace(source)};
 }
