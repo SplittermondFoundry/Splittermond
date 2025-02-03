@@ -1,6 +1,7 @@
 import {DataModelSchemaType, fields, SplittermondDataModel} from "../../data/SplittermondDataModel";
 import SplittermondActor from "../actor";
 import {NpcAttribute} from "./NpcAttribute";
+import {HealthDataModel} from "./HealthDataModel";
 
 function NpcDataModelSchema() {
     return {
@@ -261,38 +262,8 @@ function NpcDataModelSchema() {
                 points: new fields.NumberField({required: true, nullable: false, initial: 0}),
             }, {required: true, nullable: false}),
         }, {required: true, nullable: false}),
-        health: new fields.SchemaField({
-            consumed: new fields.SchemaField({
-                value: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            exhausted: new fields.SchemaField({
-                value: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            channeled: new fields.SchemaField({
-                entries: new fields.ArrayField(
-                    new fields.SchemaField({
-                        description: new fields.StringField({required: true, nullable: false}),
-                        costs: new fields.NumberField({required: true, nullable: false}),
-                    }, {required: true, nullable: false}),
-                    {required: true, nullable: false, initial: []}),
-            }, {required: true, nullable: false}),
-        }, {required: true, nullable: false}),
-        focus: new fields.SchemaField({
-            consumed: new fields.SchemaField({
-                value: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            exhausted: new fields.SchemaField({
-                value: new fields.NumberField({required: true, nullable: false, initial: 0}),
-            }, {required: true, nullable: false}),
-            channeled: new fields.SchemaField({
-                entries: new fields.ArrayField(
-                    new fields.SchemaField({
-                        description: new fields.StringField({required: true, nullable: false}),
-                        costs: new fields.NumberField({required: true, nullable: false}),
-                    }, {required: true, nullable: false}),
-                    {required: true, nullable: false, initial: []}),
-            }, {required: true, nullable: false}),
-        }, {required: true, nullable: false}),
+        health: new fields.EmbeddedDataField(HealthDataModel, {required:true, nullable:false}),
+        focus: new fields.ObjectField({required:true, nullable:false}),
         currency: new fields.SchemaField({
             S: new fields.NumberField({required: true, nullable: false, initial: 0}),
             L: new fields.NumberField({required: true, nullable: false, initial: 0}),

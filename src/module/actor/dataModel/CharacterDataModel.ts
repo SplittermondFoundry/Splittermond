@@ -2,6 +2,7 @@
 import {DataModelSchemaType, SplittermondDataModel} from "../../data/SplittermondDataModel";
 import { fields } from "../../data/SplittermondDataModel";
 import SplittermondActor from "../actor";
+import {HealthDataModel} from "./HealthDataModel";
 
 function CharacterDataModelSchema() {
     return {
@@ -277,7 +278,15 @@ function CharacterDataModelSchema() {
                 points: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
             }, { required: true, nullable: false }),
         }, { required: true, nullable: false }),
-        health: new fields.SchemaField({
+        /*TODO: Health and Focus schould be more strictly schematised (see below)
+         * Unfortunately, actor's prepare healthFocus method dumps additional data into the model
+         * That does not make it past the schema validation ( and thus does not get displayed.)
+         * Implementing a proper Embedded data model is expensive (due to having to carry the logic)
+         * Thus, we'll just save everything.
+        */
+        health: new fields.EmbeddedDataField(HealthDataModel, {required:true, nullable:false}),
+        focus: new fields.ObjectField({required:true, nullable:false}),
+        /*focus: new fields.SchemaField({
             consumed: new fields.SchemaField({
                 value: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
             }, { required: true, nullable: false }),
@@ -292,23 +301,7 @@ function CharacterDataModelSchema() {
                     }, { required: true, nullable: false }),
                     { required: true, nullable: false, initial: [] }),
             }, { required: true, nullable: false }),
-        }, { required: true, nullable: false }),
-        focus: new fields.SchemaField({
-            consumed: new fields.SchemaField({
-                value: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
-            }, { required: true, nullable: false }),
-            exhausted: new fields.SchemaField({
-                value: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
-            }, { required: true, nullable: false }),
-            channeled: new fields.SchemaField({
-                entries: new fields.ArrayField(
-                    new fields.SchemaField({
-                        description: new fields.StringField({ required: true, nullable: false }),
-                        costs: new fields.NumberField({ required: true, nullable: false }),
-                    }, { required: true, nullable: false }),
-                    { required: true, nullable: false, initial: [] }),
-            }, { required: true, nullable: false }),
-        }, { required: true, nullable: false }),
+        }, { required: true, nullable: false }),*/
         currency: new fields.SchemaField({
             S: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
             L: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
