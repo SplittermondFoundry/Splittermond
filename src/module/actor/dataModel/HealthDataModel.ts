@@ -5,10 +5,10 @@ import {CharacterDataModel} from "./CharacterDataModel";
 function HealthSchema() {
     return {
         consumed: new fields.SchemaField({
-            value: new fields.NumberField({required: true, nullable: false, initial: 0}),
+            value: new fields.NumberField({required: true, nullable: false, initial: 0,validate:(x:number) => x >= 0}),
         }, {required: true, nullable: false}),
         exhausted: new fields.SchemaField({
-            value: new fields.NumberField({required: true, nullable: false, initial: 0}),
+            value: new fields.NumberField({required: true, nullable: false, initial: 0,validate:(x:number) => x >= 0}),
         }, {required: true, nullable: false}),
         channeled: new fields.SchemaField({
             entries: new fields.ArrayField(
