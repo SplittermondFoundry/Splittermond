@@ -2,6 +2,7 @@ import {DataModelSchemaType, fields, SplittermondDataModel} from "../../data/Spl
 import SplittermondActor from "../actor";
 import {NpcAttribute} from "./NpcAttribute";
 import {HealthDataModel} from "./HealthDataModel";
+import {FocusDataModel} from "./FocusSchemaModel";
 
 function NpcDataModelSchema() {
     return {
@@ -263,7 +264,7 @@ function NpcDataModelSchema() {
             }, {required: true, nullable: false}),
         }, {required: true, nullable: false}),
         health: new fields.EmbeddedDataField(HealthDataModel, {required:true, nullable:false}),
-        focus: new fields.ObjectField({required:true, nullable:false}),
+        focus: new fields.EmbeddedDataField(FocusDataModel, {required:true, nullable:false}),
         currency: new fields.SchemaField({
             S: new fields.NumberField({required: true, nullable: false, initial: 0}),
             L: new fields.NumberField({required: true, nullable: false, initial: 0}),
