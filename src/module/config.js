@@ -10,6 +10,7 @@ import {rollType} from "./config/RollType";
 import {splittermondSpellEnhancement} from "./config/SplittermondSpellEnhancements";
 import {modifiers} from "./config/modifiers";
 import {skillGroups} from "./config/skillGroups";
+import {damageTypes} from "./config/damageTypes";
 
 export const splittermond = {};
 
@@ -1135,3 +1136,4 @@ splittermond.spellEnhancement = splittermondSpellEnhancement;
 splittermond.degreeOfSuccessThresholds = {
     critical : 5
 }
+splittermond.damageTypes = damageTypes;

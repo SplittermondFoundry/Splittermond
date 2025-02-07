@@ -354,6 +354,34 @@
         "long": "Körperlicher Widerstand"
       }
     },
+    "damageTypes": {
+      "short": {
+        "physical": "Physisch",
+        "mental": "Mental",
+        "electric": "elektrisch",
+        "acid": "Säure",
+        "rock": "Fels",
+        "fire": "Feuer",
+        "heat": "Hitze",
+        "cold": "Kälte",
+        "poison": "Gift",
+        "bleeding": "Blutung",
+        "disease": "Krankheit"
+      },
+      "long": {
+        "physical": "Physischer Schaden",
+        "mental": "Mentaler Schäden",
+        "electric": "Elektrizitätsschaden",
+        "acid": "Säureschaden",
+        "rock": "Felsschaden",
+        "fire": "Feuerschaden",
+        "heat": "Hitzeschaden",
+        "cold": "Kältenschaden",
+        "poison": "Giftschaden",
+        "bleeding": "Blutungsschaden",
+        "disease": "Krankheitsschaden"
+      }
+    },
     "skillAbbreviation": {
       "antimagic": "Bann",
       "controlmagic": "Beherrschung",

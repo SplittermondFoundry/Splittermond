@@ -23,6 +23,34 @@
         "name": "Hero level multiplier",
         "hint": "Multiplier for calculating skill points and attribute modifiers."
       }
+    },
+    "damageTypes": {
+      "short": {
+        "physical": "physical",
+        "mental": "mental",
+        "electric": "electric",
+        "acid": "acid",
+        "rock": "rock",
+        "fire": "fire",
+        "heat": "heat",
+        "cold": "cold",
+        "poison": "poison",
+        "bleeding": "bleed",
+        "disease": "disease"
+      },
+      "long": {
+        "physical": "pyhsical damage",
+        "mental": "mental damage",
+        "electric": "electric damage",
+        "acid": "acid damage",
+        "rock": "rock damage",
+        "fire": "fire damage",
+        "heat": "heat damage",
+        "cold": "cold damage",
+        "poison": "poison damage",
+        "bleeding": "bleeding damage",
+        "disease": "disease damage"
+      }
     }
   }
 }
