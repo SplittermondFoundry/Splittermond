@@ -91,4 +91,13 @@ export class PrimaryCost extends SplittermondDataModel<PrimaryCostType>{
         const consumedModifier = this._consumed !== 0 ? `V${Math.abs(this._consumed)}` : "";
         return `${channeledModifier}${Math.abs(totalCost)}${consumedModifier}`;
     }
+
+    toModifier(strict=false):CostModifier {
+      return new CostModifier({
+            _channeled:  this.channeled||!strict ? this._nonConsumed : 0,
+            _channeledConsumed: this.isChanneled || !strict ? this._consumed : 0,
+            _exhausted: !this.isChanneled || !strict ? this._nonConsumed: 0,
+            _consumed: !this.isChanneled || !strict ? this._consumed: 0,
+      })
+    }
 }

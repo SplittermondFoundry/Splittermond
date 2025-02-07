@@ -125,6 +125,15 @@ describe("BaseCost object operation", () => {
             expect(result).to.deep.equal(expected);
         }));
 
+    it("should convert to a modifier", ()=>{
+        const costs = new PrimaryCost({_nonConsumed: 3, _consumed: 1, _isChanneled: false});
+        const result = costs.toModifier();
+        expect(result._exhausted).to.equal(3);
+        expect(result._consumed).to.equal(1);
+        expect(result._channeled).to.equal(3);
+        expect(result._channeledConsumed).to.equal(1);
+    })
+
 
     it("should hold up for a real world example", () => {
         const highBenediction = parseCostString("12V3").asPrimaryCost();
@@ -178,5 +187,23 @@ describe("Strict cost objects", () => {
         const costs = new PrimaryCost({_nonConsumed: 2, _consumed: 1, _isChanneled: false});
         const result = costs.subtract(new Cost(1, 1, false, true).asModifier());
         expect(result).to.deep.equal(new PrimaryCost({_nonConsumed: 1, _consumed: 0, _isChanneled: false}));
+    });
+
+    it("should not convert non-channeled costs to exhausted costs", () => {
+        const costs = new PrimaryCost({_nonConsumed: 2, _consumed: 1, _isChanneled: false});
+        const modifier = costs.toModifier(true);
+        expect(modifier._exhausted).to.equal(2)
+        expect(modifier._consumed).to.equal(1)
+        expect(modifier._channeled).to.equal(0)
+        expect(modifier._channeledConsumed).to.equal(0)
+    });
+
+    it("should not convert channeled costs to exhausted costs", () => {
+        const costs = new PrimaryCost({_nonConsumed: 2, _consumed: 1, _isChanneled: true});
+        const modifier = costs.toModifier(true);
+        expect(modifier._exhausted).to.equal(0)
+        expect(modifier._consumed).to.equal(0)
+        expect(modifier._channeled).to.equal(2)
+        expect(modifier._channeledConsumed).to.equal(1)
     });
 });
