@@ -3,13 +3,13 @@ import {splittermond} from "../../config";
 import {actorCreator} from "../../data/EntityCreator";
 import SplittermondCompendium from "../compendium";
 import {SplittermondFightingSkill, SplittermondSkill} from "../../config/skillGroups";
-import {DataModelConstructorInput} from "../../data/SplittermondDataModel";
 import type {
     MasteryDataModelType,
     NpcFeatureDataModelType,
     SpellDataModelType,
     SplittermondItemDataModelType
 } from "../../item";
+import {DataModelConstructorInput} from "../../api/DataModel";
 
 type NpcCreationData = typeof actorCreator["createNpc"]["arguments"][0];
 type PartialItemData<T extends SplittermondItemDataModelType> = {

@@ -1,7 +1,7 @@
 import {DataModelSchemaType, fields, SplittermondDataModel} from "../SplittermondDataModel";
 import {IllegalStateException} from "../exceptions";
 
-type DataModelConstructor<SCHEMA> = typeof SplittermondDataModel<SCHEMA,any> & {defineSchema():object}
+type DataModelConstructor<SCHEMA extends object> = typeof SplittermondDataModel<SCHEMA,any> & {defineSchema():object}
 type SchemaOf<DM> = DM extends DataModelConstructor<infer SCHEMA> ? SCHEMA : never;
 
 export class OnAncestorReference<T> extends SplittermondDataModel<DataModelSchemaType<typeof OnAncestorReference.defineSchema>, any> {

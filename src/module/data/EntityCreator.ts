@@ -5,7 +5,8 @@ import SplittermondMasteryItem from "../item/mastery";
 import SplittermondActor from "../actor/actor";
 import {CharacterDataModel} from "../actor/dataModel/CharacterDataModel";
 import {NpcDataModelType} from "../actor/dataModel/NpcDataModel";
-import {DataModelConstructorInput} from "./SplittermondDataModel";
+
+import {DataModelConstructorInput} from "../api/DataModel";
 
 export const itemCreator = {
     createSpell(data: {type: "spell", system: Partial<SplittermondSpellSystemData>}): Promise<SplittermondSpellItem> {

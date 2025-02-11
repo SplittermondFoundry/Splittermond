@@ -1,3 +1,5 @@
+import {DataModel} from "./DataModel";
+
 export interface ChatMessage {
     id: string,
     /** The Ids of the users that are to be addressed by this message*/
@@ -97,14 +99,12 @@ declare global {
         actor: Actor;
     }
 
-    class FoundryDocument {
+    class FoundryDocument extends DataModel<any,any>{
         constructor(data: Object, options?: Record<string, any>);
 
         readonly id: string
         readonly documentName: string
         readonly parent: FoundryDocument|undefined
-        toObject(source?:boolean): object
-        getFlag(scope: string, key: string): unknown;
         updateSource(data: object): void;
 
         prepareBaseData(): void;

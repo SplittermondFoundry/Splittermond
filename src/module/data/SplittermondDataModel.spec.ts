@@ -37,3 +37,13 @@ export namespace InputAcceptsObjectOfEmbeddedDataClasses {
         }
     });
 }
+
+export namespace SplittermondDataModelSupportsGenericChildren {
+    class GenericParent<T extends object> extends SplittermondDataModel<T> {
+    }
+    class Child extends GenericParent<{a: string}> {
+    }
+
+    const aChild:Child = new Child({a: "a"});
+    aChild.a;
+}

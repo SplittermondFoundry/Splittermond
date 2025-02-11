@@ -1,23 +1,7 @@
-/**
- * All known and relevant members for the foundry.abstract.DataModel base class.
- *
- * @param T the {@link DataModelSchemaType} that this {@link DataModel} uses
- * @param PARENT The encompassing {@link DataModel} of this data model. Useful for Embedded data fields
- */
-type DataModel<T, PARENT> = {
-    parent: PARENT extends never ? never : PARENT | null;
-    toObject(source?: boolean): T
-    getFlag(scope: string, key: string): unknown,
-    updateSource(data: Partial<T>): void,
-}
-export type DataModelConstructorInput<T> = { [K in keyof T]: T[K] extends DataModel<infer U, any> ? DataModelConstructorInput<U> : T[K] };
-type DataModelConstructor = new <T, PARENT extends DataModel<any, any> | never>(data: DataModelConstructorInput<T>, ...args: any[]) => DataModel<T, PARENT>;
-/**technically Readonly<T> is already part of the {@link DataModel} type, but because of all the generics, we cannot add it there*/
-type SplittermondDataModelConstructor = (new<T, PARENT extends DataModel<any, any> | never = never>(data: DataModelConstructorInput<T>, ...args: any[]) => DataModel<T, PARENT> & Readonly<T>)
-& {migrateData: (source: unknown) => unknown};
+import {DataModel} from "../api/DataModel";
 
 //@ts-ignore
-const FoundryDataModelConstructor = foundry.abstract.DataModel as DataModelConstructor;
+const FoundryDataModelConstructor = foundry.abstract.DataModel as typeof DataModel;
 /**
  * Base class for all {@link DataModel}s that are used in this system. Ensures that {@link DataModelSchemaType} used
  * by the data model are members of the data model.
@@ -25,9 +9,8 @@ const FoundryDataModelConstructor = foundry.abstract.DataModel as DataModelConst
  * @param T the {@link DataModelSchemaType} that this {@link DataModel} uses
  * @param PARENT The encompassing {@link DataModel} of this data model. Useful for Embedded data fields
  */
-const SplittermondDataModel =
-    class<T, PARENT extends DataModel<any, any> | never = never> extends FoundryDataModelConstructor<T, PARENT> {
-    } as SplittermondDataModelConstructor;
+const SplittermondDataModel = class<T extends object, PARENT extends DataModel<any, any> | never = never> extends FoundryDataModelConstructor<T, PARENT> {
+    }
 
 
 /**

@@ -1,11 +1,11 @@
 import {addToRegistry} from "../../../module/util/chat/chatMessageRegistry";
 import {
-    DataModelConstructorInput,
     DataModelSchemaType,
     fields,
     SplittermondDataModel
 } from "../../../module/data/SplittermondDataModel.js";
 import {SplittermondChatMessage} from "../../../module/data/SplittermondChatCardModel";
+import {DataModelConstructorInput} from "../../../module/api/DataModel";
 
 const constructorRegistryKey = "SplittermondTestRollMessage";
 

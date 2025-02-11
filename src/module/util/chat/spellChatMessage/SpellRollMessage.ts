@@ -1,5 +1,4 @@
 import {
-    DataModelConstructorInput,
     DataModelSchemaType,
     fields,
     SplittermondDataModel
@@ -24,6 +23,7 @@ import {NoActionOptionsHandler} from "./NoActionOptionsHandler";
 import {isAvailableAction, SpellRollMessageRenderedData} from "./SpellRollTemplateInterfaces";
 import {NoOptionsActionHandler} from "./NoOptionsActionHandler";
 import {RollResultRenderer} from "../RollResultRenderer";
+import {DataModelConstructorInput} from "../../../api/DataModel";
 
 const constructorRegistryKey = "SpellRollMessage";
 
