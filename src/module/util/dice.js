@@ -84,7 +84,7 @@ export async function evaluateCheck(roll, skillPoints, difficulty, rollType) {
  */
 export async function damage(damageFormula, featureString, damageSource = "", speaker= null) {
 
-    return singleDamage(damageFormula, featureString, damageSource, speaker);
+    return (await singleDamage(damageFormula, featureString, damageSource, speaker)).sendToChat();
     const damage = DamageRoll.parse(damageFormula, featureString);
 
     const roll = await damage.evaluate();

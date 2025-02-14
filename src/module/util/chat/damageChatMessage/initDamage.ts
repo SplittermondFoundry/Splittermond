@@ -45,7 +45,7 @@ export async function initDamage(damages: ProtoDamageImplement[], costType: 'K' 
             blind: false,
             rolls: [damageResults.totalRoll]
         }
-    ).sendToChat();
+    );
 }
 
 async function rollDamages(damages: ProtoDamageImplement[]) {
