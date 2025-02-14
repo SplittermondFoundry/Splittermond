@@ -17,6 +17,13 @@ export interface ChatMessage {
     deleteDocuments(documentId: string[]): Promise<void>
 }
 
+export interface Speaker {
+    scene: string;
+    actor: string|null;
+    token: string|null;
+    alias: string;
+}
+
 export enum ChatMessageTypes {
     OTHER,
     OOC,

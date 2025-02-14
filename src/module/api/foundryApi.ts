@@ -4,7 +4,7 @@ import type {
     Hooks,
     MergeObjectOptions,
     SettingsConfig, SettingTypeMapper,
-    Socket,
+    Socket, Speaker,
     User
 } from "./foundryTypes";
 import type{Roll} from "./Roll";
@@ -68,9 +68,9 @@ export const foundryApi = new class FoundryApi {
 
     /**
      * @param {object} data object containing the actor
-     * @return {{scene:string,token: string,actor: string,alias: string}} the token that is registered as the speaker
+     * @return  the token that is registered as the speaker
      */
-    getSpeaker(data: object) {
+    getSpeaker(data?: object): Speaker {
         //@ts-ignore
         return ChatMessage.getSpeaker(data);
     }

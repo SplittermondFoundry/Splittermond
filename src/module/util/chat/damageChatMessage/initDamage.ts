@@ -8,8 +8,7 @@ import {DamageType} from "../../../config/damageTypes";
 import {parseFeatureString} from "../../damage/featureParser";
 import {DamageMessage} from "./DamageMessage";
 import {Roll, sumRolls} from "../../../api/Roll";
-
-type Speaker = { actor: string, alias: string, scene: string, token: string }
+import {Speaker} from "../../../api/foundryTypes";
 
 interface ProtoDamageImplement {
     damageFormula: string;
