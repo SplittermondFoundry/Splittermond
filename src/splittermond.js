@@ -8,7 +8,6 @@ import SplittermondWeaponSheet from "./module/item/sheets/weapon-sheet.js";
 import SplittermondShieldSheet from "./module/item/sheets/shield-sheet.js";
 import SplittermondArmorSheet from "./module/item/sheets/armor-sheet.js";
 import SplittermondAttackSheet from "./module/item/sheets/attack-sheet.js";
-import ApplyDamageDialog from "./module/apps/dialog/apply-damage-dialog.js";
 import {splittermond} from "./module/config.js";
 import * as Dice from "./module/util/dice.js"
 import * as Macros from "./module/util/macros.js"
