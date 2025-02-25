@@ -64,7 +64,8 @@
         "once": "Nur den ersten",
         "never": "Nie",
         "always": "Immer"
-      }
+      },
+      "skip": "Überspringen"
     },
     "start": "Start",
     "value": "Wert",

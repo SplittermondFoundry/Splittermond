@@ -29,7 +29,13 @@
       "modifiedBy": "by weakness",
       "subTotal": "sub total",
       "damageReduction": "damage reduction",
-      "damageReductionOverride": "ignored"
+      "damageReductionOverride": "ignored",
+      "displaySettings": {
+        "once": "First one only",
+        "never": "Never",
+        "always": "Always"
+      },
+      "skip": "Skip"
     },
     "message": {
       "itemImported": "The item \"{name}\" was imported as \"{type}\"!",

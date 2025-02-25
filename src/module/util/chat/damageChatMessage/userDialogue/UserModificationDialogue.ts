@@ -48,18 +48,18 @@ export class UserModificationDialogue {
         switch (userResult.selectedAction) {
             case null:
             case "cancel":
+                this.showNext = false;
                 return this.handleUserCancelAction();
             case  "apply":
                 this.showNext = displayDamageDialogue.get() === "always";
                 return this.handleUserApplicationAction(userResult, userReport);
-            case "seeNext":
+            case "skip":
                 this.showNext = true;
-                return this.handleUserApplicationAction(userResult, userReport);
+                return this.handleUserCancelAction();
         }
     }
 
     private handleUserCancelAction() {
-        this.showNext = false;
         this.storedUserAdjustment = CostModifier.zero;
         this.cancelled = true;
         return "Aborted" as const

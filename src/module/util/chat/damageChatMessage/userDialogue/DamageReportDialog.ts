@@ -5,7 +5,7 @@ import {foundryApi} from "../../../../api/foundryApi";
 import {CostType, isCostType} from "../../../costs/costTypes";
 import SplittermondActor from "../../../../actor/actor";
 
-type UserAction = "cancel" | "apply" | "seeNext" | null;
+type UserAction = "cancel" | "apply" | "skip" | null;
 export type UserAdjustments = ReturnType<DamageReportDialog["getUserAdjustments"]>;
 
 export class DamageReportDialog extends FoundryDialog {
@@ -33,10 +33,10 @@ export class DamageReportDialog extends FoundryDialog {
             content: await renderedContent.getHtml(),
             buttons: [{
                 action: "cancel",
-                label: foundryApi.localize("splittermond.cancel"),
+                label: foundryApi.localize("splittermond.damageMessage.skip"),
                 default: true,
                 callback: () => {
-                    dialog.selectedAction = "cancel";
+                    dialog.selectedAction = "skip";
                     return Promise.resolve();
                 }
             }, {

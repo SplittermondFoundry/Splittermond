@@ -108,7 +108,21 @@ describe("UserModificationDialog", () => {
             const adjustment = await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));
 
             expect(adjustment).to.deep.equal(new Cost(10, 0, false, true).asPrimaryCost());
-        })
+        });
+
+        it("should skip one user adjustment if user skipped", async () => {
+            asMock(settings.registerString).returnsSetting("once");
+            sandbox.createStubInstance(DamageReportDialog)
+            const dialog = createMockDialog(sandbox, {selectedAction: "skip"});
+            const underTest = UserModificationDialogue.create();
+            const damage = new Cost(0, 10, false, true);
+
+            const firstAdjustment = await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));
+            await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));
+
+            expect(firstAdjustment).to.deep.equal("Aborted");
+            expect(dialog.render.calledTwice).to.be.true;
+        });
 
         it("should apply reductions from splinterpoint usage only once", async () => {
             sandbox.createStubInstance(DamageReportDialog)
