@@ -130,5 +130,3 @@ export class CostModifier extends SplittermondDataModel<CostModifierType> {
         return primaryCost.isChanneled ? this._channeled : this._exhausted;
     }
 }
-
-
