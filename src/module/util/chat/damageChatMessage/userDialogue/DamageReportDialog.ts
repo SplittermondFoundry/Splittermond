@@ -73,31 +73,34 @@ export class DamageReportDialog extends FoundryDialog {
 
     async render(options: DialogV2RenderOptions) {
         const result = await super.render(options);
-        $(result.element).find("button.button-inline[data-action='inc-value']").on("click", (plusClickEvent) => {
+        result.element.querySelector("button.button-inline[data-action='inc-value']")?.addEventListener("click", (plusClickEvent) => {
             this.operateOnInput((value) => value + 1);
             plusClickEvent.stopPropagation();
         });
-        $(result.element).find("button.button-inline[data-action='dec-value']").on("click", (minusClickEvent) => {
+        result.element.querySelector("button.button-inline[data-action='dec-value']")?.addEventListener("click", (minusClickEvent) => {
             this.operateOnInput((value) => value - 1);
             minusClickEvent.stopPropagation();
         });
-        $(result.element).find("button.button-inline[data-action='half-value']").on("click", (halfClickEvent) => {
+        result.element.querySelector("button.button-inline[data-action='half-value']")?.addEventListener("click", (halfClickEvent) => {
             this.operateOnInput((value) => Math.round(value * 0.5));
             halfClickEvent.stopPropagation();
         });
-        $(result.element).find("input[name='damage']").on("change", () => {
+        result.element.querySelector("input[name='damage']")?.addEventListener("change", () => {
             const newValue = this.getInputValue();
             if (newValue !== null) {
                 this.currentUserAdjustment = newValue - this.previousValue;
                 this.previousValue = newValue;
             }
         });
-        $(result.element).find("button.dialog-buttons[data-action='useSplinterpoint']").on("click", () => {
+        result.element.querySelector("button.dialog-buttons[data-action='useSplinterpoint']")?.addEventListener("click", () => {
+            const button = result.element.querySelector("button.dialog-buttons[data-action='useSplinterpoint']") as HTMLButtonElement
+            if (button) {
+                button.disabled = true;
+            }
             this.spendSplinterpoint();
-            $(result.element).find("button.dialog-buttons[data-action='useSplinterpoint']").prop("disabled", true);
             this.operateOnInput((value) => value - this.splinterpointBonus);
         });
-        $(result.element).find("select[name='costTypeSelect']").on("change", (event) => {
+        result.element.querySelector("select[name='costTypeSelect']")?.addEventListener("change", (event) => {
             if (event.target instanceof HTMLSelectElement) {
                 const selectedValue = Array.from(event.target.selectedOptions).map(o => o.value)[0];
                 this.handleSelectChange(selectedValue);
@@ -125,17 +128,25 @@ export class DamageReportDialog extends FoundryDialog {
     }
 
     private setInputValue(newValue: number) {
-        this.getInput().val(newValue).trigger("change");
+        const input = this.getInput();
+        input.value = `${newValue}`
+        const doc = input.ownerDocument.defaultView!;
+        const event = new doc.Event("change", {bubbles: true, cancelable: true});
+        input.dispatchEvent(event);
 
     }
 
     private getInputValue(): number | null {
         this.wasAdjusted = true;
-        return parseInputValue(this.getInput().val());
+        return parseInputValue(this.getInput().value);
     }
 
     private getInput() {
-        return $(this.element).find("input[name='damage']")
+        const input = this.element.querySelector("input[name='damage']")
+        if (!input) {
+            throw new Error("Could not find input element in dialog, even though it should be there");
+        }
+        return input as HTMLInputElement
     }
 
     private spendSplinterpoint() {
