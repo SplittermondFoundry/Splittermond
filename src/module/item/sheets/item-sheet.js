@@ -70,6 +70,12 @@ export default class SplittermondItemSheet extends ItemSheet {
         sheetProperties.forEach(grp => {
             grp.properties.forEach(async /** @type {InputItemProperty|ItemSheetPropertyDisplayProperty}*/prop => {
                 prop.value = this.propertyResolver.getProperty(this.item, prop.field);
+                if (prop.value === undefined) {
+                    prop.value = "undefined";
+                }
+                if(prop.value === null) {
+                    prop.value = "null";
+                }
                 prop.placeholderText = prop.placeholderText ?? prop.label;
                 if (prop.help) {
                     prop.help = await this.textEditor.enrichHTML(this.localizer.localize(prop.help));
