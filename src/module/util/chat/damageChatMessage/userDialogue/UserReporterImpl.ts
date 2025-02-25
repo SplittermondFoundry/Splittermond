@@ -3,7 +3,7 @@ import {DamageType} from "../../../../config/damageTypes";
 import {UserReporter} from "../../../damage/calculateDamageOnTarget";
 import SplittermondActor from "../../../../actor/actor";
 import {AgentReference} from "../../../../data/references/AgentReference";
-import {PrimaryCost} from "../../../costs/PrimaryCost";
+import {CostBase} from "../../../costs/costTypes";
 
 
 export interface ProtoUserAdjustment {
@@ -26,8 +26,7 @@ export interface UserReport {
 export interface EventReport {
     causer: AgentReference | null,
     isGrazingHit: boolean,
-    costBase: PrimaryCost,
-    costVector: CostModifier
+    costBase: CostBase
 }
 
 
@@ -74,7 +73,7 @@ export class UserReporterImpl implements UserReporter {
         }
         return {
             target: this._target,
-            damageReduction: this._event.costVector.multiply(this._target.damageReduction),
+            damageReduction: this._event.costBase.multiply(this._target.damageReduction),
             event: this._event,
             records: this.records,
             totalDamage: this.totalDamage,

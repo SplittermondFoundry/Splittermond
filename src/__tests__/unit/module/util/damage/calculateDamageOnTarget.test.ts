@@ -2,19 +2,16 @@ import {DamageType, damageTypes} from "../../../../../module/config/damageTypes"
 import {createDamageEvent, createDamageImplement} from "./damageEventTestHelper";
 import sinon, {SinonSandbox} from "sinon";
 import SplittermondActor from "../../../../../module/actor/actor";
-import {
-    calculateDamageOnTarget,
-    UserReporter
-} from "../../../../../module/util/damage/calculateDamageOnTarget";
+import {calculateDamageOnTarget, UserReporter} from "../../../../../module/util/damage/calculateDamageOnTarget";
 import {Cost, CostModifier} from "../../../../../module/util/costs/Cost";
 import {expect} from "chai";
 import {AgentReference} from "module/data/references/AgentReference";
-import {PrimaryCost} from "module/util/costs/PrimaryCost";
+import {CostBase} from "../../../../../module/util/costs/costTypes";
 
 
 describe("Damage Application", () => {
     let sandbox: SinonSandbox;
-    const consumed = new Cost(0, 1, false, true).asPrimaryCost();
+    const consumed = CostBase.create("V");
     beforeEach(() => sandbox = sinon.createSandbox());
     afterEach(() => sandbox.restore());
 
@@ -194,12 +191,12 @@ type RecordItem = {
 
 class MockReporter implements UserReporter {
     public _target: SplittermondActor|null = null;
-    public _event: { causer: AgentReference | null; isGrazingHit: boolean; costBase: PrimaryCost; }|null = null;
+    public _event: { causer: AgentReference | null; isGrazingHit: boolean; costBase: CostBase; }|null = null;
     public records: RecordItem[] = [];
     public totalDamage: CostModifier = new Cost(0, 0, false).asModifier();
     public overriddenReduction: CostModifier = new Cost(0, 0, false).asModifier();
 
-    set event(value: { causer: AgentReference | null; isGrazingHit: boolean; costBase: PrimaryCost, costVector: CostModifier }) {
+    set event(value: { causer: AgentReference | null; isGrazingHit: boolean; costBase: CostBase }) {
         this._event = value;
     }
 

@@ -11,6 +11,7 @@ import {createHtml} from "../../../../../../handlebarHarness";
 import {expect} from "chai";
 import {DOMWindow, JSDOM} from "jsdom";
 import {FoundryDialog} from "../../../../../../../module/api/Dialog";
+import {CostBase} from "../../../../../../../module/util/costs/costTypes";
 
 declare const foundry:any;
 
@@ -115,8 +116,7 @@ function createUserReport(sandbox: SinonSandbox, props: Partial<UserReport> = {}
         event: {
             causer: props.event?.causer ?? createAttacker(sandbox, {name: "Attacker"}),
             isGrazingHit: props.event?.isGrazingHit ?? false,
-            costBase: props.event?.costBase ?? new Cost(0, 0, false, true).asPrimaryCost(),
-            costVector: props.event?.costVector ?? new Cost(1, 0, false, true).asModifier(),
+            costBase: props.event?.costBase ?? CostBase.create(""),
         },
         overriddenReduction: props.overriddenReduction ?? new Cost(1, 0, false, true).asModifier(),
         records: props.records ?? [{

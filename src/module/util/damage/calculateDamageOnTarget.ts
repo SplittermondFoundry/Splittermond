@@ -4,6 +4,7 @@ import {DamageType} from "../../config/damageTypes";
 import {CostModifier} from "../costs/Cost";
 import {AgentReference} from "../../data/references/AgentReference";
 import {PrimaryCost} from "../costs/PrimaryCost";
+import {CostBase} from "../costs/costTypes";
 
 
 export interface UserReporter {
@@ -15,7 +16,7 @@ export interface UserReporter {
 
     set totalDamage(value: CostModifier);
 
-    set event(event: { causer: AgentReference | null, isGrazingHit: boolean, costBase: PrimaryCost, costVector: CostModifier });
+    set event(event: { causer: AgentReference | null, isGrazingHit: boolean, costBase: CostBase });
 
     addRecord(implementName: string, damageType: DamageType, baseDamage: CostModifier, appliedDamage: CostModifier): void;
 }
@@ -36,7 +37,7 @@ export class NoReporter implements UserReporter {
     set totalDamage(__: CostModifier) {
     }
 
-    set event(__: { causer: AgentReference | null; isGrazingHit: boolean; costBase: PrimaryCost, costVector: CostModifier }) {
+    set event(__: { causer: AgentReference | null; isGrazingHit: boolean; costBase: CostBase}) {
     }
 
     addRecord(): void {
@@ -46,15 +47,15 @@ export class NoReporter implements UserReporter {
 export function calculateDamageOnTarget(event: DamageEvent, target: SplittermondActor, reporter: UserReporter = new NoReporter()): PrimaryCost {
 
     function toCost(value: number) {
-        return event.costVector.multiply(value)
+        return event.costBase.multiply(value)
     }
 
     reporter.event = event;
     reporter.target = target;
 
 
-    let damageBeforeGrazingAndReduction = event.costBase.toModifier(true);
-    let realizedDamageReductionOverride = event.costBase.toModifier(true);
+    let damageBeforeGrazingAndReduction = CostModifier.zero;
+    let realizedDamageReductionOverride = CostModifier.zero;
 
     for (const implement of event.implements) {
         const susceptibility = toCost(target.susceptibilities[implement.damageType]);
@@ -77,6 +78,6 @@ export function calculateDamageOnTarget(event: DamageEvent, target: Splittermond
 function calculateActualDamageReduction(event: DamageEvent, target: SplittermondActor, realizedDamageReductionOverride: CostModifier) {
     //Base reduction must be be a primary cost, because it must not go below 0. However, we need to convert it to a modifier to apply the damage reduction
     //Therefore, we need to apply the cost type both via cost base and cost vector;
-    const baseReduction = event.costBase.add(event.costVector.multiply(target.damageReduction));
+    const baseReduction = event.costBase.add(event.costBase.multiply(target.damageReduction));
     return baseReduction.subtract(realizedDamageReductionOverride).toModifier(true);
 }

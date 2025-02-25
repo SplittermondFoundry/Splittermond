@@ -1,7 +1,6 @@
 import {foundryApi} from "../../../../api/foundryApi";
 import {UserReport, UserReportRecord} from "./UserReporterImpl";
-import {CostType, fromCost} from "../../../costs/costTypes";
-import {PrimaryCost} from "../../../costs/PrimaryCost";
+import {CostType} from "../../../costs/costTypes";
 
 export interface DamageRecord {
     currentCostType: CostType;
@@ -42,7 +41,7 @@ export class Renderer{
 
     get costType(): CostType {
         const source = this.userModificationRecord;
-        return this.mapCostBase(source.event.costBase.add(source.event.costVector))
+        return source.event.costBase.costType;
     }
     private getTargetSplinterpoints(): number {
         return this.userModificationRecord.target.splinterpoints.max  ?? 0;
@@ -61,14 +60,6 @@ export class Renderer{
             totalBeforeGrazing: source.totalFromImplements.length,
             totalDamage: source.totalDamage.length,
         }
-    }
-
-    private mapCostBase(costBase:PrimaryCost):CostType{
-        const costTypes = fromCost(costBase);
-        if(costTypes.length >1){
-            throw new Error("Cost base must be a single cost type");
-        }
-        return costTypes[0];
     }
 
     private mapRecords(records:UserReportRecord[]):DamageRecordItem[]{

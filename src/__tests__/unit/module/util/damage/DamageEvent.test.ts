@@ -3,6 +3,7 @@ import sinon, {SinonSandbox} from "sinon";
 import {expect} from "chai";
 import {createDamageEvent, createDamageImplement} from "./damageEventTestHelper";
 import {Cost} from "../../../../../module/util/costs/Cost";
+import {CostBase} from "../../../../../module/util/costs/costTypes";
 
 
 describe("DamageEvent", ()=> {
@@ -34,25 +35,25 @@ describe("DamageEvent", ()=> {
 
     describe("base cost", () => {
         it("should return a zero cost base of type channeled",() => {
-            const damageEvent = createDamageEvent(sandbox, {_costBase: new Cost(1, 0, true,true).asPrimaryCost()});
+            const damageEvent = createDamageEvent(sandbox, {_costBase: CostBase.create("K")});
             const damage = damageEvent.costBase.add(new Cost(1,0,true,true).asModifier())
             expect(damage.render()).to.equal("K1");
         });
 
         it("should return a zero cost base of type exhausted",() => {
-            const damageEvent = createDamageEvent(sandbox, {_costBase: new Cost(1, 0, false,true).asPrimaryCost()});
+            const damageEvent = createDamageEvent(sandbox, {_costBase: CostBase.create("")});
             const damage = damageEvent.costBase.add(new Cost(1,0,false,true).asModifier())
             expect(damage.render()).to.equal("1");
         });
 
         it("should return a zero cost base of type consumed",() => {
-            const damageEvent = createDamageEvent(sandbox, {_costBase: new Cost(0, 1, false,true).asPrimaryCost()});
+            const damageEvent = createDamageEvent(sandbox, {_costBase: CostBase.create("V")});
             const damage = damageEvent.costBase.add(new Cost(0,1,false,true).asModifier())
             expect(damage.render()).to.equal("1V1");
         });
 
         it("should even work with mixed costs", () => {
-            const damageEvent = createDamageEvent(sandbox, {_costBase: new Cost(1, 1, false,true).asPrimaryCost()});
+            const damageEvent = createDamageEvent(sandbox, {_costBase: CostBase.create("")});
             const damage = damageEvent.costBase.add(new Cost(1,1,false,true).asModifier())
             expect(damage.render()).to.equal("2V1");
         });
