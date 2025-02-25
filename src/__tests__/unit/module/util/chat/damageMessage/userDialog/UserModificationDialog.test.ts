@@ -24,7 +24,7 @@ describe("UserModificationDialog", () => {
         it("should not display on first invocation if setting set to never", async () => {
             asMock(settings.registerString).returnsSetting("never");
             const dialog = sandbox.stub(DamageReportDialog, "create").resolves(sandbox.createStubInstance(DamageReportDialog))
-            const underTest = new UserModificationDialogue();
+            const underTest = UserModificationDialogue.create();
             const damage = new Cost(0, 10, false,true);
 
             const userAdjustedDamage = await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));
@@ -38,7 +38,7 @@ describe("UserModificationDialog", () => {
             asMock(settings.registerString).returnsSetting("once");
             sandbox.createStubInstance(DamageReportDialog)
             const dialog = createMockDialog(sandbox, {wasAdjusted: true, damageAdjustment: -5})
-            const underTest = new UserModificationDialogue();
+            const underTest = UserModificationDialogue.create();
             const damage = new Cost(0, 10, false,true);
 
             const firstAdjustment = await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));
@@ -53,7 +53,7 @@ describe("UserModificationDialog", () => {
             asMock(settings.registerString).returnsSetting("always");
             sandbox.createStubInstance(DamageReportDialog)
             const dialog = createMockDialog(sandbox, {wasAdjusted: true, damageAdjustment: -5})
-            const underTest = new UserModificationDialogue();
+            const underTest = UserModificationDialogue.create();
             const damage = new Cost(0, 10, false,true);
 
             const firstAdjustment = await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));
@@ -68,7 +68,7 @@ describe("UserModificationDialog", () => {
             asMock(settings.registerString).returnsSetting("always");
             sandbox.createStubInstance(DamageReportDialog)
             const dialog = createMockDialog(sandbox, {wasAdjusted: true, damageAdjustment: -5,selectedAction: "cancel"})
-            const underTest = new UserModificationDialogue();
+            const underTest = UserModificationDialogue.create();
             const damage = new Cost(0, 10, false,true);
 
             const firstAdjustment = await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));
@@ -85,7 +85,7 @@ describe("UserModificationDialog", () => {
             asMock(settings.registerString).returnsSetting("once");
             sandbox.createStubInstance(DamageReportDialog)
             createMockDialog(sandbox, {wasAdjusted: true, damageAdjustment: 10})
-            const underTest = new UserModificationDialogue();
+            const underTest = UserModificationDialogue.create();
             const damage = new Cost(0, 10, false,true);
 
             const firstAdjustment = await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));
@@ -97,7 +97,7 @@ describe("UserModificationDialog", () => {
             asMock(settings.registerString).returnsSetting("once");
             sandbox.createStubInstance(DamageReportDialog)
             createMockDialog(sandbox, {costBaseChanged: true, costBase: ""})
-            const underTest = new UserModificationDialogue();
+            const underTest = UserModificationDialogue.create();
             const damage = new Cost(0, 10, false,true);
 
             const adjustment = await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));
@@ -108,7 +108,7 @@ describe("UserModificationDialog", () => {
         it("should apply reductions from splinterpoint usage only once", async()=>{
             sandbox.createStubInstance(DamageReportDialog)
             createMockDialog(sandbox, {wasAdjusted:true , damageAdjustment:-5, splinterpointBonus: -5, usedSplinterpointBonus: true})
-            const underTest = new UserModificationDialogue();
+            const underTest = UserModificationDialogue.create();
             const damage = new Cost(0, 10, false,true);
 
             const firstAdjustment = await underTest.getUserAdjustedDamage(createUserReport(sandbox, {totalDamage: damage.asModifier()}));

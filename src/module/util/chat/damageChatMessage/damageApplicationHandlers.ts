@@ -13,7 +13,7 @@ export const damageHandlers = {
 }
 
 async function applyDamageToUserTargets(event: DamageEvent) {
-    const userModifier = new UserModificationDialogue();
+    const userModifier = UserModificationDialogue.create();
     const causingActor = event.causer?.getAgent();
     if (!causingActor) {
         foundryApi.warnUser("splittermond.chatCard.damageMessage.noActorFound");
@@ -36,7 +36,7 @@ async function applyDamageToUserTargets(event: DamageEvent) {
 }
 
 async function applyDamageToTargets(event: DamageEvent) {
-    const userModifier = new UserModificationDialogue();
+    const userModifier = UserModificationDialogue.create();
     const targetTokens = foundryApi.currentUser.targets;
     if (!targetTokens|| targetTokens.size=== 0) {
         foundryApi.warnUser("splittermond.chatCard.damageMessage.youHaveNoTargets");
@@ -54,7 +54,7 @@ async function applyDamageToSelf(event: DamageEvent) {
     if (target === null) {
         return Promise.resolve();
     }
-    const userModifier = new UserModificationDialogue();
+    const userModifier = UserModificationDialogue.create();
     return applyDamageToTarget(event, userModifier, target);
 }
 

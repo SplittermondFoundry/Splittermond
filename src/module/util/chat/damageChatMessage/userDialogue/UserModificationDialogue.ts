@@ -30,6 +30,14 @@ export class UserModificationDialogue {
     private showNext: boolean = displayDamageDialogue.get() !== "never";
     private cancelled: boolean = false;
 
+    static create(){
+        return new UserModificationDialogue();
+    }
+
+    private constructor() {
+
+    }
+
 
     async getUserAdjustedDamage(userReport: UserReport): Promise<PrimaryCost | "Aborted"> {
         if (!this.showNext) {
