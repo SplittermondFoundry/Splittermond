@@ -41,8 +41,13 @@
       },
       "damageMessage": {
         "applyToTargets": "Auf Ziele anwenden",
+        "applyToUserTargets": "Auf {user}s Ziele anwenden",
         "applyToSelf": "Auf sich selbst anwenden",
+        "noUserFound": "{actor} ist keinem Nutzer zugeordnet.",
         "noActorFound": "Kein Ziel für Schaden gefunden.",
+        "youHaveNoTargets": "Sie haben keine Ziele ausgewählt.",
+        "noUserTargetsFound": "Nutzer {user}hat keine Ziele ausgewählt.",
+        "noTargetsFound": "Keine Ziele für Schaden gefunden.",
         "consumptionMessage":"{principalImplement} von {sourceName}"
       }
     },

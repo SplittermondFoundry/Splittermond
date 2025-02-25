@@ -4,9 +4,8 @@ import {DamageMessageData} from "./interfaces";
 import {addToRegistry} from "../chatMessageRegistry";
 import {DamageEvent} from "../../damage/DamageEvent";
 import {foundryApi} from "../../../api/foundryApi";
-import ApplyDamageDialog from "../../../apps/dialog/apply-damage-dialog";
 import {DamageFeature, DamageFeatureSchema} from "../../damage/DamageFeature";
-import {applyDamageToSelf} from "./damageApplicationHandlers";
+import {damageHandlers} from "./damageApplicationHandlers";
 
 const constructorRegistryKey = "DamageMessage";
 
@@ -41,16 +40,18 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
     }
 
     getData(): DamageMessageData {
+        const actions = [
+            this.renderApplyDamageToTargetAction(),
+            this.renderApplyDamageToUserTargetAction(),
+            this.renderApplyDamageToSelfAction(),
+        ].filter(action => action !== null);
         return {
             features: this.renderFeaturesToDisplay(),
             formula: this.damageEvent.formula,
             total: this.damageEvent.totalDamage(),
             source: this.getPrincipalDamageComponent().implementName,
             tooltip: this.damageEvent.tooltip,
-            actions: [
-                this.renderApplyDamageToTargetAction(),
-                this.renderApplyDamageToSelfAction()
-            ],
+            actions: actions,
         }
     }
 
@@ -75,6 +76,21 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
         }
     }
 
+    private renderApplyDamageToUserTargetAction() {
+        const causingActor = this.damageEvent.causer?.getAgent();
+        if (!causingActor) {
+            return null;
+        }
+        return {
+            classes: "splittermond-chat-action gm-only",
+            data: {
+                localAction: "applyDamageToUserTargets",
+            },
+            icon: "fa-heart-broken",
+            name: foundryApi.format("splittermond.chatCard.damageMessage.applyToUserTargets", {user: causingActor.name})
+        }
+    }
+
     private renderApplyDamageToSelfAction() {
         return {
             classes: "splittermond-chat-action ",
@@ -88,19 +104,19 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
 
     handleGenericAction(data: { action: string }): Promise<void> {
         if (data.action === "applyDamageToTargets") {
-            const damageType = this.damageEvent.costVector._channeled ? "K" :
-                this.damageEvent.costVector._consumed ? "V" : "";
-            return ApplyDamageDialog.create(this.damageEvent.totalDamage(), damageType, "")
+            return damageHandlers.applyDamageToTargets(this.damageEvent).catch(reportError)
         } else if (data.action === "applyDamageToSelf") {
-            return applyDamageToSelf(this.damageEvent).catch((reportError));
+            return damageHandlers.applyDamageToSelf(this.damageEvent).catch(reportError);
+        } else if (data.action === "applyDamageToUserTargets") {
+            return damageHandlers.applyDamageToUserTargets(this.damageEvent).catch(reportError);
         }
         return Promise.reject();
     }
 }
 
-function reportError(e:Error) {
-   console.error(e);
-   foundryApi.reportError("Unknown error occurred");
+function reportError(e: Error) {
+    console.error(e);
+    foundryApi.reportError("Unknown error occurred");
 }
 
 addToRegistry(constructorRegistryKey, DamageMessage);

@@ -12,7 +12,12 @@
       "damageMessage": {
         "applyToTargets": "Apply to targets",
         "applyToSelf": "Apply to self",
+        "applyToUserTargets": "Apply to {user}'s targets",
         "noActorFound": "Found no actor to route damage to",
+        "noUserFound": "No user found for {actor}",
+        "youHaveNoTargets": "You have no targets selected",
+        "noUserTargetsFound": "User {user} has no targets selected.",
+        "noTargetsFound": "Could not find targets for Damage",
         "consumptionMessage":"{principalImplement} by {sourceName}"
       }
     },
