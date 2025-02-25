@@ -43,6 +43,16 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
 
     });
     describe("Actor", () => {
+        ["system","owner"].forEach(property => {
+            it(`should have an object property ${property}`, () => {
+                    game.actors.forEach((actor: FoundryDocument) => {
+                        expect(actor, `Item ${actor.id} does not have ${property}`).to.have.property(property);
+                        expect(typeof actor[property as keyof typeof actor], `item property ${property} is not an object`)
+                            .to.equal("object");
+                    });
+                }
+            )
+        });
         ["prepareBaseData", "prepareDerivedData", "toObject", "getFlag", "updateSource"].forEach(property => {
             it(`should have a method ${property}`, () => {
                 expect(Item.prototype, `Item prototype does not have ${property}`).to.have.property(property);
@@ -53,11 +63,28 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         });
     });
 
+    describe("Token", () => {
+        it("should be a class", () => {
+            expect(typeof Token).to.equal("function");
+        });
+
+        ["document"].forEach(property => {
+            const sampleToken = new Token(game.scenes.find(()=>true).tokens.find(()=>true));
+            it(`should have a property called ${property}`, () => {
+                expect(sampleToken, `Token does not have ${property}`).to.have.property(property);
+                expect(typeof sampleToken[property as keyof typeof sampleToken], `Token property ${property} is a function`)
+                    .to.not.equal("function");
+            });
+        });
+    });
+
     describe("User", () => {
-        ["isGM", "active", "id"].forEach(property => {
-            expect(foundryApi.currentUser, `User does not have ${property}`).to.have.property(property);
-            expect(typeof foundryApi.currentUser[property as keyof typeof foundryApi.currentUser], `User property ${property} is a function`)
-                .to.not.equal("function");
+        ["isGM", "active", "id", "targets","name"].forEach(property => {
+            it(`should have a property called ${property}`, () => {
+                expect(foundryApi.currentUser, `User does not have ${property}`).to.have.property(property);
+                expect(typeof foundryApi.currentUser[property as keyof typeof foundryApi.currentUser], `User property ${property} is a function`)
+                    .to.not.equal("function");
+            });
         });
 
         it("should return null for an unset character", () => {

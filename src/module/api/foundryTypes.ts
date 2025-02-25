@@ -35,6 +35,8 @@ export interface User {
     isGM: boolean;
     id: string;
     active: boolean;
+    name:string;
+    get targets(): {user:User, size:number} & Iterable<Token>;
     get character(): Actor|null;
     /** @internal*/
     set character(actor: Actor|null);
@@ -74,6 +76,7 @@ declare global {
         name:string;
         items: Collection<Item>
         system: Record<string, any>
+        owner: User
     }
 
     class Item extends FoundryDocument {
@@ -81,6 +84,12 @@ declare global {
         name: string;
         type: string;
         system: Record<string, any>
+    }
+
+    class Token{
+        constructor(...args:any[]);
+
+        document: TokenDocument;
     }
 
     class TokenDocument extends FoundryDocument {
