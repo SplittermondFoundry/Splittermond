@@ -42,7 +42,7 @@
         <div class="row">
             <button class="button-inline" type="button" data-action="dec-value" data-input-query="input[name='damage']">
                 <i class="fa fa-minus" aria-hidden="true"></i></button>
-            <input style="width:60px" id="damageInput" name="damage" value="{{totalDamage}}" type="text">
+            <input style="width:80px" id="damageInput" name="damage" value="{{totalDamage}}" type="text">
             <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='damage']">
                 <i class="fa fa-plus" aria-hidden="true"></i></button>
             <button class="button-inline" type="button" data-action="half-value"
@@ -51,7 +51,7 @@
             </button>
         </div>
         <label>{{localize "splittermond.damageType"}}</label>
-        <select id="costTypeSelect" name="costTypeSelect" style="max-width: 100px">
+        <select id="costTypeSelect" name="costTypeSelect" style="max-width: 150px">
             <option value="V"{{#if (eq type "V")}} selected{{/if}}>{{localize "splittermond.normalDamage"}}</option>
             <option value=""{{#if (eq type "")}} selected{{/if}}>{{localize "splittermond.stunDamage"}}</option>
             <option value="K"{{#if (eq type "K")}} selected{{/if}}>{{localize
