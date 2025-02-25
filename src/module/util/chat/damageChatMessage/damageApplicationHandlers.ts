@@ -6,7 +6,6 @@ import {referencesUtils} from "../../../data/references/referencesUtils";
 import {UserReporterImpl} from "./userDialogue/UserReporterImpl";
 import {PrimaryCost} from "../../costs/PrimaryCost";
 import SplittermondActor from "../../../actor/actor";
-import {AgentReference} from "../../../data/references/AgentReference";
 
 export const damageHandlers = {
     applyDamageToTargets, applyDamageToUserTargets, applyDamageToSelf
@@ -25,12 +24,12 @@ async function applyDamageToUserTargets(event: DamageEvent) {
         return;
     }
     const targetTokens = causingUser?.targets
-    if (!targetTokens) {
+    if (!targetTokens || targetTokens.size === 0) {
         foundryApi.warnUser("splittermond.chatCard.damageMessage.noTargetsFound", {user: causingUser.name});
         return;
     }
     for (const targetToken of targetTokens) {
-        const target = AgentReference.initialize(targetToken.document).getAgent();
+        const target = asSplittermondActor(targetToken.document.actor);
         await applyDamageToTarget(event, userModifier, target);
     }
 }
@@ -38,14 +37,24 @@ async function applyDamageToUserTargets(event: DamageEvent) {
 async function applyDamageToTargets(event: DamageEvent) {
     const userModifier = UserModificationDialogue.create();
     const targetTokens = foundryApi.currentUser.targets;
-    if (!targetTokens|| targetTokens.size=== 0) {
+    if (!targetTokens || targetTokens.size === 0) {
         foundryApi.warnUser("splittermond.chatCard.damageMessage.youHaveNoTargets");
         return;
     }
     for (const targetToken of targetTokens) {
-        const target = AgentReference.initialize(targetToken.document).getAgent();
+        const target = asSplittermondActor(targetToken.document.actor);
         await applyDamageToTarget(event, userModifier, target);
     }
+}
+function asSplittermondActor(actor: Actor): SplittermondActor {
+    if(!isSplittermondActor(actor)) {
+        throw new Error("Somehow[!], the actor of a token is not a Splittermond Actor")
+    }
+    return actor;
+}
+
+function isSplittermondActor(actor: Actor): actor is SplittermondActor {
+    return actor instanceof SplittermondActor;
 }
 
 
