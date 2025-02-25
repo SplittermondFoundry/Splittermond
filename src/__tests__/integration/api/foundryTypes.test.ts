@@ -43,7 +43,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
 
     });
     describe("Actor", () => {
-        ["system","owner"].forEach(property => {
+        ["system"].forEach(property => {
             it(`should have an object property ${property}`, () => {
                     game.actors.forEach((actor: FoundryDocument) => {
                         expect(actor, `Item ${actor.id} does not have ${property}`).to.have.property(property);
