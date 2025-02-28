@@ -60,8 +60,6 @@ export class Cost {
     }
 }
 
-export const ZERO_COST = new Cost(0, 0, false, false);
-
 function CostModifierSchema() {
     return {
         _channeled: new fields.NumberField({required: true, nullable: false}),
@@ -75,6 +73,8 @@ type CostModifierType = DataModelSchemaType<typeof CostModifierSchema>
 
 export class CostModifier extends SplittermondDataModel<CostModifierType> {
     static defineSchema = CostModifierSchema;
+
+    static zero = new CostModifier({_channeled: 0, _channeledConsumed: 0, _exhausted: 0, _consumed: 0});
 
     add(costs: CostModifier): CostModifier {
         const newChanneled = this._channeled + costs._channeled;
@@ -108,6 +108,13 @@ export class CostModifier extends SplittermondDataModel<CostModifierType> {
     }
 
     /**
+     * Returns th L2 norm of this cost vector
+     */
+    get length() {
+        return Math.sqrt(this._exhausted ** 2 + this._channeled ** 2 + this._channeledConsumed ** 2 + this._consumed ** 2);
+    }
+
+    /**
      * Consumed portion of a modifier can only be evaluated relative to a primary cost,
      * because knowledge about whether the primary cost is channeled or not is required
      */
@@ -123,5 +130,3 @@ export class CostModifier extends SplittermondDataModel<CostModifierType> {
         return primaryCost.isChanneled ? this._channeled : this._exhausted;
     }
 }
-
-

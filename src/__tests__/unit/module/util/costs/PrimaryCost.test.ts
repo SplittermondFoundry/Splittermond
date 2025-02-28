@@ -82,7 +82,7 @@ describe("BaseCost object operation", () => {
             _consumed: 3000,
             _isChanneled: false
         }), new Cost(0, 1, true), new PrimaryCost({_nonConsumed: 100, _consumed: 3001, _isChanneled: false})],
-    ]as const).forEach(
+    ] as const).forEach(
         ([costs1, costs2, expected]) => it(`should add ${costs1} and ${costs2} to ${expected}`, () => {
             const result = costs1.add(costs2.asModifier());
             expect(result).to.deep.equal(expected);
@@ -119,13 +119,13 @@ describe("BaseCost object operation", () => {
             _consumed: 3,
             _isChanneled: false
         }), new Cost(0, 3, true), new PrimaryCost({_nonConsumed: 5, _consumed: 0, _isChanneled: false})],
-    ]as const).forEach(
+    ] as const).forEach(
         ([costs1, costs2, expected]) => it(`substracting ${costs2} from ${costs1} yields ${expected}`, () => {
             const result = costs1.subtract(costs2.asModifier());
             expect(result).to.deep.equal(expected);
         }));
 
-    it("should convert to a modifier", ()=>{
+    it("should convert to a modifier", () => {
         const costs = new PrimaryCost({_nonConsumed: 3, _consumed: 1, _isChanneled: false});
         const result = costs.toModifier();
         expect(result._exhausted).to.equal(3);
@@ -163,7 +163,7 @@ describe("BaseCost object rendering", () => {
         [new PrimaryCost({_nonConsumed: 4, _consumed: 3, _isChanneled: true}), "K7V3"],
         [new PrimaryCost({_nonConsumed: 4, _consumed: 3, _isChanneled: false}), "7V3"],
         [new PrimaryCost({_nonConsumed: 4, _consumed: 0, _isChanneled: true}), "K4"],
-    ]as const).forEach(
+    ] as const).forEach(
         ([costs, expected]) => it(`should render ${costs} as ${expected}`, () => {
             const result = costs.render();
             expect(result).to.equal(expected);
@@ -206,4 +206,74 @@ describe("Strict cost objects", () => {
         expect(modifier._channeled).to.equal(2)
         expect(modifier._channeledConsumed).to.equal(1)
     });
+});
+
+describe("Fractional cost modifiers", () => {
+
+    [5.7,7.5,3.3,101.0001].forEach(number => {
+        it(`should round exclusively exhausted costs of ${number}`, () => {
+            const base = new Cost(0,0,false,true).asPrimaryCost();
+            const modifier = new Cost(number, 0, false, true).asModifier();
+            const result = base.add(modifier);
+
+            expect(result.render()).to.equal(`${Math.round(number)}`);
+        });
+        it(`should round exclusively channeled costs of ${number}`, () => {
+            const base = new Cost(0,0,true,true).asPrimaryCost();
+            const modifier = new Cost(number, 0, true, true).asModifier();
+            const result = base.add(modifier);
+
+            expect(result.render()).to.equal(`K${Math.round(number)}`);
+        });
+
+        it(`should round exclusively consumed costs of ${number}`, () => {
+            const base = new Cost(0,0,false,true).asPrimaryCost();
+            const modifier = new Cost(0, number, false, true).asModifier();
+            const result = base.add(modifier);
+
+            expect(result.render()).to.equal(`${Math.round(number)}V${Math.round(number)}`);
+        });
+        it(`should round exclusively channeled consumed costs of ${number}`, () => {
+            const base = new Cost(0,0,true,true).asPrimaryCost();
+            const modifier = new Cost(0, number, true, true).asModifier();
+            const result = base.add(modifier);
+
+            expect(result.render()).to.equal(`K${Math.round(number)}V${Math.round(number)}`);
+        });
+
+        it("round function should deliver equivalent results", () => {
+            const base = new Cost(0,0,true,true).asPrimaryCost();
+            const modifier = new Cost(0, number, true, true).asModifier();
+            const result = base.add(modifier);
+
+            expect(result.render()).to.equal(result.round().render());
+        });
+    });
+    [[5.7,7.5],[3.3,101.0001]].forEach(([number1, number2]) => {
+
+        it(`should round mixed costs of ${number1} ${number2}`, () => {
+            const base = new Cost(0,0,false,true).asPrimaryCost();
+            const modifier = new Cost(number1, number2, false, true).asModifier();
+            const result = base.add(modifier);
+
+            expect(result.render()).to.equal(`${Math.round(number1)+Math.round(number2)}V${Math.round(number2)}`);
+        });
+
+        it(`should round channeled mixed costs of ${number1} ${number2}`, () => {
+            const base = new Cost(0,0,true,true).asPrimaryCost();
+            const modifier = new Cost(number1, number2, true, true).asModifier();
+            const result = base.add(modifier);
+
+            expect(result.render()).to.equal(`K${Math.round(number1)+Math.round(number2)}V${Math.round(number2)}`);
+        });
+
+        it("round function should deliver equivalent results", () => {
+            const base = new Cost(0,0,true,true).asPrimaryCost();
+            const modifier = new Cost(number1, number2, true, true).asModifier();
+            const result = base.add(modifier);
+
+            expect(result.render()).to.equal(result.round().render());
+        });
+    });
+
 });

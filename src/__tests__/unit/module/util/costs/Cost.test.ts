@@ -201,3 +201,31 @@ describe("Strict cost objects", () => {
         expect(result).to.deep.equal(new Cost(1, 0, false, true).asModifier());
     });
 });
+
+describe("Length of cost vectors", () => {
+    it("length of a non-strict cost is not the unit vector", () => {
+        const costs = new Cost(1, 0, false, false).asModifier();
+        expect(costs.length).to.be.closeTo(Math.sqrt(2),0.000001); //sqrt(2), because we have a 1-1 vector
+    });
+
+    it("should return the length of a unit cost vector", () => {
+        const costs = new Cost(1, 0, true, true).asModifier();
+        expect(costs.length).to.be.closeTo(1,0.000001);
+    });
+
+    it("should return the length of a cost vector", () => {
+        const costs = new Cost(3, 4, true, false).asModifier();
+        expect(costs.length).to.be.closeTo(7.07,0.01);
+    });
+
+    it("should return the length of a cost vector with negative values", () => {
+        const costs = new Cost(-3, -4, true, false).asModifier();
+        expect(costs.length).to.be.closeTo(7.07,0.01);
+    });
+
+    it("should return the length of a cost vector with zero values", () => {
+        const costs = new Cost(0, 0, true, false).asModifier();
+        expect(costs.length).to.equal(0);
+    });
+
+})

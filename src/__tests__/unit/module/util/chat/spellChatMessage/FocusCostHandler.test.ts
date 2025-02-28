@@ -7,7 +7,6 @@ import {
     FocusDegreeOfSuccessOptionField
 } from "module/util/chat/spellChatMessage/optionFields/FocusDegreeOfSuccessOptionField";
 import {
-    injectParent,
     linkSpellAndActor,
     setUpCheckReportSelfReference,
     setUpMockActor,
@@ -23,6 +22,7 @@ import {foundryApi} from "../../../../../../module/api/foundryApi";
 import {parseCostString} from "../../../../../../module/util/costs/costParser";
 import {settings} from "../../../../../../module/settings";
 import {asMock} from "../../../../settingsMock";
+import {injectParent} from "../../../../testUtils";
 
 describe("FocusCostActionHandler", () => {
     let sandbox: SinonSandbox;

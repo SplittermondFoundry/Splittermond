@@ -108,6 +108,15 @@ global.foundry = {
                 return JSON.parse(JSON.stringify(this));
             }
         }
+    },
+    applications:{
+        api:{
+            DialogV2: class {
+                render(){};
+                addEventListener(){};
+                close(){};
+            }
+        }
     }
 };
 

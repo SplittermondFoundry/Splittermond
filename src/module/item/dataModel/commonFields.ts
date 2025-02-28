@@ -35,7 +35,7 @@ export function getDefense() {
 export function damageType() {
     return {
         damageType: new fieldExtensions.StringEnumField({
-                validate: (x:DamageType) => splittermond.damageTypes.includes(x),
+                validate: (x:DamageType) => x == null || splittermond.damageTypes.includes(x),
                 required: true,
                 trim: true,
                 nullable: true,

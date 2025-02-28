@@ -4,19 +4,39 @@ body {
     font-variant-numeric: lining-nums;
 }
 
-button,form button, .dialog .dialog-buttons button, .dialog .dialog-buttons button.default {
-    .button-style();
+dialog.splittermond.application.dialog .window-header {
+    flex: 0 0 30px;
+    overflow: hidden;
+    padding: 0 8px;
+    background: none;
+    .window-title{
+        color: #000000;
+        font-family: @font-primary;
+        font-variant-numeric: lining-nums;
+        }
+    button.header-control:extend(button.button-style) {
+        width: 22px;
+        height: 22px;
+    }
 }
 
+    dialog.application.dialog button {
+        .button-style();
+    }
+    dialog.application.splittermond button.button-inline:extend(button.button-inline) {}
+    button,form button, .dialog .dialog-buttons button, .dialog .dialog-buttons button.default {
+        .button-style();
+    }
 
-button.button-inline {
-    display: inline-block;
-    
-    font-size: @fontSizeSmall;
-    /*
-    width: 28px;
-    height: 28px;
-    */
+
+    button.button-inline {
+        display: inline-block;
+
+        font-size: @fontSizeSmall;
+        /*
+        width: 28px;
+        height: 28px;
+        */
     .border-wobbly-line();
     width: 22px;
     height: 22px;
@@ -57,6 +77,7 @@ img {
     border: none;
 }
 
+.application:extend(.app){}
 .app {
     color: var(--color-text);
 
@@ -68,7 +89,7 @@ img {
     }
 }
 
-.window-app:not(.sidebar-popout):not(.journal-entry):not(.dark) {
+.application:not(.sidebar-popout):not(.journal-entry), .window-app:not(.sidebar-popout):not(.journal-entry):not(.dark) {
     color: var(--color-text-secondary);
     background: var(--background-parchment);
 
@@ -108,8 +129,7 @@ img {
         }
     }
 }
-
-.window-app:not(.journal-entry):extend(.border-paper) {
+.application:not(.journal-entry):extend(.border-paper), .window-app:not(.journal-entry):extend(.border-paper) {
     
 
     .window-header {
@@ -153,8 +173,14 @@ img {
     }
 }
 
+.appliation.splittermond:not(.dark):not(.journal-entry) .window-content{
+    .application-override-mixin();
+}
+.window-app.sheet.splittermond:not(.dark):not(.journal-entry) .window-content{
+    .application-override-mixin();
+};
 
-.window-app.sheet.splittermond:not(.dark):not(.journal-entry) .window-content {
+.application-override-mixin() {
     background: var(--background-parchment-splittermond), var(--background-parchment);
     background-position: top right;
     background-blend-mode: var(--background-parchment-splittermond-blend-mode);
@@ -352,6 +378,11 @@ img {
     &:extend(select all);
 
     
+}
+dialog.dialog.splittermond select:extend(select){}
+dialog.dialog input[type="text"]:extend(input[type=text]) {
+    height: inherit;
+    line-height: inherit;
 }
 
 input[type="text"],

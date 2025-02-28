@@ -27,7 +27,7 @@ export function calculateHeroLevels() {
 
 
 settings.registerNumber("HGMultiplier", {
-    position:1,
+    position: 1,
     scope: "world",
     config: true,
     default: 1.0,
@@ -48,6 +48,23 @@ settings.registerNumber("HGMultiplier", {
 }).then(accessor => getHeroLevelMultiplier = accessor.get)
 
 export default class SplittermondActor extends Actor {
+
+    /**@type {Record<DamageType, number>} */
+    _susceptibilities = {
+        physical: 0,
+        mental: 0,
+        electric: 0,
+        acid: 0,
+        rock: 0,
+        fire: 0,
+        heat: 0,
+        cold: 0,
+        poison: 0,
+        bleeding: 0,
+        disease: 0,
+        light:0,
+        shadow:0,
+    };
 
     actorData() {
         return this.system;
@@ -184,9 +201,9 @@ export default class SplittermondActor extends Actor {
         return this.type === "npc" ? 6 : this.system.experience.heroLevel + 2 + this.modifier.value("bonuscap");
     }
 
-    /**@return {{value:number, max:number}|undefined}*/
+    /**@return {{value:number, max:number}}*/
     get splinterpoints() {
-        return this.system.splinterpoints;
+        return this.system.splinterpoints ?? {value: 0, max: 0};
     }
 
     prepareEmbeddedDocuments() {
@@ -578,13 +595,22 @@ export default class SplittermondActor extends Actor {
         return this.modifier.value("damagereduction");
     }
 
-    async importFromJSON(json,updateActor) {
+    /**
+     * @return {Record<DamageType, number>} The actor's suceptibility for each damage type. Positive values indicate a weakness,
+     * negative values indicate a resistance.
+     */
+    get susceptibilities() {
+        return this._susceptibilities;
+    }
+
+
+    async importFromJSON(json, updateActor) {
         const data = JSON.parse(json);
 
         // If Genesis-JSON-Export
         if (data.jsonExporterVersion && data.system === "SPLITTERMOND") {
             updateActor = updateActor ?? await askUserAboutActorOverwrite();
-            const importedGenesisData = await this.#importGenesisData(data,updateActor);
+            const importedGenesisData = await this.#importGenesisData(data, updateActor);
             json = JSON.stringify(importedGenesisData);
         }
 
@@ -886,7 +912,6 @@ export default class SplittermondActor extends Actor {
         }
 
 
-
         if (updateActor) {
             let updateItems = [];
 
@@ -936,11 +961,15 @@ export default class SplittermondActor extends Actor {
     }
 
     /**
-     * This is a stub
+     * This is a stub. It currently returns the flat upgrade value for health and skills.
+     * Later it should check for specific masteries that increase the bonus values.
      * @param {SplittermondSkill} skillName
      * @return {number}
      */
     #getSplinterpointBonus(skillName) {
+        if(skillName === "health"){
+            return 5;
+        }
         return 3;
     }
 
@@ -1419,7 +1448,7 @@ export default class SplittermondActor extends Actor {
 /**
  * @returns {Promise<boolean>}
  */
-async function askUserAboutActorOverwrite(){
+async function askUserAboutActorOverwrite() {
     return new Promise((resolve) => {
         let dialog = new Dialog({
             title: "Import",

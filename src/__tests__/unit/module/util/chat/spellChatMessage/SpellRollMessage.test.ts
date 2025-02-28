@@ -3,7 +3,6 @@ import {afterEach, beforeEach, describe} from "mocha";
 import {SpellRollMessage} from "module/util/chat/spellChatMessage/SpellRollMessage";
 import sinon, {SinonSandbox, SinonStubbedInstance} from "sinon";
 import {
-    injectParent,
     setUpMockActor,
     setUpMockSpellSelfReference,
     WithMockedRefs,
@@ -19,6 +18,7 @@ import {foundryApi} from "module/api/foundryApi";
 import {CheckReport} from "../../../../../../module/actor/CheckReport";
 import {referencesUtils} from "../../../../../../module/data/references/referencesUtils";
 import {AgentReference} from "../../../../../../module/data/references/AgentReference";
+import {injectParent} from "../../../../testUtils";
 
 
 describe("SpellRollMessage", () => {

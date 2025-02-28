@@ -67,15 +67,6 @@ export function withToObjectReturnsSelf<T>(wrappedFunction:()=>T):T {
     return returnValue;
 }
 
-export function injectParent<T>(object:T) {
-    for (const key in object) {
-        if (object[key] && typeof object[key] === "object" && key !== "parent") {
-            Object.defineProperty(object[key],"parent",{value: object, writable: true, enumerable: true});
-            injectParent(object[key]);
-        }
-    }
-}
-
 export type WithMockedRefs<T> = {
     [K in keyof T]: T[K] extends AgentReference | ItemReference<any>
         ? MockRefs<T[K]>

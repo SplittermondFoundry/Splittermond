@@ -1,6 +1,5 @@
 import sinon, {SinonSandbox} from "sinon";
 import {
-    injectParent,
     linkSpellAndActor,
     setUpCheckReportSelfReference,
     setUpMockActor,
@@ -13,6 +12,7 @@ import SplittermondActor from "module/actor/actor";
 import {AgentReference} from "module/data/references/AgentReference";
 import {expect} from "chai";
 import {referencesUtils} from "../../../../../../module/data/references/referencesUtils";
+import {injectParent} from "../../../../testUtils";
 
 
 describe("Roll Fumble", () => {

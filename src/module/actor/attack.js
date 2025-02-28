@@ -73,6 +73,7 @@ export default class Attack {
             range: this.range,
             features: this.features,
             damage: this.damage,
+            damageType: this.damageType,
             weaponSpeed: this.weaponSpeed,
             editable: this.editable,
             deletable: this.deletable,
@@ -93,6 +94,10 @@ export default class Attack {
         if (mod != 0)
             damage += (mod < 0 ? "" : "+") + mod;
         return damage;
+    }
+
+    get damageType() {
+        return this.item.system.damageType;
     }
 
     get weaponSpeed() {

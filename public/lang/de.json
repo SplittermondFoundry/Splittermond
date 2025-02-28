@@ -1,32 +1,32 @@
 {
   "TYPES": {
-        "Item": {
-    "weapon": "Waffe",
-    "projectile": "Geschoss",
-    "equipment": "Ausrüstung",
-    "shield": "Schild",
-    "armor": "Rüstung",
-    "spell": "Zauber",
-    "strength": "Stärke",
-    "weakness": "Schwäche",
-    "mastery": "Meisterschaft",
-    "species": "Spezies",
-    "culture": "Kultur",
-    "ancestry": "Abstammung",
-    "education": "Ausbildung",
-    "resource": "Resource",
-    "npcfeature": "Gegnermerkmal",
-    "moonsign": "Mondzeichen",
-    "language": "Sprache",
-    "culturelore": "Kulturkunde",
-    "statuseffect": "Zustand",
-    "spelleffect": "Zaubereffekt",
-    "npcattack": "Angriff"
-  },
-  "Actor": {
-    "character": "Spielercharakter",
-    "npc": "NSC"
-        }
+    "Item": {
+      "weapon": "Waffe",
+      "projectile": "Geschoss",
+      "equipment": "Ausrüstung",
+      "shield": "Schild",
+      "armor": "Rüstung",
+      "spell": "Zauber",
+      "strength": "Stärke",
+      "weakness": "Schwäche",
+      "mastery": "Meisterschaft",
+      "species": "Spezies",
+      "culture": "Kultur",
+      "ancestry": "Abstammung",
+      "education": "Ausbildung",
+      "resource": "Resource",
+      "npcfeature": "Gegnermerkmal",
+      "moonsign": "Mondzeichen",
+      "language": "Sprache",
+      "culturelore": "Kulturkunde",
+      "statuseffect": "Zustand",
+      "spelleffect": "Zaubereffekt",
+      "npcattack": "Angriff"
+    },
+    "Actor": {
+      "character": "Spielercharakter",
+      "npc": "NSC"
+    }
   },
   "SETTINGS": {},
   "splittermond": {
@@ -38,7 +38,34 @@
       "spellMessage": {
         "noHandler": "Es ist kein Bearbeiter für die Aktion '{action}' eingetragen. Bitte wenden Sie sich an den Entwickler.",
         "tooManyHandlers": "Es gibt mehr als einen eingetragenen Bearbeiter für die Aktion '{action}'. Bitte wenden Sie sich an den Entwickler."
+      },
+      "damageMessage": {
+        "applyToTargets": "Auf Ziele anwenden",
+        "applyToUserTargets": "Auf {user}s Ziele anwenden",
+        "applyToSelf": "Auf sich selbst anwenden",
+        "noUserFound": "{actor} ist keinem Nutzer zugeordnet.",
+        "noActorFound": "Kein Ziel für Schaden gefunden.",
+        "youHaveNoTargets": "Sie haben keine Ziele ausgewählt.",
+        "noUserTargetsFound": "Nutzer {user}hat keine Ziele ausgewählt.",
+        "noTargetsFound": "Keine Ziele für Schaden gefunden.",
+        "consumptionMessage":"{principalImplement} von {sourceName}"
       }
+    },
+    "damageMessage": {
+      "title": "{attacker} fügt {defender} Schaden zu",
+      "name": "Mittel",
+      "type": "Schadensart",
+      "baseValue": "Schaden",
+      "modifiedBy": "Verwundbarkeit",
+      "subTotal": "Zwischensumme",
+      "damageReduction": "Schadensreduktion",
+      "damageReductionOverride": "davon ignoriert",
+      "displaySettings": {
+        "once": "Nur den ersten",
+        "never": "Nie",
+        "always": "Immer"
+      },
+      "skip": "Überspringen"
     },
     "start": "Start",
     "value": "Wert",
@@ -366,7 +393,9 @@
         "cold": "Kälte",
         "poison": "Gift",
         "bleeding": "Blutung",
-        "disease": "Krankheit"
+        "disease": "Krankheit",
+        "light": "Licht",
+        "shadow": "Schatten"
       },
       "long": {
         "physical": "Physischer Schaden",
@@ -379,7 +408,9 @@
         "cold": "Kältenschaden",
         "poison": "Giftschaden",
         "bleeding": "Blutungsschaden",
-        "disease": "Krankheitsschaden"
+        "disease": "Krankheitsschaden",
+        "light": "Lichtschaden",
+        "shadow": "Schattenschaden"
       }
     },
     "skillAbbreviation": {
@@ -585,6 +616,15 @@
       "HGMultiplier": {
         "name": "Heldengrad-Multiplikator",
         "hint": "Der Multiplikator für die Berechnung der Fertigkeitspunkte und Attributsmodifikatoren."
+      },
+      "displayDamageDialog": {
+        "name": "Schadensdialog anzeigen",
+        "hint": "Zeigt einen Dialog zur Eingabe des Schadens an, wenn ein Token Schaden erhält.",
+        "options": {
+          "once": "Nur den ersten",
+          "never": "Nie",
+          "always": "Immer"
+        }
       }
     },
     "error": {

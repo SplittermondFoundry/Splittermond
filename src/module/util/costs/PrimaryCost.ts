@@ -36,21 +36,21 @@ export class PrimaryCost extends SplittermondDataModel<PrimaryCostType>{
      * Returns the exhausted portions of the cost. Will default to 1 if no costs are present and this represents ordinary costs.
      */
     get exhausted():number {
-        return this.isChanneled ? 0 : this._nonConsumed;
+        return Math.round(this.isChanneled ? 0 : this._nonConsumed);
     }
 
     /**
      * Returns the channeled portion of the cost.
      */
     get channeled():number {
-        return this.isChanneled ? this._nonConsumed : 0;
+        return Math.round(this.isChanneled ? this._nonConsumed : 0);
     }
 
     /**
      * Returns the consumed portion of the cost.
      */
     get consumed():number {
-        return this._consumed;
+        return Math.round(this._consumed);
     }
 
     add(costs:CostModifier):PrimaryCost {
@@ -70,7 +70,7 @@ export class PrimaryCost extends SplittermondDataModel<PrimaryCostType>{
     }
 
     isZero():boolean {
-        return this._nonConsumed === 0 && this._consumed === 0;
+        return Math.round(this._nonConsumed) === 0 && Math.round(this._consumed) === 0;
     }
 
     /**
@@ -88,7 +88,7 @@ export class PrimaryCost extends SplittermondDataModel<PrimaryCostType>{
     render():string{
         const totalCost = this.consumed + this.channeled + this.exhausted
         const channeledModifier = this.isChanneled && totalCost !== 0 ? "K" : "";
-        const consumedModifier = this._consumed !== 0 ? `V${Math.abs(this._consumed)}` : "";
+        const consumedModifier = this.consumed !== 0 ? `V${Math.abs(this.consumed)}` : "";
         return `${channeledModifier}${Math.abs(totalCost)}${consumedModifier}`;
     }
 
@@ -99,5 +99,13 @@ export class PrimaryCost extends SplittermondDataModel<PrimaryCostType>{
             _exhausted: !this.isChanneled || !strict ? this._nonConsumed: 0,
             _consumed: !this.isChanneled || !strict ? this._consumed: 0,
       })
+    }
+
+    round():PrimaryCost {
+        return new (this.constructor as typeof PrimaryCost)({
+            _nonConsumed: Math.round(this._nonConsumed),
+            _consumed: Math.round(this._consumed),
+            _isChanneled: this._isChanneled
+        });
     }
 }

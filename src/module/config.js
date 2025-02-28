@@ -10,7 +10,7 @@ import {rollType} from "./config/RollType";
 import {splittermondSpellEnhancement} from "./config/SplittermondSpellEnhancements";
 import {modifiers} from "./config/modifiers";
 import {skillGroups} from "./config/skillGroups";
-import {damageTypes} from "./config/damageTypes";
+import {damageTypeOptions, damageTypes} from "./config/damageTypes";
 
 export const splittermond = {};
 
@@ -577,6 +577,12 @@ splittermond.itemSheetProperties.weapon = [
                 template: "input"
             },
             {
+                field: "system.damageType",
+                label: "splittermond.damageType",
+                template: "select",
+                choices: damageTypeOptions
+            },
+            {
                 field: "system.range",
                 label: "splittermond.range",
                 template: "input"
@@ -783,6 +789,12 @@ splittermond.itemSheetProperties.spell = [
                 template: "input"
             },
             {
+                field: "system.damageType",
+                label: "splittermond.damageType",
+                template: "select",
+                choices: {...damageTypeOptions, null: ""}
+            },
+            {
                 field: "system.range",
                 label: "splittermond.range",
                 template: "input"
@@ -911,6 +923,12 @@ splittermond.itemSheetProperties.npcattack = [
                 field: "system.damage",
                 label: "splittermond.damage",
                 template: "input"
+            },
+            {
+                field: "system.damageType",
+                label: "splittermond.damageType",
+                template: "select",
+                choices: damageTypeOptions
             },
             {
                 field: "system.range",

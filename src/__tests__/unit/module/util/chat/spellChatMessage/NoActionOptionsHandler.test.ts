@@ -1,5 +1,4 @@
 import {
-    injectParent,
     setUpMockSpellSelfReference,
     WithMockedRefs,
     withToObjectReturnsSelf
@@ -10,6 +9,7 @@ import {
 import sinon, {SinonSandbox} from "sinon";
 import {foundryApi} from "../../../../../../module/api/foundryApi";
 import {expect} from "chai";
+import {injectParent} from "../../../../testUtils";
 
 describe("NoActionOptionsHandler", () => {
     let sandbox: SinonSandbox;
