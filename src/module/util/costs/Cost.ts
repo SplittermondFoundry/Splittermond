@@ -129,4 +129,39 @@ export class CostModifier extends SplittermondDataModel<CostModifierType> {
     getNonConsumed(primaryCost: PrimaryCost): number {
         return primaryCost.isChanneled ? this._channeled : this._exhausted;
     }
+
+    toString() {
+        const channeled = strigifyPortion(this._channeled, this._channeledConsumed, true);
+        const nonChanneled = strigifyPortion(this._exhausted, this._consumed, false);
+        if(nonChanneled.startsWith("-")){
+            return `${channeled} - ${nonChanneled.replace("-", "")}`;
+        } else {
+            return `${channeled} + ${nonChanneled}`;
+        }
+    }
+}
+
+function strigifyPortion(nonConsumed: number, consumed: number, channeled: boolean) {
+    const absNonConsumed = Math.abs(nonConsumed);
+    const absConsumed = Math.abs(consumed);
+
+    if (Math.sign(consumed) === Math.sign(nonConsumed)) {
+        const rep = singleTerm(absNonConsumed, absConsumed, channeled)
+        return formatSingleTerm(nonConsumed, rep, false);
+    } else {
+        const ncTerm = singleTerm(absNonConsumed, 0, channeled)
+        const ncString = formatSingleTerm(nonConsumed, ncTerm, false);
+        const cTerm = singleTerm(0,absConsumed, channeled)
+        const cString = formatSingleTerm(consumed, cTerm, true);
+        return `${ncString} ${cString}`.trim();
+    }
+}
+
+function singleTerm(nonConsumed: number, consumed: number, channeled: boolean) {
+    return new PrimaryCost({_nonConsumed: nonConsumed, _consumed: consumed, _isChanneled: channeled}).render();
+}
+
+function formatSingleTerm(value: number, term: string, addPlus: boolean) {
+    const sign = value < 0 ? "-" : `${addPlus? "+" : ""}`;
+    return term === "0" ? "" : `${sign}${addPlus ? " " : ""}${term}`;
 }

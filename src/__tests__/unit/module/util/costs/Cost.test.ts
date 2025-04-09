@@ -1,7 +1,7 @@
 import "../../../foundryMocks.js"
 import {describe, it} from "mocha";
 import {expect} from "chai";
-import {Cost} from "module/util/costs/Cost.js";
+import {Cost, CostModifier} from "module/util/costs/Cost.js";
 
 describe("Cost object edge cases", () => {
     it("should return zero costs when adding two zero cost objects", () => {
@@ -227,5 +227,47 @@ describe("Length of cost vectors", () => {
         const costs = new Cost(0, 0, true, false).asModifier();
         expect(costs.length).to.equal(0);
     });
+});
 
-})
+describe("Cost modifier rendering", () => {
+    it("should render a simple cost object", () => {
+        const costs = new CostModifier({_consumed:0,_exhausted:0,_channeled:2,_channeledConsumed:0});
+        expect(costs.toString()).to.equal("K2");
+    });
+
+    it("should render a negative cost object", () => {
+        const costs = new CostModifier({_consumed:0,_exhausted:-3,_channeled:0,_channeledConsumed:0});
+        expect(costs.toString()).to.equal("-3");
+    });
+
+    it("should concatenate like channeled and channeled consumed costs", () => {
+        const costs = new CostModifier({_consumed:0,_exhausted:0,_channeled:2,_channeledConsumed:1});
+        expect(costs.toString()).to.equal("K3V1");
+    });
+
+    it("should concatenate like exhausted and consumed costs", () => {
+        const costs = new CostModifier({_consumed:-3,_exhausted:-4,_channeled:0,_channeledConsumed:0});
+        expect(costs.toString()).to.equal("-7V3");
+    });
+
+    it("should render zero modifier as 0", () => {
+        const costs = new CostModifier({_consumed:0,_exhausted:0,_channeled:0,_channeledConsumed:0});
+        expect(costs.toString()).to.equal("0");
+    });
+
+    it("should separate unlike channeled  and consumed costs", () => {
+        const costs = new CostModifier({_consumed:0,_exhausted:0,_channeled:-2,_channeledConsumed:1});
+        expect(costs.toString()).to.equal("-K2 + K1V1");
+    });
+
+    it("should separate unlike exhausted and consumed costs", () => {
+        const costs = new CostModifier({_consumed:0,_exhausted:0,_channeled:3,_channeledConsumed:-4});
+        expect(costs.toString()).to.equal("K3 - K4V4");
+    });
+
+    it("should separate all costs if all are different", () => {
+        const costs = new CostModifier({_consumed:-1,_exhausted:2,_channeled:3,_channeledConsumed:-4});
+        expect(costs.toString()).to.equal("K3 - K4V4 + 2 - 1V1");
+    });
+
+});
