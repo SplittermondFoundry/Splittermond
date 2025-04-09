@@ -111,7 +111,8 @@
         "light": "light",
         "shadow": "shadow",
         "wind": "wind",
-        "water": "water"
+        "water": "water",
+        "nature": "nature",
       },
       "long": {
         "physical": "physical damage",
@@ -128,7 +129,8 @@
         "light": "light damage",
         "shadow": "shadow damage",
         "wind": "wind damage",
-        "water": "water damage"
+        "water": "water damage",
+        "nature": "nature damage"
       }
     }
   }

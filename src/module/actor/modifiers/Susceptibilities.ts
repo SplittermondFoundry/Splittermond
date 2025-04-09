@@ -19,10 +19,11 @@ export class Susceptibilities {
         light: 0,
         shadow: 0,
         wind: 0,
-        water: 0
+        water: 0,
+        nature: 0,
     };
 
-    constructor(private keyword:string,private modifierManager: ModifierManager) {
+    constructor(private keyword: string, private modifierManager: ModifierManager) {
     }
 
     calculateSusceptibilities(): Record<DamageType, number> {

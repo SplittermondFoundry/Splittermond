@@ -1,3 +1,5 @@
+## 0.12.18
+ * Schadensarten beinhalten jetzt Naturschaden
 ## 0.12.17
 ### New features
  * Würfelmodifikatoren:

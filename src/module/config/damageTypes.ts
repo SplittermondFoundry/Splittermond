@@ -15,6 +15,7 @@ export const damageTypes = [
     "disease",
     "wind",
     "water",
+    "nature",
 ] as const;
 
 export const damageTypeOptions:Record<DamageType, `splittermond.damageTypes.long.${DamageType}`> = {
@@ -33,6 +34,7 @@ export const damageTypeOptions:Record<DamageType, `splittermond.damageTypes.long
     shadow: "splittermond.damageTypes.long.shadow",
     wind: "splittermond.damageTypes.long.wind",
     water: "splittermond.damageTypes.long.water",
+    nature: "splittermond.damageTypes.long.nature",
 }
 
 export type DamageType = typeof damageTypes[number];

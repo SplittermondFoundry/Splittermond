@@ -426,7 +426,8 @@
         "light": "Licht",
         "shadow": "Schatten",
         "wind": "Wind",
-        "water": "Wasser"
+        "water": "Wasser",
+        "nature": "Natur"
       },
       "long": {
         "physical": "Physischer Schaden",
@@ -443,7 +444,8 @@
         "light": "Lichtschaden",
         "shadow": "Schattenschaden",
         "wind": "Windschaden",
-        "water": "Wasserschaden"
+        "water": "Wasserschaden",
+        "nature": "Naturschaden"
       }
     },
     "skillAbbreviation": {
