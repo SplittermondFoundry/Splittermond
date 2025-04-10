@@ -5,7 +5,7 @@ import {
     Expression,
     minus,
     plus,
-    RollExpression,
+    RollExpression, scalar, ScalarExpression,
     times
 } from "./definitions";
 import {exhaustiveMatchGuard} from "./util";
@@ -95,7 +95,7 @@ function isOperator(term:RollTerm):term is OperatorTerm{
     return ("operator" in term);
 }
 
-function termToExpression(term:NoOperatorTerm):Expression {
+function termToExpression(term:NoOperatorTerm):ScalarExpression{
     if("faces" in term){
         return new RollExpression(foundryApi.rollInfra.rollFromTerms([term]));
     } else if ("number" in term){
@@ -104,7 +104,7 @@ function termToExpression(term:NoOperatorTerm):Expression {
         if(!isRoll(term.roll)){
             throw new Error("Found a term with a roll expression that was not a parenthetic expression")
         }
-        return mapRoll(term.roll);
+        return scalar(mapRoll(term.roll));//scalar is effectively a type assertion here, there cannot be a roll that is a cost
     }
     exhaustiveMatchGuard(term);
 }

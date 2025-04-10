@@ -6,13 +6,14 @@ import {
     AmountExpression,
     DivideExpression,
     Expression,
+    isVectorExpression,
     MultiplyExpression,
     ReferenceExpression,
     RollExpression,
     SubtractExpression
 } from "./definitions";
 import {condense} from "./condenser";
-import {evaluate} from "./evaluation";
+import {evaluate, evaluateCost} from "./evaluation";
 import {exhaustiveMatchGuard} from "./util";
 import {mapRoll} from "./rollTermMapper";
 import {Die} from "../../../api/Roll";
@@ -49,7 +50,7 @@ function tentativeEvaluate(expression: Expression): { min: number, max: number }
     if (condensed instanceof AmountExpression) {
         const val = evaluate(condensed);
         return {min: val, max: val}
-    }else if (condensed instanceof RollExpression){
+    } else if (condensed instanceof RollExpression) {
         return evalRolls(condensed);
     } else if (condensed instanceof ReferenceExpression) {
         return {min: Number.NaN, max: Number.NaN}
@@ -63,22 +64,25 @@ function tentativeEvaluate(expression: Expression): { min: number, max: number }
         return evalBinaries(condensed, (left: number, right: number) => left / right);
     } else if (condensed instanceof AbsExpression) {
         return evalAbs(condensed)
+    } else if (isVectorExpression(condensed)) {
+        return {min: Number.NaN, max: Number.NaN}
     }
     exhaustiveMatchGuard(condensed);
 }
 
-function evalRolls(expression: RollExpression){
-    if(expression.value.terms.length === 1 && "faces" in expression.value.terms[0]){
+function evalRolls(expression: RollExpression) {
+    if (expression.value.terms.length === 1 && "faces" in expression.value.terms[0]) {
         return evalDies(expression.value.terms[0])
-    }else {
+    } else {
         return tentativeEvaluate(mapRoll(expression.value));
     }
 }
+
 //We are ignoring foundry dice modifiers for now
-function evalDies(term:Die): Range {
-    if(term.modifier && term.modifier.length > 0){
+function evalDies(term: Die): Range {
+    if (term.modifier && term.modifier.length > 0) {
         console.warn("Splittermond | Value estimation for dice with modifiers is not supported. will assume any range")
-        return {min:Number.NaN, max:Number.NaN}
+        return {min: Number.NaN, max: Number.NaN}
     }
     return {min: term.number, max: term.number * term.faces};
 }
@@ -109,8 +113,8 @@ function sortResult(one: Range, other: Range, operation: (a: number, b: number) 
 }
 
 function evalAbs(expression: AbsExpression) {
-    const result = tentativeEvaluate(expression.arg);
-    const arrayedResults = [result.min, result.max];
+    const result = evaluateAbsArg(expression.arg);
+    const arrayedResults = [result.min, result.max].map(a => Math.abs(a));
     if (arrayedResults.some(isNaN)) {
         return {min: Number.NaN, max: Number.NaN};
     } else {
@@ -118,4 +122,11 @@ function evalAbs(expression: AbsExpression) {
     }
 }
 
-
+function evaluateAbsArg(expression: Expression): Range {
+    if (isVectorExpression(expression)) {
+        const evaluated = evaluateCost(expression).length;//We can do this because costs have no variable terms
+        return {min: evaluated, max: evaluated}
+    } else {
+        return tentativeEvaluate(expression);
+    }
+}

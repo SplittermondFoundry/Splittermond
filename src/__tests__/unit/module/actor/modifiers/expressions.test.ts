@@ -6,7 +6,7 @@ import {
     of,
     plus,
     ref,
-    roll,
+    roll, scalar,
     times
 } from "../../../../../module/actor/modifiers/expressions/definitions";
 import {expect} from "chai";
@@ -65,10 +65,10 @@ describe("Expressions", () => {
                 of(2),
                 plus(of(1), of(2))
             ),
-            times(
+            scalar(times(
                 of(3),
                 minus(of(4), of(3))
-            )
+            ))
         ), 2, of(2), "(2 \u00D7 (1 + 2)) / (3 \u00D7 (4 - 3))"],
 
     ] as const).forEach(([input, evaluated, condensed, stringRepresentation]) => {
