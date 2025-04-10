@@ -269,5 +269,4 @@ describe("Cost modifier rendering", () => {
         const costs = new CostModifier({_consumed:-1,_exhausted:2,_channeled:3,_channeledConsumed:-4});
         expect(costs.toString()).to.equal("K3 - K4V4 + 2 - 1V1");
     });
-
 });

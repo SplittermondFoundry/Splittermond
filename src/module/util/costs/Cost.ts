@@ -133,7 +133,13 @@ export class CostModifier extends SplittermondDataModel<CostModifierType> {
     toString() {
         const channeled = strigifyPortion(this._channeled, this._channeledConsumed, true);
         const nonChanneled = strigifyPortion(this._exhausted, this._consumed, false);
-        if(nonChanneled.startsWith("-")){
+        if (channeled === "" && nonChanneled === "") {
+            return "0";
+        } else if (channeled === "") {
+            return nonChanneled;
+        } else if (nonChanneled === "") {
+            return channeled;
+        } else if (nonChanneled !== "" && nonChanneled.startsWith("-")) {
             return `${channeled} - ${nonChanneled.replace("-", "")}`;
         } else {
             return `${channeled} + ${nonChanneled}`;
@@ -151,7 +157,7 @@ function strigifyPortion(nonConsumed: number, consumed: number, channeled: boole
     } else {
         const ncTerm = singleTerm(absNonConsumed, 0, channeled)
         const ncString = formatSingleTerm(nonConsumed, ncTerm, false);
-        const cTerm = singleTerm(0,absConsumed, channeled)
+        const cTerm = singleTerm(0, absConsumed, channeled)
         const cString = formatSingleTerm(consumed, cTerm, true);
         return `${ncString} ${cString}`.trim();
     }
@@ -162,6 +168,6 @@ function singleTerm(nonConsumed: number, consumed: number, channeled: boolean) {
 }
 
 function formatSingleTerm(value: number, term: string, addPlus: boolean) {
-    const sign = value < 0 ? "-" : `${addPlus? "+" : ""}`;
+    const sign = value < 0 ? "-" : `${addPlus ? "+" : ""}`;
     return term === "0" ? "" : `${sign}${addPlus ? " " : ""}${term}`;
 }
