@@ -9,12 +9,7 @@ import {
     MultiplyExpression,
     ReferenceExpression,
     SubtractExpression,
-    RollExpression,
-    CostAddExpression,
-    CostSubtractExpression,
-    LeftScalarMultiplication,
-    CostExpression,
-    RightScalarMultiplication, VecExpression
+    RollExpression
 } from "./definitions";
 import {exhaustiveMatchGuard} from "./util";
 
@@ -29,45 +24,39 @@ function unbrace(str: string) {
 }
 
 function do_toString(expression: Expression): string {
-    if (expression instanceof AmountExpression) {
+    if(expression instanceof AmountExpression) {
         return `${expression.amount}`;
     } else if (expression instanceof ReferenceExpression) {
         return `\$\{${expression.stringRep}}`
     } else if (expression instanceof RollExpression) {
         return expression.value.formula
-    } else if (expression instanceof CostExpression) {
-        return expression.cost.toString();
-    } else if (expression instanceof AddExpression || expression instanceof CostAddExpression) {
+    } else if(expression instanceof AddExpression) {
         return `(${do_toString(expression.left)} + ${do_toString(expression.right)})`;
-    } else if (expression instanceof SubtractExpression || expression instanceof CostSubtractExpression) {
+    } else if(expression instanceof SubtractExpression) {
         return `(${do_toString(expression.left)} - ${do_toString(expression.right)})`;
-    } else if (expression instanceof MultiplyExpression) {
+    } else if(expression instanceof MultiplyExpression) {
         return asMultiplicationString(expression)
-    } else if (expression instanceof LeftScalarMultiplication || expression instanceof RightScalarMultiplication) {
-        return asMultiplicationString(expression)
-    } else if (expression instanceof DivideExpression) {
+    } else if(expression instanceof DivideExpression) {
         return stringify(expression, "/");
-    } else if (expression instanceof VecExpression) {
-        return do_toString(expression.arg)
     } else if (expression instanceof AbsExpression) {
         return expression.arg instanceof AmountExpression ?
-            do_toString(expression.arg).replace(/^-/, "") :
+            do_toString(expression.arg).replace(/^-/,"") :
             `|${do_toString(expression.arg)}|`
     }
     exhaustiveMatchGuard(expression);
 }
 
-function asMultiplicationString(expression: MultiplyExpression | LeftScalarMultiplication | RightScalarMultiplication): string {
-    if (expression.left instanceof AmountExpression && expression.left.amount == -1) {
+function asMultiplicationString(expression: MultiplyExpression): string {
+    if(expression.left instanceof AmountExpression && expression.left.amount == -1) {
         return `-${asString(expression.right)}`;
-    } else if (expression.right instanceof AmountExpression && expression.right.amount == -1) {
-        return `-${asString(expression.left)}`;
-    } else {
-        return stringify(expression, "\u00D7");//use unicode multiplication sign
+    }else if (expression.right instanceof AmountExpression && expression.right.amount == -1){
+        return `-${asString(expression.right)}`;
+    }else {
+       return stringify(expression, "\u00D7");//use unicode multiplication sign
     }
 }
 
-function stringify(expression: { left: Expression, right: Expression }, operator: string): string {
+function stringify(expression: {left:Expression, right:Expression}, operator:string): string {
     const leftString = unbraceNumbers(do_toString(expression.left));
     const rightString = unbraceNumbers(do_toString(expression.right));
     return `(${leftString} ${operator} ${rightString})`;
