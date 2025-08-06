@@ -35,11 +35,13 @@ export default class ItemImporter {
     }
 
     /**
+     * TODO: opt group here
      * @param skillOptions
      * @param {"unknown"|"weapon"|"mastery"} type
      * @returns {Promise<SplittermondSkill>}
      * @internal
      */
+
     static async _skillDialog(skillOptions, type= "unknown") {
         let optionsList = skillOptions.reduce((str, skill) => {
             let skillLabel = foundryApi.localize(`splittermond.skillLabel.${skill}`);

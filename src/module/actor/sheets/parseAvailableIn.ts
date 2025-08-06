@@ -2,6 +2,7 @@ import {foundryApi} from "../../api/foundryApi";
 import {FoundryDialog} from "../../api/Application";
 import {SpellDataModel} from "../../item/dataModel/SpellDataModel";
 import {MasteryDataModel} from "../../item/dataModel/MasteryDataModel";
+import type {AllowedSkills, SkillGroup} from "./AllowedSkills";
 
 const defaultLevel = 0;
 type SkillOption = { skill: string, level: number|null };
@@ -11,7 +12,7 @@ type SelectedOption = Omit<SkillOption,"level"> & {level:number}
  * @param availableIn e.g. "athletics 3, swords 1"
  * @param allowedSkills Array of valid skill ids
  */
-export function parseAvailableIn(availableIn: string, allowedSkills: string[]): SkillOption[]{
+export function parseAvailableIn(availableIn: string, allowedSkills: AllowedSkills): SkillOption[]{
     if (!availableIn){
         return []
     }
@@ -63,11 +64,8 @@ export async function selectFromParsedSkills(parsed: Array<SkillOption>, dialogT
         dialog.render(true);
     });
 }
-
-export async function selectFromAllSkills(skills: string[], levels: number[], dialogTitle:string): Promise<SelectedOption|null> {
-    const skillOptions = skills.map((skill) =>
-        `<option value="${skill}">${foundryApi.localize("splittermond.skillLabel."+ skill)}</option>`
-    );
+export async function selectFromAllSkills(skills: AllowedSkills, levels: number[], dialogTitle:string): Promise<SelectedOption|null> {
+    const skillOptions=getSkillSelectOptions(skills);
     const levelOptions = levels.map((level) =>
         `<option value="${level}">${level}</option>`
     );
@@ -80,6 +78,43 @@ export async function selectFromAllSkills(skills: string[], levels: number[], di
             callback: handleUserSelection
         }
     }) as Promise<SelectedOption|null>
+}
+
+function getSkillSelectOptions(skills: AllowedSkills): string[] {
+    if( !skills.isGrouped) {
+        return getGroupedSkillSelectOptions(skills.allowedSkills);
+    }else{
+        const skillGroups: string[] = [];
+        const groupedSkills=skills.groupedSkills
+        for(const grp in groupedSkills) {
+            const group = grp as SkillGroup;
+            if(groupedSkills[group]) {
+                skillGroups.push(`<optgroup label="${localizeSkillGroup(group)}">`);
+                skillGroups.push(...getGroupedSkillSelectOptions(groupedSkills[group] as string[]));
+                skillGroups.push(`</optgroup>`);
+            }
+        }
+        return skillGroups;
+    }
+}
+
+function getGroupedSkillSelectOptions(skills: string[]): string[] {
+    return skills.map((skill) =>
+        `<option value="${skill}">${foundryApi.localize("splittermond.skillLabel." + skill)}</option>`
+    );
+}
+
+function localizeSkillGroup(group: SkillGroup): string {
+    switch(group) {
+        case "general":
+            return foundryApi.localize("splittermond.generalSkills");
+        case "magic":
+            return foundryApi.localize("splittermond.magicSkills");
+        case "fighting":
+            return foundryApi.localize("splittermond.fightingSkills");
+        default:
+            return group; // Fallback to the group name if not recognized
+    }
 }
 
 function handleUserSelection(__:unknown, button: HTMLButtonElement): SelectedOption|null {

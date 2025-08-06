@@ -6,6 +6,7 @@ import {ItemFeaturesModel} from "../../item/dataModel/propertyModels/ItemFeature
 import {DamageRoll} from "../../util/damage/DamageRoll.js";
 import {CostBase} from "../../util/costs/costTypes.js";
 import {parseAvailableIn, selectFromAllSkills, selectFromParsedSkills} from "./parseAvailableIn";
+import {AllowedSkills} from "./AllowedSkills.js";
 
 export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSheet {
     constructor(...args) {
@@ -594,7 +595,7 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
      */
     async _onDropItemCreate(itemData) {
         if(itemData.type === "spell"){
-            const allowedSkills = splittermond.skillGroups.magic;
+            const allowedSkills = new AllowedSkills(splittermond.skillGroups.magic);
             const dialogTitle = foundryApi.localize("splittermond.chooseMagicSkill")
             const parsed = parseAvailableIn(itemData.system?.availableIn ?? "", allowedSkills);
             let selectedSkill;
@@ -619,7 +620,7 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
 
         }
         if(itemData.type === "mastery"){
-            const allowedSkills = splittermond.skillGroups.all;
+            const allowedSkills = new AllowedSkills({...splittermond.skillGroups, all:undefined});
             const dialogTitle = foundryApi.localize("splittermond.chooseSkill")
             const parsed = parseAvailableIn(itemData.system?.availableIn ?? "", allowedSkills)
             .map(s => ({...s, level: itemData.system.level ?? 1}));
