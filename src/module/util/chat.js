@@ -242,7 +242,19 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
     return ChatMessage.applyRollMode(checkMessageData, rollMode);
 }
 
+/**
+ * @typedef {Object} StatusEffectMessageData
+ * @property {VirtualToken} virtualToken
+ * @property {number} activationNo
+ * @property {number} onTick
+ * @property {number} maxActivation
+ */
 
+/**
+ * @param {SplittermondActor} actor
+ * @param {StatusEffectMessageData} data
+ * @return {Promise<{user, speaker: any, content: string, sound: string, type: (0 & CHAT_MESSAGE_STYLES) | (3 & DetectionMode.DETECTION_TYPES) | number}>}
+ */
 export async function prepareStatusEffectMessage(actor, data) {
     let template = "systems/splittermond/templates/chat/status-effect.hbs";
     let templateContext = {
