@@ -248,10 +248,11 @@ export default class SplittermondActor extends Actor {
 
     }
 
+    /**@returns VirtualToken[]*/
     getVirtualStatusTokens() {
         return this.items
             .filter(e => {
-                return e.type == "statuseffect";
+                return e.type === "statuseffect";
             })
             .filter(e => {
                 return e.system.startTick != null && e.system.startTick > 0 &&

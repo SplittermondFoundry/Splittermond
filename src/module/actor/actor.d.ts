@@ -6,6 +6,7 @@ import {CharacterDataModel} from "./dataModel/CharacterDataModel";
 import {NpcDataModel} from "./dataModel/NpcDataModel";
 import {Susceptibilities} from "./modifiers/Susceptibilities";
 import ModifierManager from "./modifier-manager";
+import type {VirtualToken} from "../combat/VirtualToken";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 declare class SplittermondActor extends Actor {
@@ -42,6 +43,8 @@ declare class SplittermondActor extends Actor {
     importFromJSON(json: string, overwriteData?): Promise<unknown>;
 
     findItem();
+
+    getVirtualStatusTokens():VirtualToken[];
 
     attacks: Attack[];
     type: "character" | "npc";
