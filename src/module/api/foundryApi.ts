@@ -1,12 +1,14 @@
-import type {
-    ChatMessageTypes, CompendiumPacks,
-    Hooks, KeybindingActionBinding, KeybindingActionConfig,
-    MergeObjectOptions,
-    SettingsConfig,
-    SettingTypeMapper,
-    Socket,
-    Speaker,
-    User
+import {
+    type ChatMessageTypes, type CompendiumPacks,
+    type Hooks, type KeybindingActionBinding, type KeybindingActionConfig,
+    type MergeObjectOptions,
+    type SettingsConfig,
+    type SettingTypeMapper,
+    type Socket,
+    type Speaker,
+    type User,
+    type FoundryScene,
+    type FoundryCombat
 } from "./foundryTypes";
 import type {FoundryRoll, NumericTerm, OperatorTerm, Roll} from "./Roll";
 import {FoundryChatMessage} from "./ChatMessage";
@@ -105,9 +107,23 @@ export const foundryApi = new class FoundryApi {
         return game.user
     }
 
+    get currentScene(): FoundryScene | null {
+        //@ts-ignore
+        return game.scenes.current ?? null;
+    }
+
     get users(): User[] {
         //@ts-ignore
         return game.users;
+    }
+    get scenes(): Collection<FoundryScene> {
+        //@ts-ignore
+        return game.scenes;
+    }
+
+    get combats(): Collection<FoundryCombat> {
+        //@ts-ignore
+        return game.combats;
     }
 
     get socket(): Socket {
@@ -243,6 +259,13 @@ export const foundryApi = new class FoundryApi {
         get packs():CompendiumPacks {
             // @ts-ignore
             return game.packs;
+        }
+    }
+
+    canvas = {
+        animatePan(view:unknown): Promise<boolean> {
+            // @ts-ignore
+            return canvas.animatePan(view);
         }
     }
 }

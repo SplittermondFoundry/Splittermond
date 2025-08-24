@@ -1,5 +1,7 @@
 import {DataModel} from "./DataModel";
-
+export type FoundryCombat = foundry.documents.Combat;
+export type FoundryCombatant = foundry.documents.Combatant;
+export type FoundryScene = foundry.documents.Scene;
 
 export interface KeybindingActionConfig {
     editable?: KeybindingActionBinding[];
@@ -80,6 +82,7 @@ declare global {
     type Collection<T> =
         ReadonlyMap<string, T>
         & Omit<ReadonlyArray<T>, "length" | "push" | "pop" | "shift" | "unshift" | "splice" | "sort" | "reverse">
+        & { get contents(): T[]}
 
     /**
      * A folder in the Foundry VTT file system. Incomplete typing
@@ -178,6 +181,31 @@ export interface CompendiumPacks extends Collection<foundry.documents.collection
 
 declare namespace foundry{
     namespace documents {
+        import CombatHistoryData = foundry.documents.types.CombatHistoryData;
+
+        class Scene extends FoundryDocument {
+
+        }
+
+        class Combat extends FoundryDocument {
+            readonly turns: Combatant[];
+            readonly current: CombatHistoryData
+            combatants: Collection<Combatant>; //defineSchema field. not actually part of the API
+        }
+
+        class Combatant extends FoundryDocument {
+            get isDefeated(): boolean;
+
+        }
+
+        namespace types {
+            interface CombatHistoryData {
+                combatantId: string|null;
+                round: number|null;
+                tokenId: string|null;
+                turn: number|null;
+            }
+        }
         namespace collections {
             class CompendiumCollection{
                 metadata: Record<string|symbol|number,unknown>;
