@@ -12,6 +12,7 @@ import {
 } from "./foundryTypes";
 import type {FoundryRoll, NumericTerm, OperatorTerm, Roll} from "./Roll";
 import {FoundryChatMessage} from "./ChatMessage";
+import {FoundryApplication} from "./Application";
 
 export const foundryApi = new class FoundryApi {
 
@@ -121,7 +122,7 @@ export const foundryApi = new class FoundryApi {
         return game.scenes;
     }
 
-    get combats(): Collection<FoundryCombat> {
+    get combats(): Collection<FoundryCombat> & {apps: InstanceType<typeof FoundryApplication>[]} {
         //@ts-ignore
         return game.combats;
     }

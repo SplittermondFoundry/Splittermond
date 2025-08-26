@@ -6,6 +6,7 @@ import {actorCreator} from "../../module/data/EntityCreator";
 import sinon, {type SinonSandbox} from "sinon";
 import {splittermond} from "../../module/config";
 import {CharacterDataModel} from "../../module/actor/dataModel/CharacterDataModel";
+import {foundryUISelectors} from "../../module/apps/tick-bar-hud/tickBarResizing";
 
 declare const game: any;
 declare const deepClone: any;
@@ -251,6 +252,17 @@ export function applicationTests(context: QuenchBatchContext) {
             });
         });
     });
+
+    describe( "Tick Bar Hud", () => {
+
+    Object.entries(foundryUISelectors).forEach(([key, value]) => {
+        it(`should contain a valid selector for ${key}`, () => {
+           expect(document.querySelector(value)).to.be.instanceOf(HTMLElement);
+        })
+    })
+
+    });
+
 }
 
 function getDataSets(nodeList: NodeListOf<HTMLElement>): Record<string, string | undefined>[] {

@@ -16,7 +16,7 @@ import SplittermondCombatTracker from "./module/apps/sidebar/combat-tracker";
 import ItemImporter from "./module/util/item-importer";
 import SplittermondCompendiumBrowser from "./module/apps/compendiumBrowser/compendium-browser.js";
 import {registerRequestedSystemSettings} from "./module/settings";
-import TickBarHud from "./module/apps/tick-bar-hud";
+import TickBarHud, {initTickBarHud} from "./module/apps/tick-bar-hud/tick-bar-hud";
 
 import {chatActionFeature} from "./module/util/chat/chatActionFeature";
 import SplittermondWeaponItem from "./module/item/weapon";
@@ -78,8 +78,9 @@ function handlePdf(links) {
 };
 
 Hooks.once("ready", async function () {
-    game.splittermond.tickBarHud = new TickBarHud();
-    return initTokenActionBar(game.splittermond);
+    return Promise.all([
+        initTickBarHud(game.splittermond),
+        initTokenActionBar(game.splittermond)]);
 });
 
 Hooks.once("init", async function () {

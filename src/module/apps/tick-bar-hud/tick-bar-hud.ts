@@ -1,14 +1,22 @@
-import {FoundryApplication, FoundryDragDrop} from "../../api/Application";
+import {FoundryDragDrop} from "../../api/Application";
 import {TickBarHudTemplateData} from "./templateInterface";
 import * as Chat from "../../util/chat.js";
 import type {FoundryCombat, FoundryCombatant} from "module/api/foundryTypes"
 import {closestData} from "../../data/ClosestDataMixin";
 import {foundryApi} from "../../api/foundryApi";
-import type {ApplicationContextOptions, ApplicationRenderContext} from "../../data/SplittermondApplication";
+import {
+    type ApplicationContextOptions,
+    ApplicationOptions,
+    type ApplicationRenderContext,
+    SplittermondApplication
+} from "../../data/SplittermondApplication";
 import type {VirtualToken} from "../../combat/VirtualToken";
 import type {StatusEffectMessageData} from "../../util/chat.js";
+import {initMaxWidthTransitionForTickBarHud} from "./tickBarResizing";
 
-export default class TickBarHud extends FoundryApplication {
+
+
+export default class TickBarHud extends SplittermondApplication {
     viewed: FoundryCombat | null = null;
     viewedTick: number = 0;
     currentTick: number = 0;
@@ -17,14 +25,34 @@ export default class TickBarHud extends FoundryApplication {
     minTick: number = 0;
     _dragOverTimeout: number = 0;
     _clickTime: number = 0;
-    dragDrop: FoundryDragDrop[] = [];
+    dragDrop: FoundryDragDrop[];
 
+    static PARTS = {
+        app: {
+            template: "systems/splittermond/templates/apps/tick-bar-hud.hbs",
+        }
+    }
     static DEFAULT_OPTIONS = {
         id: "tick-bar-hud",
-        template: "systems/splittermond/templates/apps/tick-bar-hud.hbs",
+        classes: ["splittermond", "tick-bar-hud"],
+        window: {
+            frame: false,
+            popOut: false,
+            minimizable: false,
+            resizable: false
+        },
         popOut: false,
-        dragDrop: [{dragSelector: ".tick-bar-hud-combatant-list-item", dropSelector: [".tick-bar-hud-tick", ".tick-bar-hud-nav-btn"]}]
+        dragDrop: [{
+            dragSelector: ".tick-bar-hud-combatant-list-item",
+            dropSelector: [".tick-bar-hud-tick", ".tick-bar-hud-nav-btn"]
+        }]
     };
+
+    constructor(options: ApplicationOptions = {}) {
+        super(options);
+        this.dragDrop = this.createDragDropHandlers();
+    }
+
 
     get combats(): FoundryCombat[] {
         const currentScene = foundryApi.currentScene;
@@ -65,12 +93,17 @@ export default class TickBarHud extends FoundryApplication {
                 this.viewedTick = this.currentTick
             }
 
-            const statusOnCombatants:{combatant:FoundryCombatant, virtualTokens: VirtualToken[]}[] = combat.combatants.contents.map(e => {
-                return {
-                    combatant: e,
-                    virtualTokens: e.actor.getVirtualStatusTokens() || [],
-                }
-            });
+            const statusOnCombatants: {
+                combatant: FoundryCombatant,
+                virtualTokens: VirtualToken[]
+            }[] = combat.combatants.contents
+                .filter(combatant => !!combatant.actor) //safeguard against combatants whose actor got deleted
+                .map(e => {
+                    return {
+                        combatant: e,
+                        virtualTokens: e.actor.getVirtualStatusTokens() || [],
+                    }
+                });
 
             const iniData = combat.turns
                 .filter(combatant => "initiative" in combatant)
@@ -96,13 +129,12 @@ export default class TickBarHud extends FoundryApplication {
                 });
             }
 
-            for ( let [i, c] of combat.turns.entries() ) {
-
+            for (let [i, c] of combat.turns.entries()) {
 
 
                 if (c.initiative == null) continue;
 
-                if ( c.initiative > 9999) {
+                if (c.initiative > 9999) {
 
                     let combatantData = {
                         id: c.id,
@@ -125,9 +157,10 @@ export default class TickBarHud extends FoundryApplication {
                     }
 
                     continue;
-                };
+                }
+                ;
 
-                if ( !c.visible || c.isDefeated) continue;
+                if (!c.visible || c.isDefeated) continue;
 
                 data.ticks.find(t => t.tickNumber == Math.round(c.initiative))?.combatants.push({
                     id: c.id,
@@ -142,20 +175,18 @@ export default class TickBarHud extends FoundryApplication {
                 });
             }
 
-            const activatedStatusTokens:(StatusEffectMessageData &{combatant:FoundryCombatant})[] = [];
+            const activatedStatusTokens: (StatusEffectMessageData & { combatant: FoundryCombatant })[] = [];
 
             statusOnCombatants.forEach(combatant => {
                 combatant.virtualTokens.forEach(element => {
                     for (let index = 0; index < element.times; index++) {
                         const onTick = (index * element.interval) + element.startTick;
-                        if(onTick <= this.minTick)
-                        {
-                            if(this.lastStatusTick != null &&
+                        if (onTick <= this.minTick) {
+                            if (this.lastStatusTick != null &&
                                 lastTick <= onTick &&
                                 this.lastStatusTick != this.currentTick &&
                                 this.lastStatusTick != onTick &&
-                                combatant.combatant.isOwner)
-                            {
+                                combatant.combatant.isOwner) {
                                 //this effect was activated in between the last tick and the current tick or we just got to that tick
                                 activatedStatusTokens.push({
                                     onTick,
@@ -165,8 +196,7 @@ export default class TickBarHud extends FoundryApplication {
                                     combatant: combatant.combatant,
                                 })
                             }
-                            if(onTick < this.minTick)
-                            {
+                            if (onTick < this.minTick) {
                                 continue;
                             }
                         }
@@ -192,22 +222,10 @@ export default class TickBarHud extends FoundryApplication {
         return data;
     }
 
-    async _onRender(): Promise<void> {
-        // Drag & drop setup
-        this.dragDrop = (this.options.dragDrop as Record<string, unknown>[]).map((d) => {
-            d.permissions = {
-                dragstart: this._canDragStart.bind(this),
-                drop: this._canDragDrop.bind(this),
-            };
-            d.callbacks = {
-                dragstart: this._onDragStart.bind(this),
-                dragover: this._onDragOver.bind(this),
-                drop: this._onDrop.bind(this),
-            };
-            return new FoundryDragDrop(d);
-        });
-        this.dragDrop.forEach((d) => d.bind(this.element));
+    async _onRender(context: any, options: any): Promise<void> {
+        await super._onRender(context, options)
 
+        this.dragDrop.forEach((d) => d.bind(this.element));
         // Listeners and UI logic
         const html = this.element;
         // Replace jQuery .each with native forEach
@@ -241,7 +259,7 @@ export default class TickBarHud extends FoundryApplication {
                 if ((this.viewedTick ?? 0) + Math.floor(inView) > (this.maxTick ?? 0)) {
                     this.viewedTick = (this.maxTick ?? 0) - Math.floor(inView) + 1;
                 }
-                let offset = this.viewedTick - this.currentTick  * 72;
+                let offset = this.viewedTick - this.currentTick * 72;
                 this.moveScrollbar(offset)
             });
         });
@@ -283,7 +301,10 @@ export default class TickBarHud extends FoundryApplication {
         });
         html.querySelectorAll(".tick-bar-hud-combatant-list-item").forEach(item => {
             item.addEventListener("dragstart", () => {
-                $(html.querySelectorAll(".tick-bar-hud-tick-special-no-data")).animate({width: "128px", opacity: 1}, 200);
+                $(html.querySelectorAll(".tick-bar-hud-tick-special-no-data")).animate({
+                    width: "128px",
+                    opacity: 1
+                }, 200);
             });
             item.addEventListener("dragend", () => {
                 $(html.querySelectorAll(".tick-bar-hud-tick-special-no-data")).animate({width: "0px", opacity: 0}, 200);
@@ -298,10 +319,11 @@ export default class TickBarHud extends FoundryApplication {
         }
     }
 
-    private get previousTickButton(): HTMLButtonElement|null {
+    private get previousTickButton(): HTMLButtonElement | null {
         return this.element.querySelector('.tick-bar-hud-nav-btn[data-action="previous-ticks"]')
     }
-    private withPresentPreviousTickButton(action:(button: HTMLButtonElement)=>void){
+
+    private withPresentPreviousTickButton(action: (button: HTMLButtonElement) => void) {
         const button = this.previousTickButton;
         if (button) {
             return action(button);
@@ -312,9 +334,26 @@ export default class TickBarHud extends FoundryApplication {
     _canDragStart(): boolean {
         return true;
     }
+
     _canDragDrop(): boolean {
         return true;
     }
+
+    private createDragDropHandlers(): FoundryDragDrop[] {
+        return (this.options.dragDrop as Record<string, unknown>[]).map((d) => {
+            d.permissions = {
+                dragstart: this._canDragStart.bind(this),
+                drop: this._canDragDrop.bind(this),
+            };
+            d.callbacks = {
+                dragstart: this._onDragStart.bind(this),
+                dragover: this._onDragOver.bind(this),
+                drop: this._onDrop.bind(this),
+            };
+            return new FoundryDragDrop(d);
+        });
+    }
+
     _onDragStart(event: DragEvent): void {
         const element = event.currentTarget as HTMLElement;
         if (element.classList.contains("tick-bar-hud-status-effect-list-item")) {
@@ -328,6 +367,7 @@ export default class TickBarHud extends FoundryApplication {
             combatantId: combatantId,
         }));
     }
+
     _onDrop(event: DragEvent): void {
         if (!this.viewed) return;
         const element = event.currentTarget as HTMLElement;
@@ -344,19 +384,20 @@ export default class TickBarHud extends FoundryApplication {
             }
         }
     }
+
     _onDragOver(event: DragEvent): void {
         const targetElement = event.currentTarget as HTMLElement;
-        const action = closestData(targetElement,"action");
+        const action = closestData(targetElement, "action");
         const now = Date.now();
         if (action && now - this._dragOverTimeout > 300) {
             this._dragOverTimeout = now;
             const parentElement = targetElement.parentElement;
-            if(!parentElement){
+            if (!parentElement) {
                 console.warn(`Splittermond | Somehow drag element ${targetElement.outerHTML} has no parent`)
                 return;
             }
             const tickElement = parentElement?.querySelector(".tick-bar-hud-ticks")!.getBoundingClientRect().width ?? 0
-            const inView =  tickElement/ 72;
+            const inView = tickElement / 72;
             const step = 1;
             if (action === "next-ticks") {
                 this.viewedTick = this.viewedTick + step;
@@ -374,10 +415,10 @@ export default class TickBarHud extends FoundryApplication {
             this.moveScrollbar(offset)
         }
     }
-    
-    private moveScrollbar(offset:number){
+
+    private moveScrollbar(offset: number) {
         $(this.element).find(".tick-bar-hud-ticks-scroll").animate({left: -offset + "px"}, 200);
-        this.withPresentPreviousTickButton(previousTickButton=>{
+        this.withPresentPreviousTickButton(previousTickButton => {
             if (this.currentTick === this.viewedTick) {
                 const buttonOpacity = parseInt(previousTickButton.style.opacity);
                 if (buttonOpacity === 1) {
@@ -388,6 +429,20 @@ export default class TickBarHud extends FoundryApplication {
                 if (buttonOpacity === 0) {
                     $(previousTickButton).animate({width: "32px", "margin-left": "10px", opacity: 1}, 100);
                 }
-            }});
+            }
+        });
     }
 }
+
+/**
+ * Initializer for the Tick Bar HUD application.
+ * Needs to be called in the 'ready' hook
+ */
+export function initTickBarHud(splittermond: Record<string, unknown>) {
+    const tickBarHud = new TickBarHud();
+    splittermond.tickBarHud = tickBarHud
+    foundryApi.combats.apps.push(tickBarHud);
+    return tickBarHud.render(true).then(() => initMaxWidthTransitionForTickBarHud(tickBarHud))
+}
+
+

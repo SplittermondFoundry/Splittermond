@@ -1,12 +1,22 @@
-.tick-bar-hud {
+.max-width-transition-smoothing() {
+  transition-property: max-width;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
+
+#tick-bar-hud {
+  .tick-bar-hud {
     position: fixed;
     display: flex;
     flex-direction: row;
     left: 110px;
     top: 60px;
     padding: 0px;
-   
-    max-width: calc(100% - 430px);
+
+    max-width: calc(100% - 450px);
+    .max-width-transition-smoothing();
+
+
     overflow: hidden;
 
     background: none;
@@ -14,9 +24,9 @@
     box-shadow: none;
 
 
-}
+  }
 
-.tick-bar-hud-nav-btn {
+  .tick-bar-hud-nav-btn {
     width: 32px;
     height: 64px;
     margin-top: 10px;
@@ -29,144 +39,145 @@
     box-shadow: none;
 
     &:hover, &:active, &:focus {
-        box-shadow: none;
-        text-shadow: 0 0 10px @highlightTextColor;;
+      box-shadow: none;
+      text-shadow: 0 0 10px @highlightTextColor;;
     }
 
     &:first-child {
-        margin-left: 10px;
+      margin-left: 10px;
     }
+  }
 }
 
 .tick-bar-hud-ticks {
-    margin: 0px;
-    padding: 10px;
-    overflow: hidden;
-    flex-grow: 1;
-    -webkit-mask-image: linear-gradient(90deg, transparent 2px, #000 8px, #000000 calc(100% - 72px), transparent); 
-    mask-image: linear-gradient(90deg, transparent 2px, #000 8px, #000000 calc(100% - 72px), transparent); 
+  margin: 0px;
+  padding: 10px;
+  overflow: hidden;
+  flex-grow: 1;
+  -webkit-mask-image: linear-gradient(90deg, transparent 2px, #000 8px, #000000 calc(100% - 72px), transparent);
+  mask-image: linear-gradient(90deg, transparent 2px, #000 8px, #000000 calc(100% - 72px), transparent);
 }
 
 .tick-bar-hud-ticks-scroll, .tick-bar-hud-ticks-no-scroll {
-    display: flex;
-    position: relative;
+  display: flex;
+  position: relative;
 }
 
 
 .tick-bar-hud-ticks-special {
-    flex-grow: unset;
-    -webkit-mask-image: none;
-    mask-image: none;
-    overflow: visible;
-    padding-left: 0px;
-    padding-right: 0px;
+  flex-grow: unset;
+  -webkit-mask-image: none;
+  mask-image: none;
+  overflow: visible;
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 .tick-bar-hud-tick {
-    position: relative;
-    
-    &:not(:last-child) {
-        margin-right: 8px;
-    }
+  position: relative;
+
+  &:not(:last-child) {
+    margin-right: 8px;
+  }
 }
 
 .tick-bar-hud-tick-special-no-data {
-    width: 0px;
-    opacity: 0;
+  width: 0px;
+  opacity: 0;
 }
 
 .tick-bar-hud-tick-number {
-    background: url(/ui/denim075.png) repeat;
-    border-radius: 5px;
-    border: 1px solid #000;
-    box-shadow: 0 0 10px #000,0 0 5px #444 inset;
-    padding: @paddingSmall;
+  background: url(/ui/denim075.png) repeat;
+  border-radius: 5px;
+  border: 1px solid #000;
+  box-shadow: 0 0 10px #000, 0 0 5px #444 inset;
+  padding: @paddingSmall;
 
-    height: 64px;
-    width: 64px;
-    margin-bottom: -64px;
+  height: 64px;
+  width: 64px;
+  margin-bottom: -64px;
 
-    &.current-tick {
-        box-shadow: 0 0 10px @highlightTextColor,0 0 5px #444 inset;
-        border: 1px solid @highlightTextColor;
-        text-shadow: 0 0 5px @highlightTextColor;
-
-        span {
-            text-shadow: 0 0 5px @highlightTextColor;
-        }
-    }
+  &.current-tick {
+    box-shadow: 0 0 10px @highlightTextColor, 0 0 5px #444 inset;
+    border: 1px solid @highlightTextColor;
+    text-shadow: 0 0 5px @highlightTextColor;
 
     span {
-        display: block;
-        width: 100%;
-        text-align: center;
-        //margin-left: -8px;
-        margin-top: -15px;
-        text-shadow: 0 0 5px black;
-        font-family: "Vollkorn";
-        font-size: @fontSizeLarge;
-        font-weight: 600;
-        font-variant-numeric: lining-nums;
+      text-shadow: 0 0 5px @highlightTextColor;
     }
+  }
+
+  span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    //margin-left: -8px;
+    margin-top: -15px;
+    text-shadow: 0 0 5px black;
+    font-family: "Vollkorn";
+    font-size: @fontSizeLarge;
+    font-weight: 600;
+    font-variant-numeric: lining-nums;
+  }
 }
 
 .tick-bar-hud-tick-number-special {
-    width: 128px;
+  width: 128px;
 }
 
 .tick-bar-hud-combatant-list {
-    display: flex;
-    flex-direction: column;
-    list-style: none;
-    margin: 0px;
-    padding: 8px;
-    width: 100%;
-    align-items: center;
-    z-index: 1;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0px;
+  padding: 8px;
+  width: 100%;
+  align-items: center;
+  z-index: 1;
 }
 
 .tick-bar-hud-status-effect-list {
-    position: absolute;
-    right: -8px;
-    top:0px;
-    display: flex;
-    flex-direction: column;
-    list-style: none;
-    margin: 0px;
-    gap: 4px;
-    width: 24px;
-    align-items: center;
-    z-index:10;
+  position: absolute;
+  right: -8px;
+  top: 0px;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0px;
+  gap: 4px;
+  width: 24px;
+  align-items: center;
+  z-index: 10;
 }
-    
 
-.tick-bar-hud-combatant-list-item  {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    
 
-    filter: drop-shadow(0px 0px @paddingSmall #000);
+.tick-bar-hud-combatant-list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-    &.active, &:hover {
-        filter: drop-shadow(0px 0px @paddingSmall @highlightTextColor);
-    }
 
-    &:not(:first-child) {
-        margin-top: -38px;
-    }
+  filter: drop-shadow(0px 0px @paddingSmall #000);
 
-    .token-name {
-        margin-top: -12px;
-    }
+  &.active, &:hover {
+    filter: drop-shadow(0px 0px @paddingSmall @highlightTextColor);
+  }
 
-    .token-image {
-        flex: 0 0 48px;
-        height: 48px;
-        width: 48px;
-        object-fit: cover;
-        object-position: 50% 0;
-        margin: 0;
-        border: none;
-    }
+  &:not(:first-child) {
+    margin-top: -38px;
+  }
+
+  .token-name {
+    margin-top: -12px;
+  }
+
+  .token-image {
+    flex: 0 0 48px;
+    height: 48px;
+    width: 48px;
+    object-fit: cover;
+    object-position: 50% 0;
+    margin: 0;
+    border: none;
+  }
 }
