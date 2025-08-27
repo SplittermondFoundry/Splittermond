@@ -80,7 +80,11 @@ function handlePdf(links) {
 Hooks.once("ready", async function () {
     return Promise.all([
         initTickBarHud(game.splittermond),
-        initTokenActionBar(game.splittermond)]);
+        initTokenActionBar(game.splittermond)
+    ]).then(()=>{
+        console.log("Splittermond | Ready")
+        foundryApi.hooks.call("splittermond.ready")
+    });
 });
 
 Hooks.once("init", async function () {
@@ -237,7 +241,6 @@ Hooks.once("init", async function () {
         const quenchTestsInit = (await import("./__tests__/integration/quench")).init;
         quenchTestsInit();
     }
-    console.log("Splittermond | DONE!");
 });
 
 Hooks.on("redraw-combat-tick", async () => {
