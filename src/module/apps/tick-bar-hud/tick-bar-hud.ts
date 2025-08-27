@@ -222,6 +222,12 @@ export default class TickBarHud extends SplittermondApplication {
         return data;
     }
 
+    private animateMouseMovement(event: Event, animation: (e:HTMLElement) => Keyframe[] | PropertyIndexedKeyframes){
+        const target = event.currentTarget as HTMLElement;
+        const childElements = Array.from(target.children).slice(1) as HTMLElement[]; // :not(:first-child)
+        childElements.forEach(child => child.animate((animation(child)), { duration: 200, fill: 'forwards' }))
+    }
+
     async _onRender(context: any, options: any): Promise<void> {
         await super._onRender(context, options)
 
@@ -235,10 +241,17 @@ export default class TickBarHud extends SplittermondApplication {
                 (child as HTMLElement).style.zIndex = zIndexCounter.toString();
                 zIndexCounter--;
             });
-            $(list).hover(function () {
-                $(this).children(":not(:first-child)").animate({"margin-top": "5px"}, 200);
-            }, function () {
-                $(this).children(":not(:first-child)").animate({"margin-top": "-38px"}, 200);
+            list.addEventListener('mouseenter', (event)=> {
+                this.animateMouseMovement(event, (child)=>[
+                        { marginTop: child.style.marginTop || '0px' },
+                        { marginTop: '5px' }
+                    ]);
+            });
+            list.addEventListener('mouseleave', (event) => {
+                this.animateMouseMovement(event, (child)=>[
+                        { marginTop: child.style.marginTop || '5px' },
+                        { marginTop: '-38px' }
+                    ]);
             });
         });
         html.querySelectorAll('.tick-bar-hud-nav-btn').forEach(btn => {
@@ -259,11 +272,11 @@ export default class TickBarHud extends SplittermondApplication {
                 if ((this.viewedTick ?? 0) + Math.floor(inView) > (this.maxTick ?? 0)) {
                     this.viewedTick = (this.maxTick ?? 0) - Math.floor(inView) + 1;
                 }
-                let offset = this.viewedTick - this.currentTick * 72;
+                let offset = (this.viewedTick - this.currentTick) * 72;
                 this.moveScrollbar(offset)
             });
         });
-        let offset = ((this.viewedTick ?? 0) - (this.currentTick ?? 0)) * 72;
+        let offset = (this.viewedTick - this.currentTick) * 72;
         html.querySelectorAll('.tick-bar-hud-ticks:not(.tick-bar-hud-ticks-special)').forEach(ticks => {
             Array.from(ticks.children).forEach(child => {
                 (child as HTMLElement).style.left = -offset + "px";
@@ -301,13 +314,22 @@ export default class TickBarHud extends SplittermondApplication {
         });
         html.querySelectorAll(".tick-bar-hud-combatant-list-item").forEach(item => {
             item.addEventListener("dragstart", () => {
-                $(html.querySelectorAll(".tick-bar-hud-tick-special-no-data")).animate({
-                    width: "128px",
-                    opacity: 1
-                }, 200);
+                html.querySelectorAll(".tick-bar-hud-tick-special-no-data").forEach(el=> {
+                    const element = el as HTMLElement;
+                    element.animate([
+                        { width: element.style.width || '0px', opacity: parseFloat(element.style.opacity || '0') },
+                        { width: '128px', opacity: 1 }
+                    ], { duration: 200, fill: 'forwards' })
+                });
             });
             item.addEventListener("dragend", () => {
-                $(html.querySelectorAll(".tick-bar-hud-tick-special-no-data")).animate({width: "0px", opacity: 0}, 200);
+                html.querySelectorAll(".tick-bar-hud-tick-special-no-data").forEach((el) => {
+                    const element = el as HTMLElement;
+                    element.animate([
+                        { width: element.style.width || '128px', opacity: parseFloat(element.style.opacity || '1') },
+                        { width: '0px', opacity: 0 }
+                    ], { duration: 200, fill: 'forwards' });
+                });
             });
         });
         if (this.currentTick === this.viewedTick) {
@@ -417,17 +439,38 @@ export default class TickBarHud extends SplittermondApplication {
     }
 
     private moveScrollbar(offset: number) {
-        $(this.element).find(".tick-bar-hud-ticks-scroll").animate({left: -offset + "px"}, 200);
+        const scrollElement = this.element.querySelector(".tick-bar-hud-ticks-scroll") as HTMLElement;
+        if (scrollElement) {
+            scrollElement.animate([
+                { left: scrollElement.style.left || '0px' },
+                { left: -offset + "px" }
+            ], { duration: 200, fill: 'forwards' });
+        }
+
         this.withPresentPreviousTickButton(previousTickButton => {
             if (this.currentTick === this.viewedTick) {
-                const buttonOpacity = parseInt(previousTickButton.style.opacity);
+                const buttonOpacity = parseFloat(previousTickButton.style.opacity || '1');
                 if (buttonOpacity === 1) {
-                    $(previousTickButton).animate({width: "0px", "margin-left": "-10px", opacity: 0}, 100);
+                    previousTickButton.animate([
+                        {
+                            width: previousTickButton.style.width || '32px',
+                            marginLeft: previousTickButton.style.marginLeft || '10px',
+                            opacity: buttonOpacity
+                        },
+                        { width: '0px', marginLeft: '-10px', opacity: 0 }
+                    ], { duration: 100, fill: 'forwards' });
                 }
             } else {
-                const buttonOpacity = parseInt(previousTickButton.style.opacity);
+                const buttonOpacity = parseFloat(previousTickButton.style.opacity || '0');
                 if (buttonOpacity === 0) {
-                    $(previousTickButton).animate({width: "32px", "margin-left": "10px", opacity: 1}, 100);
+                    previousTickButton.animate([
+                        {
+                            width: previousTickButton.style.width || '0px',
+                            marginLeft: previousTickButton.style.marginLeft || '-10px',
+                            opacity: buttonOpacity
+                        },
+                        { width: '32px', marginLeft: '10px', opacity: 1 }
+                    ], { duration: 100, fill: 'forwards' });
                 }
             }
         });
@@ -444,5 +487,3 @@ export function initTickBarHud(splittermond: Record<string, unknown>) {
     foundryApi.combats.apps.push(tickBarHud);
     return tickBarHud.render(true).then(() => initMaxWidthTransitionForTickBarHud(tickBarHud))
 }
-
-
