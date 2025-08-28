@@ -261,7 +261,7 @@ export async function prepareStatusEffectMessage(actor, data) {
         ...data,
         actions: [],
         title: `${data.virtualToken.name} ${data.virtualToken.level}`,
-        subtitle: game.i18n.format("splittermond.combatEffect.statusEffectActivated.subtitle", {
+        subtitle: foundryApi.format("splittermond.combatEffect.statusEffectActivated.subtitle", {
             onTick: data.onTick,
             activationNo: data.activationNo,
             maxActivation: data.virtualToken.times
@@ -270,7 +270,7 @@ export async function prepareStatusEffectMessage(actor, data) {
 
     if (data.activationNo == data.virtualToken.times) {
         templateContext.actions.push({
-            name: game.i18n.localize(`splittermond.combatEffect.statusEffectActivated.remove`),
+            name: foundryApi.localize(`splittermond.combatEffect.statusEffectActivated.remove`),
             icon: "fa-remove",
             classes: "remove-status",
             data: {
@@ -282,11 +282,11 @@ export async function prepareStatusEffectMessage(actor, data) {
     //TODO add actions based on the status effect to allow per-button execution for effect
 
     let statusEffectData = {
-        user: game.user.id,
-        speaker: ChatMessage.getSpeaker({actor: actor}),
-        content: await renderTemplate(template, templateContext),
+        user: foundryApi.currentUser.id,
+        speaker: foundryApi.getSpeaker({actor: actor}),
+        content: await foundryApi.renderer(template, templateContext),
         sound: CONFIG.sounds.notification,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        type: foundryApi.chatMessageTypes.OTHER,
     };
     return statusEffectData;
 }
