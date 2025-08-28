@@ -2,20 +2,24 @@ import type {QuenchBatchContext} from "@ethaks/fvtt-quench";
 import {foundryApi} from "../../../module/api/foundryApi";
 import {actorCreator} from "../../../module/data/EntityCreator";
 import {ChatMessage} from "../../../module/api/ChatMessage";
+import {fields} from "../../../module/data/SplittermondDataModel";
+import SplittermondCombat from "../../../module/combat/combat";
+import {CharacterDataModel} from "../../../module/actor/dataModel/CharacterDataModel";
+import SplittermondCharacterSheet from "../../../module/actor/sheets/character-sheet";
 
 declare const game: any
 declare const Combat: any
 declare const Combatant: any
 
 export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
-    const {describe, it, expect, afterEach} = context;
+    const {describe, it, expect, afterEach, before, after} = context;
 
     describe("ChatMessage", () => {
         it("should be a class", () => {
             expect(typeof ChatMessage).to.equal("function");
         });
 
-        ["img", "name", "type","uuid"].forEach(property => {
+        ["img", "name", "type", "uuid"].forEach(property => {
             it(`should have a string property ${property}`, () => {
                     game.items.forEach((item: FoundryDocument) => {
                         expect(item, `Chat message ${item.id} does not have ${property}`).to.have.property(property);
@@ -25,7 +29,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 }
             )
         });
-        ["system","folder"].forEach(property => {
+        ["system", "folder"].forEach(property => {
             it(`should have an object property ${property}`, () => {
                     game.items.forEach((chatMessage: FoundryDocument) => {
                         expect(chatMessage, `Chat Message ${chatMessage.id} does not have ${property}`).to.have.property(property);
@@ -49,7 +53,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(typeof Item).to.equal("function");
         });
 
-        ["img", "name", "type","uuid"].forEach(property => {
+        ["img", "name", "type", "uuid"].forEach(property => {
             it(`should have a string property ${property}`, () => {
                     game.items.forEach((item: FoundryDocument) => {
                         expect(item, `Item ${item.id} does not have ${property}`).to.have.property(property);
@@ -59,7 +63,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 }
             )
         });
-        ["system","folder"].forEach(property => {
+        ["system", "folder"].forEach(property => {
             it(`should have an object property ${property}`, () => {
                     game.items.forEach((item: FoundryDocument) => {
                         expect(item, `Item ${item.id} does not have ${property}`).to.have.property(property);
@@ -80,40 +84,53 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     });
 
     describe("Actor", () => {
-        ["img", "name", "type","uuid"].forEach(property => {
-            it(`should have a string property ${property}`, () => {
-                    game.actors.forEach((actor: FoundryDocument) => {
-                        expect(actor, `Actor ${actor.id} does not have ${property}`).to.have.property(property);
-                        expect(typeof actor[property as keyof typeof actor], `actor property ${property} is not a string`)
-                            .to.equal("string");
-                    });
+        let actor: Actor;
+        before(async () => {
+            actor = await actorCreator.createCharacter({
+                type: "character",
+                name: "Test Character",
+                system: {}
+            });
+        });
+        after(() => {
+            Actor.deleteDocuments([actor.id]);
+        });
+        ([
+            ["img", "string"],
+            ["name", "string"],
+            ["type", "string"],
+            ["uuid", "string"],
+            ["folder", "object"],
+            ["inCombat", "boolean"]
+        ] as const).forEach(([property, type]) => {
+            it(`should have a property ${property} of type ${type}`, () => {
+                expect(actor, `Actor ${actor.id} does not have ${property}`).to.have.property(property);
+                expect(typeof actor[property], `Wrong type of actor property ${property}`).to.equal(type);
+            });
+        });
+        ([
+            ["system", CharacterDataModel],
+            ["sheet", SplittermondCharacterSheet],
+        ] as const).forEach(([property, type]) => {
+            it(`should have property ${property} of complex type`, () => {
+                    expect(actor, `Actor ${actor.id} does not have ${property}`).to.have.property(property);
+                    expect(actor[property], `actor property ${property} is not an object`).to.be.instanceof(type);
                 }
             )
         });
-        ["system","folder"].forEach(property => {
-            it(`should have an object property ${property}`, () => {
-                    game.actors.forEach((actor: FoundryDocument) => {
-                        expect(actor, `Actor ${actor.id} does not have ${property}`).to.have.property(property);
-                        expect(typeof actor[property as keyof typeof actor], `actor property ${property} is not an object`)
-                            .to.equal("object");
-                    });
-                }
-            )
-        });
-        ["prepareBaseData", "prepareDerivedData", "toObject", "setFlag", "getFlag", "updateSource"].forEach(property => {
+        ["prepareBaseData", "prepareDerivedData", "toObject", "setFlag", "getFlag", "updateSource", "testUserPermission"].forEach(property => {
             it(`should have a method ${property}`, () => {
-                expect(Actor.prototype, `Actor prototype does not have ${property}`).to.have.property(property);
-                expect(typeof Actor.prototype[property as keyof typeof Actor.prototype], `actor property ${property} is not a function`)
-                    .to.equal("function");
+                expect(actor, `Actor prototype does not have ${property}`).to.have.property(property);
+                expect(typeof actor[property], `actor property ${property} is not a function`).to.equal("function");
 
             });
         });
     });
 
     describe("Compendium Packs", () => {
-        it("should have well formed compendium data", function() {
+        it("should have well formed compendium data", function () {
             const underTest = foundryApi.collections.packs
-            if(underTest.size === 0) {
+            if (underTest.size === 0) {
                 this.skip();
             }
             underTest.forEach((pack) => {
@@ -125,8 +142,8 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         });
 
         it("should have a method called getIndex", () => {
-            expect(game.packs.find(()=>true), `compendium collection prototype does not have getIndex`).to.have.property("getIndex");
-            expect(game.packs.find(()=>true).getIndex).to.be.a("function");
+            expect(game.packs.find(() => true), `compendium collection prototype does not have getIndex`).to.have.property("getIndex");
+            expect(game.packs.find(() => true).getIndex).to.be.a("function");
         });
     });
 
@@ -135,18 +152,43 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(typeof Token).to.equal("function");
         });
 
-        ["document"].forEach(property => {
-            const sampleToken = new Token(game.scenes.find(()=>true).tokens.find(()=>true));
+        ["document","controlled"].forEach(property => {
+            const sampleToken = new Token(game.scenes.find(() => true).tokens.find(() => true));
             it(`should have a property called ${property}`, () => {
                 expect(sampleToken, `Token does not have ${property}`).to.have.property(property);
                 expect(typeof sampleToken[property as keyof typeof sampleToken], `Token property ${property} is a function`)
                     .to.not.equal("function");
             });
         });
+
+        ["_onHoverOut", "_onHoverIn", "control"].forEach(property => {
+            it(`should have a method called ${property}`, () => {
+                expect(Token.prototype, `Token prototype does not have ${property}`).to.have.property(property);
+                expect(typeof Token.prototype[property as keyof typeof Token.prototype], `Token property ${property} is not a function`)
+                    .to.equal("function");
+            });
+        });
+    });
+
+    describe("TokenDocument", () => {
+
+        it("should have accessor property object", () => {
+            expect(TokenDocument.prototype.object).to.not.be.undefined;
+        });
+
+        ([
+        ["x", fields.NumberField],
+        ["y", fields.NumberField],
+        ]as const).forEach(([key, type]) => {
+            it(`should define a property ${key} in defineSchema`, () => {
+                expect(TokenDocument.defineSchema(), `Did not find key ${key} in schema`).to.have.property(key);
+                expect((TokenDocument.defineSchema() as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+            });
+        })
     });
 
     describe("User", () => {
-        ["isGM", "active", "id", "targets","name"].forEach(property => {
+        ["isGM", "active", "id", "targets", "name"].forEach(property => {
             it(`should have a property called ${property}`, () => {
                 expect(foundryApi.currentUser, `User does not have ${property}`).to.have.property(property);
                 expect(typeof foundryApi.currentUser[property as keyof typeof foundryApi.currentUser], `User property ${property} is a function`)
@@ -203,22 +245,22 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     });
 
     describe("Folder", () => {
-        let createdFolders= [] as Folder[];
+        let createdFolders = [] as Folder[];
 
         afterEach(() => {
             Folder.deleteDocuments(createdFolders.map(folder => folder.id));
-            createdFolders= [];
+            createdFolders = [];
         });
 
         //the folder property allows setting the parent folder
-        async function createFolder(data: Partial<Folder & {folder?: string}>){
+        async function createFolder(data: Partial<Folder & { folder?: string }>) {
             const folder = await Folder.create(data) as Folder
             createdFolders.push(folder);
             return folder;
         }
 
         it("should only return Item folders when requested", async () => {
-            const itemFolder= await createFolder({name: "Test Item Folder", type: "Item"});
+            const itemFolder = await createFolder({name: "Test Item Folder", type: "Item"});
             const actorFolder = await createFolder({name: "Test Actor Folder", type: "Actor"});
 
             const folders = foundryApi.getFolders("Item");
@@ -248,18 +290,18 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         });
 
         it("should return parent and child folders flattened", async () => {
-            const parent= await createFolder({name: "Test Item Folder", type: "Item"});
-            const child= await createFolder({name: "Test Actor Folder", type: "Item", folder:parent.id});
+            const parent = await createFolder({name: "Test Item Folder", type: "Item"});
+            const child = await createFolder({name: "Test Actor Folder", type: "Item", folder: parent.id});
 
             const folders = foundryApi.getFolders("Item");
 
-            expect(folders.map(folder => folder.id),"Parent folder not included").to.contain(parent.id);
+            expect(folders.map(folder => folder.id), "Parent folder not included").to.contain(parent.id);
             expect(folders.map(folder => folder.id), "Child folder not included").to.contain(child.id);
         });
     });
 
-    describe("Combat", ()=> {
-        ["type","uuid"].forEach(property => {
+    describe("Combat", () => {
+        ["type", "uuid"].forEach(property => {
             it(`should have a string property ${property}`, () => {
                     game.combats.forEach((combat: FoundryDocument) => {
                         expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);
@@ -269,7 +311,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 }
             )
         });
-        ["system", "turns", "current"].forEach(property => {
+        ["system", "turns", "current", "scene"].forEach(property => {
             it(`should have an object property ${property}`, () => {
                     game.combats.forEach((combat: FoundryDocument) => {
 
@@ -280,7 +322,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 }
             )
         });
-        ["prepareBaseData", "prepareDerivedData", "toObject", "setFlag", "getFlag", "updateSource"].forEach(property => {
+        ["prepareBaseData", "prepareDerivedData", "toObject", "setFlag", "getFlag", "updateSource", "startCombat"].forEach(property => {
             it(`should have a method ${property}`, () => {
                 expect(Combat.prototype, `Combat prototype does not have ${property}`).to.have.property(property);
                 expect(typeof Combat.prototype[property as keyof typeof Combat.prototype], `combat property ${property} is not a function`)
@@ -288,11 +330,34 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
 
             });
         });
+
+        ["isActive", "started"].forEach(property => {
+            it(`should have a boolean property ${property}`, () => {
+                game.combats.forEach((combat: FoundryDocument) => {
+
+                    expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);
+                    expect(typeof combat[property as keyof typeof combat], `combat property ${property} is not a boolean`)
+                        .to.equal("boolean");
+                });
+            });
+        });
+
+        ([
+            ["scene", fields.StringField], //technically ForeignDocument but we don't have that class here
+            ["turn", fields.NumberField],
+            ["combatants", fields.ArrayField]//technically EmbeddedCollectionField but we don't have that class here,
+        ] as const).forEach(([key, type]) => {
+            it(`should have a schema property ${key}`, () => {
+                expect(SplittermondCombat.defineSchema(), `Did not find key ${key} in schema`).to.have.property(key);
+                expect((SplittermondCombat.defineSchema() as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+            });
+        });
     });
 
-    describe("Combatant", ()=> {
-        const TestCombatant = class extends Combatant {};
-        ["type","uuid"].forEach(property => {
+    describe("Combatant", () => {
+        const TestCombatant = class extends Combatant {
+        };
+        ["type", "uuid"].forEach(property => {
             it(`should have a string property ${property}`, () => {
                     game.combats.forEach((combat: FoundryDocument) => {
                         expect(combat, `Combatant ${combat.id} does not have ${property}`).to.have.property(property);
@@ -329,5 +394,16 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
 
             });
         });
+        ([
+            ["initiative", fields.NumberField],
+            ["tokenId", fields.StringField],//ForeignDocumentField but we don't have that class here
+            ["sceneId", fields.StringField],//ForeignDocumentField but we don't have that class here
+            ["actorId", fields.StringField] //ForeignDocumentField but we don't have that class here
+        ] as const).forEach(([key, type]) => {
+            it(`should have a schema property ${key}`, () => {
+                expect(Combatant.defineSchema(), `Did not find key ${key} in schema`).to.have.property(key);
+                expect((Combatant.defineSchema() as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+            });
+        })
     });
 }

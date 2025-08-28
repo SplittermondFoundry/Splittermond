@@ -1,4 +1,5 @@
 import {DataModel} from "./DataModel";
+import type {FoundryApplication} from "./Application";
 export type FoundryCombat = foundry.documents.Combat;
 export type FoundryCombatant = foundry.documents.Combatant;
 export type FoundryScene = foundry.documents.Scene;
@@ -102,8 +103,13 @@ declare global {
     class Actor extends FoundryDocument {
         name: string;
         items: Collection<Item>
+        readonly folder: string
         system: Record<string, any>
         owner: User
+        sheet: InstanceType<typeof FoundryApplication> //true in the future, now we're still on AppV1
+
+        get inCombat(): boolean;
+
     }
 
     class Item extends FoundryDocument {
@@ -111,6 +117,7 @@ declare global {
         name: string;
         img: string
         type: string;
+        readonly folder: string
         system: Record<string, any>
     }
 
@@ -118,12 +125,28 @@ declare global {
         constructor(...args: any[]);
 
         document: TokenDocument;
+
+        get controlled(): boolean;
+
+        _onHoverOut(event:any):void
+        _onHoverIn(event:any):void
+        control(options?: {releaseOthers?: boolean}): boolean;
     }
+
+    //This is not quite correct, global Combat is foundry.documents.Combat
+    class Combat extends foundry.documents.Combat{
+
+    }
+
+
 
     class TokenDocument extends FoundryDocument {
         /** this is at least true for all the purposes for which we use {@link TokenDocument}*/
         readonly parent: FoundryDocument;
         actor: Actor;
+        x:number
+        y:number
+        get object(): Token
     }
 
     class FoundryDocument extends DataModel<any, any> {
@@ -132,7 +155,6 @@ declare global {
         readonly id: string
         readonly documentName: string
         readonly parent: FoundryDocument | undefined
-        readonly folder: string
         readonly uuid: string
         readonly metadata: foundry.abstract.types.DocumentClassMetadata;
 
@@ -141,6 +163,8 @@ declare global {
         update(data: object, context?: any): Promise<FoundryDocument>;
 
         prepareBaseData(): void;
+
+        testUserPermission(user: User, permission: string, options?:{exact?:boolean}): boolean;
 
         static deleteDocuments(documentId: string[]): Promise<void>
 
@@ -191,11 +215,25 @@ declare namespace foundry{
             readonly turns: Combatant[];
             readonly current: CombatHistoryData
             combatants: Collection<Combatant>; //defineSchema field. not actually part of the API
+            /**The scene this {@link Combat} is linked to. Is `null` when the combat is globally available */
+            readonly scene: Scene|null //defineSchema field. not actually part of the API
+            readonly turn: number; //defineSchema field. not actually part of the API
+            get isActive(): boolean;
+            get started(): boolean;
+
+            startCombat():Promise<this>;
         }
 
         class Combatant extends FoundryDocument {
             get isDefeated(): boolean;
+            get combat(): Combat;
+            get visible(): boolean;
+            get token(): TokenDocument|null
 
+            initiative: number|null; //defineSchema field. not actually part of the API
+            tokenId: string|null; //defineSchema field. not actually part of the API
+            actorId: string|null; //defineSchema field. not actually part of the API
+            sceneId: string|null; //defineSchema field. not actually part of the API
         }
 
         namespace types {
