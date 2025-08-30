@@ -7,6 +7,11 @@ import sinon, {type SinonSandbox} from "sinon";
 import {splittermond} from "../../module/config";
 import {CharacterDataModel} from "../../module/actor/dataModel/CharacterDataModel";
 import {foundryUISelectors} from "../../module/apps/tick-bar-hud/tickBarResizing";
+import SplittermondCombat from "../../module/combat/combat";
+import type {FoundryCombatant} from "../../module/api/foundryTypes";
+import TickBarHud from "../../module/apps/tick-bar-hud/tick-bar-hud";
+import {foundryApi} from "../../module/api/foundryApi";
+import {FoundryDragDrop} from "../../module/api/Application";
 
 declare const game: any;
 declare const deepClone: any;
@@ -117,9 +122,9 @@ export function applicationTests(context: QuenchBatchContext) {
                     damage: "1W6",
                     range: "0",
                     speed: 2,
-                    skill: null as string|null,
-                    attribute1: null as string|null,
-                    attribute2: null as string|null,
+                    skill: null as string | null,
+                    attribute1: null as string | null,
+                    attribute2: null as string | null,
                 }
 
             }
@@ -150,11 +155,11 @@ export function applicationTests(context: QuenchBatchContext) {
             const spell = createdDocuments[0];
             const rollSpellStub = sandbox.stub(actor, "rollSpell").resolves(true);
 
-            await renderActonBarForActor(actor);
+            await renderActionBarForActor(actor);
             //prepare the spell
             tokenActionBar.element.querySelector("[data-action='prepareSpell']")?.dispatchEvent(new MouseEvent("click", {bubbles: true}));
             await passesEventually(() => expect(actor.getFlag("splittermond", "preparedSpell")).to.equal(spell.id));
-            await renderActonBarForActor(actor);
+            await renderActionBarForActor(actor);
             const preparedSpell = tokenActionBar.element.querySelector('[data-action="rollSpell"]')
             preparedSpell?.dispatchEvent(new MouseEvent("click", {bubbles: true}));
 
@@ -173,7 +178,7 @@ export function applicationTests(context: QuenchBatchContext) {
             actor.prepareBaseData();
             await actor.prepareEmbeddedDocuments();
             actor.prepareDerivedData();
-            await renderActonBarForActor(actor);
+            await renderActionBarForActor(actor);
 
             const allSpellDataSets = getDataSets(tokenActionBar.element.querySelectorAll("[data-action='prepareSpell']"))
             expect(allSpellDataSets.map(d => d.spellId)).to.contain(spell.id)
@@ -188,26 +193,26 @@ export function applicationTests(context: QuenchBatchContext) {
             ["blades", true],
             ["staffs", true]
         ] as const).forEach(([skill, prepared]) => {
-        const preparedTitle = prepared ? "prepared" : "not prepared";
-        it(`should display weapons for skill '${skill}' as ${preparedTitle}`, async () => {
-            const actor = await createActor();
-            const testWeapon = getTestWeapon();
-            testWeapon.system.skill = skill
-            testWeapon.system.attribute1 = "strength";
-            testWeapon.system.attribute2 = "strength";
-            await actor.update({system: {skills: {[skill]: {points: 2, value: 6}}}});
-            const createdDocuments = await actor.createEmbeddedDocuments("Item", [testWeapon]);
-            const weapon = createdDocuments[0];
+            const preparedTitle = prepared ? "prepared" : "not prepared";
+            it(`should display weapons for skill '${skill}' as ${preparedTitle}`, async () => {
+                const actor = await createActor();
+                const testWeapon = getTestWeapon();
+                testWeapon.system.skill = skill
+                testWeapon.system.attribute1 = "strength";
+                testWeapon.system.attribute2 = "strength";
+                await actor.update({system: {skills: {[skill]: {points: 2, value: 6}}}});
+                const createdDocuments = await actor.createEmbeddedDocuments("Item", [testWeapon]);
+                const weapon = createdDocuments[0];
 
-            actor.prepareBaseData();
-            await actor.prepareEmbeddedDocuments();
-            actor.prepareDerivedData();
-            await renderActonBarForActor(actor);
+                actor.prepareBaseData();
+                await actor.prepareEmbeddedDocuments();
+                actor.prepareDerivedData();
+                await renderActionBarForActor(actor);
 
-            const allWeaponDataSets = getDataSets(tokenActionBar.element.querySelectorAll("[data-action='rollAttack']"))
-            expect(allWeaponDataSets.map(d => d.attackId)).to.contain(weapon.id)
-            expect(allWeaponDataSets.find(d => d.attackId == weapon.id)?.prepared).to.equal(prepared? "true" : "false");
-        })
+                const allWeaponDataSets = getDataSets(tokenActionBar.element.querySelectorAll("[data-action='rollAttack']"))
+                expect(allWeaponDataSets.map(d => d.attackId)).to.contain(weapon.id)
+                expect(allWeaponDataSets.find(d => d.attackId == weapon.id)?.prepared).to.equal(prepared ? "true" : "false");
+            })
         });
 
         it("should not contain items that are not equipped", async () => {
@@ -220,7 +225,7 @@ export function applicationTests(context: QuenchBatchContext) {
             actor.prepareBaseData();
             await actor.prepareEmbeddedDocuments();
             actor.prepareDerivedData();
-            await renderActonBarForActor(actor);
+            await renderActionBarForActor(actor);
 
             const allWeaponDataSets = getDataSets(tokenActionBar.element.querySelectorAll("[data-action='rollAttack']"))
             expect(allWeaponDataSets.map(d => d.attackId)).not.to.contain(weapon.id);
@@ -229,7 +234,7 @@ export function applicationTests(context: QuenchBatchContext) {
         ["defense", "bodyresist", "mindresist"].forEach((defenseType) => {
             it(`should trigger defense dialog for ${defenseType}`, async () => {
                 const actor = await createActor();
-                const defenseStub  = sandbox.stub(actor,"activeDefenseDialog").resolves();
+                const defenseStub = sandbox.stub(actor, "activeDefenseDialog").resolves();
                 splittermond.attributes.forEach(attribute => {
                     (actor.system as CharacterDataModel).attributes[attribute].updateSource({
                         initial: 2,
@@ -241,7 +246,7 @@ export function applicationTests(context: QuenchBatchContext) {
                 actor.prepareBaseData();
                 await actor.prepareEmbeddedDocuments();
                 actor.prepareDerivedData();
-                await renderActonBarForActor(actor);
+                await renderActionBarForActor(actor);
 
                 const defenseElement = tokenActionBar.element.querySelector(`[data-defense-type='${defenseType}'][data-action='rollDefense']`)
                 defenseElement?.dispatchEvent(new MouseEvent("click", {bubbles: true}));
@@ -253,16 +258,207 @@ export function applicationTests(context: QuenchBatchContext) {
         });
     });
 
-    describe( "Tick Bar Hud", () => {
+    describe("Tick Bar Hud", () => {
+        let combats: SplittermondCombat[] = []
+        let actors: SplittermondActor[] = []
+        let tokens: TokenDocument[] = []
+        let sandbox: SinonSandbox;
 
-    Object.entries(foundryUISelectors).forEach(([key, value]) => {
-        it(`should contain a valid selector for ${key}`, () => {
-           expect(document.querySelector(value)).to.be.instanceOf(HTMLElement);
-        })
-    })
+        beforeEach(() => sandbox = sinon.createSandbox())
 
+        afterEach(() => {
+            Combat.deleteDocuments(combats.map(c => c.id));
+            Actor.deleteDocuments(actors.map(a => a.id));
+            tokens.forEach(t => t.actor?.sheet.close());
+            foundryApi.currentScene!.deleteEmbeddedDocuments("Token", tokens.map(t => t.id));
+            sandbox.restore();
+            combats = [];
+            actors = [];
+            tokens = [];
+        });
+
+        async function createActiveCombat() {
+            const combat = await Combat.create({}) as SplittermondCombat;
+            combats.push(combat);
+            await combat.update({active: true});
+            await combat.startCombat()
+            return combat;
+        }
+
+        async function createCombatant(name: string, combat: SplittermondCombat) {
+            const actor = await actorCreator.createCharacter({type: "character", name, system: {}});
+            const tokenDocument = (await foundryApi.currentScene!.createEmbeddedDocuments("Token", [{
+                type: "base",
+                actorId: actor.id,
+                x: (foundryApi.currentScene as any)._viewPosition.x,
+                y: (foundryApi.currentScene as any)._viewPosition.y,
+            }]))[0] as TokenDocument;
+            actors.push(actor);
+            tokens.push(tokenDocument);
+            const combatants = await combat.createEmbeddedDocuments("Combatant", [{
+                type: "base",
+                actorId: actor.id,
+                sceneId: foundryApi.currentScene!.id,
+                tokenId: tokenDocument.id,
+                defeated: false,
+                group: null
+            }]);
+            const combatant = combatants[0] as FoundryCombatant;
+            return {combatant, actor, token: tokenDocument};
+        }
+
+        function getCombatantItem(combatantId: string) {
+            const combatantItem = document.querySelector(`.tick-bar-hud-combatant-list-item[data-combatant-id="${combatantId}"]`) as HTMLElement;
+            expect(combatantItem, `Combatant item ${combatantItem} was found`).to.not.be.null;
+            return combatantItem;
+        }
+
+
+        Object.entries(foundryUISelectors).forEach(([key, value]) => {
+            it(`should contain a valid selector for ${key}`, () => {
+                expect(document.querySelector(value)).to.be.instanceOf(HTMLElement);
+            })
+        });
+
+        it("should have initialized the tick bar hud", () => {
+            expect(game.splittermond.tickBarHud).to.be.instanceOf(TickBarHud);
+            expect((game.splittermond.tickBarHud as TickBarHud).element.style.maxWidth).not.to.be.undefined;
+        });
+
+        it("should create a combat with combatants", async () => {
+            const combat = await createActiveCombat();
+            const {combatant, actor, token} = await createCombatant("A", combat);
+
+            expect(combat.combatants.contents).to.have.length(1);
+            expect(combatant.combat).to.deep.equal(combat);
+            expect(combatant.actor, "comatant actor is actor").to.deep.equal(actor);
+            expect(combatant.token, "combatant token is token").to.deep.equal(token);
+            expect(combatant.actor.token, "actor token is token").to.deep.equal(token);
+            expect((game.splittermond.tickBarHud as TickBarHud).viewed).to.equal(combat);
+        });
+
+        describe("_onRender", () => {
+            it("should handle double-click to open character sheet", async () => {
+                const combat = await createActiveCombat();
+                const {combatant, token} = await createCombatant("Test Fighter", combat);
+                await combat.setInitiative(combatant.id, 10);
+
+                await (game.splittermond.tickBarHud as TickBarHud).render(false);
+
+                const combatantItem = getCombatantItem(combatant.id);
+
+                // Action: Trigger two clicks within 250ms to simulate double-click
+                combatantItem.dispatchEvent(new MouseEvent("click", {bubbles: true}));
+                combatantItem.dispatchEvent(new MouseEvent("click", {bubbles: true}));
+
+                await passesEventually(() => expect(token.actor.sheet.rendered, "Actor sheet was rendered").to.be.true, 500);
+            });
+
+            it("should handle single-click to control token", async () => {
+                // Setup: Create combatant item with token
+                const combat = await createActiveCombat();
+                const {combatant, token} = await createCombatant("Test Fighter", combat);
+                await combat.setInitiative(combatant.id, 10);
+
+                await (game.splittermond.tickBarHud as TickBarHud).render(false);
+
+                const combatantItem = getCombatantItem(combatant.id);
+
+                // Spy on the token control and canvas pan methods
+                const controlSpy = sandbox.spy(token.object, 'control');
+                const animatePanSpy = sandbox.spy(foundryApi.canvas, 'animatePan');
+
+                await new Promise(resolve => setTimeout(resolve, 300));//Guard against a random click event from elsewhere
+                combatantItem.dispatchEvent(new MouseEvent("click", {bubbles: true}));
+
+                expect(controlSpy.calledOnce, "Token control was called").to.be.true;
+                expect(controlSpy.calledWith({releaseOthers: true}), "Token control called with correct parameters").to.be.true;
+                expect(animatePanSpy.calledOnce, "Canvas animate pan was called").to.be.true;
+                expect(animatePanSpy.calledWith({
+                    x: token.x,
+                    y: token.y
+                }), "Canvas pan called with token coordinates").to.be.true;
+            });
+
+            it("should hide previous tick button when on current tick", async () => {
+                // Setup: Set currentTick equal to viewedTick
+                const combat = await createActiveCombat();
+                const {combatant} = await createCombatant("Test Fighter", combat);
+                await combat.setInitiative(combatant.id, 10);
+
+                const tickBarHud = game.splittermond.tickBarHud as TickBarHud;
+
+                tickBarHud.currentTick = 10;
+                tickBarHud.viewedTick = 10;
+
+                await tickBarHud.render(false);
+
+                const previousTickButton = tickBarHud.element.querySelector('.tick-bar-hud-nav-btn[data-action="previous-ticks"]') as HTMLElement;
+                expect(previousTickButton).to.not.be.null;
+                expect(previousTickButton.style.width).to.equal("0px");
+                expect(previousTickButton.style.marginLeft).to.equal("-10px");
+                expect(previousTickButton.style.opacity).to.equal("0");
+            });
+        });
+
+        describe('drag and drop functionality', () => {
+            it("should create drag drop handlers with correct configuration", async () => {
+                const combat = await createActiveCombat();
+                const {combatant} = await createCombatant("Test Fighter", combat);
+                await combat.setInitiative(combatant.id, 10);
+
+                const tickBarHud = game.splittermond.tickBarHud as TickBarHud;
+
+                await tickBarHud.render(false);
+
+                expect(tickBarHud.dragDrop).to.be.an('array');
+                expect(tickBarHud.dragDrop).to.have.length(1);
+                expect(tickBarHud.dragDrop[0]).to.be.instanceOf(FoundryDragDrop);
+            });
+
+            it("should set correct permissions for drag drop", async () => {
+                const combat = await createActiveCombat();
+                const {combatant} = await createCombatant("Test Fighter", combat);
+                await combat.setInitiative(combatant.id, 10);
+
+                const tickBarHud = game.splittermond.tickBarHud as TickBarHud;
+                await tickBarHud.render(false);
+
+                const dragDropHandler = tickBarHud.dragDrop[0];
+
+                expect(dragDropHandler.permissions?.dragstart("")).to.be.true;
+                expect(dragDropHandler.permissions?.drop("")).to.be.true;
+            });
+        });
+
+        it("should show previous tick button when not on current tick", () => {
+            it("should show previous tick button when not on current tick", async () => {
+                // Setup: Create combat and set viewedTick different from currentTick
+                const combat = await createActiveCombat();
+                const {combatant} = await createCombatant("Test Fighter", combat);
+                await combat.setInitiative(combatant.id, 10);
+
+                const tickBarHud = game.splittermond.tickBarHud as TickBarHud;
+                tickBarHud.currentTick = 10;
+                tickBarHud.viewedTick = 8; // Different from current tick
+
+                await tickBarHud.render(false);
+
+                // Action: Call moveScrollbar (assuming it's called during render or explicitly)
+                const scrollElement = tickBarHud.element.querySelector('.tick-bar-hud-scroll');
+                if (scrollElement) {
+                    (tickBarHud as any).moveScrollbar(100); // Some offset value
+                }
+
+                // Result: Previous tick button should be visible
+                const previousTickButton = tickBarHud.element.querySelector('.tick-bar-hud-nav-btn[data-action="previous-ticks"]') as HTMLElement;
+                expect(previousTickButton).to.not.be.null;
+                expect(previousTickButton.style.width).to.not.equal("0px");
+                expect(previousTickButton.style.marginLeft).to.not.equal("-10px");
+                expect(previousTickButton.style.opacity).to.not.equal("0");
+            });
+        });
     });
-
 }
 
 function getDataSets(nodeList: NodeListOf<HTMLElement>): Record<string, string | undefined>[] {
@@ -277,12 +473,12 @@ function getDataSets(nodeList: NodeListOf<HTMLElement>): Record<string, string |
  * Overcome the annoying update method by just waiting longer
  * @param actor
  */
-async function renderActonBarForActor(actor: SplittermondActor) {
+async function renderActionBarForActor(actor: SplittermondActor) {
     return new Promise<void>(resolve => {
         setTimeout(async () => {
             game.splittermond.tokenActionBar._currentActor = actor;
             await game.splittermond.tokenActionBar.render(true);
             resolve();
-        }, 150);
+        }, 200);
     });
 }

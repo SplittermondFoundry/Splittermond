@@ -1,4 +1,5 @@
 import type {SplittermondApplication} from "../../data/SplittermondApplication";
+import {foundryApi} from "../../api/foundryApi";
 
 /**
  * Selectors for important Foundry UI elements that we require in this module
@@ -14,6 +15,11 @@ export function initMaxWidthTransitionForTickBarHud(tickBarHud: SplittermondAppl
     // Initial positioning
     positionTickBarHudBetweenElements(tickBarHud);
 
+    foundryApi.hooks.on(
+        "splittermond.tickBarHudRendered",
+        (app: SplittermondApplication) => positionTickBarHudBetweenElementsImmediately(app)
+    );
+
     // Listen for window resize
     window.addEventListener("resize", () => positionTickBarHudBetweenElements(tickBarHud));
 
@@ -26,9 +32,30 @@ export function initMaxWidthTransitionForTickBarHud(tickBarHud: SplittermondAppl
  * Transition properties are given in the Less file
  */
 function positionTickBarHudBetweenElements(tickBarHud: SplittermondApplication) {
+    try {
+        const tickBarElement = tickBarHud.element.querySelector(".tick-bar-hud") as HTMLElement;
+        const availableWidth = calculateAvailableWidth(tickBarHud);
+        requestAnimationFrame(() => tickBarElement.style.maxWidth = `${availableWidth}px`);
+    }catch (e){
+
+    }
+}
+
+function positionTickBarHudBetweenElementsImmediately(tickBarHud: SplittermondApplication) {
+    try {
+        const tickBarElement = tickBarHud.element.querySelector(".tick-bar-hud") as HTMLElement;
+        const availableWidth = calculateAvailableWidth(tickBarHud);
+        tickBarElement.style.maxWidth = `${availableWidth}px`;
+    }catch(e){
+
+    }
+}
+
+
+function calculateAvailableWidth(tickBarHud: SplittermondApplication): number {
     const paddingForTickBar = 30;
     const doc = tickBarHud.element.ownerDocument;
-    if (!doc) return;
+    if (!doc) throw new Error("Invalid tickBarHud");
 
     const leftColumn = doc.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
     const sidebar = doc.querySelector(foundryUISelectors.sidebar) as HTMLElement;
@@ -36,21 +63,16 @@ function positionTickBarHudBetweenElements(tickBarHud: SplittermondApplication) 
 
     if (!leftColumn || !sidebar || !tickBarElement) {
         console.warn("Splittermond | Could not find necessary Foundry UI elements to position Tick Bar HUD");
-        return;
+        throw new Error();
     }
 
-    // Get the right edge of the left column
     const leftColumnRect = leftColumn.getBoundingClientRect();
     const leftEdge = leftColumnRect.right;
 
-    // Get the left edge of the sidebar
     const sidebarRect = sidebar.getBoundingClientRect();
     const rightEdge = sidebarRect.left;
 
-    // Calculate the available width between the two elements
-    const availableWidth = rightEdge - leftEdge - paddingForTickBar;
-
-    requestAnimationFrame(() => tickBarElement.style.maxWidth = `${availableWidth}px`);
+    return rightEdge - leftEdge - paddingForTickBar;
 }
 
 function initSidebarToggleListener(tickBarHud: SplittermondApplication) {

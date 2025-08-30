@@ -1,5 +1,6 @@
 import {FoundryDragDrop} from "../../api/Application";
 import {TickBarHudTemplateData} from "./templateInterface";
+import type {StatusEffectMessageData} from "../../util/chat.js";
 import * as Chat from "../../util/chat.js";
 import type {FoundryCombat, FoundryCombatant} from "module/api/foundryTypes"
 import {closestData} from "../../data/ClosestDataMixin";
@@ -11,9 +12,7 @@ import {
     SplittermondApplication
 } from "../../data/SplittermondApplication";
 import type {VirtualToken} from "../../combat/VirtualToken";
-import type {StatusEffectMessageData} from "../../util/chat.js";
 import {initMaxWidthTransitionForTickBarHud} from "./tickBarResizing";
-
 
 
 export default class TickBarHud extends SplittermondApplication {
@@ -25,7 +24,7 @@ export default class TickBarHud extends SplittermondApplication {
     minTick: number = 0;
     _dragOverTimeout: number = 0;
     _clickTime: number = 0;
-    dragDrop: FoundryDragDrop[];
+    dragDrop: FoundryDragDrop[]=[];
 
     static PARTS = {
         app: {
@@ -50,7 +49,6 @@ export default class TickBarHud extends SplittermondApplication {
 
     constructor(options: ApplicationOptions = {}) {
         super(options);
-        this.dragDrop = this.createDragDropHandlers();
     }
 
 
@@ -67,21 +65,24 @@ export default class TickBarHud extends SplittermondApplication {
             keepReady: []
         };
 
-        const combats = this.combats;
-        let temp = combats.length ? combats.find(c => c.isActive) || combats[0] : null;
-        if (temp != this.viewed) {
-            this.viewedTick = 0;
-        }
-        if (this.viewedTick != this.viewedTick) {
+        //saveguard against a botched calculation in a previous call
+        if (isNaN(this.viewedTick)) {
             this.viewedTick = 0;
         }
 
-        this.viewed = temp;
+        const combats = this.combats;
+        //Finds the first active combat or the first combat if none is active. Null if no combats exist
+        const firstApplicableCombat = combats.length ? combats.find(c => c.isActive) || combats[0] : null;
+        if (firstApplicableCombat != this.viewed) {
+            this.viewedTick = 0;
+        }
+
+        this.viewed = firstApplicableCombat;
         if (this.viewed && this.viewed.started) {
             const combat = this.viewed;
             let wasOnCurrentTick = this.currentTick == this.viewedTick;
 
-            this.currentTick = Math.round(combat.turns[combat.turn]?.initiative);
+            this.currentTick = Math.round(combat.turns[combat.turn]?.initiative ?? 0);
 
             if (isNaN(this.currentTick)) {
                 this.currentTick = 0;
@@ -108,7 +109,7 @@ export default class TickBarHud extends SplittermondApplication {
             const iniData = combat.turns
                 .filter(combatant => "initiative" in combatant)
                 .filter(combatant => (combatant.initiative != null && !combatant.isDefeated))
-                .map(combatant => Math.round(combatant.initiative))
+                .map(combatant => Math.round(combatant.initiative ?? 0))
                 .filter(initiative => initiative < 9999);
             var maxStatusEffectTick = Math.max(...statusOnCombatants.map(e => {
                 var ticks = e.virtualTokens.map(f => {
@@ -162,7 +163,7 @@ export default class TickBarHud extends SplittermondApplication {
 
                 if (!c.visible || c.isDefeated) continue;
 
-                data.ticks.find(t => t.tickNumber == Math.round(c.initiative))?.combatants.push({
+                data.ticks.find(t => t.tickNumber == Math.round(c.initiative ?? 0))?.combatants.push({
                     id: c.id,
                     name: c.name,
                     img: c.img,
@@ -230,7 +231,7 @@ export default class TickBarHud extends SplittermondApplication {
 
     async _onRender(context: any, options: any): Promise<void> {
         await super._onRender(context, options)
-
+        this.dragDrop = this.dragDrop.length >0  ? this.dragDrop : this.createDragDropHandlers() //lazy init
         this.dragDrop.forEach((d) => d.bind(this.element));
         // Listeners and UI logic
         const html = this.element;
@@ -286,7 +287,7 @@ export default class TickBarHud extends SplittermondApplication {
             item.addEventListener('mouseenter', (event) => {
                 const combatant = this.viewed?.combatants.get((event.currentTarget as HTMLElement).dataset.combatantId!);
                 const token = combatant?.token?.object;
-                if (token && !token._controlled) token._onHoverIn(event);
+                if (token && !token.controlled) token._onHoverIn(event);
             });
             item.addEventListener('mouseleave', (event) => {
                 const combatant = this.viewed?.combatants.get((event.currentTarget as HTMLElement).dataset.combatantId!);
@@ -298,7 +299,7 @@ export default class TickBarHud extends SplittermondApplication {
             item.addEventListener('click', (event) => {
                 const combatant = this.viewed?.combatants.get((event.currentTarget as HTMLElement).dataset.combatantId!);
                 const token = combatant?.token;
-                if ((token === null) || !combatant?.actor?.testUserPermission(foundryApi.currentUser, "OBSERVED")) return;
+                if ((token === null) || !combatant?.actor?.testUserPermission(foundryApi.currentUser, "OBSERVED", {exact:false})) return;
                 const now = Date.now();
                 const dt = now - this._clickTime;
                 this._clickTime = now;
@@ -307,7 +308,7 @@ export default class TickBarHud extends SplittermondApplication {
                     return foundryApi.warnUser("COMBAT.CombatantNotInScene", {name: combatant?.name});
                 }
                 if (token.object) {
-                    token.object?.control({releaseOthers: true});
+                    token.object.control({releaseOthers: true});
                     return foundryApi.canvas.animatePan({x: token.x, y: token.y});
                 }
             });
@@ -339,6 +340,7 @@ export default class TickBarHud extends SplittermondApplication {
                 button.style.opacity = "0";
             });
         }
+        foundryApi.hooks.call("splittermond.tickBarHudRendered", this);
     }
 
     private get previousTickButton(): HTMLButtonElement | null {
@@ -382,7 +384,16 @@ export default class TickBarHud extends SplittermondApplication {
             event.dataTransfer!.effectAllowed = "none";
             return;
         }
-        event.dataTransfer!.effectAllowed = "move";
+
+        // Set effectAllowed and ensure it's properly configured
+        if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = "move";
+            // Also set a drag image if needed for better visual feedback
+            const dragImage = element.cloneNode(true) as HTMLElement;
+            dragImage.style.opacity = "0.8";
+            event.dataTransfer.setDragImage(dragImage, 0, 0);
+        }
+
         const combatantId = closestData(element, 'combatant-id');
         event.dataTransfer!.setData("text/plain", JSON.stringify({
             type: "Combatant",

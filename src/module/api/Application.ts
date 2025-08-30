@@ -177,6 +177,8 @@ declare namespace foundry {
 
                 get form(): HTMLFormElement | null;
 
+                get rendered(): boolean;
+
                 protected _prepareContext(options: RENDER_OPTIONS): Promise<ApplicationRenderContext>;
 
                 render(options?: boolean | ApplicationRenderOptions): Promise<this>;
@@ -196,7 +198,7 @@ declare namespace foundry {
         namespace ux {
             class DragDrop {
                 constructor(config: Partial<DragDropConfiguration>);
-
+                permissions: Record<"dragstart" | "drop", (selector: string) => boolean>;
                 bind(html: HTMLElement): this;
             }
         }

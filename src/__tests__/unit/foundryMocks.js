@@ -32,6 +32,8 @@ class FoundryDocument {
 
     getFlag(){}
     setFlag(){}
+
+    testUserPermission(){}
 }
 
 global.Actor = class Actor extends FoundryDocument{
@@ -42,6 +44,17 @@ global.Item = class Item extends FoundryDocument{
 
 global.ChatMessage = class ChatMessage extends FoundryDocument{
 };
+global.Combat = class Combat extends FoundryDocument{
+    scene = null;
+    get isActive() { return false; }
+    get started() { return false; }
+}
+global.Combatant = class Combatant extends FoundryDocument{
+    get isDefeated() { return false; }
+    get combat() { return null; }
+    get visible() { return true; }
+    get token() { return null; }
+}
 
 global.foundry = {
     data: {
