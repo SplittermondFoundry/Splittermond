@@ -3,6 +3,7 @@ import {expect} from "chai";
 import ModifierManager from "module/actor/modifier-manager";
 import SplittermondItem from "module/item/item";
 import {of} from "module/actor/modifiers/expressions/scalar";
+import Modifier from "../../../../module/actor/modifier";
 
 describe("ModifierManager", () => {
     let manager: ModifierManager;
@@ -20,6 +21,13 @@ describe("ModifierManager", () => {
         expect(manager.getForId("AUS").getModifiers().value).to.equal(3);
         expect(manager.getForId("bonuscap").getModifiers().value).to.equal(3);
     });
+
+    it("should omit zero value modifiers", () => {
+        const probe = new Modifier("test", of(0), {name: "Zero", type: "magic"}, null, false);
+        manager.addModifier(probe);
+        expect(manager.getForId("test").getModifiers()).to.deep.equal([]);
+    })
+
 
     it("should merge multiple paths", () => {
         manager.add("damage.physical", {name: "Sword", type: "equipment"}, of(3));

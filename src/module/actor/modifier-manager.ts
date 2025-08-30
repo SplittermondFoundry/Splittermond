@@ -1,5 +1,5 @@
 import Modifier, {IModifier, ModifierAttributes, Modifiers} from "./modifier";
-import {Expression} from "./modifiers/expressions/scalar";
+import {Expression, isZero} from "./modifiers/expressions/scalar";
 
 interface AttributeSelector {
     key: string,
@@ -15,6 +15,10 @@ export default class ModifierManager {
     }
 
     addModifier(modifier: IModifier) {
+        if(isZero(modifier.value)){
+            console.debug(`Splittermond | Discarding zero value modifier ${modifier.groupId} from ${modifier.attributes.name}`)
+            return;
+        }
         if (!this._modifier.get(modifier.groupId)) {
             this._modifier.set(modifier.groupId, []);
         }
