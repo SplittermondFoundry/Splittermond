@@ -56,6 +56,7 @@
           "damageType": "damageType",
           "skill": "skill",
           "item": "item",
+          "itemType": "itemType",
           "feature": "feature",
           "features": "features"
         },
@@ -75,7 +76,10 @@
           "unknownObject": "unknown",
           "allErrorMessage": "Syntax error in modifier string '{str}' in '{objectName}'!",
           "foNoCost": "Expression '{expression}' is not convertible to focus costs.",
-          "notANumber": "Expression '{expression}' is not convertible to a number."
+          "notANumber": "Expression '{expression}' is not convertible to a number.",
+          "deprecatedPath": "The path '{oldPath}' in {itemName} is deprecated. Use '{newPath}' instead."
+
+
         }
       }
     },

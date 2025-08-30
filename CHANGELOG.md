@@ -1,8 +1,12 @@
-## 13.3.2
+## 13.4.0
+### Breaking changes
+ * Die Modifikatorn 'damage' und 'weaponspeed' sind veraltet. Sie werden durch "item.damage" und "item.weaponspeed" ersetzt.
 ### New Features
  * Es gibt einen 'splittermond.ready' Hook, der aufgerufen wird, wenn Splittermond vollständig initialisiert ist.
+ * Die Modifikatoren "item.damage" und "item.weaponspeed" haben einen neuen Filter namens "itemType". Gültige Werte sind alle Itemtypen wie z.B."Waffe", "Zauber".
 ### Fixed
  * Kommata in Modifikatorzeichenketten, die sich in Attributswerten (begrenzt durch " oder ') befinden, werden nicht mehr als Trenner zwischen Modifikatoren gewertet.
+ * Die Tickleiste füllt jetzt allen zur Verfügung stehenden Platz aus.
   
 ## 13.3.1
 ### Fixed

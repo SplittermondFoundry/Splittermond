@@ -218,73 +218,119 @@ describe('addModifier', () => {
     });
 
     describe("damage modifiers", () => {
-        it('should handle general damage modifiers', () => {
+        it('should handle general damage modifiers (deprecated path)', () => {
             addModifier(actor, item, 'Damage', 'Damage/fire +5');
-            expect(modifierManager.add.lastCall.args).to.have.deep.members([
-                'damage',
-                {name: 'Damage', type: null, emphasis: 'fire'},
-                of(5),
-                item,
-                false
-            ]);
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.damage',
+                value: of(5),
+                attributes: {name: 'Damage', type: null, emphasis: 'fire', damageType: undefined, itemType: undefined},
+                origin: item
+            });
         });
 
-        it('should handle general damage modifiers', () => {
+        it('should handle general damage modifiers with item attribute (deprecated path)', () => {
             addModifier(actor, item, 'Damage', 'Damage emphasis="fire" item="Schwert" +5');
-            expect(modifierManager.add.lastCall.args).to.have.deep.members([
-                'damage',
-                {name: 'Damage', type: null, emphasis: 'fire', item: "Schwert"},
-                of(5),
-                item,
-                false
-            ]);
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.damage',
+                value: of(5),
+                attributes: {name: 'Damage', type: null, emphasis: 'fire', item: "Schwert", damageType: undefined, itemType: undefined},
+                origin: item
+            });
         });
 
         it("should pass valid damage types on modifiers", () => {
-            addModifier(actor, item,"", 'damage damageType="fire" +5');
-            expect(modifierManager.add.lastCall.args).to.have.deep.members([
-                'damage',
-                {name: '', type: null, damageType: 'fire'},
-                of(5),
-                item,
-                false
-            ]);
+            addModifier(actor, item,"", 'item.damage damageType="fire" +5');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.damage',
+                value: of(5),
+                attributes: {name: '', type: null, damageType: 'fire', itemType: undefined},
+                origin: item
+            });
         });
 
         it("should omit invalid damage types on modifiers", () => {
-            addModifier(actor, item,"", 'damage damageType="frie" +5');
-            expect(modifierManager.add.lastCall.args).to.have.deep.members([
-                'damage',
-                {name: '', type: null},
-                of(5),
-                item,
-                false
-            ]);
+            addModifier(actor, item,"", 'item.damage damageType="frie" +5');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.damage',
+                value: of(5),
+                attributes: {name: '', type: null, damageType: undefined, itemType: undefined},
+                origin: item
+            });
         });
+
+        it("should pass valid item types on modifiers", () => {
+            addModifier(actor, item,"", 'item.damage itemType="spell" +5');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.damage',
+                value: of(5),
+                attributes: {name: '', type: null, damageType: undefined, itemType: "spell"},
+                origin: item
+            });
+        });
+
+        it("should keep invalid item types on modifiers", () => {
+            addModifier(actor, item,"", 'item.damage itemType="blubb" +5');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.damage',
+                value: of(5),
+                attributes: {name: '', type: null, damageType: undefined, itemType: "blubb"},
+                origin: item
+            });
+        });
+
     });
 
-    describe("weaponsepeed modifiers", () => {
-        it('should handle general weaponspeed modifiers', () => {
+    describe("weaponspeed modifiers", () => {
+        it('should handle general weaponspeed modifiers (deprecated path)', () => {
             addModifier(actor, item, 'Superfast', 'weaponspeed +5');
-            expect(modifierManager.add.lastCall.args).to.have.deep.members([
-                'weaponspeed',
-                {name: 'Superfast', type: null },
-                of(5),
-                item,
-                false
-            ]);
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.weaponspeed',
+                value: of(5),
+                attributes: {name: 'Superfast', type: null, itemType: undefined},
+                origin: item
+            });
         });
 
-        it('should handle weapon specific modifiers weaponspeed modifiers', () => {
-            addModifier(actor, item, 'Superfast', 'weaponspeed item="Lanze" +5');
-            expect(modifierManager.add.lastCall.args).to.have.deep.members([
-                'weaponspeed',
-                {name: 'Superfast', type: null, item: "Lanze"},
-                of(5),
-                item,
-                false
-            ]);
+        it('should handle general weaponspeed modifiers', () => {
+            addModifier(actor, item, 'Superfast', 'item.weaponspeed +5');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.weaponspeed',
+                value: of(5),
+                attributes: {name: 'Superfast', type: null, itemType: undefined},
+                origin: item
+            });
         });
+
+        it('should handle weapon specific weaponspeed modifiers', () => {
+            addModifier(actor, item, 'Superfast', 'item.weaponspeed item="Lanze" +5');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.weaponspeed',
+                value: of(5),
+                attributes: {name: 'Superfast', type: null, itemType: undefined, item: "Lanze"},
+                origin: item
+            });
+        });
+
+        it('should pass item type weaponspeed modifiers', () => {
+            addModifier(actor, item, 'Superfast', 'item.weaponspeed itemType="weapon" +5');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.weaponspeed',
+                value: of(5),
+                attributes: {name: 'Superfast', type: null, itemType: "weapon"},
+                origin: item
+            });
+        });
+
+        it('should keep invalid item type weaponspeed modifiers', () => {
+            addModifier(actor, item, 'Superfast', 'item.weaponspeed itemType="fern" +5');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.weaponspeed',
+                value: of(5),
+                attributes: {name: 'Superfast', type: null, itemType: "fern"},
+                origin: item
+            });
+        });
+
     });
 
     ["Initiative", "INI"].forEach(iniRepresentation => {

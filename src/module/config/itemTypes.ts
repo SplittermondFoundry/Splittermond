@@ -1,0 +1,24 @@
+export type ItemType = typeof itemTypes[number];
+export const itemTypes = [
+    "weapon",
+    "projectile",
+    "equipment",
+    "shield",
+    "armor",
+    "spell",
+    "strength",
+    "weakness",
+    "mastery",
+    "species",
+    "culture",
+    "ancestry",
+    "education",
+    "resource",
+    "npcfeature",
+    "moonsign",
+    "language",
+    "culturelore",
+    "statuseffect",
+    "spelleffect",
+    "npcattack"
+] as const;

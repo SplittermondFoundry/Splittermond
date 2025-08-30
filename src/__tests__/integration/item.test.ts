@@ -9,6 +9,8 @@ import * as Machtexplosion from "../resources/importSamples/GRW/spells/Machtexpl
 import sinon from "sinon";
 import type {QuenchBatchContext} from "@ethaks/fvtt-quench";
 
+import {itemTypes} from "../../module/config/itemTypes";
+
 declare const Item: any;
 declare const game: any;
 
@@ -122,5 +124,20 @@ export function itemTest(this:any, context: QuenchBatchContext) {
 
             await Item.deleteDocuments([item.id]);
         });
-    })
+    });
+
+    describe("item type completeness", () => {
+        itemTypes.forEach(itemType => {
+            it("itemType is present in item data models config" + itemType, () => {
+                expect(CONFIG.Item.dataModels).to.have.property(itemType);
+            });
+        });
+
+        Object.keys(CONFIG.Item.dataModels).forEach(itemType => {
+            it("Item data models key exists in item Types" + itemType, () => {
+                expect(itemTypes).to.contain(itemType)
+            });
+        })
+    });
+
 }

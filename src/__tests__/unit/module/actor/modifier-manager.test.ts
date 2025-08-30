@@ -84,6 +84,19 @@ describe("ModifierManager", () => {
             expect(result[0].attributes.name).to.equal("Hellebarde");
         });
 
+        it("should work with several attribute filters", () => {
+            manager.add("damage", {name: "Sword", type: "equipment", damageType: "physical"}, of(3));
+            manager.add("damage", {name: "Enchantment", type: "magic", itemType: "spell"}, of(2));
+
+            const result = manager.getForId("damage")
+                .withAttributeValuesOrAbsent("damageType", "physical")
+                .withAttributeValuesOrAbsent("itemType", "spell")
+                .getModifiers()
+
+            expect(result.length).to.equal(2);
+        });
+
+
         it("should filter attributes for non-selectable modifiers", () => {
             manager.add("melee", {name: "Talent", type: "innate"}, of(4), null, false);
             manager.add("melee", {name: "Hellebarde", type: "innate"}, of(1), null, true);
