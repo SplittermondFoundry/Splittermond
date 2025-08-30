@@ -67,6 +67,19 @@ describe("ItemFeaturesModel", () => {
         const internal2 = new ItemFeatureDataModel({name: "Scharf", value: 2});
         const parent = setupParent();
         parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", item: "Test2", type:"magic"}, of(5),null, false)
+        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", item: "Test3", type:"magic"}, of(5),null, false)
+        const features = new ItemFeaturesModel({internalFeatureList: [internal1,internal2]},{parent});
+
+        expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 2"]);
+    });
+
+    it("should filter by item type", () => {
+        const internal1 = new ItemFeatureDataModel({name: "Ablenkend", value: 1});
+        const internal2 = new ItemFeatureDataModel({name: "Scharf", value: 2});
+        const parent = setupParent();
+        parent.parent!.type="spell"
+        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", itemType: "spell", type:"magic"}, of(5),null, false)
+        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", itemType: "weapon", type:"magic"}, of(5),null, false)
         const features = new ItemFeaturesModel({internalFeatureList: [internal1,internal2]},{parent});
 
         expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 2"]);

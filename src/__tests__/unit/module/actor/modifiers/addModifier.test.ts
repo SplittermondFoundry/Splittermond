@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import sinon, {SinonSandbox, SinonStub, SinonStubbedInstance} from 'sinon';
+import sinon, {SinonSandbox, type SinonSpy, SinonStub, SinonStubbedInstance} from 'sinon';
 import SplittermondActor from "module/actor/actor";
 import SplittermondItem from "module/item/item";
 import ModifierManager from "module/actor/modifier-manager";
@@ -24,11 +24,14 @@ interface PreparedSystem {
     focusRegeneration: unknown,
 }
 
+type SpiedAddMethod = SinonSpy<Parameters<ModifierManager['add']>,ReturnType<ModifierManager['add']>>;
+type SpiedAddModifier = SinonSpy<Parameters<ModifierManager['addModifier']>,ReturnType<ModifierManager['addModifier']>>;
+
 describe('addModifier', () => {
     let sandbox: SinonSandbox;
     let actor: SinonStubbedInstance<SplittermondActor>;
     let item: SinonStubbedInstance<SplittermondItem>;
-    let modifierManager: SinonStubbedInstance<ModifierManager>;
+    let modifierManager: ModifierManager & {add: SpiedAddMethod, addModifier: SpiedAddModifier};
     let systemData: any;
 
     beforeEach(() => {
@@ -43,7 +46,10 @@ describe('addModifier', () => {
             health: {woundMalus: {nbrLevels: 0, mod: 0, levelMod: 0}}
         };
 
-        modifierManager = sandbox.createStubInstance(ModifierManager);
+        const protoManager = new ModifierManager();
+        protoManager.add = sandbox.spy(protoManager, 'add');
+        protoManager.addModifier = sandbox.spy(protoManager, 'addModifier');
+        modifierManager = protoManager as ModifierManager & {add:SpiedAddMethod, addModifier:SpiedAddModifier};
 
         actor = sandbox.createStubInstance(SplittermondActor);
         actor.system = systemData;
@@ -105,7 +111,7 @@ describe('addModifier', () => {
 
     it('should ignore 0 as value', () => {
         addModifier(actor, item, 'Test', 'BonusCap +0');
-        expect(modifierManager.add.notCalled).to.be.true;
+        expect(modifierManager.getForId("BonusCap").getModifiers()).to.be.empty
     });
 
     ([
@@ -331,6 +337,58 @@ describe('addModifier', () => {
             });
         });
 
+    });
+
+    describe("item feature modifiers", () => {
+        it('should handle general item feature modifiers', () => {
+            addModifier(actor, item, 'Feature', 'item.addfeature feature="robust" +2');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.addfeature',
+                value: of(2),
+                attributes: {name: 'Feature', type: null, feature: 'robust', itemType: undefined},
+                origin: item
+            });
+        });
+
+        it('should handle item feature modifiers with item attribute', () => {
+            addModifier(actor, item, 'Feature', 'item.addfeature feature="sharp" item="Schwert" +1');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.addfeature',
+                value: of(1),
+                attributes: {name: 'Feature', type: null, feature: 'sharp', item: "Schwert", itemType: undefined},
+                origin: item
+            });
+        });
+
+        it("should pass valid item types on item feature modifiers", () => {
+            addModifier(actor, item,"", 'item.addfeature feature="masterwork" itemType="weapon" +3');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.addfeature',
+                value: of(3),
+                attributes: {name: '', type: null, feature: 'masterwork', itemType: "weapon"},
+                origin: item
+            });
+        });
+
+        it("should keep invalid item types on item feature modifiers", () => {
+            addModifier(actor, item,"", 'item.addfeature feature="enchanted" itemType="invalid" +1');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.addfeature',
+                value: of(1),
+                attributes: {name: '', type: null, feature: 'enchanted', itemType: "invalid"},
+                origin: item
+            });
+        });
+
+        it('should handle item feature modifiers with multiple attributes', () => {
+            addModifier(actor, item, 'Complex Feature', 'item.addfeature feature="blessed" item="Holy Sword" itemType="weapon" +5');
+            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                path: 'item.addfeature',
+                value: of(5),
+                attributes: {name: 'Complex Feature', type: null, feature: 'blessed', item: "Holy Sword", itemType: "weapon"},
+                origin: item
+            });
+        });
     });
 
     ["Initiative", "INI"].forEach(iniRepresentation => {

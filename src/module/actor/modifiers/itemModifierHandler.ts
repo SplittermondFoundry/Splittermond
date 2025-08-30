@@ -73,6 +73,21 @@ export class ItemModifierHandler extends ModifierHandler {
         )
     }
 
+    convertToItemFeatureModifier(modifier: ScalarModifier, emphasisFromName: string): IModifier {
+        const attributes = {
+            ...modifier.attributes,
+            itemType: this.normalizeItemType(modifier.attributes.itemType),
+            name: emphasisFromName,
+            type: this.modifierType
+        };
+        return new Modifier(
+            modifier.path, //item.addfeature
+            modifier.value,
+            attributes,
+            this.sourceItem
+        )
+    }
+
     normalizeAttribute(value: Value | undefined, mapper: ValidMapper): string | undefined {
         if (!(value && this.validateDescriptor(value))) {
             return undefined;

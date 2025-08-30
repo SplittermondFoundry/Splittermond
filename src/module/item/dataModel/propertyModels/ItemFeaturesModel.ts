@@ -59,7 +59,10 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
 
     get featureList() {
         const featuresFromModifier = this.getModifierManager()
-            .getForId("item.addfeature").withAttributeValuesOrAbsent("item", this.getName() ?? "").getModifiers()
+            .getForId("item.addfeature")
+            .withAttributeValuesOrAbsent("item", this.getName() ?? "")
+            .withAttributeValuesOrAbsent("itemType", this.getItemType() ?? "")
+            .getModifiers()
             .flatMap(m => {
                 const value = `${evaluate(m.value)}` || "";
                 return parseFeatures(`${m.attributes.feature} ${value}`)
@@ -91,6 +94,9 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
     }
 
     private getName(): string | null {
+        return this.parent?.parent?.name ?? null;
+    }
+    private getItemType(): string | null {
         return this.parent?.parent?.name ?? null;
     }
 
