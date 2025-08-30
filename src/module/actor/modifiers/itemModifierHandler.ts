@@ -89,7 +89,7 @@ export class ItemModifierHandler extends ModifierHandler {
     }
 
     normalizeAttribute(value: Value | undefined, mapper: ValidMapper): string | undefined {
-        if (!(value && this.validateDescriptor(value))) {
+        if (value === null || value === undefined || !this.validateDescriptor(value)) {
             return undefined;
         } else {
             return normalizeDescriptor(value).usingMappers(mapper).do();

@@ -36,6 +36,8 @@ export function clearMappers() {
     (derivedAttributeMapper as any).clear();
     (modifierKeyMapper as any).clear();
     (skillMapper as any).clear();
+    (damageTypeMapper as any).clear();
+    (itemTypeMapper as any).clear();
 }
 
 export function normalizeKey(key: string) {
