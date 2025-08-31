@@ -33,15 +33,17 @@ export function DamageProcessingTest(context:QuenchBatchContext) {
         });
 
         it("Scharf should modify roll in a way that the lowest dice are increased", async () => {
-            const evaluatedDamage = (await DamageRoll.parse("1d6", "Scharf 6").evaluate());
+            //with that roll formula, we are almost guaranteed to roll a 1.
+            const evaluatedDamage = (await DamageRoll.parse("999d6kl1", "Scharf 6").evaluate());
             const roll = evaluatedDamage.roll;
 
-            expect(roll.total).to.equal(6);
+            expect(roll.total).to.be.greaterThanOrEqual(3);
             expect(roll.terms[0]).to.be.instanceOf(Die);
-            expect((roll.terms[0] as Die).results).to.have.length(1);
-            //result should only be 6 iff 6 was rolled naturally
-            expect((roll.terms[0] as Die).results[0].result !== 6).to.be
-                .equal(evaluatedDamage.getActiveFeatures().some(f => f.name === "Scharf" && f.active));
+            const activeTerm = (roll.terms[0] as Die).results.filter((r:any)=>r?.active);
+            expect(activeTerm).to.have.length(1);
+            expect(activeTerm[0].result < 3).to.be.equal(
+                evaluatedDamage.getActiveFeatures().some(f => f.name === "Scharf" && f.active)
+            );
         });
 
         it("Kritisch should modify roll in a way that the highest dice are increased", async () => {

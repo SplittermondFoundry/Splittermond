@@ -156,7 +156,7 @@ export function foundryRollTest(context: QuenchBatchContext) {
             expect(rollResult2.formula).to.equal("1d10 + 3");
             expect(roll.formula).to.equal("2d6 + 1 + 1d10 + 3")
             expect(roll.total).to.be.above(6);
-            expect(roll.total).to.be.below(25);
+            expect(roll.total).to.be.below(27)//2*6+1+1*10+3;
         });
 
         it("should shallow copy the terms", async () => {
