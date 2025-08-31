@@ -81,7 +81,7 @@ export class ItemModifierHandler extends ModifierHandler {
             type: this.modifierType
         };
         return new Modifier(
-            modifier.path, //item.addfeature
+            modifier.path, //item.mergeFeature
             modifier.value,
             attributes,
             this.sourceItem

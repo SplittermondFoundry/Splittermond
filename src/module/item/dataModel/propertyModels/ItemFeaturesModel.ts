@@ -59,7 +59,7 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
 
     get featureList() {
         const featuresFromModifier = this.getModifierManager()
-            .getForId("item.addfeature")
+            .getForId("item.mergeFeature")
             .withAttributeValuesOrAbsent("item", this.getName() ?? "")
             .withAttributeValuesOrAbsent("itemType", this.getItemType() ?? "")
             .getModifiers()
@@ -97,7 +97,7 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
         return this.parent?.parent?.name ?? null;
     }
     private getItemType(): string | null {
-        return this.parent?.parent?.name ?? null;
+        return this.parent?.parent?.type ?? null;
     }
 
 }
@@ -168,10 +168,12 @@ function parseValue(feature: string) {
     return parseInt(valueString);
 }
 
-
 function normalizeName(name: string) {
     return splittermond.itemFeatures.find(f => f.toLowerCase() == name.trim().toLowerCase()) ?? name;
 }
+
+
+type Mergeable = { name: string, value: number };
 
 function mergeDataModels(one: ItemFeatureDataModel[], other: ItemFeatureDataModel[]) {
     return merge(one, other, (x) => new ItemFeatureDataModel(x as DataModelConstructorInput<ItemFeatureType>));
@@ -181,14 +183,17 @@ function mergeConstructorData(one: DataModelConstructorInput<ItemFeatureType>[],
     return merge(one, other, (x) => x as DataModelConstructorInput<ItemFeatureType>)
 }
 
-type Mergeable = { name: string, value: number };
 
 function merge<T extends Mergeable>(one: T[], other: T[], constructor: (x: Mergeable) => T) {
+    return combine(one, other, (x,y) => constructor({name: x.name, value: Math.max(x.value, y.value)}))
+}
+
+function combine<T extends Mergeable>(one: T[], other: T[], reducingConstructor: (x: Mergeable,y:Mergeable) => T) {
     const merged = new Map<string, T>();
     [...one, ...other].forEach(feature => {
         if (merged.has(feature.name)) {
             const old = merged.get(feature.name)!/*we just tested for presence*/;
-            merged.set(feature.name, constructor({name: feature.name, value: Math.max(old.value, feature.value)}))
+            merged.set(feature.name, reducingConstructor(feature,old))
         } else {
             merged.set(feature.name, feature);
         }

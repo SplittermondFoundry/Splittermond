@@ -5,7 +5,6 @@ import SplittermondItem from "module/item/item";
 import {foundryApi} from 'module/api/foundryApi';
 import {splittermond} from "module/config";
 import {clearMappers} from "module/actor/modifiers/parsing/normalizer";
-import {validateDescriptors} from "module/actor/modifiers/parsing/validators";
 import {of} from "module/actor/modifiers/expressions/scalar";
 import type {ScalarModifier} from "module/actor/modifiers/parsing";
 
@@ -56,6 +55,7 @@ describe('ItemModifierHandler', () => {
     let handler: ItemModifierHandler;
 
     beforeEach(() => {
+        clearMappers();
         sandbox = sinon.createSandbox();
         allErrors = [];
 
@@ -78,8 +78,6 @@ describe('ItemModifierHandler', () => {
             "education", "resource", "npcfeature", "moonsign", "language",
             "culturelore", "statuseffect", "spelleffect", "npcattack"
         ]);
-
-        sandbox.stub({validateDescriptors}, 'validateDescriptors').returns([]);
     });
 
     afterEach(() => {
@@ -159,7 +157,7 @@ describe('ItemModifierHandler', () => {
     describe('convertToItemFeatureModifier', () => {
         it('should create item feature modifier with original path', () => {
             const scalarModifier: ScalarModifier = {
-                path: 'item.addfeature',
+                path: 'item.mergeFeature',
                 value: of(1),
                 attributes: {
                     feature: 'robust',
@@ -169,7 +167,7 @@ describe('ItemModifierHandler', () => {
 
             const result = handler.convertToItemFeatureModifier(scalarModifier, 'Feature');
 
-            expect(result.groupId).to.equal('item.addfeature');
+            expect(result.groupId).to.equal('item.mergeFeature');
             expect(result.value).to.deep.equal(of(1));
             expect(result.attributes.name).to.equal('Feature');
             expect(result.attributes.type).to.equal('equipment');

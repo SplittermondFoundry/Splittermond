@@ -673,7 +673,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 name: "Mastery",
                 type: "magic"
             }, of(1), null, false);
-            subject.modifier.add("item.addfeature", {
+            subject.modifier.add("item.mergeFeature", {
                 name: "Mystery",
                 feature: "Scharf",
                 item: "Lance of Longinus",

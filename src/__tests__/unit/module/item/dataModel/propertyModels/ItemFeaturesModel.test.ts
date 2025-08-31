@@ -1,9 +1,10 @@
 import {
     ItemFeatureDataModel,
-    ItemFeaturesModel, mergeFeatures,
+    ItemFeaturesModel,
+    mergeFeatures,
     parseFeatures
 } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
-import {describe, it, beforeEach, afterEach} from "mocha";
+import {afterEach, beforeEach, describe, it} from "mocha";
 import {expect} from "chai";
 import {foundryApi} from "../../../../../../module/api/foundryApi";
 import sinon from "sinon";
@@ -37,7 +38,7 @@ describe("ItemFeaturesModel", () => {
     it("should account for specific modifiers", () => {
         const internal = new ItemFeatureDataModel({name: "Ablenkend", value: 1});
         const parent = setupParent();
-        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", item: "Test", type:"magic"}, of(5),null, false)
+        parent.parent!.actor.modifier.add("item.mergeFeature", {name:"Test", feature: "Scharf", item: "Test", type:"magic"}, of(5),null, false)
         const features = new ItemFeaturesModel({internalFeatureList: [internal]},{parent});
 
         expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 5"]);
@@ -45,7 +46,7 @@ describe("ItemFeaturesModel", () => {
     it("should account for global modifiers", () => {
         const internal = new ItemFeatureDataModel({name: "Ablenkend", value: 1});
         const parent = setupParent();
-        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", type:"magic"}, of(5),null, false)
+        parent.parent!.actor.modifier.add("item.mergeFeature", {name:"Test", feature: "Scharf", type:"magic"}, of(5),null, false)
         const features = new ItemFeaturesModel({internalFeatureList: [internal]},{parent});
 
         expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 5"]);
@@ -56,7 +57,7 @@ describe("ItemFeaturesModel", () => {
         const internal1 = new ItemFeatureDataModel({name: "Ablenkend", value: 1});
         const internal2 = new ItemFeatureDataModel({name: "Scharf", value: 2});
         const parent = setupParent();
-        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", item: "Test", type:"magic"}, of(5),null, false)
+        parent.parent!.actor.modifier.add("item.mergeFeature", {name:"Test", feature: "Scharf", item: "Test", type:"magic"}, of(5),null, false)
         const features = new ItemFeaturesModel({internalFeatureList: [internal1,internal2]},{parent});
 
         expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 5"]);
@@ -66,8 +67,8 @@ describe("ItemFeaturesModel", () => {
         const internal1 = new ItemFeatureDataModel({name: "Ablenkend", value: 1});
         const internal2 = new ItemFeatureDataModel({name: "Scharf", value: 2});
         const parent = setupParent();
-        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", item: "Test2", type:"magic"}, of(5),null, false)
-        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", item: "Test3", type:"magic"}, of(5),null, false)
+        parent.parent!.actor.modifier.add("item.mergeFeature", {name:"Test", feature: "Scharf", item: "Test2", type:"magic"}, of(5),null, false)
+        parent.parent!.actor.modifier.add("item.mergeFeature", {name:"Test", feature: "Scharf", item: "Test3", type:"magic"}, of(5),null, false)
         const features = new ItemFeaturesModel({internalFeatureList: [internal1,internal2]},{parent});
 
         expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 2"]);
@@ -78,8 +79,8 @@ describe("ItemFeaturesModel", () => {
         const internal2 = new ItemFeatureDataModel({name: "Scharf", value: 2});
         const parent = setupParent();
         parent.parent!.type="spell"
-        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", itemType: "spell", type:"magic"}, of(5),null, false)
-        parent.parent!.actor.modifier.add("item.addfeature", {name:"Test", feature: "Scharf", itemType: "weapon", type:"magic"}, of(5),null, false)
+        parent.parent!.actor.modifier.add("item.mergeFeature", {name:"Test", feature: "Scharf", itemType: "spell", type:"magic"}, of(5),null, false)
+        parent.parent!.actor.modifier.add("item.mergeFeature", {name:"Test", feature: "Scharf", itemType: "weapon", type:"magic"}, of(5),null, false)
         const features = new ItemFeaturesModel({internalFeatureList: [internal1,internal2]},{parent});
 
         expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 2"]);
