@@ -181,7 +181,7 @@ export function createTestRoll(
         pushedDie = true;
         const die = new MockDie(
             results.length,
-            parseInt(/(?<=d)\d/.exec(formula)![0]),
+            parseInt(/(?<=d)\d+/.exec(formula)![0]),
             results.map(result => ({active: true, result})),
             true
         );

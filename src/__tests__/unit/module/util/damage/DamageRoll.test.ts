@@ -189,6 +189,25 @@ describe("DamageRoll evaluation", () => {
         expect(evaluatedRoll.roll.formula).to.equal("4d6kh2");
     });
 
+    ([
+        ["2d6",6],
+        ["2d10",10]
+    ] as const).forEach(([damageString,result])=> {
+        it(`Should cap the minimum roll result for scharf feature at half the die size for ${damageString}`, async () => {
+            const rollMock: FoundryRoll = createTestRoll(damageString, [1, 1], 0);
+            stubFoundryRoll(rollMock, sandbox);
+
+            const damageRoll = DamageRoll.parse(damageString, "Scharf 7");
+            const roll = await damageRoll.evaluate();
+
+            expect(roll.roll._total).to.equal(result);
+            expect(getFirstDie(roll.roll).results[0].result).to.equal(1);
+            expect(getFirstDie(roll.roll).results[1].result).to.equal(1);
+        });
+    });
+
+
+
     it("Should not increase the lowest dice for scharf feature", async () => {
         const damageString = "2d6";
         const rollMock: FoundryRoll = createTestRoll("2d6", [1, 1], 0);
