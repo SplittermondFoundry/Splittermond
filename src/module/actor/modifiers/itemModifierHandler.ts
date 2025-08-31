@@ -32,6 +32,15 @@ export class ModifierHandler {
     }
 }
 
+/**
+ * This class is the stub of a decentralization idea that I have for modifiers.
+ * Ideally such handlers would be placed in the module they are relevant for (e.g. item handlers in the item module).
+ * Then they would register themselves with the modifier system and declare witch top level group they take on (e.g. "item").
+ * The modifier system would pass all items starting with "item." to this handler for parsing.
+ *
+ * The handler itself could contain a configuration, where it is detailed, which sub-paths it handles (e.g. "item.damage", "item.weaponspeed", "item.mergeFeature").
+ * along with the attributes these sub-paths have. The logic would then rely on this configuration to parse the modifiers.
+ */
 export class ItemModifierHandler extends ModifierHandler {
 
     constructor(
