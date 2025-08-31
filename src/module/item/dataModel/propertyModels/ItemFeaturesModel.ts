@@ -58,8 +58,14 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
     }
 
     get featureList() {
-        const featuresFromModifier = this.getModifierManager()
-            .getForId("item.mergeFeature")
+        const modifierFeaturesToMerge = this.getModifierFeatures("item.mergeFeature");
+        const modiferFeaturesToAdd = this.getModifierFeatures("item.addFeature");
+        const mergedFeatures = mergeDataModels(this.internalFeatureList, modifierFeaturesToMerge);
+        return sumDataModels(mergedFeatures, modiferFeaturesToAdd);
+    }
+
+    private getModifierFeatures(groupId:string) {
+        return this.getModifierManager().getForId(groupId)
             .withAttributeValuesOrAbsent("item", this.getName() ?? "")
             .withAttributeValuesOrAbsent("itemType", this.getItemType() ?? "")
             .getModifiers()
@@ -67,7 +73,6 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
                 const value = `${evaluate(m.value)}` || "";
                 return parseFeatures(`${m.attributes.feature} ${value}`)
             }).map(f => new ItemFeatureDataModel(f));
-        return mergeDataModels(this.internalFeatureList, featuresFromModifier);
     }
 
     featuresAsStringList() {
@@ -105,7 +110,6 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
 export function mergeFeatures(one: ItemFeaturesModel, other: ItemFeaturesModel) {
     return ItemFeaturesModel.from(mergeDataModels(one.featureList, other.featureList));
 }
-
 
 function FeatureSchema() {
     return {
@@ -183,9 +187,16 @@ function mergeConstructorData(one: DataModelConstructorInput<ItemFeatureType>[],
     return merge(one, other, (x) => x as DataModelConstructorInput<ItemFeatureType>)
 }
 
+function sumDataModels(one: ItemFeatureDataModel[], other: ItemFeatureDataModel[]) {
+    return sum(one, other, (x) => new ItemFeatureDataModel(x as DataModelConstructorInput<ItemFeatureType>));
+}
 
 function merge<T extends Mergeable>(one: T[], other: T[], constructor: (x: Mergeable) => T) {
     return combine(one, other, (x,y) => constructor({name: x.name, value: Math.max(x.value, y.value)}))
+}
+
+function sum<T extends Mergeable>(one: T[], other: T[], constructor: (x: Mergeable) => T) {
+    return combine(one, other, (x,y) => constructor({name: x.name, value: x.value + y.value}))
 }
 
 function combine<T extends Mergeable>(one: T[], other: T[], reducingConstructor: (x: Mergeable,y:Mergeable) => T) {

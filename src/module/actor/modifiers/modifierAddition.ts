@@ -219,7 +219,8 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, em
             case "item.weaponspeed":
                 actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier,emphasisFromName));
                 break;
-            case "item.mergeFeature":
+            case "item.addfeature":
+            case "item.mergefeature":
                 actor.modifier.addModifier(itemModifierHandler.convertToItemFeatureModifier(modifier,emphasisFromName));
                 return
             default:

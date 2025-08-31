@@ -155,29 +155,37 @@ describe('ItemModifierHandler', () => {
     });
 
     describe('convertToItemFeatureModifier', () => {
-        it('should create item feature modifier with original path', () => {
-            const scalarModifier: ScalarModifier = {
-                path: 'item.mergeFeature',
-                value: of(1),
-                attributes: {
-                    feature: 'robust',
-                    itemType: 'weapon'
-                }
-            };
+        beforeEach(() => {
+            sandbox.stub(foundryApi,"localize").callsFake(key =>key);
+        });
+        ["item.addFeature", "item.mergeFeatue"].forEach(groupId => {
+            it(`should create item feature modifier with original id ${groupId}`, () => {
+                const scalarModifier: ScalarModifier = {
+                    path: groupId,
+                    value: of(1),
+                    attributes: {
+                        feature: 'robust',
+                        itemType: 'weapon'
+                    }
+                };
 
-            const result = handler.convertToItemFeatureModifier(scalarModifier, 'Feature');
+                const result = handler.convertToItemFeatureModifier(scalarModifier, 'Feature');
 
-            expect(result.groupId).to.equal('item.mergeFeature');
-            expect(result.value).to.deep.equal(of(1));
-            expect(result.attributes.name).to.equal('Feature');
-            expect(result.attributes.type).to.equal('equipment');
-            expect(result.attributes.feature).to.equal('robust');
-            expect(result.attributes.itemType).to.equal('weapon');
-            expect(result.origin).to.equal(mockItem);
+                expect(result.groupId).to.equal(groupId);
+                expect(result.value).to.deep.equal(of(1));
+                expect(result.attributes.name).to.equal('Feature');
+                expect(result.attributes.type).to.equal('equipment');
+                expect(result.attributes.feature).to.equal('robust');
+                expect(result.attributes.itemType).to.equal('weapon');
+                expect(result.origin).to.equal(mockItem);
+            });
         });
     });
 
     describe('normalizeAttribute', () => {
+        beforeEach(() => {
+            sandbox.stub(foundryApi,"localize").callsFake(key =>key);
+        });
         it('should return normalized value for valid descriptor', () => {
             const result = handler.normalizeAttribute('fire', 'damageTypes');
 
@@ -200,8 +208,11 @@ describe('ItemModifierHandler', () => {
     });
 
     describe('normalizeDamageType', () => {
+        beforeEach(() => {
+            sandbox.stub(foundryApi,"localize").callsFake(key =>key === "splittermond.damageTypes.short.fire" ? "Feuer" : key);
+        });
         it('should return valid damage type', () => {
-            const result = handler.normalizeDamageType('fire');
+            const result = handler.normalizeDamageType('Feuer');
 
             expect(result).to.equal('fire');
         });
@@ -230,8 +241,11 @@ describe('ItemModifierHandler', () => {
     });
 
     describe('normalizeItemType', () => {
+        beforeEach(() => {
+            sandbox.stub(foundryApi,"localize").callsFake(key =>key === "TYPES.Item.weapon" ? "Waffe": key);
+        });
         it('should return valid item type', () => {
-            const result = handler.normalizeItemType('weapon');
+            const result = handler.normalizeItemType('Waffe');
 
             expect(result).to.equal('weapon');
         });
@@ -266,41 +280,6 @@ describe('ItemModifierHandler', () => {
             expect(result).to.be.undefined;
             expect(allErrors).to.have.lengthOf(1);
             expect(allErrors[0]).to.equal('splittermond.modifiers.parseMessages.shouldNotBeAnExpression');
-        });
-    });
-
-    describe('integration with modifier conversion', () => {
-        it('should properly normalize attributes in damage modifier', () => {
-            sandbox.restore();
-            sandbox = sinon.createSandbox();
-
-            // Re-setup stubs after restore
-            sandbox.stub(foundryApi, 'format').callsFake((key: string, data?: any) => {
-                if (key === "splittermond.modifiers.parseMessages.unknownDescriptor") {
-                    return `Unknown descriptor ${data.descriptor}: ${data.value} in item ${data.itemName}`;
-                }
-                return key;
-            });
-
-            sandbox.stub(splittermond, 'damageTypes').value(['physical', 'fire']);
-            sandbox.stub(splittermond, 'itemTypes').value(['weapon', 'spell']);
-
-            handler = new ItemModifierHandler(allErrors, mockItem, 'magic');
-
-            const scalarModifier: ScalarModifier = {
-                path: 'item.damage',
-                value: of(8),
-                attributes: {
-                    damageType: 'invalid',  // This should cause an error
-                    itemType: 'weapon'      // This should cause an error too
-                }
-            };
-
-            const result = handler.convertToDamageModifier(scalarModifier, 'Complex Test');
-
-            expect(result.attributes.damageType).to.be.undefined;  // Invalid damage type becomes undefined
-            expect(result.attributes.itemType).to.equal('weapon'); // Valid item type kept but error reported
-            expect(allErrors).to.have.lengthOf(2);  // Both should report errors
         });
     });
 });

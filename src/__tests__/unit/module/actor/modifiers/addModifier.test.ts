@@ -350,59 +350,61 @@ describe('addModifier', () => {
     });
 
     describe("item feature modifiers", () => {
-        it('should handle general item feature modifiers', () => {
-            addModifier(actor, item, 'Feature', 'item.mergeFeature feature="robust" +2');
-            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
-                path: 'item.mergeFeature',
-                value: of(2),
-                attributes: {name: 'Feature', type: null, feature: 'robust', itemType: undefined},
-                origin: item
+        ["item.mergeFeature", "item.addFeature"].forEach(path => {
+            it(`should handle general item feature modifiers for ${path}`, () => {
+                addModifier(actor, item, 'Feature', `${path} feature="robust" +2`);
+                expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                    path,
+                    value: of(2),
+                    attributes: {name: 'Feature', type: null, feature: 'robust', itemType: undefined},
+                    origin: item
+                });
             });
-        });
 
-        it('should handle item feature modifiers with item attribute', () => {
-            addModifier(actor, item, 'Feature', 'item.mergeFeature feature="sharp" item="Schwert" +1');
-            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
-                path: 'item.mergeFeature',
-                value: of(1),
-                attributes: {name: 'Feature', type: null, feature: 'sharp', item: "Schwert", itemType: undefined},
-                origin: item
+            it(`should handle item feature modifiers with item attribute for ${path}`, () => {
+                addModifier(actor, item, 'Feature', `${path} feature="sharp" item="Schwert" +1`);
+                expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                    path,
+                    value: of(1),
+                    attributes: {name: 'Feature', type: null, feature: 'sharp', item: "Schwert", itemType: undefined},
+                    origin: item
+                });
             });
-        });
 
-        it("should pass valid item types on item feature modifiers", () => {
-            addModifier(actor, item, "", 'item.mergeFeature feature="masterwork" itemType="weapon" +3');
-            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
-                path: 'item.mergeFeature',
-                value: of(3),
-                attributes: {name: '', type: null, feature: 'masterwork', itemType: "weapon"},
-                origin: item
+            it(`should pass valid item types on item feature modifiers for ${path}`, () => {
+                addModifier(actor, item, "", `${path} feature="masterwork" itemType="weapon" +3`);
+                expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                    path,
+                    value: of(3),
+                    attributes: {name: '', type: null, feature: 'masterwork', itemType: "weapon"},
+                    origin: item
+                });
             });
-        });
 
-        it("should keep invalid item types on item feature modifiers", () => {
-            addModifier(actor, item, "", 'item.mergeFeature feature="enchanted" itemType="invalid" +1');
-            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
-                path: 'item.mergeFeature',
-                value: of(1),
-                attributes: {name: '', type: null, feature: 'enchanted', itemType: "invalid"},
-                origin: item
+            it(`should keep invalid item types on item feature modifiers for ${path}`, () => {
+                addModifier(actor, item, "", `${path} feature="enchanted" itemType="invalid" +1`);
+                expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                    path,
+                    value: of(1),
+                    attributes: {name: '', type: null, feature: 'enchanted', itemType: "invalid"},
+                    origin: item
+                });
             });
-        });
 
-        it('should handle item feature modifiers with multiple attributes', () => {
-            addModifier(actor, item, 'Complex Feature', 'item.mergeFeature feature="blessed" item="Holy Sword" itemType="weapon" +5');
-            expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
-                path: 'item.mergeFeature',
-                value: of(5),
-                attributes: {
-                    name: 'Complex Feature',
-                    type: null,
-                    feature: 'blessed',
-                    item: "Holy Sword",
-                    itemType: "weapon"
-                },
-                origin: item
+            it(`should handle item feature modifiers with multiple attributes for ${path}`, () => {
+                addModifier(actor, item, 'Complex Feature', `${path} feature="blessed" item="Holy Sword" itemType="weapon" +5`);
+                expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
+                    path,
+                    value: of(5),
+                    attributes: {
+                        name: 'Complex Feature',
+                        type: null,
+                        feature: 'blessed',
+                        item: "Holy Sword",
+                        itemType: "weapon"
+                    },
+                    origin: item
+                });
             });
         });
     });
