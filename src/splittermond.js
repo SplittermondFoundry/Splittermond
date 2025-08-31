@@ -16,7 +16,7 @@ import SplittermondCombatTracker from "./module/apps/sidebar/combat-tracker";
 import ItemImporter from "./module/util/item-importer";
 import SplittermondCompendiumBrowser from "./module/apps/compendiumBrowser/compendium-browser.js";
 import {registerRequestedSystemSettings} from "./module/settings";
-import TickBarHud from "./module/apps/tick-bar-hud";
+import TickBarHud, {initTickBarHud} from "./module/apps/tick-bar-hud/tick-bar-hud";
 
 import {chatActionFeature} from "./module/util/chat/chatActionFeature";
 import SplittermondWeaponItem from "./module/item/weapon";
@@ -78,8 +78,13 @@ function handlePdf(links) {
 };
 
 Hooks.once("ready", async function () {
-    game.splittermond.tickBarHud = new TickBarHud();
-    return initTokenActionBar(game.splittermond);
+    return Promise.all([
+        initTickBarHud(game.splittermond),
+        initTokenActionBar(game.splittermond)
+    ]).then(()=>{
+        console.log("Splittermond | Ready")
+        foundryApi.hooks.call("splittermond.ready")
+    });
 });
 
 Hooks.once("init", async function () {
@@ -236,7 +241,6 @@ Hooks.once("init", async function () {
         const quenchTestsInit = (await import("./__tests__/integration/quench")).init;
         quenchTestsInit();
     }
-    console.log("Splittermond | DONE!");
 });
 
 Hooks.on("redraw-combat-tick", async () => {
@@ -712,15 +716,15 @@ Hooks.on('renderChatMessageHTML', /**@param {HTMLElement} html*/function (app, h
         const statusId = $(event.currentTarget).closestData('status-id');
 
         let chatMessageId = $(event.currentTarget).closestData("message-id");
-        let message = game.messages.get(chatMessageId);
+        let message = foundryApi.messages.get(chatMessageId);
 
-        const speaker = message.data.speaker;
+        const speaker = message.speaker;
         let actor;
         if (speaker.token) actor = game.actors.tokens[speaker.token];
         if (!actor) actor = game.actors.get(speaker.actor);
 
         await actor.deleteEmbeddedDocuments("Item", [statusId]);
-        await Hooks.call("redraw-combat-tick");
+        await foundryApi.hooks.call("redraw-combat-tick");
     }));
 });
 

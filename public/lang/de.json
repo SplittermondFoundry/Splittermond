@@ -128,6 +128,7 @@
         "damageType": "Schadensart",
         "skill": "Fertigkeit",
         "item": "Objekt",
+        "itemType": "Objekttyp",
         "feature": "Merkmal",
         "features": "Merkmale"
       },
@@ -148,7 +149,8 @@
         "allErrorMessage": "Syntaxfehler in Modifikatoren '{str}' in '{objectName}'!",
         "foNoCost": "Ausdruck '{expression}' lässt sich nicht in Fokuscosten umwandeln.",
         "notANumber": "Ausdruck'{expression}' lässt sich nicht in eine Zahl umwandeln.",
-        "unknownDescriptor": "Der Wert {value} für das Attribut '{descriptor}' für einen Modifikator auf '{itemName}' ist ungültig."
+        "unknownDescriptor": "Der Wert {value} für das Attribut '{descriptor}' für einen Modifikator auf '{itemName}' ist ungültig.",
+        "deprecatedPath": "Der Pfad '{oldPath}' in {itemName} ist veraltet. Bitte verwenden Sie stattdessen '{newPath}'."
       }
     },
     "modifier": "Modifikator",

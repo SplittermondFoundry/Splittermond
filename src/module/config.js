@@ -3,8 +3,9 @@ import {splittermondSpellEnhancement} from "./config/SplittermondSpellEnhancemen
 import {modifiers} from "./config/modifiers";
 import {skillGroups} from "./config/skillGroups";
 import {damageTypeOptions, damageTypes} from "./config/damageTypes";
-import {attributes, derivedAttributes} from "./config/attributes.js";
-import {itemFeatures} from "./config/itemFeatures.js";
+import {attributes, derivedAttributes} from "./config/attributes";
+import {itemFeatures} from "./config/itemFeatures";
+import {itemTypes} from "./config/itemTypes";
 
 export const splittermond = {};
 
@@ -1133,6 +1134,7 @@ splittermond.degreeOfSuccessThresholds = {
     critical : 5
 }
 splittermond.damageTypes = damageTypes;
+splittermond.itemTypes = itemTypes;
 
 splittermond.settings = {
     gameReadyWaitingDelayInMs: 250,

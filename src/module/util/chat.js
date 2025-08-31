@@ -242,14 +242,26 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
     return ChatMessage.applyRollMode(checkMessageData, rollMode);
 }
 
+/**
+ * @typedef {Object} StatusEffectMessageData
+ * @property {VirtualToken} virtualToken
+ * @property {number} activationNo
+ * @property {number} onTick
+ * @property {number} maxActivation
+ */
 
+/**
+ * @param {SplittermondActor} actor
+ * @param {StatusEffectMessageData} data
+ * @return {Promise<{user, speaker: any, content: string, sound: string, type: (0 & CHAT_MESSAGE_STYLES) | (3 & DetectionMode.DETECTION_TYPES) | number}>}
+ */
 export async function prepareStatusEffectMessage(actor, data) {
     let template = "systems/splittermond/templates/chat/status-effect.hbs";
     let templateContext = {
         ...data,
         actions: [],
         title: `${data.virtualToken.name} ${data.virtualToken.level}`,
-        subtitle: game.i18n.format("splittermond.combatEffect.statusEffectActivated.subtitle", {
+        subtitle: foundryApi.format("splittermond.combatEffect.statusEffectActivated.subtitle", {
             onTick: data.onTick,
             activationNo: data.activationNo,
             maxActivation: data.virtualToken.times
@@ -258,7 +270,7 @@ export async function prepareStatusEffectMessage(actor, data) {
 
     if (data.activationNo == data.virtualToken.times) {
         templateContext.actions.push({
-            name: game.i18n.localize(`splittermond.combatEffect.statusEffectActivated.remove`),
+            name: foundryApi.localize(`splittermond.combatEffect.statusEffectActivated.remove`),
             icon: "fa-remove",
             classes: "remove-status",
             data: {
@@ -270,11 +282,11 @@ export async function prepareStatusEffectMessage(actor, data) {
     //TODO add actions based on the status effect to allow per-button execution for effect
 
     let statusEffectData = {
-        user: game.user.id,
-        speaker: ChatMessage.getSpeaker({actor: actor}),
-        content: await renderTemplate(template, templateContext),
+        user: foundryApi.currentUser.id,
+        speaker: foundryApi.getSpeaker({actor: actor}),
+        content: await foundryApi.renderer(template, templateContext),
         sound: CONFIG.sounds.notification,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        type: foundryApi.chatMessageTypes.OTHER,
     };
     return statusEffectData;
 }

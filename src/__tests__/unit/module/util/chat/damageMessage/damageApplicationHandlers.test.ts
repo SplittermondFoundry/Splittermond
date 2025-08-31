@@ -219,10 +219,10 @@ function* createMockTarget(sandbox: SinonSandbox, targetSize: number): Generator
                     return Promise.resolve(this);
                 },
                 update(): Promise<FoundryDocument> {
-                    return Promise.resolve(this);
+                    return Promise.resolve(this as TokenDocument);
                 }
-            }
-        }
+            } as unknown as TokenDocument,
+        } as Token
         ;
     }
 }

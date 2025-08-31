@@ -6,12 +6,13 @@ import {NpcDataModel} from "../dataModel/NpcDataModel";
 import {CharacterDataModel} from "../dataModel/CharacterDataModel";
 import {SpellCostReductionManager} from "../../util/costs/spellCostManagement";
 import {parseModifiers, processValues, Value} from "./parsing";
-import {condense, evaluate, Expression as ScalarExpression, isZero, of, times} from "./expressions/scalar";
+import {condense, evaluate, Expression as ScalarExpression, of, times} from "./expressions/scalar";
 import {evaluate as evaluateCost, times as timesCost} from "./expressions/cost";
 import {ModifierType} from "../modifier";
 import {validateDescriptors} from "./parsing/validators";
 import {normalizeDescriptor} from "./parsing/normalizer";
 import {InitiativeModifier} from "../InitiativeModifier";
+import {ItemModifierHandler} from "./itemModifierHandler";
 
 type Regeneration = { multiplier: number, bonus: number };
 
@@ -43,9 +44,6 @@ function isRegeneration(regeneration: unknown): regeneration is Regeneration {
 export function addModifier(actor: SplittermondActor, item: SplittermondItem, emphasisFromName = "", str = "", type: ModifierType = null, multiplier = 1) {
 
     function addInitiativeModifier(value: ScalarExpression, attributes: Record<string, string>) {
-        if (isZero(value)) {
-            return;
-        }
         const emphasis = (attributes.emphasis as string) ?? ""; /*conversion validated by descriptor validator*/
         if (emphasis) {
             actor.modifier.addModifier(new InitiativeModifier("initiative",condense(value),{...attributes, name: emphasis, type}, item, true));
@@ -55,10 +53,6 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, em
     }
 
     function addModifierHelper(path: string, value: ScalarExpression, attributes: Record<string, string>, emphasisOverride?: string) {
-        if (isZero(value)) {
-            return;
-        }
-
         const emphasis = (emphasisOverride ?? attributes.emphasis as string) ?? ""; /*conversion validated by descriptor validator*/
         if (emphasis) {
             actor.modifier.add(path, {...attributes, name: emphasis, type}, condense(value), item, true);
@@ -77,6 +71,7 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, em
     const normalizedModifiers = processValues(parsedResult.modifiers, actor);
 
     const allErrors = [...parsedResult.errors, ...normalizedModifiers.errors];
+    const itemModifierHandler = new ItemModifierHandler(allErrors, item, type)
 
     normalizedModifiers.vectorModifiers.forEach((mod) => {
         const modifierLabel = mod.path.toLowerCase();
@@ -209,30 +204,25 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, em
                     });
                 break;
             case "damage":
-                if("damageType" in modifier.attributes) {
-                    modifier.attributes.damageType = normalizeDescriptor(modifier.attributes.damageType).usingMappers("damageTypes").do();
-                    if(!(splittermond.damageTypes as Readonly<string[]>).includes(modifier.attributes.damageType)) {
-                        allErrors.push(foundryApi.format("splittermond.modifiers.parseMessages.unknownDescriptor", {
-                            descriptor: "damageType",
-                            value: modifier.attributes.damageType,
-                            itemName: item.name,
-                        }));
-                        delete modifier.attributes.damageType;
-                    }
-                }
-                actor.modifier.add("damage", {
-                    ...modifier.attributes,
-                    name: emphasisFromName,
-                    type
-                }, times(of(multiplier), modifier.value), item, false);
+                modifier.path = "item.damage";
+                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath",{old: "damage", new: "item.damage", itemName: item.name});
+                actor.modifier.addModifier(itemModifierHandler.convertToDamageModifier(modifier,emphasisFromName));
+                break;
+            case "item.damage":
+                actor.modifier.addModifier(itemModifierHandler.convertToDamageModifier(modifier,emphasisFromName));
                 break;
             case "weaponspeed":
-                actor.modifier.add(`weaponspeed`, {
-                    ...modifier.attributes,
-                    name: emphasisFromName,
-                    type
-                }, times(of(multiplier), modifier.value), item, false);
+                modifier.path = "item.weaponspeed";
+                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath",{old: "weaponspeed", new: "item.weaponspeed", itemName: item.name});
+                actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier,emphasisFromName));
                 break;
+            case "item.weaponspeed":
+                actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier,emphasisFromName));
+                break;
+            case "item.addfeature":
+            case "item.mergefeature":
+                actor.modifier.addModifier(itemModifierHandler.convertToItemFeatureModifier(modifier,emphasisFromName));
+                return
             default:
                 let element: string | undefined = splittermond.derivedAttributes.find(attr => {
                     return modifierLabel === foundryApi.localize(`splittermond.derivedAttribute.${attr}.short`).toLowerCase() || modifierLabel.toLowerCase() === foundryApi.localize(`splittermond.derivedAttribute.${attr}.long`).toLowerCase()

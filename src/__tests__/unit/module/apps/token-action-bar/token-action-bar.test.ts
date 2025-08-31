@@ -135,7 +135,7 @@ describe("TokenActionBar", () => {
 
     it("should open actor sheet", () => {
         bar.openSheet();
-        expect(actorStub.sheet.render.calledWith(true)).to.be.true;
+        expect((actorStub.sheet.render as SinonStub).calledWith(true)).to.be.true;
     });
 
     it("should toggle equipped state for item", async () => {

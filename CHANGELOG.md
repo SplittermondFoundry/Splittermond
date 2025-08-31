@@ -1,6 +1,18 @@
-## 13.3.2
+## 13.4.0
+### Breaking changes
+ * Die Modifikatoren 'damage' und 'weaponspeed' sind veraltet. Sie werden durch "item.damage" und "item.weaponspeed" ersetzt.
+ * der Modifikator 'item.mergeFeature' ersetzt 'item.addFeature'. Mit diesem wird das Merkmal des Modifikators einem Objekt hinzugefügt, wenn die Merkmalsstufe höher ist als die des gleichen Merkmals des Objekts. (Hat das Objekt das Merkmal nicht, wird das Merkmal des Modifikators hinzugefügt.)
+
+### New Features
+ * Es gibt einen 'splittermond.ready' Hook, der aufgerufen wird, wenn Splittermond vollständig initialisiert ist.
+ * Die Modifikatoren "item.damage", "item.addfeature", "item.mergefeature" und "item.weaponspeed" haben einen neuen Filter namens "itemType". Gültige Werte sind alle Itemtypen wie z.B. "Waffe", "Zauber".
+ * 'item.addFeature' erlaubt das Hinzufügen von Merkmalsstufen, für schon vorhandene Merkmale. 
+ * Bei der Schadensberechnung wird die Stufe des Merkmals "Scharf" auf die Hälfte der Anzahl der Seiten der Schadenswürfel begrenzt. Dies spiegelt sich nicht in der Anzeige wider.
+
 ### Fixed
  * Kommata in Modifikatorzeichenketten, die sich in Attributswerten (begrenzt durch " oder ') befinden, werden nicht mehr als Trenner zwischen Modifikatoren gewertet.
+ * Die Tickleiste füllt jetzt allen zur Verfügung stehenden Platz aus.
+  
 ## 13.3.1
 ### Fixed
  * Ein Fehler wurde behoben, bei dem Objekte nicht angezeigt werden konnten, da im Bauprozess der Klassennamen durch einen kürzeren mit $-Zeichen ersetzt wurden.

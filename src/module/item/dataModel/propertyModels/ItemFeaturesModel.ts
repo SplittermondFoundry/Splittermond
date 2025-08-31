@@ -58,13 +58,21 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
     }
 
     get featureList() {
-        const featuresFromModifier = this.getModifierManager()
-            .getForId("item.addfeature").withAttributeValuesOrAbsent("item", this.getName() ?? "").getModifiers()
+        const modifierFeaturesToMerge = this.getModifierFeatures("item.mergeFeature");
+        const modiferFeaturesToAdd = this.getModifierFeatures("item.addFeature");
+        const mergedFeatures = mergeDataModels(this.internalFeatureList, modifierFeaturesToMerge);
+        return sumDataModels(mergedFeatures, modiferFeaturesToAdd);
+    }
+
+    private getModifierFeatures(groupId:string) {
+        return this.getModifierManager().getForId(groupId)
+            .withAttributeValuesOrAbsent("item", this.getName() ?? "")
+            .withAttributeValuesOrAbsent("itemType", this.getItemType() ?? "")
+            .getModifiers()
             .flatMap(m => {
                 const value = `${evaluate(m.value)}` || "";
                 return parseFeatures(`${m.attributes.feature} ${value}`)
             }).map(f => new ItemFeatureDataModel(f));
-        return mergeDataModels(this.internalFeatureList, featuresFromModifier);
     }
 
     featuresAsStringList() {
@@ -93,13 +101,15 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
     private getName(): string | null {
         return this.parent?.parent?.name ?? null;
     }
+    private getItemType(): string | null {
+        return this.parent?.parent?.type ?? null;
+    }
 
 }
 
 export function mergeFeatures(one: ItemFeaturesModel, other: ItemFeaturesModel) {
     return ItemFeaturesModel.from(mergeDataModels(one.featureList, other.featureList));
 }
-
 
 function FeatureSchema() {
     return {
@@ -162,10 +172,12 @@ function parseValue(feature: string) {
     return parseInt(valueString);
 }
 
-
 function normalizeName(name: string) {
     return splittermond.itemFeatures.find(f => f.toLowerCase() == name.trim().toLowerCase()) ?? name;
 }
+
+
+type Mergeable = { name: string, value: number };
 
 function mergeDataModels(one: ItemFeatureDataModel[], other: ItemFeatureDataModel[]) {
     return merge(one, other, (x) => new ItemFeatureDataModel(x as DataModelConstructorInput<ItemFeatureType>));
@@ -175,14 +187,24 @@ function mergeConstructorData(one: DataModelConstructorInput<ItemFeatureType>[],
     return merge(one, other, (x) => x as DataModelConstructorInput<ItemFeatureType>)
 }
 
-type Mergeable = { name: string, value: number };
+function sumDataModels(one: ItemFeatureDataModel[], other: ItemFeatureDataModel[]) {
+    return sum(one, other, (x) => new ItemFeatureDataModel(x as DataModelConstructorInput<ItemFeatureType>));
+}
 
 function merge<T extends Mergeable>(one: T[], other: T[], constructor: (x: Mergeable) => T) {
+    return combine(one, other, (x,y) => constructor({name: x.name, value: Math.max(x.value, y.value)}))
+}
+
+function sum<T extends Mergeable>(one: T[], other: T[], constructor: (x: Mergeable) => T) {
+    return combine(one, other, (x,y) => constructor({name: x.name, value: x.value + y.value}))
+}
+
+function combine<T extends Mergeable>(one: T[], other: T[], reducingConstructor: (x: Mergeable,y:Mergeable) => T) {
     const merged = new Map<string, T>();
     [...one, ...other].forEach(feature => {
         if (merged.has(feature.name)) {
             const old = merged.get(feature.name)!/*we just tested for presence*/;
-            merged.set(feature.name, constructor({name: feature.name, value: Math.max(old.value, feature.value)}))
+            merged.set(feature.name, reducingConstructor(feature,old))
         } else {
             merged.set(feature.name, feature);
         }

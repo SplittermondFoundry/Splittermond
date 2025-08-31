@@ -26,6 +26,7 @@ export declare class DataModel<T extends object, PARENT> extends _InternalDataMo
     constructor(data: DataModelConstructorInput<T>, options?: any);
 
     static migrateData(source: unknown): unknown;
+    static defineSchema(): object;
 }
 
 export type DataModelConstructorInput<T> = {

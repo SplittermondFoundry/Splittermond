@@ -143,9 +143,10 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
 
 
     get damage() {
-        const fromModifiers = this.actor.modifier.getForId("damage")
+        const fromModifiers = this.actor.modifier.getForId("item.damage")
             .notSelectable()
             .withAttributeValuesOrAbsent("item", this.name)
+            .withAttributeValuesOrAbsent("itemType", this.type)
             .getModifiers().map(m => m.value)
             .reduce((a,b) => plus(a,b), of(0));
         const mainComponent = condense(mapRoll(this.system.damage.asRoll()))
@@ -156,9 +157,10 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
      * @return {principalComponent: ProtoDamageImplement, otherComponents: ProtoDamageImplement[]}
      */
     getForDamageRoll() {
-        const fromModifiers = this.actor.modifier.getForId("damage")
+        const fromModifiers = this.actor.modifier.getForId("item.damage")
             .notSelectable()
             .withAttributeValuesOrAbsent("item", this.name)
+            .withAttributeValuesOrAbsent("itemType", this.type)
             .getModifiers().map(m => {
             const features = mergeFeatures(
                 ItemFeaturesModel.from(m.attributes.features ?? ""),

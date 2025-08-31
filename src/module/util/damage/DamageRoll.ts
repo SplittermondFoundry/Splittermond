@@ -166,16 +166,26 @@ async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel
         const scharfValue = features.valueOf("Scharf");
         if (scharfValue) {
             let scharfBonus = 0;
-            getFirstDieTerm(roll).results.forEach(r => {
+            const firstDie = getFirstDieTerm(roll)
+            const cappedSharpness = getCappedSharpness(scharfValue, firstDie.faces)
+            firstDie.results.forEach(r => {
                 if (r.active) {
-                    if (r.result < scharfValue) {
+                    if (r.result < cappedSharpness) {
                         activeFeatures.add("Scharf");
-                        scharfBonus += scharfValue - r.result;
+                        scharfBonus += cappedSharpness - r.result;
                     }
                 }
             });
             roll._total += scharfBonus;
         }
+    }
+
+    function getCappedSharpness(scharfValue:number, faces:number){
+        const cappedSharpness = Math.min(scharfValue, faces / 2); //They are no odd sided dice, so faces/2 is always an integer
+        if(cappedSharpness < scharfValue){
+           console.debug(`Splittermond | Feature 'Scharf ${scharfValue}' capped to ${cappedSharpness}, because the dice only have ${faces} sides.`)
+        }
+        return cappedSharpness;
     }
 
     function modifyResultForKritischFeature() {

@@ -214,9 +214,10 @@ export default class Attack {
     }
 
     private collectModifiers() {
-        const modifiers = this.actor.modifier.getForId("damage")
+        const modifiers = this.actor.modifier.getForId("item.damage")
             .notSelectable()
             .withAttributeValuesOrAbsent("item", this.name)
+            .withAttributeValuesOrAbsent("itemType", this.item.type)
             .getModifiers().map(m => {
                 const features = mergeFeatures(ItemFeaturesModel.from(m.attributes.features ?? ""), this.attackData.features);
                 return {
@@ -253,8 +254,11 @@ export default class Attack {
 
     get weaponSpeed() {
         let weaponSpeed = this.attackData.weaponSpeed;
-        weaponSpeed -= this.actor.modifier.getForId("weaponspeed")
-            .withAttributeValuesOrAbsent("item", this.item.id, this.item.name).getModifiers().value;
+        weaponSpeed -= this.actor.modifier.getForId("item.weaponspeed")
+            .withAttributeValuesOrAbsent("item", this.item.id, this.item.name)
+            .withAttributeValuesOrAbsent("itemType", this.item.type)
+            .getModifiers().value;
+
         this.getImproviationBonus().forEach(bonus => weaponSpeed -= evaluate(bonus.damageExpression))
         if (["melee", "slashing", "chains", "blades", "staffs"].includes(this.skill.id))
             weaponSpeed += parseInt(this.actor.tickMalus);

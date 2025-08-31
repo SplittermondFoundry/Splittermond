@@ -196,7 +196,7 @@ describe("Spell item damage report", () => {
             name:"Klinge aus Licht",
             features:"Scharf 2",
         }
-        underTest.actor.modifier.add("damage",modifierProperties, of(1), null, false);
+        underTest.actor.modifier.add("item.damage",modifierProperties, of(1), null, false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -216,7 +216,7 @@ describe("Spell item damage report", () => {
             features:"Scharf 2",
             item: "Kettenblitz",
         }
-        underTest.actor.modifier.add("damage",modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage",modifierProperties, of(3), null, false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -233,11 +233,41 @@ describe("Spell item damage report", () => {
             type: "magic" as const,
             name:"Klinge aus Licht",
         }
-        underTest.actor.modifier.add("damage",modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage",modifierProperties, of(3), null, false);
 
         const damages = underTest.getForDamageRoll();
 
         expect(damages.otherComponents).to.have.lengthOf(1);
+    });
+
+    it("should account for type modifiers", ()=> {
+        const underTest = setUpSpell(sandbox);
+        defineValue(underTest, "name", "Kettenblitz");
+        const modifierProperties = {
+            type: "magic" as const,
+            itemType: "spell",
+            name:"Klinge aus Licht",
+        }
+        underTest.actor.modifier.add("item.damage",modifierProperties, of(3), null, false);
+
+        const damages = underTest.getForDamageRoll();
+
+        expect(damages.otherComponents).to.have.lengthOf(1);
+    });
+
+    it("should filter out type modifiers", ()=> {
+        const underTest = setUpSpell(sandbox);
+        defineValue(underTest, "name", "Kettenblitz");
+        const modifierProperties = {
+            type: "magic" as const,
+            itemType: "weapon",
+            name:"Klinge aus Licht",
+        }
+        underTest.actor.modifier.add("item.damage",modifierProperties, of(3), null, false);
+
+        const damages = underTest.getForDamageRoll();
+
+        expect(damages.otherComponents).to.have.lengthOf(0);
     });
 
     it("should ignore selectable modifiers", ()=> {
@@ -246,7 +276,7 @@ describe("Spell item damage report", () => {
             type: "magic" as const,
             name:"Klinge aus Licht",
         }
-        underTest.actor.modifier.add("damage",modifierProperties, of(3), null, true);
+        underTest.actor.modifier.add("item.damage",modifierProperties, of(3), null, true);
 
         const damages = underTest.getForDamageRoll();
 
@@ -261,7 +291,7 @@ describe("Spell item damage report", () => {
             name:"Klinge aus Licht",
             item: "Regentanz",
         }
-        underTest.actor.modifier.add("damage",modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage",modifierProperties, of(3), null, false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -279,7 +309,7 @@ describe("Spell item damage report", () => {
             type: "magic" as const,
             name:"Klinge aus Licht",
         }
-        underTest.actor.modifier.add("damage",modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage",modifierProperties, of(3), null, false);
 
         const damageString = underTest.damage;
 
@@ -292,6 +322,7 @@ describe("Spell item damage report", () => {
 
     function setUpSpell(sandbox:SinonSandbox) {
         const stub = sinon.createStubInstance(SplittermondSpellItem);
+        stub.type = "spell"
         const system = sandbox.createStubInstance(SpellDataModel);
         Object.defineProperty(stub, "system", {value: system, enumerable: true, writable: false});
         Object.defineProperty(stub, "actor", {value: setUpActor(sandbox), enumerable: true, writable: false});
