@@ -166,7 +166,7 @@ describe("SplittermondActor", () => {
             sandbox.stub(foundryApi,"reportError").callsFake(()=>{});
             const item = sandbox.createStubInstance(SplittermondItem);
             actor.prepareBaseData()
-            actor.addModifier(item, "Test Modifier", "test-modifier +2", "innate");
+            actor.addModifier(item, "test-modifier +2", "innate");
             const modifiers = actor.modifier.getForId("test-modifier").getModifiers();
             expect(modifiers).to.not.be.empty;
         });
@@ -315,7 +315,7 @@ describe("SplittermondActor", () => {
         it("should take fumble lowering modifier into account", async () => {
             const item = sandbox.createStubInstance(SplittermondItem);
             item.system = sandbox.createStubInstance(StrengthDataModel);
-            actor.addModifier(item, "Stabile Magie", "lowerFumbleResult +1", "innate");
+            actor.addModifier(item, "lowerFumbleResult +1", "innate");
             let input = {content: ""}
             global.Dialog = class {
                 constructor(inp:{content:string}) {input = inp;}

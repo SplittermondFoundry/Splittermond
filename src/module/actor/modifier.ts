@@ -70,10 +70,10 @@ export default class Modifier implements IModifier {
     addTooltipFormulaElements(formula:TooltipFormula ) {
         if (this.isBonus) {
             const term = `+${asString(abs(condense(this.value)))}`
-            formula.addBonus(term, this.name);
+            formula.addBonus(term, this.attributes.name);
         } else {
             const term = `-${asString(abs(condense(this.value)))}`
-            formula.addMalus(term, this.name);
+            formula.addMalus(term, this.attributes.name);
         }
     }
 

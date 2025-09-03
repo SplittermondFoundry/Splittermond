@@ -26,7 +26,7 @@ declare class SplittermondActor extends Actor {
     get weaknesses(): Record<DamageType, number>;
 
     get resistances(): Record<DamageType, number>;
-    addModifier(item:SplittermondItem,name:string, str:string,type:string,multiplier?:number):void;
+    addModifier(item:SplittermondItem,str:string,type:string,multiplier?:number):void;
 
     get damageReduction(): number;
 

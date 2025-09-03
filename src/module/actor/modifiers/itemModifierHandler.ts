@@ -51,12 +51,12 @@ export class ItemModifierHandler extends ModifierHandler {
         super(allErrors)
     }
 
-    convertToDamageModifier(modifier: ScalarModifier, emphasisFromName: string): IModifier {
+    convertToDamageModifier(modifier: ScalarModifier): IModifier {
         const attributes = {
             ...modifier.attributes,
             damageType: this.normalizeDamageType(modifier.attributes.damageType),
             itemType: this.normalizeItemType(modifier.attributes.itemType),
-            name: emphasisFromName,
+            name: this.sourceItem.name,
             type: this.modifierType
         };
         return new Modifier(
@@ -67,11 +67,11 @@ export class ItemModifierHandler extends ModifierHandler {
         )
     }
 
-    convertToWeaponSpeedModifier(modifier: ScalarModifier, emphasisFromName: string): IModifier {
+    convertToWeaponSpeedModifier(modifier: ScalarModifier): IModifier {
         const attributes = {
             ...modifier.attributes,
             itemType: this.normalizeItemType(modifier.attributes.itemType),
-            name: emphasisFromName,
+            name: this.sourceItem.name,
             type: this.modifierType
         };
         return new Modifier(
@@ -82,11 +82,11 @@ export class ItemModifierHandler extends ModifierHandler {
         )
     }
 
-    convertToItemFeatureModifier(modifier: ScalarModifier, emphasisFromName: string): IModifier {
+    convertToItemFeatureModifier(modifier: ScalarModifier ): IModifier {
         const attributes = {
             ...modifier.attributes,
             itemType: this.normalizeItemType(modifier.attributes.itemType),
-            name: emphasisFromName,
+            name: this.sourceItem.name,
             type: this.modifierType
         };
         return new Modifier(

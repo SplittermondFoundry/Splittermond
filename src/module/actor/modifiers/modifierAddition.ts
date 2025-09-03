@@ -41,14 +41,14 @@ function isRegeneration(regeneration: unknown): regeneration is Regeneration {
 }
 
 //this function is used in item.js to add modifiers to the actor
-export function addModifier(actor: SplittermondActor, item: SplittermondItem, emphasisFromName = "", str = "", type: ModifierType = null, multiplier = 1) {
+export function addModifier(actor: SplittermondActor, item: SplittermondItem, str = "", type: ModifierType = null, multiplier = 1,) {
 
     function addInitiativeModifier(value: ScalarExpression, attributes: Record<string, string>) {
         const emphasis = (attributes.emphasis as string) ?? ""; /*conversion validated by descriptor validator*/
         if (emphasis) {
             actor.modifier.addModifier(new InitiativeModifier("initiative",condense(value),{...attributes, name: emphasis, type}, item, true));
         } else {
-            actor.modifier.addModifier(new InitiativeModifier("initiative", condense(value), {...attributes, name: emphasisFromName, type}, item, false));
+            actor.modifier.addModifier(new InitiativeModifier("initiative", condense(value), {...attributes, name: item.name, type}, item, false));
         }
     }
 
@@ -57,7 +57,7 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, em
         if (emphasis) {
             actor.modifier.add(path, {...attributes, name: emphasis, type}, condense(value), item, true);
         } else {
-            actor.modifier.add(path, {...attributes, name: emphasisFromName, type}, condense(value), item, false);
+            actor.modifier.add(path, {...attributes, name: item.name, type}, condense(value), item, false);
         }
     }
 
@@ -206,22 +206,22 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, em
             case "damage":
                 modifier.path = "item.damage";
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath",{old: "damage", new: "item.damage", itemName: item.name});
-                actor.modifier.addModifier(itemModifierHandler.convertToDamageModifier(modifier,emphasisFromName));
+                actor.modifier.addModifier(itemModifierHandler.convertToDamageModifier(modifier));
                 break;
             case "item.damage":
-                actor.modifier.addModifier(itemModifierHandler.convertToDamageModifier(modifier,emphasisFromName));
+                actor.modifier.addModifier(itemModifierHandler.convertToDamageModifier(modifier));
                 break;
             case "weaponspeed":
                 modifier.path = "item.weaponspeed";
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath",{old: "weaponspeed", new: "item.weaponspeed", itemName: item.name});
-                actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier,emphasisFromName));
+                actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier));
                 break;
             case "item.weaponspeed":
-                actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier,emphasisFromName));
+                actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier));
                 break;
             case "item.addfeature":
             case "item.mergefeature":
-                actor.modifier.addModifier(itemModifierHandler.convertToItemFeatureModifier(modifier,emphasisFromName));
+                actor.modifier.addModifier(itemModifierHandler.convertToItemFeatureModifier(modifier));
                 return
             default:
                 let element: string | undefined = splittermond.derivedAttributes.find(attr => {

@@ -101,11 +101,11 @@ describe('ItemModifierHandler', () => {
                 }
             };
 
-            const result = handler.convertToDamageModifier(scalarModifier, 'Test Emphasis');
+            const result = handler.convertToDamageModifier(scalarModifier);
 
             expect(result.groupId).to.equal('item.damage');
             expect(result.value).to.deep.equal(of(5));
-            expect(result.attributes.name).to.equal('Test Emphasis');
+            expect(result.attributes.name).to.equal('Test Item');
             expect(result.attributes.type).to.equal('equipment');
             expect(result.attributes.damageType).to.equal('fire');
             expect(result.attributes.itemType).to.equal('weapon');
@@ -120,7 +120,7 @@ describe('ItemModifierHandler', () => {
                 attributes: {}
             };
 
-            const result = handler.convertToDamageModifier(scalarModifier, 'Test');
+            const result = handler.convertToDamageModifier(scalarModifier);
 
             expect(result.attributes.damageType).to.be.undefined;
             expect(result.attributes.itemType).to.be.undefined;
@@ -142,11 +142,11 @@ describe('ItemModifierHandler', () => {
                 }
             };
 
-            const result = handler.convertToWeaponSpeedModifier(scalarModifier, 'Speed Boost');
+            const result = handler.convertToWeaponSpeedModifier(scalarModifier);
 
             expect(result.groupId).to.equal('item.weaponspeed');
             expect(result.value).to.deep.equal(of(2));
-            expect(result.attributes.name).to.equal('Speed Boost');
+            expect(result.attributes.name).to.equal('Test Item');
             expect(result.attributes.type).to.equal('equipment');
             expect(result.attributes.itemType).to.equal('weapon');
             expect(result.attributes.item).to.equal('Sword');
@@ -169,11 +169,11 @@ describe('ItemModifierHandler', () => {
                     }
                 };
 
-                const result = handler.convertToItemFeatureModifier(scalarModifier, 'Feature');
+                const result = handler.convertToItemFeatureModifier(scalarModifier);
 
                 expect(result.groupId).to.equal(groupId);
                 expect(result.value).to.deep.equal(of(1));
-                expect(result.attributes.name).to.equal('Feature');
+                expect(result.attributes.name).to.equal('Test Item');
                 expect(result.attributes.type).to.equal('equipment');
                 expect(result.attributes.feature).to.equal('robust');
                 expect(result.attributes.itemType).to.equal('weapon');

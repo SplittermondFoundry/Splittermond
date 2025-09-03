@@ -104,15 +104,15 @@ describe('addModifier', () => {
     });
 
     it('should add basic modifier', () => {
-        addModifier(actor, item, 'Test', 'BonusCap +2');
+        addModifier(actor, item, 'BonusCap +2');
         expect(modifierManager.add.lastCall.args).to.have.deep.members(['bonuscap', {
-            name: 'Test',
+            name: 'Test Item',
             type: null
         }, of(2), item, false]);
     });
 
     it('should ignore 0 as value', () => {
-        addModifier(actor, item, 'Test', 'BonusCap +0');
+        addModifier(actor, item, 'BonusCap +0');
         expect(modifierManager.getForId("BonusCap").getModifiers()).to.be.empty
     });
 
@@ -122,16 +122,16 @@ describe('addModifier', () => {
     ] as const)
         .forEach(([modifier, expected]) => {
             it(`should handle multiplier modifier ${modifier}`, () => {
-                addModifier(actor, item, '', modifier, 'innate', 2);
+                addModifier(actor, item, modifier, 'innate', 2);
                 expect(actor.derivedValues.speed.multiplier).to.equal(expected);
             });
         });
 
     it('should handle regeneration modifiers', () => {
-        addModifier(actor, item, '', 'HealthRegeneration.multiplier 2');
+        addModifier(actor, item, 'HealthRegeneration.multiplier 2');
         expect(systemData.healthRegeneration.multiplier).to.equal(2);
 
-        addModifier(actor, item, '', 'HealthRegeneration.bonus 3');
+        addModifier(actor, item, 'HealthRegeneration.bonus 3');
         expect(systemData.healthRegeneration.bonus).to.equal(3);
     });
 
@@ -144,7 +144,7 @@ describe('addModifier', () => {
                 fighting: []
             });
 
-        addModifier(actor, item, 'Group', 'GeneralSkills/emphasis +2');
+        addModifier(actor, item, 'GeneralSkills/emphasis +2');
 
         mockSkills.forEach((skill, index) => {
             expect(modifierManager.add.getCalls()[index].args).to.have.deep.members([
@@ -163,29 +163,29 @@ describe('addModifier', () => {
         sandbox.stub(npcAttack, "id").get(() => 'npcAttack1');
         Object.defineProperty(actor, 'items', {value: [npcAttack]});
 
-        addModifier(actor, item, 'NPC Attack', 'npcattacks +3');
+        addModifier(actor, item, 'npcattacks +3');
 
         expect(modifierManager.add.lastCall.args).to.have.deep.members([`skill.npcAttack1`, {
-            name: 'NPC Attack',
+            name: 'Test Item',
             type: null
         }, of(3), item, false]);
     });
 
     it('should report error for invalid syntax', () => {
-        addModifier(actor, item, 'Invalid', 'InvalidString');
+        addModifier(actor, item, 'InvalidString');
         expect((foundryApi.reportError as SinonStub).calledOnce).to.be.true;
     });
 
     it('should replace attribute placeholders', () => {
-        addModifier(actor, item, '', 'AUS +1');
+        addModifier(actor, item, 'AUS +1');
         expect(modifierManager.add.lastCall.args).to.have.deep.members(['AUS', {
-            name: '',
+            name: 'Test Item',
             type: null
         }, of(1), item, false]);
     });
 
     it('should handle selectable modifiers with emphasis', () => {
-        addModifier(actor, item, 'Selectable', 'resistance.fire/emphasis +3');
+        addModifier(actor, item, 'resistance.fire/emphasis +3');
         expect(modifierManager.add.lastCall.args).to.have.deep.members([
             'resistance.fire',
             {emphasis: 'emphasis', name: 'emphasis', type: null},
@@ -197,10 +197,10 @@ describe('addModifier', () => {
 
     ["lowerFumbleResult", "lowerfumbleresult"].forEach((fumbleResultPath) => {
         it(`should recognize fumble result modifier ${fumbleResultPath}`, () => {
-            addModifier(actor, item, "", `${fumbleResultPath} +3`);
+            addModifier(actor, item, `${fumbleResultPath} +3`);
             expect(modifierManager.add.lastCall.args).to.have.deep.members([
                 'lowerfumbleresult',
-                {name: '', type: null},
+                {name: 'Test Item', type: null},
                 of(3),
                 item,
                 false
@@ -211,7 +211,7 @@ describe('addModifier', () => {
 
     (["fighting", "magic", "general"] as const).forEach((skillGroup) => {
         it(`should retain emphasis for skill group ${skillGroup}`, () => {
-            addModifier(actor, item, "", `${skillGroup}Skills emphasis="Schwerpunkt" 3`);
+            addModifier(actor, item, `${skillGroup}Skills emphasis="Schwerpunkt" 3`);
 
             expect(modifierManager.add.lastCall.args).to.have.deep.members([
                 splittermond.skillGroups[skillGroup].slice(-1)[0],
@@ -228,22 +228,22 @@ describe('addModifier', () => {
     describe("damage modifiers", () => {
 
         it('should handle general damage modifiers (deprecated path)', () => {
-            addModifier(actor, item, 'Damage', 'Damage/fire +5');
+            addModifier(actor, item, 'Damage/fire +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: 'Damage', type: null, emphasis: 'fire', damageType: undefined, itemType: undefined},
+                attributes: {name: 'Test Item', type: null, emphasis: 'fire', damageType: undefined, itemType: undefined},
                 origin: item
             });
         });
 
         it('should handle general damage modifiers with item attribute (deprecated path)', () => {
-            addModifier(actor, item, 'Damage', 'Damage emphasis="fire" item="Schwert" +5');
+            addModifier(actor, item, 'Damage emphasis="fire" item="Schwert" +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
                 attributes: {
-                    name: 'Damage',
+                    name: 'Test Item',
                     type: null,
                     emphasis: 'fire',
                     item: "Schwert",
@@ -255,41 +255,41 @@ describe('addModifier', () => {
         });
 
         it("should pass valid damage types on modifiers", () => {
-            addModifier(actor, item, "", 'item.damage damageType="fire" +5');
+            addModifier(actor, item, 'item.damage damageType="fire" +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: '', type: null, damageType: 'fire', itemType: undefined},
+                attributes: {name: 'Test Item', type: null, damageType: 'fire', itemType: undefined},
                 origin: item
             });
         });
 
         it("should omit invalid damage types on modifiers", () => {
-            addModifier(actor, item, "", 'item.damage damageType="frie" +5');
+            addModifier(actor, item, 'item.damage damageType="frie" +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: '', type: null, damageType: undefined, itemType: undefined},
+                attributes: {name: 'Test Item', type: null, damageType: undefined, itemType: undefined},
                 origin: item
             });
         });
 
         it("should pass valid item types on modifiers", () => {
-            addModifier(actor, item, "", 'item.damage itemType="spell" +5');
+            addModifier(actor, item, 'item.damage itemType="spell" +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: '', type: null, damageType: undefined, itemType: "spell"},
+                attributes: {name: 'Test Item', type: null, damageType: undefined, itemType: "spell"},
                 origin: item
             });
         });
 
         it("should keep invalid item types on modifiers", () => {
-            addModifier(actor, item, "", 'item.damage itemType="blubb" +5');
+            addModifier(actor, item, 'item.damage itemType="blubb" +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: '', type: null, damageType: undefined, itemType: "blubb"},
+                attributes: {name: 'Test Item', type: null, damageType: undefined, itemType: "blubb"},
                 origin: item
             });
         });
@@ -298,51 +298,51 @@ describe('addModifier', () => {
 
     describe("weaponspeed modifiers", () => {
         it('should handle general weaponspeed modifiers (deprecated path)', () => {
-            addModifier(actor, item, 'Superfast', 'weaponspeed +5');
+            addModifier(actor, item, 'weaponspeed +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.weaponspeed',
                 value: of(5),
-                attributes: {name: 'Superfast', type: null, itemType: undefined},
+                attributes: {name: 'Test Item', type: null, itemType: undefined},
                 origin: item
             });
         });
 
         it('should handle general weaponspeed modifiers', () => {
-            addModifier(actor, item, 'Superfast', 'item.weaponspeed +5');
+            addModifier(actor, item, 'item.weaponspeed +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.weaponspeed',
                 value: of(5),
-                attributes: {name: 'Superfast', type: null, itemType: undefined},
+                attributes: {name: 'Test Item', type: null, itemType: undefined},
                 origin: item
             });
         });
 
         it('should handle weapon specific weaponspeed modifiers', () => {
-            addModifier(actor, item, 'Superfast', 'item.weaponspeed item="Lanze" +5');
+            addModifier(actor, item, 'item.weaponspeed item="Lanze" +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.weaponspeed',
                 value: of(5),
-                attributes: {name: 'Superfast', type: null, itemType: undefined, item: "Lanze"},
+                attributes: {name: 'Test Item', type: null, itemType: undefined, item: "Lanze"},
                 origin: item
             });
         });
 
         it('should pass item type weaponspeed modifiers', () => {
-            addModifier(actor, item, 'Superfast', 'item.weaponspeed itemType="weapon" +5');
+            addModifier(actor, item, 'item.weaponspeed itemType="weapon" +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.weaponspeed',
                 value: of(5),
-                attributes: {name: 'Superfast', type: null, itemType: "weapon"},
+                attributes: {name: 'Test Item', type: null, itemType: "weapon"},
                 origin: item
             });
         });
 
         it('should keep invalid item type weaponspeed modifiers', () => {
-            addModifier(actor, item, 'Superfast', 'item.weaponspeed itemType="fern" +5');
+            addModifier(actor, item, 'item.weaponspeed itemType="fern" +5');
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.weaponspeed',
                 value: of(5),
-                attributes: {name: 'Superfast', type: null, itemType: "fern"},
+                attributes: {name: 'Test Item', type: null, itemType: "fern"},
                 origin: item
             });
         });
@@ -352,52 +352,52 @@ describe('addModifier', () => {
     describe("item feature modifiers", () => {
         ["item.mergeFeature", "item.addFeature"].forEach(path => {
             it(`should handle general item feature modifiers for ${path}`, () => {
-                addModifier(actor, item, 'Feature', `${path} feature="robust" +2`);
+                addModifier(actor, item, `${path} feature="robust" +2`);
                 expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                     path,
                     value: of(2),
-                    attributes: {name: 'Feature', type: null, feature: 'robust', itemType: undefined},
+                    attributes: {name: 'Test Item', type: null, feature: 'robust', itemType: undefined},
                     origin: item
                 });
             });
 
             it(`should handle item feature modifiers with item attribute for ${path}`, () => {
-                addModifier(actor, item, 'Feature', `${path} feature="sharp" item="Schwert" +1`);
+                addModifier(actor, item, `${path} feature="sharp" item="Schwert" +1`);
                 expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                     path,
                     value: of(1),
-                    attributes: {name: 'Feature', type: null, feature: 'sharp', item: "Schwert", itemType: undefined},
+                    attributes: {name: 'Test Item', type: null, feature: 'sharp', item: "Schwert", itemType: undefined},
                     origin: item
                 });
             });
 
             it(`should pass valid item types on item feature modifiers for ${path}`, () => {
-                addModifier(actor, item, "", `${path} feature="masterwork" itemType="weapon" +3`);
+                addModifier(actor, item, `${path} feature="masterwork" itemType="weapon" +3`);
                 expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                     path,
                     value: of(3),
-                    attributes: {name: '', type: null, feature: 'masterwork', itemType: "weapon"},
+                    attributes: {name: 'Test Item', type: null, feature: 'masterwork', itemType: "weapon"},
                     origin: item
                 });
             });
 
             it(`should keep invalid item types on item feature modifiers for ${path}`, () => {
-                addModifier(actor, item, "", `${path} feature="enchanted" itemType="invalid" +1`);
+                addModifier(actor, item, `${path} feature="enchanted" itemType="invalid" +1`);
                 expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                     path,
                     value: of(1),
-                    attributes: {name: '', type: null, feature: 'enchanted', itemType: "invalid"},
+                    attributes: {name: 'Test Item', type: null, feature: 'enchanted', itemType: "invalid"},
                     origin: item
                 });
             });
 
             it(`should handle item feature modifiers with multiple attributes for ${path}`, () => {
-                addModifier(actor, item, 'Complex Feature', `${path} feature="blessed" item="Holy Sword" itemType="weapon" +5`);
+                addModifier(actor, item, `${path} feature="blessed" item="Holy Sword" itemType="weapon" +5`);
                 expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                     path,
                     value: of(5),
                     attributes: {
-                        name: 'Complex Feature',
+                        name: 'Test Item',
                         type: null,
                         feature: 'blessed',
                         item: "Holy Sword",
@@ -411,12 +411,12 @@ describe('addModifier', () => {
 
     ["Initiative", "INI"].forEach(iniRepresentation => {
         it(`should handle initiative modifier inversion for ${iniRepresentation}`, () => {
-            addModifier(actor, item, '', `${iniRepresentation} +2`);
+            addModifier(actor, item, `${iniRepresentation} +2`);
 
             const createdModifier = modifierManager.addModifier.lastCall.args[0]
             expect(createdModifier).to.be.instanceof(InitiativeModifier);
             expect(createdModifier.groupId).to.equal('initiative');
-            expect(createdModifier.attributes.name).to.equal('');
+            expect(createdModifier.attributes.name).to.equal('Test Item');
             expect(createdModifier.attributes.type).to.be.null;
             expect(createdModifier.value).to.deep.equal(of(2));
             expect(createdModifier.origin).to.equal(item);
@@ -439,10 +439,10 @@ describe('addModifier', () => {
                 spellEnhancedCostReduction: {addCostModifier: sandbox.stub()}
             } as any);
 
-            addModifier(actor, item, '', `generalSkills.stealth ${placeholder}`);
+            addModifier(actor, item, `generalSkills.stealth ${placeholder}`);
 
             const callArgs = modifierManager.add.lastCall.args;
-            expect(callArgs.slice(0, 2)).to.have.deep.members(['generalSkills.stealth', {name: '', type: null}]);
+            expect(callArgs.slice(0, 2)).to.have.deep.members(['generalSkills.stealth', {name: 'Test Item', type: null}]);
             expect(callArgs.slice(3, 5)).to.have.deep.members([item, false]);
             expect(evaluate(callArgs[2])).to.equal(expected);
         })
@@ -456,7 +456,7 @@ describe('addModifier', () => {
         ["4V2", new Cost(2, 2, false).asModifier()]
     ] as const).forEach(([cost, expected]) => {
         it(`should pass focus costs of ${cost} to spell manager`, () => {
-            addModifier(actor, item, "", `foreduction.protectionmagic ${cost}`);
+            addModifier(actor, item, `foreduction.protectionmagic ${cost}`);
 
             const system = actor.system as CharacterDataModel & PreparedSystem
             const focusManager = system.spellCostReduction as SinonStubbedInstance<SpellCostReductionManager>;
@@ -466,7 +466,7 @@ describe('addModifier', () => {
         });
 
         it(`should pass focus costs of ${cost} to spell enhancement manager`, () => {
-            addModifier(actor, item, "", `foenhancedreduction.combatmagic ${cost}`);
+            addModifier(actor, item, `foenhancedreduction.combatmagic ${cost}`);
 
             const system = actor.system as CharacterDataModel & PreparedSystem
             const focusManager = system.spellEnhancedCostReduction as SinonStubbedInstance<SpellCostReductionManager>;

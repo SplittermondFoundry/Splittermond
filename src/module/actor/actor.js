@@ -436,8 +436,8 @@ export default class SplittermondActor extends Actor {
     }
 
     //this function is used in item.js to add modifiers to the actor
-    addModifier(item, name = "", str = "", type = "", multiplier = 1) {
-        addModifier(this, item, name, str, type, multiplier);
+    addModifier(item, str = "", type = "", multiplier = 1) {
+        addModifier(this, item, str, type, multiplier);
     }
 
     _prepareModifier() {
