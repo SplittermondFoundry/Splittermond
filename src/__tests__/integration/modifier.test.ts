@@ -6,14 +6,20 @@ import SplittermondActor from "module/actor/actor";
 import {splittermond} from "module/config";
 import {NpcDataModel} from "module/actor/dataModel/NpcDataModel";
 import {
-    abs, asString,
+    abs,
+    asString,
     dividedBy,
     evaluate,
     isGreaterZero,
-    isLessThanZero, mapRoll, minus,
-    of, plus, ref,
+    isLessThanZero,
+    mapRoll,
+    minus,
+    of,
+    plus,
+    ref,
     roll,
-    times, toRollFormula
+    times,
+    toRollFormula
 } from "module/actor/modifiers/expressions/scalar";
 import {DamageModel} from "../../module/item/dataModel/propertyModels/DamageModel";
 
@@ -41,8 +47,8 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should account for a stealth modifier", async () => {
             const subject = await createActor("StealthyGnome")
-            subject.updateSource({system: {species: {size: 3}}})
-            subject.updateSource({
+            await subject.update({system: {species: {size: 3}}})
+            await subject.update({
                 system: {
                     attributes: {
                         intuition: {initial: 2, advances: 0},
@@ -56,6 +62,30 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.prepareDerivedData();
 
             expect(subject.skills.stealth.value).to.equal(7);
+        });
+
+        it("should set number of healthlevels", async () => {
+            const subject = await createActor("Weakling")
+            await subject.update({system: {species: {size: 5}}})
+            await subject.update({
+                system: {
+                    attributes: {
+                        constitution: {initial: 2, advances: 0},
+                        agility: {initial: 3, advances: 0}
+                    }
+                }
+            });
+            await subject.createEmbeddedDocuments("Item", [{
+                type: "strength",
+                name: "Tough as Fingernails",
+                system: {modifier: "actor.woundmalus.nbrLevels 3"}
+            }]);
+
+            subject.prepareBaseData();
+            await subject.prepareEmbeddedDocuments();
+            subject.prepareDerivedData();
+
+            expect(subject.system.health.total.value).to.equal(21);
         });
 
         [

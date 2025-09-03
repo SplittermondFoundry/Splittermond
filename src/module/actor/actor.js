@@ -272,9 +272,19 @@ export default class SplittermondActor extends Actor {
             });
     }
 
+    get healthNbrLevels(){
+        const nbrLevelMods = this.modifier.getForId("actor.woundmalus.nbrLevels").getModifiers();
+        if(nbrLevelMods.length > 1){
+            console.warn(`Splittermond | Multiple wound malus level modifiers found on actor ${this.name}. The last one will be used.`);
+        }
+        const nbrLevelFromMod = evaluate(nbrLevelMods[nbrLevelMods.length - 1]?.value ?? of(0))
+        return nbrLevelFromMod > 0 ? nbrLevelFromMod :  this.system.health.woundMalus.nbrLevels;
+
+    }
 
     _prepareHealthFocus() {
         const data = this.system;
+        const healthNbrLevels = this.healthNbrLevels;
 
         data.health.woundMalus.levels = duplicate(CONFIG.splittermond.woundMalus[data.health.woundMalus.nbrLevels]);
         data.health.woundMalus.levels = data.health.woundMalus.levels.map(i => {
@@ -288,7 +298,7 @@ export default class SplittermondActor extends Actor {
                     data[type].channeled.value = Math.max(
                         Math.min(
                             data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value
+                            healthNbrLevels * this.derivedValues[type + "points"].value
                         ),
                         0);
                 } else {
@@ -324,18 +334,18 @@ export default class SplittermondActor extends Actor {
             data[type].consumed.value = parseInt(data[type].consumed.value);
             if (type === "health") {
                 data[type].available = {
-                    value: Math.max(Math.min(data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value - data[type].channeled.value - data[type].exhausted.value - data[type].consumed.value, data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value), 0)
+                    value: Math.max(Math.min(healthNbrLevels * this.derivedValues[type + "points"].value - data[type].channeled.value - data[type].exhausted.value - data[type].consumed.value, healthNbrLevels * this.derivedValues[type + "points"].value), 0)
                 }
 
                 data[type].total = {
-                    value: Math.max(Math.min(data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value - data[type].consumed.value, data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value), 0)
+                    value: Math.max(Math.min(healthNbrLevels * this.derivedValues[type + "points"].value - data[type].consumed.value, healthNbrLevels * this.derivedValues[type + "points"].value), 0)
                 }
 
-                data[type].available.percentage = 100 * data[type].available.value / (data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value);
-                data[type].exhausted.percentage = 100 * data[type].exhausted.value / (data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value);
-                data[type].channeled.percentage = 100 * data[type].channeled.value / (data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value);
-                data[type].total.percentage = 100 * data[type].total.value / (data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value);
-                data[type].max = data.health.woundMalus.nbrLevels * this.derivedValues.healthpoints.value;
+                data[type].available.percentage = 100 * data[type].available.value / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                data[type].exhausted.percentage = 100 * data[type].exhausted.value / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                data[type].channeled.percentage = 100 * data[type].channeled.value / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                data[type].total.percentage = 100 * data[type].total.value / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                data[type].max =healthNbrLevels * this.derivedValues.healthpoints.value;
             } else {
 
                 data[type].available = {
@@ -361,10 +371,10 @@ export default class SplittermondActor extends Actor {
             }
         });
         const currentLevel = Math.floor(data.health.total.value / this.derivedValues.healthpoints.value);
-        const baseLevel = Math.max(data.health.woundMalus.nbrLevels - currentLevel - 1, 0);
+        const baseLevel = Math.max(healthNbrLevels - currentLevel - 1, 0);
         data.health.woundMalus.level = Math.min(
             baseLevel + data.health.woundMalus.levelMod,
-            data.health.woundMalus.nbrLevels - 1
+            healthNbrLevels - 1
         );
 
         let woundMalusValue = data.health.woundMalus.levels[data.health.woundMalus.level];
