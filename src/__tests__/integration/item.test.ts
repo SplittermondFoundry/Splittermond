@@ -128,13 +128,13 @@ export function itemTest(this:any, context: QuenchBatchContext) {
 
     describe("item type completeness", () => {
         itemTypes.forEach(itemType => {
-            it("itemType is present in item data models config" + itemType, () => {
+            it(`itemType is present in item data models config '${itemType}'`, () => {
                 expect(CONFIG.Item.dataModels).to.have.property(itemType);
             });
         });
 
         Object.keys(CONFIG.Item.dataModels).forEach(itemType => {
-            it("Item data models key exists in item Types" + itemType, () => {
+            it(`Item data models key exists in item Type '${itemType}'`, () => {
                 expect(itemTypes).to.contain(itemType)
             });
         })
