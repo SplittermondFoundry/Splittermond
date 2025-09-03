@@ -19,10 +19,11 @@ export default class ModifierManager {
             console.debug(`Splittermond | Discarding zero value modifier ${modifier.groupId} from ${modifier.attributes.name}`)
             return;
         }
-        if (!this._modifier.get(modifier.groupId)) {
-            this._modifier.set(modifier.groupId, []);
+        const lowerCaseGroupId = modifier.groupId.toLowerCase();
+        if (!this._modifier.get(lowerCaseGroupId)) {
+            this._modifier.set(lowerCaseGroupId, []);
         }
-        this._modifier.get(modifier.groupId)!.push(modifier)
+        this._modifier.get(lowerCaseGroupId)!.push(modifier)
     }
 
     getForIds(...groupIds: string[]) {
@@ -33,7 +34,7 @@ export default class ModifierManager {
     }
 
     getModifiers(groupId: string, withAttributes: AttributeSelector[] = [], selectable: boolean | null = null) {
-        const modifiersForPath = this._modifier.get(groupId) ?? [];
+        const modifiersForPath = this._modifier.get(groupId.toLowerCase()) ?? [];
         return modifiersForPath
             .filter(modifier => selectable === null || modifier.selectable === selectable)
             .filter(mod => passesAttributeFilter(mod, withAttributes));
