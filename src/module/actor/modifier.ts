@@ -8,7 +8,7 @@ import {
     isGreaterZero,
     isLessThanZero,
     of,
-    plus
+    plus, times
 } from "./modifiers/expressions/scalar";
 
 export interface ModifierAttributes {
@@ -131,9 +131,19 @@ export class Modifiers extends Array<IModifier>{
         return Array.from(types);
     }
 
+    /**@deprecated use sum instead */
     get value(){
+        return this.sum;
+    }
+
+    get sum(){
         return evaluate(this.map(mod => mod.value)
             .reduce((acc, value) => plus(acc,value), of(0)));
+    }
+
+    get product() {
+        return this.map(mod => mod.value)
+            .reduce((acc, value) => times(acc, value), of(1));
     }
 
     filter(predicate: (value: IModifier, index: number, array: IModifier[]) => boolean, thisArg?: any): Modifiers {

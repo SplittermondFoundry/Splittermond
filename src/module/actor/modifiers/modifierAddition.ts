@@ -95,11 +95,12 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
 
         switch (modifierLabel) {
             case "bonuscap":
-                addModifierHelper("bonuscap", times(of(multiplier), modifier.value), modifier.attributes, "");
+                addModifierHelper("bonuscap", times(of(multiplier), modifier.value), modifier.attributes );
                 break;
             case "speed.multiplier":
             case "gsw.mult":
-                actor.derivedValues.speed.multiplier *= evaluate(pow(modifier.value, of(multiplier)));
+            case "actor.speed.multiplier":
+                addModifierHelper("actor.speedmultiplier", pow(modifier.value,of(multiplier)), modifier.attributes, "");
                 break;
             case "sr":
                 addModifierHelper("damagereduction", times(of(multiplier), modifier.value), modifier.attributes, "");
@@ -129,6 +130,7 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 addModifierHelper("tickmalus", times(of(multiplier), modifier.value), modifier.attributes, "");
                 break;
             case "woundmalus.nbrlevels":
+            case "actor.woundmalus.nbrlevels":
                 data.health.woundMalus.nbrLevels = evaluate(times(of(multiplier), modifier.value));
                 break;
             case "woundmalus.mod":

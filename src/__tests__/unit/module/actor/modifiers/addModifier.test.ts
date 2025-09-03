@@ -123,7 +123,13 @@ describe('addModifier', () => {
         .forEach(([modifier, expected]) => {
             it(`should handle multiplier modifier ${modifier}`, () => {
                 addModifier(actor, item, modifier, 'innate', 2);
-                expect(actor.derivedValues.speed.multiplier).to.equal(expected);
+                expect(modifierManager.add.lastCall.args).to.deep.equal([
+                   "actor.speedmultiplier",
+                    {name: 'Test Item', type: 'innate'},
+                    of(expected),
+                    item,
+                    false
+                ])
             });
         });
 

@@ -1,3 +1,5 @@
+## 13.4.1
+
 ## 13.4.0
 ### Breaking changes
  * Die Modifikatoren 'damage' und 'weaponspeed' sind veraltet. Sie werden durch "item.damage" und "item.weaponspeed" ersetzt.
