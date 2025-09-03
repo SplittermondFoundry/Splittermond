@@ -6,7 +6,7 @@ import {
     AmountExpression,
     DivideExpression,
     Expression,
-    MultiplyExpression,
+    MultiplyExpression, PowerExpression,
     ReferenceExpression,
     RollExpression,
     SubtractExpression
@@ -61,6 +61,8 @@ function tentativeEvaluate(expression: Expression): { min: number, max: number }
         return evalBinaries(condensed, (left: number, right: number) => left * right);
     } else if (condensed instanceof DivideExpression) {
         return evalBinaries(condensed, (left: number, right: number) => left / right);
+    } else if (condensed instanceof PowerExpression) {
+        return evalBinaries({left:condensed.base, right:condensed.exponent}, (base: number, exp: number) => Math.pow(base, exp));
     } else if (condensed instanceof AbsExpression) {
         return evalAbs(condensed)
     }

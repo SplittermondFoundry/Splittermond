@@ -9,7 +9,7 @@ import {
     MultiplyExpression,
     ReferenceExpression,
     SubtractExpression,
-    RollExpression
+    RollExpression, PowerExpression
 } from "./definitions";
 import {exhaustiveMatchGuard} from "module/actor/modifiers/expressions/util";
 
@@ -38,6 +38,8 @@ function do_toString(expression: Expression): string {
         return asMultiplicationString(expression)
     } else if(expression instanceof DivideExpression) {
         return stringify(expression, "/");
+    } else if (expression instanceof PowerExpression) {
+        return stringify({left:expression.base, right:expression.exponent},  "^");
     } else if (expression instanceof AbsExpression) {
         return expression.arg instanceof AmountExpression ?
             do_toString(expression.arg).replace(/^-/,"") :

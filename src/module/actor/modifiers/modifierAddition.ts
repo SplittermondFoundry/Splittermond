@@ -6,7 +6,7 @@ import {NpcDataModel} from "../dataModel/NpcDataModel";
 import {CharacterDataModel} from "../dataModel/CharacterDataModel";
 import {SpellCostReductionManager} from "../../util/costs/spellCostManagement";
 import {parseModifiers, processValues, Value} from "./parsing";
-import {condense, evaluate, Expression as ScalarExpression, of, times} from "./expressions/scalar";
+import {condense, evaluate, Expression as ScalarExpression, of, pow, times} from "./expressions/scalar";
 import {evaluate as evaluateCost, times as timesCost} from "./expressions/cost";
 import {ModifierType} from "../modifier";
 import {validateDescriptors} from "./parsing/validators";
@@ -99,7 +99,7 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 break;
             case "speed.multiplier":
             case "gsw.mult":
-                actor.derivedValues.speed.multiplier *= Math.pow(evaluate(modifier.value), multiplier);
+                actor.derivedValues.speed.multiplier *= evaluate(pow(modifier.value, of(multiplier)));
                 break;
             case "sr":
                 addModifierHelper("damagereduction", times(of(multiplier), modifier.value), modifier.attributes, "");

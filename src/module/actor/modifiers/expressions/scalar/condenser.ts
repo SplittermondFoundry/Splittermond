@@ -11,6 +11,8 @@ import {
     MultiplyExpression,
     of,
     plus,
+    pow,
+    PowerExpression,
     ReferenceExpression,
     RollExpression,
     SubtractExpression,
@@ -35,6 +37,8 @@ export function condense(expression: Expression): Expression {
         return condenseOperands(expression.left, expression.right, times)
     }else if (expression instanceof DivideExpression) {
         return condenseOperands(expression.left, expression.right, dividedBy)
+    }else if (expression instanceof PowerExpression) {
+        return condenseOperands(expression.base, expression.exponent, pow)
     }else if (expression instanceof ReferenceExpression) {
         return expression;
     }else if (expression instanceof AmountExpression) {
@@ -58,7 +62,9 @@ export function canCondense(expression: Expression): boolean {
     } else if (expression instanceof ReferenceExpression || expression instanceof RollExpression) {
         return false;
     } else if (expression instanceof AbsExpression) {
-       return canCondense(expression.arg);
+        return canCondense(expression.arg);
+    }else if (expression instanceof PowerExpression) {
+        return canCondense(expression.base) && canCondense(expression.exponent);
     } else {
         return canCondense(expression.left) && canCondense(expression.right);
     }

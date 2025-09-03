@@ -4,7 +4,7 @@ import {
     AbsExpression,
     AddExpression,
     AmountExpression, DivideExpression,
-    Expression, MultiplyExpression,
+    Expression, MultiplyExpression, PowerExpression,
     ReferenceExpression,
     RollExpression,
     SubtractExpression
@@ -34,7 +34,10 @@ export function toRollFormula(expression: Expression): [string, Record<string, s
             return handleFactorExpressions(expression, "*");
         } else if (expression instanceof DivideExpression) {
             return handleFactorExpressions(expression, "/");
+        } else if (expression instanceof PowerExpression) {
+            return handlePowerExpression(expression);
         }
+
         exhaustiveMatchGuard(expression)
     }
 
@@ -59,6 +62,12 @@ export function toRollFormula(expression: Expression): [string, Record<string, s
         const left = mapToRoll(expression.left);
         const right = mapToRoll(expression.right);
         return [`(${left[0]} ${operator} ${right[0]})`, {...left[1], ...right[1]}];
+    }
+
+    function handlePowerExpression(expression: PowerExpression): [string, Record<string, string>] {
+        const base = mapToRoll(expression.base);
+        const exponent = mapToRoll(expression.exponent);
+        return [`pow(${base[0]},${exponent[0]})`, {...base[1], ...exponent[1]}];
     }
 }
 

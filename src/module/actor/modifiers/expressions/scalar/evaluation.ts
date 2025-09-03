@@ -6,7 +6,7 @@ import {
     AmountExpression,
     DivideExpression,
     Expression,
-    MultiplyExpression,
+    MultiplyExpression, PowerExpression,
     ReferenceExpression, RollExpression,
     SubtractExpression
 } from "./definitions";
@@ -30,6 +30,8 @@ function doEvaluate(expression: Expression): number | null {
         return (doEvaluate(expression.left) ?? 1) * (doEvaluate(expression.right) ?? 1)
     } else if (expression instanceof DivideExpression) {
         return (doEvaluate(expression.left) ?? 1) / (doEvaluate(expression.right) ?? 1)
+    } else if (expression instanceof PowerExpression) {
+        return Math.pow((doEvaluate(expression.base) ?? 0), (doEvaluate(expression.exponent) ?? 1))
     } else if (expression instanceof RollExpression) {
         return expression.evaluate()
     } else if (expression instanceof AbsExpression) {

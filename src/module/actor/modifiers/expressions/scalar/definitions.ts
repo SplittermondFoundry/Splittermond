@@ -14,7 +14,8 @@ export type Expression =
     | DivideExpression
     | ReferenceExpression
     | AbsExpression
-;
+    | PowerExpression
+    ;
 
 export function isExpression(value: unknown): value is Expression {
     return value instanceof AmountExpression
@@ -25,6 +26,7 @@ export function isExpression(value: unknown): value is Expression {
         || value instanceof ReferenceExpression
         || value instanceof RollExpression
         || value instanceof AbsExpression
+        || value instanceof PowerExpression
 }
 
 export function of(amount: number) {
@@ -83,17 +85,32 @@ export function dividedBy(left: Expression, right: Expression) {
     }
 }
 
+export function pow(base: Expression, exponent: Expression) {
+    if (base instanceof OneExpression || exponent instanceof OneExpression) {
+        return base;
+    } else if (exponent instanceof ZeroExpression && base instanceof ZeroExpression) {
+        return of(1);
+    } else if (base instanceof ZeroExpression) {
+        return of(0);
+    } else if (exponent instanceof ZeroExpression) {
+        return of(1);
+    } else {
+        return new PowerExpression(base, exponent);
+    }
+}
+
 export function abs(arg: Expression) {
     return new AbsExpression(arg);
 }
 
 export function roll(roll: FoundryRoll) {
-        return new RollExpression(roll);
+    return new RollExpression(roll);
 }
 
-export function ref(propertyPath:string, source:object, stringRepresentation:string){
-    return new ReferenceExpression(propertyPath,source,stringRepresentation);
+export function ref(propertyPath: string, source: object, stringRepresentation: string) {
+    return new ReferenceExpression(propertyPath, source, stringRepresentation);
 }
+
 
 export class AmountExpression {
     constructor(public readonly amount: number) {
@@ -134,6 +151,11 @@ export class MultiplyExpression {
 
 export class DivideExpression {
     constructor(public readonly left: Expression, public readonly right: Expression) {
+    }
+}
+
+export class PowerExpression {
+    constructor(public readonly base: Expression, public readonly exponent: Expression) {
     }
 }
 

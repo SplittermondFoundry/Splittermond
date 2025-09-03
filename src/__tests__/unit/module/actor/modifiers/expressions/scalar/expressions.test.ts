@@ -8,7 +8,7 @@ import {
     isLessThanZero, mapRoll,
     minus,
     of,
-    plus,
+    plus, pow,
     ref,
     roll,
     times,
@@ -19,7 +19,7 @@ import {createTestRoll, MockRoll, stubRollApi} from "__tests__/unit/RollMock";
 import sinon, {SinonSandbox} from "sinon";
 import {foundryApi} from "module/api/foundryApi";
 import {NumericTerm, OperatorTerm} from "module/api/Roll";
-import {AddExpression} from "module/actor/modifiers/expressions/scalar/definitions";
+import {AddExpression, PowerExpression} from "module/actor/modifiers/expressions/scalar/definitions";
 
 
 describe("Expressions", () => {
@@ -31,6 +31,7 @@ describe("Expressions", () => {
         [minus(of(3), of(3)), 0, of(0), "3 - 3", "3 - 3"],
         [times(of(3), of(3)), 9, of(9), "3 \u00D7 3", "3 * 3"],
         [dividedBy(of(3), of(3)), 1, of(1), "3 / 3", "3 / 3"],
+        [pow(of(3),of(2)),9, of(9), "3 ^ 2", "pow(3,2)"]
     ] as const).forEach(([input, evaluated, condensed, stringRepresentation, rollRepresentation]) => {
 
         it(`simple expression ${stringRepresentation} should evaluate to ${evaluated}`, () => {
@@ -66,6 +67,7 @@ describe("Expressions", () => {
         [times(minus(of(4), of(3)), of(3)), 3, of(3), "(4 - 3) \u00D7 3", "(4 - 3) * 3"],
         [times(minus(of(3), of(4)), of(3)), -3, of(-3), "(3 - 4) \u00D7 3", "(3 - 4) * 3"],
         [times(abs(minus(of(3), of(4))), of(3)), 3, of(3), "|(3 - 4)| \u00D7 3", "abs(3 - 4) * 3"],
+        [minus(of(3),pow(of(4),of(3))),-61, of(-61), "3 - (4 ^ 3)", "3 - pow(4,3)"],
         [dividedBy(
             times(
                 of(2),
@@ -246,7 +248,39 @@ describe("Smart constructors", () => {
 
     it("should throw for division by zero", () => {
         expect(() => dividedBy(of(3), of(0))).to.throw();
-    })
+    });
+
+    it("should simplify power when base is one", () => {
+        const result = pow(of(1), of(5));
+        expect(result).to.deep.equal(of(1));
+    });
+
+    it("should simplify power when exponent is one", () => {
+        const result = pow(of(7), of(1));
+        expect(result).to.deep.equal(of(7));
+    });
+
+    it("should simplify power when exponent is zero and base is not zero", () => {
+        const result = pow(of(5), of(0));
+        expect(result).to.deep.equal(of(1));
+    });
+
+    it("should handle zero to the power of zero case", () => {
+        const result = pow(of(0), of(0));
+        expect(result).to.deep.equal(of(1));
+    });
+
+    it("should simplify power when base is zero and exponent is not zero", () => {
+        const result = pow(of(0), of(3));
+        expect(result).to.deep.equal(of(0));
+    });
+
+    it("should create PowerExpression for non-trivial cases", () => {
+        const result = pow(of(2), of(3));
+        expect(result).to.be.instanceOf(PowerExpression);
+        expect((result as PowerExpression).base).to.deep.equal(of(2));
+        expect((result as PowerExpression).exponent).to.deep.equal(of(3));
+    });
 });
 
 describe("Roll condensation", () => {
@@ -312,4 +346,3 @@ describe("Roll condensation", () => {
             .to.equal(asString(plus(firstRoll, secondRoll)));
     });
 });
-
