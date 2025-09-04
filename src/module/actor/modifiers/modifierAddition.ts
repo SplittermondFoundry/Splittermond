@@ -138,7 +138,8 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 addModifierHelper("actor.woundMalus.mod", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "woundmalus.levelmod":
-                data.health.woundMalus.levelMod += evaluate(times(of(multiplier), modifier.value));
+            case "actor.woundmalus.levelmod":
+                addModifierHelper("actor.woundMalus.levelMod", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "splinterpoints.bonus":
                 if (!("skill" in modifier.attributes)) {

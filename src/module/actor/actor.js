@@ -376,7 +376,7 @@ export default class SplittermondActor extends Actor {
         const currentLevel = Math.floor(data.health.total.value / this.derivedValues.healthpoints.value);
         const baseLevel = Math.max(healthNbrLevels - currentLevel - 1, 0);
         data.health.woundMalus.level = Math.min(
-            baseLevel + data.health.woundMalus.levelMod,
+            baseLevel + this.modifier.getForId("actor.woundMalus.levelMod").getModifiers().sum,
             healthNbrLevels - 1
         );
 

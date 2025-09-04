@@ -363,118 +363,122 @@ export function modifierTest(context: QuenchBatchContext) {
 
             expect(subject.skills.acrobatics.value).to.equal(6 - 1);
         });
-        describe("on weak characters", () => {
+
+        describe("With 3 levels of health", () => {
             [[0, 0], [1, 2], [2, 8], [3, 8]].forEach(([level, reduction]) => {
-                it(`should apply wound malus of ${level} to weak characters at perfect health`, async () => {
-                    const subject = await setUpActor();
-                    await addWoundedEffect(subject, level);
-                    await makeWeak(subject);
+                describe(`Wound malus level ${level}`, () => {
+                    it(`should apply wound malus at perfect health`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await makeWeak(subject);
 
-                    subject.prepareBaseData();
-                    await subject.prepareEmbeddedDocuments();
-                    subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
+                    it(`should apply wound malus with 1hp missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await makeWeak(subject);
+                        await subject.consumeCost("health", "1V1", "");
+
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
+
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
+
+                    it(`should apply wound malus with full bar missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await makeWeak(subject);
+                        await subject.consumeCost("health", `7V7`, "");
+
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
+
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
                 });
-                it(`should apply wound malus of ${level} to weak characters with 1hp missing`, async () => {
-                    const subject = await setUpActor();
-                    await addWoundedEffect(subject, level);
-                    await makeWeak(subject);
-                    await subject.consumeCost("health", "1V1", "");
-
-                    subject.prepareBaseData();
-                    await subject.prepareEmbeddedDocuments();
-                    subject.prepareDerivedData();
-
-                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-                });
-
-                it(`should apply wound malus of ${level} to weak characters with full bar missing`, async () => {
-                    const subject = await setUpActor();
-                    await addWoundedEffect(subject, level);
-                    await makeWeak(subject);
-                    await subject.consumeCost("health", `7V7`, "");
-
-                    subject.prepareBaseData();
-                    await subject.prepareEmbeddedDocuments();
-                    subject.prepareDerivedData();
-
-                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-                });
-
             });
         });
 
-        [[0, 0], [1, 1], [2, 2], [3, 4], [4, 8], [5, 8]].forEach(([level, reduction]) => {
-            describe(`Wound malus level ${level}`, () => {
-                it(`should apply at perfect health`, async () => {
-                    const subject = await setUpActor();
-                    await addWoundedEffect(subject, level);
+        describe("With 5 levels of health", () => {
+            [[0, 0], [1, 1], [2, 2], [3, 4], [4, 8], [5, 8]].forEach(([level, reduction]) => {
+                describe(`Wound malus level ${level}`, () => {
+                    it(`should apply at perfect health`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
 
-                    subject.prepareBaseData();
-                    await subject.prepareEmbeddedDocuments();
-                    subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-                });
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
 
-                it(`should apply with 1hp missing`, async () => {
-                    const subject = await setUpActor();
-                    await addWoundedEffect(subject, level);
-                    await subject.consumeCost("health", "1V1", "");
+                    it(`should apply with 1hp missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await subject.consumeCost("health", "1V1", "");
 
-                    subject.prepareBaseData();
-                    await subject.prepareEmbeddedDocuments();
-                    subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-                });
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
 
-                it(`should apply with full bar missing`, async () => {
-                    const subject = await setUpActor();
-                    await addWoundedEffect(subject, level);
-                    await subject.consumeCost("health", `7V7`, "");
+                    it(`should apply with full bar missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await subject.consumeCost("health", `7V7`, "");
 
-                    subject.prepareBaseData();
-                    await subject.prepareEmbeddedDocuments();
-                    subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-                });
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
 
-                it(`should apply initiative penalty at perfect health`, async () => {
-                    const subject = await setUpActor();
-                    await addWoundedEffect(subject, level);
+                    it(`should apply initiative penalty at perfect health`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
 
-                    subject.prepareBaseData();
-                    await subject.prepareEmbeddedDocuments();
-                    subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                    expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
-                });
+                        expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                    });
 
-                it(`should apply initiative penalty with 1hp missing`, async () => {
-                    const subject = await setUpActor();
-                    await addWoundedEffect(subject, level);
-                    await subject.consumeCost("health", "1V1", "");
+                    it(`should apply initiative penalty with 1hp missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await subject.consumeCost("health", "1V1", "");
 
-                    subject.prepareBaseData();
-                    await subject.prepareEmbeddedDocuments();
-                    subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                    expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
-                });
+                        expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                    });
 
-                it(`should apply initiative penalty with full bar missing`, async () => {
-                    const subject = await setUpActor();
-                    await addWoundedEffect(subject, level);
-                    await subject.consumeCost("health", `7V7`, "");
+                    it(`should apply initiative penalty with full bar missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await subject.consumeCost("health", `7V7`, "");
 
-                    subject.prepareBaseData();
-                    await subject.prepareEmbeddedDocuments();
-                    subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                    expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                        expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                    });
                 });
             });
         });
