@@ -279,7 +279,10 @@ export default class SplittermondActor extends Actor {
         }
         const nbrLevelFromMod = evaluate(nbrLevelMods[nbrLevelMods.length - 1]?.value ?? of(0))
         return nbrLevelFromMod > 0 ? nbrLevelFromMod :  this.system.health.woundMalus.nbrLevels;
+    }
 
+    get woundMalusMod() {
+        return this.modifier.getForId("actor.woundmalus.mod").getModifiers().sum;
     }
 
     _prepareHealthFocus() {
@@ -288,7 +291,7 @@ export default class SplittermondActor extends Actor {
 
         data.health.woundMalus.levels = duplicate(CONFIG.splittermond.woundMalus[healthNbrLevels]);
         data.health.woundMalus.levels = data.health.woundMalus.levels.map(i => {
-            i.value = Math.min(i.value - data.health.woundMalus.mod, 0);
+            i.value = Math.min(i.value - this.woundMalusMod, 0);
             return i;
         });
 
@@ -405,7 +408,7 @@ export default class SplittermondActor extends Actor {
 
         data.healthBar = {
             value: data.health.total.value,
-            max: data.health.woundMalus.nbrLevels * this.derivedValues.healthpoints.value
+            max: healthNbrLevels * this.derivedValues.healthpoints.value
         }
 
         data.focusBar = {

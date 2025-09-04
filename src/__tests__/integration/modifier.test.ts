@@ -331,6 +331,16 @@ export function modifierTest(context: QuenchBatchContext) {
             }]);
         }
 
+        async function makeWeak(actor: SplittermondActor) {
+            return await actor.createEmbeddedDocuments("Item", [{
+                type: "strength",
+                name: "Schwächlich",
+                system: {
+                    modifier: "actor.woundMalus.nbrLevels value='+3'",
+                }
+            }]);
+        }
+
         it("should apply wound malus effect with more than full bar missing", async () => {
             const subject = await setUpActor();
             await addWoundedEffect(subject, 1);
@@ -353,76 +363,119 @@ export function modifierTest(context: QuenchBatchContext) {
 
             expect(subject.skills.acrobatics.value).to.equal(6 - 1);
         });
+        describe("on weak characters", () => {
+            [[0, 0], [1, 2], [2, 8], [3, 8]].forEach(([level, reduction]) => {
+                it(`should apply wound malus of ${level} to weak characters at perfect health`, async () => {
+                    const subject = await setUpActor();
+                    await addWoundedEffect(subject, level);
+                    await makeWeak(subject);
+
+                    subject.prepareBaseData();
+                    await subject.prepareEmbeddedDocuments();
+                    subject.prepareDerivedData();
+
+                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                });
+                it(`should apply wound malus of ${level} to weak characters with 1hp missing`, async () => {
+                    const subject = await setUpActor();
+                    await addWoundedEffect(subject, level);
+                    await makeWeak(subject);
+                    await subject.consumeCost("health", "1V1", "");
+
+                    subject.prepareBaseData();
+                    await subject.prepareEmbeddedDocuments();
+                    subject.prepareDerivedData();
+
+                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                });
+
+                it(`should apply wound malus of ${level} to weak characters with full bar missing`, async () => {
+                    const subject = await setUpActor();
+                    await addWoundedEffect(subject, level);
+                    await makeWeak(subject);
+                    await subject.consumeCost("health", `7V7`, "");
+
+                    subject.prepareBaseData();
+                    await subject.prepareEmbeddedDocuments();
+                    subject.prepareDerivedData();
+
+                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                });
+
+            });
+        });
 
         [[0, 0], [1, 1], [2, 2], [3, 4], [4, 8], [5, 8]].forEach(([level, reduction]) => {
-            it(`should apply wound malus of ${level} at perfect health`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
+            describe(`Wound malus level ${level}`, () => {
+                it(`should apply at perfect health`, async () => {
+                    const subject = await setUpActor();
+                    await addWoundedEffect(subject, level);
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                    subject.prepareBaseData();
+                    await subject.prepareEmbeddedDocuments();
+                    subject.prepareDerivedData();
 
-                expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-            });
+                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                });
 
-            it(`should apply wound malus of ${level} with 1hp missing`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
-                await subject.consumeCost("health", "1V1", "");
+                it(`should apply with 1hp missing`, async () => {
+                    const subject = await setUpActor();
+                    await addWoundedEffect(subject, level);
+                    await subject.consumeCost("health", "1V1", "");
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                    subject.prepareBaseData();
+                    await subject.prepareEmbeddedDocuments();
+                    subject.prepareDerivedData();
 
-                expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-            });
+                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                });
 
-            it(`should apply wound malus of ${level} with full bar missing`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
-                await subject.consumeCost("health", `7V7`, "");
+                it(`should apply with full bar missing`, async () => {
+                    const subject = await setUpActor();
+                    await addWoundedEffect(subject, level);
+                    await subject.consumeCost("health", `7V7`, "");
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                    subject.prepareBaseData();
+                    await subject.prepareEmbeddedDocuments();
+                    subject.prepareDerivedData();
 
-                expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-            });
+                    expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                });
 
-            it(`should apply initiative penalty of ${level} at perfect health`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
+                it(`should apply initiative penalty at perfect health`, async () => {
+                    const subject = await setUpActor();
+                    await addWoundedEffect(subject, level);
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                    subject.prepareBaseData();
+                    await subject.prepareEmbeddedDocuments();
+                    subject.prepareDerivedData();
 
-                expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
-            });
+                    expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                });
 
-            it(`should apply initiative penalty of ${level} with 1hp missing`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
-                await subject.consumeCost("health", "1V1", "");
+                it(`should apply initiative penalty with 1hp missing`, async () => {
+                    const subject = await setUpActor();
+                    await addWoundedEffect(subject, level);
+                    await subject.consumeCost("health", "1V1", "");
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                    subject.prepareBaseData();
+                    await subject.prepareEmbeddedDocuments();
+                    subject.prepareDerivedData();
 
-                expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
-            });
+                    expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                });
 
-            it(`should apply initiative penalty of ${level} with full bar missing`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
-                await subject.consumeCost("health", `7V7`, "");
+                it(`should apply initiative penalty with full bar missing`, async () => {
+                    const subject = await setUpActor();
+                    await addWoundedEffect(subject, level);
+                    await subject.consumeCost("health", `7V7`, "");
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                    subject.prepareBaseData();
+                    await subject.prepareEmbeddedDocuments();
+                    subject.prepareDerivedData();
 
-                expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                    expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                });
             });
         });
     });
@@ -607,7 +660,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     dividedBy(abs(of(-4)), roll(foundryApi.roll("1d1")))
                 ),
                 plus(
-                    times(of(2), ref("value", {value:3}, "value")),
+                    times(of(2), ref("value", {value: 3}, "value")),
                     ref("value", {value: 1}, "value")
                 )
             );
@@ -616,12 +669,15 @@ export function modifierTest(context: QuenchBatchContext) {
             const rollObject = foundryApi.roll(...rollFormula);
             const evaluated = await rollObject.evaluate();
 
-        expect(rollFormula[0]).to.equal("((1d1 * 14) + (abs(-4) / 1d1)) - ((2 * @value0) + @value1)")
+            expect(rollFormula[0]).to.equal("((1d1 * 14) + (abs(-4) / 1d1)) - ((2 * @value0) + @value1)")
             expect(evaluated.total, `${asString(expression)} should equal`).to.equal(11);
         });
 
         it("should be able to parse a valid roll expression", async () => {
-            const roll = foundryApi.roll("((1d1 * 14) + (abs(-4) / 1d1)) - ((2 * @value0) + @value1)", {value0: "3", value1: "1"});
+            const roll = foundryApi.roll("((1d1 * 14) + (abs(-4) / 1d1)) - ((2 * @value0) + @value1)", {
+                value0: "3",
+                value1: "1"
+            });
 
             const mapped = mapRoll(roll);
             const evaluated = evaluate(mapped);

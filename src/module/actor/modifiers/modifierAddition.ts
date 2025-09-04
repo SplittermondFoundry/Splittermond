@@ -134,7 +134,8 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 addModifierHelper("actor.woundmalus.nbrLevels", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "woundmalus.mod":
-                data.health.woundMalus.mod += evaluate(times(of(multiplier), modifier.value));
+            case "actor.woundmalus.mod":
+                addModifierHelper("actor.woundMalus.mod", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "woundmalus.levelmod":
                 data.health.woundMalus.levelMod += evaluate(times(of(multiplier), modifier.value));
