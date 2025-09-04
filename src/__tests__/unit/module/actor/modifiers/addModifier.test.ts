@@ -78,6 +78,7 @@ describe('addModifier', () => {
             id: 'item1',
             name: 'Test Item',
             type: 'weapon',
+            actor: actor,
             system: {}
         } as unknown as SinonStubbedInstance<SplittermondItem>;
 
