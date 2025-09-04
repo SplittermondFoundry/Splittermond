@@ -180,12 +180,9 @@ export default class SplittermondActor extends Actor {
             data.experience.percentage = Math.min(data.experience.percentage * 100, 100);
 
             if (!data.splinterpoints) {
-                data.splinterpoints = {
-                    max: 3
-                };
-            } else {
-                data.splinterpoints.max = 3;
+                data.splinterpoints = {}
             }
+            data.splinterpoints.max = 3;
         }
 
         if (this.type === "npc") {
@@ -242,7 +239,7 @@ export default class SplittermondActor extends Actor {
         this._prepareActiveDefense();
 
         if (this.type === "character") {
-            this.system.splinterpoints.max += this.modifier.getForId("splinterpoints").getModifiers().value;
+            this.system.splinterpoints.max += this.modifier.getForId("actor.splinterpoints").getModifiers().sum;
         }
 
 

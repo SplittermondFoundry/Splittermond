@@ -153,9 +153,8 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 }, times(of(multiplier), modifier.value), item, false);
                 break;
             case "splinterpoints":
-                if ("splinterpoints" in data) {
-                    data.splinterpoints.max = (data.splinterpoints?.max || 3) + evaluate(times(of(multiplier), modifier.value));
-                }
+            case "actor.splinterpoints":
+                addModifierHelper("actor.splinterpoints", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "healthregeneration.multiplier":
                 data.healthRegeneration.multiplier = evaluate(times(of(multiplier), modifier.value));
