@@ -286,7 +286,7 @@ export default class SplittermondActor extends Actor {
         const data = this.system;
         const healthNbrLevels = this.healthNbrLevels;
 
-        data.health.woundMalus.levels = duplicate(CONFIG.splittermond.woundMalus[data.health.woundMalus.nbrLevels]);
+        data.health.woundMalus.levels = duplicate(CONFIG.splittermond.woundMalus[healthNbrLevels]);
         data.health.woundMalus.levels = data.health.woundMalus.levels.map(i => {
             i.value = Math.min(i.value - data.health.woundMalus.mod, 0);
             return i;
