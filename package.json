@@ -30,7 +30,7 @@
   "homepage": "https://bitbucket.org/rpgframework-cloud/splittermond-fvtt#readme",
   "devDependencies": {
     "@ethaks/fvtt-quench": "^0.10.0",
-    "@foundryvtt/foundryvtt-cli": "^2.0.0",
+    "@foundryvtt/foundryvtt-cli": "^3.0.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/chai": "^5.0.0",
     "@types/gulp": "^4.0.17",
