@@ -125,7 +125,7 @@ describe('addModifier', () => {
             it(`should handle multiplier modifier ${modifier}`, () => {
                 addModifier(actor, item, modifier, 'innate', 2);
                 expect(modifierManager.add.lastCall.args).to.deep.equal([
-                   "actor.speedmultiplier",
+                    "actor.speedmultiplier",
                     {name: 'Test Item', type: 'innate'},
                     of(expected),
                     item,
@@ -135,11 +135,14 @@ describe('addModifier', () => {
         });
 
     it('should handle regeneration modifiers', () => {
-        addModifier(actor, item, 'HealthRegeneration.multiplier 2');
-        expect(systemData.healthRegeneration.multiplier).to.equal(2);
-
-        addModifier(actor, item, 'HealthRegeneration.bonus 3');
-        expect(systemData.healthRegeneration.bonus).to.equal(3);
+        addModifier(actor, item, 'HealthRegeneration.multiplier 3');
+        expect(modifierManager.add.lastCall.args).to.deep.equal([
+            'actor.healthregeneration.multiplier',
+            {name: 'Test Item', type: null},
+            of(3),
+            item,
+            false
+        ]);
     });
 
     it('should handle skill groups', () => {
@@ -239,7 +242,13 @@ describe('addModifier', () => {
             expect(modifierManager.addModifier.lastCall.args[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: 'Test Item', type: null, emphasis: 'fire', damageType: undefined, itemType: undefined},
+                attributes: {
+                    name: 'Test Item',
+                    type: null,
+                    emphasis: 'fire',
+                    damageType: undefined,
+                    itemType: undefined
+                },
                 origin: item
             });
         });
@@ -449,7 +458,10 @@ describe('addModifier', () => {
             addModifier(actor, item, `generalSkills.stealth ${placeholder}`);
 
             const callArgs = modifierManager.add.lastCall.args;
-            expect(callArgs.slice(0, 2)).to.have.deep.members(['generalSkills.stealth', {name: 'Test Item', type: null}]);
+            expect(callArgs.slice(0, 2)).to.have.deep.members(['generalSkills.stealth', {
+                name: 'Test Item',
+                type: null
+            }]);
             expect(callArgs.slice(3, 5)).to.have.deep.members([item, false]);
             expect(evaluate(callArgs[2])).to.equal(expected);
         })

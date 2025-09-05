@@ -14,6 +14,8 @@ import {asMock} from "../../settingsMock";
 import {settings} from "../../../../module/settings";
 import {JSDOM} from "jsdom";
 import {StrengthDataModel} from "../../../../module/item/dataModel/StrengthDataModel";
+import Modifier from "../../../../module/actor/modifier";
+import {of} from "../../../../module/actor/modifiers/expressions/scalar";
 
 declare const global: any
 
@@ -180,6 +182,19 @@ describe("SplittermondActor", () => {
         afterEach(() => {
             global.duplicate = undefined
         });
+
+        function autoApproveLongRest(){
+            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
+                if (options?.buttons?.yes) {
+                    options.buttons.yes.callback();
+                }
+                return {
+                    render: () => {
+                    }
+                };
+            });
+        }
+
         it("should initialize health and focus data", () => {
             actor.prepareBaseData();
             expect(actor.system.health).to.have.property("consumed");
@@ -201,15 +216,7 @@ describe("SplittermondActor", () => {
         });
 
         it("should handle long rest correctly", async () => {
-            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?.yes) {
-                    options.buttons.yes.callback();
-                }
-                return {
-                    render: () => {
-                    }
-                };
-            });
+            autoApproveLongRest()
             actor.system.focus.updateSource({exhausted: {value: 5}});
             actor.system.health.updateSource({exhausted: {value: 3}});
             actor.system.focus.updateSource({consumed: {value: 10}});
@@ -224,6 +231,18 @@ describe("SplittermondActor", () => {
             expect(actor.system.health.consumed.value).to.equal(2);
             // Ensure update was called
             expect((actor.update as sinon.SinonSpy).calledOnce).to.be.true;
+        });
+
+        it("should have a modifiable health regeneration multiplier", async () => {
+            autoApproveLongRest()
+            actor.system.health.updateSource({consumed: {value: 8}});
+            actor.system.attributes.constitution.updateSource({initial: 3, advances: 0})
+            actor.prepareBaseData();
+            actor.modifier.addModifier(new Modifier("actor.healthregeneration.multiplier", of(3), {name: "Test", type: "innate"}, null));
+
+            await actor.longRest();
+
+            expect(actor.system.health.consumed.value).to.equal(0);
         });
     });
 
