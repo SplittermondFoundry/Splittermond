@@ -161,7 +161,8 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 addModifierHelper("actor.healthregeneration.multiplier", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "focusregeneration.multiplier":
-                data.focusRegeneration.multiplier = evaluate(times(of(multiplier), modifier.value));
+            case "actor.focusregeneration.multiplier":
+                addModifierHelper("actor.focusregeneration.multiplier", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "healthregeneration.bonus":
                 data.healthRegeneration.bonus += evaluate(times(of(multiplier), modifier.value));

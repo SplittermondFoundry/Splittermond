@@ -235,14 +235,26 @@ describe("SplittermondActor", () => {
 
         it("should have a modifiable health regeneration multiplier", async () => {
             autoApproveLongRest()
-            actor.system.health.updateSource({consumed: {value: 8}});
+            actor.system.health.updateSource({consumed: {value: 10}});
             actor.system.attributes.constitution.updateSource({initial: 3, advances: 0})
             actor.prepareBaseData();
             actor.modifier.addModifier(new Modifier("actor.healthregeneration.multiplier", of(3), {name: "Test", type: "innate"}, null));
 
             await actor.longRest();
 
-            expect(actor.system.health.consumed.value).to.equal(0);
+            expect(actor.system.health.consumed.value).to.equal(1);
+        });
+
+        it("should have a modifiable focus regeneration multiplier", async () => {
+            autoApproveLongRest()
+            actor.system.focus.updateSource({consumed: {value: 10}});
+            actor.system.attributes.willpower.updateSource({initial: 3, advances: 0})
+            actor.prepareBaseData();
+            actor.modifier.addModifier(new Modifier("actor.focusregeneration.multiplier", of(3), {name: "Test", type: "innate"}, null));
+
+            await actor.longRest();
+
+            expect(actor.system.focus.consumed.value).to.equal(1);
         });
     });
 
