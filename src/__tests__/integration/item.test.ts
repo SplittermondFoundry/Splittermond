@@ -88,7 +88,9 @@ export function itemTest(this:any, context: QuenchBatchContext) {
                     effectDuration: "",
                     spellType:"",
                     features:{
+                        _document: null,
                         internalFeatureList:[],
+                        triedToFindDocument:false,
                     },
                     range: "",
                     source: ""
@@ -119,7 +121,16 @@ export function itemTest(this:any, context: QuenchBatchContext) {
             await ItemImporter.pasteEventhandler(probe);
 
             const item = await itemCreatorSpy.lastCall.returnValue
-            expect(item.system).to.deep.equal(Machtexplosion.expected.system);
+            const expectedItemSystem = {
+                ...Machtexplosion.expected.system,
+                features: {
+                    _document: null,
+                    internalFeatureList: Machtexplosion.expected.system.features.internalFeatureList,
+                    triedToFindDocument: false
+                }
+
+            };
+            expect(item.system).to.deep.equal(expectedItemSystem);
             expect("img" in item && item.img).to.equal("icons/svg/daze.svg")
 
             await Item.deleteDocuments([item.id]);
@@ -139,5 +150,4 @@ export function itemTest(this:any, context: QuenchBatchContext) {
             });
         })
     });
-
 }

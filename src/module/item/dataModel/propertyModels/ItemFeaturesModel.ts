@@ -7,6 +7,7 @@ import {foundryApi} from "../../../api/foundryApi";
 import {SplittermondItemDataModel} from "../../index";
 import ModifierManager from "../../../actor/modifier-manager";
 import {evaluate} from "../../../actor/modifiers/expressions/scalar";
+import {DocumentAccessMixin} from "../../../data/AncestorDocumentMixin";
 
 
 function FeaturesSchema() {
@@ -19,8 +20,11 @@ function FeaturesSchema() {
 }
 
 export type ItemFeaturesType = DataModelSchemaType<typeof FeaturesSchema>;
+export class ItemFeaturesBase extends SplittermondDataModel<ItemFeaturesType, SplittermondItemDataModel> {
+    static defineSchema = FeaturesSchema;
+}
 
-export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, SplittermondItemDataModel> {
+export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, SplittermondItem) {
 
     static emptyFeatures() {
         return new ItemFeaturesModel({internalFeatureList: []});
@@ -42,7 +46,6 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
         return new ItemFeaturesModel({internalFeatureList: itemFeatures});
     }
 
-    static defineSchema = FeaturesSchema;
 
 
     hasFeature(feature: ItemFeature) {
@@ -94,15 +97,15 @@ export class ItemFeaturesModel extends SplittermondDataModel<ItemFeaturesType, S
     }
 
     private getModifierManager(): ModifierManager {
-        const modifierManager = this.parent?.parent?.actor?.modifier;
+        const modifierManager = this.findDocument()?.actor?.modifier;
         return modifierManager ?? new ModifierManager();
     }
 
     private getName(): string | null {
-        return this.parent?.parent?.name ?? null;
+        return this.findDocument()?.name ?? null;
     }
     private getItemType(): string | null {
-        return this.parent?.parent?.type ?? null;
+        return this.findDocument()?.type ?? null;
     }
 
 }
