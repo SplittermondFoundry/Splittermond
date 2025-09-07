@@ -245,6 +245,18 @@ describe("SplittermondActor", () => {
             expect(actor.system.health.consumed.value).to.equal(1);
         });
 
+        it("should have a modifiable health regeneration bonus", async () => {
+            autoApproveLongRest()
+            actor.system.health.updateSource({consumed: {value: 10}});
+            actor.system.attributes.constitution.updateSource({initial: 3, advances: 0})
+            actor.prepareBaseData();
+            actor.modifier.addModifier(new Modifier("actor.healthregeneration.bonus", of(2), {name: "Test", type: "innate"}, null));
+
+            await actor.longRest();
+
+            expect(actor.system.health.consumed.value).to.equal(2);
+        });
+
         it("should have a modifiable focus regeneration multiplier", async () => {
             autoApproveLongRest()
             actor.system.focus.updateSource({consumed: {value: 10}});

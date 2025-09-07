@@ -134,10 +134,20 @@ describe('addModifier', () => {
             });
         });
 
-    it('should handle regeneration modifiers', () => {
+    it('should handle regeneration multiplier', () => {
         addModifier(actor, item, 'HealthRegeneration.multiplier 3');
         expect(modifierManager.add.lastCall.args).to.deep.equal([
             'actor.healthregeneration.multiplier',
+            {name: 'Test Item', type: null},
+            of(3),
+            item,
+            false
+        ]);
+    });
+    it('should handle regeneration bonus', () => {
+        addModifier(actor, item, 'HealthRegeneration.bonus 3');
+        expect(modifierManager.add.lastCall.args).to.deep.equal([
+            'actor.healthregeneration.bonus',
             {name: 'Test Item', type: null},
             of(3),
             item,

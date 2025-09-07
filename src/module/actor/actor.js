@@ -1265,17 +1265,25 @@ export default class SplittermondActor extends Actor {
         healthData.exhausted.value = 0;
 
         focusData.consumed.value = Math.max(focusData.consumed.value - this.focusRegenMultiplier * this.attributes.willpower.value - this.system.focusRegeneration.bonus, 0);
-        healthData.consumed.value = Math.max(healthData.consumed.value - this.healthRegenMultiplier * this.attributes.constitution.value - this.system.healthRegeneration.bonus, 0);
+        healthData.consumed.value = Math.max(healthData.consumed.value - this.healthRegenMultiplier * this.attributes.constitution.value - this.healthRegenBonus, 0);
 
         return await this.update({system: {health: healthData, focus:focusData}}) //propagate update to the database
     }
 
     get healthRegenMultiplier() {
         const multiplierFromModifiers = this.modifier.getForId("actor.healthregeneration.multiplier").notSelectable().getModifiers();
-        if(multiplierFromModifiers.length > 1) {
+        if (multiplierFromModifiers.length > 1) {
             console.warn("Splittermond | Multiple modifiers for health regeneration multiplier found. Only the highest is applied.");
         }
         return Math.max(2, ...multiplierFromModifiers.map(m => evaluate(m.value)));
+    }
+
+    get healthRegenBonus() {
+        return this.modifier
+            .getForId("actor.healthregeneration.bonus")
+            .notSelectable()
+            .getModifiers()
+            .sum;
     }
 
     get focusRegenMultiplier() {
