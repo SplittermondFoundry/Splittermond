@@ -268,6 +268,18 @@ describe("SplittermondActor", () => {
 
             expect(actor.system.focus.consumed.value).to.equal(1);
         });
+
+        it("should have a modifiable focus regeneration bonus", async () => {
+            autoApproveLongRest()
+            actor.system.focus.updateSource({consumed: {value: 10}});
+            actor.system.attributes.constitution.updateSource({initial: 3, advances: 0})
+            actor.prepareBaseData();
+            actor.modifier.addModifier(new Modifier("actor.focusregeneration.bonus", of(2), {name: "Test", type: "innate"}, null));
+
+            await actor.longRest();
+
+            expect(actor.system.focus.consumed.value).to.equal(2);
+        });
     });
 
     describe("Active Defense", () => {

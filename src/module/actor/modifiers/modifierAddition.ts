@@ -6,7 +6,7 @@ import {NpcDataModel} from "../dataModel/NpcDataModel";
 import {CharacterDataModel} from "../dataModel/CharacterDataModel";
 import {SpellCostReductionManager} from "../../util/costs/spellCostManagement";
 import {parseModifiers, processValues, Value} from "./parsing";
-import {condense, evaluate, Expression as ScalarExpression, of, pow, times} from "./expressions/scalar";
+import {condense, Expression as ScalarExpression, of, pow, times} from "./expressions/scalar";
 import {evaluate as evaluateCost, times as timesCost} from "./expressions/cost";
 import {ModifierType} from "../modifier";
 import {validateDescriptors} from "./parsing/validators";
@@ -14,30 +14,20 @@ import {normalizeDescriptor} from "./parsing/normalizer";
 import {InitiativeModifier} from "../InitiativeModifier";
 import {ItemModifierHandler} from "./itemModifierHandler";
 
-type Regeneration = { multiplier: number, bonus: number };
-
 interface PreparedSystem {
     spellCostReduction: SpellCostReductionManager,
     spellEnhancedCostReduction: SpellCostReductionManager,
-    healthRegeneration: Regeneration,
-    focusRegeneration: Regeneration,
 }
 
 
 function asPreparedData<T extends CharacterDataModel | NpcDataModel>(system: T): T & PreparedSystem {
-    const qualifies = "healthRegeneration" in system && isRegeneration(system.healthRegeneration) &&
-        "focusRegeneration" in system && isRegeneration(system.focusRegeneration) &&
-        "spellCostReduction" in system && "spellEnhancedCostReduction" in system;
+    const qualifies = "spellCostReduction" in system && "spellEnhancedCostReduction" in system;
     if (qualifies) {
         return system as (T & PreparedSystem); //There's not really much chance for error with the type of Spell cost reduction.
     } else {
         throw new Error("System not prepared for modifiers");
     }
 
-}
-
-function isRegeneration(regeneration: unknown): regeneration is Regeneration {
-    return !!regeneration && typeof regeneration === "object" && "multiplier" in regeneration && "bonus" in regeneration;
 }
 
 //this function is used in item.js to add modifiers to the actor
@@ -169,7 +159,8 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 addModifierHelper("actor.healthregeneration.bonus", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "focusregeneration.bonus":
-                data.focusRegeneration.bonus += evaluate(times(of(multiplier), modifier.value));
+            case "actor.focusregeneration.bonus":
+                addModifierHelper("actor.focusregeneration.bonus", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "lowerfumbleresult":
                 if (!("skill" in modifier.attributes) && "skill" in item.system && item.system.skill) {

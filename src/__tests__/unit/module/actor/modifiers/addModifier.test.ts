@@ -154,6 +154,26 @@ describe('addModifier', () => {
             false
         ]);
     });
+    it('should handle regeneration multiplier', () => {
+        addModifier(actor, item, 'FocusRegeneration.multiplier 3');
+        expect(modifierManager.add.lastCall.args).to.deep.equal([
+            'actor.focusregeneration.multiplier',
+            {name: 'Test Item', type: null},
+            of(3),
+            item,
+            false
+        ]);
+    });
+    it('should handle regeneration bonus', () => {
+        addModifier(actor, item, 'FocusRegeneration.bonus 3');
+        expect(modifierManager.add.lastCall.args).to.deep.equal([
+            'actor.focusregeneration.bonus',
+            {name: 'Test Item', type: null},
+            of(3),
+            item,
+            false
+        ]);
+    });
 
     it('should handle skill groups', () => {
         const mockSkills = ['skill1', 'skill2'];
