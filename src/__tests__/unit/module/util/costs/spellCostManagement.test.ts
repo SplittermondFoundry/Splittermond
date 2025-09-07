@@ -1,8 +1,9 @@
 import {describe, it} from "mocha";
 import {expect} from "chai";
 import {initializeSpellCostManagement} from "module/util/costs/spellCostManagement";
-import {Cost, CostModifier} from "module/util/costs/Cost";
+import {Cost} from "module/util/costs/Cost";
 import {parseCostString} from "../../../../../module/util/costs/costParser";
+import {type CostExpression, of} from "../../../../../module/actor/modifiers/expressions/cost";
 
 describe("Spell cost Management initialization", () => {
     const management = initializeSpellCostManagement({});
@@ -65,7 +66,7 @@ describe("Spell cost Management multiple reductions", () => {
                 const manager = initializeSpellCostManagement({})[managerKey];
                 const zero = new Cost(0, 0, true).asModifier();
                 manager.addCostModifier("foreduction", mod("K2V1"), null);
-                manager.modifiers.put(new Cost(2, 2, true).asModifier(), null, null);
+                manager.modifiers.put(of(new Cost(2, 2, true).asModifier()), null, null);
 
                 expect(manager.getCostModifiers("", "")).to.have.length(2);
                 expect(manager.getCostModifiers("", "").reduce((a, b) => a.add(b), zero)).to.deep.equal(new Cost(3, 3, true).asModifier());
@@ -74,8 +75,8 @@ describe("Spell cost Management multiple reductions", () => {
             it(`should return all skill specific reductions for ${title}`, () => {
                 const manager = initializeSpellCostManagement({})[managerKey];
                 const zero = new Cost(0, 0, true).asModifier();
-                manager.modifiers.put(new Cost(1, 1, true).asModifier(), "deathmagic", null);
-                manager.modifiers.put(new Cost(2, 2, true).asModifier(), "deathmagic", null);
+                manager.modifiers.put(of(new Cost(1, 1, true).asModifier()), "deathmagic", null);
+                manager.modifiers.put(of(new Cost(2, 2, true).asModifier()), "deathmagic", null);
 
                 expect(manager.getCostModifiers("deathmagic", "")).to.have.length(2);
                 expect(manager.getCostModifiers("deathmagic", "").reduce((a, b) => a.add(b), zero)).to.deep.equal(new Cost(3, 3, true).asModifier());
@@ -84,8 +85,8 @@ describe("Spell cost Management multiple reductions", () => {
             it(`should return all skill and type specific reductions for ${title}`, () => {
                 const manager = initializeSpellCostManagement({})[managerKey];
                 const zero = new Cost(0, 0, true).asModifier();
-                manager.modifiers.put(new Cost(1, 1, true).asModifier(), "deathmagic", "spirit");
-                manager.modifiers.put(new Cost(2, 2, true).asModifier(), "deathmagic", "spirit");
+                manager.modifiers.put(of(new Cost(1, 1, true).asModifier()), "deathmagic", "spirit");
+                manager.modifiers.put(of(new Cost(2, 2, true).asModifier()), "deathmagic", "spirit");
 
                 expect(manager.getCostModifiers("deathmagic", "spirit")).to.have.length(2);
                 expect(manager.getCostModifiers("deathmagic", "spirit").reduce((a, b) => a.add(b), zero)).to.deep.equal(new Cost(3, 3, true).asModifier());
@@ -107,14 +108,14 @@ describe("Spell cost Management selection of reductions", () => {
     const management = initializeSpellCostManagement({});
     [management.spellCostReduction, management.spellEnhancedCostReduction].forEach(
         reductionManager => {
-            reductionManager.modifiers.put(deathmagicConjurationReduction, "deathmagic", "conjuration");
-            reductionManager.modifiers.put(deathmagicSicknessReduction, "deathmagic", "sickness");
-            reductionManager.modifiers.put(lightmagicConjurationReduction, "lightmagic", "conjuration");
-            reductionManager.modifiers.put(sicknessReduction, null, "sickness");
-            reductionManager.modifiers.put(conjurationReduction, null, "conjuration");
-            reductionManager.modifiers.put(deathmagicReduction, "deathmagic", null);
-            reductionManager.modifiers.put(lightmagicReduction, "lightmagic", null);
-            reductionManager.modifiers.put(globalReduction, null, null);
+            reductionManager.modifiers.put(of(deathmagicConjurationReduction), "deathmagic", "conjuration");
+            reductionManager.modifiers.put(of(deathmagicSicknessReduction), "deathmagic", "sickness");
+            reductionManager.modifiers.put(of(lightmagicConjurationReduction), "lightmagic", "conjuration");
+            reductionManager.modifiers.put(of(sicknessReduction), null, "sickness");
+            reductionManager.modifiers.put(of(conjurationReduction), null, "conjuration");
+            reductionManager.modifiers.put(of(deathmagicReduction), "deathmagic", null);
+            reductionManager.modifiers.put(of(lightmagicReduction), "lightmagic", null);
+            reductionManager.modifiers.put(of(globalReduction), null, null);
         });
 
     ([management.spellCostReduction, management.spellEnhancedCostReduction] as const).forEach(
@@ -170,6 +171,6 @@ describe("Spell cost Management selection of reductions", () => {
         });
 });
 
-function mod(input: string):CostModifier {
-    return parseCostString(input).asModifier();
+function mod(input: string):CostExpression {
+    return of(parseCostString(input).asModifier());
 }

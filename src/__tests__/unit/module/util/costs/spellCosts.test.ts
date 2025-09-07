@@ -6,6 +6,7 @@ import {
 } from "module/util/costs/spellCosts.js";
 import {Cost} from "module/util/costs/Cost.js";
 import {initializeSpellCostManagement, SpellCostReductionManager} from "module/util/costs/spellCostManagement.js";
+import {of} from "../../../../../module/actor/modifiers/expressions/cost";
 
 function mockReductionManager<T>(...cost:T[]){
  //This is a mock and therefore incomplete. For the purpose of the test this is a SpellCostReductionManager.
@@ -137,10 +138,10 @@ describe('Spell cost calculation reduction selection', () => {
     };
     [reductionManagement.spellCostReduction, reductionManagement.spellEnhancedCostReduction].forEach(
         reductionManager => {
-            reductionManager.modifiers.put(new Cost(1, 1, true).asModifier(), "deathmagic", "conjuration");
-            reductionManager.modifiers.put(new Cost(2, 2, false).asModifier(), "lightmagic", "corporal");
-            reductionManager.modifiers.put(new Cost(3, 3, false).asModifier(), "lightmagic", "conjuration");
-            reductionManager.modifiers.put(new Cost(3, 1, false).asModifier(), "combatmagic", null);
+            reductionManager.modifiers.put(of(new Cost(1, 1, true).asModifier()), "deathmagic", "conjuration");
+            reductionManager.modifiers.put(of(new Cost(2, 2, false).asModifier()), "lightmagic", "corporal");
+            reductionManager.modifiers.put(of(new Cost(3, 3, false).asModifier()), "lightmagic", "conjuration");
+            reductionManager.modifiers.put(of(new Cost(3, 1, false).asModifier()), "combatmagic", null);
         });
 
     it("cost Reduction should apply the reduction for the skill and type", () => {

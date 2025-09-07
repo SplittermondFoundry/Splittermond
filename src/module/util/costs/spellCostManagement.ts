@@ -1,4 +1,5 @@
 import {CostModifier} from "./Cost";
+import {type CostExpression, evaluate} from "../../actor/modifiers/expressions/cost";
 
 interface SpellCostReductionManagement {
     spellCostReduction: SpellCostReductionManager;
@@ -35,7 +36,7 @@ class SpellCostReductionManager {
      * @param modifierValue the unparsed splittermond spell cost reduction formula
      * @param skill the skill that is attached to the item that carries the modifier label. Global reductions on skilled items will be assumed to apply to that skill only.
      */
-    addCostModifier(modifierLabel: string, modifierValue: CostModifier, skill?: string | null) {
+    addCostModifier(modifierLabel: string, modifierValue: CostExpression, skill?: string | null) {
         let group = null;
         let type = null;
         let labelParts = modifierLabel.split(".");
@@ -60,7 +61,7 @@ class SpellCostReductionManager {
      * convenience method for adding retrieving a modifier without having to get the map first
      */
     getCostModifiers(skill: string, type: string): CostModifier[] {
-        return this.modifiersMap.get(skill, type);
+        return this.modifiersMap.get(skill, type).map(mod => evaluate(mod));
     }
 }
 
@@ -68,7 +69,7 @@ type Key = { spellType: string | null, skill: string | null };
 
 const nullKey = Symbol("nullKey");
 class SpellCostModifiers {
-    private backingMap: Map<Key|null, CostModifier[]>;
+    private backingMap: Map<Key|null, CostExpression[]>;
     private keyMap: Map<string|null, Record<string|symbol, Key>>;
 
     constructor() {
@@ -96,7 +97,7 @@ class SpellCostModifiers {
         ];
     }
 
-    #internalGet(group: string|null, type: string|null): CostModifier[] {
+    #internalGet(group: string|null, type: string|null): CostExpression[] {
         return this.backingMap.get(this.#getMapKey(group, type)) ?? [];
     }
 
@@ -105,7 +106,7 @@ class SpellCostModifiers {
      * @param type the type of spell this cost modifier is for
      * @param group the skill selector for this cost modifier
      */
-    put(cost: CostModifier, group: string | null = null, type: string | null = null) {
+    put(cost: CostExpression, group: string | null = null, type: string | null = null) {
         const mapKey = this.#getMapKey(group, type);
         if (this.backingMap.get(mapKey) === undefined) {
             this.backingMap.set(mapKey, []);

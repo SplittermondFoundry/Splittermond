@@ -13,6 +13,7 @@ import {CharacterAttribute} from "module/actor/dataModel/CharacterAttribute";
 import Attribute from "module/actor/attribute";
 import {clearMappers} from "module/actor/modifiers/parsing/normalizer";
 import {evaluate, of} from "module/actor/modifiers/expressions/scalar";
+import {of as ofCost} from "module/actor/modifiers/expressions/cost";
 import {stubRollApi} from "../../../RollMock";
 import {InitiativeModifier} from "../../../../../module/actor/InitiativeModifier";
 
@@ -510,7 +511,7 @@ describe('addModifier', () => {
             const system = actor.system as CharacterDataModel & PreparedSystem
             const focusManager = system.spellCostReduction as SinonStubbedInstance<SpellCostReductionManager>;
             expect(focusManager.addCostModifier.lastCall.args[0]).to.equal("foreduction.protectionmagic");
-            expect(focusManager.addCostModifier.lastCall.args[1]).to.deep.equal(expected);
+            expect(focusManager.addCostModifier.lastCall.args[1]).to.deep.equal(ofCost(expected));
             expect(focusManager.addCostModifier.lastCall.args[2]).to.be.undefined;
         });
 
@@ -520,7 +521,7 @@ describe('addModifier', () => {
             const system = actor.system as CharacterDataModel & PreparedSystem
             const focusManager = system.spellEnhancedCostReduction as SinonStubbedInstance<SpellCostReductionManager>;
             expect(focusManager.addCostModifier.lastCall.args[0]).to.equal("foenhancedreduction.combatmagic");
-            expect(focusManager.addCostModifier.lastCall.args[1]).to.deep.equal(expected);
+            expect(focusManager.addCostModifier.lastCall.args[1]).to.deep.equal(ofCost(expected));
             expect(focusManager.addCostModifier.lastCall.args[2]).to.be.undefined;
         });
     });
