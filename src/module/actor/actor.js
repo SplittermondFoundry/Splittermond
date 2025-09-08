@@ -17,7 +17,7 @@ import {addModifier} from "./modifiers/modifierAddition";
 import {evaluate, of} from "./modifiers/expressions/scalar";
 import {ItemFeaturesModel} from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import {DamageModel} from "../item/dataModel/propertyModels/DamageModel";
-import {InitiativeModifier} from "./InitiativeModifier";
+import {InverseModifier} from "./InverseModifier.js";
 import {genesisSpellImport} from "./genesisImport/spellImport";
 
 /** @type ()=>number */
@@ -390,7 +390,7 @@ export default class SplittermondActor extends Actor {
                 of(data.health.woundMalus.value),
                 this
             )
-            this.modifier.addModifier(new InitiativeModifier(
+            this.modifier.addModifier(new InverseModifier(
                 "initiativewoundmalus",
                 of(-data.health.woundMalus.value),
                 {

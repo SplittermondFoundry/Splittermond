@@ -15,7 +15,7 @@ import {clearMappers} from "module/actor/modifiers/parsing/normalizer";
 import {evaluate, of} from "module/actor/modifiers/expressions/scalar";
 import {of as ofCost} from "module/actor/modifiers/expressions/cost";
 import {stubRollApi} from "../../../RollMock";
-import {InitiativeModifier} from "../../../../../module/actor/InitiativeModifier";
+import {InverseModifier} from "../../../../../module/actor/InverseModifier";
 
 //Duplicated, because I don't want to export the original type definition
 interface PreparedSystem {
@@ -461,7 +461,7 @@ describe('addModifier', () => {
             addModifier(actor, item, `${iniRepresentation} +2`);
 
             const createdModifier = modifierManager.addModifier.lastCall.args[0]
-            expect(createdModifier).to.be.instanceof(InitiativeModifier);
+            expect(createdModifier).to.be.instanceof(InverseModifier);
             expect(createdModifier.groupId).to.equal('initiative');
             expect(createdModifier.attributes.name).to.equal('Test Item');
             expect(createdModifier.attributes.type).to.be.null;

@@ -11,7 +11,7 @@ import {times as timesCost} from "./expressions/cost";
 import {ModifierType} from "../modifier";
 import {validateDescriptors} from "./parsing/validators";
 import {normalizeDescriptor} from "./parsing/normalizer";
-import {InitiativeModifier} from "../InitiativeModifier";
+import {InverseModifier} from "../InverseModifier";
 import {ItemModifierHandler} from "./itemModifierHandler";
 
 interface PreparedSystem {
@@ -36,9 +36,9 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
     function addInitiativeModifier(value: ScalarExpression, attributes: Record<string, string>) {
         const emphasis = (attributes.emphasis as string) ?? ""; /*conversion validated by descriptor validator*/
         if (emphasis) {
-            actor.modifier.addModifier(new InitiativeModifier("initiative",condense(value),{...attributes, name: emphasis, type}, item, true));
+            actor.modifier.addModifier(new InverseModifier("initiative",condense(value),{...attributes, name: emphasis, type}, item, true));
         } else {
-            actor.modifier.addModifier(new InitiativeModifier("initiative", condense(value), {...attributes, name: item.name, type}, item, false));
+            actor.modifier.addModifier(new InverseModifier("initiative", condense(value), {...attributes, name: item.name, type}, item, false));
         }
     }
 

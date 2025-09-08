@@ -3,7 +3,7 @@ import {TooltipFormula} from "../util/tooltip";
 import {abs, asString, condense, Expression, isGreaterZero, isLessThanZero} from "./modifiers/expressions/scalar";
 
 
-export class InitiativeModifier implements IModifier {
+export class InverseModifier implements IModifier {
     readonly attributes: ModifierAttributes;
     readonly groupId: string;
     readonly origin: object | null;
