@@ -9,7 +9,8 @@ import {
     MultiplyExpression, PowerExpression,
     ReferenceExpression,
     RollExpression,
-    SubtractExpression
+    SubtractExpression,
+    of
 } from "./definitions";
 import {condense} from "./condenser";
 import {evaluate} from "./evaluation";
@@ -23,21 +24,31 @@ interface Range {
 }
 
 export function isGreaterZero(expression: Expression): boolean | null {
-    const result = tentativeEvaluate(expression);
-    if (result.min > 0 && result.max > 0) {
+    return isGreaterThan(expression, of(0));
+}
+
+export function isLessThanZero(expression: Expression): boolean | null {
+    return isLessThan(expression, of(0));
+}
+
+export function isGreaterThan(one:Expression, other:Expression): boolean | null {
+    const left = tentativeEvaluate(one);
+    const right = tentativeEvaluate(other);
+    if(left.min > right.max){
         return true;
-    } else if (result.min <= 0 && result.max <= 0) {
+    }else if(left.max <= right.min){
         return false;
-    } else {
+    }else{
         return null;
     }
 }
 
-export function isLessThanZero(expression: Expression): boolean | null {
-    const result = tentativeEvaluate(expression);
-    if (result.min < 0 && result.max < 0) {
+export function isLessThan(one:Expression, other:Expression): boolean | null {
+    const left = tentativeEvaluate(one);
+    const right = tentativeEvaluate(other);
+    if(left.max < right.min){
         return true;
-    } else if (result.min >= 0 && result.max >= 0) {
+    } else if(left.min >= right.max) {
         return false;
     } else {
         return null;

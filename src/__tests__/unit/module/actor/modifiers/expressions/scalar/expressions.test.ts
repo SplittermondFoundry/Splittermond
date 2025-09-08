@@ -3,8 +3,8 @@ import {
     asString,
     condense, condenseCombineDamageWithModifiers,
     dividedBy,
-    evaluate,
-    isGreaterZero,
+    evaluate, isGreaterThan,
+    isGreaterZero, isLessThan,
     isLessThanZero, mapRoll,
     minus,
     of,
@@ -156,6 +156,22 @@ describe("Expressions", () => {
             expect(isGreaterZero(property)).to.be.null;
             expect(isLessThanZero(property)).to.be.null;
         });
+
+        it("should be able to compare two distinct rolls", () => {
+            const one = roll(new MockRoll("1d6"));
+            const other = roll(new MockRoll("1d6-10"));
+
+            expect(isGreaterThan(one, other)).to.be.true;
+            expect(isLessThan(one, other)).to.be.false;
+        });
+
+        it("should not evaluate overlapping rolls as being greater", () => {
+            const one = roll(new MockRoll("1d6+2"));
+            const other = roll(new MockRoll("1d6-2"));
+
+            expect(isGreaterThan(one, other)).to.be.null;
+            expect(isLessThan(one, other)).to.be.null;
+        })
     });
 
     describe("Reference Expressions", () => {
