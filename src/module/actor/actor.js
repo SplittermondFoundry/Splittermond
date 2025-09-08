@@ -447,7 +447,25 @@ export default class SplittermondActor extends Actor {
 
     //this function is used in item.js to add modifiers to the actor
     addModifier(item, str = "", type = "", multiplier = 1) {
-        addModifier(this, item, str, type, multiplier);
+        const result = addModifier(item, str, type, multiplier);
+
+        // Apply scalar modifiers to the actor's modifier manager
+        result.modifiers.forEach(modifier => {
+            this.modifier.addModifier(modifier);
+        });
+
+        // Apply cost modifiers to the appropriate spell cost reduction managers
+        const data = asPreparedData(this.system);
+        result.costModifiers.forEach(costModifier => {
+            const modifierLabel = costModifier.label.toLowerCase();
+            if (modifierLabel.startsWith("foreduction")) {
+                data.spellCostReduction.addCostModifier(costModifier);
+            } else if (modifierLabel.startsWith("foenhancedreduction")) {
+                data.spellEnhancedCostReduction.addCostModifier(costModifier);
+            }
+        });
+
+        return result;
     }
 
     _prepareModifier() {
@@ -1466,6 +1484,15 @@ async function askUserAboutActorOverwrite() {
         });
         dialog.render(true);
     });
+}
+
+function asPreparedData(system) {
+    const qualifies = "spellCostReduction" in system && "spellEnhancedCostReduction" in system;
+    if (qualifies) {
+        return system; //There's not really much chance for error with the type of Spell cost reduction.
+    } else {
+        throw new Error("System not prepared for modifiers");
+    }
 }
 
 /**

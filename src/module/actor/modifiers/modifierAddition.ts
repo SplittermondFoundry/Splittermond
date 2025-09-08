@@ -1,89 +1,52 @@
-import SplittermondActor from "../actor";
 import SplittermondItem from "../../item/item";
 import {splittermond} from "../../config";
 import {foundryApi} from "../../api/foundryApi";
-import {NpcDataModel} from "../dataModel/NpcDataModel";
-import {CharacterDataModel} from "../dataModel/CharacterDataModel";
-import {SpellCostReductionManager} from "../../util/costs/spellCostManagement";
+import {ICostModifier} from "../../util/costs/spellCostManagement";
 import {parseModifiers, processValues, Value} from "./parsing";
 import {condense, Expression as ScalarExpression, of, pow, times} from "./expressions/scalar";
 import {times as timesCost} from "./expressions/cost";
-import {ModifierType} from "../modifier";
+import Modifier, {IModifier, ModifierType} from "../modifier";
 import {validateDescriptors} from "./parsing/validators";
 import {normalizeDescriptor} from "./parsing/normalizer";
 import {InverseModifier} from "../InverseModifier";
 import {ItemModifierHandler} from "./itemModifierHandler";
 import {MultiplicativeModifier} from "../MultiplicativeModifier";
 
-interface PreparedSystem {
-    spellCostReduction: SpellCostReductionManager,
-    spellEnhancedCostReduction: SpellCostReductionManager,
-}
-
-
-function asPreparedData<T extends CharacterDataModel | NpcDataModel>(system: T): T & PreparedSystem {
-    const qualifies = "spellCostReduction" in system && "spellEnhancedCostReduction" in system;
-    if (qualifies) {
-        return system as (T & PreparedSystem); //There's not really much chance for error with the type of Spell cost reduction.
-    } else {
-        throw new Error("System not prepared for modifiers");
-    }
-
+export interface AddModifierResult {
+    modifiers: IModifier[];
+    costModifiers: ICostModifier[];
 }
 
 //this function is used in item.js to add modifiers to the actor
-export function addModifier(actor: SplittermondActor, item: SplittermondItem, str = "", type: ModifierType = null, multiplier = 1,) {
-
-    function addInitiativeModifier(value: ScalarExpression, attributes: Record<string, string>) {
-        const emphasis = (attributes.emphasis as string) ?? ""; /*conversion validated by descriptor validator*/
-        if (emphasis) {
-            actor.modifier.addModifier(new InverseModifier("initiative", condense(value), {
-                ...attributes,
-                name: emphasis,
-                type
-            }, item, true));
-        } else {
-            actor.modifier.addModifier(new InverseModifier("initiative", condense(value), {
-                ...attributes,
-                name: item.name,
-                type
-            }, item, false));
-        }
-    }
-
-    function addModifierHelper(path: string, value: ScalarExpression, attributes: Record<string, string>, emphasisOverride?: string) {
-        const emphasis = (emphasisOverride ?? attributes.emphasis as string) ?? ""; /*conversion validated by descriptor validator*/
-        if (emphasis) {
-            actor.modifier.add(path, {...attributes, name: emphasis, type}, condense(value), item, true);
-        } else {
-            actor.modifier.add(path, {...attributes, name: item.name, type}, condense(value), item, false);
-        }
-    }
+export function addModifier(item: SplittermondItem, str = "", type: ModifierType = null, multiplier = 1): AddModifierResult {
+    const modifiers: IModifier[] = [];
+    const costModifiers: ICostModifier[] = [];
 
     if (str == "") {
-        return;
+        return { modifiers, costModifiers };
     }
 
-    const data = asPreparedData(actor.system);
-
     const parsedResult = parseModifiers(str);
-    const normalizedModifiers = processValues(parsedResult.modifiers, actor);
+    const normalizedModifiers = processValues(parsedResult.modifiers, item.actor);
 
     const allErrors = [...parsedResult.errors, ...normalizedModifiers.errors];
-    const itemModifierHandler = new ItemModifierHandler(allErrors, item, type)
 
     normalizedModifiers.vectorModifiers.forEach((mod) => {
         const modifierLabel = mod.path.toLowerCase();
-        const itemSkill = "skill" in item.system ? item.system.skill : undefined;
-        if (modifierLabel.startsWith("foreduction")) {
-            data.spellCostReduction.addCostModifier(mod.path, timesCost(of(multiplier), mod.value), itemSkill);
-        } else if (modifierLabel.toLowerCase().startsWith("foenhancedreduction")) {
-            data.spellEnhancedCostReduction.addCostModifier(mod.path, timesCost(of(multiplier), mod.value), itemSkill);
+        const itemSkill = "skill" in item.system ? item.system.skill : null;
+        if (modifierLabel.startsWith("foreduction")||modifierLabel.startsWith("foenhancedreduction")) {
+            const costModifier: ICostModifier = {
+                label: mod.path,
+                value: timesCost(of(multiplier), mod.value),
+                skill: itemSkill
+            };
+            costModifiers.push(costModifier);
         } else {
             console.warn(`Splittermond | Encountered a focus modifier for whose path '${modifierLabel} is unknown.`)
         }
         return;
-    })
+    });
+    const itemModifierHandler = new ItemModifierHandler(allErrors, item, type)
 
     normalizedModifiers.scalarModifiers.forEach(modifier => {
         const modifierLabel = modifier.path.toLowerCase();
@@ -94,57 +57,57 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
 
         switch (modifierLabel) {
             case "bonuscap":
-                addModifierHelper("bonuscap", times(of(multiplier), modifier.value), modifier.attributes);
+                modifiers.push(createModifier("bonuscap", times(of(multiplier), modifier.value), modifier.attributes, item, type));
                 break;
             case "speed.multiplier":
             case "gsw.mult":
             case "actor.speed.multiplier":
-                actor.modifier.addModifier(
-                    new MultiplicativeModifier(
-                        "actor.speedmultiplier",
-                        pow(modifier.value, of(multiplier)),
-                        {...modifier.attributes, name: item.name, type},
-                        item,
-                        false));
+                const speedModifier = new MultiplicativeModifier(
+                    "actor.speedmultiplier",
+                    pow(modifier.value, of(multiplier)),
+                    {...modifier.attributes, name: item.name, type},
+                    item,
+                    false);
+                modifiers.push(speedModifier);
                 break;
             case "sr":
-                addModifierHelper("damagereduction", times(of(multiplier), modifier.value), modifier.attributes, "");
+                modifiers.push(createModifier("damagereduction", times(of(multiplier), modifier.value), modifier.attributes, item, type, ""));
                 break;
             case "handicap.shield.mod":
             case "handicap.shield":
-                addModifierHelper("handicap.shield", times(of(multiplier), modifier.value), modifier.attributes, "");
+                modifiers.push(createModifier("handicap.shield", times(of(multiplier), modifier.value), modifier.attributes, item, type, ""));
                 break;
             case "handicap.mod":
             case "handicap":
-                addModifierHelper("handicap", times(of(multiplier), modifier.value), modifier.attributes, "");
+                modifiers.push(createModifier("handicap", times(of(multiplier), modifier.value), modifier.attributes, item, type, ""));
                 break;
             case "handicap.armor.mod":
             case "handicap.armor":
-                addModifierHelper("handicap.armor", times(of(multiplier), modifier.value), modifier.attributes, "");
+                modifiers.push(createModifier("handicap.armor", times(of(multiplier), modifier.value), modifier.attributes, item, type, ""));
                 break;
             case "tickmalus.shield.mod":
             case "tickmalus.shield":
-                addModifierHelper("tickmalus.shield", times(of(multiplier), modifier.value), modifier.attributes, "");
+                modifiers.push(createModifier("tickmalus.shield", times(of(multiplier), modifier.value), modifier.attributes, item, type, ""));
                 break;
             case "tickmalus.armor.mod":
             case "tickmalus.armor":
-                addModifierHelper("tickmalus.armor", times(of(multiplier), modifier.value), modifier.attributes, "");
+                modifiers.push(createModifier("tickmalus.armor", times(of(multiplier), modifier.value), modifier.attributes, item, type, ""));
                 break;
             case "tickmalus.mod":
             case "tickmalus":
-                addModifierHelper("tickmalus", times(of(multiplier), modifier.value), modifier.attributes, "");
+                modifiers.push(createModifier("tickmalus", times(of(multiplier), modifier.value), modifier.attributes, item, type, ""));
                 break;
             case "woundmalus.nbrlevels":
             case "actor.woundmalus.nbrlevels":
-                addModifierHelper("actor.woundmalus.nbrLevels", times(of(multiplier), modifier.value), modifier.attributes);
+                modifiers.push(createModifier("actor.woundmalus.nbrLevels", times(of(multiplier), modifier.value), modifier.attributes, item, type));
                 break;
             case "woundmalus.mod":
             case "actor.woundmalus.mod":
-                addModifierHelper("actor.woundMalus.mod", times(of(multiplier), modifier.value), modifier.attributes);
+                modifiers.push(createModifier("actor.woundMalus.mod", times(of(multiplier), modifier.value), modifier.attributes, item, type));
                 break;
             case "woundmalus.levelmod":
             case "actor.woundmalus.levelmod":
-                addModifierHelper("actor.woundMalus.levelMod", times(of(multiplier), modifier.value), modifier.attributes);
+                modifiers.push(createModifier("actor.woundMalus.levelMod", times(of(multiplier), modifier.value), modifier.attributes, item, type));
                 break;
             case "splinterpoints.bonus":
                 if (!("skill" in modifier.attributes)) {
@@ -152,36 +115,39 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 } else {
                     modifier.attributes.skill = normalizeDescriptor(modifier.attributes.skill).usingMappers("skills").do();
                 }
-                actor.modifier.add("splinterpoints.bonus", {
+                const splinterpointModifier = new Modifier("splinterpoints.bonus", times(of(multiplier), modifier.value), {
                     name: item.name,
                     type
-                }, times(of(multiplier), modifier.value), item, false);
+                }, item, false);
+                modifiers.push(splinterpointModifier);
                 break;
             case "splinterpoints":
             case "actor.splinterpoints":
-                addModifierHelper("actor.splinterpoints", times(of(multiplier), modifier.value), modifier.attributes);
+                modifiers.push(createModifier("actor.splinterpoints", times(of(multiplier), modifier.value), modifier.attributes, item, type));
                 break;
             case "healthregeneration.multiplier":
             case "actor.healthregeneration.multiplier":
-                actor.modifier.addModifier(new MultiplicativeModifier(
+                const healthRegenModifier = new MultiplicativeModifier(
                    "actor.healthregeneration.multiplier", times(of(multiplier), modifier.value),
                     {...modifier.attributes, name: item.name, type}, item, false
-                ))
+                );
+                modifiers.push(healthRegenModifier);
                 break;
             case "focusregeneration.multiplier":
             case "actor.focusregeneration.multiplier":
-                actor.modifier.addModifier(new MultiplicativeModifier(
+                const focusRegenModifier = new MultiplicativeModifier(
                     "actor.focusregeneration.multiplier", times(of(multiplier), modifier.value),
                     {...modifier.attributes, name: item.name, type}, item, false
-                ))
+                );
+                modifiers.push(focusRegenModifier);
                 break;
             case "healthregeneration.bonus":
             case "actor.healthregeneration.bonus":
-                addModifierHelper("actor.healthregeneration.bonus", times(of(multiplier), modifier.value), modifier.attributes);
+                modifiers.push(createModifier("actor.healthregeneration.bonus", times(of(multiplier), modifier.value), modifier.attributes, item, type));
                 break;
             case "focusregeneration.bonus":
             case "actor.focusregeneration.bonus":
-                addModifierHelper("actor.focusregeneration.bonus", times(of(multiplier), modifier.value), modifier.attributes);
+                modifiers.push(createModifier("actor.focusregeneration.bonus", times(of(multiplier), modifier.value), modifier.attributes, item, type));
                 break;
             case "lowerfumbleresult":
                 if (!("skill" in modifier.attributes) && "skill" in item.system && item.system.skill) {
@@ -189,26 +155,26 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 } else if ("skill" in modifier.attributes) {
                     modifier.attributes.skill = normalizeDescriptor(modifier.attributes.skill).usingMappers("skills").do();
                 }
-                addModifierHelper("lowerfumbleresult", times(of(multiplier), modifier.value), modifier.attributes, "");
+                modifiers.push(createModifier("lowerfumbleresult", times(of(multiplier), modifier.value), modifier.attributes, item, type, ""));
                 break;
             case "generalskills":
                 //Within the foreach function the compiler cannot figure out that the type guard happens first and complains
                 //Therefore, we assign attributes to a new variable so that the order of operations is obvious.
                 const generalSkillAttributes = modifier.attributes;
                 splittermond.skillGroups.general.forEach((skill) => {
-                    addModifierHelper(skill, times(of(multiplier), modifier.value), generalSkillAttributes);
+                    modifiers.push(createModifier(skill, times(of(multiplier), modifier.value), generalSkillAttributes, item, type));
                 });
                 break;
             case "magicskills":
                 const magicSkillAttributes = modifier.attributes;
                 splittermond.skillGroups.magic.forEach((skill) => {
-                    addModifierHelper(skill, times(of(multiplier), modifier.value), magicSkillAttributes);
+                    modifiers.push(createModifier(skill, times(of(multiplier), modifier.value), magicSkillAttributes, item, type));
                 });
                 break;
             case "fightingskills":
                 const fightingSkillAttributes = modifier.attributes;
                 splittermond.skillGroups.fighting.forEach((skill) => {
-                    addModifierHelper(skill, times(of(multiplier), modifier.value), fightingSkillAttributes);
+                    modifiers.push(createModifier(skill, times(of(multiplier), modifier.value), fightingSkillAttributes, item, type));
                 });
                 break;
             //This setup is a bit of a hack, it uses the (private) knowledge that Attack objects add the item id as listener to skill modifiers
@@ -219,7 +185,7 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                     .filter(item => item.type === "npcattack")
                     .map(item => `skill.${item.id}`) //name would be better thematically (skill name for npc attacks is the item name) but id is more reliable
                     .forEach((skill) => {
-                        addModifierHelper(skill, times(of(multiplier), modifier.value), npcAttackAttributes);
+                        modifiers.push(createModifier(skill, times(of(multiplier), modifier.value), npcAttackAttributes, item, type));
                     });
                 break;
             case "damage":
@@ -229,10 +195,12 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                     new: "item.damage",
                     itemName: item.name
                 });
-                actor.modifier.addModifier(itemModifierHandler.convertToDamageModifier(modifier));
+                const damageModifier = itemModifierHandler.convertToDamageModifier(modifier);
+                modifiers.push(damageModifier);
                 break;
             case "item.damage":
-                actor.modifier.addModifier(itemModifierHandler.convertToDamageModifier(modifier));
+                const itemDamageModifier = itemModifierHandler.convertToDamageModifier(modifier);
+                modifiers.push(itemDamageModifier);
                 break;
             case "weaponspeed":
                 modifier.path = "item.weaponspeed";
@@ -241,14 +209,17 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                     new: "item.weaponspeed",
                     itemName: item.name
                 });
-                actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier));
+                const weaponSpeedModifier = itemModifierHandler.convertToWeaponSpeedModifier(modifier);
+                modifiers.push(weaponSpeedModifier);
                 break;
             case "item.weaponspeed":
-                actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier));
+                const itemWeaponSpeedModifier = itemModifierHandler.convertToWeaponSpeedModifier(modifier);
+                modifiers.push(itemWeaponSpeedModifier);
                 break;
             case "item.addfeature":
             case "item.mergefeature":
-                actor.modifier.addModifier(itemModifierHandler.convertToItemFeatureModifier(modifier));
+                const featureModifier = itemModifierHandler.convertToItemFeatureModifier(modifier);
+                modifiers.push(featureModifier);
                 return
             default:
                 let element: string | undefined = splittermond.derivedAttributes.find(attr => {
@@ -259,9 +230,14 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 }
                 let adjustedValue = times(of(multiplier), modifier.value);
                 if (element === "initiative") {
-                    addInitiativeModifier(adjustedValue, modifier.attributes);
+                    const initiativeModifier = new InverseModifier("initiative", condense(adjustedValue), {
+                        ...modifier.attributes,
+                        name: modifier.attributes.emphasis ??  item.name,
+                        type
+                    }, item, !!modifier.attributes.emphasis);
+                    modifiers.push(initiativeModifier);
                 } else {
-                    addModifierHelper(element, adjustedValue, modifier.attributes);
+                    modifiers.push(createModifier(element, adjustedValue, modifier.attributes, item, type));
                 }
 
                 break;
@@ -274,6 +250,17 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
         });
         foundryApi.reportError(`${introMessage}\n${allErrors.join("\n")}`);
     }
+
+    return { modifiers, costModifiers };
+}
+
+function createModifier(path: string, value: ScalarExpression, attributes: Record<string, string>, item: SplittermondItem, type: ModifierType, emphasisOverride?: string): IModifier {
+    const emphasis = (emphasisOverride ?? attributes.emphasis as string) ?? "";
+    return new Modifier(path, condense(value), {
+        ...attributes,
+        name: emphasis || item.name,
+        type
+    }, item, !!emphasis);
 }
 
 /**
