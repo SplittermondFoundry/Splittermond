@@ -113,11 +113,6 @@ describe('addModifier', () => {
         }, of(2), item, false]);
     });
 
-    it('should ignore 0 as value', () => {
-        addModifier(actor, item, 'BonusCap +0');
-        expect(modifierManager.getForId("BonusCap").getModifiers()).to.be.empty
-    });
-
     ([
         ['speed.multiplier 2', pow(of(2),of(2))],
         ['gsw.mult 0', of(0)]

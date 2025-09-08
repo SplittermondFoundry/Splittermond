@@ -1274,8 +1274,11 @@ export default class SplittermondActor extends Actor {
         const multiplierFromModifiers = this.modifier.getForId("actor.healthregeneration.multiplier").notSelectable().getModifiers();
         if (multiplierFromModifiers.length > 1) {
             console.warn("Splittermond | Multiple modifiers for health regeneration multiplier found. Only the highest is applied.");
+        } else if(multiplierFromModifiers.length === 0){
+            return 2;
+        }else {
+            return Math.max( ...multiplierFromModifiers.map(m => evaluate(m.value)));
         }
-        return Math.max(2, ...multiplierFromModifiers.map(m => evaluate(m.value)));
     }
 
     get healthRegenBonus() {
@@ -1290,8 +1293,11 @@ export default class SplittermondActor extends Actor {
         const multiplierFromModifiers = this.modifier.getForId("actor.focusregeneration.multiplier").notSelectable().getModifiers();
         if(multiplierFromModifiers.length > 1) {
             console.warn("Splittermond | Multiple modifiers for focus regeneration multiplier found. Only the highest is applied.");
+        } else if(multiplierFromModifiers.length === 0){
+            return 2;
+        }else {
+            return Math.max( ...multiplierFromModifiers.map(m => evaluate(m.value)));
         }
-        return Math.max(2, ...multiplierFromModifiers.map(m => evaluate(m.value)));
     }
 
     get focusRegenBonus() {

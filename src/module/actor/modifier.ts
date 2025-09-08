@@ -8,7 +8,8 @@ import {
     isGreaterZero,
     isLessThanZero,
     of,
-    plus, times
+    plus,
+    times
 } from "./modifiers/expressions/scalar";
 
 export interface ModifierAttributes {
@@ -39,6 +40,7 @@ export interface IModifier {
 export default class Modifier implements IModifier {
     private _isBonus:boolean;
     private _isMalus:boolean;
+
     /**
      *
      * @param {string} path Modifier Path
