@@ -13,6 +13,7 @@ import {validateDescriptors} from "./parsing/validators";
 import {normalizeDescriptor} from "./parsing/normalizer";
 import {InverseModifier} from "../InverseModifier";
 import {ItemModifierHandler} from "./itemModifierHandler";
+import {MultiplicativeModifier} from "../MultiplicativeModifier";
 
 interface PreparedSystem {
     spellCostReduction: SpellCostReductionManager,
@@ -36,9 +37,17 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
     function addInitiativeModifier(value: ScalarExpression, attributes: Record<string, string>) {
         const emphasis = (attributes.emphasis as string) ?? ""; /*conversion validated by descriptor validator*/
         if (emphasis) {
-            actor.modifier.addModifier(new InverseModifier("initiative",condense(value),{...attributes, name: emphasis, type}, item, true));
+            actor.modifier.addModifier(new InverseModifier("initiative", condense(value), {
+                ...attributes,
+                name: emphasis,
+                type
+            }, item, true));
         } else {
-            actor.modifier.addModifier(new InverseModifier("initiative", condense(value), {...attributes, name: item.name, type}, item, false));
+            actor.modifier.addModifier(new InverseModifier("initiative", condense(value), {
+                ...attributes,
+                name: item.name,
+                type
+            }, item, false));
         }
     }
 
@@ -85,12 +94,18 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
 
         switch (modifierLabel) {
             case "bonuscap":
-                addModifierHelper("bonuscap", times(of(multiplier), modifier.value), modifier.attributes );
+                addModifierHelper("bonuscap", times(of(multiplier), modifier.value), modifier.attributes);
                 break;
             case "speed.multiplier":
             case "gsw.mult":
             case "actor.speed.multiplier":
-                addModifierHelper("actor.speedmultiplier", pow(modifier.value,of(multiplier)), modifier.attributes, "");
+                actor.modifier.addModifier(
+                    new MultiplicativeModifier(
+                        "actor.speedmultiplier",
+                        pow(modifier.value, of(multiplier)),
+                        {...modifier.attributes, name: item.name, type},
+                        item,
+                        false));
                 break;
             case "sr":
                 addModifierHelper("damagereduction", times(of(multiplier), modifier.value), modifier.attributes, "");
@@ -148,11 +163,17 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 break;
             case "healthregeneration.multiplier":
             case "actor.healthregeneration.multiplier":
-                addModifierHelper("actor.healthregeneration.multiplier", times(of(multiplier), modifier.value), modifier.attributes);
+                actor.modifier.addModifier(new MultiplicativeModifier(
+                   "actor.healthregeneration.multiplier", times(of(multiplier), modifier.value),
+                    {...modifier.attributes, name: item.name, type}, item, false
+                ))
                 break;
             case "focusregeneration.multiplier":
             case "actor.focusregeneration.multiplier":
-                addModifierHelper("actor.focusregeneration.multiplier", times(of(multiplier), modifier.value), modifier.attributes);
+                actor.modifier.addModifier(new MultiplicativeModifier(
+                    "actor.focusregeneration.multiplier", times(of(multiplier), modifier.value),
+                    {...modifier.attributes, name: item.name, type}, item, false
+                ))
                 break;
             case "healthregeneration.bonus":
             case "actor.healthregeneration.bonus":
@@ -203,7 +224,11 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 break;
             case "damage":
                 modifier.path = "item.damage";
-                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath",{old: "damage", new: "item.damage", itemName: item.name});
+                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
+                    old: "damage",
+                    new: "item.damage",
+                    itemName: item.name
+                });
                 actor.modifier.addModifier(itemModifierHandler.convertToDamageModifier(modifier));
                 break;
             case "item.damage":
@@ -211,7 +236,11 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                 break;
             case "weaponspeed":
                 modifier.path = "item.weaponspeed";
-                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath",{old: "weaponspeed", new: "item.weaponspeed", itemName: item.name});
+                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
+                    old: "weaponspeed",
+                    new: "item.weaponspeed",
+                    itemName: item.name
+                });
                 actor.modifier.addModifier(itemModifierHandler.convertToWeaponSpeedModifier(modifier));
                 break;
             case "item.weaponspeed":
@@ -229,9 +258,9 @@ export function addModifier(actor: SplittermondActor, item: SplittermondItem, st
                     element = modifier.path;
                 }
                 let adjustedValue = times(of(multiplier), modifier.value);
-                if(element === "initiative") {
+                if (element === "initiative") {
                     addInitiativeModifier(adjustedValue, modifier.attributes);
-                }else {
+                } else {
                     addModifierHelper(element, adjustedValue, modifier.attributes);
                 }
 

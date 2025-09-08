@@ -12,7 +12,7 @@ import {CharacterDataModel} from "module/actor/dataModel/CharacterDataModel";
 import {CharacterAttribute} from "module/actor/dataModel/CharacterAttribute";
 import Attribute from "module/actor/attribute";
 import {clearMappers} from "module/actor/modifiers/parsing/normalizer";
-import {evaluate, of} from "module/actor/modifiers/expressions/scalar";
+import {evaluate, of, pow} from "module/actor/modifiers/expressions/scalar";
 import {of as ofCost} from "module/actor/modifiers/expressions/cost";
 import {stubRollApi} from "../../../RollMock";
 import {InverseModifier} from "../../../../../module/actor/InverseModifier";
@@ -119,33 +119,33 @@ describe('addModifier', () => {
     });
 
     ([
-        ['speed.multiplier 2', 4/*2 from bonus, 2 from multiplier*/],
-        ['gsw.mult 0', 0]
+        ['speed.multiplier 2', pow(of(2),of(2))],
+        ['gsw.mult 0', of(0)]
     ] as const)
         .forEach(([modifier, expected]) => {
             it(`should handle multiplier modifier ${modifier}`, () => {
                 addModifier(actor, item, modifier, 'innate', 2);
-                expect(modifierManager.add.lastCall.args).to.deep.equal([
-                    "actor.speedmultiplier",
-                    {name: 'Test Item', type: 'innate'},
-                    of(expected),
-                    item,
-                    false
-                ])
+                expect(modifierManager.addModifier.lastCall.firstArg).to.deep.contain({
+                    groupId: "actor.speedmultiplier",
+                    attributes: {name: 'Test Item', type: 'innate'},
+                    value: expected,
+                    origin: item,
+                    selectable: false
+                })
             });
         });
 
-    it('should handle regeneration multiplier', () => {
+    it('should handle health regeneration multiplier', () => {
         addModifier(actor, item, 'HealthRegeneration.multiplier 3');
-        expect(modifierManager.add.lastCall.args).to.deep.equal([
-            'actor.healthregeneration.multiplier',
-            {name: 'Test Item', type: null},
-            of(3),
-            item,
-            false
-        ]);
+        expect(modifierManager.addModifier.lastCall.firstArg).to.deep.contain({
+            groupId: 'actor.healthregeneration.multiplier',
+            attributes: {name: 'Test Item', type: null},
+            value: of(3),
+            origin: item,
+            selectable: false
+        });
     });
-    it('should handle regeneration bonus', () => {
+    it('should handle health regeneration bonus', () => {
         addModifier(actor, item, 'HealthRegeneration.bonus 3');
         expect(modifierManager.add.lastCall.args).to.deep.equal([
             'actor.healthregeneration.bonus',
@@ -155,17 +155,17 @@ describe('addModifier', () => {
             false
         ]);
     });
-    it('should handle regeneration multiplier', () => {
+    it('should handle focus regeneration multiplier', () => {
         addModifier(actor, item, 'FocusRegeneration.multiplier 3');
-        expect(modifierManager.add.lastCall.args).to.deep.equal([
-            'actor.focusregeneration.multiplier',
-            {name: 'Test Item', type: null},
-            of(3),
-            item,
-            false
-        ]);
+        expect(modifierManager.addModifier.lastCall.firstArg).to.deep.contain({
+            groupId: 'actor.focusregeneration.multiplier',
+            attributes: {name: 'Test Item', type: null},
+            value: of(3),
+            origin: item,
+            selectable: false
+        });
     });
-    it('should handle regeneration bonus', () => {
+    it('should handle focus regeneration bonus', () => {
         addModifier(actor, item, 'FocusRegeneration.bonus 3');
         expect(modifierManager.add.lastCall.args).to.deep.equal([
             'actor.focusregeneration.bonus',
