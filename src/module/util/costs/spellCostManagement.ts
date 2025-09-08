@@ -20,6 +20,15 @@ export function initializeSpellCostManagement<T extends Record<string, any>>(dat
     return data as T & SpellCostReductionManagement;
 }
 
+export interface ICostModifier {
+    /**the unparsed input formula for spell reducctions, of the form: foreduction([.]skill|[.]skill[.]type)?*/
+    readonly label: string;
+    /** the unevaluated splittermond spell cost reduction formula*/
+    readonly value: CostExpression;
+    /** the skill that is attached to the item that carries the modifier label. Global reductions on skilled items will be assumed to apply to that skill only.*/
+    readonly skill: string | null;
+}
+
 class SpellCostReductionManager {
     private readonly modifiersMap: SpellCostModifiers;
 
@@ -31,15 +40,10 @@ class SpellCostReductionManager {
         return this.modifiersMap;
     }
 
-    /**
-     * @param modifierLabel the unparsed input formula for spell reducctions, of the form: foreduction([.]skill|[.]skill[.]type)?
-     * @param modifierValue the unparsed splittermond spell cost reduction formula
-     * @param skill the skill that is attached to the item that carries the modifier label. Global reductions on skilled items will be assumed to apply to that skill only.
-     */
-    addCostModifier(modifierLabel: string, modifierValue: CostExpression, skill?: string | null) {
+    addCostModifier(modifier: ICostModifier) {
         let group = null;
         let type = null;
-        let labelParts = modifierLabel.split(".");
+        let labelParts = modifier.label.split(".");
 
         if (labelParts.length >= 2) {
             group = labelParts[1].trim().toLowerCase();
@@ -48,13 +52,13 @@ class SpellCostReductionManager {
             type = labelParts[2].trim().toLowerCase();
         }
         if (labelParts.length >= 4) {
-            console.warn("The label " + modifierLabel + " is not a valid cost modifier label. Extraneous parts will be ignored.")
+            console.warn("The label " + modifier.label + " is not a valid cost modifier label. Extraneous parts will be ignored.")
         }
-        if (group === null && skill) {
-            group = skill;
+        if (group === null && modifier.skill) {
+            group = modifier.skill;
         }
 
-        this.modifiersMap.put(modifierValue,group, type);
+        this.modifiersMap.put(modifier.value,group, type);
     }
 
     /**

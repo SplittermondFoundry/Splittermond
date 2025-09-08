@@ -505,9 +505,11 @@ describe('addModifier', () => {
 
             const system = actor.system as CharacterDataModel & PreparedSystem
             const focusManager = system.spellCostReduction as SinonStubbedInstance<SpellCostReductionManager>;
-            expect(focusManager.addCostModifier.lastCall.args[0]).to.equal("foreduction.protectionmagic");
-            expect(focusManager.addCostModifier.lastCall.args[1]).to.deep.equal(ofCost(expected));
-            expect(focusManager.addCostModifier.lastCall.args[2]).to.be.undefined;
+            expect(focusManager.addCostModifier.lastCall.firstArg).to.deep.equal({
+                label: "foreduction.protectionmagic",
+                value: ofCost(expected),
+                skill: null
+            });
         });
 
         it(`should pass focus costs of ${cost} to spell enhancement manager`, () => {
@@ -515,9 +517,11 @@ describe('addModifier', () => {
 
             const system = actor.system as CharacterDataModel & PreparedSystem
             const focusManager = system.spellEnhancedCostReduction as SinonStubbedInstance<SpellCostReductionManager>;
-            expect(focusManager.addCostModifier.lastCall.args[0]).to.equal("foenhancedreduction.combatmagic");
-            expect(focusManager.addCostModifier.lastCall.args[1]).to.deep.equal(ofCost(expected));
-            expect(focusManager.addCostModifier.lastCall.args[2]).to.be.undefined;
+            expect(focusManager.addCostModifier.lastCall.firstArg).to.deep.equal({
+                label: "foenhancedreduction.combatmagic",
+                value: ofCost(expected),
+                skill: null
+            });
         });
     });
 });

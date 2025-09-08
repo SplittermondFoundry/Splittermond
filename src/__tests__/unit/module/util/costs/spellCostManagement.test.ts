@@ -20,37 +20,41 @@ describe("Spell cost Management addition of reductions", () => {
         ["enhancementCostManger", "spellEnhancedCostReduction"]
     ] as const).forEach(([title, managerKey]) => {
         it(`should be able to add a global cost modifier for ${title}`, () => {
-            const manager= initializeSpellCostManagement({})[managerKey];
-            manager.addCostModifier("foreduction", mod("K2V1"), null);
+            const manager = initializeSpellCostManagement({})[managerKey];
+            manager.addCostModifier({label: "foreduction", value: mod("K2V1"), skill: null});
             const reductions = manager.getCostModifiers("deathmagic", "conjuration");
             expect(reductions).to.deep.contain(new Cost(1, 1, true).asModifier());
         });
 
         it(`should be able to add a skill specific cost modifier for ${title} for a skilled item`, () => {
-            const manager= initializeSpellCostManagement({})[managerKey];
-            manager.addCostModifier("foreduction", mod("K2V1"), "deathmagic");
+            const manager = initializeSpellCostManagement({})[managerKey];
+            manager.addCostModifier({label: "foreduction", value: mod("K2V1"), skill: "deathmagic"});
             const reductions = manager.getCostModifiers("deathmagic", "");
             expect(reductions).to.deep.contain(new Cost(1, 1, true).asModifier());
             expect(manager.getCostModifiers("", "")).to.be.empty;
         });
 
         it(`should be able to add a skill specific cost modifier for ${title}`, () => {
-            const manager= initializeSpellCostManagement({})[managerKey];
-            manager.addCostModifier("foreduction.deathmagic", mod("4V2"), "deathmagic");
+            const manager = initializeSpellCostManagement({})[managerKey];
+            manager.addCostModifier({label: "foreduction.deathmagic", value: mod("4V2"), skill: "deathmagic"});
             const reductions = manager.getCostModifiers("deathmagic", "conjuration");
             expect(reductions).to.deep.contain(new Cost(2, 2, false).asModifier());
         });
 
         it(`should be able to add a skill & type specific cost modifier for ${title}`, () => {
-            const manager= initializeSpellCostManagement({})[managerKey];
-            manager.addCostModifier("foreduction.deathmagic.conjuration", mod("6V3"), "deathmagic");
+            const manager = initializeSpellCostManagement({})[managerKey];
+            manager.addCostModifier({
+                label: "foreduction.deathmagic.conjuration",
+                value: mod("6V3"),
+                skill: "deathmagic"
+            });
             const reductions = manager.getCostModifiers("deathmagic", "conjuration");
             expect(reductions).to.deep.contain(new Cost(3, 3, false).asModifier());
         });
 
         it(`should be use the skill as group if no group is given for ${title}`, () => {
-            const manager= initializeSpellCostManagement({})[managerKey];
-            manager.addCostModifier("foreduction", mod("8V4"), "deathmagic");
+            const manager = initializeSpellCostManagement({})[managerKey];
+            manager.addCostModifier({label: "foreduction", value: mod("8V4"), skill: "deathmagic"});
             const reductions = manager.getCostModifiers("deathmagic", "conjuration");
             expect(reductions).to.deep.contain(new Cost(4, 4, false).asModifier());
         });
@@ -65,7 +69,7 @@ describe("Spell cost Management multiple reductions", () => {
             it(`should return all global reductions for ${title}`, () => {
                 const manager = initializeSpellCostManagement({})[managerKey];
                 const zero = new Cost(0, 0, true).asModifier();
-                manager.addCostModifier("foreduction", mod("K2V1"), null);
+                manager.addCostModifier({label: "foreduction", value: mod("K2V1"), skill: null});
                 manager.modifiers.put(of(new Cost(2, 2, true).asModifier()), null, null);
 
                 expect(manager.getCostModifiers("", "")).to.have.length(2);
@@ -171,6 +175,6 @@ describe("Spell cost Management selection of reductions", () => {
         });
 });
 
-function mod(input: string):CostExpression {
+function mod(input: string): CostExpression {
     return of(parseCostString(input).asModifier());
 }
