@@ -289,7 +289,7 @@ export default class Attack {
         }
     }
 
-    async roll(options: Record<string, any> = {}) {
+    async roll(options: Partial<Parameters<typeof this.skill.roll>[0]> = {}) {
         if (!this.actor) return false;
 
         const attackRollOptions = {
