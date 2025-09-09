@@ -4,7 +4,7 @@ import sinon from "sinon";
 import Modifier, {Modifiers} from "module/actor/modifier.js";
 import SplittermondItem from "module/item/item";
 import {TooltipFormula} from "module/util/tooltip";
-import {of} from "module/actor/modifiers/expressions/scalar";
+import {of} from "module/modifiers/expressions/scalar";
 import {foundryApi} from "../../../../module/api/foundryApi";
 
 describe("Modifier", () => {

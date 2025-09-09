@@ -1,5 +1,5 @@
 import {CostModifier} from "./Cost";
-import {type CostExpression, evaluate} from "../../actor/modifiers/expressions/cost";
+import {type CostExpression, evaluate} from "../../modifiers/expressions/cost";
 
 interface SpellCostReductionManagement {
     spellCostReduction: SpellCostReductionManager;

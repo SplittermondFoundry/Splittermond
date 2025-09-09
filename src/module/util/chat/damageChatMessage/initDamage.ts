@@ -9,7 +9,7 @@ import SplittermondActor from "../../../actor/actor";
 import {CostBase} from "../../costs/costTypes";
 import {SplittermondChatCard} from "../SplittermondChatCard";
 import {toDisplayFormula} from "../../damage/util";
-import {asString, condense, mapRoll} from "../../../actor/modifiers/expressions/scalar";
+import {asString, condense, mapRoll} from "../../../modifiers/expressions/scalar";
 
 export const DamageInitializer = {
     rollFromDamageRoll

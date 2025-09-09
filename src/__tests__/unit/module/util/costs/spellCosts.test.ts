@@ -6,7 +6,7 @@ import {
 } from "module/util/costs/spellCosts.js";
 import {Cost} from "module/util/costs/Cost.js";
 import {initializeSpellCostManagement, SpellCostReductionManager} from "module/util/costs/spellCostManagement.js";
-import {of} from "../../../../../module/actor/modifiers/expressions/cost";
+import {of} from "../../../../../module/modifiers/expressions/cost";
 
 function mockReductionManager<T>(...cost:T[]){
  //This is a mock and therefore incomplete. For the purpose of the test this is a SpellCostReductionManager.

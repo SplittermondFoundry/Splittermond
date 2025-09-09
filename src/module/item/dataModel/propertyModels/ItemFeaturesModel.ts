@@ -6,7 +6,7 @@ import {DataModelConstructorInput} from "../../../api/DataModel";
 import {foundryApi} from "../../../api/foundryApi";
 import {SplittermondItemDataModel} from "../../index";
 import ModifierManager from "../../../actor/modifier-manager";
-import {evaluate} from "../../../actor/modifiers/expressions/scalar";
+import {evaluate} from "../../../modifiers/expressions/scalar";
 import {DocumentAccessMixin} from "../../../data/AncestorDocumentMixin";
 
 

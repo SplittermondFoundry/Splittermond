@@ -1,4 +1,4 @@
-import {evaluate} from "./modifiers/expressions/scalar";
+import {evaluate} from "../modifiers/expressions/scalar";
 
 export default class Modifiable {
     /**

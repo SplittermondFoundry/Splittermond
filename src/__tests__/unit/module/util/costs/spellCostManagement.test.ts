@@ -3,7 +3,7 @@ import {expect} from "chai";
 import {initializeSpellCostManagement} from "module/util/costs/spellCostManagement";
 import {Cost} from "module/util/costs/Cost";
 import {parseCostString} from "../../../../../module/util/costs/costParser";
-import {type CostExpression, of} from "../../../../../module/actor/modifiers/expressions/cost";
+import {type CostExpression, of} from "../../../../../module/modifiers/expressions/cost";
 
 describe("Spell cost Management initialization", () => {
     const management = initializeSpellCostManagement({});

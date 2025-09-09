@@ -7,7 +7,7 @@ import {
     parseFeatures
 } from "../../item/dataModel/propertyModels/ItemFeaturesModel";
 import {ItemFeature} from "../../config/itemFeatures";
-import {condense, Expression, mapRoll, toRollFormula} from "../../actor/modifiers/expressions/scalar";
+import {condense, Expression, mapRoll, toRollFormula} from "../../modifiers/expressions/scalar";
 import {toDisplayFormula, toRollFormula as rollFormulaReplacer} from "./util";
 
 export class DamageRoll {

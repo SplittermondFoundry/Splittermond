@@ -2,7 +2,7 @@ import {describe, it} from "mocha";
 import {expect} from "chai";
 import ModifierManager from "module/actor/modifier-manager";
 import SplittermondItem from "module/item/item";
-import {of} from "module/actor/modifiers/expressions/scalar";
+import {of} from "module/modifiers/expressions/scalar";
 
 describe("ModifierManager", () => {
     let manager: ModifierManager;

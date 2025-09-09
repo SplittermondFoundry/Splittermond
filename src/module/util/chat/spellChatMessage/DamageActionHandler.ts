@@ -18,7 +18,7 @@ import {configureUseAction} from "./commonAlgorithms/defaultUseActionAlgorithm";
 import {DamageInitializer} from "../damageChatMessage/initDamage";
 import {CostBase} from "../../costs/costTypes";
 import {foundryApi} from "../../../api/foundryApi";
-import {asString, condense, mapRoll} from "../../../actor/modifiers/expressions/scalar";
+import {asString, condense, mapRoll} from "../../../modifiers/expressions/scalar";
 import {toDisplayFormula, toRollFormula} from "../../damage/util";
 
 function DamageActionHandlerSchema() {

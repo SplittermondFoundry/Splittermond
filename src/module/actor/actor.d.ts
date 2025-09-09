@@ -4,7 +4,7 @@ import Attack from "./attack";
 import {DamageType} from "../config/damageTypes";
 import {CharacterDataModel} from "./dataModel/CharacterDataModel";
 import {NpcDataModel} from "./dataModel/NpcDataModel";
-import {Susceptibilities} from "./modifiers/Susceptibilities";
+import {Susceptibilities} from "./Susceptibilities";
 import ModifierManager from "./modifier-manager";
 import type {VirtualToken} from "../combat/VirtualToken";
 

@@ -1,5 +1,5 @@
 import SplittermondPhysicalItem from "./physical";
-import {of} from "../actor/modifiers/expressions/scalar";
+import {of} from "../modifiers/expressions/scalar";
 import {ArmorDataModel} from "./dataModel/ArmorDataModel";
 
 

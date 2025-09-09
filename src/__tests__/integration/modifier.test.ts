@@ -20,7 +20,7 @@ import {
     roll,
     times,
     toRollFormula
-} from "module/actor/modifiers/expressions/scalar";
+} from "module/modifiers/expressions/scalar";
 import {DamageModel} from "../../module/item/dataModel/propertyModels/DamageModel";
 
 export function modifierTest(context: QuenchBatchContext) {

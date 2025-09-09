@@ -1,6 +1,6 @@
 import * as Tooltip from "../util/tooltip.js";
 import Modifiable from "./modifiable.js";
-import {evaluate, of, plus, times} from "./modifiers/expressions/scalar/index.js";
+import {evaluate, of, plus, times} from "../modifiers/expressions/scalar/index.js";
 
 export default class DerivedValue extends Modifiable {
     /**

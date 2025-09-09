@@ -19,7 +19,7 @@ import {
     mapRoll,
     of,
     plus
-} from "../actor/modifiers/expressions/scalar/index.js";
+} from "../modifiers/expressions/scalar/index.js";
 import {foundryApi} from "../api/foundryApi.js";
 import {toDisplayFormula, toRollFormula} from "../util/damage/util";
 

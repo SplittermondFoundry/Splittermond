@@ -4,7 +4,7 @@ import * as Dice from "../util/dice"
 import * as Chat from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import {parseRollDifficulty} from "../util/rollDifficultyParser";
-import {asString} from "module/actor/modifiers/expressions/scalar";
+import {asString} from "module/modifiers/expressions/scalar";
 import {foundryApi} from "../api/foundryApi";
 import {splittermond} from "../config";
 

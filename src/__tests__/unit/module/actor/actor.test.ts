@@ -15,7 +15,7 @@ import {settings} from "../../../../module/settings";
 import {JSDOM} from "jsdom";
 import {StrengthDataModel} from "../../../../module/item/dataModel/StrengthDataModel";
 import Modifier from "../../../../module/actor/modifier";
-import {of} from "../../../../module/actor/modifiers/expressions/scalar";
+import {of} from "../../../../module/modifiers/expressions/scalar";
 
 declare const global: any
 

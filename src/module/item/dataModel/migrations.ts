@@ -1,6 +1,6 @@
-import {parseModifiers} from "../../actor/modifiers/parsing";
-import {validateDescriptors} from "../../actor/modifiers/parsing/validators";
-import {isRoll} from "../../api/Roll";
+import {parseModifiers} from "module/modifiers/parsing";
+import {validateDescriptors} from "module/modifiers/parsing/validators";
+import {isRoll} from "module/api/Roll";
 import {parseFeatures} from "./propertyModels/ItemFeaturesModel";
 
 export function migrateFrom0_12_13(source: unknown) {

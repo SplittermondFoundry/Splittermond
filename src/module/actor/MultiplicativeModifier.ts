@@ -1,6 +1,7 @@
-import {IModifier, ModifierAttributes} from "./modifier";
+
 import {TooltipFormula} from "../util/tooltip";
-import {abs, asString, condense, Expression, isGreaterThan, isLessThan, of} from "./modifiers/expressions/scalar";
+import {abs, asString, condense, Expression, isGreaterThan, isLessThan, of} from "../modifiers/expressions/scalar";
+import type {IModifier, ModifierAttributes} from "./modifier-manager";
 
 
 export class MultiplicativeModifier implements IModifier {

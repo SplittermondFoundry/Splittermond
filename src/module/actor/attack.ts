@@ -7,7 +7,7 @@ import {
     mapRoll,
     of,
     plus
-} from "./modifiers/expressions/scalar";
+} from "../modifiers/expressions/scalar";
 import {foundryApi} from "../api/foundryApi.js";
 import SplittermondActor from "./actor";
 import {splittermond} from "../config";
