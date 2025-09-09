@@ -293,7 +293,6 @@ export default class Attack {
         if (!this.actor) return false;
 
         const attackRollOptions = {
-            ...duplicate(options),
             type: "attack",
             title: null,
             subtitle: this.item.name,
@@ -305,7 +304,8 @@ export default class Attack {
                     ...this.toObject(),
                     damageImplements: this.getForDamageRoll(),
                 }
-            }
+            },
+            ...duplicate(options),
         };
         return this.skill.roll(attackRollOptions);
     }
