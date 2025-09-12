@@ -1,4 +1,7 @@
 ## 13.4.1
+### New Features
+ * Einträge für Zauberdauer werden jetzt normiert und validiert
+   * Damit sind nur noch die Dauern "Ticks" und "Minuten" zulässig
 
 ## 13.4.0
 ### Breaking changes

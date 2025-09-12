@@ -1,5 +1,7 @@
 import SplittermondItemSheet from "./item-sheet.js";
 import {foundryApi} from "../../api/foundryApi";
+import {parseFeatures} from "module/item/dataModel/propertyModels/ItemFeaturesModel.js";
+import {parseCastDuration} from "module/item/dataModel/propertyModels/CastDurationModel.js";
 
 export default class SplittermondSpellSheet extends SplittermondItemSheet {
     static get defaultOptions() {
@@ -39,6 +41,10 @@ export default class SplittermondSpellSheet extends SplittermondItemSheet {
         }
         if(formData["system.costType"] === "null"){
             formData["system.costType"] = null;
+        }
+        if(formData["system.castDuration.innateDuration"] !== undefined) {
+            formData["system.castDuration"] = parseCastDuration(formData["system.castDuration.innateDuration"]);
+            delete formData["system.features.innateDuration"];
         }
         return super._updateObject(event, formData);
     }

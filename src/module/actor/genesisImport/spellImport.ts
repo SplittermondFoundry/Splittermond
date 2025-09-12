@@ -3,6 +3,7 @@ import {initMapper} from "../../util/LanguageMapper";
 import type {itemCreator} from "../../data/EntityCreator";
 import {DamageModel} from "../../item/dataModel/propertyModels/DamageModel";
 import {foundryApi} from "../../api/foundryApi";
+import {CastDurationModel} from "module/item/dataModel/propertyModels/CastDurationModel";
 
 const skillMapper = initMapper(splittermond.skillGroups.magic)
     .withTranslator((t) => `splittermond.skillLabel.${t}`)
@@ -47,7 +48,7 @@ export function genesisSpellImport(genesisSpell: GenesisSpell) {
                 difficulty: genesisSpell.difficulty,
                 damage: {stringInput: damage},
                 range: genesisSpell.castRange,
-                castDuration: genesisSpell.castDuration,
+                castDuration: CastDurationModel.from(genesisSpell.castDuration).toObject(),
                 effectDuration: genesisSpell.spellDuration,
                 features: { internalFeatureList: []},
                 enhancementCosts: genesisSpell.enhancement,

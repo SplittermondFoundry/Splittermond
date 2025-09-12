@@ -820,7 +820,7 @@ splittermond.itemSheetProperties.spell = [
                 template: "input"
             },
             {
-                field: "system.castDuration",
+                field: "system.castDuration.innateDuration",
                 label: "splittermond.castDuration",
                 template: "input"
             },
