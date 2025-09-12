@@ -638,6 +638,39 @@ export function modifierTest(context: QuenchBatchContext) {
 
         });
 
+        it("should add item modifiers", async () => {
+            const subject = await createActor("WeaponizedCharacter");
+            (subject.system as CharacterDataModel).attributes.agility.updateSource({initial: 2, advances: 0});
+            (subject.system as CharacterDataModel).attributes.strength.updateSource({initial: 2, advances: 0});
+            (subject.system as CharacterDataModel).updateSource({
+                    skills: {
+                        ...subject.system.skills,
+                        blades: {points: 2, value: 6}
+                    }
+                }
+            );
+            await subject.createEmbeddedDocuments("Item", [{
+                type: "weapon",
+                name: "Spear of Destiny",
+                system: {
+                    skill: "staff",
+                    damage: DamageModel.from("3"),
+                    equipped: true,
+                    attribute1: "strength",
+                    attribute2: "agility",
+                    weaponSpeed: 6
+                }
+            },{
+                type: "strength",
+                name: "Murderous Strength",
+                system: {modifier: "item.damage itemType='weapon' damageType='physical' +3"}
+            }]);
+
+            subject.prepareBaseData();
+            await subject.prepareEmbeddedDocuments();
+            subject.prepareDerivedData();
+            expect(subject.attacks.find(a => a.name === "Spear of Destiny")?.damage).to.equal("6");
+        });
     });
 
     describe("Roll expressions", () => {
@@ -691,7 +724,7 @@ export function modifierTest(context: QuenchBatchContext) {
     });
 
     describe("Item modifiers", () => {
-        it("should account for modifications on weapons", async () => {
+        it("should account for modifications to weapons", async () => {
             const subject = await createActor("WeaponizedCharacter");
             (subject.system as CharacterDataModel).attributes.agility.updateSource({initial: 2, advances: 0});
             (subject.system as CharacterDataModel).attributes.strength.updateSource({initial: 2, advances: 0});
@@ -730,7 +763,7 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(subject.attacks.find(a => a.name === "Lance of Longinus")?.weaponSpeed).to.equal(4);
         });
 
-        it("should account for modifications on shields", async () => {
+        it("should account for modifications to shields", async () => {
             const subject = await createActor("WeaponizedCharacter");
             (subject.system as CharacterDataModel).attributes.agility.updateSource({initial: 2, advances: 0});
             (subject.system as CharacterDataModel).attributes.strength.updateSource({initial: 2, advances: 0});
@@ -758,7 +791,7 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.prepareBaseData();
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
-            subject.modifier.add("damage", {
+            subject.modifier.add("item.damage", {
                 item: "Lance of Longinus",
                 name: "Mastery",
                 type: "magic"
@@ -770,6 +803,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 type: "magic"
             }, of(2), null, false);
 
+            expect(subject.attacks.find(a => a.name === "Lance of Longinus")?.getForDamageRoll().otherComponents).to.not.be.empty;
             expect(subject.attacks.find(a => a.name === "Lance of Longinus")?.features).to.equal("Scharf 2");
         });
     });

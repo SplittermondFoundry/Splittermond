@@ -4,7 +4,7 @@ import SplittermondActor from "module/actor/actor";
 import SplittermondItem from "module/item/item";
 import {foundryApi} from 'module/api/foundryApi';
 import {Cost} from 'module/util/costs/Cost';
-import {addModifier} from "module/modifiers/modifierAddition";
+import {initAddModifier} from "module/modifiers/modifierAddition";
 import {splittermond} from "module/config";
 import {CharacterDataModel} from "module/actor/dataModel/CharacterDataModel";
 import {CharacterAttribute} from "module/actor/dataModel/CharacterAttribute";
@@ -14,12 +14,21 @@ import {evaluate, of, pow} from "module/modifiers/expressions/scalar";
 import {of as ofCost} from "module/modifiers/expressions/cost";
 import {stubRollApi} from "../../RollMock";
 import {InverseModifier} from "module/actor/InverseModifier";
+import {ModifierRegistry} from "module/modifiers/ModifierRegistry";
+import {ItemModifierHandler} from "module/item/itemModifierHandler";
+
+function setupAddModiferFunction(){
+    const modifierRegistry = new ModifierRegistry();
+    modifierRegistry.addHandler("item", ItemModifierHandler )
+    return initAddModifier(modifierRegistry);
+}
 
 describe('addModifier', () => {
     let sandbox: SinonSandbox;
     let actor: SinonStubbedInstance<SplittermondActor>;
     let item: SinonStubbedInstance<SplittermondItem>;
     let systemData: any;
+    const addModifier = setupAddModiferFunction();
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
@@ -264,14 +273,12 @@ describe('addModifier', () => {
             const result = addModifier(item, 'Damage/fire +5');
             expect(result.modifiers).to.have.length(1);
             expect(result.modifiers[0]).to.deep.include({
-                path: 'item.damage',
+                path: 'item.Damage',
                 value: of(5),
                 attributes: {
                     name: 'Test Item',
                     type: null,
                     emphasis: 'fire',
-                    damageType: undefined,
-                    itemType: undefined
                 },
                 origin: item
             });
@@ -281,15 +288,13 @@ describe('addModifier', () => {
             const result = addModifier(item, 'Damage emphasis="fire" item="Schwert" +5');
             expect(result.modifiers).to.have.length(1);
             expect(result.modifiers[0]).to.deep.include({
-                path: 'item.damage',
+                path: 'item.Damage',
                 value: of(5),
                 attributes: {
                     name: 'Test Item',
                     type: null,
                     emphasis: 'fire',
                     item: "Schwert",
-                    damageType: undefined,
-                    itemType: undefined
                 },
                 origin: item
             });
@@ -301,7 +306,7 @@ describe('addModifier', () => {
             expect(result.modifiers[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: 'Test Item', type: null, damageType: 'fire', itemType: undefined},
+                attributes: {name: 'Test Item', type: null, damageType: 'fire'},
                 origin: item
             });
         });
@@ -312,7 +317,7 @@ describe('addModifier', () => {
             expect(result.modifiers[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: 'Test Item', type: null, damageType: undefined, itemType: undefined},
+                attributes: {name: 'Test Item', type: null, damageType:undefined},
                 origin: item
             });
         });
@@ -323,7 +328,7 @@ describe('addModifier', () => {
             expect(result.modifiers[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: 'Test Item', type: null, damageType: undefined, itemType: "spell"},
+                attributes: {name: 'Test Item', type: null, itemType: "spell"},
                 origin: item
             });
         });
@@ -334,7 +339,7 @@ describe('addModifier', () => {
             expect(result.modifiers[0]).to.deep.include({
                 path: 'item.damage',
                 value: of(5),
-                attributes: {name: 'Test Item', type: null, damageType: undefined, itemType: "blubb"},
+                attributes: {name: 'Test Item', type: null, itemType: "blubb"},
                 origin: item
             });
         });
@@ -348,7 +353,7 @@ describe('addModifier', () => {
             expect(result.modifiers[0]).to.deep.include({
                 path: 'item.weaponspeed',
                 value: of(5),
-                attributes: {name: 'Test Item', type: null, itemType: undefined},
+                attributes: {name: 'Test Item', type: null},
                 origin: item
             });
         });
@@ -359,7 +364,7 @@ describe('addModifier', () => {
             expect(result.modifiers[0]).to.deep.include({
                 path: 'item.weaponspeed',
                 value: of(5),
-                attributes: {name: 'Test Item', type: null, itemType: undefined},
+                attributes: {name: 'Test Item', type: null},
                 origin: item
             });
         });
@@ -370,7 +375,7 @@ describe('addModifier', () => {
             expect(result.modifiers[0]).to.deep.include({
                 path: 'item.weaponspeed',
                 value: of(5),
-                attributes: {name: 'Test Item', type: null, itemType: undefined, item: "Lanze"},
+                attributes: {name: 'Test Item', type: null, item: "Lanze"},
                 origin: item
             });
         });
@@ -407,7 +412,7 @@ describe('addModifier', () => {
                 expect(result.modifiers[0]).to.deep.include({
                     path,
                     value: of(2),
-                    attributes: {name: 'Test Item', type: null, feature: 'robust', itemType: undefined},
+                    attributes: {name: 'Test Item', type: null, feature: 'robust'},
                     origin: item
                 });
             });
@@ -418,7 +423,7 @@ describe('addModifier', () => {
                 expect(result.modifiers[0]).to.deep.include({
                     path,
                     value: of(1),
-                    attributes: {name: 'Test Item', type: null, feature: 'sharp', item: "Schwert", itemType: undefined},
+                    attributes: {name: 'Test Item', type: null, feature: 'sharp', item: "Schwert"},
                     origin: item
                 });
             });

@@ -27,6 +27,8 @@ import {StatusEffectDataModel, type StatusEffectDataModelType} from "./dataModel
 import {StrengthDataModel, type StrengthDataModelType} from "./dataModel/StrengthDataModel";
 import {WeaknessDataModel, type WeaknessDataModelType} from "./dataModel/WeaknessDataModel";
 import {WeaponDataModel, type WeaponDataModelType} from "./dataModel/WeaponDataModel";
+import {ModifierRegistry} from "module/modifiers";
+import {ItemModifierHandler} from "module/item/itemModifierHandler";
 
 type SplittermondItemDataModel = AncestryDataModel |
     NpcAttackDataModel |
@@ -98,9 +100,9 @@ export type {
     SplittermondItemDataModel
 };
 
-export function initializeItem() {
-    CONFIG.Item.documentClass = SplittermondItem;
-    CONFIG.Item.dataModels = {
+export function initializeItem(config: typeof CONFIG, modifierRegistry: ModifierRegistry) {
+    config.Item.documentClass = SplittermondItem;
+    config.Item.dataModels = {
         ...(CONFIG.Item.dataModels ?? {}),
         ancestry: AncestryDataModel,
         armor: ArmorDataModel,
@@ -125,10 +127,10 @@ export function initializeItem() {
         weapon: WeaponDataModel
     };
 
-    if (CONFIG.splittermond == undefined) {
-        CONFIG.splittermond = {};
+    if (config.splittermond == undefined) {
+        config.splittermond = {};
     }
-    (CONFIG.splittermond as Record<string, unknown>).Item = {
+    (config.splittermond as Record<string, unknown>).Item = {
         documentClasses: {
             default: SplittermondItem,
             weapon: SplittermondWeaponItem,
@@ -140,4 +142,6 @@ export function initializeItem() {
             mastery: SplittermondMastery
         }
     };
+
+    modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);
 }

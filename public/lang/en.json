@@ -77,9 +77,11 @@
           "allErrorMessage": "Syntax error in modifier string '{str}' in '{objectName}'!",
           "foNoCost": "Expression '{expression}' is not convertible to focus costs.",
           "notANumber": "Expression '{expression}' is not convertible to a number.",
-          "deprecatedPath": "The path '{oldPath}' in {itemName} is deprecated. Use '{newPath}' instead."
-
-
+          "deprecatedPath": "The path '{oldPath}' in {itemName} is deprecated. Use '{newPath}' instead.",
+          "unknownGroupId": "The path '{groupId}' is unknown.",
+          "missingDescriptor": "The attribute '{attribute}' for the modifier '{groupId}' is missing.",
+          "invalidDescriptorValue": "The value '{value}' for the attribute '{attribute}' for the modifier '{groupId}' is invalid.",
+          "unknownDescriptor": "The attribute '{attribute}' for the modifier '{groupId}' ist unknown.",
         }
       }
     },

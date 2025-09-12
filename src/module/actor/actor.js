@@ -13,7 +13,7 @@ import {settings} from "../settings";
 import {splittermond} from "../config.js";
 import {foundryApi} from "../api/foundryApi";
 import {Susceptibilities} from "./Susceptibilities.js";
-import {addModifier} from "../modifiers/modifierAddition.js";
+import {addModifier} from "./addModifierAdapter";
 import {evaluate, of} from "../modifiers/expressions/scalar";
 import {ItemFeaturesModel} from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import {DamageModel} from "../item/dataModel/propertyModels/DamageModel";

@@ -16,6 +16,8 @@ import {JSDOM} from "jsdom";
 import {StrengthDataModel} from "../../../../module/item/dataModel/StrengthDataModel";
 import Modifier from "../../../../module/actor/modifier";
 import {of} from "../../../../module/modifiers/expressions/scalar";
+import {actualAddModifierFunction} from "module/actor/addModifierAdapter";
+import {initializeModifiers} from "module/modifiers";
 
 declare const global: any
 
@@ -162,6 +164,7 @@ describe("SplittermondActor", () => {
     });
 
     describe("Modifiers", () => {
+        enableModifiers();
         it("should add a modifier to the actor", () => {
             sandbox.stub(foundryApi, "localize").callsFake((key) => key)
             sandbox.stub(foundryApi, "format").callsFake((key) => key);
@@ -377,9 +380,11 @@ describe("SplittermondActor", () => {
     });
 
     describe("Fumbles", () => {
-
+        enableModifiers();
         beforeEach(() => {
             sandbox.stub(foundryApi, "localize").callsFake((key) => key)
+            sandbox.stub(foundryApi, "format").callsFake((key) => key)
+            sandbox.stub(foundryApi, "reportError")
             actor.prepareBaseData();
         });
         it("should take fumble lowering modifier into account", async () => {
@@ -408,4 +413,14 @@ describe("SplittermondActor", () => {
 
 function asCharacter(actor: SplittermondActor) {
     return actor.system as CharacterDataModel;
+}
+
+function enableModifiers(){
+    before(() => {
+        const modifiers = initializeModifiers();
+        actualAddModifierFunction.self = modifiers.addModifier
+    });
+    after(() => {
+        actualAddModifierFunction.self = null
+    })
 }
