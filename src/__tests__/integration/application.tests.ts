@@ -2,16 +2,16 @@ import {passesEventually, simplePropertyResolver} from "../util";
 import {QuenchBatchContext} from "@ethaks/fvtt-quench";
 import type TokenActionBar from "../../module/apps/token-action-bar/token-action-bar";
 import type SplittermondActor from "../../module/actor/actor";
-import {actorCreator} from "../../module/data/EntityCreator";
+import {actorCreator} from "module/data/EntityCreator";
 import sinon, {type SinonSandbox} from "sinon";
-import {splittermond} from "../../module/config";
-import {CharacterDataModel} from "../../module/actor/dataModel/CharacterDataModel";
-import {foundryUISelectors} from "../../module/apps/tick-bar-hud/tickBarResizing";
+import {splittermond} from "module/config";
+import {CharacterDataModel} from "module/actor/dataModel/CharacterDataModel";
+import {foundryUISelectors} from "module/apps/tick-bar-hud/tickBarResizing";
 import SplittermondCombat from "../../module/combat/combat";
-import type {FoundryCombatant} from "../../module/api/foundryTypes";
+import type {FoundryCombatant} from "module/api/foundryTypes";
 import TickBarHud from "../../module/apps/tick-bar-hud/tick-bar-hud";
-import {foundryApi} from "../../module/api/foundryApi";
-import {FoundryDragDrop} from "../../module/api/Application";
+import {foundryApi} from "module/api/foundryApi";
+import {FoundryDragDrop} from "module/api/Application";
 
 declare const game: any;
 declare const deepClone: any;
@@ -101,7 +101,7 @@ export function applicationTests(context: QuenchBatchContext) {
             return {
                 type: "spell",
                 name: "Test Spell",
-                system: {skill: "lightmagic", focusCost: "3V4", castDuration: "1T"},
+                system: {skill: "lightmagic", focusCost: "3V4", castDuration: {value: 1, unit: "T"}},
             }
         }
 

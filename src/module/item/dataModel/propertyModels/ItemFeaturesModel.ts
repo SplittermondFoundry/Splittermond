@@ -1,13 +1,13 @@
 import {DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel} from "module/data/SplittermondDataModel";
 import SplittermondItem from "module/item/item";
-import {ItemFeature, itemFeatures} from "../../../config/itemFeatures";
-import {splittermond} from "../../../config";
-import {DataModelConstructorInput} from "../../../api/DataModel";
-import {foundryApi} from "../../../api/foundryApi";
+import {ItemFeature, itemFeatures} from "module/config/itemFeatures";
+import {splittermond} from "module/config";
+import {DataModelConstructorInput} from "module/api/DataModel";
+import {foundryApi} from "module/api/foundryApi";
 import {SplittermondItemDataModel} from "../../index";
-import ModifierManager from "../../../actor/modifier-manager";
-import {evaluate} from "../../../modifiers/expressions/scalar";
-import {DocumentAccessMixin} from "../../../data/AncestorDocumentMixin";
+import ModifierManager from "module/actor/modifier-manager";
+import {evaluate} from "module/modifiers/expressions/scalar";
+import {DocumentAccessMixin} from "module/data/AncestorDocumentMixin";
 
 
 function FeaturesSchema() {
@@ -27,7 +27,7 @@ export class ItemFeaturesBase extends SplittermondDataModel<ItemFeaturesType, Sp
 export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, SplittermondItem) {
 
     static emptyFeatures() {
-        return new ItemFeaturesModel({internalFeatureList: []});
+        return new ItemFeaturesModel({internalFeatureList: []} );
     }
 
     static from(features: string | ItemFeatureDataModel[]) {

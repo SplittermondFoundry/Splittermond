@@ -6,6 +6,7 @@ import {damageTypeOptions, damageTypes} from "./config/damageTypes";
 import {attributes, derivedAttributes} from "./config/attributes";
 import {itemFeatures} from "./config/itemFeatures";
 import {itemTypes} from "./config/itemTypes";
+import {time} from "module/config/timeUnits.js";
 
 export const splittermond = {};
 
@@ -1135,6 +1136,7 @@ splittermond.degreeOfSuccessThresholds = {
 }
 splittermond.damageTypes = damageTypes;
 splittermond.itemTypes = itemTypes;
+splittermond.time = time
 
 splittermond.settings = {
     gameReadyWaitingDelayInMs: 250,

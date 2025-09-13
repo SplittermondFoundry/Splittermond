@@ -58,7 +58,8 @@
           "item": "item",
           "itemType": "itemType",
           "feature": "feature",
-          "features": "features"
+          "features": "features",
+          "unit" : "unit"
         },
         "parseMessages": {
           "notAModifier": "Modifier '{modifier}' is not of a modifier format.",

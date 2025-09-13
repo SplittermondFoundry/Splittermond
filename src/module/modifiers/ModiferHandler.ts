@@ -46,10 +46,12 @@ export abstract class ModifierHandler {
         }
         let currentSegment: ConfigSegment = this.config;
         for (const pathElement of pathElements.slice(1)) {
-            if (!currentSegment.subSegments?.[pathElement]){
+            const nextSegmentKey = Object.keys(currentSegment.subSegments ?? {})
+                .find(key => key.toLowerCase() === pathElement);
+            if (!nextSegmentKey) {
                 return null;
             }
-            currentSegment = currentSegment.subSegments[pathElement];
+            currentSegment = currentSegment.subSegments![nextSegmentKey];
         }
         return currentSegment;
     }

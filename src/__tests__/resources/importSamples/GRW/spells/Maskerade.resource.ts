@@ -36,7 +36,12 @@ export const expected = {
     name: "Maskerade",
     system: {
         availableIn: "illusionmagic 4",
-        castDuration: "4 Minuten",
+        castDuration: {
+            _document: null,
+            triedToFindDocument: false,
+            unit: "min",
+            value: 4
+        },
         costs: "K16V4",
         damage:{
             stringInput:null,

@@ -3,10 +3,11 @@ import SplittermondItem from "module/item/item";
 import {foundryApi} from "module/api/foundryApi";
 import {SplittermondItemDataModel} from "../../index";
 import {DocumentAccessMixin} from "module/data/AncestorDocumentMixin";
+import {asString, condense, evaluate, isGreaterZero, of, plus, times} from "module/modifiers/expressions/scalar";
+import type {TimeUnit} from "module/config/timeUnits";
+import {splittermond} from "module/config";
+import {getTimeUnitConversion} from "module/util/timeUnitConversion";
 
-export type TimeUnit = typeof timeUnits[number];
-
-const timeUnits = ["T", "min"] as const;
 
 function CastDurationSchema() {
     return {
@@ -15,7 +16,7 @@ function CastDurationSchema() {
             required: true,
             nullable: false,
             initial: "T",
-            validate: (x: TimeUnit) => timeUnits.includes(x)
+            validate: (x: TimeUnit) => splittermond.time.timeUnits.includes(x)
         }),
     };
 }
@@ -42,19 +43,13 @@ export class CastDurationModel extends DocumentAccessMixin(CastDurationBase, Spl
      * Assuming 100-120 ticks per minute, we'll use 110 as average
      */
     get inTicks(): number {
-        if (this.unit === "T") {
-            return this.value;
-        } else if (this.unit === "min") {
-            return this.value * 110; // Convert minutes to ticks
-        }
-        return this.value;
+        const value = evaluate(this.getTotalDuration());
+        return Math.max(0,Math.floor(value * getTimeUnitConversion(this.unit, "T")));
     }
 
-    /**
-     * Get a formatted display string
-     */
+
     get display(): string {
-        return `${this.value} ${this.unit}`;
+        return `${asString(condense(this.getTotalDuration()))} ${this.unit}`;
     }
 
     get innateDuration(): string {
@@ -64,6 +59,50 @@ export class CastDurationModel extends DocumentAccessMixin(CastDurationBase, Spl
 
     toString(): string {
         return this.display;
+    }
+
+    private getTotalDuration(){
+        const multiplicativeModifiers = this.getMultiplicativeModifierValue();
+        const additiveModifiers = this.getAdditiveModifierValue();
+        const base= of(this.value)
+        const modified = plus(times(base,multiplicativeModifiers),additiveModifiers);
+        return isGreaterZero(modified) ? modified: of(0);
+    }
+
+    private getMultiplicativeModifierValue() {
+        return this.getModifiers("item.castDuration.multiplier")
+            .getModifiers()
+            .map(m => m.value)
+            .reduce((acc, mod) =>times(mod,acc), of(1));
+    }
+
+    private getAdditiveModifierValue() {
+        return this.getModifiers("item.castDuration")
+            .withAttributeValues("unit", ...splittermond.time.timeUnits)
+            .getModifiers()
+            .map(mod => {
+                if (mod.attributes.unit !== this.unit) {
+                    const factor = getTimeUnitConversion(mod.attributes.unit as TimeUnit, this.unit);
+                    return times(mod.value, of(factor));
+                }
+                return mod.value;
+            })
+            .reduce((acc, mod) => plus(acc,mod), of(0));
+    }
+
+    private getModifiers(groupId:string) {
+       return this.document.actor.modifier.getForId(groupId)
+           .notSelectable()
+           .withAttributeValuesOrAbsent("item", this.getItemName())
+           .withAttributeValuesOrAbsent("itemType", this.getItemType());
+    }
+
+    private getItemName(): string {
+        return this.document.name
+    }
+
+    private getItemType(): string {
+        return this.document.type
     }
 }
 

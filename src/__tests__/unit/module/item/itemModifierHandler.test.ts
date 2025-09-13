@@ -4,7 +4,7 @@ import {ItemModifierHandler} from "module/item/itemModifierHandler";
 import SplittermondItem from "module/item/item";
 import {foundryApi} from 'module/api/foundryApi';
 import {clearMappers} from "module/modifiers/parsing/normalizer";
-import {of} from "module/modifiers/expressions/scalar";
+import {evaluate, of} from "module/modifiers/expressions/scalar";
 import type {ScalarModifier} from "module/modifiers/parsing";
 
 describe('ItemModifierHandler', () => {
@@ -175,6 +175,36 @@ describe('ItemModifierHandler', () => {
             expect(result).to.not.be.null;
             expect(result!.groupId).to.equal('item.damage');
             expect(result!.attributes.damageType).to.equal('fire');
+        });
+
+        it('should multiply modifier values', ()=> {
+            const scalarModifier: ScalarModifier = {
+                path: 'item.castDuration',
+                value: of(5),
+                attributes: {
+                    unit: 'T'
+                }
+            };
+
+            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, 'equipment', of(2));
+            const result = underTest.processModifier(scalarModifier);
+
+            expect(evaluate(result!.value)).to.deep.equal(10);
+        });
+
+        it('should take cast duration multiplier to the modifier multipliers power', ()=> {
+            const scalarModifier: ScalarModifier = {
+                path: 'item.castDuration.multiplier',
+                value: of(0.5),
+                attributes: {
+                    unit: 'T'
+                }
+            };
+
+            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, 'equipment', of(2));
+            const result = underTest.processModifier(scalarModifier);
+
+            expect(evaluate(result!.value)).to.deep.equal(0.25);
         });
 
         it('should omit modifier with zero value', () => {

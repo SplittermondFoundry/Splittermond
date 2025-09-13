@@ -25,7 +25,12 @@ export const expected  = {
         costs: "8V3",
         difficulty: "KW",
         range: "10 m",
-        castDuration: "9 Ticks",
+        castDuration:{
+            value: 9,
+            unit: "T",
+            _document: null,
+            triedToFindDocument: false,
+        },
         damage: {
             stringInput: "5W6",
         },

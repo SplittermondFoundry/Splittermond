@@ -62,7 +62,7 @@ export function itemTest(this:any, context: QuenchBatchContext) {
                 system: {
                     skill: "deathmagic",
                     availableIn: "deathmagic 1",
-                    castDuration: "5m",
+                    castDuration: {value: 5, unit: "min"},
                     costs: "5000V5000",
                     skillLevel: 6,
                     description: "abc",
@@ -88,9 +88,7 @@ export function itemTest(this:any, context: QuenchBatchContext) {
                     effectDuration: "",
                     spellType:"",
                     features:{
-                        _document: null,
                         internalFeatureList:[],
-                        triedToFindDocument:false,
                     },
                     range: "",
                     source: ""
@@ -98,11 +96,11 @@ export function itemTest(this:any, context: QuenchBatchContext) {
             };
             const item = await foundryApi.createItem(itemData);
 
-            expect(item.system).to.deep.equal(itemData.system);
-            expect(item.system).to.be.instanceOf(SpellDataModel)
             expect(item).to.be.instanceOf(SplittermondSpellItem)
             expect(item.name).to.equal(itemData.name);
             expect(item.type).to.equal(itemData.type);
+            expect(item.system).to.be.instanceOf(SpellDataModel)
+            expect(item.system.toObject()).to.deep.equal(itemData.system);
 
             await Item.deleteDocuments([item.id]);
         });

@@ -5,8 +5,9 @@ import {splittermond} from "../config";
 import type SplittermondItem from "./item";
 import type {IModifier, ModifierAttributes, ModifierType} from "../actor/modifier-manager";
 import {ModifierHandler} from "module/modifiers/ModiferHandler";
-import {Expression, isZero, times} from "module/modifiers/expressions/scalar";
+import {Expression, isZero, pow, times} from "module/modifiers/expressions/scalar";
 import {makeConfig} from "module/modifiers/ModifierConfig";
+import {type TimeUnit} from "module/config/timeUnits";
 
 
 type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
@@ -35,6 +36,15 @@ export class ItemModifierHandler extends ModifierHandler {
             },
             addFeature: {
                 optionalAttributes: ["item", "itemType"]
+            },
+            castDuration: {
+                requiredAttributes: ["unit"],
+                optionalAttributes: ["item", "itemType"],
+                subSegments: {
+                    multiplier: {
+                        optionalAttributes: ["item", "itemType"],
+                    }
+                }
             }
         }
     })
@@ -43,9 +53,10 @@ export class ItemModifierHandler extends ModifierHandler {
         return isZero(value)
     }
 
-    protected buildModifier(modifier: ScalarModifier): IModifier | null {
+    protected buildModifier(modifier: ScalarModifier ): IModifier | null {
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
-        const adjustedValue = times(modifier.value,this.multiplier);
+        const operator = modifier.path.endsWith("multiplier") ? pow : times;
+        const adjustedValue = operator(modifier.value,this.multiplier);
 
         return new Modifier(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false);
     }
@@ -69,6 +80,8 @@ export class ItemModifierHandler extends ModifierHandler {
                 return this.normalizeDamageType(path, value);
             case "itemType":
                 return this.normalizeItemType(path, value);
+            case "unit":
+                return this.normalizeUnit(path, value);
             default:
                 return this.validatedAttribute(value);
         }
@@ -100,8 +113,7 @@ export class ItemModifierHandler extends ModifierHandler {
         }
     }
 
-    normalizeItemType(path: string, itemType: Value | undefined):
-        string | undefined {
+    normalizeItemType(path: string, itemType: Value | undefined): string | undefined {
         const normalized = this.normalizeAttribute(itemType, "itemTypes");
         if (!normalized) {
             return undefined;
@@ -111,5 +123,19 @@ export class ItemModifierHandler extends ModifierHandler {
         } else {
             return normalized;
         }
+    }
+
+    normalizeUnit(path: string, unit: Value | undefined):TimeUnit| undefined {
+       const validated = this.validatedAttribute(unit);
+         if (!validated) {
+              return undefined;
+         } else if (validated.toLowerCase().startsWith("t")) {
+                return "T";
+         } else if (validated.toLowerCase().startsWith("min")) {
+                return "min";
+         } else {
+                this.reportInvalidDescriptor(path, "unit", validated);
+                return undefined;
+         }
     }
 }

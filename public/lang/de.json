@@ -130,7 +130,8 @@
         "item": "Objekt",
         "itemType": "Objekttyp",
         "feature": "Merkmal",
-        "features": "Merkmale"
+        "features": "Merkmale",
+        "unit": "Einheit"
       },
       "parseMessages": {
         "notAModifier": "Modifikator '{modifier}' hat kein korrektes Format.",

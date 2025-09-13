@@ -1,6 +1,6 @@
 import {QuenchBatchContext} from "@ethaks/fvtt-quench";
 import {actorCreator} from "module/data/EntityCreator"
-import {foundryApi} from "../../module/api/foundryApi";
+import {foundryApi} from "module/api/foundryApi";
 import {CharacterDataModel} from "module/actor/dataModel/CharacterDataModel";
 import SplittermondActor from "module/actor/actor";
 import {splittermond} from "module/config";
@@ -21,7 +21,8 @@ import {
     times,
     toRollFormula
 } from "module/modifiers/expressions/scalar";
-import {DamageModel} from "../../module/item/dataModel/propertyModels/DamageModel";
+import {DamageModel} from "module/item/dataModel/propertyModels/DamageModel";
+import type SplittermondSpellItem from "module/item/spell";
 
 export function modifierTest(context: QuenchBatchContext) {
     const {describe, it, expect, beforeEach, afterEach} = context;
@@ -671,6 +672,43 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.prepareDerivedData();
             expect(subject.attacks.find(a => a.name === "Spear of Destiny")?.damage).to.equal("6");
         });
+
+        it("should respond to cast duration modifiers", async () => {
+            const subject = await createActor("WeaponizedCharacter");
+            (subject.system as CharacterDataModel).attributes.agility.updateSource({initial: 2, advances: 0});
+            (subject.system as CharacterDataModel).attributes.strength.updateSource({initial: 2, advances: 0});
+            (subject.system as CharacterDataModel).updateSource({
+                    skills: {
+                        ...subject.system.skills,
+                        blades: {points: 2, value: 6}
+                    }
+                }
+            );
+            await subject.createEmbeddedDocuments("Item", [{
+                type: "spell",
+                name: "Spear of Light",
+                system: {
+                    skill: "lightmagic",
+                    damageType: "light",
+                    damage: DamageModel.from("8d6"),
+                    castDuration: {
+                        unit: "T",
+                        value: 10
+                    }
+                }
+            },{
+                type: "strength",
+                name: "Absurd Fastness",
+                system: {modifier: "item.castDuration unit='T' itemType='spell' -1, item.castDuration.multiplier itemType='spell' 0.5"}
+            }]);
+
+            subject.prepareBaseData();
+            await subject.prepareEmbeddedDocuments();
+            subject.prepareDerivedData();
+
+            const itemUnderTest = subject.items.find(i => i.name === "Spear of Light") as SplittermondSpellItem;
+            expect(itemUnderTest.system.castDuration.inTicks).to.equal(4);
+        })
     });
 
     describe("Roll expressions", () => {
