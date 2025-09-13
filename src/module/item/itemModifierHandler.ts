@@ -5,7 +5,7 @@ import {splittermond} from "../config";
 import type SplittermondItem from "./item";
 import type {IModifier, ModifierAttributes, ModifierType} from "../actor/modifier-manager";
 import {ModifierHandler} from "module/modifiers/ModiferHandler";
-import {Expression, isZero} from "module/modifiers/expressions/scalar";
+import {Expression, isZero, times} from "module/modifiers/expressions/scalar";
 import {makeConfig} from "module/modifiers/ModifierConfig";
 
 
@@ -15,7 +15,8 @@ export class ItemModifierHandler extends ModifierHandler {
     constructor(
         logErrors: (...message: string[]) => void,
         private readonly sourceItem: SplittermondItem,
-        private readonly modifierType: ModifierType
+        private readonly modifierType: ModifierType,
+        private readonly multiplier: Expression
     ) {
         super(logErrors, ItemModifierHandler.config)
     }
@@ -44,8 +45,9 @@ export class ItemModifierHandler extends ModifierHandler {
 
     protected buildModifier(modifier: ScalarModifier): IModifier | null {
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
+        const adjustedValue = times(modifier.value,this.multiplier);
 
-        return new Modifier(modifier.path, modifier.value, normalizedAttributes, this.sourceItem, false);
+        return new Modifier(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false);
     }
 
     buildAttributes(path: string, attributes: Record<string, Value>): ModifierAttributes {

@@ -25,7 +25,7 @@ describe('ItemModifierHandler', () => {
         mockItem = sandbox.createStubInstance(SplittermondItem);
         mockItem.name = 'Test Item';
 
-        handler = new ItemModifierHandler(logErrorsStub, mockItem, 'equipment');
+        handler = new ItemModifierHandler(logErrorsStub, mockItem, 'equipment', of(1));
 
         sandbox.stub(foundryApi, 'localize').callsFake((key: string) => key);
         sandbox.stub(foundryApi, 'format').callsFake((key: string, data?: any) => {

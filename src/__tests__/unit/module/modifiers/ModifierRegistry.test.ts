@@ -7,6 +7,7 @@ import SplittermondItem from "module/item/item";
 import {ModifierType} from "module/actor/modifier-manager";
 import {makeConfig} from "module/modifiers/ModifierConfig";
 import {foundryApi} from "module/api/foundryApi";
+import {of} from "module/modifiers/expressions/scalar";
 
 describe('ModifierRegistry', () => {
     let sandbox: SinonSandbox;
@@ -227,7 +228,7 @@ describe('ModifierRegistry', () => {
             const mockItem = {} as SplittermondItem;
             const mockType = 'equipment' as ModifierType;
 
-            const cache = registry.getCache(mockLogErrors, mockItem, mockType);
+            const cache = registry.getCache(mockLogErrors, mockItem, mockType,of(1));
 
             expect(cache).to.be.instanceOf(Object);
             expect(cache.getHandler).to.be.a('function');
@@ -238,8 +239,8 @@ describe('ModifierRegistry', () => {
             const mockItem = {} as SplittermondItem;
             const mockType = 'equipment' as ModifierType;
 
-            const cache1 = registry.getCache(mockLogErrors, mockItem, mockType);
-            const cache2 = registry.getCache(mockLogErrors, mockItem, mockType);
+            const cache1 = registry.getCache(mockLogErrors, mockItem, mockType,of(1));
+            const cache2 = registry.getCache(mockLogErrors, mockItem, mockType, of(1));
 
             expect(cache1).to.not.equal(cache2);
         });
@@ -253,7 +254,7 @@ describe('ModifierRegistry', () => {
         beforeEach(() => {
             mockLogErrors = sandbox.stub();
             mockItem = {name: 'Test Item'} as SplittermondItem;
-            cache = registry.getCache(mockLogErrors, mockItem, 'equipment');
+            cache = registry.getCache(mockLogErrors, mockItem, 'equipment',of(1));
         });
 
         it('should pass correct arguments to handler constructor', () => {
@@ -263,7 +264,7 @@ describe('ModifierRegistry', () => {
             cache.getHandler('item');
 
             expect(constructorSpy.calledOnce).to.be.true;
-            expect(constructorSpy.lastCall.args).to.deep.equal([mockLogErrors, mockItem, 'equipment']);
+            expect(constructorSpy.lastCall.args).to.deep.equal([mockLogErrors, mockItem, 'equipment',of(1)]);
         });
 
         describe('handler resolution tests', () => {
@@ -447,7 +448,7 @@ describe('ModifierRegistry', () => {
                 registry.addHandler('item', TestHandler);
                 registry.addHandler('actor', AnotherTestHandler);
 
-                const cache2 = registry.getCache(mockLogErrors, mockItem, 'equipment');
+                const cache2 = registry.getCache(mockLogErrors, mockItem, 'equipment', of(1));
 
                 const itemHandler1 = cache.getHandler('item');
                 const itemHandler2 = cache2.getHandler('item');

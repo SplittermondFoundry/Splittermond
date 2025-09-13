@@ -31,7 +31,8 @@ export function initAddModifier(registry: ModifierRegistry) {
         const normalizedModifiers = processValues(parsedResult.modifiers, item.actor);
 
         const allErrors = [...parsedResult.errors, ...normalizedModifiers.errors];
-        const handlerCache = registry.getCache((...str)=>allErrors.push(...str), item, type);
+        const errorLogger = (...msg: string[]) => allErrors.push(...msg);
+        const handlerCache = registry.getCache(errorLogger, item, type, of(multiplier));
 
         normalizedModifiers.vectorModifiers.forEach((mod) => {
             const modifierLabel = mod.path.toLowerCase();

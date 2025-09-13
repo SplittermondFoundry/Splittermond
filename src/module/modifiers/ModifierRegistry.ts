@@ -3,10 +3,12 @@ import type {ModifierType} from "module/actor/modifier-manager";
 import {makeConfig} from "module/modifiers/ModifierConfig";
 import {IllegalStateException} from "module/data/exceptions";
 import type SplittermondItem from "module/item/item";
+import type {Expression} from "module/modifiers/expressions/scalar";
 
 
 type ErrorLogger = (...messages: string[]) => void
-type HandlerConstructor<T extends ModifierHandler> = new(logError: ErrorLogger, sourceItem: SplittermondItem, type: ModifierType) => T
+type HandlerConstructorArgs = [logError: ErrorLogger, sourceItem: SplittermondItem, type: ModifierType,multiplier:Expression]
+type HandlerConstructor<T extends ModifierHandler> = new(...args:HandlerConstructorArgs) => T
 type HandlerArgs<T extends ModifierHandler = ModifierHandler> = ConstructorParameters<HandlerConstructor<T>>
 
 export class ModifierRegistry {
@@ -96,7 +98,7 @@ class ModifierCache {
 
 class NoActionModifierHandler extends ModifierHandler {
 
-    constructor(logErrors: ErrorLogger, _:SplittermondItem, __: ModifierType) {
+    constructor(logErrors: ErrorLogger, _:SplittermondItem, __: ModifierType,___:Expression) {
         super(logErrors, makeConfig({topLevelPath: ""}));
     }
 
