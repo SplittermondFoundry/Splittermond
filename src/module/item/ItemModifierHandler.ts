@@ -4,9 +4,8 @@ import {normalizeDescriptor} from "../modifiers/parsing/normalizer";
 import {splittermond} from "../config";
 import type SplittermondItem from "./item";
 import type {IModifier, ModifierAttributes, ModifierType} from "../actor/modifier-manager";
-import {ModifierHandler} from "module/modifiers/ModiferHandler";
-import {Expression, isZero, pow, times} from "module/modifiers/expressions/scalar";
-import {makeConfig} from "module/modifiers/ModifierConfig";
+import {makeConfig, ModifierHandler} from "module/modifiers";
+import {type Expression, isZero, pow, times} from "module/modifiers/expressions/scalar";
 import {type TimeUnit} from "module/config/timeUnits";
 
 
@@ -53,10 +52,10 @@ export class ItemModifierHandler extends ModifierHandler {
         return isZero(value)
     }
 
-    protected buildModifier(modifier: ScalarModifier ): IModifier | null {
+    protected buildModifier(modifier: ScalarModifier): IModifier | null {
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
         const operator = modifier.path.endsWith("multiplier") ? pow : times;
-        const adjustedValue = operator(modifier.value,this.multiplier);
+        const adjustedValue = operator(modifier.value, this.multiplier);
 
         return new Modifier(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false);
     }
@@ -72,7 +71,7 @@ export class ItemModifierHandler extends ModifierHandler {
         return normalizedAttributes
     }
 
-    mapAttribute(path:string, attribute: string, value: Value): string | undefined {
+    mapAttribute(path: string, attribute: string, value: Value): string | undefined {
         switch (attribute) {
             case "name":
                 return this.validatedAttribute(value);
@@ -125,17 +124,17 @@ export class ItemModifierHandler extends ModifierHandler {
         }
     }
 
-    normalizeUnit(path: string, unit: Value | undefined):TimeUnit| undefined {
-       const validated = this.validatedAttribute(unit);
-         if (!validated) {
-              return undefined;
-         } else if (validated.toLowerCase().startsWith("t")) {
-                return "T";
-         } else if (validated.toLowerCase().startsWith("min")) {
-                return "min";
-         } else {
-                this.reportInvalidDescriptor(path, "unit", validated);
-                return undefined;
-         }
+    normalizeUnit(path: string, unit: Value | undefined): TimeUnit | undefined {
+        const validated = this.validatedAttribute(unit);
+        if (!validated) {
+            return undefined;
+        } else if (validated.toLowerCase().startsWith("t")) {
+            return "T";
+        } else if (validated.toLowerCase().startsWith("min")) {
+            return "min";
+        } else {
+            this.reportInvalidDescriptor(path, "unit", validated);
+            return undefined;
+        }
     }
 }
