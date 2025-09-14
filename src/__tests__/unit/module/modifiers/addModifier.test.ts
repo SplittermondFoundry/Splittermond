@@ -15,7 +15,7 @@ import {of as ofCost} from "module/modifiers/expressions/cost";
 import {stubRollApi} from "../../RollMock";
 import {InverseModifier} from "module/actor/InverseModifier";
 import {ModifierRegistry} from "module/modifiers/ModifierRegistry";
-import {ItemModifierHandler} from "module/item/itemModifierHandler";
+import {ItemModifierHandler} from "module/item/ItemModifierHandler";
 
 function setupAddModiferFunction(){
     const modifierRegistry = new ModifierRegistry();

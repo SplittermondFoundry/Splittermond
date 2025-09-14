@@ -28,7 +28,7 @@ import {StrengthDataModel, type StrengthDataModelType} from "./dataModel/Strengt
 import {WeaknessDataModel, type WeaknessDataModelType} from "./dataModel/WeaknessDataModel";
 import {WeaponDataModel, type WeaponDataModelType} from "./dataModel/WeaponDataModel";
 import {ModifierRegistry} from "module/modifiers";
-import {ItemModifierHandler} from "module/item/itemModifierHandler";
+import {ItemModifierHandler} from "module/item/ItemModifierHandler";
 
 type SplittermondItemDataModel = AncestryDataModel |
     NpcAttackDataModel |

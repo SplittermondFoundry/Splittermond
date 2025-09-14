@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import sinon, {SinonSandbox, SinonStubbedInstance} from 'sinon';
-import {ItemModifierHandler} from "module/item/itemModifierHandler";
+import {ItemModifierHandler} from "module/item/ItemModifierHandler";
 import SplittermondItem from "module/item/item";
 import {foundryApi} from 'module/api/foundryApi';
 import {clearMappers} from "module/modifiers/parsing/normalizer";
