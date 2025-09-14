@@ -1,21 +1,21 @@
-import sinon, {SinonSandbox} from "sinon";
-import {beforeEach, describe} from "mocha";
+import sinon, { SinonSandbox } from "sinon";
+import { beforeEach, describe } from "mocha";
 import Attack from "module/actor/attack";
-import {ItemFeaturesModel} from "module/item/dataModel/propertyModels/ItemFeaturesModel";
+import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import SplittermondActor from "module/actor/actor";
 import ModifierManager from "module/actor/modifier-manager";
-import {evaluate, of} from "module/modifiers/expressions/scalar";
-import {expect} from "chai";
-import {CharacterDataModel} from "module/actor/dataModel/CharacterDataModel";
-import {foundryApi} from "module/api/foundryApi";
-import {DamageRoll} from "../../../../module/util/damage/DamageRoll";
-import {createTestRoll, stubRollApi} from "../../RollMock";
-import {DamageModel} from "../../../../module/item/dataModel/propertyModels/DamageModel";
+import { evaluate, of } from "module/modifiers/expressions/scalar";
+import { expect } from "chai";
+import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
+import { foundryApi } from "module/api/foundryApi";
+import { DamageRoll } from "../../../../module/util/damage/DamageRoll";
+import { createTestRoll, stubRollApi } from "../../RollMock";
+import { DamageModel } from "../../../../module/item/dataModel/propertyModels/DamageModel";
 
 describe("Attack", () => {
     let sandbox: SinonSandbox;
     beforeEach(() => {
-        sandbox = sinon.createSandbox()
+        sandbox = sinon.createSandbox();
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => key);
         stubRollApi(sandbox);
     });
@@ -32,12 +32,21 @@ describe("Attack", () => {
 
         it("should produce a damage roll", () => {
             const actor = setUpActor(sandbox);
-            const attackItem = setUpAttackItem({damage: DamageModel.from("1W6+2"), features: ItemFeaturesModel.from("Scharf 2")});
-            actor.modifier.add("item.damage", {
-                type: "magic",
-                damageType: "light",
-                name: attackItem?.name
-            }, of(3), null, false)
+            const attackItem = setUpAttackItem({
+                damage: DamageModel.from("1W6+2"),
+                features: ItemFeaturesModel.from("Scharf 2"),
+            });
+            actor.modifier.add(
+                "item.damage",
+                {
+                    type: "magic",
+                    damageType: "light",
+                    name: attackItem?.name,
+                },
+                of(3),
+                null,
+                false
+            );
             const underTest = new Attack(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -56,9 +65,9 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
                 damageType: "light",
                 item: attackItem?.name,
-                feature: "Scharf 2"
-            }
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false)
+                feature: "Scharf 2",
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
             const underTest = new Attack(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -76,8 +85,8 @@ describe("Attack", () => {
             const modifierAttributes = {
                 type: "magic" as const,
                 name: "Klinge des Lichts",
-            }
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false)
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
             const underTest = new Attack(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -94,8 +103,8 @@ describe("Attack", () => {
                 type: "magic" as const,
                 itemType: "weapon",
                 name: "Klinge des Lichts",
-            }
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false)
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
             const underTest = new Attack(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -112,8 +121,8 @@ describe("Attack", () => {
                 type: "magic" as const,
                 itemType: "npcAttack",
                 name: "Klinge des Lichts",
-            }
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false)
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
             const underTest = new Attack(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -128,8 +137,8 @@ describe("Attack", () => {
             const modifierAttributes = {
                 type: "magic" as const,
                 name: "Klinge des Lichts",
-            }
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, true)
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, true);
             const underTest = new Attack(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -144,26 +153,34 @@ describe("Attack", () => {
             const modifierAttributes = {
                 type: "magic" as const,
                 name: "Klinge des Lichts",
-                item: "Kurzschwert"
-            }
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false)
+                item: "Kurzschwert",
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
             const underTest = new Attack(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
             expect(damageItems.otherComponents).to.have.length(0);
-
         });
 
         it("should account for Improvisation feature", () => {
             const actor = setUpActor(sandbox);
-            sandbox.stub(actor, "items").value([({name: "Improvisation", type: "mastery"})]);
-            const attackItem = setUpAttackItem({damage: DamageModel.from("1W6+2"), features: ItemFeaturesModel.from("Improvisiert")});
-            actor.modifier.add("item.damage", {
-                type: "magic",
-                damageType: "light",
-                name: attackItem?.name
-            }, of(3), null, false)
+            sandbox.stub(actor, "items").value([{ name: "Improvisation", type: "mastery" }]);
+            const attackItem = setUpAttackItem({
+                damage: DamageModel.from("1W6+2"),
+                features: ItemFeaturesModel.from("Improvisiert"),
+            });
+            actor.modifier.add(
+                "item.damage",
+                {
+                    type: "magic",
+                    damageType: "light",
+                    name: attackItem?.name,
+                },
+                of(3),
+                null,
+                false
+            );
             const underTest = new Attack(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -175,13 +192,13 @@ describe("Attack", () => {
 
         it("should produce a readable damage string", () => {
             const actor = setUpActor(sandbox);
-            const attackItem = setUpAttackItem({damage: DamageModel.from("1W6+2")});
+            const attackItem = setUpAttackItem({ damage: DamageModel.from("1W6+2") });
             attackItem.name = "Langschwert";
             const modifierAttributes = {
                 type: "magic" as const,
                 name: "Klinge des Lichts",
-            }
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false)
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
             const underTest = new Attack(actor, attackItem);
 
             expect(underTest.damage).to.equal("1W6 + 5");
@@ -189,13 +206,13 @@ describe("Attack", () => {
 
         it("zero damage should be rendered as empty string ", () => {
             const actor = setUpActor(sandbox);
-            const attackItem = setUpAttackItem({damage: DamageModel.from("0")});
+            const attackItem = setUpAttackItem({ damage: DamageModel.from("0") });
             attackItem.name = "Langschwert";
             const modifierAttributes = {
                 type: "magic" as const,
                 name: "Klinge des Lichts",
-            }
-            actor.modifier.add("item.damage", modifierAttributes, of(0), null, false)
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(0), null, false);
             const underTest = new Attack(actor, attackItem);
 
             expect(underTest.damage).to.equal("");
@@ -204,18 +221,8 @@ describe("Attack", () => {
 
     it("should account for weapon speed modifiers", () => {
         const actor = setUpActor(sandbox);
-        const attackItem = setUpAttackItem({weaponSpeed: 7});
-        actor.modifier.add("item.weaponspeed", {type: "magic", name: attackItem?.name}, of(3), null, false)
-        const underTest = new Attack(actor, attackItem);
-
-        expect(underTest.weaponSpeed).to.equal(4);
-    });
-
-    it("should filter weapon speed modifiers by itemType", () => {
-        const actor = setUpActor(sandbox);
-        const attackItem = setUpAttackItem({weaponSpeed: 7});
-        attackItem.type="npcAttack"
-        actor.modifier.add("item.weaponspeed", {type: "magic", name: attackItem?.name, itemType:"npcAttack"}, of(3), null, false)
+        const attackItem = setUpAttackItem({ weaponSpeed: 7 });
+        actor.modifier.add("item.weaponspeed", { type: "magic", name: attackItem?.name }, of(3), null, false);
         const underTest = new Attack(actor, attackItem);
 
         expect(underTest.weaponSpeed).to.equal(4);
@@ -223,9 +230,15 @@ describe("Attack", () => {
 
     it("should filter out weapon speed modifiers by itemType", () => {
         const actor = setUpActor(sandbox);
-        const attackItem = setUpAttackItem({weaponSpeed: 7});
-        attackItem.type="npcAttack"
-        actor.modifier.add("item.weaponspeed", {type: "magic", name: attackItem?.name, itemType:"weapon"}, of(3), null, false)
+        const attackItem = setUpAttackItem({ weaponSpeed: 7 });
+        attackItem.type = "npcAttack";
+        actor.modifier.add(
+            "item.weaponspeed",
+            { type: "magic", name: attackItem?.name, itemType: "weapon" },
+            of(3),
+            null,
+            false
+        );
         const underTest = new Attack(actor, attackItem);
 
         expect(underTest.weaponSpeed).to.equal(7);
@@ -233,8 +246,8 @@ describe("Attack", () => {
 
     it("should account for improvisation in weapon speed", () => {
         const actor = setUpActor(sandbox);
-        sandbox.stub(actor, "items").value([({name: "Improvisation", type: "mastery"})]);
-        const attackItem = setUpAttackItem({weaponSpeed: 7, features: ItemFeaturesModel.from("Improvisiert")});
+        sandbox.stub(actor, "items").value([{ name: "Improvisation", type: "mastery" }]);
+        const attackItem = setUpAttackItem({ weaponSpeed: 7, features: ItemFeaturesModel.from("Improvisiert") });
         const underTest = new Attack(actor, attackItem);
 
         expect(underTest.weaponSpeed).to.equal(5);
@@ -242,7 +255,7 @@ describe("Attack", () => {
 
     it("should report prepared if attack represents a melee attack", () => {
         const actor = setUpActor(sandbox);
-        const attackItem = setUpAttackItem({skill: "blades"});
+        const attackItem = setUpAttackItem({ skill: "blades" });
 
         const underTest = new Attack(actor, attackItem);
 
@@ -253,7 +266,7 @@ describe("Attack", () => {
         it(`should not report prepared if attack represents a ${skill} attack`, () => {
             const actor = setUpActor(sandbox);
             actor.getFlag.withArgs("splittermond", "preparedAttack").returns(null);
-            const attackItem = setUpAttackItem({skill});
+            const attackItem = setUpAttackItem({ skill });
 
             const underTest = new Attack(actor, attackItem);
 
@@ -261,10 +274,10 @@ describe("Attack", () => {
         });
 
         it(`should not report prepared if ${skill} attack is prepared`, () => {
-            const id = "3122345234"
+            const id = "3122345234";
             const actor = setUpActor(sandbox);
             actor.getFlag.withArgs("splittermond", "preparedAttack").returns(id);
-            const attackItem = setUpAttackItem({skill});
+            const attackItem = setUpAttackItem({ skill });
             attackItem.id = id;
 
             const underTest = new Attack(actor, attackItem);
@@ -277,12 +290,12 @@ describe("Attack", () => {
 function setUpActor(sandbox: SinonSandbox) {
     const actor = sandbox.createStubInstance(SplittermondActor);
     const dataModel = sandbox.createStubInstance(CharacterDataModel);
-    Object.defineProperty(actor, "getFlag", {value: sandbox.stub(), enumerable: true, writable: false});
-    Object.defineProperty(actor, "modifier", {value: new ModifierManager(), enumerable: true, writable: false});
-    Object.defineProperty(actor, "system", {value: dataModel, enumerable: true, writable: false});
-    Object.defineProperty(actor.system, "skills", {value: {}, enumerable: true, writable: false});
-    Object.defineProperty(actor, "items", {value: [], enumerable: true, writable: true});
-    actor.findItem.callThrough()
+    Object.defineProperty(actor, "getFlag", { value: sandbox.stub(), enumerable: true, writable: false });
+    Object.defineProperty(actor, "modifier", { value: new ModifierManager(), enumerable: true, writable: false });
+    Object.defineProperty(actor, "system", { value: dataModel, enumerable: true, writable: false });
+    Object.defineProperty(actor.system, "skills", { value: {}, enumerable: true, writable: false });
+    Object.defineProperty(actor, "items", { value: [], enumerable: true, writable: true });
+    actor.findItem.callThrough();
     return actor;
 }
 
@@ -304,11 +317,11 @@ function setUpAttackItem(props: AttackItemData = {}): ConstructorParameters<type
             damageLevel: 0,
             range: 0,
             features: ItemFeaturesModel.from("Scharf 2"),
-            damage: new DamageModel({stringInput: "1W6+2"}),
+            damage: new DamageModel({ stringInput: "1W6+2" }),
             weaponSpeed: 7,
             damageType: "physical",
             costType: "V",
-            ...props
-        }
-    }
+            ...props,
+        },
+    };
 }
