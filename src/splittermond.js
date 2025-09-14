@@ -41,6 +41,8 @@ import {CostBase} from "./module/util/costs/costTypes";
 import {DamageRoll} from "./module/util/damage/DamageRoll.js";
 import {ItemFeaturesModel} from "./module/item/dataModel/propertyModels/ItemFeaturesModel.js";
 import {toggleElement} from "./module/util/animatedDisplay";
+import {initializeActor} from "module/actor/index.js";
+import {initializeModifiers} from "module/modifiers/index.js";
 
 
 $.fn.closestData = function (dataName, defaultValue = "") {
@@ -98,24 +100,11 @@ Hooks.once("init", async function () {
         CONFIG.compatibility.excludePatterns.push(new RegExp("systems/splittermond/"));
         CONFIG.compatibility.excludePatterns.push(new RegExp("Splittermond"));
     }
-    const trackableResources = {
-        bar: ["healthBar", "focusBar"],
-        value: ["health.available.value", "focus.available.value"]
-    }
-
-    CONFIG.Actor.documentClass = SplittermondActor;
-    CONFIG.Actor.dataModels.character = CharacterDataModel;
-    CONFIG.Actor.dataModels.npc = NpcDataModel;
-    CONFIG.Actor.trackableAttributes = {
-        character: {
-            bar: [...trackableResources.bar, "splinterpoints"],
-            value: [...trackableResources.value, "splinterpoints.value"]
-        },
-        npc: trackableResources
-
-    }
-
-    initializeItem();
+    game.splittermond = {}
+    const modifierModule = initializeModifiers();
+    game.splittermond.API = {modifierRegistry: modifierModule.modifierRegistry}
+    initializeActor(CONFIG.Actor,modifierModule.addModifier)
+    initializeItem(CONFIG, modifierModule.modifierRegistry);
     chatActionFeature(CONFIG.ChatMessage)
 
     CONFIG.Combat.documentClass = SplittermondCombat;
@@ -127,7 +116,6 @@ Hooks.once("init", async function () {
     };
 
 
-    game.splittermond = {}
     initTheme();
     await registerRequestedSystemSettings();
 

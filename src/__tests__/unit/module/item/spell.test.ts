@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import SplittermondSpellItem from "../../../../module/item/spell.js";
 import {getSpellAvailabilityParser} from "module/item/availabilityParser";
-import {describe, it, beforeEach,afterEach} from "mocha";
+import {afterEach, beforeEach, describe, it} from "mocha";
 import {initializeSpellCostManagement} from "module/util/costs/spellCostManagement";
 import {Cost} from "module/util/costs/Cost";
 import sinon, {SinonSandbox} from "sinon";
@@ -9,7 +9,8 @@ import {SpellDataModel} from "../../../../module/item/dataModel/SpellDataModel";
 import SplittermondActor from "../../../../module/actor/actor";
 import ModifierManager from "../../../../module/actor/modifier-manager";
 import {createTestRoll, stubRollApi} from "../../RollMock";
-import {evaluate, of} from "../../../../module/actor/modifiers/expressions/scalar";
+import {evaluate, of} from "../../../../module/modifiers/expressions/scalar";
+import {of as ofCost} from "../../../../module/modifiers/expressions/cost";
 import {ItemFeaturesModel} from "../../../../module/item/dataModel/propertyModels/ItemFeaturesModel";
 import {DamageRoll} from "../../../../module/util/damage/DamageRoll";
 import {foundryApi} from "../../../../module/api/foundryApi";
@@ -98,13 +99,13 @@ describe("Spell item cost calculation", () => {
 
     it("should reduce the cost of a spell if an actor is associated to this spell", () => {
         (sampleSpell.actor.system as any/*member is initialized above*/).spellCostReduction.modifiers
-            .put(new Cost(1, 1, true).asModifier(), null, null);
+            .put(ofCost(new Cost(1, 1, true).asModifier()), null, null);
         expect(sampleSpell.costs).to.equal("K1V1");
     });
 
     it("should reduce the enhancement cost of a spell if an actor is associated to this spell", () => {
         (sampleSpell.actor.system as any/*member is initialized above*/).spellEnhancedCostReduction.modifiers
-            .put(new Cost(1, 1, true).asModifier(), null, null);
+            .put(ofCost(new Cost(1, 1, true).asModifier()), null, null);
         expect(sampleSpell.enhancementCosts).to.equal("1EG/+K1V1");
     });
 });

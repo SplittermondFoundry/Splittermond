@@ -6,6 +6,7 @@ import {getSpellAvailabilityParser} from "../../item/availabilityParser";
 import {SpellDataModelType} from "../../item";
 import {ItemFeatureDataModel} from "../../item/dataModel/propertyModels/ItemFeaturesModel";
 import {DataModelConstructorInput} from "../../api/DataModel";
+import {CastDurationModel} from "module/item/dataModel/propertyModels/CastDurationModel";
 
 export async function importSpell(spellName: string, rawData: string, folder: string): Promise<SplittermondSpellItem> {
     let spellData = {
@@ -29,7 +30,7 @@ export async function importSpell(spellName: string, rawData: string, folder: st
             spellType: null,
             difficulty: null,
             costs: null,
-            castDuration: null,
+            castDuration: CastDurationModel.empty(),
             range: null,
             description: null,
             effectDuration: null,
@@ -82,7 +83,7 @@ export async function importSpell(spellName: string, rawData: string, folder: st
                 spellData.system.costs = sectionData;
                 break;
             case "Zauberdauer:":
-                spellData.system.castDuration = sectionData;
+                spellData.system.castDuration = CastDurationModel.from(sectionData).toObject();
                 break;
             case "Reichweite:":
                 spellData.system.range = sectionData;
@@ -90,7 +91,7 @@ export async function importSpell(spellName: string, rawData: string, folder: st
             case "Wirkung:":
                 spellData.system.description = sectionData;
                 spellData.system.description = spellData.system.description.replace(/\n/g, " ");
-                spellData.system.description = spellData.system.description.replace(/  /g, " ");
+                spellData.system.description = spellData.system.description.replace(/\s{2,}/g, " ");
                 break;
             case "Wirkungsdauer:":
                 spellData.system.effectDuration = sectionData;

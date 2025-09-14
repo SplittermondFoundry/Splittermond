@@ -22,7 +22,7 @@ export const modifiers = {
     naturalarmor: "SR +1",
     "schmerzimmunität": "woundMalus.mod -100",
     "schmerzresistenz": "woundMalus.mod -1",
-    "schwächlich": "woundMalus.nbrLevels 3",
+    "schwächlich": "actor.woundMalus.nbrLevels 3",
     "erhöhte fokusregeneration": "focusRegeneration.multiplier 3",
     "erhöhte lebensregeneration": "healthRegeneration.multiplier 3",
     "erhöhter fokuspool": "FO +5",

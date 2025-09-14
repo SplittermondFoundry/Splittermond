@@ -4,7 +4,7 @@ import Attack from "./attack";
 import {DamageType} from "../config/damageTypes";
 import {CharacterDataModel} from "./dataModel/CharacterDataModel";
 import {NpcDataModel} from "./dataModel/NpcDataModel";
-import {Susceptibilities} from "./modifiers/Susceptibilities";
+import {Susceptibilities} from "./Susceptibilities";
 import ModifierManager from "./modifier-manager";
 import type {VirtualToken} from "../combat/VirtualToken";
 
@@ -26,7 +26,7 @@ declare class SplittermondActor extends Actor {
     get weaknesses(): Record<DamageType, number>;
 
     get resistances(): Record<DamageType, number>;
-    addModifier(item:SplittermondItem,name:string, str:string,type:string,multiplier?:number):void;
+    addModifier(item:SplittermondItem,str:string,type:string,multiplier?:number):void;
 
     get damageReduction(): number;
 

@@ -186,7 +186,11 @@ export function actorTest(context: QuenchBatchContext) {
                     weaponSpeed: 5,
                     skill: "blades",
                     skillMod: 0,
-                    features: {internalFeatureList: [{name: "Wurffähig", value: 1}]},
+                    features: {
+                        _document: null,
+                        internalFeatureList: [{name: "Wurffähig", value: 1}],
+                        triedToFindDocument: false,
+                    },
                     attribute1: "agility",
                     attribute2: "intuition",
                     prepared: false,
@@ -205,10 +209,12 @@ export function actorTest(context: QuenchBatchContext) {
                         weaponSpeed: 4,
                         minAttributes: "",
                         features: {
+                            _document: null,
                             internalFeatureList: [{name: "Improvisiert", value: 1}, {
                                 name: "Nahkampftauglich",
                                 value: 1
-                            }]
+                            }],
+                            triedToFindDocument: false,
                         }
                     },
                 }

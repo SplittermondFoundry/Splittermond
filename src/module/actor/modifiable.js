@@ -1,4 +1,4 @@
-import {evaluate} from "./modifiers/expressions/scalar";
+import {evaluate} from "../modifiers/expressions/scalar";
 
 export default class Modifiable {
     /**
@@ -15,11 +15,11 @@ export default class Modifiable {
     }
 
     get mod() {
-        const grandTotal = this.actor.modifier.getForIds(...this._modifierPath).notSelectable().getModifiers().value;
+        const grandTotal = this.actor.modifier.getForIds(...this._modifierPath).notSelectable().getModifiers().sum;
         const bonusEquipment = this.actor.modifier.getForIds(...this._modifierPath).notSelectable().getModifiers()
-            .filter(mod => mod.type === "equipment" && mod.isBonus).value
+            .filter(mod => mod.type === "equipment" && mod.isBonus).sum
         const bonusMagic = this.actor.modifier.getForIds(...this._modifierPath).notSelectable().getModifiers()
-            .filter(mod => mod.type === "magic" && mod.isBonus).value
+            .filter(mod => mod.type === "magic" && mod.isBonus).sum
 
         const cappedEquipment = grandTotal - Math.max(0, bonusEquipment - this.actor.bonusCap);
         return cappedEquipment - Math.max(0, bonusMagic - this.actor.bonusCap);

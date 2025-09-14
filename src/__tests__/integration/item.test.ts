@@ -62,7 +62,7 @@ export function itemTest(this:any, context: QuenchBatchContext) {
                 system: {
                     skill: "deathmagic",
                     availableIn: "deathmagic 1",
-                    castDuration: "5m",
+                    castDuration: {value: 5, unit: "min"},
                     costs: "5000V5000",
                     skillLevel: 6,
                     description: "abc",
@@ -96,11 +96,11 @@ export function itemTest(this:any, context: QuenchBatchContext) {
             };
             const item = await foundryApi.createItem(itemData);
 
-            expect(item.system).to.deep.equal(itemData.system);
-            expect(item.system).to.be.instanceOf(SpellDataModel)
             expect(item).to.be.instanceOf(SplittermondSpellItem)
             expect(item.name).to.equal(itemData.name);
             expect(item.type).to.equal(itemData.type);
+            expect(item.system).to.be.instanceOf(SpellDataModel)
+            expect(item.system.toObject()).to.deep.equal(itemData.system);
 
             await Item.deleteDocuments([item.id]);
         });
@@ -119,7 +119,16 @@ export function itemTest(this:any, context: QuenchBatchContext) {
             await ItemImporter.pasteEventhandler(probe);
 
             const item = await itemCreatorSpy.lastCall.returnValue
-            expect(item.system).to.deep.equal(Machtexplosion.expected.system);
+            const expectedItemSystem = {
+                ...Machtexplosion.expected.system,
+                features: {
+                    _document: null,
+                    internalFeatureList: Machtexplosion.expected.system.features.internalFeatureList,
+                    triedToFindDocument: false
+                }
+
+            };
+            expect(item.system).to.deep.equal(expectedItemSystem);
             expect("img" in item && item.img).to.equal("icons/svg/daze.svg")
 
             await Item.deleteDocuments([item.id]);
@@ -128,16 +137,15 @@ export function itemTest(this:any, context: QuenchBatchContext) {
 
     describe("item type completeness", () => {
         itemTypes.forEach(itemType => {
-            it("itemType is present in item data models config" + itemType, () => {
+            it(`itemType is present in item data models config '${itemType}'`, () => {
                 expect(CONFIG.Item.dataModels).to.have.property(itemType);
             });
         });
 
         Object.keys(CONFIG.Item.dataModels).forEach(itemType => {
-            it("Item data models key exists in item Types" + itemType, () => {
+            it(`Item data models key exists in item Type '${itemType}'`, () => {
                 expect(itemTypes).to.contain(itemType)
             });
         })
     });
-
 }

@@ -13,6 +13,10 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "baseUrl": "./src",
+    "paths": {
+      "module/*": ["module/*"],
+      "*": ["*"]
+    },
     "rootDir": "./src",
     "noEmit": true,
     "resolveJsonModule": true,

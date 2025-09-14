@@ -14,6 +14,10 @@ import {asMock} from "../../settingsMock";
 import {settings} from "../../../../module/settings";
 import {JSDOM} from "jsdom";
 import {StrengthDataModel} from "../../../../module/item/dataModel/StrengthDataModel";
+import Modifier from "../../../../module/actor/modifier";
+import {of} from "../../../../module/modifiers/expressions/scalar";
+import {actualAddModifierFunction} from "module/actor/addModifierAdapter";
+import {initializeModifiers} from "module/modifiers";
 
 declare const global: any
 
@@ -106,18 +110,18 @@ describe("SplittermondActor", () => {
             focus: new FocusDataModel({consumed: {value: 0}, exhausted: {value: 0}, channeled: {entries: []}}),
             currency: {S: 0, L: 0, T: 0},
         });
-        Object.defineProperty(actor, "items", {value:[], writable: true, configurable: true});
+        Object.defineProperty(actor, "items", {value: [], writable: true, configurable: true});
         // Mock update to avoid side effects and allow assertions
         sandbox.spy(actor, "update")
     });
 
     describe("Spell Cost Reduction", () => {
         it("should initialize spell cost management", () => {
-            sandbox.stub(foundryApi,"localize").callsFake((key) => key)
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key)
             actor.prepareBaseData();
 
-            expect("spellCostReduction" in actor.system,"Spell cost reduction is defined").to.be.true;
-            expect("spellEnhancedCostReduction" in actor.system,"Spell enhanced cost reduction is defined").to.be.true;
+            expect("spellCostReduction" in actor.system, "Spell cost reduction is defined").to.be.true;
+            expect("spellEnhancedCostReduction" in actor.system, "Spell enhanced cost reduction is defined").to.be.true;
         });
     });
 
@@ -160,13 +164,15 @@ describe("SplittermondActor", () => {
     });
 
     describe("Modifiers", () => {
+        enableModifiers();
         it("should add a modifier to the actor", () => {
-            sandbox.stub(foundryApi,"localize").callsFake((key) => key)
-            sandbox.stub(foundryApi,"format").callsFake((key) => key);
-            sandbox.stub(foundryApi,"reportError").callsFake(()=>{});
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key)
+            sandbox.stub(foundryApi, "format").callsFake((key) => key);
+            sandbox.stub(foundryApi, "reportError").callsFake(() => {
+            });
             const item = sandbox.createStubInstance(SplittermondItem);
             actor.prepareBaseData()
-            actor.addModifier(item, "Test Modifier", "test-modifier +2", "innate");
+            actor.addModifier(item, "test-modifier +2", "innate");
             const modifiers = actor.modifier.getForId("test-modifier").getModifiers();
             expect(modifiers).to.not.be.empty;
         });
@@ -180,6 +186,19 @@ describe("SplittermondActor", () => {
         afterEach(() => {
             global.duplicate = undefined
         });
+
+        function autoApproveLongRest() {
+            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
+                if (options?.buttons?.yes) {
+                    options.buttons.yes.callback();
+                }
+                return {
+                    render: () => {
+                    }
+                };
+            });
+        }
+
         it("should initialize health and focus data", () => {
             actor.prepareBaseData();
             expect(actor.system.health).to.have.property("consumed");
@@ -201,15 +220,7 @@ describe("SplittermondActor", () => {
         });
 
         it("should handle long rest correctly", async () => {
-            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?.yes) {
-                    options.buttons.yes.callback();
-                }
-                return {
-                    render: () => {
-                    }
-                };
-            });
+            autoApproveLongRest()
             actor.system.focus.updateSource({exhausted: {value: 5}});
             actor.system.health.updateSource({exhausted: {value: 3}});
             actor.system.focus.updateSource({consumed: {value: 10}});
@@ -224,6 +235,68 @@ describe("SplittermondActor", () => {
             expect(actor.system.health.consumed.value).to.equal(2);
             // Ensure update was called
             expect((actor.update as sinon.SinonSpy).calledOnce).to.be.true;
+        });
+
+        ([[-1, 13], [0, 10], [1, 7], [2, 4], [3, 1], [5, 0]] as const).forEach(([multiplier, expected]) => {
+            it(`should use modified health regeneration multiplier of ${multiplier}`, async () => {
+                autoApproveLongRest()
+                actor.system.health.updateSource({consumed: {value: 10}});
+                actor.system.attributes.constitution.updateSource({initial: 3, advances: 0})
+                actor.prepareBaseData();
+                actor.modifier.addModifier(new Modifier("actor.healthregeneration.multiplier", of(multiplier), {
+                    name: "Test",
+                    type: "innate"
+                }, null));
+
+                await actor.longRest();
+
+                expect(actor.system.health.consumed.value).to.equal(expected);
+            });
+        });
+
+        it("should have a modifiable health regeneration bonus", async () => {
+            autoApproveLongRest()
+            actor.system.health.updateSource({consumed: {value: 10}});
+            actor.system.attributes.constitution.updateSource({initial: 3, advances: 0})
+            actor.prepareBaseData();
+            actor.modifier.addModifier(new Modifier("actor.healthregeneration.bonus", of(2), {
+                name: "Test",
+                type: "innate"
+            }, null));
+
+            await actor.longRest();
+
+            expect(actor.system.health.consumed.value).to.equal(2);
+        });
+
+        it("should have a modifiable focus regeneration multiplier", async () => {
+            autoApproveLongRest()
+            actor.system.focus.updateSource({consumed: {value: 10}});
+            actor.system.attributes.willpower.updateSource({initial: 3, advances: 0})
+            actor.prepareBaseData();
+            actor.modifier.addModifier(new Modifier("actor.focusregeneration.multiplier", of(3), {
+                name: "Test",
+                type: "innate"
+            }, null));
+
+            await actor.longRest();
+
+            expect(actor.system.focus.consumed.value).to.equal(1);
+        });
+
+        it("should have a modifiable focus regeneration bonus", async () => {
+            autoApproveLongRest()
+            actor.system.focus.updateSource({consumed: {value: 10}});
+            actor.system.attributes.constitution.updateSource({initial: 3, advances: 0})
+            actor.prepareBaseData();
+            actor.modifier.addModifier(new Modifier("actor.focusregeneration.bonus", of(2), {
+                name: "Test",
+                type: "innate"
+            }, null));
+
+            await actor.longRest();
+
+            expect(actor.system.focus.consumed.value).to.equal(2);
         });
     });
 
@@ -245,7 +318,7 @@ describe("SplittermondActor", () => {
             actor.items = [
                 {
                     system: {
-                        features: { hasFeature: () => false },
+                        features: {hasFeature: () => false},
                         equipped: true,
                         damageReduction: 2
                     }
@@ -261,7 +334,7 @@ describe("SplittermondActor", () => {
             actor.items = [
                 {
                     system: {
-                        features: { hasFeature: (f: string) => f === "Stabil" },
+                        features: {hasFeature: (f: string) => f === "Stabil"},
                         equipped: true,
                         damageReduction: 2
                     }
@@ -276,14 +349,14 @@ describe("SplittermondActor", () => {
             actor.items = [
                 {
                     system: {
-                        features: { hasFeature: (f: string) => f === "Stabil" },
+                        features: {hasFeature: (f: string) => f === "Stabil"},
                         equipped: true,
                         damageReduction: 2
                     }
                 },
                 {
                     system: {
-                        features: { hasFeature: (f: string) => f === "Stabil" },
+                        features: {hasFeature: (f: string) => f === "Stabil"},
                         equipped: true,
                         damageReduction: 3
                     }
@@ -296,7 +369,7 @@ describe("SplittermondActor", () => {
             actor.items = [
                 {
                     system: {
-                        features: { hasFeature: () => false },
+                        features: {hasFeature: () => false},
                         equipped: false,
                         damageReduction: 2
                     }
@@ -306,25 +379,31 @@ describe("SplittermondActor", () => {
         });
     });
 
-    describe("Fumbles", ()=>{
-
+    describe("Fumbles", () => {
+        enableModifiers();
         beforeEach(() => {
-            sandbox.stub(foundryApi,"localize").callsFake((key) => key)
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key)
+            sandbox.stub(foundryApi, "format").callsFake((key) => key)
+            sandbox.stub(foundryApi, "reportError")
             actor.prepareBaseData();
         });
         it("should take fumble lowering modifier into account", async () => {
             const item = sandbox.createStubInstance(SplittermondItem);
             item.system = sandbox.createStubInstance(StrengthDataModel);
-            actor.addModifier(item, "Stabile Magie", "lowerFumbleResult +1", "innate");
+            actor.addModifier(item, "lowerFumbleResult +1", "innate");
             let input = {content: ""}
             global.Dialog = class {
-                constructor(inp:{content:string}) {input = inp;}
-                render(){}
+                constructor(inp: { content: string }) {
+                    input = inp;
+                }
+
+                render() {
+                }
             }
 
             await actor.rollMagicFumble(3, "4V2", "firemagic");
             const dom = new JSDOM(input.content).window.document.documentElement;
-            const lowerFumbleInput = dom.querySelector("input[name=lowerFumbleResult]") as HTMLInputElement|null;
+            const lowerFumbleInput = dom.querySelector("input[name=lowerFumbleResult]") as HTMLInputElement | null;
 
             expect(lowerFumbleInput).to.not.be.null;
             expect(lowerFumbleInput?.value).to.equal("1");
@@ -334,4 +413,14 @@ describe("SplittermondActor", () => {
 
 function asCharacter(actor: SplittermondActor) {
     return actor.system as CharacterDataModel;
+}
+
+function enableModifiers(){
+    before(() => {
+        const modifiers = initializeModifiers();
+        actualAddModifierFunction.self = modifiers.addModifier
+    });
+    after(() => {
+        actualAddModifierFunction.self = null
+    })
 }

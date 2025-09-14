@@ -26,7 +26,12 @@ export const expected = {
     name:  "Stahlhaut",
     system:  {
         availableIn:  "stonemagic 4, protectionmagic 4",
-        castDuration:  "25 Ticks",
+        castDuration:  {
+            value: 25,
+            unit:  "T",
+            _document: null,
+            triedToFindDocument: false,
+        },
         costs:  "K16V4",
         damage: {
             stringInput:  null,

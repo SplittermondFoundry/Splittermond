@@ -28,7 +28,12 @@ describe('Genesis Spell Import', () => {
             img: "icons/svg/daze.svg",
             name: "Blenden",
             system: {
-                castDuration: "3T",
+                castDuration: {
+                    value: 3,
+                    unit: "T",
+                    _document: null,
+                    triedToFindDocument: false,
+                },
                 costs: "4V1",
                 damage: {
                     stringInput: null
@@ -69,7 +74,12 @@ describe('Genesis Spell Import', () => {
             img: "icons/svg/daze.svg",
             name: "Einstellung verbessern",
             system: {
-                castDuration: "3T",
+                castDuration: {
+                    value:3,
+                    unit: "T",
+                    _document: null,
+                    triedToFindDocument: false,
+                },
                 costs: "K1",
                 damage: {
                     stringInput: null

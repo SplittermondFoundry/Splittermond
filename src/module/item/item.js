@@ -74,17 +74,17 @@ export default class SplittermondItem extends Item {
                     break;
                 }
             case "equipment":
-                this.actor.addModifier(this, this.name, data.modifier, "equipment");
+                this.actor.addModifier(this, data.modifier, "equipment");
                 break;
             case "strength":
-                this.actor.addModifier(this, this.name, data.modifier, "innate", data.quantity)
+                this.actor.addModifier(this, data.modifier, "innate", data.quantity)
                 break;
             case "statuseffect":
-                this.actor.addModifier(this, this.name, data.modifier, "statuseffect", data.level);
+                this.actor.addModifier(this, data.modifier, "statuseffect", data.level);
                 break;
             case "spelleffect":
                 if (data.active) {
-                    this.actor.addModifier(this, this.name, data.modifier, "magic");
+                    this.actor.addModifier(this, data.modifier, "magic");
                 }
                 break
             case "mastery":
@@ -93,14 +93,14 @@ export default class SplittermondItem extends Item {
                 if (name.startsWith("Schwerpunkt")) {
                     name = this.name.substring(12).trim();
                 }
-                modifier = modifier.replaceAll("${name}", name, "innate");
-                this.actor.addModifier(this, name, modifier);
+                modifier = modifier.replaceAll("${name}", name);
+                this.actor.addModifier(this, modifier, "innate");
                 break;
             case "npcfeature":
-                this.actor.addModifier(this, this.name, data.modifier, "innate");
+                this.actor.addModifier(this, data.modifier, "innate");
                 break;
             default:
-                this.actor.addModifier(this, this.name, data.modifier);
+                this.actor.addModifier(this, data.modifier);
                 break;
         }
 

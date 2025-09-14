@@ -2,7 +2,7 @@ import SplittermondPhysicalItem from "./physical";
 import AttackableItem from "./attackable-item";
 import ActiveDefense from "../actor/active-defense";
 import Skill from "../actor/skill";
-import {of} from "../actor/modifiers/expressions/scalar";
+import {of} from "../modifiers/expressions/scalar";
 import {ShieldDataModel} from "./dataModel/ShieldDataModel";
 import {splittermond} from "../config";
 import {foundryApi} from "../api/foundryApi";

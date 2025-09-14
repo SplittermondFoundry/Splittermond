@@ -2,6 +2,7 @@ import {DataModelSchemaType, fields, SplittermondDataModel} from "../../data/Spl
 import SplittermondSpellItem from "../spell";
 import {damage, getDescriptorFields, validatedBoolean} from "./commonFields";
 import {ItemFeaturesModel} from "./propertyModels/ItemFeaturesModel";
+import {CastDurationModel} from "./propertyModels/CastDurationModel";
 import {from0_12_20_migrateDamage, from0_12_20_migrateFeatures} from "./migrations";
 
 function SpellDataModelSchema() {
@@ -15,7 +16,7 @@ function SpellDataModelSchema() {
         difficulty: new fields.StringField({ required: true, nullable:true }),
         ...damage(),
         range: new fields.StringField({ required: true, nullable:true }),
-        castDuration: new fields.StringField({ required: true, nullable:true }),
+        castDuration: new fields.EmbeddedDataField(CastDurationModel, { required: true, nullable: false }),
         effectDuration: new fields.StringField({ required: true, nullable:true }),
         effectArea: new fields.StringField({ required: true, nullable:true }),
         enhancementDescription: new fields.StringField({ required: true, nullable:true }),
@@ -42,6 +43,14 @@ export class SpellDataModel extends SplittermondDataModel<SpellDataModelType, Sp
     static migrateData(source:unknown){
         source = from0_12_20_migrateDamage(source);
         source = from0_12_20_migrateFeatures(source);
+        source = from13_40_0_migrateCastDuration(source);
         return super.migrateData(source);
     }
+}
+
+function from13_40_0_migrateCastDuration(source: any): any {
+    if (source && typeof source.castDuration === "string") {
+        source.castDuration = { value: source.castDuration, unit: "T" };
+    }
+    return source;
 }

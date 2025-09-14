@@ -1,5 +1,6 @@
 import * as Tooltip from "../util/tooltip.js";
 import Modifiable from "./modifiable.js";
+import {evaluate, of, plus, times} from "../modifiers/expressions/scalar/index.js";
 
 export default class DerivedValue extends Modifiable {
     /**
@@ -136,12 +137,23 @@ export default class DerivedValue extends Modifiable {
     }
 
     get value() {
-        //if (this.actor.type != "character") return this.actor.system.attributes[this.id].value;
         if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
-        let value = Math.ceil(this.multiplier * (this.baseValue + this.mod));
+        let value = Math.ceil(evaluate(this.valueAsExpression()));
         if (this._cache.enabled && this._cache.value === null)
             this._cache.value = value;
         return value;
+    }
+
+    valueAsExpression() {
+        const base = this.baseValue;
+        const multiplier = this.multiplierAsExpression();
+        const modifier = of(this.mod)
+        return times(multiplier, plus(of(base), modifier));
+    }
+
+    multiplierAsExpression() {
+        return this.actor.modifier.getForId(`actor.${this.id}.multiplier`)
+            .notSelectable().getModifiers().product;
     }
 
     enableCaching() {

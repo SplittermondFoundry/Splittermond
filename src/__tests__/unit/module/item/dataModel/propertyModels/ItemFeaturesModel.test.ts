@@ -12,7 +12,7 @@ import {WeaponDataModel} from "../../../../../../module/item/dataModel/WeaponDat
 import SplittermondWeaponItem from "../../../../../../module/item/weapon";
 import SplittermondActor from "../../../../../../module/actor/actor";
 import ModifierManager from "../../../../../../module/actor/modifier-manager";
-import {of} from "../../../../../../module/actor/modifiers/expressions/scalar";
+import {of} from "../../../../../../module/modifiers/expressions/scalar";
 
 describe("ItemFeaturesModel", () => {
     let sandbox: sinon.SinonSandbox;

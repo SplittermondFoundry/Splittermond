@@ -1,21 +1,28 @@
 import {QuenchBatchContext} from "@ethaks/fvtt-quench";
 import {actorCreator} from "module/data/EntityCreator"
-import {foundryApi} from "../../module/api/foundryApi";
+import {foundryApi} from "module/api/foundryApi";
 import {CharacterDataModel} from "module/actor/dataModel/CharacterDataModel";
 import SplittermondActor from "module/actor/actor";
 import {splittermond} from "module/config";
 import {NpcDataModel} from "module/actor/dataModel/NpcDataModel";
 import {
-    abs, asString,
+    abs,
+    asString,
     dividedBy,
     evaluate,
     isGreaterZero,
-    isLessThanZero, mapRoll, minus,
-    of, plus, ref,
+    isLessThanZero,
+    mapRoll,
+    minus,
+    of,
+    plus,
+    ref,
     roll,
-    times, toRollFormula
-} from "module/actor/modifiers/expressions/scalar";
-import {DamageModel} from "../../module/item/dataModel/propertyModels/DamageModel";
+    times,
+    toRollFormula
+} from "module/modifiers/expressions/scalar";
+import {DamageModel} from "module/item/dataModel/propertyModels/DamageModel";
+import type SplittermondSpellItem from "module/item/spell";
 
 export function modifierTest(context: QuenchBatchContext) {
     const {describe, it, expect, beforeEach, afterEach} = context;
@@ -41,8 +48,8 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should account for a stealth modifier", async () => {
             const subject = await createActor("StealthyGnome")
-            subject.updateSource({system: {species: {size: 3}}})
-            subject.updateSource({
+            await subject.update({system: {species: {size: 3}}})
+            await subject.update({
                 system: {
                     attributes: {
                         intuition: {initial: 2, advances: 0},
@@ -56,6 +63,30 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.prepareDerivedData();
 
             expect(subject.skills.stealth.value).to.equal(7);
+        });
+
+        it("should set number of healthlevels", async () => {
+            const subject = await createActor("Weakling")
+            await subject.update({system: {species: {size: 5}}})
+            await subject.update({
+                system: {
+                    attributes: {
+                        constitution: {initial: 2, advances: 0},
+                        agility: {initial: 3, advances: 0}
+                    }
+                }
+            });
+            await subject.createEmbeddedDocuments("Item", [{
+                type: "strength",
+                name: "Tough as Fingernails",
+                system: {modifier: "actor.woundmalus.nbrLevels 3"}
+            }]);
+
+            subject.prepareBaseData();
+            await subject.prepareEmbeddedDocuments();
+            subject.prepareDerivedData();
+
+            expect(subject.system.health.total.value).to.equal(21);
         });
 
         [
@@ -301,6 +332,16 @@ export function modifierTest(context: QuenchBatchContext) {
             }]);
         }
 
+        async function makeWeak(actor: SplittermondActor) {
+            return await actor.createEmbeddedDocuments("Item", [{
+                type: "strength",
+                name: "Schwächlich",
+                system: {
+                    modifier: "actor.woundMalus.nbrLevels value='+3'",
+                }
+            }]);
+        }
+
         it("should apply wound malus effect with more than full bar missing", async () => {
             const subject = await setUpActor();
             await addWoundedEffect(subject, 1);
@@ -324,75 +365,122 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(subject.skills.acrobatics.value).to.equal(6 - 1);
         });
 
-        [[0, 0], [1, 1], [2, 2], [3, 4], [4, 8], [5, 8]].forEach(([level, reduction]) => {
-            it(`should apply wound malus of ${level} at perfect health`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
+        describe("With 3 levels of health", () => {
+            [[0, 0], [1, 2], [2, 8], [3, 8]].forEach(([level, reduction]) => {
+                describe(`Wound malus level ${level}`, () => {
+                    it(`should apply wound malus at perfect health`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await makeWeak(subject);
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
+                    it(`should apply wound malus with 1hp missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await makeWeak(subject);
+                        await subject.consumeCost("health", "1V1", "");
+
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
+
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
+
+                    it(`should apply wound malus with full bar missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await makeWeak(subject);
+                        await subject.consumeCost("health", `7V7`, "");
+
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
+
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
+                });
             });
+        });
 
-            it(`should apply wound malus of ${level} with 1hp missing`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
-                await subject.consumeCost("health", "1V1", "");
+        describe("With 5 levels of health", () => {
+            [[0, 0], [1, 1], [2, 2], [3, 4], [4, 8], [5, 8]].forEach(([level, reduction]) => {
+                describe(`Wound malus level ${level}`, () => {
+                    it(`should apply at perfect health`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-            });
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
 
-            it(`should apply wound malus of ${level} with full bar missing`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
-                await subject.consumeCost("health", `7V7`, "");
+                    it(`should apply with 1hp missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await subject.consumeCost("health", "1V1", "");
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
-            });
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
 
-            it(`should apply initiative penalty of ${level} at perfect health`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
+                    it(`should apply with full bar missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await subject.consumeCost("health", `7V7`, "");
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
-            });
+                        expect(subject.skills.acrobatics.value).to.equal(6 - reduction);
+                    });
 
-            it(`should apply initiative penalty of ${level} with 1hp missing`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
-                await subject.consumeCost("health", "1V1", "");
+                    it(`should apply initiative penalty at perfect health`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
-            });
+                        expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                    });
 
-            it(`should apply initiative penalty of ${level} with full bar missing`, async () => {
-                const subject = await setUpActor();
-                await addWoundedEffect(subject, level);
-                await subject.consumeCost("health", `7V7`, "");
+                    it(`should apply initiative penalty with 1hp missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await subject.consumeCost("health", "1V1", "");
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
 
-                expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                        expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                    });
+
+                    it(`should apply initiative penalty with full bar missing`, async () => {
+                        const subject = await setUpActor();
+                        await addWoundedEffect(subject, level);
+                        await subject.consumeCost("health", `7V7`, "");
+
+                        subject.prepareBaseData();
+                        await subject.prepareEmbeddedDocuments();
+                        subject.prepareDerivedData();
+
+                        expect(subject.derivedValues.initiative.value).to.equal(8 + reduction);
+                    });
+                });
             });
         });
     });
@@ -551,6 +639,76 @@ export function modifierTest(context: QuenchBatchContext) {
 
         });
 
+        it("should add item modifiers", async () => {
+            const subject = await createActor("WeaponizedCharacter");
+            (subject.system as CharacterDataModel).attributes.agility.updateSource({initial: 2, advances: 0});
+            (subject.system as CharacterDataModel).attributes.strength.updateSource({initial: 2, advances: 0});
+            (subject.system as CharacterDataModel).updateSource({
+                    skills: {
+                        ...subject.system.skills,
+                        blades: {points: 2, value: 6}
+                    }
+                }
+            );
+            await subject.createEmbeddedDocuments("Item", [{
+                type: "weapon",
+                name: "Spear of Destiny",
+                system: {
+                    skill: "staff",
+                    damage: DamageModel.from("3"),
+                    equipped: true,
+                    attribute1: "strength",
+                    attribute2: "agility",
+                    weaponSpeed: 6
+                }
+            },{
+                type: "strength",
+                name: "Murderous Strength",
+                system: {modifier: "item.damage itemType='weapon' damageType='physical' +3"}
+            }]);
+
+            subject.prepareBaseData();
+            await subject.prepareEmbeddedDocuments();
+            subject.prepareDerivedData();
+            expect(subject.attacks.find(a => a.name === "Spear of Destiny")?.damage).to.equal("6");
+        });
+
+        it("should respond to cast duration modifiers", async () => {
+            const subject = await createActor("WeaponizedCharacter");
+            (subject.system as CharacterDataModel).attributes.agility.updateSource({initial: 2, advances: 0});
+            (subject.system as CharacterDataModel).attributes.strength.updateSource({initial: 2, advances: 0});
+            (subject.system as CharacterDataModel).updateSource({
+                    skills: {
+                        ...subject.system.skills,
+                        blades: {points: 2, value: 6}
+                    }
+                }
+            );
+            await subject.createEmbeddedDocuments("Item", [{
+                type: "spell",
+                name: "Spear of Light",
+                system: {
+                    skill: "lightmagic",
+                    damageType: "light",
+                    damage: DamageModel.from("8d6"),
+                    castDuration: {
+                        unit: "T",
+                        value: 10
+                    }
+                }
+            },{
+                type: "strength",
+                name: "Absurd Fastness",
+                system: {modifier: "item.castDuration unit='T' itemType='spell' -1, item.castDuration.multiplier itemType='spell' 0.5"}
+            }]);
+
+            subject.prepareBaseData();
+            await subject.prepareEmbeddedDocuments();
+            subject.prepareDerivedData();
+
+            const itemUnderTest = subject.items.find(i => i.name === "Spear of Light") as SplittermondSpellItem;
+            expect(itemUnderTest.system.castDuration.inTicks).to.equal(4);
+        })
     });
 
     describe("Roll expressions", () => {
@@ -577,7 +735,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     dividedBy(abs(of(-4)), roll(foundryApi.roll("1d1")))
                 ),
                 plus(
-                    times(of(2), ref("value", {value:3}, "value")),
+                    times(of(2), ref("value", {value: 3}, "value")),
                     ref("value", {value: 1}, "value")
                 )
             );
@@ -586,12 +744,15 @@ export function modifierTest(context: QuenchBatchContext) {
             const rollObject = foundryApi.roll(...rollFormula);
             const evaluated = await rollObject.evaluate();
 
-        expect(rollFormula[0]).to.equal("((1d1 * 14) + (abs(-4) / 1d1)) - ((2 * @value0) + @value1)")
+            expect(rollFormula[0]).to.equal("((1d1 * 14) + (abs(-4) / 1d1)) - ((2 * @value0) + @value1)")
             expect(evaluated.total, `${asString(expression)} should equal`).to.equal(11);
         });
 
         it("should be able to parse a valid roll expression", async () => {
-            const roll = foundryApi.roll("((1d1 * 14) + (abs(-4) / 1d1)) - ((2 * @value0) + @value1)", {value0: "3", value1: "1"});
+            const roll = foundryApi.roll("((1d1 * 14) + (abs(-4) / 1d1)) - ((2 * @value0) + @value1)", {
+                value0: "3",
+                value1: "1"
+            });
 
             const mapped = mapRoll(roll);
             const evaluated = evaluate(mapped);
@@ -601,7 +762,7 @@ export function modifierTest(context: QuenchBatchContext) {
     });
 
     describe("Item modifiers", () => {
-        it("should account for modifications on weapons", async () => {
+        it("should account for modifications to weapons", async () => {
             const subject = await createActor("WeaponizedCharacter");
             (subject.system as CharacterDataModel).attributes.agility.updateSource({initial: 2, advances: 0});
             (subject.system as CharacterDataModel).attributes.strength.updateSource({initial: 2, advances: 0});
@@ -640,7 +801,7 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(subject.attacks.find(a => a.name === "Lance of Longinus")?.weaponSpeed).to.equal(4);
         });
 
-        it("should account for modifications on shields", async () => {
+        it("should account for modifications to shields", async () => {
             const subject = await createActor("WeaponizedCharacter");
             (subject.system as CharacterDataModel).attributes.agility.updateSource({initial: 2, advances: 0});
             (subject.system as CharacterDataModel).attributes.strength.updateSource({initial: 2, advances: 0});
@@ -668,7 +829,7 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.prepareBaseData();
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
-            subject.modifier.add("damage", {
+            subject.modifier.add("item.damage", {
                 item: "Lance of Longinus",
                 name: "Mastery",
                 type: "magic"
@@ -680,6 +841,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 type: "magic"
             }, of(2), null, false);
 
+            expect(subject.attacks.find(a => a.name === "Lance of Longinus")?.getForDamageRoll().otherComponents).to.not.be.empty;
             expect(subject.attacks.find(a => a.name === "Lance of Longinus")?.features).to.equal("Scharf 2");
         });
     });

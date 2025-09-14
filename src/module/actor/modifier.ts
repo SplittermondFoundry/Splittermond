@@ -8,37 +8,15 @@ import {
     isGreaterZero,
     isLessThanZero,
     of,
-    plus
-} from "./modifiers/expressions/scalar";
-
-export interface ModifierAttributes {
-    name:string;
-    type:ModifierType
-    [x:string]: string|undefined|null;
-}
-
-/**
- * The type of item from which the modifier stems. Use
- * <ul>
- *     <li><code>magic</code> for spells, their effects and temporary enchantments</li>
- *     <li><code>equipment</code> for arms, armor and any personal effects</li>
- *     <li><code>innate</code> for strengths, masteries and other permanent effects</li>
- * </ul>
- */
-export type ModifierType = "magic"|"equipment"|"innate"|null;
-export interface IModifier {
-   readonly value:Expression;
-   addTooltipFormulaElements(formula:TooltipFormula):void;
-   readonly isBonus:boolean;
-   readonly groupId:string;
-   readonly selectable:boolean;
-   readonly attributes: ModifierAttributes
-   readonly origin: object|null;
-}
+    plus,
+    times
+} from "../modifiers/expressions/scalar";
+import type {IModifier, ModifierAttributes} from "./modifier-manager";
 
 export default class Modifier implements IModifier {
     private _isBonus:boolean;
     private _isMalus:boolean;
+
     /**
      *
      * @param {string} path Modifier Path
@@ -70,10 +48,10 @@ export default class Modifier implements IModifier {
     addTooltipFormulaElements(formula:TooltipFormula ) {
         if (this.isBonus) {
             const term = `+${asString(abs(condense(this.value)))}`
-            formula.addBonus(term, this.name);
+            formula.addBonus(term, this.attributes.name);
         } else {
             const term = `-${asString(abs(condense(this.value)))}`
-            formula.addMalus(term, this.name);
+            formula.addMalus(term, this.attributes.name);
         }
     }
 
@@ -131,9 +109,19 @@ export class Modifiers extends Array<IModifier>{
         return Array.from(types);
     }
 
+    /**@deprecated use sum instead */
     get value(){
+        return this.sum;
+    }
+
+    get sum(){
         return evaluate(this.map(mod => mod.value)
             .reduce((acc, value) => plus(acc,value), of(0)));
+    }
+
+    get product() {
+        return this.map(mod => mod.value)
+            .reduce((acc, value) => times(acc, value), of(1));
     }
 
     filter(predicate: (value: IModifier, index: number, array: IModifier[]) => boolean, thisArg?: any): Modifiers {

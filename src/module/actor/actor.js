@@ -12,12 +12,12 @@ import {initializeSpellCostManagement} from "../util/costs/spellCostManagement";
 import {settings} from "../settings";
 import {splittermond} from "../config.js";
 import {foundryApi} from "../api/foundryApi";
-import {Susceptibilities} from "./modifiers/Susceptibilities";
-import {addModifier} from "./modifiers/modifierAddition";
-import {evaluate, of} from "./modifiers/expressions/scalar";
+import {Susceptibilities} from "./Susceptibilities.js";
+import {addModifier} from "./addModifierAdapter";
+import {evaluate, of} from "../modifiers/expressions/scalar";
 import {ItemFeaturesModel} from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import {DamageModel} from "../item/dataModel/propertyModels/DamageModel";
-import {InitiativeModifier} from "./InitiativeModifier";
+import {InverseModifier} from "./InverseModifier.js";
 import {genesisSpellImport} from "./genesisImport/spellImport";
 
 /** @type ()=>number */
@@ -180,12 +180,9 @@ export default class SplittermondActor extends Actor {
             data.experience.percentage = Math.min(data.experience.percentage * 100, 100);
 
             if (!data.splinterpoints) {
-                data.splinterpoints = {
-                    max: 3
-                };
-            } else {
-                data.splinterpoints.max = 3;
+                data.splinterpoints = {}
             }
+            data.splinterpoints.max = 3;
         }
 
         if (this.type === "npc") {
@@ -242,7 +239,7 @@ export default class SplittermondActor extends Actor {
         this._prepareActiveDefense();
 
         if (this.type === "character") {
-            this.system.splinterpoints.max += this.modifier.getForId("splinterpoints").getModifiers().value;
+            this.system.splinterpoints.max += this.modifier.getForId("actor.splinterpoints").getModifiers().sum;
         }
 
 
@@ -272,13 +269,26 @@ export default class SplittermondActor extends Actor {
             });
     }
 
+    get healthNbrLevels(){
+        const nbrLevelMods = this.modifier.getForId("actor.woundmalus.nbrLevels").getModifiers();
+        if(nbrLevelMods.length > 1){
+            console.warn(`Splittermond | Multiple wound malus level modifiers found on actor ${this.name}. The last one will be used.`);
+        }
+        const nbrLevelFromMod = evaluate(nbrLevelMods[nbrLevelMods.length - 1]?.value ?? of(0))
+        return nbrLevelFromMod > 0 ? nbrLevelFromMod :  this.system.health.woundMalus.nbrLevels;
+    }
+
+    get woundMalusMod() {
+        return this.modifier.getForId("actor.woundmalus.mod").getModifiers().sum;
+    }
 
     _prepareHealthFocus() {
         const data = this.system;
+        const healthNbrLevels = this.healthNbrLevels;
 
-        data.health.woundMalus.levels = duplicate(CONFIG.splittermond.woundMalus[data.health.woundMalus.nbrLevels]);
+        data.health.woundMalus.levels = duplicate(CONFIG.splittermond.woundMalus[healthNbrLevels]);
         data.health.woundMalus.levels = data.health.woundMalus.levels.map(i => {
-            i.value = Math.min(i.value - data.health.woundMalus.mod, 0);
+            i.value = Math.min(i.value - this.woundMalusMod, 0);
             return i;
         });
 
@@ -288,7 +298,7 @@ export default class SplittermondActor extends Actor {
                     data[type].channeled.value = Math.max(
                         Math.min(
                             data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value
+                            healthNbrLevels * this.derivedValues[type + "points"].value
                         ),
                         0);
                 } else {
@@ -324,18 +334,18 @@ export default class SplittermondActor extends Actor {
             data[type].consumed.value = parseInt(data[type].consumed.value);
             if (type === "health") {
                 data[type].available = {
-                    value: Math.max(Math.min(data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value - data[type].channeled.value - data[type].exhausted.value - data[type].consumed.value, data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value), 0)
+                    value: Math.max(Math.min(healthNbrLevels * this.derivedValues[type + "points"].value - data[type].channeled.value - data[type].exhausted.value - data[type].consumed.value, healthNbrLevels * this.derivedValues[type + "points"].value), 0)
                 }
 
                 data[type].total = {
-                    value: Math.max(Math.min(data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value - data[type].consumed.value, data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value), 0)
+                    value: Math.max(Math.min(healthNbrLevels * this.derivedValues[type + "points"].value - data[type].consumed.value, healthNbrLevels * this.derivedValues[type + "points"].value), 0)
                 }
 
-                data[type].available.percentage = 100 * data[type].available.value / (data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value);
-                data[type].exhausted.percentage = 100 * data[type].exhausted.value / (data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value);
-                data[type].channeled.percentage = 100 * data[type].channeled.value / (data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value);
-                data[type].total.percentage = 100 * data[type].total.value / (data.health.woundMalus.nbrLevels * this.derivedValues[type + "points"].value);
-                data[type].max = data.health.woundMalus.nbrLevels * this.derivedValues.healthpoints.value;
+                data[type].available.percentage = 100 * data[type].available.value / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                data[type].exhausted.percentage = 100 * data[type].exhausted.value / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                data[type].channeled.percentage = 100 * data[type].channeled.value / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                data[type].total.percentage = 100 * data[type].total.value / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                data[type].max =healthNbrLevels * this.derivedValues.healthpoints.value;
             } else {
 
                 data[type].available = {
@@ -361,10 +371,10 @@ export default class SplittermondActor extends Actor {
             }
         });
         const currentLevel = Math.floor(data.health.total.value / this.derivedValues.healthpoints.value);
-        const baseLevel = Math.max(data.health.woundMalus.nbrLevels - currentLevel - 1, 0);
+        const baseLevel = Math.max(healthNbrLevels - currentLevel - 1, 0);
         data.health.woundMalus.level = Math.min(
-            baseLevel + data.health.woundMalus.levelMod,
-            data.health.woundMalus.nbrLevels - 1
+            baseLevel + this.modifier.getForId("actor.woundMalus.levelMod").getModifiers().sum,
+            healthNbrLevels - 1
         );
 
         let woundMalusValue = data.health.woundMalus.levels[data.health.woundMalus.level];
@@ -380,7 +390,7 @@ export default class SplittermondActor extends Actor {
                 of(data.health.woundMalus.value),
                 this
             )
-            this.modifier.addModifier(new InitiativeModifier(
+            this.modifier.addModifier(new InverseModifier(
                 "initiativewoundmalus",
                 of(-data.health.woundMalus.value),
                 {
@@ -395,7 +405,7 @@ export default class SplittermondActor extends Actor {
 
         data.healthBar = {
             value: data.health.total.value,
-            max: data.health.woundMalus.nbrLevels * this.derivedValues.healthpoints.value
+            max: healthNbrLevels * this.derivedValues.healthpoints.value
         }
 
         data.focusBar = {
@@ -436,8 +446,26 @@ export default class SplittermondActor extends Actor {
     }
 
     //this function is used in item.js to add modifiers to the actor
-    addModifier(item, name = "", str = "", type = "", multiplier = 1) {
-        addModifier(this, item, name, str, type, multiplier);
+    addModifier(item, str = "", type = "", multiplier = 1) {
+        const result = addModifier(item, str, type, multiplier);
+
+        // Apply scalar modifiers to the actor's modifier manager
+        result.modifiers.forEach(modifier => {
+            this.modifier.addModifier(modifier);
+        });
+
+        // Apply cost modifiers to the appropriate spell cost reduction managers
+        const data = asPreparedData(this.system);
+        result.costModifiers.forEach(costModifier => {
+            const modifierLabel = costModifier.label.toLowerCase();
+            if (modifierLabel.startsWith("foreduction")) {
+                data.spellCostReduction.addCostModifier(costModifier);
+            } else if (modifierLabel.startsWith("foenhancedreduction")) {
+                data.spellEnhancedCostReduction.addCostModifier(costModifier);
+            }
+        });
+
+        return result;
     }
 
     _prepareModifier() {
@@ -1254,10 +1282,48 @@ export default class SplittermondActor extends Actor {
         focusData.exhausted.value = 0;
         healthData.exhausted.value = 0;
 
-        focusData.consumed.value = Math.max(focusData.consumed.value - this.system.focusRegeneration.multiplier * this.attributes.willpower.value - this.system.focusRegeneration.bonus, 0);
-        healthData.consumed.value = Math.max(healthData.consumed.value - this.system.healthRegeneration.multiplier * this.attributes.constitution.value - this.system.healthRegeneration.bonus, 0);
+        focusData.consumed.value = Math.max(focusData.consumed.value - this.focusRegenMultiplier * this.attributes.willpower.value - this.focusRegenBonus, 0);
+        healthData.consumed.value = Math.max(healthData.consumed.value - this.healthRegenMultiplier * this.attributes.constitution.value - this.healthRegenBonus, 0);
 
         return await this.update({system: {health: healthData, focus:focusData}}) //propagate update to the database
+    }
+
+    get healthRegenMultiplier() {
+        const multiplierFromModifiers = this.modifier.getForId("actor.healthregeneration.multiplier").notSelectable().getModifiers();
+        if (multiplierFromModifiers.length > 1) {
+            console.warn("Splittermond | Multiple modifiers for health regeneration multiplier found. Only the highest is applied.");
+        } else if(multiplierFromModifiers.length === 0){
+            return 2;
+        }else {
+            return Math.max( ...multiplierFromModifiers.map(m => evaluate(m.value)));
+        }
+    }
+
+    get healthRegenBonus() {
+        return this.modifier
+            .getForId("actor.healthregeneration.bonus")
+            .notSelectable()
+            .getModifiers()
+            .sum;
+    }
+
+    get focusRegenMultiplier() {
+        const multiplierFromModifiers = this.modifier.getForId("actor.focusregeneration.multiplier").notSelectable().getModifiers();
+        if(multiplierFromModifiers.length > 1) {
+            console.warn("Splittermond | Multiple modifiers for focus regeneration multiplier found. Only the highest is applied.");
+        } else if(multiplierFromModifiers.length === 0){
+            return 2;
+        }else {
+            return Math.max( ...multiplierFromModifiers.map(m => evaluate(m.value)));
+        }
+    }
+
+    get focusRegenBonus() {
+        return this.modifier
+            .getForId("actor.focusregeneration.bonus")
+            .notSelectable()
+            .getModifiers()
+            .sum;
     }
 
     /**
@@ -1418,6 +1484,15 @@ async function askUserAboutActorOverwrite() {
         });
         dialog.render(true);
     });
+}
+
+function asPreparedData(system) {
+    const qualifies = "spellCostReduction" in system && "spellEnhancedCostReduction" in system;
+    if (qualifies) {
+        return system; //There's not really much chance for error with the type of Spell cost reduction.
+    } else {
+        throw new Error("System not prepared for modifiers");
+    }
 }
 
 /**

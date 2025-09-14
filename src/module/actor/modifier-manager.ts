@@ -1,10 +1,40 @@
-import Modifier, {IModifier, ModifierAttributes, Modifiers} from "./modifier";
-import {Expression, isZero} from "./modifiers/expressions/scalar";
+import Modifier, {Modifiers} from "./modifier";
+import {Expression} from "../modifiers/expressions/scalar";
+import {TooltipFormula} from "../util/tooltip";
 
 interface AttributeSelector {
     key: string,
     values: string[],
     allowAbsent?: boolean
+}
+
+export interface ModifierAttributes {
+    name: string;
+    type: ModifierType
+
+    [x: string]: string | undefined | null;
+}
+
+/**
+ * The type of item from which the modifier stems. Use
+ * <ul>
+ *     <li><code>magic</code> for spells, their effects and temporary enchantments</li>
+ *     <li><code>equipment</code> for arms, armor and any personal effects</li>
+ *     <li><code>innate</code> for strengths, masteries and other permanent effects</li>
+ * </ul>
+ */
+export type ModifierType = "magic" | "equipment" | "innate" | null;
+
+export interface IModifier {
+    readonly value: Expression;
+
+    addTooltipFormulaElements(formula: TooltipFormula): void;
+
+    readonly isBonus: boolean;
+    readonly groupId: string;
+    readonly selectable: boolean;
+    readonly attributes: ModifierAttributes
+    readonly origin: object | null;
 }
 
 export default class ModifierManager {
@@ -15,14 +45,11 @@ export default class ModifierManager {
     }
 
     addModifier(modifier: IModifier) {
-        if(isZero(modifier.value)){
-            console.debug(`Splittermond | Discarding zero value modifier ${modifier.groupId} from ${modifier.attributes.name}`)
-            return;
+        const lowerCaseGroupId = modifier.groupId.toLowerCase();
+        if (!this._modifier.get(lowerCaseGroupId)) {
+            this._modifier.set(lowerCaseGroupId, []);
         }
-        if (!this._modifier.get(modifier.groupId)) {
-            this._modifier.set(modifier.groupId, []);
-        }
-        this._modifier.get(modifier.groupId)!.push(modifier)
+        this._modifier.get(lowerCaseGroupId)!.push(modifier)
     }
 
     getForIds(...groupIds: string[]) {
@@ -33,7 +60,7 @@ export default class ModifierManager {
     }
 
     getModifiers(groupId: string, withAttributes: AttributeSelector[] = [], selectable: boolean | null = null) {
-        const modifiersForPath = this._modifier.get(groupId) ?? [];
+        const modifiersForPath = this._modifier.get(groupId.toLowerCase()) ?? [];
         return modifiersForPath
             .filter(modifier => selectable === null || modifier.selectable === selectable)
             .filter(mod => passesAttributeFilter(mod, withAttributes));
