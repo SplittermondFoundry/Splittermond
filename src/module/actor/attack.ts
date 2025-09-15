@@ -305,7 +305,7 @@ export default class Attack {
                     damageImplements: this.getForDamageRoll(),
                 }
             },
-            ...duplicate(options),
+            ...structuredClone(options),
         };
         return this.skill.roll(attackRollOptions);
     }

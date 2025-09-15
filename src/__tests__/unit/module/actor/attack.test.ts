@@ -11,6 +11,7 @@ import { foundryApi } from "module/api/foundryApi";
 import { DamageRoll } from "../../../../module/util/damage/DamageRoll";
 import { createTestRoll, stubRollApi } from "../../RollMock";
 import { DamageModel } from "../../../../module/item/dataModel/propertyModels/DamageModel";
+import Skill from "module/actor/skill";
 
 describe("Attack", () => {
     let sandbox: SinonSandbox;
@@ -219,6 +220,97 @@ describe("Attack", () => {
         });
     });
 
+    it("should pass custom options to the roll method", () => {
+        const actor = setUpActor(sandbox);
+        const attackItem = setUpAttackItem();
+        const underTest = new Attack(actor, attackItem);
+
+        const customOptions = {
+            type: "spell",
+            title: "foo",
+            subtitle: "bar",
+            difficulty: 20,
+            preSelectedModifier: ["Custom Modifier"],
+            modifier: 5,
+            checkMessageData: { baz: 1 },
+        };
+
+        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options));
+        underTest.roll(customOptions);
+
+        expect(rollSpy.calledOnce).to.be.true;
+        const passedOptions = rollSpy.firstCall.firstArg;
+        expect(passedOptions).to.exist;
+        expect(passedOptions?.type).to.equal(customOptions.type);
+        expect(passedOptions?.title).to.equal(customOptions.title);
+        expect(passedOptions?.subtitle).to.equal(customOptions.subtitle);
+        expect(passedOptions?.difficulty).to.equal(customOptions.difficulty);
+        expect(passedOptions?.preSelectedModifier).to.deep.equal(customOptions.preSelectedModifier);
+        expect(passedOptions?.modifier).to.equal(customOptions.modifier);
+        expect(passedOptions?.checkMessageData).to.deep.equal(customOptions.checkMessageData);
+    });
+
+    it("should merge default options with custom options in the roll method", () => {
+        const actor = setUpActor(sandbox);
+        const attackItem = setUpAttackItem();
+        const underTest = new Attack(actor, attackItem);
+
+        const customOptions = {
+            difficulty: 20,
+            modifier: 5,
+        };
+
+        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options));
+        underTest.roll(customOptions);
+
+        expect(rollSpy.calledOnce).to.be.true;
+        const passedOptions = rollSpy.firstCall.firstArg;
+        expect(passedOptions).to.exist;
+        expect(passedOptions?.type).to.equal("attack");
+        expect(passedOptions?.title).to.equal(null);
+        expect(passedOptions?.subtitle).to.equal(attackItem.name);
+        expect(passedOptions?.difficulty).to.equal(customOptions.difficulty);
+        expect(passedOptions?.preSelectedModifier).to.deep.equal([attackItem.name]);
+        expect(passedOptions?.modifier).to.equal(customOptions.modifier);
+        // checkMessageData contains a roll result, so a full deep equal comparison will fail most of the time
+        expect(
+            passedOptions?.checkMessageData ? Object.keys(passedOptions?.checkMessageData.weapon) : []
+        ).to.deep.equal(
+            Object.keys({
+                ...underTest.toObject(),
+                damageImplements: underTest.getForDamageRoll(),
+            })
+        );
+    });
+
+    it("should use default options when no custom options are provided", () => {
+        const actor = setUpActor(sandbox);
+        const attackItem = setUpAttackItem();
+        const underTest = new Attack(actor, attackItem);
+
+        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options));
+        underTest.roll();
+
+        expect(rollSpy.calledOnce).to.be.true;
+        const passedOptions = rollSpy.firstCall.firstArg;
+        expect(passedOptions).to.exist;
+        expect(passedOptions?.type).to.equal("attack");
+        expect(passedOptions?.title).to.equal(null);
+        expect(passedOptions?.subtitle).to.equal(attackItem.name);
+        expect(passedOptions?.difficulty).to.equal("VTD");
+        expect(passedOptions?.preSelectedModifier).to.deep.equal([attackItem.name]);
+        expect(passedOptions?.modifier).to.equal(0);
+        // checkMessageData contains a roll result, so a full deep equal comparison will fail most of the time
+        expect(
+            passedOptions?.checkMessageData ? Object.keys(passedOptions?.checkMessageData.weapon) : []
+        ).to.deep.equal(
+            Object.keys({
+                ...underTest.toObject(),
+                damageImplements: underTest.getForDamageRoll(),
+            })
+        );
+    });
+
     it("should account for weapon speed modifiers", () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem({ weaponSpeed: 7 });
@@ -290,6 +382,11 @@ describe("Attack", () => {
 function setUpActor(sandbox: SinonSandbox) {
     const actor = sandbox.createStubInstance(SplittermondActor);
     const dataModel = sandbox.createStubInstance(CharacterDataModel);
+    Object.defineProperty(dataModel, "experience", {
+        value: { heroLevel: 1 },
+        enumerable: true,
+        writable: false,
+    });
     Object.defineProperty(actor, "getFlag", { value: sandbox.stub(), enumerable: true, writable: false });
     Object.defineProperty(actor, "modifier", { value: new ModifierManager(), enumerable: true, writable: false });
     Object.defineProperty(actor, "system", { value: dataModel, enumerable: true, writable: false });
