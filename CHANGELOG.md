@@ -1,3 +1,7 @@
+## 13.5.1
+### Fixed
+ * Ein Fehler wurde behoben, bei dem die Splitterpunkte sich nicht mit dem Heldengrad erhöht haben.
+ 
 ## 13.5.0
 ### New Features
  * Einträge für Zauberdauer werden jetzt normiert und validiert
