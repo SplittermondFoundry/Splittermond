@@ -289,11 +289,10 @@ export default class Attack {
         }
     }
 
-    async roll(options: Record<string, any> = {}) {
+    async roll(options: Partial<Parameters<typeof this.skill.roll>[0]> = {}) {
         if (!this.actor) return false;
 
         const attackRollOptions = {
-            ...duplicate(options),
             type: "attack",
             title: null,
             subtitle: this.item.name,
@@ -305,7 +304,8 @@ export default class Attack {
                     ...this.toObject(),
                     damageImplements: this.getForDamageRoll(),
                 }
-            }
+            },
+            ...structuredClone(options),
         };
         return this.skill.roll(attackRollOptions);
     }

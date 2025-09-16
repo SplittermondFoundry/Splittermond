@@ -107,7 +107,7 @@ export default class Skill extends Modifiable {
     }
 
     /**
-     * @param {{difficulty: unknown, preSelectedModifier:string[], subtitle:?string, title:?string, type:string, modifier:number}} options
+     * @param {{difficulty: unknown, preSelectedModifier:string[], subtitle:?string, title:?string, type:string, modifier:number, checkMessageData: Record<string, any>}} options
      * @return {Promise<*|boolean>}
      */
     async roll(options = {}) {
