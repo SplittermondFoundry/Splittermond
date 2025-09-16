@@ -2,7 +2,7 @@ import {DataModelSchemaType, fields, SplittermondDataModel} from "../../data/Spl
 import SplittermondSpellItem from "../spell";
 import {damage, getDescriptorFields, validatedBoolean} from "./commonFields";
 import {ItemFeaturesModel} from "./propertyModels/ItemFeaturesModel";
-import {CastDurationModel} from "./propertyModels/CastDurationModel";
+import {CastDurationModel, parseCastDuration} from "./propertyModels/CastDurationModel";
 import {from0_12_20_migrateDamage, from0_12_20_migrateFeatures} from "./migrations";
 
 function SpellDataModelSchema() {
@@ -50,7 +50,13 @@ export class SpellDataModel extends SplittermondDataModel<SpellDataModelType, Sp
 
 function from13_40_0_migrateCastDuration(source: any): any {
     if (source && typeof source.castDuration === "string") {
-        source.castDuration = { value: source.castDuration, unit: "T" };
+        source.castDuration = parseCastDuration(source.castDuration);
+    }
+    if (source && typeof source.castDuration === "object" && !source.castDuration.value ) {
+        source.castDuration.value = 1;
+    }
+    if (source && typeof source.castDuration === "object" && typeof source.castDuration.value === "string") {
+        source.castDuration = parseCastDuration(source.castDuration.value);
     }
     return source;
 }

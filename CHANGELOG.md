@@ -1,6 +1,8 @@
 ## 13.5.1
 ### Fixed
  * Ein Fehler wurde behoben, bei dem die Splitterpunkte sich nicht mit dem Heldengrad erhöht haben.
+ * Ein Fehler wurde behoben, bei dem die Zauberdauer Modifikatoren zu Fehlern bei nicht auf Akteuren verorteten Zaubern führten.
+ * Ein Fehler wurde behonben, bei dem der Wert der Zauberdauer in etwas ungültiges konvertiert wurde.
  
 ## 13.5.0
 ### New Features
