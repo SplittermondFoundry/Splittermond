@@ -1,4 +1,4 @@
-## 13.4.1
+## 13.5.0
 ### New Features
  * Einträge für Zauberdauer werden jetzt normiert und validiert
    * Damit sind nur noch die Dauern "Ticks" und "Minuten" zulässig
@@ -7,6 +7,7 @@
    * "item.castDuration.multiplier" multipliziert die Zauberdauer mit einem Faktor Bsp: `item.castDuration.multiplier item="Feuerball" 2` verdoppelt die Zauberdauer des Zaubers "Feuerball". Modifikatoren von `0` werden ignoriert, da eine Zauberdauer von `0` nicht sinnvoll ist.
    * Beide Modifikatoren können mit dem Attribut "item" auf einen bestimmten Zauber beschränkt werden.
    * Der Modifikator kann auch mit "itemType" beschänkt werden, allerdings haben nur Zauber eine Zauberdauer.
+   * Optionen für Angriffswürfe können jetzt überschrieben werden (vielen Dank an IceFreezer für die Patch)
 
 ## 13.4.0
 ### Breaking changes
