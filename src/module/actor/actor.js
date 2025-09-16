@@ -484,7 +484,7 @@ export default class SplittermondActor extends Actor {
                     )
                 });
                 this.modifier.add(
-                    "splinterpoints",
+                    "actor.splinterpoints",
                     {
                         name: foundryApi.localize(`splittermond.heroLevels.${data.experience.heroLevel}`),
                         type: "innate",

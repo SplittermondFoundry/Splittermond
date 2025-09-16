@@ -7,6 +7,7 @@ import {asString, condense, evaluate, isGreaterZero, of, plus, times} from "modu
 import type {TimeUnit} from "module/config/timeUnits";
 import {splittermond} from "module/config";
 import {getTimeUnitConversion} from "module/util/timeUnitConversion";
+import ModifierManager from "module/actor/modifier-manager";
 
 
 function CastDurationSchema() {
@@ -44,7 +45,7 @@ export class CastDurationModel extends DocumentAccessMixin(CastDurationBase, Spl
      */
     get inTicks(): number {
         const value = evaluate(this.getTotalDuration());
-        return Math.max(0,Math.floor(value * getTimeUnitConversion(this.unit, "T")));
+        return Math.max(0, Math.floor(value * getTimeUnitConversion(this.unit, "T")));
     }
 
 
@@ -61,19 +62,19 @@ export class CastDurationModel extends DocumentAccessMixin(CastDurationBase, Spl
         return this.display;
     }
 
-    private getTotalDuration(){
+    private getTotalDuration() {
         const multiplicativeModifiers = this.getMultiplicativeModifierValue();
         const additiveModifiers = this.getAdditiveModifierValue();
-        const base= of(this.value)
-        const modified = plus(times(base,multiplicativeModifiers),additiveModifiers);
-        return isGreaterZero(modified) ? modified: of(0);
+        const base = of(this.value)
+        const modified = plus(times(base, multiplicativeModifiers), additiveModifiers);
+        return isGreaterZero(modified) ? modified : of(0);
     }
 
     private getMultiplicativeModifierValue() {
         return this.getModifiers("item.castDuration.multiplier")
             .getModifiers()
             .map(m => m.value)
-            .reduce((acc, mod) =>times(mod,acc), of(1));
+            .reduce((acc, mod) => times(mod, acc), of(1));
     }
 
     private getAdditiveModifierValue() {
@@ -87,14 +88,15 @@ export class CastDurationModel extends DocumentAccessMixin(CastDurationBase, Spl
                 }
                 return mod.value;
             })
-            .reduce((acc, mod) => plus(acc,mod), of(0));
+            .reduce((acc, mod) => plus(acc, mod), of(0));
     }
 
-    private getModifiers(groupId:string) {
-       return this.document.actor.modifier.getForId(groupId)
-           .notSelectable()
-           .withAttributeValuesOrAbsent("item", this.getItemName())
-           .withAttributeValuesOrAbsent("itemType", this.getItemType());
+    private getModifiers(groupId: string) {
+        const modifierManager = this.document.actor?.modifier ?? new ModifierManager();
+        return modifierManager.getForId(groupId)
+            .notSelectable()
+            .withAttributeValuesOrAbsent("item", this.getItemName())
+            .withAttributeValuesOrAbsent("itemType", this.getItemType());
     }
 
     private getItemName(): string {
@@ -136,7 +138,7 @@ export function parseCastDuration(input: string): { value: number, unit: TimeUni
 function parseUnit(unit: string): TimeUnit | null {
     const unitString = unit.toLowerCase()
     if (!unitString || unitString === "t" || unitString.startsWith("tick")) {
-        return  "T"
+        return "T"
     } else if (unitString === "m" || unitString.startsWith("min")) {
         return "min"
     }
