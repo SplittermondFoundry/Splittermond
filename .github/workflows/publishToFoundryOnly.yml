@@ -1,26 +1,26 @@
 name: Publish current version to foundry
 on:
-  workflow_dispatch:
-    inputs:
-      dryRun:
-        description: 'Testlauf'
-        required: true
-        type: boolean
-        default: false
+    workflow_dispatch:
+        inputs:
+            dryRun:
+                description: "Testlauf"
+                required: true
+                type: boolean
+                default: false
 
 jobs:
-  publish_current_version_to_foundry:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '22'
-      - name: Release to Foundry
-        run: node ./.github/scripts/publish_to_foundry.mjs
-        env:
-          AUTH_TOKEN: ${{secrets.FOUNDRY_VTT_PUBLISH_TOKEN}}
-          SYSTEM_JSON_PATH: './public/system.json'
-          DRY_RUN: ${{github.event.inputs.dryRun}}
+    publish_current_version_to_foundry:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+            - name: Set up Node.js
+              uses: actions/setup-node@v5
+              with:
+                  node-version: "22"
+            - name: Release to Foundry
+              run: node ./.github/scripts/publish_to_foundry.mjs
+              env:
+                  AUTH_TOKEN: ${{secrets.FOUNDRY_VTT_PUBLISH_TOKEN}}
+                  SYSTEM_JSON_PATH: "./public/system.json"
+                  DRY_RUN: ${{github.event.inputs.dryRun}}

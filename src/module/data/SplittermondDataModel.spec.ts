@@ -1,20 +1,16 @@
-import {SplittermondDataModel} from "./SplittermondDataModel";
+import { SplittermondDataModel } from "./SplittermondDataModel";
 
-
-class EmbeddedDataModel extends SplittermondDataModel<{ aString: string, aNumber: number }> {
-
-}
+class EmbeddedDataModel extends SplittermondDataModel<{ aString: string; aNumber: number }> {}
 
 class MainDataClass extends SplittermondDataModel<{
-    embeddedModel: EmbeddedDataModel,
-    array: EmbeddedDataModel[],
-    schema: {moreEmbediments: EmbeddedDataModel}
-    anObject: Record<string, string>
-}> {
-}
+    embeddedModel: EmbeddedDataModel;
+    array: EmbeddedDataModel[];
+    schema: { moreEmbediments: EmbeddedDataModel };
+    anObject: Record<string, string>;
+}> {}
 
 export namespace AllTopLevelItemsAreReadonly {
-    const embeddedModel = new EmbeddedDataModel({aString: "str", aNumber: 3});
+    const embeddedModel = new EmbeddedDataModel({ aString: "str", aNumber: 3 });
     type IsReadonly<T> = T extends Readonly<T> ? true : false;
 
     export const verifyIsReadonly: IsReadonly<typeof embeddedModel.aNumber> = true;
@@ -23,31 +19,28 @@ export namespace AllTopLevelItemsAreReadonly {
 }
 
 export namespace ToObjectProducesInput {
-    const embeddedModel = new EmbeddedDataModel({aString: "str", aNumber: 3});
-    type EmbeddedModelObject = ReturnType<typeof embeddedModel.toObject>
+    const embeddedModel = new EmbeddedDataModel({ aString: "str", aNumber: 3 });
+    type EmbeddedModelObject = ReturnType<typeof embeddedModel.toObject>;
 
-    export const verifyProducesInput: EmbeddedModelObject = {aString: "str", aNumber: 3};
-
+    export const verifyProducesInput: EmbeddedModelObject = { aString: "str", aNumber: 3 };
 }
 
 export namespace InputAcceptsObjectOfEmbeddedDataClasses {
     export const mainClass = new MainDataClass({
-        embeddedModel: new EmbeddedDataModel({aString: "str", aNumber: 3}).toObject(),
-        array: [{aString: "str3", aNumber: 5}],
-        schema: {moreEmbediments: {aString:"str2", aNumber: 4}},
+        embeddedModel: new EmbeddedDataModel({ aString: "str", aNumber: 3 }).toObject(),
+        array: [{ aString: "str3", aNumber: 5 }],
+        schema: { moreEmbediments: { aString: "str2", aNumber: 4 } },
         anObject: {
             what: "a",
-            is: "3"
-        }
+            is: "3",
+        },
     });
 }
 
 export namespace SplittermondDataModelSupportsGenericChildren {
-    class GenericParent<T extends object> extends SplittermondDataModel<T> {
-    }
-    class Child extends GenericParent<{a: string}> {
-    }
+    class GenericParent<T extends object> extends SplittermondDataModel<T> {}
+    class Child extends GenericParent<{ a: string }> {}
 
-    const aChild:Child = new Child({a: "a"});
+    const aChild: Child = new Child({ a: "a" });
     aChild.a;
 }

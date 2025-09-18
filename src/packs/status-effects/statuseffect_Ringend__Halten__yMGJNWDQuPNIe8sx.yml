@@ -5,33 +5,32 @@ flags: {}
 img: icons/svg/mystery-man.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: >-
-    <p>Die&nbsp;<em>Geschwindigkeit&nbsp;</em>ist 0 und es kann
-    keine&nbsp;<em>Bewegungshandlung&nbsp;</em>ausgef&uuml;hrt werden.
-    Zus&auml;tzlich erh&auml;lt der Abenteurer einen Malus von 5 Punkten auf
-    alle Proben. Der Verteidigung ist um 5 Punkte gesenkt.&nbsp;Der Zustand kann
-    durch die Aktion "<em>Aus Umklammerung befreien</em>" beendet werden (siehe
-    S. 164).</p>
-  source: ''
-  modifier: magicSkills -5, fightingSkills -5, generalSkills -5, VTD -3, GSW.mult 0
-  level: '1'
-  startTick: 0
-  interval: 0
-  times: 0
+    description: >-
+        <p>Die&nbsp;<em>Geschwindigkeit&nbsp;</em>ist 0 und es kann
+        keine&nbsp;<em>Bewegungshandlung&nbsp;</em>ausgef&uuml;hrt werden.
+        Zus&auml;tzlich erh&auml;lt der Abenteurer einen Malus von 5 Punkten auf
+        alle Proben. Der Verteidigung ist um 5 Punkte gesenkt.&nbsp;Der Zustand kann
+        durch die Aktion "<em>Aus Umklammerung befreien</em>" beendet werden (siehe
+        S. 164).</p>
+    source: ""
+    modifier: magicSkills -5, fightingSkills -5, generalSkills -5, VTD -3, GSW.mult 0
+    level: "1"
+    startTick: 0
+    interval: 0
+    times: 0
 folder: null
 sort: 0
-_key: '!items!yMGJNWDQuPNIe8sx'
-
+_key: "!items!yMGJNWDQuPNIe8sx"

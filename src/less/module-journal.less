@@ -3,12 +3,10 @@
     --line-width: 520px;
     line-height: var(--line-height);
 
-
     background: var(--splittermond-background-parchment-blue), var(--splittermond-background-parchment);
     background-position: top right;
     background-blend-mode: var(--background-parchment-splittermond-blend-mode);
     background-clip: padding-box;
-    
 
     .journal-header {
         .title {
@@ -23,7 +21,6 @@
         width: 100%;
     }
 
-
     .journal-page-content {
         padding-bottom: var(--line-height);
         > * {
@@ -32,22 +29,31 @@
             margin-right: auto;
         }
 
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             margin-left: auto;
             margin-right: auto;
             margin-top: 48px;
             margin-bottom: var(--line-height);
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             max-width: fit-content;
-            
         }
 
-        h2, h3, h4, h5, h6 {
-            margin-bottom: calc(0.5*var(--line-height));
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin-bottom: calc(0.5 * var(--line-height));
         }
-    
 
         table {
             max-width: fit-content;
@@ -57,36 +63,44 @@
     }
 
     .journal-page-header {
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             margin-top: var(--line-height);
             color: var(--color-active-text);
         }
-        
-        
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         font-family: @font-secondary;
         font-weight: 400;
         line-height: normal;
         color: var(--color-active-text);
     }
 
-    h1, h2, h3 {
+    h1,
+    h2,
+    h3 {
         font-family: @font-tertiary;
         text-align: center;
     }
 
     h1 {
-        
         font-size: 42px;
         display: flex;
         justify-content: center;
         align-items: center;
         gap: 12px;
 
-        
-/*
+        /*
         &::before {
             content: url(../../systems/splittermond/images/tribal-1-left.svg);
         }
@@ -111,8 +125,7 @@
         align-items: center;
         gap: 12px;
 
-        
-/*
+        /*
         &::before {
             content: url(../../systems/splittermond/images/tribal-2-left.svg);
         }
@@ -132,8 +145,6 @@
 
     h3 {
         font-size: 27px;
-
-        
     }
 
     .level3 .subtitle {
@@ -158,15 +169,13 @@
         font-variant: all-small-caps;
     }
 
-
     .scrollable {
-        display:flex;
+        display: flex;
         justify-content: center;
     }
 
-
     article > header:first-child + section > p:not(.subtitle):first-of-type::first-letter,
-    article > header:first-child + section > p.subtitle + p::first-letter  {
+    article > header:first-child + section > p.subtitle + p::first-letter {
         line-height: calc(2 * var(--line-height));
         color: var(--color-active-text);
         margin-right: 4px;
@@ -174,13 +183,11 @@
         font-size: 48px;
         float: left;
     }
-    
-    
+
     p {
         margin: 0px;
         margin-top: calc(0.5 * var(--line-height));
         margin-bottom: var(--line-height);
-        
     }
 
     dl {
@@ -203,7 +210,8 @@
             white-space: nowrap;
         }
 
-        dd, dt {
+        dd,
+        dt {
             margin: 0;
             padding: 0;
             line-height: var(--line-height);
@@ -214,7 +222,7 @@
         padding: var(--line-height);
         padding: var(--line-height);
 
-        background: rgba(0, 133, 255, 0.10);
+        background: rgba(0, 133, 255, 0.1);
         //border-radius: 8px;
         //border-top: 1px solid #4A4A4A;
         //border-bottom: 1px solid #4A4A4A;
@@ -223,7 +231,6 @@
 
         margin-top: var(--line-height);
         margin-bottom: var(--line-height);
-
 
         :first-child {
             margin-top: 0px;
@@ -238,7 +245,7 @@
         padding: var(--line-height);
         //color: var(--color-active-text);
 
-        background-color: rgba(255,255,255,0.1);
+        background-color: rgba(255, 255, 255, 0.1);
 
         &::before {
             content: "Beispiel: ";
@@ -264,7 +271,8 @@
         background-color: transparent;
         margin-top: 14px;
         margin-bottom: 14px;
-        th, td {
+        th,
+        td {
             padding-left: 8px;
             padding-right: 8px;
             padding-top: 4px;
@@ -332,7 +340,12 @@
 .sheet.journal-sheet {
     .editor-content {
         color: var(--color-text-secondary);
-        h1,h2,h3,h4,h5,h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             color: var(--color-text-secondary);
         }
     }

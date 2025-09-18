@@ -47,11 +47,10 @@ griff), Handgemenge (I: Umklammern), Beherrschungsmagie (I:
 Willensbrecher)
  Merkmale: Betäubungsimmunität, Feenblut, Taktiker, Verbün
 dete rufen (60 Ticks / 1W6+1 Verblichene)
- Beute: Klauen aus Funkelhart (10 Lunare`
+ Beute: Klauen aus Funkelhart (10 Lunare`;
 
 export const expected = {
     system: {
-
         attributes: {
             agility: {
                 value: 6,
@@ -232,4 +231,4 @@ export const expected = {
             type: "npcfeature",
         },
     ],
-}    
+};

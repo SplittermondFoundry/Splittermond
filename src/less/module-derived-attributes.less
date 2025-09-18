@@ -1,4 +1,3 @@
-
 .splittermond {
     .derived-attribute-list {
         &:extend(.border-wobbly-line);
@@ -8,15 +7,16 @@
         align-content: stretch;
         flex-wrap: wrap;
         flex-basis: 100%;
-        margin-left:-8px;
-        margin-right:-8px;
+        margin-left: -8px;
+        margin-right: -8px;
         margin-bottom: -1px;
 
         padding: 2px;
         gap: 2px;
     }
-    
-    .derived-attribute, header .damage-reduction {
+
+    .derived-attribute,
+    header .damage-reduction {
         &:extend(.border-wobbly-line);
         display: flex;
         flex-direction: row;
@@ -28,15 +28,14 @@
 
         min-height: 26px;
 
-        
         background: var(--splittermond-background-parchment);
-    
+
         label {
             min-width: 35px;
             //border-bottom: 1px solid transparent;
             //border-image: linear-gradient(to right, transparent, rgba(var(--color-text-secondary_rgb), 0.3), transparent) 0 0 100% 0;
         }
-    
+
         span,
         input {
             width: 25px;
@@ -47,20 +46,20 @@
             margin: -@paddingSmall;
         }
         */
-    
-        >* {
+
+        > * {
             text-align: center;
         }
     }
 
     .derived-attribute {
-        &#defense, &#mindresist, &#bodyresist {
+        &#defense,
+        &#mindresist,
+        &#bodyresist {
             label {
                 &:extend(.splittermond a.rollable all);
                 cursor: pointer;
             }
-            
         }
     }
-
 }

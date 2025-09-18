@@ -1,63 +1,62 @@
 name: Allgemeines
 _id: BqohLQOq881T7T9O
 pages:
-  - sort: 100000
-    name: Systemeinstellungen
-    type: text
-    _id: XOSAlgrPsPv6rcuc
-    system: {}
-    title:
-      show: false
-      level: 1
-    image: {}
-    text:
-      format: 1
-      content: >-
-        <p>Schadensdialog anzeigen:</p><ul><li><p><strong>Immer:</strong> Für
-        jedes betroffene Ziel wird der Schadensdialog
-        angezeigt</p></li><li><p><strong>Nur den ersten:</strong> Es wird nur
-        der Schadensdialog für das erste betroffene Ziel angezeigt. Die Werte
-        werden dann für alle anderen Ziele
-        übernommen.</p></li><li><p><strong>Nie:</strong> Der Schaden wird sofort
-        verrechnet ohne Anzeige des Schadensdialogs.</p></li></ul><p></p><img
-        src="systems/splittermond/packs/Settings_System.png" width="500"
-        height="500" />
-    video:
-      controls: true
-      volume: 0.5
-    src: null
-    ownership:
-      default: -1
-      2n6beZWSvIclIvyD: 3
-    flags: {}
-    _stats:
-      compendiumSource: null
-      duplicateSource: null
-      coreVersion: '13.342'
-      systemId: splittermond
-      systemVersion: 0.12.12
-      createdTime: 1741853837820
-      modifiedTime: 1741854231569
-      lastModifiedBy: 2n6beZWSvIclIvyD
-      exportSource: null
-    category: null
-    _key: '!journal.pages!BqohLQOq881T7T9O.XOSAlgrPsPv6rcuc'
+    - sort: 100000
+      name: Systemeinstellungen
+      type: text
+      _id: XOSAlgrPsPv6rcuc
+      system: {}
+      title:
+          show: false
+          level: 1
+      image: {}
+      text:
+          format: 1
+          content: >-
+              <p>Schadensdialog anzeigen:</p><ul><li><p><strong>Immer:</strong> Für
+              jedes betroffene Ziel wird der Schadensdialog
+              angezeigt</p></li><li><p><strong>Nur den ersten:</strong> Es wird nur
+              der Schadensdialog für das erste betroffene Ziel angezeigt. Die Werte
+              werden dann für alle anderen Ziele
+              übernommen.</p></li><li><p><strong>Nie:</strong> Der Schaden wird sofort
+              verrechnet ohne Anzeige des Schadensdialogs.</p></li></ul><p></p><img
+              src="systems/splittermond/packs/Settings_System.png" width="500"
+              height="500" />
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      ownership:
+          default: -1
+          2n6beZWSvIclIvyD: 3
+      flags: {}
+      _stats:
+          compendiumSource: null
+          duplicateSource: null
+          coreVersion: "13.342"
+          systemId: splittermond
+          systemVersion: 0.12.12
+          createdTime: 1741853837820
+          modifiedTime: 1741854231569
+          lastModifiedBy: 2n6beZWSvIclIvyD
+          exportSource: null
+      category: null
+      _key: "!journal.pages!BqohLQOq881T7T9O.XOSAlgrPsPv6rcuc"
 folder: null
 sort: 0
 ownership:
-  default: 0
-  2n6beZWSvIclIvyD: 3
+    default: 0
+    2n6beZWSvIclIvyD: 3
 flags: {}
 _stats:
-  compendiumSource: null
-  duplicateSource: null
-  coreVersion: '13.342'
-  systemId: splittermond
-  systemVersion: 0.12.12
-  createdTime: 1741709742322
-  modifiedTime: 1741709742322
-  lastModifiedBy: 2n6beZWSvIclIvyD
-  exportSource: null
+    compendiumSource: null
+    duplicateSource: null
+    coreVersion: "13.342"
+    systemId: splittermond
+    systemVersion: 0.12.12
+    createdTime: 1741709742322
+    modifiedTime: 1741709742322
+    lastModifiedBy: 2n6beZWSvIclIvyD
+    exportSource: null
 categories: []
-_key: '!journal!BqohLQOq881T7T9O'
-
+_key: "!journal!BqohLQOq881T7T9O"

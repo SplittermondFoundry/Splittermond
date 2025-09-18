@@ -1,32 +1,31 @@
-import {foundryApi} from "../../api/foundryApi";
-import {Die, FoundryRoll, isNumericTerm, isOperatorTerm, isRoll, NumericTerm} from "../../api/Roll";
-import {DamageFeature} from "./DamageFeature";
+import { foundryApi } from "../../api/foundryApi";
+import { Die, FoundryRoll, isNumericTerm, isOperatorTerm, isRoll, NumericTerm } from "../../api/Roll";
+import { DamageFeature } from "./DamageFeature";
 import {
     ItemFeatureDataModel,
     ItemFeaturesModel,
-    parseFeatures
+    parseFeatures,
 } from "../../item/dataModel/propertyModels/ItemFeaturesModel";
-import {ItemFeature} from "../../config/itemFeatures";
-import {condense, Expression, mapRoll, toRollFormula} from "../../modifiers/expressions/scalar";
-import {toDisplayFormula, toRollFormula as rollFormulaReplacer} from "./util";
+import { ItemFeature } from "../../config/itemFeatures";
+import { condense, Expression, mapRoll, toRollFormula } from "../../modifiers/expressions/scalar";
+import { toDisplayFormula, toRollFormula as rollFormulaReplacer } from "./util";
 
 export class DamageRoll {
-
     /**
      * @param  damageString a splittermond damage string like "1W6+2"
      * @param  featureString like "Exakt 1" or "Scharf 2"
      */
     static parse(damageString: string, featureString: string = "") {
-        const features = parseFeatures(featureString).map(f => new ItemFeatureDataModel(f));
+        const features = parseFeatures(featureString).map((f) => new ItemFeatureDataModel(f));
         return this.from(damageString, ItemFeaturesModel.from(features));
     }
 
     static from(damageString: string, itemFeatures: ItemFeaturesModel) {
         const damage = concatSimpleRoll(foundryApi.roll(rollFormulaReplacer(damageString)));
-        return new DamageRoll(damage, itemFeatures)
+        return new DamageRoll(damage, itemFeatures);
     }
 
-    static fromExpression(rollExpression: Expression, itemFeatures:ItemFeaturesModel): DamageRoll {
+    static fromExpression(rollExpression: Expression, itemFeatures: ItemFeaturesModel): DamageRoll {
         const roll = concatSimpleRoll(rollExpression);
         return new DamageRoll(roll, itemFeatures);
     }
@@ -42,17 +41,17 @@ export class DamageRoll {
         this._damageModifier = 0;
         this.hasFinalNumericTerm = isNumericTerm(this.getLastTerm(roll));
         this.baseModifier = this.hasFinalNumericTerm ? (this.getLastTerm(roll) as NumericTerm).number : 0;
-        this._features = features
+        this._features = features;
     }
 
     private getLastTerm(roll: FoundryRoll) {
         return roll.terms.slice(-1)[0];
     }
 
-    async evaluate(){
+    async evaluate() {
         const modifiedRoll = this.modifyRollFormula(this.backingRoll.clone());
-        const {roll, activeFeatures} = await evaluateDamageRoll(modifiedRoll, this._features);
-        if(this._features.hasFeature("Wuchtig") && this._damageModifier > 0){
+        const { roll, activeFeatures } = await evaluateDamageRoll(modifiedRoll, this._features);
+        if (this._features.hasFeature("Wuchtig") && this._damageModifier > 0) {
             activeFeatures.add("Wuchtig");
         }
         return new EvaluatedDamageRoll(roll, this._features, activeFeatures);
@@ -71,7 +70,7 @@ export class DamageRoll {
                 return roll;
             }
         } else if (this.hasFinalNumericTerm && roll.terms.length == 1) {
-            (this.getLastTerm(roll) as NumericTerm/*follows from condition*/).number = finalModificationValue;
+            (this.getLastTerm(roll) as NumericTerm) /*follows from condition*/.number = finalModificationValue;
             roll.resetFormula();
             return roll;
         }
@@ -101,54 +100,48 @@ export class DamageRoll {
         return this._features.hasFeature("Wuchtig") ? 2 : 1;
     }
 
-
     getDamageFormula() {
         const rollCopy = this.modifyRollFormula(this.backingRoll.clone());
         return toDisplayFormula(rollCopy.formula);
     }
 
     getFeatureString(): string {
-        return this._features.features
+        return this._features.features;
     }
-
 }
 
-export type {EvaluatedDamageRoll};
+export type { EvaluatedDamageRoll };
 class EvaluatedDamageRoll {
-
     constructor(
         public readonly roll: FoundryRoll,
         public readonly features: ItemFeaturesModel,
         private activeFeatures: Set<ItemFeature>
-    ) {
-    }
+    ) {}
 
     getActiveFeatures(): DamageFeature[] {
-        return this.features.featureList.filter(f => this.activeFeatures.has(f.name))
-            .map(f => this.toRecord(f))
-    };
+        return this.features.featureList.filter((f) => this.activeFeatures.has(f.name)).map((f) => this.toRecord(f));
+    }
 
     private toRecord(feature: ItemFeatureDataModel): DamageFeature {
         return {
             name: feature.name,
             value: feature.value,
-            active: this.activeFeatures.has(feature.name)
-        }
+            active: this.activeFeatures.has(feature.name),
+        };
     }
-
 }
 
 async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel) {
     const activeFeatures: Set<ItemFeature> = new Set<ItemFeature>();
-    if(roll.isDeterministic){
-       return Promise.resolve({roll: roll.evaluateSync(), activeFeatures});
+    if (roll.isDeterministic) {
+        return Promise.resolve({ roll: roll.evaluateSync(), activeFeatures });
     }
     modifyFormulaForExactFeature();
     await roll.evaluate();
     modifyResultForScharfFeature();
     modifyResultForKritischFeature();
 
-    return {roll,  activeFeatures};
+    return { roll, activeFeatures };
 
     function modifyFormulaForExactFeature() {
         const exactValue = features.valueOf("Exakt");
@@ -157,7 +150,7 @@ async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel
             const dieTerm = getFirstDieTerm(roll);
             const diceToKeep = dieTerm.number;
             dieTerm.number += exactValue;
-            dieTerm.modifiers.push(`kh${diceToKeep}`)
+            dieTerm.modifiers.push(`kh${diceToKeep}`);
             roll.resetFormula();
         }
     }
@@ -166,9 +159,9 @@ async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel
         const scharfValue = features.valueOf("Scharf");
         if (scharfValue) {
             let scharfBonus = 0;
-            const firstDie = getFirstDieTerm(roll)
-            const cappedSharpness = getCappedSharpness(scharfValue, firstDie.faces)
-            firstDie.results.forEach(r => {
+            const firstDie = getFirstDieTerm(roll);
+            const cappedSharpness = getCappedSharpness(scharfValue, firstDie.faces);
+            firstDie.results.forEach((r) => {
                 if (r.active) {
                     if (r.result < cappedSharpness) {
                         activeFeatures.add("Scharf");
@@ -180,10 +173,12 @@ async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel
         }
     }
 
-    function getCappedSharpness(scharfValue:number, faces:number){
+    function getCappedSharpness(scharfValue: number, faces: number) {
         const cappedSharpness = Math.min(scharfValue, faces / 2); //They are no odd sided dice, so faces/2 is always an integer
-        if(cappedSharpness < scharfValue){
-           console.debug(`Splittermond | Feature 'Scharf ${scharfValue}' capped to ${cappedSharpness}, because the dice only have ${faces} sides.`)
+        if (cappedSharpness < scharfValue) {
+            console.debug(
+                `Splittermond | Feature 'Scharf ${scharfValue}' capped to ${cappedSharpness}, because the dice only have ${faces} sides.`
+            );
         }
         return cappedSharpness;
     }
@@ -193,7 +188,7 @@ async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel
         if (kritischValue) {
             let kritischBonus = 0;
             const firstDie = getFirstDieTerm(roll);
-            firstDie.results.forEach(r => {
+            firstDie.results.forEach((r) => {
                 if (r.active) {
                     if (r.result === firstDie.faces) {
                         activeFeatures.add("Kritisch");
@@ -210,7 +205,7 @@ async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel
  * Uses a quirk of the {@link mapRoll} function that allows us to concatenate the rather simple common
  * roll formula 1d6 +2 +2 to 1d6 + 4.
  */
-function concatSimpleRoll(roll: FoundryRoll|Expression) {
+function concatSimpleRoll(roll: FoundryRoll | Expression) {
     const expression = isRoll(roll) ? mapRoll(roll) : roll;
     const condensedFormula = toRollFormula(condense(expression));
     return foundryApi.roll(condensedFormula[0]);
@@ -222,5 +217,5 @@ function getFirstDieTerm(roll: FoundryRoll): Die {
             return term;
         }
     }
-    throw new Error("Somehow the first term in the roll was an operator.")
+    throw new Error("Somehow the first term in the roll was an operator.");
 }

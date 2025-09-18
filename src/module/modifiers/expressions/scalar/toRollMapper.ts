@@ -3,20 +3,22 @@
 import {
     AbsExpression,
     AddExpression,
-    AmountExpression, DivideExpression,
-    Expression, MultiplyExpression, PowerExpression,
+    AmountExpression,
+    DivideExpression,
+    Expression,
+    MultiplyExpression,
+    PowerExpression,
     ReferenceExpression,
     RollExpression,
-    SubtractExpression
+    SubtractExpression,
 } from "./definitions";
-import {exhaustiveMatchGuard, PropertyResolver} from "../../util";
-
+import { exhaustiveMatchGuard, PropertyResolver } from "../../util";
 
 export function toRollFormula(expression: Expression): [string, Record<string, string>] {
     const nextNumber = numberGenerator();
     const mapResult = mapToRoll(expression);
     return [unbrace(mapResult[0]), mapResult[1]];
-    function mapToRoll(expression: Expression): [string, Record<string, string>]{
+    function mapToRoll(expression: Expression): [string, Record<string, string>] {
         if (expression instanceof AmountExpression) {
             return [`${expression.amount}`, {}];
         } else if (expression instanceof RollExpression) {
@@ -38,36 +40,45 @@ export function toRollFormula(expression: Expression): [string, Record<string, s
             return handlePowerExpression(expression);
         }
 
-        exhaustiveMatchGuard(expression)
+        exhaustiveMatchGuard(expression);
     }
 
     function handleReferences(expression: ReferenceExpression): [string, Record<string, string>] {
         const uniqueId = `${expression.stringRep}${nextNumber.next().value}`;
-        return [`@${uniqueId}`, {[uniqueId]: `${new PropertyResolver().numberOrNull(expression.propertyPath, expression.source) ?? 0}`}];
+        return [
+            `@${uniqueId}`,
+            { [uniqueId]: `${new PropertyResolver().numberOrNull(expression.propertyPath, expression.source) ?? 0}` },
+        ];
     }
 
-    function handleSummation(expression: {
-        left: Expression,
-        right: Expression
-    }, operator: '+' | '-'): [string, Record<string, string>] {
+    function handleSummation(
+        expression: {
+            left: Expression;
+            right: Expression;
+        },
+        operator: "+" | "-"
+    ): [string, Record<string, string>] {
         const left = mapToRoll(expression.left);
         const right = mapToRoll(expression.right);
-        return [`(${left[0]} ${operator} ${right[0]})`, {...left[1], ...right[1]}];
+        return [`(${left[0]} ${operator} ${right[0]})`, { ...left[1], ...right[1] }];
     }
 
-    function handleFactorExpressions(expression: {
-        left: Expression,
-        right: Expression
-    }, operator: '*' | '/'): [string, Record<string, string>] {
+    function handleFactorExpressions(
+        expression: {
+            left: Expression;
+            right: Expression;
+        },
+        operator: "*" | "/"
+    ): [string, Record<string, string>] {
         const left = mapToRoll(expression.left);
         const right = mapToRoll(expression.right);
-        return [`(${left[0]} ${operator} ${right[0]})`, {...left[1], ...right[1]}];
+        return [`(${left[0]} ${operator} ${right[0]})`, { ...left[1], ...right[1] }];
     }
 
     function handlePowerExpression(expression: PowerExpression): [string, Record<string, string>] {
         const base = mapToRoll(expression.base);
         const exponent = mapToRoll(expression.exponent);
-        return [`pow(${base[0]},${exponent[0]})`, {...base[1], ...exponent[1]}];
+        return [`pow(${base[0]},${exponent[0]})`, { ...base[1], ...exponent[1] }];
     }
 }
 
@@ -82,4 +93,3 @@ function* numberGenerator(): Generator<number> {
         yield current++;
     }
 }
-

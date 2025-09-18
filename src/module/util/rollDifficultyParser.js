@@ -5,13 +5,12 @@ const defaultDifficulty = 15;
  */
 export function parseRollDifficulty(input) {
     if (!input) {
-        return new RollDifficulty(defaultDifficulty)
+        return new RollDifficulty(defaultDifficulty);
     } else if (input instanceof RollDifficulty) {
         return input;
     } else {
         return new RollDifficulty(coerceToRollDifficulty(input));
     }
-
 }
 
 /**
@@ -37,7 +36,6 @@ function isTargetDependentDifficulty(value) {
     return ["VTD", "KW", "GW"].includes(value);
 }
 
-
 class RollDifficulty {
     /**@param {RollDifficultyString} difficulty */
     constructor(difficulty) {
@@ -47,7 +45,7 @@ class RollDifficulty {
     }
 
     isTargetDependentValue() {
-        return isTargetDependentDifficulty(this._difficulty)
+        return isTargetDependentDifficulty(this._difficulty);
     }
 
     /**
@@ -65,7 +63,7 @@ class RollDifficulty {
                 this.evaluatedDifficulty = target.actor.derivedValues.mindresist.value;
                 break;
             default:
-                this.evaluatedDifficulty = this.difficulty
+                this.evaluatedDifficulty = this.difficulty;
         }
     }
 

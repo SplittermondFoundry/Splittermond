@@ -1,17 +1,16 @@
-import {Cost, CostModifier} from "./Cost";
-import {PrimaryCost} from "./PrimaryCost";
-import {fieldExtensions, SplittermondDataModel} from "../../data/SplittermondDataModel";
+import { Cost, CostModifier } from "./Cost";
+import { PrimaryCost } from "./PrimaryCost";
+import { fieldExtensions, SplittermondDataModel } from "../../data/SplittermondDataModel";
 
-export const costTypes = ['K', 'V', 'E'] as const;
+export const costTypes = ["K", "V", "E"] as const;
 export function isCostType(value: string): value is CostType {
     return costTypes.includes(value as CostType);
 }
-export type CostType = typeof costTypes[number];
+export type CostType = (typeof costTypes)[number];
 
 export class CostBase extends SplittermondDataModel<{ costType: CostType }> {
-
     static create(costType: CostType): CostBase {
-        return new CostBase({costType});
+        return new CostBase({ costType });
     }
 
     static defineSchema() {
@@ -20,29 +19,26 @@ export class CostBase extends SplittermondDataModel<{ costType: CostType }> {
                 required: true,
                 nullable: false,
                 blank: false,
-                validate: (x:CostType) => costTypes.includes(x)
-            })
+                validate: (x: CostType) => costTypes.includes(x),
+            }),
         };
     }
 
-
-    add(cost:CostModifier):PrimaryCost {
+    add(cost: CostModifier): PrimaryCost {
         return toCost(this.costType).subtract(toCost(this.costType).toModifier(true)).add(cost);
     }
-    multiply(factor:number):CostModifier{
+    multiply(factor: number): CostModifier {
         return toCost(this.costType).toModifier(true).multiply(factor);
     }
-
 }
 
 function toCost(costType: CostType): PrimaryCost {
     switch (costType) {
-        case 'K':
-            return new Cost(1, 0, true, true).asPrimaryCost()
-        case 'V':
-            return new Cost(0, 1, false, true).asPrimaryCost()
+        case "K":
+            return new Cost(1, 0, true, true).asPrimaryCost();
+        case "V":
+            return new Cost(0, 1, false, true).asPrimaryCost();
         case "E":
             return new Cost(1, 0, false, true).asPrimaryCost();
     }
 }
-

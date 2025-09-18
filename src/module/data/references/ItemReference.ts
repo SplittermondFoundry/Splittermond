@@ -1,18 +1,18 @@
-import {AgentReference} from "./AgentReference";
-import {DataModelSchemaType, fields, SplittermondDataModel} from "../SplittermondDataModel";
+import { AgentReference } from "./AgentReference";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "../SplittermondDataModel";
 import SplittermondItem from "../../item/item.js";
-import {IllegalStateException} from "../exceptions";
-import {itemRetriever} from "../EntityRetriever";
+import { IllegalStateException } from "../exceptions";
+import { itemRetriever } from "../EntityRetriever";
 
 function ItemReferenceSchema() {
     return {
-        id: new fields.StringField({required: true, blank: false, nullable: false}),
+        id: new fields.StringField({ required: true, blank: false, nullable: false }),
         actorReference: new fields.EmbeddedDataField(AgentReference, {
             required: true,
             blank: false,
-            nullable: true
+            nullable: true,
         }),
-    }
+    };
 }
 type ItemReferenceType = DataModelSchemaType<typeof ItemReferenceSchema>;
 
@@ -21,14 +21,13 @@ export class ItemReference<T extends SplittermondItem> extends SplittermondDataM
         return ItemReferenceSchema();
     }
 
-    static initialize<T extends SplittermondItem>(item: T):ItemReference<T> {
+    static initialize<T extends SplittermondItem>(item: T): ItemReference<T> {
         if (item.actor) {
-            return new ItemReference({id: item.id, actorReference: AgentReference.initialize(item.actor)})
+            return new ItemReference({ id: item.id, actorReference: AgentReference.initialize(item.actor) });
         } else {
-            return new ItemReference({id: item.id, actorReference: null})
+            return new ItemReference({ id: item.id, actorReference: null });
         }
     }
-
 
     getItem(): T {
         const item = this.actorReference ? this.#getFromActor(this.actorReference) : this.#getFromCollection();
@@ -38,17 +37,17 @@ export class ItemReference<T extends SplittermondItem> extends SplittermondDataM
         return item;
     }
 
-    #getFromActor(ref:AgentReference):T  {
+    #getFromActor(ref: AgentReference): T {
         const actor = ref.getAgent();
         const item = actor.items.get(this.id);
-        if(!item){
+        if (!item) {
             throw new IllegalStateException("Did not find item for whoms presence we checked");
         }
         //We can only make this assumption because we only allow instancce construction through the type guarded factory method;
-        return item as T
+        return item as T;
     }
 
     #getFromCollection(): T | undefined {
-        return itemRetriever.get(this.id) as T|undefined;
+        return itemRetriever.get(this.id) as T | undefined;
     }
 }

@@ -1,8 +1,6 @@
-
-import {TooltipFormula} from "../util/tooltip";
-import {abs, asString, condense, Expression, isGreaterThan, isLessThan, of} from "../modifiers/expressions/scalar";
-import type {IModifier, ModifierAttributes} from "./modifier-manager";
-
+import { TooltipFormula } from "../util/tooltip";
+import { abs, asString, condense, Expression, isGreaterThan, isLessThan, of } from "../modifiers/expressions/scalar";
+import type { IModifier, ModifierAttributes } from "./modifier-manager";
 
 export class MultiplicativeModifier implements IModifier {
     readonly attributes: ModifierAttributes;
@@ -10,8 +8,8 @@ export class MultiplicativeModifier implements IModifier {
     readonly origin: object | null;
     readonly selectable: boolean;
     readonly value: Expression;
-    private _isBonus:boolean;
-    private _isMalus:boolean;
+    private _isBonus: boolean;
+    private _isMalus: boolean;
 
     constructor(
         groupId: string,
@@ -25,20 +23,20 @@ export class MultiplicativeModifier implements IModifier {
         this.origin = origin;
         this.selectable = selectable;
         this.groupId = groupId;
-        this._isBonus = isGreaterThan(value,of(1)) ?? true; //Assume a bonus if result is unknown
-        this._isMalus= isLessThan(value,of(1)) ?? false;
+        this._isBonus = isGreaterThan(value, of(1)) ?? true; //Assume a bonus if result is unknown
+        this._isMalus = isLessThan(value, of(1)) ?? false;
     }
 
     get isMalus() {
-        return this._isMalus
+        return this._isMalus;
     }
 
     get isBonus() {
         return this._isBonus;
     }
 
-    addTooltipFormulaElements(formula: TooltipFormula ): void {
-        const partClass = this.isBonus ? 'bonus' : 'malus'
+    addTooltipFormulaElements(formula: TooltipFormula): void {
+        const partClass = this.isBonus ? "bonus" : "malus";
         formula.addOperator("*");
         formula.addPart(asString(abs(condense(this.value))), this.attributes.name, partClass);
     }

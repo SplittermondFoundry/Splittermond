@@ -5,30 +5,29 @@ flags: {}
 img: icons/svg/bones.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: >-
-    <p>Die <em>Wundabz&uuml;ge </em>sind pro Stufe um eine <em>Wundstufe
-    </em>h&ouml;her. Ohne Behandlung kann der Zustand nach einem Tag beendet
-    werden.</p>
-  source: ''
-  modifier: woundMalus.levelMod 1
-  level: '1'
-  startTick: 0
-  interval: 0
-  times: 0
+    description: >-
+        <p>Die <em>Wundabz&uuml;ge </em>sind pro Stufe um eine <em>Wundstufe
+        </em>h&ouml;her. Ohne Behandlung kann der Zustand nach einem Tag beendet
+        werden.</p>
+    source: ""
+    modifier: woundMalus.levelMod 1
+    level: "1"
+    startTick: 0
+    interval: 0
+    times: 0
 folder: null
 sort: 0
-_key: '!items!ZLZ6mEUDd1886puo'
-
+_key: "!items!ZLZ6mEUDd1886puo"

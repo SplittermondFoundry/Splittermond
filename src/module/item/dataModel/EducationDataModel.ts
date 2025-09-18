@@ -1,6 +1,6 @@
-import {DataModelSchemaType, fields, SplittermondDataModel} from "../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "../../data/SplittermondDataModel";
 import SplittermondItem from "../item";
-import {getDescriptorFields} from "./commonFields";
+import { getDescriptorFields } from "./commonFields";
 
 function ItemEducationDataModelSchema() {
     return {

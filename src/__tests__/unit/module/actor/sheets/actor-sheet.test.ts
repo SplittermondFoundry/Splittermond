@@ -1,16 +1,16 @@
 import "../../../foundryMocks";
-import {expect} from "chai";
-import {beforeEach, describe, it, afterEach} from "mocha";
+import { expect } from "chai";
+import { afterEach, beforeEach, describe, it } from "mocha";
 import sinon from "sinon";
 import SplittermondActorSheet from "../../../../../module/actor/sheets/actor-sheet.js";
-import {splittermond} from "../../../../../module/config";
-import {foundryApi} from "../../../../../module/api/foundryApi";
-import {FoundryDialog} from "../../../../../module/api/Application";
+import { splittermond } from "../../../../../module/config";
+import { foundryApi } from "../../../../../module/api/foundryApi";
+import { FoundryDialog } from "../../../../../module/api/Application";
 
 declare const foundry: any;
 declare const global: any;
 
-describe ("SplittermondActorSheet", () => {
+describe("SplittermondActorSheet", () => {
     let sandbox: sinon.SinonSandbox;
     let sheet: SplittermondActorSheet;
     let superFunctionStub: sinon.SinonStub;
@@ -22,12 +22,12 @@ describe ("SplittermondActorSheet", () => {
         Object.defineProperty(foundry.appv1.sheets.ActorSheet.prototype, "_onDropItemCreate", {
             value: superFunctionStub,
             configurable: true,
-            writable: true
+            writable: true,
         });
 
-        global.CONFIG = {splittermond: splittermond}
+        global.CONFIG = { splittermond: splittermond };
     });
-    afterEach(()=> {
+    afterEach(() => {
         sandbox.restore();
         delete foundry.appv1.sheets.ActorSheet.prototype._onDropItemCreate;
     });
@@ -37,9 +37,8 @@ describe ("SplittermondActorSheet", () => {
 
         beforeEach(() => {
             // Mock actor and foundryApi
-            actorMock = {name: "Test Actor", spells: [], items: [], id: "actor1"};
+            actorMock = { name: "Test Actor", spells: [], items: [], id: "actor1" };
             (sheet as any).actor = actorMock;
-
 
             sandbox.stub(foundryApi, "localize").callsFake((s: string) => s);
 
@@ -47,18 +46,17 @@ describe ("SplittermondActorSheet", () => {
             (global as any).game = {
                 i18n: {
                     localize: (s: string) => s,
-                    format: (s: string) => s
+                    format: (s: string) => s,
                 },
-                scenes: {current: null},
-                combats: []
+                scenes: { current: null },
+                combats: [],
             };
-
         });
 
         it("should set skill and skillLevel for valid single availableIn", async () => {
             const itemData: any = {
                 type: "spell",
-                system: {availableIn: "illusionmagic 2"}
+                system: { availableIn: "illusionmagic 2" },
             };
             await sheet._onDropItemCreate(itemData);
 
@@ -70,7 +68,7 @@ describe ("SplittermondActorSheet", () => {
         it("should select only valid skill and skillLevel ", async () => {
             const itemData: any = {
                 type: "spell",
-                system: {availableIn: "crazy antics, illusionmagic 2, illumanic 1"}
+                system: { availableIn: "crazy antics, illusionmagic 2, illumanic 1" },
             };
             await sheet._onDropItemCreate(itemData);
 
@@ -85,14 +83,13 @@ describe ("SplittermondActorSheet", () => {
                     options.buttons.deathmagic.callback();
                 }
                 return {
-                    render: () => {
-                    }
+                    render: () => {},
                 };
             });
 
             const itemData: any = {
                 type: "spell",
-                system: {availableIn: "illusionmagic 2, deathmagic 1"}
+                system: { availableIn: "illusionmagic 2, deathmagic 1" },
             };
 
             await sheet._onDropItemCreate(itemData);
@@ -108,14 +105,13 @@ describe ("SplittermondActorSheet", () => {
                     options.buttons.deathmagic.callback();
                 }
                 return {
-                    render: () => {
-                    }
+                    render: () => {},
                 };
             });
 
             const itemData: any = {
                 type: "spell",
-                system: {availableIn: "", skill: "deathmagic", skillLevel: 1}
+                system: { availableIn: "", skill: "deathmagic", skillLevel: 1 },
             };
 
             await sheet._onDropItemCreate(itemData);
@@ -127,19 +123,19 @@ describe ("SplittermondActorSheet", () => {
         });
 
         [
-            {title: "For no Item", availableIn: null},
-            {title: "For single Item", availableIn: "invaliskill"},
-            {title: "For multiple items", availableIn: "invalidskill1, invalidskill2"}].forEach(testInput => {
-
+            { title: "For no Item", availableIn: null },
+            { title: "For single Item", availableIn: "invaliskill" },
+            { title: "For multiple items", availableIn: "invalidskill1, invalidskill2" },
+        ].forEach((testInput) => {
             splittermond.skillGroups.magic
-                .flatMap(skill => ({skill, skillLevel: 0, name: `${skill} 0`}))
-                .forEach(({skill, skillLevel, name}) => {
+                .flatMap((skill) => ({ skill, skillLevel: 0, name: `${skill} 0` }))
+                .forEach(({ skill, skillLevel, name }) => {
                     it(`${testInput.title}: should allow selection of ${name} if availableIn is not valid`, async () => {
-                        sandbox.stub(FoundryDialog, "prompt").resolves({skill, level:skillLevel});
+                        sandbox.stub(FoundryDialog, "prompt").resolves({ skill, level: skillLevel });
 
                         const itemData: any = {
                             type: "spell",
-                            system: {availableIn: testInput.availableIn}
+                            system: { availableIn: testInput.availableIn },
                         };
 
                         await sheet._onDropItemCreate(itemData);
@@ -158,14 +154,13 @@ describe ("SplittermondActorSheet", () => {
                     options.buttons._cancel.callback();
                 }
                 return {
-                    render: () => {
-                    }
+                    render: () => {},
                 };
             });
 
             const itemData: any = {
                 type: "spell",
-                system: {availableIn: "illusionmagic 2, deathmagic 1"}
+                system: { availableIn: "illusionmagic 2, deathmagic 1" },
             };
 
             await sheet._onDropItemCreate(itemData);
@@ -179,8 +174,7 @@ describe ("SplittermondActorSheet", () => {
         let actorMock: any;
 
         beforeEach(() => {
-
-            actorMock = {name: "Test Actor", spells: [], items: [], id: "actor1"};
+            actorMock = { name: "Test Actor", spells: [], items: [], id: "actor1" };
             (sheet as any).actor = actorMock;
 
             sandbox.stub(foundryApi, "localize").callsFake((s: string) => s);
@@ -189,17 +183,17 @@ describe ("SplittermondActorSheet", () => {
             (global as any).game = {
                 i18n: {
                     localize: (s: string) => s,
-                    format: (s: string) => s
+                    format: (s: string) => s,
                 },
-                scenes: {current: null},
-                combats: []
+                scenes: { current: null },
+                combats: [],
             };
         });
 
         it("should set skill and level for valid single availableIn", async () => {
             const itemData: any = {
                 type: "mastery",
-                system: {availableIn: "athletics", level: 3}
+                system: { availableIn: "athletics", level: 3 },
             };
             await sheet._onDropItemCreate(itemData);
 
@@ -214,14 +208,13 @@ describe ("SplittermondActorSheet", () => {
                     options.buttons.acrobatics.callback();
                 }
                 return {
-                    render: () => {
-                    }
+                    render: () => {},
                 };
             });
 
             const itemData: any = {
                 type: "mastery",
-                system: {availableIn: "athletics, acrobatics", level: 1}
+                system: { availableIn: "athletics, acrobatics", level: 1 },
             };
 
             await sheet._onDropItemCreate(itemData);
@@ -237,14 +230,13 @@ describe ("SplittermondActorSheet", () => {
                     options.buttons._cancel.callback();
                 }
                 return {
-                    render: () => {
-                    }
+                    render: () => {},
                 };
             });
 
             const itemData: any = {
                 type: "mastery",
-                system: {availableIn: "athletics 2, acrobatics 1"}
+                system: { availableIn: "athletics 2, acrobatics 1" },
             };
 
             await sheet._onDropItemCreate(itemData);
@@ -258,14 +250,13 @@ describe ("SplittermondActorSheet", () => {
                     options.buttons.melee.callback();
                 }
                 return {
-                    render: () => {
-                    }
+                    render: () => {},
                 };
             });
 
             const itemData: any = {
                 type: "mastery",
-                system: {availableIn: "", skill: "melee", skillLevel: 2}
+                system: { availableIn: "", skill: "melee", skillLevel: 2 },
             };
 
             await sheet._onDropItemCreate(itemData);
@@ -276,19 +267,19 @@ describe ("SplittermondActorSheet", () => {
             expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(2);
         });
         [
-            {title: "For no Item", availableIn: null},
-            {title: "For single Item", availableIn: "invaliskill"},
-            {title: "For multiple items", availableIn: "invalidskill1, invalidskill2"}
-        ].forEach(testInput => {
+            { title: "For no Item", availableIn: null },
+            { title: "For single Item", availableIn: "invaliskill" },
+            { title: "For multiple items", availableIn: "invalidskill1, invalidskill2" },
+        ].forEach((testInput) => {
             splittermond.skillGroups.all
-                .flatMap(skill => ({skill, skillLevel: 1, name: `${skill} 0`}))
-                .forEach(({skill, skillLevel, name}) => {
+                .flatMap((skill) => ({ skill, skillLevel: 1, name: `${skill} 0` }))
+                .forEach(({ skill, skillLevel, name }) => {
                     it(`${testInput.title}: should allow selection of ${name} if availableIn is not valid`, async () => {
-                        sandbox.stub(FoundryDialog, "prompt").resolves({skill, level: skillLevel});
+                        sandbox.stub(FoundryDialog, "prompt").resolves({ skill, level: skillLevel });
 
                         const itemData: any = {
                             type: "mastery",
-                            system: {availableIn: "invalidskill"}
+                            system: { availableIn: "invalidskill" },
                         };
 
                         await sheet._onDropItemCreate(itemData);

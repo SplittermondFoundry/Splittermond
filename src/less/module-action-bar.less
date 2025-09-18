@@ -1,5 +1,4 @@
-
-#token-action-bar .token-action-bar{
+#token-action-bar .token-action-bar {
     position: fixed;
     display: flex;
     flex-direction: row;
@@ -10,23 +9,23 @@
     padding: 12px 12px 1.5em 0px;
     //overflow: none;
 
-    z-index:1;
+    z-index: 1;
 
     align-items: flex-end;
 
-    border:none;
+    border: none;
     border-radius: 0px;
     background: none;
     box-shadow: none;
 
-    .rollable, 
+    .rollable,
     .toggle-equipped,
     .prepare-spell {
         cursor: pointer;
     }
 
     h3 {
-        text-align: center
+        text-align: center;
     }
 
     .skill {
@@ -42,7 +41,7 @@
         align-items: center;
         justify-content: space-evenly;
         gap: var(--font-size-14);
-        
+
         .item-stat {
             font-size: 1.25em;
             display: flex;
@@ -76,7 +75,6 @@
             }
         }
     }
-
 }
 
 .token-action-bar-char-stats {
@@ -85,7 +83,7 @@
 
     flex-wrap: nowrap;
     justify-content: flex-start;
-    background: var(--splittermond-background-denim-blue),var(--splittermond-background-denim);
+    background: var(--splittermond-background-denim-blue), var(--splittermond-background-denim);
     box-shadow: 0 0 20px black;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -99,7 +97,6 @@
     display: flex;
     flex-direction: column;
 
-    
     .token-action-bar-name {
         position: absolute;
         bottom: 0;
@@ -116,7 +113,6 @@
 
         text-align: center;
     }
-
 }
 .token-action-bar-defense,
 .token-action-bar-skills,
@@ -127,7 +123,7 @@
     gap: 3px;
     min-width: 99px;
     width: fit-content;
-    
+
     position: relative;
     z-index: 1;
 
@@ -140,13 +136,13 @@
 
         li {
             &.spell-header {
-                background-color: rgba(128,128,128,0.1);
+                background-color: rgba(128, 128, 128, 0.1);
             }
-            label, h3 {
+            label,
+            h3 {
                 flex: 1;
                 text-align: left;
                 margin-bottom: 0;
-                
             }
 
             label {
@@ -164,7 +160,6 @@
 
                 &.costs {
                     width: 96px;
-                    
                 }
             }
         }
@@ -178,11 +173,12 @@
         border-width: 1px;
     }
 
-    ul, li {
+    ul,
+    li {
         display: block;
         margin: 0;
         padding: 0;
-        position:relative;
+        position: relative;
     }
 
     > ul {
@@ -201,14 +197,9 @@
             position: relative;
             z-index: -1;
 
-            
-
             &:hover {
-                box-shadow: inset 0px 0px 24px rgba(var(--color-active-text_rgb),0.7);
-
-               
+                box-shadow: inset 0px 0px 24px rgba(var(--color-active-text_rgb), 0.7);
             }
-            
         }
     }
 
@@ -232,9 +223,9 @@
 
             opacity: 0;
 
-            position:absolute;
+            position: absolute;
 
-            top:unset;
+            top: unset;
         }
 
         &:hover {
@@ -244,7 +235,6 @@
             }
         }
     }
-
 }
 
 .token-action-bar-skills {
@@ -316,9 +306,6 @@
     }
 }
 
-
-
-
 .token-action-bar-section {
     font-size: 1em;
     text-align: center;
@@ -326,7 +313,6 @@
 
     font-family: @font-secondary;
     padding: 3px;
-
 }
 
 .token-action-bar-popup {
@@ -335,10 +321,10 @@
     z-index: 1000;
 
     min-width: 100%;
-    
+
     //overflow: hidden;
 
-    border: 0 solid rgba(255,255,255,0.1);
+    border: 0 solid rgba(255, 255, 255, 0.1);
 
     ul {
         display: flex;
@@ -359,11 +345,11 @@
         flex-direction: row;
         align-items: center;
         &:not(:last-child) {
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         &:hover {
-            box-shadow: inset 0px 0px 24px rgba(var(--color-active-text_rgb),0.7);
+            box-shadow: inset 0px 0px 24px rgba(var(--color-active-text_rgb), 0.7);
         }
 
         + .tooltip {
@@ -372,8 +358,6 @@
             margin-left: 3px;
         }
     }
-
-    
 }
 
 #token-action-bar .token-action-bar {
@@ -383,31 +367,29 @@
     .tooltip,
     .token-action-bar-section,
     > div > ul > li {
-        background-color: rgba(0,0,0,0.8);
+        background-color: rgba(0, 0, 0, 0.8);
     }
 }
 
 @supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
-#token-action-bar .token-action-bar {
-    .token-action-bar-char-stats,
-    .token-action-bar-name,
-    .token-action-bar-popup,
-    .tooltip,
-    .token-action-bar-section {
-        background-color: rgba(0,0,0,0.5);
-        &:before {
-            content: "";
-            z-index: -1;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+    #token-action-bar .token-action-bar {
+        .token-action-bar-char-stats,
+        .token-action-bar-name,
+        .token-action-bar-popup,
+        .tooltip,
+        .token-action-bar-section {
+            background-color: rgba(0, 0, 0, 0.5);
+            &:before {
+                content: "";
+                z-index: -1;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+            }
         }
     }
 }
-}
-
-

@@ -1,29 +1,28 @@
-import {DataModelSchemaType, fields, SplittermondDataModel} from "../../../data/SplittermondDataModel";
-import {DamageMessageData} from "./interfaces";
-import {addToRegistry} from "../chatMessageRegistry";
-import {DamageEvent} from "../../damage/DamageEvent";
-import {foundryApi} from "../../../api/foundryApi";
-import {DamageFeature, DamageFeatureSchema} from "../../damage/DamageFeature";
-import {damageHandlers} from "./damageApplicationHandlers";
-import {ChatMessageModel} from "../../../data/SplittermondChatMessage";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "../../../data/SplittermondDataModel";
+import { DamageMessageData } from "./interfaces";
+import { addToRegistry } from "../chatMessageRegistry";
+import { DamageEvent } from "../../damage/DamageEvent";
+import { foundryApi } from "../../../api/foundryApi";
+import { DamageFeature, DamageFeatureSchema } from "../../damage/DamageFeature";
+import { damageHandlers } from "./damageApplicationHandlers";
+import { ChatMessageModel } from "../../../data/SplittermondChatMessage";
 
 const constructorRegistryKey = "DamageMessage";
 
 function DamageMessageSchema() {
     return {
-        constructorKey: new fields.StringField({required: true, nullable: false, initial: constructorRegistryKey}),
+        constructorKey: new fields.StringField({ required: true, nullable: false, initial: constructorRegistryKey }),
         featuresToDisplay: new fields.ArrayField(
-            new fields.SchemaField(DamageFeatureSchema(), {required: true, nullable: false}),
-            {required: true, nullable: false}),
-        damageEvent: new fields.EmbeddedDataField(DamageEvent, {required: true, nullable: false}),
+            new fields.SchemaField(DamageFeatureSchema(), { required: true, nullable: false }),
+            { required: true, nullable: false }
+        ),
+        damageEvent: new fields.EmbeddedDataField(DamageEvent, { required: true, nullable: false }),
     };
 }
 
-type DamageMessageType = DataModelSchemaType<typeof DamageMessageSchema>
+type DamageMessageType = DataModelSchemaType<typeof DamageMessageSchema>;
 
-
-export class DamageMessage extends SplittermondDataModel<DamageMessageType> implements ChatMessageModel{
-
+export class DamageMessage extends SplittermondDataModel<DamageMessageType> implements ChatMessageModel {
     static defineSchema = DamageMessageSchema;
 
     static initialize(damageEvent: DamageEvent, featuresToDisplay: DamageFeature[] = []): DamageMessage {
@@ -34,7 +33,6 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
         });
     }
 
-
     get template() {
         return "systems/splittermond/templates/chat/damage-roll.hbs";
     }
@@ -44,7 +42,7 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
             this.renderApplyDamageToTargetAction(),
             this.renderApplyDamageToUserTargetAction(),
             this.renderApplyDamageToSelfAction(),
-        ].filter(action => action !== null);
+        ].filter((action) => action !== null);
         return {
             features: this.renderFeaturesToDisplay(),
             formulaToDisplay: this.damageEvent.formulaToDisplay,
@@ -52,7 +50,7 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
             source: this.getPrincipalDamageComponent().implementName,
             tooltip: this.damageEvent.tooltip,
             actions: actions,
-        }
+        };
     }
 
     private getPrincipalDamageComponent() {
@@ -60,9 +58,7 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
     }
 
     private renderFeaturesToDisplay() {
-        return this.featuresToDisplay
-            .sort((a, b) => b.value - a.value)
-            .slice(0, 4);
+        return this.featuresToDisplay.sort((a, b) => b.value - a.value).slice(0, 4);
     }
 
     private renderApplyDamageToTargetAction() {
@@ -72,8 +68,8 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
                 localAction: "applyDamageToTargets",
             },
             icon: "fa-heart-broken",
-            name: foundryApi.localize("splittermond.chatCard.damageMessage.applyToTargets")
-        }
+            name: foundryApi.localize("splittermond.chatCard.damageMessage.applyToTargets"),
+        };
     }
 
     private renderApplyDamageToUserTargetAction() {
@@ -87,8 +83,10 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
                 localAction: "applyDamageToUserTargets",
             },
             icon: "fa-heart-broken",
-            name: foundryApi.format("splittermond.chatCard.damageMessage.applyToUserTargets", {user: causingActor.name})
-        }
+            name: foundryApi.format("splittermond.chatCard.damageMessage.applyToUserTargets", {
+                user: causingActor.name,
+            }),
+        };
     }
 
     private renderApplyDamageToSelfAction() {
@@ -98,13 +96,13 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
                 localAction: "applyDamageToSelf",
             },
             icon: "fa-heart-broken",
-            name: foundryApi.localize("splittermond.chatCard.damageMessage.applyToSelf")
-        }
+            name: foundryApi.localize("splittermond.chatCard.damageMessage.applyToSelf"),
+        };
     }
 
     handleGenericAction(data: { action: string }): Promise<void> {
         if (data.action === "applyDamageToTargets") {
-            return damageHandlers.applyDamageToTargets(this.damageEvent).catch(reportError)
+            return damageHandlers.applyDamageToTargets(this.damageEvent).catch(reportError);
         } else if (data.action === "applyDamageToSelf") {
             return damageHandlers.applyDamageToSelf(this.damageEvent).catch(reportError);
         } else if (data.action === "applyDamageToUserTargets") {
@@ -120,4 +118,3 @@ function reportError(e: Error) {
 }
 
 addToRegistry(constructorRegistryKey, DamageMessage);
-

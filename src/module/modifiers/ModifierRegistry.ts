@@ -1,24 +1,26 @@
-import {ModifierHandler} from "module/modifiers/ModiferHandler";
-import type {ModifierType} from "module/actor/modifier-manager";
-import {makeConfig} from "module/modifiers/ModifierConfig";
-import {IllegalStateException} from "module/data/exceptions";
+import { ModifierHandler } from "module/modifiers/ModiferHandler";
+import type { ModifierType } from "module/actor/modifier-manager";
+import { makeConfig } from "module/modifiers/ModifierConfig";
+import { IllegalStateException } from "module/data/exceptions";
 import type SplittermondItem from "module/item/item";
-import type {Expression} from "module/modifiers/expressions/scalar";
+import type { Expression } from "module/modifiers/expressions/scalar";
 
-
-type ErrorLogger = (...messages: string[]) => void
-type HandlerConstructorArgs = [logError: ErrorLogger, sourceItem: SplittermondItem, type: ModifierType,multiplier:Expression]
-type HandlerConstructor<T extends ModifierHandler> = new(...args:HandlerConstructorArgs) => T
-type HandlerArgs<T extends ModifierHandler = ModifierHandler> = ConstructorParameters<HandlerConstructor<T>>
+type ErrorLogger = (...messages: string[]) => void;
+type HandlerConstructorArgs = [
+    logError: ErrorLogger,
+    sourceItem: SplittermondItem,
+    type: ModifierType,
+    multiplier: Expression,
+];
+type HandlerConstructor<T extends ModifierHandler> = new (...args: HandlerConstructorArgs) => T;
+type HandlerArgs<T extends ModifierHandler = ModifierHandler> = ConstructorParameters<HandlerConstructor<T>>;
 
 export class ModifierRegistry {
-
     private registeredHandlers: Map<string, HandlerConstructor<ModifierHandler>> = new Map();
-
 
     addHandler<T extends ModifierHandler>(groupId: string, handlerClass: HandlerConstructor<T>) {
         const lowerGroupId = groupId.toLowerCase();
-        this.validateGroupId(lowerGroupId)
+        this.validateGroupId(lowerGroupId);
         this.checkHandlerShadowing(lowerGroupId);
 
         this.registeredHandlers.set(lowerGroupId, handlerClass);
@@ -32,10 +34,14 @@ export class ModifierRegistry {
         if (this.registeredHandlers.has(groupId)) {
             throw new Error(`Modifier handler for groupId '${groupId}' is already registered.`);
         } else if (/[.]{2,}/.test(groupId)) {
-            throw new Error(`Modifier handler for groupId '${groupId}' is invalid: multiple consecutive dots are not allowed.`);
-        } else if (groupId.startsWith('.')) {
-            throw new Error(`Modifier handler for groupId '${groupId}' is invalid: starting with a dot is not allowed.`);
-        } else if (groupId.endsWith('.')) {
+            throw new Error(
+                `Modifier handler for groupId '${groupId}' is invalid: multiple consecutive dots are not allowed.`
+            );
+        } else if (groupId.startsWith(".")) {
+            throw new Error(
+                `Modifier handler for groupId '${groupId}' is invalid: starting with a dot is not allowed.`
+            );
+        } else if (groupId.endsWith(".")) {
             throw new Error(`Modifier handler for groupId '${groupId}' is invalid: ending with a dot is not allowed.`);
         }
     }
@@ -46,31 +52,39 @@ export class ModifierRegistry {
     }
 
     private checkMoreSpecificHandlers(groupId: string): void {
-        const moreSpecificHandlers = Array.from(this.registeredHandlers.keys())
-            .filter(key => key.startsWith(groupId + "."))
+        const moreSpecificHandlers = Array.from(this.registeredHandlers.keys()).filter((key) =>
+            key.startsWith(groupId + ".")
+        );
         if (moreSpecificHandlers.length > 0) {
-            console.debug("Splittermond | More specific handlers than groupId '" + groupId + "':", moreSpecificHandlers.join(", "));
+            console.debug(
+                "Splittermond | More specific handlers than groupId '" + groupId + "':",
+                moreSpecificHandlers.join(", ")
+            );
         }
     }
 
     private checkMoreGeneralHandlers(groupId: string): void {
-        const moreGeneralHandlers = Array.from(getSegmentList(groupId)).filter(key => this.registeredHandlers.has(key))
+        const moreGeneralHandlers = Array.from(getSegmentList(groupId)).filter((key) =>
+            this.registeredHandlers.has(key)
+        );
         if (moreGeneralHandlers.length > 0) {
-            console.debug("Splittermond | More general handlers than groupId '" + groupId + "':", moreGeneralHandlers.join(", "));
+            console.debug(
+                "Splittermond | More general handlers than groupId '" + groupId + "':",
+                moreGeneralHandlers.join(", ")
+            );
         }
     }
 }
 
-type ModifierRegister<T> = { get(groupId: string): T | undefined, has(groupId: string): boolean }
+type ModifierRegister<T> = { get(groupId: string): T | undefined; has(groupId: string): boolean };
 
 class ModifierCache {
-
     private cachedHandlers: Map<string, ModifierHandler> = new Map();
 
     constructor(
         private readonly registry: ModifierRegister<HandlerConstructor<ModifierHandler>>,
-        private readonly handlerArgs: HandlerArgs) {
-    }
+        private readonly handlerArgs: HandlerArgs
+    ) {}
 
     getHandler(groupId: string): ModifierHandler {
         const lowerGroupId = groupId.toLowerCase();
@@ -80,7 +94,7 @@ class ModifierCache {
         }
         const registryKey = firstMatchingSuperSegment(lowerGroupId, this.registry);
         if (registryKey !== null) {
-            return this.instantiateHandler(registryKey)
+            return this.instantiateHandler(registryKey);
         }
         return new NoActionModifierHandler(...this.handlerArgs);
     }
@@ -97,9 +111,8 @@ class ModifierCache {
 }
 
 class NoActionModifierHandler extends ModifierHandler {
-
-    constructor(logErrors: ErrorLogger, _:SplittermondItem, __: ModifierType,___:Expression) {
-        super(logErrors, makeConfig({topLevelPath: ""}));
+    constructor(logErrors: ErrorLogger, _: SplittermondItem, __: ModifierType, ___: Expression) {
+        super(logErrors, makeConfig({ topLevelPath: "" }));
     }
 
     protected buildModifier(): null {
@@ -121,7 +134,7 @@ function firstMatchingSuperSegment(groupId: string, registry: ModifierRegister<u
 }
 
 function* getSegmentList(groupId: string) {
-    const groupIdSegments = groupId.split(".").map(s => s.toLowerCase());
+    const groupIdSegments = groupId.split(".").map((s) => s.toLowerCase());
     for (let i = groupIdSegments.length; i > 0; i--) {
         yield groupIdSegments.slice(0, i).join(".");
     }

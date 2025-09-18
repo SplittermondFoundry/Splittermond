@@ -7,25 +7,24 @@
     left: 0px;
     padding: @paddingMedium;
     background: var(--splittermond-background-parchment);
-    
+
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.8);
     //border-radius: 2px;
     text-shadow: none;
     z-index: 100000;
     background-clip: border-box;
     margin: 1px;
-    
+
     &::before:extend(.border-corner-1) {
-       content: "";
-       position: absolute;
-       left: 0;
-       right: 0;
-       top: 0;
-       bottom: 0;
-       border-width: 8px;
-       background-clip: border-box;
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        border-width: 8px;
+        background-clip: border-box;
     }
-    
 
     p {
         max-width: 400px;
@@ -42,8 +41,6 @@
 
 #splittermond-tooltip,
 .tooltip-part {
-
-
     .formula {
         display: inline-flex;
         flex-direction: row;
@@ -51,7 +48,7 @@
         justify-content: center;
         width: 100%;
 
-        >* {
+        > * {
             margin: @paddingSmall;
         }
 
@@ -61,7 +58,7 @@
             align-items: center;
 
             .description {
-                font-family: 'Signika';
+                font-family: "Signika";
                 font-size: 10px;
             }
 
@@ -78,9 +75,8 @@
             }
         }
     }
-
 }
 
 #splittermond-tooltip:extend(.splittermond-tooltip all) {
-    display:block;
+    display: block;
 }

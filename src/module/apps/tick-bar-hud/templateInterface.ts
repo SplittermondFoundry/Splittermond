@@ -31,4 +31,3 @@ export interface TickBarHudTemplateData {
     wait: TickBarHudCombatant[];
     keepReady: TickBarHudCombatant[];
 }
-

@@ -29,101 +29,102 @@ Merkmale: Dämmersicht, Feenblut, Giftimmunität, Schmerzresistenz, Taktiker, Ve
 `;
 export const expected = {
     system: {
-            attributes: {
-                agility: {
-                    value: 1,
-                },
-                charisma: {
-                    value:4,
-                },
-                constitution: {
-                    value:8,
-                },
-                intuition: {
-                    value: 3,
-                },
-                mind: {
-                    value: 3,
-                },
-                mystic: {
-                    value: 4,
-                },
-                strength: {
-                    value: 9,
-                },
-                willpower: {
-                    value: 4,
-                },
+        attributes: {
+            agility: {
+                value: 1,
             },
-            biography: "<p>Der Körper dieses fast drei Meter in die Höhe ragenden Feenwesens ist reichlich mit Verborkt, seine Füße ähneln festem Wurzelwerk und aus seinem Haupt sprießen mit dichtem Blätterwerk bedeckte Äste. Rührt es sich nicht, könnte es für einen gewöhnlichen Baum gehalten werden. Allerdings hat es seltsam menschenähnliche Gesichtszüge. Besonders herausstechend sind die stets strafend herabblickenden Augen, tritt der Baumwandler doch normalerweise als Wächter der belebten Natur in Erscheinung. Er geht gegen alle Eindringlinge vor, seien es unbedarfte Holzfäller, rücksichtslose Jäger oder grauenhafte Monster.</p>",
-            currency: {
-                L: 0,
-                S: 0,
-                T: 0,
-            },
-            damageReduction: {
+            charisma: {
                 value: 4,
             },
-            derivedAttributes: {
-                bodyresist: {
-                    value: 33,
-                },
-                defense: {
-                    value: 29,
-                },
-                focuspoints: {
-                    value: 16,
-                },
-                healthpoints: {
-                    value: 15,
-                },
-                initiative: {
-                    value: 0,
-                },
-                mindresist: {
-                    value: 27,
-                },
-                size: {
-                    value: 7,
-                },
-                speed: {
-                    value: 8,
-                },
+            constitution: {
+                value: 8,
             },
-            level: "4 / 2",
-            skills: {
-                acrobatics: {
-                    points: 2,
-                    value: 12,
-                },
-                athletics: {
-                    points: 5,
-                    value: 15,
-                },
-                determination: {
-                    points: 8,
-                    value: 16,
-                },
-                endurance: {
-                    points: 11,
-                    value: 23,
-                },
-                naturemagic: {
-                    points: 5,
-                    value: 13,
-                },
-                perception: {
-                    points: 4,
-                    value: 11,
-                },
-                stealth: {
-                    points: 5,
-                    value: 7,
-                },
+            intuition: {
+                value: 3,
             },
-            type: "Feenwesen, Magisches Wesen III, Naturwesen, Pflanze",
+            mind: {
+                value: 3,
+            },
+            mystic: {
+                value: 4,
+            },
+            strength: {
+                value: 9,
+            },
+            willpower: {
+                value: 4,
+            },
         },
-    items:[
+        biography:
+            "<p>Der Körper dieses fast drei Meter in die Höhe ragenden Feenwesens ist reichlich mit Verborkt, seine Füße ähneln festem Wurzelwerk und aus seinem Haupt sprießen mit dichtem Blätterwerk bedeckte Äste. Rührt es sich nicht, könnte es für einen gewöhnlichen Baum gehalten werden. Allerdings hat es seltsam menschenähnliche Gesichtszüge. Besonders herausstechend sind die stets strafend herabblickenden Augen, tritt der Baumwandler doch normalerweise als Wächter der belebten Natur in Erscheinung. Er geht gegen alle Eindringlinge vor, seien es unbedarfte Holzfäller, rücksichtslose Jäger oder grauenhafte Monster.</p>",
+        currency: {
+            L: 0,
+            S: 0,
+            T: 0,
+        },
+        damageReduction: {
+            value: 4,
+        },
+        derivedAttributes: {
+            bodyresist: {
+                value: 33,
+            },
+            defense: {
+                value: 29,
+            },
+            focuspoints: {
+                value: 16,
+            },
+            healthpoints: {
+                value: 15,
+            },
+            initiative: {
+                value: 0,
+            },
+            mindresist: {
+                value: 27,
+            },
+            size: {
+                value: 7,
+            },
+            speed: {
+                value: 8,
+            },
+        },
+        level: "4 / 2",
+        skills: {
+            acrobatics: {
+                points: 2,
+                value: 12,
+            },
+            athletics: {
+                points: 5,
+                value: 15,
+            },
+            determination: {
+                points: 8,
+                value: 16,
+            },
+            endurance: {
+                points: 11,
+                value: 23,
+            },
+            naturemagic: {
+                points: 5,
+                value: 13,
+            },
+            perception: {
+                points: 4,
+                value: 11,
+            },
+            stealth: {
+                points: 5,
+                value: 7,
+            },
+        },
+        type: "Feenwesen, Magisches Wesen III, Naturwesen, Pflanze",
+    },
+    items: [
         {
             img: "icons/svg/sword.svg",
             name: "Körper",
@@ -134,7 +135,7 @@ export const expected = {
                 skillValue: 22,
                 weaponSpeed: 13,
             },
-            "type": "npcattack"
+            type: "npcattack",
         },
         {
             name: "Umklammern",
@@ -230,5 +231,5 @@ export const expected = {
             system: {},
             type: "npcfeature",
         },
-    ] 
+    ],
 };

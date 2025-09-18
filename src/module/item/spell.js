@@ -1,28 +1,26 @@
 import SplittermondItem from "./item";
 import AttackableItem from "./attackable-item";
 
-import {getSpellAvailabilityParser} from "./availabilityParser";
-import {produceSpellAvailabilityTags} from "./tags/spellTags";
-import {parseCostString, parseSpellEnhancementDegreesOfSuccess} from "../util/costs/costParser";
-import {calculateReducedEnhancementCosts, calculateReducedSpellCosts} from "../util/costs/spellCosts";
-import {SplittermondChatCard} from "../util/chat/SplittermondChatCard";
-import {splittermond} from "../config";
-import {PrimaryCost} from "../util/costs/PrimaryCost";
-import {Cost} from "../util/costs/Cost";
-import {SpellRollMessage} from "../util/chat/spellChatMessage/SpellRollMessage";
-import {ItemFeaturesModel, mergeFeatures} from "./dataModel/propertyModels/ItemFeaturesModel";
-import {DamageRoll} from "../util/damage/DamageRoll";
+import { getSpellAvailabilityParser } from "./availabilityParser";
+import { produceSpellAvailabilityTags } from "./tags/spellTags";
+import { parseCostString, parseSpellEnhancementDegreesOfSuccess } from "../util/costs/costParser";
+import { calculateReducedEnhancementCosts, calculateReducedSpellCosts } from "../util/costs/spellCosts";
+import { SplittermondChatCard } from "../util/chat/SplittermondChatCard";
+import { splittermond } from "../config";
+import { PrimaryCost } from "../util/costs/PrimaryCost";
+import { Cost } from "../util/costs/Cost";
+import { SpellRollMessage } from "../util/chat/spellChatMessage/SpellRollMessage";
+import { ItemFeaturesModel, mergeFeatures } from "./dataModel/propertyModels/ItemFeaturesModel";
+import { DamageRoll } from "../util/damage/DamageRoll";
 import {
     asString,
     condense,
     condenseCombineDamageWithModifiers,
     mapRoll,
     of,
-    plus
+    plus,
 } from "../modifiers/expressions/scalar/index.js";
-import {foundryApi} from "../api/foundryApi.js";
-import {toDisplayFormula, toRollFormula} from "../util/damage/util";
-
+import { toDisplayFormula } from "../util/damage/util";
 
 /**
  * @extends SplittermondItem
@@ -30,7 +28,6 @@ import {toDisplayFormula, toRollFormula} from "../util/damage/util";
  * @property {SplittermondActor} actor
  */
 export default class SplittermondSpellItem extends AttackableItem(SplittermondItem) {
-
     constructor(
         data,
         context = {},
@@ -40,19 +37,21 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
         this.availabilityParser = availabilityParser;
     }
 
-
     /** @return {string} */
     get costs() {
-        return this.actor ?
-            calculateReducedSpellCosts(this.system, this.actor.system.spellCostReduction) :
-            this.system.costs;
+        return this.actor
+            ? calculateReducedSpellCosts(this.system, this.actor.system.spellCostReduction)
+            : this.system.costs;
     }
 
     /** @return {string} */
     get enhancementCosts() {
         if (this.actor) {
             const requiredDegreesOfSuccess = parseSpellEnhancementDegreesOfSuccess(this.system.enhancementCosts);
-            const reducedCosts = calculateReducedEnhancementCosts(this.system, this.actor.system.spellEnhancedCostReduction)
+            const reducedCosts = calculateReducedEnhancementCosts(
+                this.system,
+                this.actor.system.spellEnhancedCostReduction
+            );
             return `${requiredDegreesOfSuccess}EG/+${reducedCosts}`;
         } else {
             return this.system.enhancementCosts;
@@ -80,13 +79,14 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
             delete data.availableIn;
         }
         return super.updateSource(data, context);
-
     }
-
 
     get skill() {
         if (!splittermond.skillGroups.all.includes(this.system.skill)) {
-            console.warn(`Splittermond | Spell ${this.name} on ${this.actor.name} has an invalid skill: `, this.system.skill);
+            console.warn(
+                `Splittermond | Spell ${this.name} on ${this.actor.name} has an invalid skill: `,
+                this.system.skill
+            );
         }
         return this.actor?.skills[this.system.skill];
     }
@@ -134,22 +134,23 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
     }
 
     get spellTypeList() {
-        return this.spellType?.split(",").map(str => str.trim());
+        return this.spellType?.split(",").map((str) => str.trim());
     }
 
     get availableInList() {
         return produceSpellAvailabilityTags(this.system, this.availabilityParser);
     }
 
-
     get damage() {
-        const fromModifiers = this.actor.modifier.getForId("item.damage")
+        const fromModifiers = this.actor.modifier
+            .getForId("item.damage")
             .notSelectable()
             .withAttributeValuesOrAbsent("item", this.name)
             .withAttributeValuesOrAbsent("itemType", this.type)
-            .getModifiers().map(m => m.value)
-            .reduce((a,b) => plus(a,b), of(0));
-        const mainComponent = condense(mapRoll(this.system.damage.asRoll()))
+            .getModifiers()
+            .map((m) => m.value)
+            .reduce((a, b) => plus(a, b), of(0));
+        const mainComponent = condense(mapRoll(this.system.damage.asRoll()));
         return toDisplayFormula(asString(condenseCombineDamageWithModifiers(mainComponent, fromModifiers)));
     }
 
@@ -157,30 +158,32 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
      * @return {principalComponent: ProtoDamageImplement, otherComponents: ProtoDamageImplement[]}
      */
     getForDamageRoll() {
-        const fromModifiers = this.actor.modifier.getForId("item.damage")
+        const fromModifiers = this.actor.modifier
+            .getForId("item.damage")
             .notSelectable()
             .withAttributeValuesOrAbsent("item", this.name)
             .withAttributeValuesOrAbsent("itemType", this.type)
-            .getModifiers().map(m => {
-            const features = mergeFeatures(
-                ItemFeaturesModel.from(m.attributes.features ?? ""),
-                this.system.features);
-            return {
-                damageRoll: DamageRoll.fromExpression(m.value, features),
-                damageType: m.attributes.damageType ?? this.system.damageType,
-                damageSource: m.attributes.name ?? null
-            }
-        });
+            .getModifiers()
+            .map((m) => {
+                const features = mergeFeatures(
+                    ItemFeaturesModel.from(m.attributes.features ?? ""),
+                    this.system.features
+                );
+                return {
+                    damageRoll: DamageRoll.fromExpression(m.value, features),
+                    damageType: m.attributes.damageType ?? this.system.damageType,
+                    damageSource: m.attributes.name ?? null,
+                };
+            });
         return {
             principalComponent: {
                 damageRoll: DamageRoll.from(this.system.damage.calculationValue, this.system.features),
                 damageType: this.system.damageType,
-                damageSource: this.name
+                damageSource: this.name,
             },
-            otherComponents: fromModifiers
-        }
+            otherComponents: fromModifiers,
+        };
     }
-
 
     async roll(options) {
         if (!this.actor) return false;
@@ -206,15 +209,21 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
                 range: this.range,
                 effectDuration: this.effectDuration,
                 spellTypeList: this.spellTypeList,
-                damage: this.damage
-            }
+                damage: this.damage,
+            },
         };
 
-        return this.skill.roll(options)
-            .then(result => !result ? false : SplittermondChatCard.create(this.actor,
-                SpellRollMessage.initialize(this, result.report), {...result.rollOptions,type:"spellRollMessage"})
-                .sendToChat()
-            ).then((result) => result ?? true);
+        return this.skill
+            .roll(options)
+            .then((result) =>
+                !result
+                    ? false
+                    : SplittermondChatCard.create(this.actor, SpellRollMessage.initialize(this, result.report), {
+                          ...result.rollOptions,
+                          type: "spellRollMessage",
+                      }).sendToChat()
+            )
+            .then((result) => result ?? true);
     }
 
     /**
@@ -225,22 +234,23 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
     getCostsForFinishedRoll(degreeOfSuccess, successful) {
         if (successful) {
             const costs = parseCostString(this.costs).asPrimaryCost();
-            const critReduction = degreeOfSuccess >= splittermond.degreeOfSuccessThresholds.critical ?
-                getReductionForCriticalSuccess(costs) :
-                new Cost(0, 0, false, true);
+            const critReduction =
+                degreeOfSuccess >= splittermond.degreeOfSuccessThresholds.critical
+                    ? getReductionForCriticalSuccess(costs)
+                    : new Cost(0, 0, false, true);
             return costs.subtract(critReduction.asModifier());
         } else {
             return parseCostString(`${Math.abs(degreeOfSuccess)}`).asPrimaryCost();
         }
     }
 
-    #getReductionForCriticalSuccess(){
+    #getReductionForCriticalSuccess() {
         const costs = parseCostString(this.costs).asPrimaryCost();
-        if(costs.isChanneled && costs.consumed > 0){
-            return new Cost(0, 1, true , true);
-        }else if (!costs.isChanneled){
+        if (costs.isChanneled && costs.consumed > 0) {
+            return new Cost(0, 1, true, true);
+        } else if (!costs.isChanneled) {
             return new Cost(0, 1, false, true);
-        }else {
+        } else {
             return new Cost(0, 0, false, true);
         }
     }

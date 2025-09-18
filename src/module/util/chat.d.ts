@@ -1,5 +1,6 @@
-import type {User} from "../api/foundryTypes";
-import {foundryApi} from "../api/foundryApi";
+import type { User } from "../api/foundryTypes";
+import type { VirtualToken } from "module/combat/VirtualToken";
+import type SplittermondActor from "module/actor/actor";
 
 export interface StatusEffectMessageData {
     virtualToken: VirtualToken;
@@ -16,8 +17,7 @@ export interface StatusEffectMessageResult {
     type: number;
 }
 
-export function canEditMessageOf(userId:string):boolean{}
-
+export function canEditMessageOf(userId: string): boolean {}
 
 export function prepareStatusEffectMessage(
     actor: SplittermondActor,

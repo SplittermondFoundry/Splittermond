@@ -18,4 +18,4 @@ export const expected = {
         weight: 5,
     },
     type: "armor",
-}
+};

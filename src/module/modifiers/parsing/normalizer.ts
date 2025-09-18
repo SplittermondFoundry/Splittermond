@@ -1,10 +1,20 @@
-import {Value} from "./index";
-import {initMapper, LanguageMapper} from "module/util/LanguageMapper";
-import {attributes, derivedAttributes} from "module/config/attributes";
-import {isRoll} from "module/api/Roll";
-import {splittermond} from "module/config";
+import { Value } from "./index";
+import { initMapper, LanguageMapper } from "module/util/LanguageMapper";
+import { attributes, derivedAttributes } from "module/config/attributes";
+import { isRoll } from "module/api/Roll";
+import { splittermond } from "module/config";
 
-const modifierKeys = ["emphasis", "damageType", "value", "skill", "feature", "features", "item", "itemType", "unit"] as const;
+const modifierKeys = [
+    "emphasis",
+    "damageType",
+    "value",
+    "skill",
+    "feature",
+    "features",
+    "item",
+    "itemType",
+    "unit",
+] as const;
 const attributeMapper = initMapper(attributes)
     .withTranslator((t) => `splittermond.attribute.${t}.long`)
     .andOtherMappers((t) => `splittermond.attribute.${t}.short`)
@@ -15,7 +25,7 @@ const derivedAttributeMapper = initMapper(derivedAttributes)
     .build();
 const modifierKeyMapper = initMapper(modifierKeys)
     .withTranslator((t) => `splittermond.modifiers.keys.${t}`)
-    .build()
+    .build();
 const skillMapper = initMapper(splittermond.skillGroups.all)
     .withTranslator((t) => `splittermond.skillLabel.${t}`)
     .andOtherMappers((t) => `splittermond.skillAbbreviation.${t}`)
@@ -41,10 +51,10 @@ export function clearMappers() {
 }
 
 export function normalizeKey(key: string) {
-    return new NoValueAdornmentNormalizer(key).usingMappers("modifiers").do()
+    return new NoValueAdornmentNormalizer(key).usingMappers("modifiers").do();
 }
 
-export function normalizeDescriptor(descriptor:string){
+export function normalizeDescriptor(descriptor: string) {
     return new NoValueAdornmentNormalizer(descriptor);
 }
 
@@ -56,7 +66,7 @@ export function normalizeValue(value: Value) {
         const replacement = replacer.tryReplace(unsignedValue);
         //Assume the string is a reference only if we managed to replace it! (It could, for instance, also be focus.)
         if (replacement !== unsignedValue) {
-            return {propertyPath: replacement, sign, original: value};
+            return { propertyPath: replacement, sign, original: value };
         }
     } else if (typeof value === "object" && !isRoll(value)) {
         const replacement = replacer.tryReplace(value.propertyPath);
@@ -69,41 +79,36 @@ export function normalizeValue(value: Value) {
 }
 
 function replaceAttribute(value: string): string {
-    return createReplace(attributes, attributeMapper(), (v) => `attributes.${v}.value`)(value)
+    return createReplace(attributes, attributeMapper(), (v) => `attributes.${v}.value`)(value);
 }
 
 function replaceDerivedAttribute(value: string): string {
-    return createReplace(
-        derivedAttributes,
-        derivedAttributeMapper(),
-        (v) => `derivedAttributes.${v}.value`
-    )(value)
+    return createReplace(derivedAttributes, derivedAttributeMapper(), (v) => `derivedAttributes.${v}.value`)(value);
 }
 
 function replaceSkill(value: string): string {
-    return createReplace(
-        splittermond.skillGroups.all,
-        skillMapper(),
-        (v) => `skills.${v}.value`
-    )(value)
-
+    return createReplace(splittermond.skillGroups.all, skillMapper(), (v) => `skills.${v}.value`)(value);
 }
 
-function createReplace<T extends string>(collection: Readonly<T[]>, mapper: LanguageMapper<T>, path: (v: string) => string) {
+function createReplace<T extends string>(
+    collection: Readonly<T[]>,
+    mapper: LanguageMapper<T>,
+    path: (v: string) => string
+) {
     return (value: string) => {
-        const identifiedValue = mapper.toCode(value)
+        const identifiedValue = mapper.toCode(value);
         if (identifiedValue && collection.includes(identifiedValue)) {
             return path(identifiedValue);
         }
         return value;
-    }
+    };
 }
 
 class Or {
     private replaceOperations: ((x: string) => string)[] = [];
 
     constructor(...replaceOperations: ((x: string) => string)[]) {
-        this.replaceOperations = replaceOperations
+        this.replaceOperations = replaceOperations;
     }
 
     tryReplace(value: string): string {
@@ -117,20 +122,18 @@ class Or {
     }
 }
 
-
-type MapperSelection = (keyof typeof NoValueAdornmentNormalizer["mappers"])
+type MapperSelection = keyof (typeof NoValueAdornmentNormalizer)["mappers"];
 class NoValueAdornmentNormalizer {
-    private selectedMappers: MapperSelection[] =[];
+    private selectedMappers: MapperSelection[] = [];
     static mappers = {
-        attributes: {collection:splittermond.attributes, mapper:attributeMapper},
-        derivedAttributes:{collection: splittermond.attributes, mapper:derivedAttributeMapper},
-        skills: {collection: splittermond.skillGroups.all, mapper:skillMapper},
-        modifiers: {collection: modifierKeys, mapper: modifierKeyMapper},
-        damageTypes: {collection: splittermond.damageTypes, mapper: damageTypeMapper},
-        itemTypes: {collection: splittermond.itemTypes, mapper: itemTypeMapper }
+        attributes: { collection: splittermond.attributes, mapper: attributeMapper },
+        derivedAttributes: { collection: splittermond.attributes, mapper: derivedAttributeMapper },
+        skills: { collection: splittermond.skillGroups.all, mapper: skillMapper },
+        modifiers: { collection: modifierKeys, mapper: modifierKeyMapper },
+        damageTypes: { collection: splittermond.damageTypes, mapper: damageTypeMapper },
+        itemTypes: { collection: splittermond.itemTypes, mapper: itemTypeMapper },
     } as const;
-    constructor(private readonly descriptor: string) {
-    }
+    constructor(private readonly descriptor: string) {}
 
     usingMappers(...mapper: MapperSelection[]) {
         this.selectedMappers = mapper;
@@ -138,9 +141,9 @@ class NoValueAdornmentNormalizer {
     }
 
     do() {
-       const replacers = this.selectedMappers
-           .map(m=> NoValueAdornmentNormalizer.mappers[m])
-           .map(m=> createReplace(m.collection, m.mapper(), v=>v))
-       return  new Or(...replacers).tryReplace(this.descriptor);
+        const replacers = this.selectedMappers
+            .map((m) => NoValueAdornmentNormalizer.mappers[m])
+            .map((m) => createReplace(m.collection, m.mapper(), (v) => v));
+        return new Or(...replacers).tryReplace(this.descriptor);
     }
 }

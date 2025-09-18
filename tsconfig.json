@@ -1,28 +1,28 @@
 {
-  "extends": "@tsconfig/node20",
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "es2020",
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "baseUrl": "./src",
-    "paths": {
-      "module/*": ["module/*"],
-      "*": ["*"]
+    "extends": "@tsconfig/node20",
+    "compilerOptions": {
+        "target": "es2020",
+        "module": "es2020",
+        "moduleResolution": "Node",
+        "esModuleInterop": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "baseUrl": "./src",
+        "paths": {
+            "module/*": ["module/*"],
+            "*": ["*"]
+        },
+        "rootDir": "./src",
+        "noEmit": true,
+        "resolveJsonModule": true,
+        "allowJs": true,
+        "checkJs": false,
+        "lib": ["es2020", "dom"]
     },
-    "rootDir": "./src",
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "checkJs": false,
-    "lib": ["es2020", "dom"],
-  },
-  "include": ["src/**/*"],
+    "include": ["src/**/*"]
 }

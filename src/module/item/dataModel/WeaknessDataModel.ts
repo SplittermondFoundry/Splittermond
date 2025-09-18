@@ -1,10 +1,10 @@
-import {DataModelSchemaType, SplittermondDataModel} from "../../data/SplittermondDataModel";
+import { DataModelSchemaType, SplittermondDataModel } from "../../data/SplittermondDataModel";
 import SplittermondItem from "../item";
-import {getDescriptorFields} from "./commonFields";
+import { getDescriptorFields } from "./commonFields";
 
 function ItemWeaknessDataModelSchema() {
     return {
-        ...getDescriptorFields()
+        ...getDescriptorFields(),
     };
 }
 

@@ -6,8 +6,10 @@
     //No styling! This class is a marker to attach JQuery hooks to elements
 }
 .splittermond {
-    &.check, &.damage, &.status-effect-message {
-    flex-direction: column;
+    &.check,
+    &.damage,
+    &.status-effect-message {
+        flex-direction: column;
 
         header {
             padding: 0;
@@ -41,7 +43,13 @@
             margin-bottom: 3px;
 
             border: 1px solid transparent;
-            border-image: linear-gradient(to right, transparent, rgba(var(--color-text-secondary_rgb),0.3), transparent) 100% 0 100% 0;
+            border-image: linear-gradient(
+                    to right,
+                    transparent,
+                    rgba(var(--color-text-secondary_rgb), 0.3),
+                    transparent
+                )
+                100% 0 100% 0;
             //text-shadow: 0px 0px 5px #FFFFFF;
         }
 
@@ -54,17 +62,23 @@
             font-variant-numeric: lining-nums;
 
             .stars {
-                color: #FFB800;
+                color: #ffb800;
                 //filter: drop-shadow(0px 0px 10px #FFEFC7);
-                text-shadow: 0px 0px 10px #FFEFC7;
+                text-shadow: 0px 0px 10px #ffefc7;
             }
         }
 
         &.fumble {
             .roll-total {
-                border-image: linear-gradient(to right, transparent, rgba(var(--color-fail_rgb),0.3), transparent) 100% 0 100% 0;
+                border-image: linear-gradient(to right, transparent, rgba(var(--color-fail_rgb), 0.3), transparent) 100%
+                    0 100% 0;
                 //box-shadow: inset 0px 5px 5px rgba(var(--color-fail_rgb), 0.3);
-                background: linear-gradient(270deg, rgba(255, 255, 255, 0) 0%,  rgba(var(--color-fail_rgb),0.15) 50%, rgba(255, 255, 255, 0) 100%);
+                background: linear-gradient(
+                    270deg,
+                    rgba(255, 255, 255, 0) 0%,
+                    rgba(var(--color-fail_rgb), 0.15) 50%,
+                    rgba(255, 255, 255, 0) 100%
+                );
             }
         }
 
@@ -83,18 +97,22 @@
 
         &.critical {
             .roll-total {
-                border-image: linear-gradient(to right, transparent, rgba(var(--color-success_rgb),0.3), transparent) 100% 0 100% 0;
+                border-image: linear-gradient(to right, transparent, rgba(var(--color-success_rgb), 0.3), transparent)
+                    100% 0 100% 0;
                 //box-shadow: inset 0px -10px 10px -10px rgba(var(--color-success_rgb), 0.3);
-                background: linear-gradient(270deg, rgba(255, 255, 255, 0) 0%, rgba(var(--color-success_rgb),0.15) 50%, rgba(255, 255, 255, 0) 100%);
+                background: linear-gradient(
+                    270deg,
+                    rgba(255, 255, 255, 0) 0%,
+                    rgba(var(--color-success_rgb), 0.15) 50%,
+                    rgba(255, 255, 255, 0) 100%
+                );
             }
         }
 
         .actions {
             display: flex;
             flex-direction: column;
-
         }
-
 
         h2 {
             font-size: @fontSizeLarge;

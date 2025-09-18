@@ -1,28 +1,27 @@
-import {DamageEvent, DamageImplement} from "../../damage/DamageEvent";
-import {AgentReference} from "../../../data/references/AgentReference";
-import {DamageRoll, type EvaluatedDamageRoll} from "../../damage/DamageRoll";
-import {DamageType} from "../../../config/damageTypes";
-import {DamageMessage} from "./DamageMessage";
-import {sumRolls} from "../../../api/Roll";
-import {DamageFeature} from "../../damage/DamageFeature";
+import { DamageEvent, DamageImplement } from "../../damage/DamageEvent";
+import { AgentReference } from "../../../data/references/AgentReference";
+import { DamageRoll, type EvaluatedDamageRoll } from "../../damage/DamageRoll";
+import { DamageType } from "../../../config/damageTypes";
+import { DamageMessage } from "./DamageMessage";
+import { sumRolls } from "../../../api/Roll";
+import { DamageFeature } from "../../damage/DamageFeature";
 import SplittermondActor from "../../../actor/actor";
-import {CostBase} from "../../costs/costTypes";
-import {SplittermondChatCard} from "../SplittermondChatCard";
-import {toDisplayFormula} from "../../damage/util";
-import {asString, condense, mapRoll} from "../../../modifiers/expressions/scalar";
+import { CostBase } from "../../costs/costTypes";
+import { SplittermondChatCard } from "../SplittermondChatCard";
+import { toDisplayFormula } from "../../damage/util";
+import { asString, condense, mapRoll } from "../../../modifiers/expressions/scalar";
 
 export const DamageInitializer = {
-    rollFromDamageRoll
-}
+    rollFromDamageRoll,
+};
 
 interface ProtoDamageImplement {
     readonly damageRoll: DamageRoll;
     readonly damageType: DamageType;
-    readonly damageSource: string | null
+    readonly damageSource: string | null;
 }
-type EvaluatedImplement  =  Omit<ProtoDamageImplement,"damageRoll"> & {evaluatedRoll: EvaluatedDamageRoll};
+type EvaluatedImplement = Omit<ProtoDamageImplement, "damageRoll"> & { evaluatedRoll: EvaluatedDamageRoll };
 class WrappedImplement {
-
     static from(protoImplement: ProtoDamageImplement) {
         return new WrappedImplement(protoImplement.damageRoll, protoImplement.damageType, protoImplement.damageSource);
     }
@@ -30,46 +29,49 @@ class WrappedImplement {
     constructor(
         public readonly damageRoll: DamageRoll,
         public readonly damageType: DamageType,
-        public readonly source: string | null) {
-    }
+        public readonly source: string | null
+    ) {}
 
     async evaluate() {
         const evaluatedRoll = await this.damageRoll.evaluate();
         return {
             evaluatedRoll: evaluatedRoll,
             damageType: this.damageType,
-            damageSource: this.source
-        }
+            damageSource: this.source,
+        };
     }
 }
 
-class EvaluatedImplements{
-    constructor(public readonly damageImplements: EvaluatedImplement[]) {
-    }
+class EvaluatedImplements {
+    constructor(public readonly damageImplements: EvaluatedImplement[]) {}
 
     get evaluatedRoll() {
-        const rolls = this.damageImplements.map(i => i.evaluatedRoll).map(d => d.roll);
+        const rolls = this.damageImplements.map((i) => i.evaluatedRoll).map((d) => d.roll);
         return sumRolls(rolls);
     }
 
-    get features():DamageFeature[] {
-        const featureSet = this.damageImplements.map(i=> i.evaluatedRoll)
-            .flatMap(d => d.getActiveFeatures())
+    get features(): DamageFeature[] {
+        const featureSet = this.damageImplements
+            .map((i) => i.evaluatedRoll)
+            .flatMap((d) => d.getActiveFeatures())
             .sort((a, b) => b.value - a.value) //largest value first
             .reduce((acc, val) => acc.add(val), new Set<DamageFeature>());
         return Array.from(featureSet);
     }
 }
 
-async function evaluateImplements(damageImplements: ProtoDamageImplement[]){
+async function evaluateImplements(damageImplements: ProtoDamageImplement[]) {
     const evaluatedImplements = await Promise.all(
-        damageImplements.map(d => WrappedImplement.from(d)).map(d => d.evaluate()));
+        damageImplements.map((d) => WrappedImplement.from(d)).map((d) => d.evaluate())
+    );
     return new EvaluatedImplements(evaluatedImplements);
-
 }
 
-async function rollFromDamageRoll(damages: ProtoDamageImplement[], costBase: CostBase, speaker: SplittermondActor | null) {
-
+async function rollFromDamageRoll(
+    damages: ProtoDamageImplement[],
+    costBase: CostBase,
+    speaker: SplittermondActor | null
+) {
     const evaluatedImplements = await evaluateImplements(damages);
     const damageImplements = await mapToDamageImplements(evaluatedImplements);
     const totalRoll = evaluatedImplements.evaluatedRoll;
@@ -82,19 +84,15 @@ async function rollFromDamageRoll(damages: ProtoDamageImplement[], costBase: Cos
         isGrazingHit: false,
     });
 
-    return SplittermondChatCard.create(
-        speaker,
-        DamageMessage.initialize(damageEvent, evaluatedImplements.features),
-        {
-            type: "damageMessage",
-            whisper: [],
-            blind: false,
-            rolls: [totalRoll]
-        }
-    );
+    return SplittermondChatCard.create(speaker, DamageMessage.initialize(damageEvent, evaluatedImplements.features), {
+        type: "damageMessage",
+        whisper: [],
+        blind: false,
+        rolls: [totalRoll],
+    });
 }
 async function mapToDamageImplements(proto: EvaluatedImplements) {
-    return Promise.all(proto.damageImplements.map(i => mapToImplement(i)));
+    return Promise.all(proto.damageImplements.map((i) => mapToImplement(i)));
 }
 
 async function mapToImplement(proto: EvaluatedImplement) {
@@ -105,6 +103,6 @@ async function mapToImplement(proto: EvaluatedImplement) {
         implementName: proto.damageSource ?? "",
         damageExplanation: explanation,
         _baseReductionOverride: proto.evaluatedRoll.features.valueOf("Durchdringung"),
-        damageType: proto.damageType
+        damageType: proto.damageType,
     });
 }

@@ -2,57 +2,57 @@
 //should affect all AppV2 Dialogues
 @window-foreground-color: #3a3a3a;
 .window-header-def() {
-  flex: 0 0 30px;
-  overflow: hidden;
-  padding: 0 8px;
-  background: none;
-  color: @window-foreground-color;
-  .window-title {
+    flex: 0 0 30px;
+    overflow: hidden;
+    padding: 0 8px;
+    background: none;
     color: @window-foreground-color;
-    font-family: @font-primary;
-    font-variant-numeric: lining-nums;
-  }
-  button.header-control:not(.icon) {
-    .button-style();
-    color: @window-foreground-color;
-    width: 22px;
-    height: 22px;
-  }
-  button.header-control.icon {
-    color: @window-foreground-color;
-  }
+    .window-title {
+        color: @window-foreground-color;
+        font-family: @font-primary;
+        font-variant-numeric: lining-nums;
+    }
+    button.header-control:not(.icon) {
+        .button-style();
+        color: @window-foreground-color;
+        width: 22px;
+        height: 22px;
+    }
+    button.header-control.icon {
+        color: @window-foreground-color;
+    }
 }
 
 .window-body-def() {
-  label {
-    color: @window-foreground-color;
-  }
-
-  button:not(.icon) {
-    .button-style();
-
     label {
-      color: var(--color-text);
+        color: @window-foreground-color;
     }
-  }
-  button.button-inline:not(.icon) {
-    .button-inline();
-  }
+
+    button:not(.icon) {
+        .button-style();
+
+        label {
+            color: var(--color-text);
+        }
+    }
+    button.button-inline:not(.icon) {
+        .button-inline();
+    }
 }
 
 //DialogV2 header
 dialog.application.dialog .window-header {
-  .window-header-def()
+    .window-header-def();
 }
 
 //DialogV2 body
 dialog.application .window-content {
-    .window-body-def()
+    .window-body-def();
 }
 
 //ApplicationV2 header
 form.application .window-header {
-  .window-header-def()
+    .window-header-def();
 }
 
 //ApplicationV2 body
@@ -62,117 +62,117 @@ form.application .window-content {
 
 //Application V1
 .app.window-app {
-  .window-body-def();
+    .window-body-def();
 
-  //Style th short and long rest buttons on the actor sheet
-  button[data-action="short-rest"] {
-    .button-style();
-  }
-
-  button[data-action="long-rest"] {
-    .button-style();
-  }
-
-  button[data-action="toggle-equipped"] {
-    background: none;
-    border-image: none;
-    box-shadow: none;
-
-    i {
-      --toggle-color-light: #f0f0e0;
-      --toggle-color-dark: #0f0f10;
-
-      &.fa-toggle-off {
-        color: var(--toggle-color-dark);
-        text-shadow: 0px 0px 1px var(--toggle-color-light),
-        0px 1px 0px var(--toggle-color-light),
-        0px 1px 0px var(--toggle-color-dark);
-      }
-
-      &.fa-toggle-on {
-        color: var(--toggle-color-light);
-        text-shadow: 0px 0px 1px var(--toggle-color-dark),
-        0px 1px 0px var(--toggle-color-dark),
-        0px 1px 0px var(--toggle-color-light);
-      }
+    //Style th short and long rest buttons on the actor sheet
+    button[data-action="short-rest"] {
+        .button-style();
     }
-  }
 
-  //Prevents having space around the <pre> element used for the help text of min-attributes
-  .help-text pre {
-    margin: 0
-  }
+    button[data-action="long-rest"] {
+        .button-style();
+    }
+
+    button[data-action="toggle-equipped"] {
+        background: none;
+        border-image: none;
+        box-shadow: none;
+
+        i {
+            --toggle-color-light: #f0f0e0;
+            --toggle-color-dark: #0f0f10;
+
+            &.fa-toggle-off {
+                color: var(--toggle-color-dark);
+                text-shadow:
+                    0px 0px 1px var(--toggle-color-light),
+                    0px 1px 0px var(--toggle-color-light),
+                    0px 1px 0px var(--toggle-color-dark);
+            }
+
+            &.fa-toggle-on {
+                color: var(--toggle-color-light);
+                text-shadow:
+                    0px 0px 1px var(--toggle-color-dark),
+                    0px 1px 0px var(--toggle-color-dark),
+                    0px 1px 0px var(--toggle-color-light);
+            }
+        }
+    }
+
+    //Prevents having space around the <pre> element used for the help text of min-attributes
+    .help-text pre {
+        margin: 0;
+    }
 }
 
-
 .window-app.sheet.splittermond:not(.dark):not(.journal-entry) .window-content {
-  .application-override-mixin();
+    .application-override-mixin();
 }
 
 .application-override-mixin() {
-  background: var(--splittermond-background-parchment-blue), var(--splittermond-background-parchment);
-  background-position: top right;
-  background-blend-mode: var(--background-parchment-splittermond-blend-mode);
-  background-clip: padding-box;
+    background: var(--splittermond-background-parchment-blue), var(--splittermond-background-parchment);
+    background-position: top right;
+    background-blend-mode: var(--background-parchment-splittermond-blend-mode);
+    background-clip: padding-box;
 }
 
 .chat-message:extend(.border-paper) {
+    border-image-repeat: repeat;
+    z-index: 0;
+    position: relative;
 
-  border-image-repeat: repeat;
-  z-index: 0;
-  position: relative;
-
-  .message-header {
-    color: rgba(var(--color-text-secondary_rgb), 0.7);
-  }
+    .message-header {
+        color: rgba(var(--color-text-secondary_rgb), 0.7);
+    }
 }
 
 #settings-config {
-  section.window-content aside.flexcol {
-    search input{
-      background: none;
-      border: 1px;
-      border-style: solid;
-      color: var(--color-text-secondary);
-    }
-    nav.tabs {
-      background-image: none;
-      border: none;
+    section.window-content aside.flexcol {
+        search input {
+            background: none;
+            border: 1px;
+            border-style: solid;
+            color: var(--color-text-secondary);
+        }
+        nav.tabs {
+            background-image: none;
+            border: none;
 
-      button {
-        color: var(--color-text-secondary);
-        font-family: var(--font-primary);
-        border: none;
-        background: none;
-        box-shadow: none;
-        text-shadow: none;
-      }
+            button {
+                color: var(--color-text-secondary);
+                font-family: var(--font-primary);
+                border: none;
+                background: none;
+                box-shadow: none;
+                text-shadow: none;
+            }
+        }
     }
-  }
 }
 
 //Style the species wizard
 .splittermond.application.species.wizard {
-  div>header>h1 {
-    text-align: center;
-  }
-  //style the attribute number modifiers to have buttons below each other and enough space for numbers
-  .attribute-mod {
-    > div {
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
+    div > header > h1 {
+        text-align: center;
     }
+    //style the attribute number modifiers to have buttons below each other and enough space for numbers
+    .attribute-mod {
+        > div {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+        }
 
-    .value {
-      min-width: 1em;
-      width: 1em;
-      text-align: right;
-      display: inline-block;
+        .value {
+            min-width: 1em;
+            width: 1em;
+            text-align: right;
+            display: inline-block;
+        }
     }
-  }
-  //places the buttons at the bottom of the page in the center
-  footer {
-    justify-content: center;
-  }
+    //places the buttons at the bottom of the page in the center
+    footer {
+        justify-content: center;
+    }
 }

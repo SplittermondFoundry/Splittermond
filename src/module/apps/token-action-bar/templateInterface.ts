@@ -61,8 +61,7 @@ export interface TokenActionBarSpellsBySkill {
     spells: TokenActionBarSpell[];
 }
 
-export interface TokenActionBarPreparedSpell extends TokenActionBarSpell {
-}
+export interface TokenActionBarPreparedSpell extends TokenActionBarSpell {}
 
 export interface TokenActionBarDerivedValues {
     defense: { value: string };

@@ -1,6 +1,5 @@
-import {JSDOM} from "jsdom";
+import { JSDOM } from "jsdom";
 import jquery from "jquery";
-
 
 /**
  * renders an html string into a JQuery object and sets it as global.$
@@ -12,12 +11,12 @@ export function produceJQuery(html) {
     const dom = new JSDOM(html);
     const jQuery = jquery(dom.window);
     global.$ = jQuery;
-    enhanceJQuery(jQuery)
-    return jQuery
+    enhanceJQuery(jQuery);
+    return jQuery;
 }
 function enhanceJQuery(jQuery) {
     jQuery.fn.closestData = function (dataName, defaultValue = "") {
         let value = this.closest(`[data-${dataName}]`)?.data(dataName);
-        return (value) ? value : defaultValue;
+        return value ? value : defaultValue;
     };
 }

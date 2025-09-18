@@ -1,6 +1,5 @@
 import RequestCheckDialog from "../apps/dialog/request-check-dialog.js";
 
-
 export function skillCheck(skill, options = {}) {
     const speaker = ChatMessage.getSpeaker();
     let actor;
@@ -8,8 +7,8 @@ export function skillCheck(skill, options = {}) {
     if (!actor) actor = game.actors.get(speaker.actor);
     if (!actor) {
         ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
-        return
-    };
+        return;
+    }
     actor.rollSkill(skill, options);
 }
 
@@ -17,15 +16,14 @@ export function attackCheck(actorId, attack) {
     const actor = game.actors.get(actorId);
     if (!actor) {
         ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
-        return
-    };
+        return;
+    }
     actor.rollAttack(attack);
 }
 
 export function itemCheck(itemType, itemName, actorId = "", itemId = "") {
     let actor;
-    if (actorId)
-        actor = game.actors.get(actorId);
+    if (actorId) actor = game.actors.get(actorId);
     else {
         const speaker = ChatMessage.getSpeaker();
         if (speaker.token) actor = game.actors.tokens[speaker.token];
@@ -35,13 +33,13 @@ export function itemCheck(itemType, itemName, actorId = "", itemId = "") {
     if (actor) {
         let item;
         if (itemId) {
-            item = actor.items.find(el => el.id === itemId)
+            item = actor.items.find((el) => el.id === itemId);
             if (!item) {
-                item = game.data.items.find(el => el.id === itemId);
-                item = actor.items.find(el => el.name === item?.name && el.type === item?.type)
+                item = game.data.items.find((el) => el.id === itemId);
+                item = actor.items.find((el) => el.name === item?.name && el.type === item?.type);
             }
         } else {
-            item = actor.items.find(el => el.name === itemName && el.type === itemType)
+            item = actor.items.find((el) => el.name === itemName && el.type === itemType);
         }
         if (item) {
             if (item.type === "spell") {
@@ -54,22 +52,17 @@ export function itemCheck(itemType, itemName, actorId = "", itemId = "") {
         } else {
             ui.notifications.error(game.i18n.localize("splittermond.invalidItem"));
         }
-
     } else {
         ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
     }
-
-
 }
 
-
-export function requestSkillCheck(preSelectedSkill="", difficulty=15) {
+export function requestSkillCheck(preSelectedSkill = "", difficulty = 15) {
     RequestCheckDialog.create({
         skill: preSelectedSkill,
         difficulty: difficulty,
     });
 }
-
 
 export async function importNpc() {
     let clipboard = await navigator.clipboard.readText();
@@ -85,23 +78,24 @@ export async function importNpc() {
             description = temp[2].replace(/\n/g, " ");
             stats = temp[3];
         }
-
     }
     let d = new Dialog({
         title: game.i18n.localize(`splittermond.importNpcData`),
         content: `<form><label>Name</label><input type="text" name="name" value="${name}"><label>Beschreibung</label><textarea style="height: 300px" name='description'>${description}</textarea><label>Data</label><textarea style="height: 300px;" name='data'>${stats}</textarea></form>`,
         buttons: {
-
             cancel: {
                 icon: '<i class="fas fa-times"></i>',
-                label: "Cancel"
+                label: "Cancel",
             },
             import: {
                 icon: '<i class="fas fa-check"></i>',
                 label: "Import",
                 callback: (html) => {
                     let importData = html.find('[name="data"]')[0].value;
-                    let parsedData = /AUS BEW INT KON MYS STÄ VER WIL\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)/.exec(importData);
+                    let parsedData =
+                        /AUS BEW INT KON MYS STÄ VER WIL\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)/.exec(
+                            importData
+                        );
                     let AUS = parseInt(parsedData[1]);
                     let BEW = parseInt(parsedData[2]);
                     let INT = parseInt(parsedData[3]);
@@ -110,7 +104,10 @@ export async function importNpc() {
                     let STÄ = parseInt(parsedData[6]);
                     let VER = parseInt(parsedData[7]);
                     let WIL = parseInt(parsedData[8]);
-                    parsedData = /GK GSW LP FO VTD SR KW GW\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)/.exec(importData);
+                    parsedData =
+                        /GK GSW LP FO VTD SR KW GW\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)/.exec(
+                            importData
+                        );
                     let GK = parseInt(parsedData[1]);
                     let GSW = parseInt(parsedData[2]);
                     let LP = parseInt(parsedData[3]);
@@ -124,58 +121,84 @@ export async function importNpc() {
                     let weapons = [];
                     if (weaponData) {
                         if (weaponData[1].match(/Reichw/)) {
-                            weaponData[2].match(/.* [0-9]+ [0-9W\-+]+ [0-9]+ Tick[s]? [0-9\-]+\-1W6 [0-9\-–]* .*/g).forEach(weaponStr => {
-                                let weaponDataRaw = weaponStr.match(/(.*) ([0-9]+) ([0-9W\-+]+) ([0-9]+) Tick[s]? ([0-9\-]+)\-1W6 ([0-9\-–]*) (.*)/);
-                                INI = parseInt(weaponDataRaw[5].trim()) || 0;
-                                weapons.push({
-                                    type: "weapon",
-                                    name: weaponDataRaw[1].trim(),
-                                    data: {
-                                        damage: weaponDataRaw[3].trim(),
-                                        weaponSpeed: parseInt(weaponDataRaw[4].trim()) || 0,
-                                        range: parseInt(weaponDataRaw[6].trim()) || 0,
-                                        features: weaponDataRaw[7].trim()
-                                    }
-                                })
-                            });
+                            weaponData[2]
+                                .match(/.* [0-9]+ [0-9W\-+]+ [0-9]+ Tick[s]? [0-9\-]+\-1W6 [0-9\-–]* .*/g)
+                                .forEach((weaponStr) => {
+                                    let weaponDataRaw = weaponStr.match(
+                                        /(.*) ([0-9]+) ([0-9W\-+]+) ([0-9]+) Tick[s]? ([0-9\-]+)\-1W6 ([0-9\-–]*) (.*)/
+                                    );
+                                    INI = parseInt(weaponDataRaw[5].trim()) || 0;
+                                    weapons.push({
+                                        type: "weapon",
+                                        name: weaponDataRaw[1].trim(),
+                                        data: {
+                                            damage: weaponDataRaw[3].trim(),
+                                            weaponSpeed: parseInt(weaponDataRaw[4].trim()) || 0,
+                                            range: parseInt(weaponDataRaw[6].trim()) || 0,
+                                            features: weaponDataRaw[7].trim(),
+                                        },
+                                    });
+                                });
                         } else {
-                            weaponData[2].match(/.* [0-9]+ [0-9W\-+]+ [0-9]+ Tick[s]? [0-9\-]+\-1W6 .*/g).forEach(weaponStr => {
-                                let weaponDataRaw = weaponStr.match(/(.*) ([0-9]+) ([0-9W\-+]+) ([0-9]+) Tick[s]? ([0-9\-]+)\-1W6 (.*)/);
-                                INI = parseInt(weaponDataRaw[5].trim()) || 0;
-                                weapons.push({
-                                    type: "weapon",
-                                    name: weaponDataRaw[1].trim(),
-                                    data: {
-                                        damage: weaponDataRaw[3].trim(),
-                                        weaponSpeed: parseInt(weaponDataRaw[4].trim()) || 0,
-                                        range: 0,
-                                        features: weaponDataRaw[6].trim()
-                                    }
-                                })
-                            });
+                            weaponData[2]
+                                .match(/.* [0-9]+ [0-9W\-+]+ [0-9]+ Tick[s]? [0-9\-]+\-1W6 .*/g)
+                                .forEach((weaponStr) => {
+                                    let weaponDataRaw = weaponStr.match(
+                                        /(.*) ([0-9]+) ([0-9W\-+]+) ([0-9]+) Tick[s]? ([0-9\-]+)\-1W6 (.*)/
+                                    );
+                                    INI = parseInt(weaponDataRaw[5].trim()) || 0;
+                                    weapons.push({
+                                        type: "weapon",
+                                        name: weaponDataRaw[1].trim(),
+                                        data: {
+                                            damage: weaponDataRaw[3].trim(),
+                                            weaponSpeed: parseInt(weaponDataRaw[4].trim()) || 0,
+                                            range: 0,
+                                            features: weaponDataRaw[6].trim(),
+                                        },
+                                    });
+                                });
                         }
                     }
 
                     let skillData = /Fertigkeiten: ([^]*?)\n[^\s]+:/g.exec(importData);
                     let skillObj = {};
                     if (skillData[1]) {
-                        skillData[1].split(",").forEach(skillStr => {
+                        skillData[1].split(",").forEach((skillStr) => {
                             let skillData = skillStr.trim().match(/(.*?)\s+([0-9]+)/);
-                            let skill = [...CONFIG.splittermond.skillGroups.general, ...CONFIG.splittermond.skillGroups.magic, ...CONFIG.splittermond.skillGroups.fighting].find(i => game.i18n.localize(`splittermond.skillLabel.${i}`).toLowerCase() === skillData[1].toLowerCase());
+                            let skill = [
+                                ...CONFIG.splittermond.skillGroups.general,
+                                ...CONFIG.splittermond.skillGroups.magic,
+                                ...CONFIG.splittermond.skillGroups.fighting,
+                            ].find(
+                                (i) =>
+                                    game.i18n.localize(`splittermond.skillLabel.${i}`).toLowerCase() ===
+                                    skillData[1].toLowerCase()
+                            );
                             skillObj[skill] = {
-                                value: skillData[2]
-                            }
+                                value: skillData[2],
+                            };
                         });
                     }
 
-                    let masteriesData = /Meisterschaften: ([^]*?)\n(Merkmale|Zauber|Beute|Fertigkeiten):/g.exec(importData);
+                    let masteriesData = /Meisterschaften: ([^]*?)\n(Merkmale|Zauber|Beute|Fertigkeiten):/g.exec(
+                        importData
+                    );
                     let masteries = [];
                     if (masteriesData[1]) {
-                        masteriesData[1].match(/[^(]+ \([^)]+\),?/g).forEach(skillEntryStr => {
+                        masteriesData[1].match(/[^(]+ \([^)]+\),?/g).forEach((skillEntryStr) => {
                             let masteryEntryData = skillEntryStr.trim().match(/([^(]+)\s+\(([^)]+)\)/);
-                            let skill = [...CONFIG.splittermond.skillGroups.general, ...CONFIG.splittermond.skillGroups.magic, ...CONFIG.splittermond.skillGroups.fighting].find(i => game.i18n.localize(`splittermond.skillLabel.${i}`).toLowerCase() === masteryEntryData[1].toLowerCase());
+                            let skill = [
+                                ...CONFIG.splittermond.skillGroups.general,
+                                ...CONFIG.splittermond.skillGroups.magic,
+                                ...CONFIG.splittermond.skillGroups.fighting,
+                            ].find(
+                                (i) =>
+                                    game.i18n.localize(`splittermond.skillLabel.${i}`).toLowerCase() ===
+                                    masteryEntryData[1].toLowerCase()
+                            );
                             let level = 1;
-                            masteryEntryData[2].split(/,|;|:/).forEach(masteryStr => {
+                            masteryEntryData[2].split(/,|;|:/).forEach((masteryStr) => {
                                 masteryStr = masteryStr.trim();
                                 if (masteryStr === "I") {
                                     level = 1;
@@ -191,25 +214,23 @@ export async function importNpc() {
                                         name: masteryStr.trim(),
                                         data: {
                                             skill: skill,
-                                            level: level
-                                        }
-                                    })
+                                            level: level,
+                                        },
+                                    });
                                 }
-
                             });
-                        })
+                        });
                     }
 
                     let featuresData = /Merkmale: ([^:]*)\n(Beute:)?/g.exec(importData);
                     let features = [];
-                    featuresData[1].split(/,/).forEach(f => {
+                    featuresData[1].split(/,/).forEach((f) => {
                         if (f.trim()) {
                             features.push({
                                 type: "npcfeature",
-                                name: f.trim()
+                                name: f.trim(),
                             });
                         }
-
                     });
 
                     let typeData = /Typus: ([^]*?)\n[^\s]+:/g.exec(importData);
@@ -227,11 +248,16 @@ export async function importNpc() {
                     let spellsData = /Zauber: ([^]*?)\n[\w]+:/g.exec(importData);
                     let spells = [];
                     if (spellsData) {
-                        let skill = ""
-                        spellsData[1].split(";").forEach(skillEntryStr => {
+                        let skill = "";
+                        spellsData[1].split(";").forEach((skillEntryStr) => {
                             let spellEntryData = skillEntryStr.trim().match(/([^ ]*)\s*([0IV]+):\s+([^]+)/);
                             if (spellEntryData[1]) {
-                                skill = CONFIG.splittermond.skillGroups.magic.find(i => game.i18n.localize(`splittermond.skillLabel.${i}`).toLowerCase().startsWith(spellEntryData[1].toLowerCase()));
+                                skill = CONFIG.splittermond.skillGroups.magic.find((i) =>
+                                    game.i18n
+                                        .localize(`splittermond.skillLabel.${i}`)
+                                        .toLowerCase()
+                                        .startsWith(spellEntryData[1].toLowerCase())
+                                );
                             }
                             let level = 0;
                             switch (spellEntryData[2]) {
@@ -256,25 +282,23 @@ export async function importNpc() {
                                 default:
                                     level = 0;
                             }
-                            spellEntryData[3].split(",").forEach(s => {
+                            spellEntryData[3].split(",").forEach((s) => {
                                 spells.push({
                                     type: "spell",
                                     name: s.trim().replace(/\n/, " "),
                                     data: {
                                         skill: skill,
-                                        skillLevel: level
-                                    }
+                                        skillLevel: level,
+                                    },
                                 });
-                            })
+                            });
                         });
                     }
-
-
 
                     let lootData = /Beute: ([^]*)\n(Anmerkung:)?/g.exec(importData);
                     let equipment = [];
                     if (lootData) {
-                        lootData[1].match(/[^(,]+\([^)]+\)/g).forEach(lootEntryStr => {
+                        lootData[1].match(/[^(,]+\([^)]+\)/g).forEach((lootEntryStr) => {
                             lootEntryStr = lootEntryStr.replace(/\n/, " ");
                             let lootEntryData = lootEntryStr.match(/([^(,]+)\(([^)]+)\)/);
                             let costs = 0;
@@ -288,64 +312,66 @@ export async function importNpc() {
                                 name: lootEntryData[1].trim(),
                                 data: {
                                     description: description,
-                                    costs: costs
-                                }
-                            })
+                                    costs: costs,
+                                },
+                            });
                         });
                     }
 
                     let attributes = {
-                        "charisma": {
-                            "species": 0,
-                            "initial": AUS,
-                            "advances": 0
+                        charisma: {
+                            species: 0,
+                            initial: AUS,
+                            advances: 0,
                         },
-                        "agility": {
-                            "species": 0,
-                            "initial": BEW,
-                            "advances": 0
+                        agility: {
+                            species: 0,
+                            initial: BEW,
+                            advances: 0,
                         },
-                        "intuition": {
-                            "species": 0,
-                            "initial": INT,
-                            "advances": 0
+                        intuition: {
+                            species: 0,
+                            initial: INT,
+                            advances: 0,
                         },
-                        "constitution": {
-                            "species": 0,
-                            "initial": KON,
-                            "advances": 0
+                        constitution: {
+                            species: 0,
+                            initial: KON,
+                            advances: 0,
                         },
-                        "mystic": {
-                            "species": 0,
-                            "initial": MYS,
-                            "advances": 0
+                        mystic: {
+                            species: 0,
+                            initial: MYS,
+                            advances: 0,
                         },
-                        "strength": {
-                            "species": 0,
-                            "initial": STÄ,
-                            "advances": 0
+                        strength: {
+                            species: 0,
+                            initial: STÄ,
+                            advances: 0,
                         },
-                        "mind": {
-                            "species": 0,
-                            "initial": VER,
-                            "advances": 0
+                        mind: {
+                            species: 0,
+                            initial: VER,
+                            advances: 0,
                         },
-                        "willpower": {
-                            "species": 0,
-                            "initial": WIL,
-                            "advances": 0
-                        }
+                        willpower: {
+                            species: 0,
+                            initial: WIL,
+                            advances: 0,
+                        },
                     };
 
-                    Object.keys(skillObj).forEach(skill => {
+                    Object.keys(skillObj).forEach((skill) => {
                         if (CONFIG.splittermond.skillAttributes[skill]) {
                             skillObj[skill].points = skillObj[skill].value;
-                            skillObj[skill].points -= parseInt(attributes[CONFIG.splittermond.skillAttributes[skill][0]].initial);
-                            skillObj[skill].points -= parseInt(attributes[CONFIG.splittermond.skillAttributes[skill][1]].initial);
+                            skillObj[skill].points -= parseInt(
+                                attributes[CONFIG.splittermond.skillAttributes[skill][0]].initial
+                            );
+                            skillObj[skill].points -= parseInt(
+                                attributes[CONFIG.splittermond.skillAttributes[skill][1]].initial
+                            );
                         }
                     });
-
-
 
                     return Actor.update({
                         name: name,
@@ -356,39 +382,39 @@ export async function importNpc() {
                             level: level,
                             attributes: attributes,
                             derivedAttributes: {
-                                "size": {
-                                    "value": GK
+                                size: {
+                                    value: GK,
                                 },
-                                "speed": {
-                                    "value": GSW
+                                speed: {
+                                    value: GSW,
                                 },
-                                "initiative": {
-                                    "value": INI
+                                initiative: {
+                                    value: INI,
                                 },
-                                "healthpoints": {
-                                    "value": LP
+                                healthpoints: {
+                                    value: LP,
                                 },
-                                "focuspoints": {
-                                    "value": FO
+                                focuspoints: {
+                                    value: FO,
                                 },
-                                "defense": {
-                                    "value": VTD
+                                defense: {
+                                    value: VTD,
                                 },
-                                "bodyresist": {
-                                    "value": KW
+                                bodyresist: {
+                                    value: KW,
                                 },
-                                "mindresist": {
-                                    "value": GW
-                                }
+                                mindresist: {
+                                    value: GW,
+                                },
                             },
-                            skills: skillObj
+                            skills: skillObj,
                         },
                         items: [...masteries, ...features, ...equipment, ...spells, ...weapons],
                     });
-                }
+                },
             },
         },
-        default: "ok"
+        default: "ok",
     });
     d.render(true);
 }
@@ -400,8 +426,8 @@ export function magicFumble(eg = 0, costs = 0, skill = "") {
     if (!actor) actor = game.actors.get(speaker.actor);
     if (!actor) {
         ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
-        return
-    };
+        return;
+    }
     actor.rollMagicFumble(eg, costs, skill);
 }
 
@@ -412,7 +438,7 @@ export function attackFumble(eg = 0, costs = 0) {
     if (!actor) actor = game.actors.get(speaker.actor);
     if (!actor) {
         ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
-        return
-    };
+        return;
+    }
     actor.rollAttackFumble();
 }

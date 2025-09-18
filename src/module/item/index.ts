@@ -6,73 +6,74 @@ import SplittermondSpellItem from "./spell";
 import SplittermondEquipmentItem from "./equipment";
 import SplittermondNPCAttackItem from "./npcattack";
 import SplittermondMastery from "./mastery";
-import {AncestryDataModel, type AncestryDataModelType} from "./dataModel/AncestryDataModel";
-import {ArmorDataModel, type ArmorDataModelType} from "./dataModel/ArmorDataModel";
-import {CultureDataModel, type CultureDataModelType} from "./dataModel/CultureDataModel";
-import {CultureLoreDataModel, type CultureLoreDataModelType} from "./dataModel/CultureLoreDataModel";
-import {EducationDataModel, type EducationDataModelType} from "./dataModel/EducationDataModel";
-import {EquipmentDataModel, type EquipmentDataModelType} from "./dataModel/EquipmentDataModel";
-import {LanguageDataModel, type LanguageDataModelType} from "./dataModel/LanguageDataModel";
-import {MasteryDataModel, type MasteryDataModelType} from "./dataModel/MasteryDataModel";
-import {MoonsignDataModel, type MoonsignDataModelType} from "./dataModel/MoonsignDataModel";
-import {NpcAttackDataModel, type NpcAttackDataModelType} from "./dataModel/NpcAttackDataModel";
-import {NpcFeatureDataModel, type NpcFeatureDataModelType} from "./dataModel/NpcFeatureDataModel";
-import {ProjectileDataModel, type ProjectileDataModelType} from "./dataModel/ProjectileDataModel";
-import {ResourceDataModel, type ResourceDataModelType} from "./dataModel/ResourceDataModel";
-import {ShieldDataModel, type ShieldDataModelType} from "./dataModel/ShieldDataModel";
-import {SpeciesDataModel, type SpeciesDataModelType} from "./dataModel/SpeciesDataModel";
-import {SpellDataModel, type SpellDataModelType} from "./dataModel/SpellDataModel";
-import {SpellEffectDataModel, type SpellEffectDataModelType} from "./dataModel/SpellEffectDataModel";
-import {StatusEffectDataModel, type StatusEffectDataModelType} from "./dataModel/StatusEffectDataModel";
-import {StrengthDataModel, type StrengthDataModelType} from "./dataModel/StrengthDataModel";
-import {WeaknessDataModel, type WeaknessDataModelType} from "./dataModel/WeaknessDataModel";
-import {WeaponDataModel, type WeaponDataModelType} from "./dataModel/WeaponDataModel";
-import {ModifierRegistry} from "module/modifiers";
-import {ItemModifierHandler} from "module/item/ItemModifierHandler";
+import { AncestryDataModel, type AncestryDataModelType } from "./dataModel/AncestryDataModel";
+import { ArmorDataModel, type ArmorDataModelType } from "./dataModel/ArmorDataModel";
+import { CultureDataModel, type CultureDataModelType } from "./dataModel/CultureDataModel";
+import { CultureLoreDataModel, type CultureLoreDataModelType } from "./dataModel/CultureLoreDataModel";
+import { EducationDataModel, type EducationDataModelType } from "./dataModel/EducationDataModel";
+import { EquipmentDataModel, type EquipmentDataModelType } from "./dataModel/EquipmentDataModel";
+import { LanguageDataModel, type LanguageDataModelType } from "./dataModel/LanguageDataModel";
+import { MasteryDataModel, type MasteryDataModelType } from "./dataModel/MasteryDataModel";
+import { MoonsignDataModel, type MoonsignDataModelType } from "./dataModel/MoonsignDataModel";
+import { NpcAttackDataModel, type NpcAttackDataModelType } from "./dataModel/NpcAttackDataModel";
+import { NpcFeatureDataModel, type NpcFeatureDataModelType } from "./dataModel/NpcFeatureDataModel";
+import { ProjectileDataModel, type ProjectileDataModelType } from "./dataModel/ProjectileDataModel";
+import { ResourceDataModel, type ResourceDataModelType } from "./dataModel/ResourceDataModel";
+import { ShieldDataModel, type ShieldDataModelType } from "./dataModel/ShieldDataModel";
+import { SpeciesDataModel, type SpeciesDataModelType } from "./dataModel/SpeciesDataModel";
+import { SpellDataModel, type SpellDataModelType } from "./dataModel/SpellDataModel";
+import { SpellEffectDataModel, type SpellEffectDataModelType } from "./dataModel/SpellEffectDataModel";
+import { StatusEffectDataModel, type StatusEffectDataModelType } from "./dataModel/StatusEffectDataModel";
+import { StrengthDataModel, type StrengthDataModelType } from "./dataModel/StrengthDataModel";
+import { WeaknessDataModel, type WeaknessDataModelType } from "./dataModel/WeaknessDataModel";
+import { WeaponDataModel, type WeaponDataModelType } from "./dataModel/WeaponDataModel";
+import { ModifierRegistry } from "module/modifiers";
+import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 
-type SplittermondItemDataModel = AncestryDataModel |
-    NpcAttackDataModel |
-    NpcFeatureDataModel |
-    ProjectileDataModel |
-    ResourceDataModel |
-    SpeciesDataModel |
-    SpellEffectDataModel |
-    SpellDataModel |
-    StatusEffectDataModel |
-    StrengthDataModel |
-    WeaknessDataModel |
-    WeaponDataModel |
-    ArmorDataModel |
-    CultureDataModel |
-    CultureLoreDataModel |
-    EducationDataModel |
-    EquipmentDataModel |
-    LanguageDataModel |
-    MasteryDataModel |
-    MoonsignDataModel |
-    ShieldDataModel
-    ;
-type SplittermondItemDataModelType = AncestryDataModelType |
-    NpcAttackDataModelType |
-    NpcFeatureDataModelType |
-    ProjectileDataModelType |
-    ResourceDataModelType |
-    SpeciesDataModelType |
-    SpellEffectDataModelType |
-    SpellDataModelType |
-    StatusEffectDataModelType |
-    StrengthDataModelType |
-    WeaknessDataModelType |
-    WeaponDataModelType |
-    ArmorDataModelType |
-    CultureDataModelType |
-    CultureLoreDataModelType |
-    EducationDataModelType |
-    EquipmentDataModelType |
-    LanguageDataModelType |
-    MasteryDataModelType |
-    MoonsignDataModelType |
-    ShieldDataModelType;
+type SplittermondItemDataModel =
+    | AncestryDataModel
+    | NpcAttackDataModel
+    | NpcFeatureDataModel
+    | ProjectileDataModel
+    | ResourceDataModel
+    | SpeciesDataModel
+    | SpellEffectDataModel
+    | SpellDataModel
+    | StatusEffectDataModel
+    | StrengthDataModel
+    | WeaknessDataModel
+    | WeaponDataModel
+    | ArmorDataModel
+    | CultureDataModel
+    | CultureLoreDataModel
+    | EducationDataModel
+    | EquipmentDataModel
+    | LanguageDataModel
+    | MasteryDataModel
+    | MoonsignDataModel
+    | ShieldDataModel;
+type SplittermondItemDataModelType =
+    | AncestryDataModelType
+    | NpcAttackDataModelType
+    | NpcFeatureDataModelType
+    | ProjectileDataModelType
+    | ResourceDataModelType
+    | SpeciesDataModelType
+    | SpellEffectDataModelType
+    | SpellDataModelType
+    | StatusEffectDataModelType
+    | StrengthDataModelType
+    | WeaknessDataModelType
+    | WeaponDataModelType
+    | ArmorDataModelType
+    | CultureDataModelType
+    | CultureLoreDataModelType
+    | EducationDataModelType
+    | EquipmentDataModelType
+    | LanguageDataModelType
+    | MasteryDataModelType
+    | MoonsignDataModelType
+    | ShieldDataModelType;
 
 export type {
     AncestryDataModelType,
@@ -97,7 +98,7 @@ export type {
     MoonsignDataModelType,
     ShieldDataModelType,
     SplittermondItemDataModelType,
-    SplittermondItemDataModel
+    SplittermondItemDataModel,
 };
 
 export function initializeItem(config: typeof CONFIG, modifierRegistry: ModifierRegistry) {
@@ -124,7 +125,7 @@ export function initializeItem(config: typeof CONFIG, modifierRegistry: Modifier
         statuseffect: StatusEffectDataModel,
         strength: StrengthDataModel,
         weakness: WeaknessDataModel,
-        weapon: WeaponDataModel
+        weapon: WeaponDataModel,
     };
 
     if (config.splittermond == undefined) {
@@ -139,8 +140,8 @@ export function initializeItem(config: typeof CONFIG, modifierRegistry: Modifier
             spell: SplittermondSpellItem,
             equipment: SplittermondEquipmentItem,
             npcattack: SplittermondNPCAttackItem,
-            mastery: SplittermondMastery
-        }
+            mastery: SplittermondMastery,
+        },
     };
 
     modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);

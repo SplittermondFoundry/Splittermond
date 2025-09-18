@@ -1,6 +1,6 @@
 import { TooltipFormula } from "../tooltip";
 import { foundryApi } from "../../api/foundryApi";
-import {CheckReport} from "../../actor/CheckReport";
+import { CheckReport } from "../../actor/CheckReport";
 
 export class RollResultRenderer {
     private actionDescription: string;
@@ -37,10 +37,7 @@ function renderSkillAndModifiers(checkReport: CheckReport) {
     );
 
     tooltip.addOperator("+");
-    tooltip.addPart(
-        checkReport.skill.points,
-        foundryApi.localize("splittermond.skillPointsAbbrev")
-    );
+    tooltip.addPart(checkReport.skill.points, foundryApi.localize("splittermond.skillPointsAbbrev"));
     checkReport.modifierElements.forEach((e) => {
         if (e.isMalus) {
             tooltip.addMalus(e.value, e.description);

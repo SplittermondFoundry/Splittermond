@@ -8,13 +8,12 @@
  */
 export function produceSpellAvailabilityTags(system, availabilityParser) {
     const availablityFromField = sourceAvailabilityFromField(system.availableIn, availabilityParser);
-    const availabilityFromSpellData = availabilityParser
-        .toDisplayRepresentation(`${system.skill} ${system.skillLevel}`);
-    const protoAvailability = availablityFromField.length > 0 ? availablityFromField
-        : [availabilityFromSpellData];
+    const availabilityFromSpellData = availabilityParser.toDisplayRepresentation(
+        `${system.skill} ${system.skillLevel}`
+    );
+    const protoAvailability = availablityFromField.length > 0 ? availablityFromField : [availabilityFromSpellData];
 
-    return protoAvailability
-        .map(item => ({label: item}));
+    return protoAvailability.map((item) => ({ label: item }));
 }
 
 /**
@@ -28,10 +27,11 @@ function sourceAvailabilityFromField(availableIn, availabilityParser) {
     }
 
     const availability = availabilityParser.toDisplayRepresentation(availableIn);
-    const availabilityExists = !!availability && availability.trim() !== '';
+    const availabilityExists = !!availability && availability.trim() !== "";
     if (availabilityExists) {
-        return availability.split(",")
-            .map(item => item.trim())
+        return availability
+            .split(",")
+            .map((item) => item.trim())
             .filter(availabilityParser.isWellFormattedAvailability);
     }
     return [];

@@ -10,16 +10,16 @@ import {
     plus,
     ReferenceExpression,
     SubtractExpression,
-    times
+    times,
 } from "./definitions";
-import {exhaustiveMatchGuard} from "module/modifiers/util";
-import {evaluate} from "./evaluation";
-import {Expression} from "module/modifiers/expressions/scalar/definitions";
+import { exhaustiveMatchGuard } from "module/modifiers/util";
+import { evaluate } from "./evaluation";
+import { Expression } from "module/modifiers/expressions/scalar/definitions";
 import {
+    canCondense as scalarCanCondense,
     condense as scalarCondense,
-    canCondense as scalarCanCondense
-} from "module/modifiers/expressions/scalar/condenser"
-import {CostModifier} from "../../../util/costs/Cost";
+} from "module/modifiers/expressions/scalar/condenser";
+import { CostModifier } from "../../../util/costs/Cost";
 
 export function isZero(expression: CostExpression): boolean {
     //straight forward eval would resolve references and rolls whose values are not constant and thus not reliably zero.
@@ -28,14 +28,14 @@ export function isZero(expression: CostExpression): boolean {
 
 export function condense(expression: CostExpression): CostExpression {
     if (canCondense(expression)) {
-        return of(evaluate(expression))
+        return of(evaluate(expression));
     }
     if (expression instanceof AddExpression) {
-        return condenseOperands(expression.left, expression.right, plus)
+        return condenseOperands(expression.left, expression.right, plus);
     } else if (expression instanceof SubtractExpression) {
-        return condenseOperands(expression.left, expression.right, minus)
+        return condenseOperands(expression.left, expression.right, minus);
     } else if (expression instanceof MultiplyExpression) {
-        return condenseMultiply(expression.scalar, expression.cost)
+        return condenseMultiply(expression.scalar, expression.cost);
     } else if (expression instanceof ReferenceExpression) {
         return expression;
     } else if (expression instanceof AmountExpression) {
@@ -44,7 +44,11 @@ export function condense(expression: CostExpression): CostExpression {
     exhaustiveMatchGuard(expression);
 }
 
-function condenseOperands(left: CostExpression, right: CostExpression, constructor: (left: CostExpression, right: CostExpression) => CostExpression): CostExpression {
+function condenseOperands(
+    left: CostExpression,
+    right: CostExpression,
+    constructor: (left: CostExpression, right: CostExpression) => CostExpression
+): CostExpression {
     const condensedLeft = condense(left);
     const condensedRight = condense(right);
     return constructor(condensedLeft, condensedRight);
@@ -53,7 +57,7 @@ function condenseOperands(left: CostExpression, right: CostExpression, construct
 function condenseMultiply(scalar: Expression, cost: CostExpression) {
     const condensedScalar = scalarCondense(scalar);
     const condensedCost = condense(cost);
-    return times(condensedScalar, condensedCost)
+    return times(condensedScalar, condensedCost);
 }
 
 function canCondense(expression: CostExpression): boolean {

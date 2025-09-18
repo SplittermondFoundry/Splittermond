@@ -10,21 +10,20 @@ import * as Orkspaeher from "../../../../resources/importSamples/GRW/NSC/Orkspae
 import * as Vorarbeiter from "../../../../resources/importSamples/Hexenkönigin/Vorarbeiter.resource";
 import * as Regenbogenschwinge from "../../../../resources/importSamples/Hexenkönigin/Regenbogenschwinge.resource";
 import * as Schuppenruestung from "../../../../resources/importSamples/GRW/armor/Schuppenrüstung.resource";
-import {describe, it} from "mocha";
-import sinon, {SinonSandbox, SinonStub} from "sinon";
-import {actorCreator, itemCreator} from "../../../../../module/data/EntityCreator";
-import {expect} from "chai";
-import {foundryApi} from "../../../../../module/api/foundryApi";
-import {initLocalizer} from "./poorMansLocalizer";
+import { describe, it } from "mocha";
+import sinon, { SinonSandbox, SinonStub } from "sinon";
+import { actorCreator, itemCreator } from "../../../../../module/data/EntityCreator";
+import { expect } from "chai";
+import { foundryApi } from "../../../../../module/api/foundryApi";
+import { initLocalizer } from "./poorMansLocalizer";
 import SplittermondCompendium from "../../../../../module/util/compendium";
 
 global.ClipboardEvent = class {
-    constructor(private text: string) {
-    }
+    constructor(private text: string) {}
 
     public clipboardData = {
         getData: () => this.text,
-    }
+    };
 } as any;
 describe("ItemImporter", () => {
     let sandbox: SinonSandbox;
@@ -34,21 +33,19 @@ describe("ItemImporter", () => {
         sandbox.stub(foundryApi, "format").callsFake(initLocalizer());
         sandbox.stub(foundryApi, "informUser");
         sandbox.stub(foundryApi, "warnUser");
-        sandbox.stub(SplittermondCompendium, "findItem").callsFake((type, name)=>{
-            if(name === "Körper"){
+        sandbox.stub(SplittermondCompendium, "findItem").callsFake((type, name) => {
+            if (name === "Körper") {
                 return Promise.resolve(null);
             }
-            const fakeItem= {_id:1, type, name, system:{} };
-            return Promise.resolve({...fakeItem, toObject:()=>fakeItem});
-        })
+            const fakeItem = { _id: 1, type, name, system: {} };
+            return Promise.resolve({ ...fakeItem, toObject: () => fakeItem });
+        });
     });
     afterEach(() => {
         sandbox.restore();
     });
 
-
     describe("Imports from the core rulebook", () => {
-
         describe("Armor imports", () => {
             let armorCreationStub: SinonStub;
             beforeEach(() => {
@@ -74,16 +71,17 @@ describe("ItemImporter", () => {
             });
 
             [Machtexplosion, Maskerade, Stahlhaut].forEach((resource) => {
-
                 it(`should import spell '${resource.testname}'`, async () => {
-                    const text = resource.input
+                    const text = resource.input;
 
                     await ItemImporter.pasteEventhandler(new ClipboardEvent(text));
 
                     expect(spellCreationStub.calledOnce).to.be.true;
-                    expect(spellCreationStub.getCalls()[0].args[0]).to.deep.equal(
-                        {folder: "folderId", ...resource.expected});
-                })
+                    expect(spellCreationStub.getCalls()[0].args[0]).to.deep.equal({
+                        folder: "folderId",
+                        ...resource.expected,
+                    });
+                });
             });
         });
 
@@ -96,35 +94,34 @@ describe("ItemImporter", () => {
             });
 
             it(`should import ${Bannmagie.testname}`, async () => {
-                const text = Bannmagie.input
+                const text = Bannmagie.input;
 
                 await ItemImporter.pasteEventhandler(new ClipboardEvent(text));
 
                 expect(masteryCreationStub.calledTwice).to.be.true;
-                expect(masteryCreationStub.getCalls()[0].args[0]).to.deep.equal(
-                    {
-                        folder: "folderId", ...Bannmagie.expected[0],
-                        system: {availableIn: "fightmagic", skill: 'fightmagic', ...Bannmagie.expected[0].system}
-                    });
-                expect(masteryCreationStub.getCalls()[1].args[0]).to.deep.equal(
-                    {
-                        folder: "folderId", ...Bannmagie.expected[1],
-                        system: {availableIn: "fightmagic", skill: 'fightmagic', ...Bannmagie.expected[1].system}
-                    });
+                expect(masteryCreationStub.getCalls()[0].args[0]).to.deep.equal({
+                    folder: "folderId",
+                    ...Bannmagie.expected[0],
+                    system: { availableIn: "fightmagic", skill: "fightmagic", ...Bannmagie.expected[0].system },
+                });
+                expect(masteryCreationStub.getCalls()[1].args[0]).to.deep.equal({
+                    folder: "folderId",
+                    ...Bannmagie.expected[1],
+                    system: { availableIn: "fightmagic", skill: "fightmagic", ...Bannmagie.expected[1].system },
+                });
             });
 
             it(`should import mastery '${BannendeHand.testname}'`, async () => {
-
-                const text = BannendeHand.input
+                const text = BannendeHand.input;
 
                 await ItemImporter.pasteEventhandler(new ClipboardEvent(text));
 
                 expect(masteryCreationStub.calledOnce).to.be.true;
-                expect(masteryCreationStub.getCalls()[0].args[0]).to.deep.equal(
-                    {
-                        folder: "folderId", ...BannendeHand.expected,
-                        system: {availableIn: "fightmagic", skill: 'fightmagic', ...BannendeHand.expected.system}
-                    });
+                expect(masteryCreationStub.getCalls()[0].args[0]).to.deep.equal({
+                    folder: "folderId",
+                    ...BannendeHand.expected,
+                    system: { availableIn: "fightmagic", skill: "fightmagic", ...BannendeHand.expected.system },
+                });
             });
         });
 
@@ -138,21 +135,21 @@ describe("ItemImporter", () => {
             });
             afterEach(() => sandbox.restore());
 
-            [Baumwandler, Oger,Orkspaeher].forEach((resource) => {
+            [Baumwandler, Oger, Orkspaeher].forEach((resource) => {
                 it(`should import npc ${resource.testname}`, async () => {
                     const text = resource.input;
 
                     await ItemImporter.pasteEventhandler(new ClipboardEvent(text));
 
                     expect(npcCreationStub.calledOnce).to.be.true;
-                    expect(npcCreationStub.lastCall.args[0].system).to.deep.equal(resource.expected.system)
-                    expect(npcCreationStub.lastCall.args[0].items).to.deep.equal(resource.expected.items)
+                    expect(npcCreationStub.lastCall.args[0].system).to.deep.equal(resource.expected.system);
+                    expect(npcCreationStub.lastCall.args[0].items).to.deep.equal(resource.expected.items);
                 });
             });
         });
     });
 
-    describe("Imports from adventure books",()=>{
+    describe("Imports from adventure books", () => {
         let npcCreationStub: SinonStub;
         beforeEach(() => {
             npcCreationStub = sandbox.stub(actorCreator, "createNpc").returns(Promise.resolve({} as any));
@@ -164,7 +161,7 @@ describe("ItemImporter", () => {
 
         //This input comes with a mangled attribute table. We cannot reliably reconstruct the attributes and derived
         //attributes here.
-        [Vorarbeiter,Regenbogenschwinge].forEach((resource) => {
+        [Vorarbeiter, Regenbogenschwinge].forEach((resource) => {
             it(`should import npc ${resource.testname}`, async () => {
                 const text = resource.input;
 
@@ -172,11 +169,15 @@ describe("ItemImporter", () => {
 
                 expect(npcCreationStub.calledOnce).to.be.true;
                 expect(npcCreationStub.lastCall.args[0].system.biography).equals(resource.expected.system.biography);
-                expect(Object.values(npcCreationStub.lastCall.args[0].system.attributes).map((a:any)=>a.value)).not.all.members([0]);
-                expect(Object.values(npcCreationStub.lastCall.args[0].system.derivedAttributes).map((a:any)=>a.value)).not.all.members([0]);
-                expect(npcCreationStub.lastCall.args[0].system.skills).to.deep.equal(resource.expected.system.skills)
-                expect(npcCreationStub.lastCall.args[0].items).to.deep.equal(resource.expected.items)
+                expect(
+                    Object.values(npcCreationStub.lastCall.args[0].system.attributes).map((a: any) => a.value)
+                ).not.all.members([0]);
+                expect(
+                    Object.values(npcCreationStub.lastCall.args[0].system.derivedAttributes).map((a: any) => a.value)
+                ).not.all.members([0]);
+                expect(npcCreationStub.lastCall.args[0].system.skills).to.deep.equal(resource.expected.system.skills);
+                expect(npcCreationStub.lastCall.args[0].items).to.deep.equal(resource.expected.items);
             });
         });
-    })
+    });
 });

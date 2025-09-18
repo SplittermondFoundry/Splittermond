@@ -8,9 +8,9 @@ import { evaluate, of } from "module/modifiers/expressions/scalar";
 import { expect } from "chai";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { foundryApi } from "module/api/foundryApi";
-import { DamageRoll } from "../../../../module/util/damage/DamageRoll";
+import { DamageRoll } from "module/util/damage/DamageRoll";
 import { createTestRoll, stubRollApi } from "../../RollMock";
-import { DamageModel } from "../../../../module/item/dataModel/propertyModels/DamageModel";
+import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 import Skill from "module/actor/skill";
 
 describe("Attack", () => {

@@ -1,26 +1,25 @@
-import {DataModelSchemaType, fields, SplittermondDataModel} from "../../../data/SplittermondDataModel";
-import {ActionHandler, ActionInput, UnvaluedAction, ValuedAction} from "./interfaces";
-import {OnAncestorReference} from "../../../data/references/OnAncestorReference";
-import {CheckReport} from "../../../actor/CheckReport";
-import {ItemReference} from "../../../data/references/ItemReference";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "../../../data/SplittermondDataModel";
+import { ActionHandler, ActionInput, UnvaluedAction, ValuedAction } from "./interfaces";
+import { OnAncestorReference } from "../../../data/references/OnAncestorReference";
+import { CheckReport } from "../../../actor/CheckReport";
+import { ItemReference } from "../../../data/references/ItemReference";
 import SplittermondSpellItem from "../../../item/spell";
-import {AgentReference} from "../../../data/references/AgentReference";
-import {referencesUtils} from "../../../data/references/referencesUtils";
-import {foundryApi} from "../../../api/foundryApi";
-import {configureUseAction} from "./commonAlgorithms/defaultUseActionAlgorithm";
-
+import { AgentReference } from "../../../data/references/AgentReference";
+import { referencesUtils } from "../../../data/references/referencesUtils";
+import { foundryApi } from "../../../api/foundryApi";
+import { configureUseAction } from "./commonAlgorithms/defaultUseActionAlgorithm";
 
 function NoOptionsActionHandlerSchema() {
     return {
         checkReportReference: new fields.EmbeddedDataField(OnAncestorReference<CheckReport>, {
             required: true,
-            nullable: false
+            nullable: false,
         }),
         spellReference: new fields.EmbeddedDataField(ItemReference<SplittermondSpellItem>, {
             required: true,
-            nullable: false
+            nullable: false,
         }),
-        casterReference: new fields.EmbeddedDataField(AgentReference, {required: true, nullable: false}),
+        casterReference: new fields.EmbeddedDataField(AgentReference, { required: true, nullable: false }),
     };
 }
 
@@ -29,11 +28,15 @@ type NoOptionsActionHandlerType = DataModelSchemaType<typeof NoOptionsActionHand
 export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActionHandlerType> implements ActionHandler {
     static defineSchema = NoOptionsActionHandlerSchema;
 
-    static initialize(checkReportReference: OnAncestorReference<CheckReport>, spellReference: ItemReference<SplittermondSpellItem>, casterReference: AgentReference): NoOptionsActionHandler {
+    static initialize(
+        checkReportReference: OnAncestorReference<CheckReport>,
+        spellReference: ItemReference<SplittermondSpellItem>,
+        casterReference: AgentReference
+    ): NoOptionsActionHandler {
         return new NoOptionsActionHandler({
             checkReportReference,
             spellReference,
-            casterReference
+            casterReference,
         });
     }
 
@@ -42,12 +45,11 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
     renderActions(): (ValuedAction | UnvaluedAction)[] {
         const actions: (ValuedAction | UnvaluedAction)[] = [];
         if (this.checkReportReference.get().isFumble) {
-            actions.push(
-                {
-                    disabled: false, //Local actions cannot have their state managed because they don't allow updates.
-                    type: "rollMagicFumble",
-                    isLocal: false,
-                })
+            actions.push({
+                disabled: false, //Local actions cannot have their state managed because they don't allow updates.
+                type: "rollMagicFumble",
+                isLocal: false,
+            });
         }
         if (this.activeDefenseAvailable())
             actions.push({
@@ -57,7 +59,7 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
                 },
                 difficulty: this.spellReference.getItem().difficulty,
                 disabled: false, //Local actions cannot have their state managed because they don't allow updates.
-                isLocal: true
+                isLocal: true,
             });
         return actions;
     }
@@ -72,7 +74,7 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
         if (actionData.action === "rollMagicFumble") {
             return this.rollFumble(actionData);
         } else if (actionData.action === "activeDefense") {
-            return this.defendActively()
+            return this.defendActively();
         } else {
             return Promise.resolve();
         }
@@ -84,24 +86,24 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
             .withHandlesActions(["rollMagicFumble"])
             .withIsOptionEvaluator(() => this.checkReportReference.get().isFumble)
             .whenAllChecksPassed(() => {
-                const eg = -this.checkReportReference.get().degreeOfSuccess
-                const costs = this.spellReference.getItem().costs
+                const eg = -this.checkReportReference.get().degreeOfSuccess;
+                const costs = this.spellReference.getItem().costs;
                 const skill = this.checkReportReference.get().skill.id;
                 this.casterReference.getAgent().rollMagicFumble(eg, costs, skill);
                 return Promise.resolve();
-            }).useAction(actionData)
+            })
+            .useAction(actionData);
     }
 
     defendActively() {
         try {
             const actorReference = referencesUtils.findBestUserActor();
-            return actorReference.getAgent().activeDefenseDialog(this.spellReference.getItem().difficulty)
+            return actorReference.getAgent().activeDefenseDialog(this.spellReference.getItem().difficulty);
         } catch (e) {
-            foundryApi.informUser("splittermond.pleaseSelectAToken")
+            foundryApi.informUser("splittermond.pleaseSelectAToken");
         }
         return Promise.resolve();
     }
-
 
     renderDegreeOfSuccessOptions() {
         return [];
@@ -111,8 +113,8 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
 
     useDegreeOfSuccessOption() {
         return {
-            usedDegreesOfSuccess: 0, action() {
-            }
-        }
+            usedDegreesOfSuccess: 0,
+            action() {},
+        };
     }
 }

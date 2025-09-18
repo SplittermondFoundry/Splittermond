@@ -3,229 +3,228 @@ name: IDs von Fertigkeiten
 folder: null
 sort: 0
 flags:
-  core: {}
+    core: {}
 pages:
-  - name: IDs von Fertigkeiten
-    type: text
-    title:
-      show: false
-      level: 1
-    text:
-      format: 1
-      content: >-
-        <p>Alle allgemeinen Fertigkeiten können über
-        <strong><code>generalskills</code></strong> referenziert
-        werden.</p><p>Alle Kampffertigkeiten können über
-        <strong><code>fightingskills</code></strong> referenziert
-        werden.</p><p>Alle Magieschulen können über
-        <strong><code>magicskills</code></strong> referenziert werden.</p><table
-        style="width:44.2322%;height:448px" border="1"><thead><tr
-        style="height:16px"><td style="width:60.9259%;height:16px">Allgemeine
-        Fertigkeiten</td><td
-        style="width:38.3211%;height:16px">ID</td></tr></thead><tbody><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Akrobatik</td><td
-        style="width:38.3211%;height:16px"><strong><code>acrobatics</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Alchemie</td><td
-        style="width:38.3211%;height:16px"><strong><code>alchemy</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Anführen</td><td
-        style="width:38.3211%;height:16px"><strong><code>leadership</code></strong></td></tr><tr
-        style="height:16px"><td style="width:60.9259%;height:16px">Arkane
-        Kunde</td><td
-        style="width:38.3211%;height:16px"><strong><code>arcanelore</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Athletik</td><td
-        style="width:38.3211%;height:16px"><strong><code>athletics</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Darbietung</td><td
-        style="width:38.3211%;height:16px"><strong><code>performance</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Diplomatie</td><td
-        style="width:38.3211%;height:16px"><strong><code>diplomacy</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Edelhandwerk</td><td
-        style="width:38.3211%;height:16px"><strong><code>clscraft</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Empathie</td><td
-        style="width:38.3211%;height:16px"><strong><code>empathy</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Entschlossenheit</td><td
-        style="width:38.3211%;height:16px"><strong><code>determination</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Fingerfertigkeit</td><td
-        style="width:38.3211%;height:16px"><strong><code>dexterity</code></strong></td></tr><tr
-        style="height:16px"><td style="width:60.9259%;height:16px">Geschichten
-        und Mythen</td><td
-        style="width:38.3211%;height:16px"><strong><code>history</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Handwerk</td><td
-        style="width:38.3211%;height:16px"><strong><code>craftmanship</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Heilkunde</td><td
-        style="width:38.3211%;height:16px"><strong><code>heal</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Heimlichkeit</td><td
-        style="width:38.3211%;height:16px"><strong><code>stealth</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Jagdkunst</td><td
-        style="width:38.3211%;height:16px"><strong><code>hunting</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Länderkunde</td><td
-        style="width:38.3211%;height:16px"><strong><code>countrylore</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Naturkunde</td><td
-        style="width:38.3211%;height:16px"><strong><code>nature</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Redegewandtheit</td><td
-        style="width:38.3211%;height:16px"><strong><code>eloquence</code></strong></td></tr><tr
-        style="height:16px"><td style="width:60.9259%;height:16px">Schlösser und
-        Fallen</td><td
-        style="width:38.3211%;height:16px"><strong><code>locksntraps</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Schwimmen</td><td
-        style="width:38.3211%;height:16px"><strong><code>swim</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Seefahrt</td><td
-        style="width:38.3211%;height:16px"><strong><code>seafaring</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Straßenkunde</td><td
-        style="width:38.3211%;height:16px"><strong><code>streetlore</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Tierführung</td><td
-        style="width:38.3211%;height:16px"><strong><code>animals</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Überleben</td><td
-        style="width:38.3211%;height:16px"><strong><code>survival</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Wahrnehmung</td><td
-        style="width:38.3211%;height:16px"><strong><code>perception</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Zähigkeit</td><td
-        style="width:38.3211%;height:16px"><p><strong><code>endurance</code></strong></p></td></tr></tbody></table><table
-        style="width:44.2322%;height:122px" border="1"><thead><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Kampffertigkeiten</td><td
-        style="width:38.3211%;height:16px">ID</td></tr></thead><tbody><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Handgemenge</td><td
-        style="width:38.3211%;height:16px"><strong><code>melee</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Hiebwaffen</td><td
-        style="width:38.3211%;height:16px"><strong><code>slashing</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Kettenwaffen</td><td
-        style="width:38.3211%;height:16px"><strong><code>chains</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Klingenwaffen</td><td
-        style="width:38.3211%;height:16px"><strong><code>blades</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Schusswaffen</td><td
-        style="width:38.3211%;height:16px"><strong><code>longrange</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Stangenwaffen</td><td
-        style="width:38.3211%;height:16px"><strong><code>staffs</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:10px">Wurfwaffen</td><td
-        style="width:38.3211%;height:10px"><strong><code>throwing</code></strong></td></tr></tbody></table><table
-        style="width:44.2322%;height:448px" border="1"><thead><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Magieschulen</td><td
-        style="width:38.3211%;height:16px">ID</td></tr></thead><tbody><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Bannmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>antimagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Beherrschungsmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>controlmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Bewegungsmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>motionmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Erkenntnismagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>insightmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Felsmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>stonemagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Feuermagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>firemagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Heilungsmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>healmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Illusionsmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>illusionmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Kampfmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>combatmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Lichtmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>lightmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Naturmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>naturemagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Schattenmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>shadowmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Schicksalsmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>fatemagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Schutzmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>protectionmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Stärkungsmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>enhancemagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Todesmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>deathmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Verwandlungsmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>transformationmagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Wassermagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>watermagic</code></strong></td></tr><tr
-        style="height:16px"><td
-        style="width:60.9259%;height:16px">Windmagie</td><td
-        style="width:38.3211%;height:16px"><strong><code>windmagic</code></strong></td></tr></tbody></table>
-    _stats:
-      coreVersion: '13.342'
-      systemId: null
-      systemVersion: null
-      createdTime: null
-      modifiedTime: 1741686890382
-      lastModifiedBy: 2n6beZWSvIclIvyD
-      compendiumSource: null
-      duplicateSource: null
-      exportSource: null
-    _id: eR56ik6GAQUxudfE
-    system: {}
-    image: {}
-    video:
-      controls: true
-      volume: 0.5
-    src: null
-    sort: 0
-    ownership:
-      default: -1
-    flags: {}
-    category: null
-    _key: '!journal.pages!DuSx78JiOEEDmwxC.eR56ik6GAQUxudfE'
+    - name: IDs von Fertigkeiten
+      type: text
+      title:
+          show: false
+          level: 1
+      text:
+          format: 1
+          content: >-
+              <p>Alle allgemeinen Fertigkeiten können über
+              <strong><code>generalskills</code></strong> referenziert
+              werden.</p><p>Alle Kampffertigkeiten können über
+              <strong><code>fightingskills</code></strong> referenziert
+              werden.</p><p>Alle Magieschulen können über
+              <strong><code>magicskills</code></strong> referenziert werden.</p><table
+              style="width:44.2322%;height:448px" border="1"><thead><tr
+              style="height:16px"><td style="width:60.9259%;height:16px">Allgemeine
+              Fertigkeiten</td><td
+              style="width:38.3211%;height:16px">ID</td></tr></thead><tbody><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Akrobatik</td><td
+              style="width:38.3211%;height:16px"><strong><code>acrobatics</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Alchemie</td><td
+              style="width:38.3211%;height:16px"><strong><code>alchemy</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Anführen</td><td
+              style="width:38.3211%;height:16px"><strong><code>leadership</code></strong></td></tr><tr
+              style="height:16px"><td style="width:60.9259%;height:16px">Arkane
+              Kunde</td><td
+              style="width:38.3211%;height:16px"><strong><code>arcanelore</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Athletik</td><td
+              style="width:38.3211%;height:16px"><strong><code>athletics</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Darbietung</td><td
+              style="width:38.3211%;height:16px"><strong><code>performance</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Diplomatie</td><td
+              style="width:38.3211%;height:16px"><strong><code>diplomacy</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Edelhandwerk</td><td
+              style="width:38.3211%;height:16px"><strong><code>clscraft</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Empathie</td><td
+              style="width:38.3211%;height:16px"><strong><code>empathy</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Entschlossenheit</td><td
+              style="width:38.3211%;height:16px"><strong><code>determination</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Fingerfertigkeit</td><td
+              style="width:38.3211%;height:16px"><strong><code>dexterity</code></strong></td></tr><tr
+              style="height:16px"><td style="width:60.9259%;height:16px">Geschichten
+              und Mythen</td><td
+              style="width:38.3211%;height:16px"><strong><code>history</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Handwerk</td><td
+              style="width:38.3211%;height:16px"><strong><code>craftmanship</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Heilkunde</td><td
+              style="width:38.3211%;height:16px"><strong><code>heal</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Heimlichkeit</td><td
+              style="width:38.3211%;height:16px"><strong><code>stealth</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Jagdkunst</td><td
+              style="width:38.3211%;height:16px"><strong><code>hunting</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Länderkunde</td><td
+              style="width:38.3211%;height:16px"><strong><code>countrylore</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Naturkunde</td><td
+              style="width:38.3211%;height:16px"><strong><code>nature</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Redegewandtheit</td><td
+              style="width:38.3211%;height:16px"><strong><code>eloquence</code></strong></td></tr><tr
+              style="height:16px"><td style="width:60.9259%;height:16px">Schlösser und
+              Fallen</td><td
+              style="width:38.3211%;height:16px"><strong><code>locksntraps</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Schwimmen</td><td
+              style="width:38.3211%;height:16px"><strong><code>swim</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Seefahrt</td><td
+              style="width:38.3211%;height:16px"><strong><code>seafaring</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Straßenkunde</td><td
+              style="width:38.3211%;height:16px"><strong><code>streetlore</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Tierführung</td><td
+              style="width:38.3211%;height:16px"><strong><code>animals</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Überleben</td><td
+              style="width:38.3211%;height:16px"><strong><code>survival</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Wahrnehmung</td><td
+              style="width:38.3211%;height:16px"><strong><code>perception</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Zähigkeit</td><td
+              style="width:38.3211%;height:16px"><p><strong><code>endurance</code></strong></p></td></tr></tbody></table><table
+              style="width:44.2322%;height:122px" border="1"><thead><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Kampffertigkeiten</td><td
+              style="width:38.3211%;height:16px">ID</td></tr></thead><tbody><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Handgemenge</td><td
+              style="width:38.3211%;height:16px"><strong><code>melee</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Hiebwaffen</td><td
+              style="width:38.3211%;height:16px"><strong><code>slashing</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Kettenwaffen</td><td
+              style="width:38.3211%;height:16px"><strong><code>chains</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Klingenwaffen</td><td
+              style="width:38.3211%;height:16px"><strong><code>blades</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Schusswaffen</td><td
+              style="width:38.3211%;height:16px"><strong><code>longrange</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Stangenwaffen</td><td
+              style="width:38.3211%;height:16px"><strong><code>staffs</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:10px">Wurfwaffen</td><td
+              style="width:38.3211%;height:10px"><strong><code>throwing</code></strong></td></tr></tbody></table><table
+              style="width:44.2322%;height:448px" border="1"><thead><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Magieschulen</td><td
+              style="width:38.3211%;height:16px">ID</td></tr></thead><tbody><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Bannmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>antimagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Beherrschungsmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>controlmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Bewegungsmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>motionmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Erkenntnismagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>insightmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Felsmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>stonemagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Feuermagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>firemagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Heilungsmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>healmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Illusionsmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>illusionmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Kampfmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>combatmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Lichtmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>lightmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Naturmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>naturemagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Schattenmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>shadowmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Schicksalsmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>fatemagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Schutzmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>protectionmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Stärkungsmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>enhancemagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Todesmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>deathmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Verwandlungsmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>transformationmagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Wassermagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>watermagic</code></strong></td></tr><tr
+              style="height:16px"><td
+              style="width:60.9259%;height:16px">Windmagie</td><td
+              style="width:38.3211%;height:16px"><strong><code>windmagic</code></strong></td></tr></tbody></table>
+      _stats:
+          coreVersion: "13.342"
+          systemId: null
+          systemVersion: null
+          createdTime: null
+          modifiedTime: 1741686890382
+          lastModifiedBy: 2n6beZWSvIclIvyD
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+      _id: eR56ik6GAQUxudfE
+      system: {}
+      image: {}
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      sort: 0
+      ownership:
+          default: -1
+      flags: {}
+      category: null
+      _key: "!journal.pages!DuSx78JiOEEDmwxC.eR56ik6GAQUxudfE"
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: JournalEntry.U6nKBziUjlIbMg3d
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: JournalEntry.U6nKBziUjlIbMg3d
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  nTPzNCzfwxAgnkMw: 3
+    default: 0
+    nTPzNCzfwxAgnkMw: 3
 categories: []
-_key: '!journal!DuSx78JiOEEDmwxC'
-
+_key: "!journal!DuSx78JiOEEDmwxC"

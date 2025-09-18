@@ -5,32 +5,31 @@ flags: {}
 img: icons/svg/net.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: >-
-    <p>Die <em>Geschwindigkeit </em>ist 0 und es kann keine
-    <em>Bewegungshandlung </em>ausgef&uuml;hrt werden. Zus&auml;tzlich
-    erh&auml;lt der Abenteurer einen Malus von 3 Punkten auf alle Proben sowie
-    <em>Verteidigung</em>. Der Zustand kann durch die Aktion "<em>Aus
-    Umklammerung befreien</em>" beendet werden (siehe S. 164).</p>
-  source: ''
-  modifier: magicSkills -3, fightingSkills -3, generalSkills -3, VTD -3, GSW.mult 0, npcattacks -3
-  level: '1'
-  startTick: 0
-  interval: 0
-  times: 0
+    description: >-
+        <p>Die <em>Geschwindigkeit </em>ist 0 und es kann keine
+        <em>Bewegungshandlung </em>ausgef&uuml;hrt werden. Zus&auml;tzlich
+        erh&auml;lt der Abenteurer einen Malus von 3 Punkten auf alle Proben sowie
+        <em>Verteidigung</em>. Der Zustand kann durch die Aktion "<em>Aus
+        Umklammerung befreien</em>" beendet werden (siehe S. 164).</p>
+    source: ""
+    modifier: magicSkills -3, fightingSkills -3, generalSkills -3, VTD -3, GSW.mult 0, npcattacks -3
+    level: "1"
+    startTick: 0
+    interval: 0
+    times: 0
 folder: null
 sort: 0
-_key: '!items!DJduCV3PngSp5H86'
-
+_key: "!items!DJduCV3PngSp5H86"

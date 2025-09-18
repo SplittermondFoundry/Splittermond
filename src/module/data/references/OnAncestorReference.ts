@@ -1,54 +1,57 @@
-import {DataModelSchemaType, fields, SplittermondDataModel} from "../SplittermondDataModel";
-import {IllegalStateException} from "../exceptions";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "../SplittermondDataModel";
+import { IllegalStateException } from "../exceptions";
 
-type DataModelConstructor<SCHEMA extends object> = typeof SplittermondDataModel<SCHEMA,any> & {defineSchema():object}
+type DataModelConstructor<SCHEMA extends object> = typeof SplittermondDataModel<SCHEMA, any> & {
+    defineSchema(): object;
+};
 type SchemaOf<DM> = DM extends DataModelConstructor<infer SCHEMA> ? SCHEMA : never;
 
-export class OnAncestorReference<T> extends SplittermondDataModel<DataModelSchemaType<typeof OnAncestorReference.defineSchema>, any> {
+export class OnAncestorReference<T> extends SplittermondDataModel<
+    DataModelSchemaType<typeof OnAncestorReference.defineSchema>,
+    any
+> {
     static defineSchema() {
         return {
-            ancestorId: new fields.StringField({required: true, blank: false, nullable: false}),
-            ancestorIdKey: new fields.StringField({required: true, blank: false, nullable: false}),
-            referenceKey: new fields.StringField({required: true, blank: false, nullable: false}),
-        }
+            ancestorId: new fields.StringField({ required: true, blank: false, nullable: false }),
+            ancestorIdKey: new fields.StringField({ required: true, blank: false, nullable: false }),
+            referenceKey: new fields.StringField({ required: true, blank: false, nullable: false }),
+        };
     }
 
     static for = createReferenceFor;
 
-
     get(): T {
-        let ancestor = this.parent
+        let ancestor = this.parent;
         while (ancestor) {
             if (ancestor[this.ancestorIdKey] === this.ancestorId) {
-                return ancestor[this.referenceKey]
+                return ancestor[this.referenceKey];
             }
-            ancestor = ancestor.parent
+            ancestor = ancestor.parent;
         }
         throw new Error(`No ancestor with id ${this.ancestorId} found`);
     }
-
 }
 
 function createReferenceFor<A extends DataModelConstructor<any>>(type: A) {
     let ancestorId: string | null = null;
     let ancestorIdKey: string | null = null;
     let referenceKey: string | null = null;
-    return {identifiedBy};
+    return { identifiedBy };
 
     /**
      * @param {keyof T} key
      * @param {string} value
      */
     function identifiedBy(key: keyof SchemaOf<A> & string, value: string) {
-        ancestorIdKey = key ;
+        ancestorIdKey = key;
         ancestorId = value;
 
-        return {references: reference}
+        return { references: reference };
     }
 
     function reference<KEY extends keyof SchemaOf<A> & string>(key: KEY) {
         referenceKey = key;
-        return createReference<SchemaOf<A>[KEY]>()
+        return createReference<SchemaOf<A>[KEY]>();
     }
 
     function createReference<VAL>(): OnAncestorReference<VAL> {
@@ -62,8 +65,8 @@ function createReferenceFor<A extends DataModelConstructor<any>>(type: A) {
             throw new Error("No reference key defined");
         }
         if (!ancestorId) {
-            throw new Error("No parent id defined")
+            throw new Error("No parent id defined");
         }
-        return new OnAncestorReference({ancestorId, ancestorIdKey, referenceKey})
+        return new OnAncestorReference({ ancestorId, ancestorIdKey, referenceKey });
     }
 }

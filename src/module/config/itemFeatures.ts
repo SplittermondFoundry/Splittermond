@@ -48,8 +48,8 @@ const originalItemFeatures = [
     "Wurffähig",
     "Wurfkörper",
     "Zerbrechlich",
-    "Zweihändig"
-] as const ;
+    "Zweihändig",
+] as const;
 
 // As per MSK p. 90-92
 const itemImprovements = [
@@ -82,7 +82,7 @@ const itemImprovements = [
     "Verbesserter Kritischer Schaden",
     "Verbessertes Ablenken",
     "Zerlegbar",
-] as const
+] as const;
 
-export const itemFeatures = Array.from(new Set([...originalItemFeatures,...itemImprovements])) as ItemFeature[];
-export type ItemFeature = typeof originalItemFeatures[number] | typeof itemImprovements[number];
+export const itemFeatures = Array.from(new Set([...originalItemFeatures, ...itemImprovements])) as ItemFeature[];
+export type ItemFeature = (typeof originalItemFeatures)[number] | (typeof itemImprovements)[number];

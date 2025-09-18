@@ -1,10 +1,17 @@
 .bar:extend(.border-wobbly-line-double) {
     border-width: 4px;
-    background-image:  @image-noise, repeating-linear-gradient(60deg, var(--color-shiny-border-dark), var(--color-shiny-border-light), var(--color-shiny-border-dark));
+    background-image:
+        @image-noise,
+        repeating-linear-gradient(
+            60deg,
+            var(--color-shiny-border-dark),
+            var(--color-shiny-border-light),
+            var(--color-shiny-border-dark)
+        );
     width: 100%;
     height: 10px;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
-    background-color: rgba(0,0,0,0.3);
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     padding: 0px;
     //overflow: hidden;
@@ -18,11 +25,13 @@
     }
 
     > .channeled {
-        background: repeating-linear-gradient(45deg,
-                rgba(var(--color-primary_rgb), 0.3),
-                rgba(var(--color-primary_rgb), 0.3) 5px,
-                var(--color-primary) 5px,
-                var(--color-primary) 10px);
+        background: repeating-linear-gradient(
+            45deg,
+            rgba(var(--color-primary_rgb), 0.3),
+            rgba(var(--color-primary_rgb), 0.3) 5px,
+            var(--color-primary) 5px,
+            var(--color-primary) 10px
+        );
     }
 
     > .exhausted {
@@ -41,18 +50,18 @@
 }
 
 .bar-health {
-    
-
     > div {
         background-color: var(--color-health);
     }
 
     > .channeled {
-        background: repeating-linear-gradient(45deg,
-                rgba(var(--color-health_rgb), 0.3),
-                rgba(var(--color-health_rgb), 0.3) 5px,
-                var(--color-health) 5px,
-                var(--color-health) 10px);
+        background: repeating-linear-gradient(
+            45deg,
+            rgba(var(--color-health_rgb), 0.3),
+            rgba(var(--color-health_rgb), 0.3) 5px,
+            var(--color-health) 5px,
+            var(--color-health) 10px
+        );
     }
 }
 
@@ -69,7 +78,7 @@
         font-size: @fontSizeNormal;
         width: 20px;
         height: 20px;
-        
+
         border-radius: 10px;
         text-align: center;
         top: 50%;
@@ -81,10 +90,10 @@
         color: white;
         left: 12.5%;
         z-index: 2;
-        background: url(../../public/images/noise6.png), url(../../public/images/grunge_alpha.png);        //linear-gradient(30deg, rgba(0,0,0,0.3) 10%,   rgba(0,0,0,0.0),rgba(0,0,0,0.3) 90%);
+        background:
+            url(../../public/images/noise6.png), url(../../public/images/grunge_alpha.png); //linear-gradient(30deg, rgba(0,0,0,0.3) 10%,   rgba(0,0,0,0.0),rgba(0,0,0,0.3) 90%);
         background-blend-mode: normal;
         background-color: var(--color-primary);
-
     }
 
     .value-max {
@@ -102,25 +111,23 @@
     }
 }
 
-
-
 .health-focus-headline {
     display: flex;
     grid-template-columns: auto 3.5em 105px 105px;
     align-items: center;
     justify-content: center;
 
-    margin-bottom:-2px;
+    margin-bottom: -2px;
 
     h3 {
         margin-bottom: 0;
-        text-align:center;
+        text-align: center;
         font-size: @fontSizeNormal;
     }
 }
 
 .health-focus-data:extend(.border-paper-small) {
-    box-shadow: 0 0 10px rgba(0,0,0,0.8);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
@@ -144,12 +151,13 @@
 
     .value {
         text-align: center;
-        display:flex;
+        display: flex;
         align-items: center;
         font-size: @fontSizeLarge;
 
-        span, input {
-            display:block;
+        span,
+        input {
+            display: block;
             text-align: center;
             width: 50px;
         }
@@ -161,12 +169,13 @@
 
     .list {
         flex-basis: 100%;
-        .value, .costs {
+        .value,
+        .costs {
             width: 50px;
             margin-right: 30px;
             text-align: center;
         }
-    
+
         .value {
             line-height: 14px;
             font-size: @fontSizeLarge;
@@ -187,8 +196,10 @@
         visibility: hidden;
     }
 
-    &:hover, &.hover  {
-        > .health-focus-data, > .wound-malus > label {
+    &:hover,
+    &.hover {
+        > .health-focus-data,
+        > .wound-malus > label {
             opacity: 1;
             visibility: visible;
             transition-delay: 0s;
@@ -196,20 +207,21 @@
     }
 
     &:not(.hover) {
-        &:not(:hover) > .health-focus-data, &:not(:hover) > .wound-malus > label {
-            transition: visibility 0.2s, opacity 0.2s;
+        &:not(:hover) > .health-focus-data,
+        &:not(:hover) > .wound-malus > label {
+            transition:
+                visibility 0.2s,
+                opacity 0.2s;
             transition-delay: 0s;
         }
-        &:hover > .health-focus-data, &:hover > .wound-malus > label {
-            transition: visibility 0.2s, opacity 0.2s;
+        &:hover > .health-focus-data,
+        &:hover > .wound-malus > label {
+            transition:
+                visibility 0.2s,
+                opacity 0.2s;
             transition-delay: 0.3s;
         }
     }
-
-    
-
-    
-
 }
 
 .health-focus-data-part {
@@ -218,8 +230,6 @@
     //justify-content: center;
     align-items: center;
 }
-
-
 
 .wound-malus {
     position: relative;
@@ -253,7 +263,6 @@
     &:first-child {
         border-right-color: transparent;
     }
-
 }
 
 .wound-malus-level-active {

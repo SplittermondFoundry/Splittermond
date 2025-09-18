@@ -1,21 +1,23 @@
-import {parseModifiers} from "module/modifiers/parsing";
-import {validateDescriptors} from "module/modifiers/parsing/validators";
-import {isRoll} from "module/api/Roll";
-import {parseFeatures} from "./propertyModels/ItemFeaturesModel";
+import { parseModifiers } from "module/modifiers/parsing";
+import { validateDescriptors } from "module/modifiers/parsing/validators";
+import { isRoll } from "module/api/Roll";
+import { parseFeatures } from "./propertyModels/ItemFeaturesModel";
 
 export function migrateFrom0_12_13(source: unknown) {
-    if (!!source && typeof source === "object" && ("modifier" in source) && typeof (source.modifier) === "string") {
-        const keep = source.modifier.split(",")
-            .map(mod => mod.trim())
-            .filter(mod => !mod.includes("/"));
-        const change = source.modifier.split(",")
-            .map(mod => mod.trim())
-            .filter(mod => mod.includes("/"))
-            .map(mod => {
+    if (!!source && typeof source === "object" && "modifier" in source && typeof source.modifier === "string") {
+        const keep = source.modifier
+            .split(",")
+            .map((mod) => mod.trim())
+            .filter((mod) => !mod.includes("/"));
+        const change = source.modifier
+            .split(",")
+            .map((mod) => mod.trim())
+            .filter((mod) => mod.includes("/"))
+            .map((mod) => {
                 const path = mod.split("/")?.[0].trim() ?? "";
                 const value = /\S+(?=\s*$)/.exec(mod)?.[0].trim() ?? "";
-                const emphasis = /(?<=\/).*?(?=\S+\s*$)/.exec(mod)?.[0].trim() ?? ""
-                return `${path} emphasis="${emphasis}" ${value}`
+                const emphasis = /(?<=\/).*?(?=\S+\s*$)/.exec(mod)?.[0].trim() ?? "";
+                return `${path} emphasis="${emphasis}" ${value}`;
             });
         source.modifier = [...keep, ...change].join(", ");
     }
@@ -46,13 +48,15 @@ export function migrateFrom0_12_13(source: unknown) {
 }
 
 export function migrateFrom0_12_20(source: unknown) {
-    if (!!source && typeof source === "object" && ("modifier" in source) && typeof (source.modifier) === "string") {
-        const keep = source.modifier.split(",")
-            .map(mod => mod.trim())
-            .filter(mod => !mod.startsWith("damage") && !mod.startsWith("weaponspeed"));
-        const change = source.modifier.split(",")
-            .map(mod => mod.trim())
-            .filter(mod => mod.startsWith("damage") || mod.startsWith("weaponspeed"))
+    if (!!source && typeof source === "object" && "modifier" in source && typeof source.modifier === "string") {
+        const keep = source.modifier
+            .split(",")
+            .map((mod) => mod.trim())
+            .filter((mod) => !mod.startsWith("damage") && !mod.startsWith("weaponspeed"));
+        const change = source.modifier
+            .split(",")
+            .map((mod) => mod.trim())
+            .filter((mod) => mod.startsWith("damage") || mod.startsWith("weaponspeed"))
             .map(mapDamageModifier);
         source.modifier = [...keep, ...change].join(", ");
     }
@@ -63,16 +67,22 @@ export function from0_12_20_migrateFeatures(source: unknown) {
     if (source && typeof source === "object" && "features" in source && typeof source["features"] === "string") {
         const features = source["features"];
         source["features"] = {
-            internalFeatureList: parseFeatures(features)
-        }
+            internalFeatureList: parseFeatures(features),
+        };
     }
-    if (source && typeof source === "object" && "secondaryAttack" in source &&
-        typeof source["secondaryAttack"] === "object" && source.secondaryAttack &&
-        "features" in source.secondaryAttack && typeof source.secondaryAttack["features"] === "string") {
+    if (
+        source &&
+        typeof source === "object" &&
+        "secondaryAttack" in source &&
+        typeof source["secondaryAttack"] === "object" &&
+        source.secondaryAttack &&
+        "features" in source.secondaryAttack &&
+        typeof source.secondaryAttack["features"] === "string"
+    ) {
         const features = source.secondaryAttack.features;
         source.secondaryAttack.features = {
-            internalFeatureList: parseFeatures(features)
-        }
+            internalFeatureList: parseFeatures(features),
+        };
     }
     return source;
 }
@@ -82,13 +92,19 @@ export function from0_12_20_migrateDamage(source: unknown) {
         return source;
     }
     if ("damage" in source && typeof source["damage"] === "string") {
-        source.damage = {stringInput: source["damage"]};
+        source.damage = { stringInput: source["damage"] };
     }
-    if (source && typeof source === "object" && "secondaryAttack" in source &&
-        typeof source["secondaryAttack"] === "object" && source.secondaryAttack &&
-        "damage" in source.secondaryAttack && typeof source.secondaryAttack["damage"] === "string") {
+    if (
+        source &&
+        typeof source === "object" &&
+        "secondaryAttack" in source &&
+        typeof source["secondaryAttack"] === "object" &&
+        source.secondaryAttack &&
+        "damage" in source.secondaryAttack &&
+        typeof source.secondaryAttack["damage"] === "string"
+    ) {
         source.secondaryAttack.damage = {
-            stringInput: source.secondaryAttack["damage"]
+            stringInput: source.secondaryAttack["damage"],
         };
     }
     return source;

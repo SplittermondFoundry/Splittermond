@@ -3,12 +3,14 @@ import {
     AddExpression,
     AmountExpression,
     Expression,
-    minus, of,
+    minus,
+    of,
     plus,
     RollExpression,
-    SubtractExpression, times
+    SubtractExpression,
+    times,
 } from "./definitions";
-import {condense} from "./condenser";
+import { condense } from "./condenser";
 
 export * from "./definitions";
 export * from "./evaluation";
@@ -18,7 +20,6 @@ export * from "./Comparator";
 export * from "./rollTermMapper";
 export * from "./toRollMapper";
 
-
 /**
  * Splittermond roll terms generally follow the pattern of RollTerm, OperatorTerm, NumericTerm. Unfortuantely,
  * a generic algorithm to condense severeal numeric terms behind a roll term is hard to implement. However,
@@ -27,7 +28,10 @@ export * from "./toRollMapper";
 export function condenseCombineDamageWithModifiers(mainComponent: Expression, modifiers: Expression) {
     mainComponent = condense(mainComponent);
     modifiers = condense(modifiers);
-    if (modifiers instanceof AmountExpression && (mainComponent instanceof AddExpression || mainComponent instanceof SubtractExpression)) {
+    if (
+        modifiers instanceof AmountExpression &&
+        (mainComponent instanceof AddExpression || mainComponent instanceof SubtractExpression)
+    ) {
         const left = condense(mainComponent.left);
         const right = condense(mainComponent.right);
         if (left instanceof RollExpression && right instanceof AmountExpression) {
@@ -35,7 +39,7 @@ export function condenseCombineDamageWithModifiers(mainComponent: Expression, mo
             const roll = mainComponent.left;
             const newModifier = condense(plus(modifier, condense(modifiers)));
             if (newModifier instanceof AmountExpression) {
-                return (newModifier.amount > 0 ? plus : minus)(roll, condense(abs(newModifier)))
+                return (newModifier.amount > 0 ? plus : minus)(roll, condense(abs(newModifier)));
             } else {
                 return plus(newModifier, roll);
             }

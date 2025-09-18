@@ -1,26 +1,22 @@
-import {foundryApi} from "../api/foundryApi";
+import { foundryApi } from "../api/foundryApi";
 
 export default class SplittermondItem extends Item {
-
-
     constructor(data, context = {}) {
         if (context?.splittermond?.ready) {
             super(data, context);
         } else {
             //In my opinion, this line shouldn't do anything, However, I don't have the time to test.
-            foundryApi.utils.mergeObject(context, {splittermond: {ready: true}});
+            foundryApi.utils.mergeObject(context, { splittermond: { ready: true } });
             const ItemConstructor = CONFIG.splittermond.Item.documentClasses[data.type];
             return ItemConstructor ? new ItemConstructor(data, context) : new SplittermondItem(data, context);
         }
     }
-
 
     prepareBaseData() {
         //console.log(`prepareBaseData() - ${this.type}: ${this.name}`);
         super.prepareBaseData();
 
         const data = this.system;
-
 
         if (data.id) {
             if (!data.description) {
@@ -61,7 +57,6 @@ export default class SplittermondItem extends Item {
                 }
             }
         }
-
     }
 
     prepareActorData() {
@@ -77,7 +72,7 @@ export default class SplittermondItem extends Item {
                 this.actor.addModifier(this, data.modifier, "equipment");
                 break;
             case "strength":
-                this.actor.addModifier(this, data.modifier, "innate", data.quantity)
+                this.actor.addModifier(this, data.modifier, "innate", data.quantity);
                 break;
             case "statuseffect":
                 this.actor.addModifier(this, data.modifier, "statuseffect", data.level);
@@ -86,7 +81,7 @@ export default class SplittermondItem extends Item {
                 if (data.active) {
                     this.actor.addModifier(this, data.modifier, "magic");
                 }
-                break
+                break;
             case "mastery":
                 let modifier = data.modifier.replaceAll("${skill}", data.skill);
                 let name = this.name;
@@ -103,7 +98,5 @@ export default class SplittermondItem extends Item {
                 this.actor.addModifier(this, data.modifier);
                 break;
         }
-
     }
-
 }

@@ -1,729 +1,729 @@
 {
-  "TYPES": {
-    "Item": {
-      "weapon": "Waffe",
-      "projectile": "Geschoss",
-      "equipment": "Ausrüstung",
-      "shield": "Schild",
-      "armor": "Rüstung",
-      "spell": "Zauber",
-      "strength": "Stärke",
-      "weakness": "Schwäche",
-      "mastery": "Meisterschaft",
-      "species": "Spezies",
-      "culture": "Kultur",
-      "ancestry": "Abstammung",
-      "education": "Ausbildung",
-      "resource": "Resource",
-      "npcfeature": "Gegnermerkmal",
-      "moonsign": "Mondzeichen",
-      "language": "Sprache",
-      "culturelore": "Kulturkunde",
-      "statuseffect": "Zustand",
-      "spelleffect": "Zaubereffekt",
-      "npcattack": "Angriff"
+    "TYPES": {
+        "Item": {
+            "weapon": "Waffe",
+            "projectile": "Geschoss",
+            "equipment": "Ausrüstung",
+            "shield": "Schild",
+            "armor": "Rüstung",
+            "spell": "Zauber",
+            "strength": "Stärke",
+            "weakness": "Schwäche",
+            "mastery": "Meisterschaft",
+            "species": "Spezies",
+            "culture": "Kultur",
+            "ancestry": "Abstammung",
+            "education": "Ausbildung",
+            "resource": "Resource",
+            "npcfeature": "Gegnermerkmal",
+            "moonsign": "Mondzeichen",
+            "language": "Sprache",
+            "culturelore": "Kulturkunde",
+            "statuseffect": "Zustand",
+            "spelleffect": "Zaubereffekt",
+            "npcattack": "Angriff"
+        },
+        "Actor": {
+            "character": "Spielercharakter",
+            "npc": "NSC"
+        }
     },
-    "Actor": {
-      "character": "Spielercharakter",
-      "npc": "NSC"
-    }
-  },
-  "SETTINGS": {},
-  "splittermond": {
-    "unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte erstellen Sie einen Fehlerbericht.",
-    "chatCard": {
-      "noGMConnected": "Aktion kann nicht ausgeführt werden, da kein berechtigter Nutzer (Spielleiter) verbunden ist.",
-      "messageNotFound": "Die zu ändernde Nachricht wurde nicht im Chat Log gefunden.",
-      "actionNotFound": "Die gewählte Aktion konnte nicht ausgeführt werden, da der Empfänger sie nicht kennt. Bitte erstellen Sie einen Fehlerbericht.",
-      "spellMessage": {
-        "noHandler": "Es ist kein Bearbeiter für die Aktion '{action}' eingetragen. Bitte wenden Sie sich an den Entwickler.",
-        "tooManyHandlers": "Es gibt mehr als einen eingetragenen Bearbeiter für die Aktion '{action}'. Bitte wenden Sie sich an den Entwickler."
-      },
-      "damageMessage": {
-        "applyToTargets": "Auf Ziele anwenden",
-        "applyToUserTargets": "Auf {user}s Ziele anwenden",
-        "applyToSelf": "Auf sich selbst anwenden",
-        "noUserFound": "{actor} ist keinem Nutzer zugeordnet.",
-        "noActorFound": "Kein Ziel für Schaden gefunden.",
-        "youHaveNoTargets": "Sie haben keine Ziele ausgewählt.",
-        "noUserTargetsFound": "Nutzer {user}hat keine Ziele ausgewählt.",
-        "noTargetsFound": "Keine Ziele für Schaden gefunden.",
-        "consumptionMessage":"{principalImplement} von {sourceName}"
-      }
-    },
-    "damageMessage": {
-      "title": "{attacker} fügt {defender} Schaden zu",
-      "name": "Mittel",
-      "type": "Schadensart",
-      "baseValue": "Schaden",
-      "modifiedBy": "Verwundbarkeit",
-      "subTotal": "Zwischensumme",
-      "damageReduction": "Schadensreduktion",
-      "damageReductionOverride": "davon ignoriert",
-      "displaySettings": {
-        "once": "Nur den ersten",
-        "never": "Nie",
-        "always": "Immer"
-      },
-      "skip": "Überspringen",
-      "tooltip": {
-        "base": "SR",
-        "ignored": "davon ignoriert"
-      }
-    },
-    "start": "Start",
-    "value": "Wert",
-    "max": "Max",
-    "emphasis": "Schwerpunkt",
-    "showWorldItems": "Zeige Welt-Items",
-    "compendiumBrowser": "Browser",
-    "heroLevel": "Heldengrad",
-    "name": "Name",
-    "sex": "Geschlecht",
-    "species": "Spezies",
-    "culture": "Kultur",
-    "properties": "Eigenschaften",
-    "description": "Beschreibung",
-    "ancestry": "Abstammung",
-    "education": "Ausbildung",
-    "spells": "Zauber",
-    "general": "Allgemein",
-    "biography": "Biographie",
-    "skill": "Fertigkeit",
-    "skills": "Fertigkeiten",
-    "inventory": "Ausrüstung",
-    "strength": "Stärke",
-    "strengths": "Stärken",
-    "weakness": "Schwäche",
-    "weaknesses": "Schwächen",
-    "statusEffects": "Zustände",
-    "statusEffect": "Zustand",
-    "statuseffect": "Zustand",
-    "npcattack": "Angriff",
-    "combatEffect": {
-      "statusEffectActivated": {
-        "subtitle": "in Tick {onTick} ({activationNo} von {maxActivation})",
-        "remove": "Status Effekt beenden"
-      },
-      "statusEffect": {
-        "startTick": "Start tick",
-        "interval": "Auslösezeit",
-        "times": "Anzahl der Auslösungen"
-      }
-    },
-    "spelleffect": "Zaubereffekt",
-    "spellEffect": "Zaubereffekt",
-    "spellEffects": "Zaubereffekte",
-    "furtherActions": "Weitere Aktionen",
-    "update": "Aktualisieren",
-    "overwrite": "Überschreiben",
-    "updateOrOverwriteActor": "Charakterdaten aktualisieren oder überschreiben?",
-    "fumble": "Patzer",
-    "critical": "Triumph",
-    "modifiers": {
-      "displayName": "Modifikatoren",
-      "keys": {
-        "emphasis": "Schwerpunkt",
+    "SETTINGS": {},
+    "splittermond": {
+        "unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte erstellen Sie einen Fehlerbericht.",
+        "chatCard": {
+            "noGMConnected": "Aktion kann nicht ausgeführt werden, da kein berechtigter Nutzer (Spielleiter) verbunden ist.",
+            "messageNotFound": "Die zu ändernde Nachricht wurde nicht im Chat Log gefunden.",
+            "actionNotFound": "Die gewählte Aktion konnte nicht ausgeführt werden, da der Empfänger sie nicht kennt. Bitte erstellen Sie einen Fehlerbericht.",
+            "spellMessage": {
+                "noHandler": "Es ist kein Bearbeiter für die Aktion '{action}' eingetragen. Bitte wenden Sie sich an den Entwickler.",
+                "tooManyHandlers": "Es gibt mehr als einen eingetragenen Bearbeiter für die Aktion '{action}'. Bitte wenden Sie sich an den Entwickler."
+            },
+            "damageMessage": {
+                "applyToTargets": "Auf Ziele anwenden",
+                "applyToUserTargets": "Auf {user}s Ziele anwenden",
+                "applyToSelf": "Auf sich selbst anwenden",
+                "noUserFound": "{actor} ist keinem Nutzer zugeordnet.",
+                "noActorFound": "Kein Ziel für Schaden gefunden.",
+                "youHaveNoTargets": "Sie haben keine Ziele ausgewählt.",
+                "noUserTargetsFound": "Nutzer {user}hat keine Ziele ausgewählt.",
+                "noTargetsFound": "Keine Ziele für Schaden gefunden.",
+                "consumptionMessage": "{principalImplement} von {sourceName}"
+            }
+        },
+        "damageMessage": {
+            "title": "{attacker} fügt {defender} Schaden zu",
+            "name": "Mittel",
+            "type": "Schadensart",
+            "baseValue": "Schaden",
+            "modifiedBy": "Verwundbarkeit",
+            "subTotal": "Zwischensumme",
+            "damageReduction": "Schadensreduktion",
+            "damageReductionOverride": "davon ignoriert",
+            "displaySettings": {
+                "once": "Nur den ersten",
+                "never": "Nie",
+                "always": "Immer"
+            },
+            "skip": "Überspringen",
+            "tooltip": {
+                "base": "SR",
+                "ignored": "davon ignoriert"
+            }
+        },
+        "start": "Start",
         "value": "Wert",
-        "damageType": "Schadensart",
+        "max": "Max",
+        "emphasis": "Schwerpunkt",
+        "showWorldItems": "Zeige Welt-Items",
+        "compendiumBrowser": "Browser",
+        "heroLevel": "Heldengrad",
+        "name": "Name",
+        "sex": "Geschlecht",
+        "species": "Spezies",
+        "culture": "Kultur",
+        "properties": "Eigenschaften",
+        "description": "Beschreibung",
+        "ancestry": "Abstammung",
+        "education": "Ausbildung",
+        "spells": "Zauber",
+        "general": "Allgemein",
+        "biography": "Biographie",
         "skill": "Fertigkeit",
-        "item": "Objekt",
-        "itemType": "Objekttyp",
-        "feature": "Merkmal",
+        "skills": "Fertigkeiten",
+        "inventory": "Ausrüstung",
+        "strength": "Stärke",
+        "strengths": "Stärken",
+        "weakness": "Schwäche",
+        "weaknesses": "Schwächen",
+        "statusEffects": "Zustände",
+        "statusEffect": "Zustand",
+        "statuseffect": "Zustand",
+        "npcattack": "Angriff",
+        "combatEffect": {
+            "statusEffectActivated": {
+                "subtitle": "in Tick {onTick} ({activationNo} von {maxActivation})",
+                "remove": "Status Effekt beenden"
+            },
+            "statusEffect": {
+                "startTick": "Start tick",
+                "interval": "Auslösezeit",
+                "times": "Anzahl der Auslösungen"
+            }
+        },
+        "spelleffect": "Zaubereffekt",
+        "spellEffect": "Zaubereffekt",
+        "spellEffects": "Zaubereffekte",
+        "furtherActions": "Weitere Aktionen",
+        "update": "Aktualisieren",
+        "overwrite": "Überschreiben",
+        "updateOrOverwriteActor": "Charakterdaten aktualisieren oder überschreiben?",
+        "fumble": "Patzer",
+        "critical": "Triumph",
+        "modifiers": {
+            "displayName": "Modifikatoren",
+            "keys": {
+                "emphasis": "Schwerpunkt",
+                "value": "Wert",
+                "damageType": "Schadensart",
+                "skill": "Fertigkeit",
+                "item": "Objekt",
+                "itemType": "Objekttyp",
+                "feature": "Merkmal",
+                "features": "Merkmale",
+                "unit": "Einheit"
+            },
+            "parseMessages": {
+                "notAModifier": "Modifikator '{modifier}' hat kein korrektes Format.",
+                "duplicateEmphasis": "Modifikator '{modifier}' deklariert mehrere Schwerpunkte.",
+                "duplicateValue": "Modifikator '{modifier}' deklariert mehrere Modifikatorwerte.",
+                "noValue": "Modifikator '{modifier}' deklariert keinen Modifikatorwert.",
+                "duplicateAttribute": "Das Attribut '{attribute}' ist mehrfach deklariert.",
+                "noAttributeKey": "Der Schlüssel des Attributes '{attribute}' konnte nicht bestimmt werden.",
+                "noAttributeValue": "Der Wert des Attributs '{attribute}' konnte nicht bestimmt werden.",
+                "invalidAttributeKey": "Ungültiger Schlüssel für Attribut '{attribute}': ",
+                "keyHasExpressionFormat": "Ein Schlüssel sollte nicht das Format eines evaluierbaren Ausdrucks haben.",
+                "shouldNotBeNumber": "Eingabe '{input}' sollte keine Zahl sein.",
+                "shouldNotBeAnExpression": "Eingabe '{input}' sollte kein evaluierbarer Ausdruck sein.",
+                "referenceNotPrimitive": "'{propertyPath}' ist kein primitiver Wert auf '{objectName}'.",
+                "unknownObject": "unbekannt",
+                "allErrorMessage": "Syntaxfehler in Modifikatoren '{str}' in '{objectName}'!",
+                "foNoCost": "Ausdruck '{expression}' lässt sich nicht in Fokuscosten umwandeln.",
+                "notANumber": "Ausdruck'{expression}' lässt sich nicht in eine Zahl umwandeln.",
+                "deprecatedPath": "Der Pfad '{oldPath}' in {itemName} ist veraltet. Bitte verwenden Sie stattdessen '{newPath}'.",
+                "unknownGroupId": "Der Pfad '{groupId}' ist unbekannt.",
+                "missingDescriptor": "Das Attribut '{attribute}' für den Modifikator '{groupId}' fehlt.",
+                "invalidDescriptorValue": "Der Wert '{value}' für das Attribut '{attribute}' für den Modifikator '{groupId}' ist ungültig.",
+                "unknownDescriptor": "Das Attribut '{attribute}' für den Modifikator '{groupId}' ist unbekannt."
+            }
+        },
+        "modifier": "Modifikator",
+        "minStrength": "min. Stärke",
+        "generalSkills": "Allgemeine Fertigkeiten",
+        "magicSkills": "Magieschulen",
+        "fightingSkills": "Kampffertigkeiten",
+        "fightingSkill": "Kampffertigkeit",
+        "multiSelectable": "Mehrfach wählbar",
+        "onCreationOnly": "Nur bei Generierung wählbar",
+        "availableIn": "Verfügbar in",
+        "spellAvailableInPlaceholderText": "Magieschule Grad, Magieschule Grad, ...",
+        "masteryAvailableInPlaceholderText": "Fertigkeit, Fertigkeit, ...",
+        "attributeModifiers": "Attributsmodifikatoren",
+        "chooseMagicSkill": "Wähle eine Magieschule!",
+        "chooseSkill": "Wähle eine Fertigkeit!",
+        "npc": "Nicht-Spieler-Charakter",
+        "character": "Spieler-Charakter",
+        "save": "Speichern",
+        "ok": "OK",
+        "active": "Aktiviert",
+        "cancel": "Abbrechen",
+        "versus": "gegen",
+        "versusAbbrev": "gg.",
+        "fight": "Kampf",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "qty": "Anz.",
+        "quantity": "Anzahl",
+        "price": "Preis",
+        "opponenttype": "Typus",
+        "opponentlevel": "Monstergrad",
+        "weaponless": "waffenlos",
+        "damageLevel": "Schadensstufe",
+        "weight": "Gewicht",
+        "hardness": "Härte",
+        "complexity": "Komplexität",
+        "availability": "Verfügbarkeit",
+        "quality": "Qualität",
+        "load": "Last",
+        "weapon": "Waffe",
+        "weapons": "Waffen",
+        "equipment": "Ausrüstung",
+        "skillValue": "Fertigkeitswert",
+        "skillPoints": "Fertigkeitspunkte",
+        "skillPointsAbbrev": "FP",
+        "skillValueAbbrev": "FW",
+        "spellLevel": "Grad",
+        "level": "Stufe",
+        "spellType": "Typus",
+        "spellTypePlaceholderText": "z.B. Schaden, Körper, ...",
+        "focusCosts": "Fokuskosten",
+        "focusCostsPlaceholderText": "z.B. K1 oder 1V3",
+        "focusCostsAbbrev": "Fokus",
+        "difficulty": "Schwierigkeit",
+        "difficultyAbbrev": "SG",
+        "spell": "Zauber",
+        "culturelore": "Kulturkunde",
+        "castDuration": "Zauberdauer",
+        "castDurationAbbrev": "Zauberd.",
+        "effectDuration": "Wirkungsdauer",
+        "effectDurationAbbrev": "Wirk.d.",
+        "effectArea": "Wirkungsbereich",
+        "shortRest": "Verschnaufpause",
+        "longRest": "Ruhephase",
+        "woundMalus": "Wundabzug",
+        "clearChanneledFocus": "Kanalisierten Fokus freigeben?",
+        "yes": "Ja",
+        "no": "Nein",
+        "physicalProperties": "Physikalische Eigenschaften",
+        "armorProperties": "Rüstungseigenschaften",
+        "shieldProperties": "Schildeigenschaften",
+        "weaponProperties": "Waffeneigenschaften",
+        "secondaryWeaponProperties": "Waffeneigenschaften (sekundär)",
+        "language": "Sprache",
+        "languages": "Sprachen",
+        "generalProperties": "Allgemein",
+        "moonsign": "Mondzeichen",
+        "moonsigns": {
+            "add": {
+                "title": "Mondzeichen hinzufügen"
+            }
+        },
+        "npcfeature": "Gegnermerkmal",
+        "secretGift": "Geheime Gabe",
+        "splinterpoint": "Splitterpunkt",
+        "splinterpoints": "Splitterpunkte",
+        "enhancementCosts": "Verstärkungskosten",
+        "enhancementDescription": "Verstärkung",
+        "degreeOfSuccessOptionsHeader": "Erfolgsgradoptionen",
+        "degreeOfSuccess": "Erfolgsgrad",
+        "degreeOfSuccessAbbrev": "EG",
+        "degreeOfSuccessOptions": {
+            "castDuration": "Auslösezeit verkürzen",
+            "consumedFocus": "Verzehrten Fokus verringern",
+            "exhaustedFocus": "Erschöpften Fokus verringern",
+            "channelizedFocus": "Kanalisierten Fokus verringern",
+            "effectDuration": "Wirkungsdauer verlängern",
+            "damage": "Schaden erhöhen",
+            "range": "Reichweite erhöhen",
+            "effectArea": "Wirkungsbereich erhöhen"
+        },
+        "spellCheckResultDescription": {
+            "devastating": "{eg} Fokuspunkte <i>erschöpfen</i> und auf Patzertabelle würfeln!",
+            "failed": "{eg} Fokuspunkte <i>erschöpfen</i>!",
+            "outstanding": "Einen <i>erschöpften</i> oder <i>verzehrten Fokuspunkt</i> einsparen!"
+        },
+        "defenseResultDescription": {
+            "devastating": {
+                "acrobatics": "Der Abenteurer stürzt hart auf empfindliche Körperteile ([[2d6]] Schaden) und gilt als liegend",
+                "determination": "Die Willenskraft des Abenteurers ist erschöpft. Er verliert alle Zuversicht, so dass er für den Rest des Tages einen Malus in Höhe von 3 Punkten auf alle seine Proben erhält.",
+                "endurance": "Der Abenteurer ist völlig erschöpft. Er erhält den Zustand @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 3}, der anhält bis er eine Ruhephase eingelegt hat.",
+                "melee": "Auf Patzertabelle würfeln!"
+            },
+            "nearmiss": "+ [[1d6]] Punkte Betäubungsschaden",
+            "outstanding": "Die Aktion dauert nur 2 Tick."
+        },
+        "deleteItemQuestion": "Soll \"{itemName}\" wirklich gelöscht werden?",
+        "deleteItem": "Item löschen",
+        "fumbleTableLabel": "Patzertabelle",
+        "shield": "Schild",
+        "shields": "Schilde",
+        "armor": "Rüstung",
+        "armors": "Rüstungen",
+        "damage": "Schaden",
+        "complexityOptions": {
+            "untrained": "U (ungeübt)",
+            "journeyman": "G (Geselle)",
+            "expert": "F (Fachmann)",
+            "master": "M (Meister)",
+            "instruction": "A (Anleitung)"
+        },
+        "availabilityOptions": {
+            "village": "Dorf",
+            "town": "Kleinstadt",
+            "city": "Großstadt",
+            "metropolis": "Metropole"
+        },
+        "durability": "Haltbarkeit",
+        "weaponSpeed": "Waffengeschwindigkeit",
+        "weaponSpeedAbbrev": "WGS",
+        "attack": "Angriff",
+        "activeDefense": "Aktive Abwehr",
+        "range": "Reichweite",
+        "rangeAbbrev": "RW",
         "features": "Merkmale",
-        "unit": "Einheit"
-      },
-      "parseMessages": {
-        "notAModifier": "Modifikator '{modifier}' hat kein korrektes Format.",
-        "duplicateEmphasis": "Modifikator '{modifier}' deklariert mehrere Schwerpunkte.",
-        "duplicateValue": "Modifikator '{modifier}' deklariert mehrere Modifikatorwerte.",
-        "noValue": "Modifikator '{modifier}' deklariert keinen Modifikatorwert.",
-        "duplicateAttribute": "Das Attribut '{attribute}' ist mehrfach deklariert.",
-        "noAttributeKey": "Der Schlüssel des Attributes '{attribute}' konnte nicht bestimmt werden.",
-        "noAttributeValue": "Der Wert des Attributs '{attribute}' konnte nicht bestimmt werden.",
-        "invalidAttributeKey": "Ungültiger Schlüssel für Attribut '{attribute}': ",
-        "keyHasExpressionFormat": "Ein Schlüssel sollte nicht das Format eines evaluierbaren Ausdrucks haben.",
-        "shouldNotBeNumber": "Eingabe '{input}' sollte keine Zahl sein.",
-        "shouldNotBeAnExpression": "Eingabe '{input}' sollte kein evaluierbarer Ausdruck sein.",
-        "referenceNotPrimitive": "'{propertyPath}' ist kein primitiver Wert auf '{objectName}'.",
-        "unknownObject": "unbekannt",
-        "allErrorMessage": "Syntaxfehler in Modifikatoren '{str}' in '{objectName}'!",
-        "foNoCost": "Ausdruck '{expression}' lässt sich nicht in Fokuscosten umwandeln.",
-        "notANumber": "Ausdruck'{expression}' lässt sich nicht in eine Zahl umwandeln.",
-        "deprecatedPath": "Der Pfad '{oldPath}' in {itemName} ist veraltet. Bitte verwenden Sie stattdessen '{newPath}'.",
-        "unknownGroupId": "Der Pfad '{groupId}' ist unbekannt.",
-        "missingDescriptor": "Das Attribut '{attribute}' für den Modifikator '{groupId}' fehlt.",
-        "invalidDescriptorValue": "Der Wert '{value}' für das Attribut '{attribute}' für den Modifikator '{groupId}' ist ungültig.",
-        "unknownDescriptor": "Das Attribut '{attribute}' für den Modifikator '{groupId}' ist unbekannt."
-      }
-    },
-    "modifier": "Modifikator",
-    "minStrength": "min. Stärke",
-    "generalSkills": "Allgemeine Fertigkeiten",
-    "magicSkills": "Magieschulen",
-    "fightingSkills": "Kampffertigkeiten",
-    "fightingSkill": "Kampffertigkeit",
-    "multiSelectable": "Mehrfach wählbar",
-    "onCreationOnly": "Nur bei Generierung wählbar",
-    "availableIn": "Verfügbar in",
-    "spellAvailableInPlaceholderText": "Magieschule Grad, Magieschule Grad, ...",
-    "masteryAvailableInPlaceholderText": "Fertigkeit, Fertigkeit, ...",
-    "attributeModifiers": "Attributsmodifikatoren",
-    "chooseMagicSkill": "Wähle eine Magieschule!",
-    "chooseSkill": "Wähle eine Fertigkeit!",
-    "npc": "Nicht-Spieler-Charakter",
-    "character": "Spieler-Charakter",
-    "save": "Speichern",
-    "ok": "OK",
-    "active": "Aktiviert",
-    "cancel": "Abbrechen",
-    "versus": "gegen",
-    "versusAbbrev": "gg.",
-    "fight": "Kampf",
-    "edit": "Bearbeiten",
-    "delete": "Löschen",
-    "qty": "Anz.",
-    "quantity": "Anzahl",
-    "price": "Preis",
-    "opponenttype": "Typus",
-    "opponentlevel": "Monstergrad",
-    "weaponless": "waffenlos",
-    "damageLevel": "Schadensstufe",
-    "weight": "Gewicht",
-    "hardness": "Härte",
-    "complexity": "Komplexität",
-    "availability": "Verfügbarkeit",
-    "quality": "Qualität",
-    "load": "Last",
-    "weapon": "Waffe",
-    "weapons": "Waffen",
-    "equipment": "Ausrüstung",
-    "skillValue": "Fertigkeitswert",
-    "skillPoints": "Fertigkeitspunkte",
-    "skillPointsAbbrev": "FP",
-    "skillValueAbbrev": "FW",
-    "spellLevel": "Grad",
-    "level": "Stufe",
-    "spellType": "Typus",
-    "spellTypePlaceholderText": "z.B. Schaden, Körper, ...",
-    "focusCosts": "Fokuskosten",
-    "focusCostsPlaceholderText": "z.B. K1 oder 1V3",
-    "focusCostsAbbrev": "Fokus",
-    "difficulty": "Schwierigkeit",
-    "difficultyAbbrev": "SG",
-    "spell": "Zauber",
-    "culturelore": "Kulturkunde",
-    "castDuration": "Zauberdauer",
-    "castDurationAbbrev": "Zauberd.",
-    "effectDuration": "Wirkungsdauer",
-    "effectDurationAbbrev": "Wirk.d.",
-    "effectArea": "Wirkungsbereich",
-    "shortRest": "Verschnaufpause",
-    "longRest": "Ruhephase",
-    "woundMalus": "Wundabzug",
-    "clearChanneledFocus": "Kanalisierten Fokus freigeben?",
-    "yes": "Ja",
-    "no": "Nein",
-    "physicalProperties": "Physikalische Eigenschaften",
-    "armorProperties": "Rüstungseigenschaften",
-    "shieldProperties": "Schildeigenschaften",
-    "weaponProperties": "Waffeneigenschaften",
-    "secondaryWeaponProperties": "Waffeneigenschaften (sekundär)",
-    "language": "Sprache",
-    "languages": "Sprachen",
-    "generalProperties": "Allgemein",
-    "moonsign": "Mondzeichen",
-    "moonsigns": {
-      "add": {
-        "title": "Mondzeichen hinzufügen"
-      }
-    },
-    "npcfeature": "Gegnermerkmal",
-    "secretGift": "Geheime Gabe",
-    "splinterpoint": "Splitterpunkt",
-    "splinterpoints": "Splitterpunkte",
-    "enhancementCosts": "Verstärkungskosten",
-    "enhancementDescription": "Verstärkung",
-    "degreeOfSuccessOptionsHeader": "Erfolgsgradoptionen",
-    "degreeOfSuccess": "Erfolgsgrad",
-    "degreeOfSuccessAbbrev": "EG",
-    "degreeOfSuccessOptions": {
-      "castDuration": "Auslösezeit verkürzen",
-      "consumedFocus": "Verzehrten Fokus verringern",
-      "exhaustedFocus": "Erschöpften Fokus verringern",
-      "channelizedFocus": "Kanalisierten Fokus verringern",
-      "effectDuration": "Wirkungsdauer verlängern",
-      "damage": "Schaden erhöhen",
-      "range": "Reichweite erhöhen",
-      "effectArea": "Wirkungsbereich erhöhen"
-    },
-    "spellCheckResultDescription": {
-      "devastating": "{eg} Fokuspunkte <i>erschöpfen</i> und auf Patzertabelle würfeln!",
-      "failed": "{eg} Fokuspunkte <i>erschöpfen</i>!",
-      "outstanding": "Einen <i>erschöpften</i> oder <i>verzehrten Fokuspunkt</i> einsparen!"
-    },
-    "defenseResultDescription": {
-      "devastating": {
-        "acrobatics": "Der Abenteurer stürzt hart auf empfindliche Körperteile ([[2d6]] Schaden) und gilt als liegend",
-        "determination": "Die Willenskraft des Abenteurers ist erschöpft. Er verliert alle Zuversicht, so dass er für den Rest des Tages einen Malus in Höhe von 3 Punkten auf alle seine Proben erhält.",
-        "endurance": "Der Abenteurer ist völlig erschöpft. Er erhält den Zustand @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 3}, der anhält bis er eine Ruhephase eingelegt hat.",
-        "melee": "Auf Patzertabelle würfeln!"
-      },
-      "nearmiss": "+ [[1d6]] Punkte Betäubungsschaden",
-      "outstanding": "Die Aktion dauert nur 2 Tick."
-    },
-    "deleteItemQuestion": "Soll \"{itemName}\" wirklich gelöscht werden?",
-    "deleteItem": "Item löschen",
-    "fumbleTableLabel": "Patzertabelle",
-    "shield": "Schild",
-    "shields": "Schilde",
-    "armor": "Rüstung",
-    "armors": "Rüstungen",
-    "damage": "Schaden",
-    "complexityOptions": {
-      "untrained": "U (ungeübt)",
-      "journeyman": "G (Geselle)",
-      "expert": "F (Fachmann)",
-      "master": "M (Meister)",
-      "instruction": "A (Anleitung)"
-    },
-    "availabilityOptions": {
-      "village": "Dorf",
-      "town": "Kleinstadt",
-      "city": "Großstadt",
-      "metropolis": "Metropole"
-    },
-    "durability": "Haltbarkeit",
-    "weaponSpeed": "Waffengeschwindigkeit",
-    "weaponSpeedAbbrev": "WGS",
-    "attack": "Angriff",
-    "activeDefense": "Aktive Abwehr",
-    "range": "Reichweite",
-    "rangeAbbrev": "RW",
-    "features": "Merkmale",
-    "defenseBonus": "VTD+",
-    "damageReduction": "Schadensreduktion",
-    "damageReductionAbbrev": "SR",
-    "tickMalus": "Tick+",
-    "ticks": "Ticks",
-    "addTicks": "Ticks hinzufügen",
-    "tick": "Tick",
-    "skillMod": "Kampffertigkeitsmod.",
-    "handicap": "Behinderung",
-    "handicapAbbrev": "Beh.",
-    "attributes": "Attribute",
-    "minAttributes": "min. Attribute",
-    "channeledDamage": "kanalisierter Schaden",
-    "normalDamage": "normaler Schaden",
-    "stunDamage": "Betäubungsschaden",
-    "noDamage": "Keine Schadensart",
-    "damageType": "Schadenstyp",
-    "damageCategory": "Schadensart",
-    "channeled": "kanalisiert",
-    "channeledAbbrev": "K",
-    "exhausted": "erschöpft",
-    "exhaustedAbbrev": "E",
-    "consumed": "verzehrt",
-    "consumedAbbrev": "V",
-    "available": "vefügbar",
-    "channeledSpells": "Kanalisierte Zauber",
-    "mastery": "Meisterschaft",
-    "wait": "Abwarten",
-    "keepReady": "Bereithalten",
-    "status": "Status",
-    "throwing": "werfen",
-    "masteries": "Meisterschaften",
-    "negativeDegreeOfSuccess": "Negative Erfolgsgrade",
-    "lowerFumbleResult": "Verminderte Patzerauswirkung (Stufe)",
-    "lowerFumbleResultChat": "Stufe vermindert",
-    "lowerFumbleResultHelp": "Anzahl Stufen um die die Patzerauswirkung vermindert wird (z.B. Fokuskontrolle)",
-    "priest": "Priester",
-    "sorcerer": "Zauberer",
-    "magicFumble": "Zauberpatzer",
-    "attackFumble": "Kampfpatzer",
-    "message": {
-      "itemImported": "Das Item \"{name}\" wurde als \"{type}\" importiert!",
-      "mangledTableData": "Tabellendaten sind beschädigt. Bitte überprüfen Sie Attribute und abgeleitete Werte.",
-      "featureParsingFailure": "Merkmal '{feature}' konnte nicht in ein bekanntes Merkmal umgewandelt werden."
-    },
-    "masteryItem": {
-      "level": "Schwelle"
-    },
-    "strengthItem": {
-      "level": "Stufe"
-    },
-    "wizard": {
-      "distributeAttributemod": "Verteile {points} Punkt!",
-      "distributeAttributemodPlural": "Verteile {points} Punkte!",
-      "distributeAttributemodReady": "Alle Punkte vergeben!"
-    },
-    "attribute": {
-      "charisma": {
-        "short": "AUS",
-        "long": "Ausstrahlung"
-      },
-      "agility": {
-        "short": "BEW",
-        "long": "Beweglichkeit"
-      },
-      "intuition": {
-        "short": "INT",
-        "long": "Intuition"
-      },
-      "constitution": {
-        "short": "KON",
-        "long": "Konstitution"
-      },
-      "mystic": {
-        "short": "MYS",
-        "long": "Mystik"
-      },
-      "strength": {
-        "short": "STÄ",
-        "long": "Stärke"
-      },
-      "mind": {
-        "short": "VER",
-        "long": "Verstand"
-      },
-      "willpower": {
-        "short": "WIL",
-        "long": "Willenskraft"
-      }
-    },
-    "derivedAttribute": {
-      "size": {
-        "short": "GK",
-        "long": "Größenklasse"
-      },
-      "speed": {
-        "short": "GSW",
-        "long": "Geschwindigkeit"
-      },
-      "initiative": {
-        "short": "INI",
-        "long": "Initiative"
-      },
-      "healthpoints": {
-        "short": "LP",
-        "long": "Lebenspunkte"
-      },
-      "focuspoints": {
-        "short": "FO",
-        "long": "Fokus"
-      },
-      "defense": {
-        "short": "VTD",
-        "long": "Verteidigung"
-      },
-      "mindresist": {
-        "short": "GW",
-        "long": "Geistiger Widerstand"
-      },
-      "bodyresist": {
-        "short": "KW",
-        "long": "Körperlicher Widerstand"
-      }
-    },
-    "damageTypes": {
-      "short": {
-        "physical": "Physisch",
-        "mental": "Mental",
-        "electric": "elektrisch",
-        "acid": "Säure",
-        "rock": "Fels",
-        "fire": "Feuer",
-        "heat": "Hitze",
-        "cold": "Kälte",
-        "poison": "Gift",
-        "bleeding": "Blutung",
-        "disease": "Krankheit",
-        "light": "Licht",
-        "shadow": "Schatten",
-        "wind": "Wind",
-        "water": "Wasser",
-        "nature": "Natur",
-        "none": "Keine"
-      },
-      "long": {
-        "physical": "Physischer Schaden",
-        "mental": "Mentaler Schaden",
-        "electric": "Elektrizitätsschaden",
-        "acid": "Säureschaden",
-        "rock": "Felsschaden",
-        "fire": "Feuerschaden",
-        "heat": "Hitzeschaden",
-        "cold": "Kälteschaden",
-        "poison": "Giftschaden",
-        "bleeding": "Blutungsschaden",
-        "disease": "Krankheitsschaden",
-        "light": "Lichtschaden",
-        "shadow": "Schattenschaden",
-        "wind": "Windschaden",
-        "water": "Wasserschaden",
-        "nature": "Naturschaden",
-        "none": "Keine Schadenstyp"
-      }
-    },
-    "skillAbbreviation": {
-      "antimagic": "Bann",
-      "controlmagic": "Beherrschung",
-      "motionmagic": "Bewegung",
-      "insightmagic": "Erkenntnis",
-      "stonemagic": "Fels",
-      "firemagic": "Feuer",
-      "healmagic": "Heilung",
-      "illusionmagic": "Illusion",
-      "combatmagic": "Kampf",
-      "lightmagic": "Licht",
-      "naturemagic": "Natur",
-      "shadowmagic": "Schatten",
-      "fatemagic": "Schicksal",
-      "protectionmagic": "Schutz",
-      "enhancemagic": "Stärkung",
-      "deathmagic": "Tod",
-      "transformationmagic": "Verwandlung",
-      "watermagic": "Wasser",
-      "windmagic": "Wind"
-    },
-    "skillLabel": {
-      "melee": "Handgemenge",
-      "slashing": "Hiebwaffen",
-      "chains": "Kettenwaffen",
-      "blades": "Klingenwaffen",
-      "longrange": "Schusswaffen",
-      "staffs": "Stangenwaffen",
-      "throwing": "Wurfwaffen",
-      "acrobatics": "Akrobatik",
-      "alchemy": "Alchemie",
-      "leadership": "Anführen",
-      "arcanelore": "Arkane Kunde",
-      "athletics": "Athletik",
-      "performance": "Darbietung",
-      "diplomacy": "Diplomatie",
-      "clscraft": "Edelhandwerk",
-      "empathy": "Empathie",
-      "determination": "Entschlossenheit",
-      "dexterity": "Fingerfertigkeit",
-      "history": "Geschichte und Mythen",
-      "craftmanship": "Handwerk",
-      "heal": "Heilkunde",
-      "stealth": "Heimlichkeit",
-      "hunting": "Jagdkunst",
-      "countrylore": "Länderkunde",
-      "nature": "Naturkunde",
-      "eloquence": "Redegewandtheit",
-      "locksntraps": "Schlösser und Fallen",
-      "swim": "Schwimmen",
-      "seafaring": "Seefahrt",
-      "streetlore": "Straßenkunde",
-      "animals": "Tierführung",
-      "survival": "Überleben",
-      "perception": "Wahrnehmung",
-      "endurance": "Zähigkeit",
-      "antimagic": "Bannmagie",
-      "controlmagic": "Beherrschungsmagie",
-      "motionmagic": "Bewegungsmagie",
-      "insightmagic": "Erkenntnismagie",
-      "stonemagic": "Felsmagie",
-      "firemagic": "Feuermagie",
-      "healmagic": "Heilungsmagie",
-      "illusionmagic": "Illusionsmagie",
-      "combatmagic": "Kampfmagie",
-      "lightmagic": "Lichtmagie",
-      "naturemagic": "Naturmagie",
-      "shadowmagic": "Schattenmagie",
-      "fatemagic": "Schicksalsmagie",
-      "protectionmagic": "Schutzmagie",
-      "enhancemagic": "Stärkungsmagie",
-      "deathmagic": "Todesmagie",
-      "transformationmagic": "Verwandlungsmagie",
-      "watermagic": "Wassermagie",
-      "windmagic": "Windmagie",
-      "none": "Keine Fertigkeit"
-    },
-    "resource": "Ressource",
-    "resources": "Ressourcen",
-    "rollType": {
-      "standard": "Standardwurf",
-      "risk": "Risikowurf",
-      "safety": "Sicherheitswurf",
-      "standardGrandmaster": "Standardwurf (Großmeister)",
-      "riskGrandmaster": "Risikowurf (Großmeister)",
-      "safetyGrandmaster": "Sicherheitswurf (Großmeister)"
-    },
-    "grandmaster": "Großmeister",
-    "skillCheck": "Fertigkeitsprobe",
-    "successMessage": {
-      "0": "(Knapp) gelungen",
-      "1": "Gelungen",
-      "2": "Gelungen",
-      "3": "(Gut) gelungen",
-      "4": "(Gut) gelungen",
-      "5": "Herausragend gelungen"
-    },
-    "failMessage": {
-      "0": "Knapp misslungen",
-      "1": "Misslungen",
-      "2": "Misslungen",
-      "3": "(Schwer) misslungen",
-      "4": "(Schwer) misslungen",
-      "5": "Verheerend misslungen"
-    },
-    "heroLevels": {
-      "0": "in Erstellung",
-      "1": "Suchender",
-      "2": "Wanderer",
-      "3": "Veteran",
-      "4": "Heroe"
-    },
-    "rollMode": "Wurfmodus",
-    "sufferedDamage": "erlittener Schaden",
-    "fumbleTable": {
-      "fight": {
-        "result1_1": "<h3>Nichts passiert.</h3>",
-        "result2_3": "<h3>Benommen</h3><p>Der Kämpfer stürzt und schlägt unglücklich mit dem Kopf auf. Er wird sofort auf dem Zeitstrahl 10 Ticks nach vorne gesetzt, gilt als liegend und erhält für 30 weitere Ticks den Zustand @Compendium[splittermond.statuseffects.Benommen]{Benommen 2} (für 30 Ticks).</p>",
-        "result4_6": "<h3>Beschädigte Waffe</h3><p>Unbeschädigte Waffe angeschlagen (-3 auf alle Proben); angeschlagene Waffe demoliert (nicht mehr verwendbar)</p>",
-        "result7_8": "<h3>Desorientiertheit</h3><p>Der Kämpfer ist kurz desorientiert. Er wird sofort auf dem Zeitstrahl @Ticks[3 Ticks, Patzer - Desorientiertheit] nach vorne gesetzt.</p>",
-        "result10_12": "<h3>Straucheln</h3><p>Der Kämpfer gerät aus dem Gleichgewicht. Er wird sofort auf dem Zeitstrahl @Ticks[6 Ticks, Patzer - Straucheln] nach vorne gesetzt.</p>",
-        "result13_15": "<h3>Sturz</h3><p>Der Kämpfer gerät aus dem Gleichgewicht und stürzt. Er gilt als <i>liegend</i>.</p>",
-        "result16_18": "<h3>Gelegenheitsangriff</h3><p><strong>Nahkampf</strong>: Der Kämpfer verliert durch Unachtsamkeit @Ticks[3 Ticks, Patzer - Unachtsamkeit]. Ein im Nahkampf befindlicher Gegner des Kämpfers hat sofort die Möglichkeit zu einem Gelegenheitsangriff nach den üblichen Regeln.</p><p><strong>Fernkampf</strong>: Der Kämpfer verliert durch Unachtsamkeit @Ticks[3 Ticks, Patzer - Unachtsamkeit]. Ein Gegner des Kämpfers, der nicht weiter als seine Geschwindigkeit in Metern entfernt ist, kann sofort und ohne Tickaufwand zum Kämpfer aufschließen.</p>",
-        "result19_20": "<h3>Schwere Verwundung</h3><p><strong>Nahkampf</strong>: Der Kämpfer fügt sich mit seiner eigenen Waffe eine schwere Verwundung zu, wodurch er den Zustand @Compendium[splittermond.statuseffects.Blutend]{Blutend 2} erhält.</p><p><strong>Fernkampf</strong>: Eine eklatante Fehlbedienung entlädt die Wucht des Angriffs auf den Angreifer selbst und verletzt ihn. Er erhält auf diese Weise den Zustand @Compendium[splittermond.statuseffects.Blutend]{Blutend 2}. </p>"
-      },
-      "magic": {
-        "priest": {
-          "result1_2": "<h3>Nichts passiert.</h3>",
-          "result3_20": "<h3>unangenehm</h3><p>Der Priester spürt eine tiefe seelische Erschöpfung. Er erhält den Zustand @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2}.</p>",
-          "result21_35": "<h3>störend</h3><p>Der Priester spürt die Verbindung zu seinem Gott leicht schwächer werden, was sein Selbstvertrauen  und seine Konzentration angreift. Er erhält die Zustände @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2} und @Compendium[splittermond.statuseffects.Glaubenskrise]{Glaubenskrise 1}.</p>",
-          "result36_70": "<h3>beunruhigend</h3><p>Der Priester hat merkliche Schwierigkeiten, die Verbindung zu seinem Gott aufrecht zu erhalten, was  seine ganze Konzentration erfordert. Er erhält die Zustände @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2}, @Compendium[splittermond.statuseffects.Benommen]{Benommen 1} und  @Compendium[splittermond.statuseffects.Glaubenskrise]{Glaubenskrise 2}.</p>",
-          "result71_100": "<h3>bedrohlich</h3><p> Ferne zum Gott ist so stark geworden, dass der Priester nicht nur unkonzentriert ist, sondern darüber hinaus von Selbstzweifeln geplagt wird. Er erhält die Zustände @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2}, @Compendium[splittermond.statuseffects.Benommen]{Benommen 2} und  @Compendium[splittermond.statuseffects.Glaubenskrise]{Glaubenskrise 3}.</p>",
-          "result101_130": "<h3>schädlich</h3><p>Die Verbindung des Priesters zu seinem Gott wird stark beschädigt, wodurch er sich seinem Gott ferner fühlt. Er erhält die Zustände @Compendium[splittermond.statuseffects.Angsterfüllt]{Angsterfüllt}, @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 3}, @Compendium[splittermond.statuseffects.Benommen]{Benommen 2} und  @Compendium[splittermond.statuseffects.Glaubenskrise]{Glaubenskrise 3}.</p>",
-          "result131": "<h3>verderblich</h3><p>Die Verbindung des Priesters zu seinem Gott reißt für kurze Zeit komplett ab. Er kann bis zur nächsten  <i>Ruhephase</i> keine Zauber wirken, da er keine Magie von seinem Patron erhält. Dies ist für den Priester eine zutiefst verstörende und unbehagliche Erfahrung. Er erhält die Zustände @Compendium[splittermond.statuseffects.Angsterfüllt]{Angsterfüllt}, @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 4} und @Compendium[splittermond.statuseffects.Benommen]{Benommen 3}.</p>"
+        "defenseBonus": "VTD+",
+        "damageReduction": "Schadensreduktion",
+        "damageReductionAbbrev": "SR",
+        "tickMalus": "Tick+",
+        "ticks": "Ticks",
+        "addTicks": "Ticks hinzufügen",
+        "tick": "Tick",
+        "skillMod": "Kampffertigkeitsmod.",
+        "handicap": "Behinderung",
+        "handicapAbbrev": "Beh.",
+        "attributes": "Attribute",
+        "minAttributes": "min. Attribute",
+        "channeledDamage": "kanalisierter Schaden",
+        "normalDamage": "normaler Schaden",
+        "stunDamage": "Betäubungsschaden",
+        "noDamage": "Keine Schadensart",
+        "damageType": "Schadenstyp",
+        "damageCategory": "Schadensart",
+        "channeled": "kanalisiert",
+        "channeledAbbrev": "K",
+        "exhausted": "erschöpft",
+        "exhaustedAbbrev": "E",
+        "consumed": "verzehrt",
+        "consumedAbbrev": "V",
+        "available": "vefügbar",
+        "channeledSpells": "Kanalisierte Zauber",
+        "mastery": "Meisterschaft",
+        "wait": "Abwarten",
+        "keepReady": "Bereithalten",
+        "status": "Status",
+        "throwing": "werfen",
+        "masteries": "Meisterschaften",
+        "negativeDegreeOfSuccess": "Negative Erfolgsgrade",
+        "lowerFumbleResult": "Verminderte Patzerauswirkung (Stufe)",
+        "lowerFumbleResultChat": "Stufe vermindert",
+        "lowerFumbleResultHelp": "Anzahl Stufen um die die Patzerauswirkung vermindert wird (z.B. Fokuskontrolle)",
+        "priest": "Priester",
+        "sorcerer": "Zauberer",
+        "magicFumble": "Zauberpatzer",
+        "attackFumble": "Kampfpatzer",
+        "message": {
+            "itemImported": "Das Item \"{name}\" wurde als \"{type}\" importiert!",
+            "mangledTableData": "Tabellendaten sind beschädigt. Bitte überprüfen Sie Attribute und abgeleitete Werte.",
+            "featureParsingFailure": "Merkmal '{feature}' konnte nicht in ein bekanntes Merkmal umgewandelt werden."
         },
-        "sorcerer": {
-          "result1_2": "<h3>Nichts passiert.</h3>",
-          "result3_20": "<h3>unangenehm</h3><p>Der Zauberer spürt leichtes Unbehagen, das oft mit Nasenbluten oder Ähnlichem einhergeht. Er verliert [[1d6]] Lebenspunkte und erleidet den Zustand @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 1}.</p>",
-          "result21_35": "<h3>störend</h3><p>Der Zauberer kriegt rasende Kopfschmerzen und erleidet leichte Blessuren. Er verliert [[2d6]] Lebenspunkte und erleidet den Zustand @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2}.</p>",
-          "result36_70": "<h3>beunruhigend</h3><p>Der Zauberer spürt nicht nur körperliches Unbehagen und erhält erste offene Wunden, sondern büßt  auch an Konzentration ein. Er verliert [[2d10]] Lebenspunkte und erleidet die Zustände @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2} und @Compendium[splittermond.statuseffects.Benommen]{Benommen 1}.</p>",
-          "result71_100": "<h3>bedrohlich</h3><p>Der Zauberer kriegt starke Krämpfe und blutet aus Nase und Ohren. Ein unerklärliches Frösteln erfasst  ihn. Er verliert [[3d10]] Lebenspunkte und erhält die Zustände @Compendium[splittermond.statuseffects.Angsterfüllt]{Angsterfüllt} und @Compendium[splittermond.statuseffects.Benommen]{Benommen 1}.</p>",
-          "result101_130": "<h3>schädlich</h3><p>Der Zauberer spürt starke Schmerzen und kann sich kaum noch konzentrieren. Er verliert[[4d10]] Lebenspunkte und erhält die Zustände @Compendium[splittermond.statuseffects.Angsterfüllt]{Angsterfüllt} und @Compendium[splittermond.statuseffects.Verwundet]{Verwundet 2}.</p>",
-          "result131_175": "<h3>verderblich</h3><p>Der Zauberer siecht dahin und blutet am ganzen Körper. Er verliert [[5d10]] Lebenspunkte und erhält die  Zustände @Compendium[splittermond.statuseffects.Sterbend]{Sterbend 1} und @Compendium[splittermond.statuseffects.Verwundet]{Verwundet 2}.</p>",
-          "result176_250": "<h3>tödlich</h3><p>Der Zauberer erleidet stärkste Schmerzen und blutet aus Augen, Nase, Ohren und Mund. Er verliert  [[7d10]] Lebenspunkte und erhält die Zustände @Compendium[splittermond.statuseffects.Sterbend]{Sterbend 2} und @Compendium[splittermond.statuseffects.Blutend]{Blutend 2}.</p>",
-          "result251": "<h3>einäschernd</h3><p>Der Zauberer erleidet schrecklichste körperliche Schmerzen beim Verlust von [[10d10]] Lebenspunkten. Sollte er dies überleben, erhält er darüber hinaus einen der Zustände @Compendium[splittermond.statuseffects.Sterbend]{Sterbend 3}, @Compendium[splittermond.statuseffects.Brennend]{Brennend 5} oder @Compendium[splittermond.statuseffects.Blutend]{Blutend 3}. </p>"
-        }
-      }
-    },
-    "woundMalusLevels": {
-      "notinjured": "unverletzt",
-      "battered": "angeschlagen",
-      "injured": "verletzt",
-      "badlyinjured": "schwer verletzt",
-      "doomed": "todgeweiht"
-    },
-    "damageLevels": {
-      "undamaged": "unbeschädigt",
-      "tarnished": "angeschlagen",
-      "demolished": "demoliert",
-      "destroyed": "zerstört"
-    },
-    "requestSkillCheck": "Fertigkeitsprobe anfordern",
-    "pleaseSelectAToken": "Bitte selektiere ein Token!",
-    "applyDamage": "Schaden anwenden",
-    "apply": "Anwenden",
-    "applyDamageOnSelectedToken": "Der Schaden wird auf alle selektierten Token angewendet!",
-    "applyDamageOnSelectedTargets": "Der Schaden wird auf alle als <i>Ziel</i> markierte Token angewendet!",
-    "applyDamageOnToken": "Der Schaden wird auf <a class='entity-link' draggable='false' data-entity='Actor' data-id='{_id}'><i class='fas fa-user'></i> {name}</a> angewendet!",
-    "adventure": "Abenteuer",
-    "adventures": "Abenteuer",
-    "library": "Bibliothek",
-    "modificatorHelpText": "Mit Komma getrennte Modifikatoren, siehe @Compendium[splittermond.journal-entries.Modifikatoren]{Modifikatoren}.",
-    "minAttributesHelpText": "Mit Komma getrennte minimale Attribute. Beisp.: <pre>STÄ 3, BEW 2</pre>",
-    "pdfoundry": {
-      "page": "Seite",
-      "notinstalled": "Um PDF links zu verwenden muss PDFoundry installiert sein!",
-      "notfound": "Kein PDF mit dem angegebenen Code gefunden."
-    },
-    "settings": {
-      "reducibleEnhancementCosts": {
-        "name": "Reduzible Zauberverstärkungskosten",
-        "hint": "Erlaubt die Reduzierung der Verstärkungskosten durch die Verwendung von Erfolgsgraden."
-      },
-      "theme": {
-        "name": "UI-Theme",
-        "hint": "Wähle eine UI-Design",
-        "options": {
-          "default": "Standard (Sepia)",
-          "dark": "Dunkel",
-          "splittermond_blue": "Splittermond-Blau"
-        }
-      },
-      "showActionBar": {
-        "name": "Token-Aktionsleiste",
-        "hint": "Aktiviert die Token-Aktionsleiste"
-      },
-      "showHotbarDuringActionBar": {
-        "name": "Macroleiste zeitgleich mit Aktionsleiste anzeigen",
-        "hint": "Ist diese Option aktiviert, wird die Macroleiste nicht ausgeblendet, wenn die Token-Aktionsleiste angezeigt wird."
-      },
-      "HGMultiplier": {
-        "name": "Heldengrad-Multiplikator",
-        "hint": "Der Multiplikator für die Berechnung der Fertigkeitspunkte und Attributsmodifikatoren."
-      },
-      "displayDamageDialog": {
-        "name": "Schadensdialog anzeigen",
-        "hint": "Zeigt einen Dialog zur Eingabe des Schadens an, wenn ein Token Schaden erhält.",
-        "options": {
-          "once": "Nur den ersten",
-          "never": "Nie",
-          "always": "Immer"
-        }
-      },
-      "stableProtectsAllReduction": {
-        "name": "Merkmal Stabil negiert alle Durchdringung",
-        "hint": "Wird eine Rüstung mit dem Merkmal 'Stabil' von einer durchdringenden Waffe angegriffen, so wird die gesamte Schadensreduktion des Angegriffenen nicht durch 'Durchdringung' reduziert. Wird diese Option deaktiviert beschränkt sich diese Wirkung auf die Rüstung die sa Merkmal 'Stabil' hat."
-      }
-    },
-    "error": {
-      "parseError": "Fehler beim Parsen der Daten im Bereich: {section}"
-    },
-    "maneuver": "Manöver",
-    "maneuvers": "Manöver",
-    "grazingHit": "Streiftreffer",
-    "keybindings": {
-      "paste": {
-        "name": "Item Einfügen",
-        "hint": "Erlaubt das Importieren von Items aus der Zwischenablage."
-      }
-    },
-    "itemImport": {
-      "selectAFolder": "Wähle einen Ordner für den Import aus.",
-      "folder": "Ordner",
-      "noFolder": "Kein Ordner",
-      "skillSelection": {
-        "title": {
-          "unknown": "Wählen Sie eine Fertigkeit",
-          "weapon": "Waffenimport",
-          "mastery": "Meisterschaftsimport"
+        "masteryItem": {
+            "level": "Schwelle"
         },
-        "label": {
-          "unknown": "Fertigkeit",
-          "weapon": "Kampffertigkeit",
-          "mastery": "Fertigkeit"
+        "strengthItem": {
+            "level": "Stufe"
+        },
+        "wizard": {
+            "distributeAttributemod": "Verteile {points} Punkt!",
+            "distributeAttributemodPlural": "Verteile {points} Punkte!",
+            "distributeAttributemodReady": "Alle Punkte vergeben!"
+        },
+        "attribute": {
+            "charisma": {
+                "short": "AUS",
+                "long": "Ausstrahlung"
+            },
+            "agility": {
+                "short": "BEW",
+                "long": "Beweglichkeit"
+            },
+            "intuition": {
+                "short": "INT",
+                "long": "Intuition"
+            },
+            "constitution": {
+                "short": "KON",
+                "long": "Konstitution"
+            },
+            "mystic": {
+                "short": "MYS",
+                "long": "Mystik"
+            },
+            "strength": {
+                "short": "STÄ",
+                "long": "Stärke"
+            },
+            "mind": {
+                "short": "VER",
+                "long": "Verstand"
+            },
+            "willpower": {
+                "short": "WIL",
+                "long": "Willenskraft"
+            }
+        },
+        "derivedAttribute": {
+            "size": {
+                "short": "GK",
+                "long": "Größenklasse"
+            },
+            "speed": {
+                "short": "GSW",
+                "long": "Geschwindigkeit"
+            },
+            "initiative": {
+                "short": "INI",
+                "long": "Initiative"
+            },
+            "healthpoints": {
+                "short": "LP",
+                "long": "Lebenspunkte"
+            },
+            "focuspoints": {
+                "short": "FO",
+                "long": "Fokus"
+            },
+            "defense": {
+                "short": "VTD",
+                "long": "Verteidigung"
+            },
+            "mindresist": {
+                "short": "GW",
+                "long": "Geistiger Widerstand"
+            },
+            "bodyresist": {
+                "short": "KW",
+                "long": "Körperlicher Widerstand"
+            }
+        },
+        "damageTypes": {
+            "short": {
+                "physical": "Physisch",
+                "mental": "Mental",
+                "electric": "elektrisch",
+                "acid": "Säure",
+                "rock": "Fels",
+                "fire": "Feuer",
+                "heat": "Hitze",
+                "cold": "Kälte",
+                "poison": "Gift",
+                "bleeding": "Blutung",
+                "disease": "Krankheit",
+                "light": "Licht",
+                "shadow": "Schatten",
+                "wind": "Wind",
+                "water": "Wasser",
+                "nature": "Natur",
+                "none": "Keine"
+            },
+            "long": {
+                "physical": "Physischer Schaden",
+                "mental": "Mentaler Schaden",
+                "electric": "Elektrizitätsschaden",
+                "acid": "Säureschaden",
+                "rock": "Felsschaden",
+                "fire": "Feuerschaden",
+                "heat": "Hitzeschaden",
+                "cold": "Kälteschaden",
+                "poison": "Giftschaden",
+                "bleeding": "Blutungsschaden",
+                "disease": "Krankheitsschaden",
+                "light": "Lichtschaden",
+                "shadow": "Schattenschaden",
+                "wind": "Windschaden",
+                "water": "Wasserschaden",
+                "nature": "Naturschaden",
+                "none": "Keine Schadenstyp"
+            }
+        },
+        "skillAbbreviation": {
+            "antimagic": "Bann",
+            "controlmagic": "Beherrschung",
+            "motionmagic": "Bewegung",
+            "insightmagic": "Erkenntnis",
+            "stonemagic": "Fels",
+            "firemagic": "Feuer",
+            "healmagic": "Heilung",
+            "illusionmagic": "Illusion",
+            "combatmagic": "Kampf",
+            "lightmagic": "Licht",
+            "naturemagic": "Natur",
+            "shadowmagic": "Schatten",
+            "fatemagic": "Schicksal",
+            "protectionmagic": "Schutz",
+            "enhancemagic": "Stärkung",
+            "deathmagic": "Tod",
+            "transformationmagic": "Verwandlung",
+            "watermagic": "Wasser",
+            "windmagic": "Wind"
+        },
+        "skillLabel": {
+            "melee": "Handgemenge",
+            "slashing": "Hiebwaffen",
+            "chains": "Kettenwaffen",
+            "blades": "Klingenwaffen",
+            "longrange": "Schusswaffen",
+            "staffs": "Stangenwaffen",
+            "throwing": "Wurfwaffen",
+            "acrobatics": "Akrobatik",
+            "alchemy": "Alchemie",
+            "leadership": "Anführen",
+            "arcanelore": "Arkane Kunde",
+            "athletics": "Athletik",
+            "performance": "Darbietung",
+            "diplomacy": "Diplomatie",
+            "clscraft": "Edelhandwerk",
+            "empathy": "Empathie",
+            "determination": "Entschlossenheit",
+            "dexterity": "Fingerfertigkeit",
+            "history": "Geschichte und Mythen",
+            "craftmanship": "Handwerk",
+            "heal": "Heilkunde",
+            "stealth": "Heimlichkeit",
+            "hunting": "Jagdkunst",
+            "countrylore": "Länderkunde",
+            "nature": "Naturkunde",
+            "eloquence": "Redegewandtheit",
+            "locksntraps": "Schlösser und Fallen",
+            "swim": "Schwimmen",
+            "seafaring": "Seefahrt",
+            "streetlore": "Straßenkunde",
+            "animals": "Tierführung",
+            "survival": "Überleben",
+            "perception": "Wahrnehmung",
+            "endurance": "Zähigkeit",
+            "antimagic": "Bannmagie",
+            "controlmagic": "Beherrschungsmagie",
+            "motionmagic": "Bewegungsmagie",
+            "insightmagic": "Erkenntnismagie",
+            "stonemagic": "Felsmagie",
+            "firemagic": "Feuermagie",
+            "healmagic": "Heilungsmagie",
+            "illusionmagic": "Illusionsmagie",
+            "combatmagic": "Kampfmagie",
+            "lightmagic": "Lichtmagie",
+            "naturemagic": "Naturmagie",
+            "shadowmagic": "Schattenmagie",
+            "fatemagic": "Schicksalsmagie",
+            "protectionmagic": "Schutzmagie",
+            "enhancemagic": "Stärkungsmagie",
+            "deathmagic": "Todesmagie",
+            "transformationmagic": "Verwandlungsmagie",
+            "watermagic": "Wassermagie",
+            "windmagic": "Windmagie",
+            "none": "Keine Fertigkeit"
+        },
+        "resource": "Ressource",
+        "resources": "Ressourcen",
+        "rollType": {
+            "standard": "Standardwurf",
+            "risk": "Risikowurf",
+            "safety": "Sicherheitswurf",
+            "standardGrandmaster": "Standardwurf (Großmeister)",
+            "riskGrandmaster": "Risikowurf (Großmeister)",
+            "safetyGrandmaster": "Sicherheitswurf (Großmeister)"
+        },
+        "grandmaster": "Großmeister",
+        "skillCheck": "Fertigkeitsprobe",
+        "successMessage": {
+            "0": "(Knapp) gelungen",
+            "1": "Gelungen",
+            "2": "Gelungen",
+            "3": "(Gut) gelungen",
+            "4": "(Gut) gelungen",
+            "5": "Herausragend gelungen"
+        },
+        "failMessage": {
+            "0": "Knapp misslungen",
+            "1": "Misslungen",
+            "2": "Misslungen",
+            "3": "(Schwer) misslungen",
+            "4": "(Schwer) misslungen",
+            "5": "Verheerend misslungen"
+        },
+        "heroLevels": {
+            "0": "in Erstellung",
+            "1": "Suchender",
+            "2": "Wanderer",
+            "3": "Veteran",
+            "4": "Heroe"
+        },
+        "rollMode": "Wurfmodus",
+        "sufferedDamage": "erlittener Schaden",
+        "fumbleTable": {
+            "fight": {
+                "result1_1": "<h3>Nichts passiert.</h3>",
+                "result2_3": "<h3>Benommen</h3><p>Der Kämpfer stürzt und schlägt unglücklich mit dem Kopf auf. Er wird sofort auf dem Zeitstrahl 10 Ticks nach vorne gesetzt, gilt als liegend und erhält für 30 weitere Ticks den Zustand @Compendium[splittermond.statuseffects.Benommen]{Benommen 2} (für 30 Ticks).</p>",
+                "result4_6": "<h3>Beschädigte Waffe</h3><p>Unbeschädigte Waffe angeschlagen (-3 auf alle Proben); angeschlagene Waffe demoliert (nicht mehr verwendbar)</p>",
+                "result7_8": "<h3>Desorientiertheit</h3><p>Der Kämpfer ist kurz desorientiert. Er wird sofort auf dem Zeitstrahl @Ticks[3 Ticks, Patzer - Desorientiertheit] nach vorne gesetzt.</p>",
+                "result10_12": "<h3>Straucheln</h3><p>Der Kämpfer gerät aus dem Gleichgewicht. Er wird sofort auf dem Zeitstrahl @Ticks[6 Ticks, Patzer - Straucheln] nach vorne gesetzt.</p>",
+                "result13_15": "<h3>Sturz</h3><p>Der Kämpfer gerät aus dem Gleichgewicht und stürzt. Er gilt als <i>liegend</i>.</p>",
+                "result16_18": "<h3>Gelegenheitsangriff</h3><p><strong>Nahkampf</strong>: Der Kämpfer verliert durch Unachtsamkeit @Ticks[3 Ticks, Patzer - Unachtsamkeit]. Ein im Nahkampf befindlicher Gegner des Kämpfers hat sofort die Möglichkeit zu einem Gelegenheitsangriff nach den üblichen Regeln.</p><p><strong>Fernkampf</strong>: Der Kämpfer verliert durch Unachtsamkeit @Ticks[3 Ticks, Patzer - Unachtsamkeit]. Ein Gegner des Kämpfers, der nicht weiter als seine Geschwindigkeit in Metern entfernt ist, kann sofort und ohne Tickaufwand zum Kämpfer aufschließen.</p>",
+                "result19_20": "<h3>Schwere Verwundung</h3><p><strong>Nahkampf</strong>: Der Kämpfer fügt sich mit seiner eigenen Waffe eine schwere Verwundung zu, wodurch er den Zustand @Compendium[splittermond.statuseffects.Blutend]{Blutend 2} erhält.</p><p><strong>Fernkampf</strong>: Eine eklatante Fehlbedienung entlädt die Wucht des Angriffs auf den Angreifer selbst und verletzt ihn. Er erhält auf diese Weise den Zustand @Compendium[splittermond.statuseffects.Blutend]{Blutend 2}. </p>"
+            },
+            "magic": {
+                "priest": {
+                    "result1_2": "<h3>Nichts passiert.</h3>",
+                    "result3_20": "<h3>unangenehm</h3><p>Der Priester spürt eine tiefe seelische Erschöpfung. Er erhält den Zustand @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2}.</p>",
+                    "result21_35": "<h3>störend</h3><p>Der Priester spürt die Verbindung zu seinem Gott leicht schwächer werden, was sein Selbstvertrauen  und seine Konzentration angreift. Er erhält die Zustände @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2} und @Compendium[splittermond.statuseffects.Glaubenskrise]{Glaubenskrise 1}.</p>",
+                    "result36_70": "<h3>beunruhigend</h3><p>Der Priester hat merkliche Schwierigkeiten, die Verbindung zu seinem Gott aufrecht zu erhalten, was  seine ganze Konzentration erfordert. Er erhält die Zustände @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2}, @Compendium[splittermond.statuseffects.Benommen]{Benommen 1} und  @Compendium[splittermond.statuseffects.Glaubenskrise]{Glaubenskrise 2}.</p>",
+                    "result71_100": "<h3>bedrohlich</h3><p> Ferne zum Gott ist so stark geworden, dass der Priester nicht nur unkonzentriert ist, sondern darüber hinaus von Selbstzweifeln geplagt wird. Er erhält die Zustände @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2}, @Compendium[splittermond.statuseffects.Benommen]{Benommen 2} und  @Compendium[splittermond.statuseffects.Glaubenskrise]{Glaubenskrise 3}.</p>",
+                    "result101_130": "<h3>schädlich</h3><p>Die Verbindung des Priesters zu seinem Gott wird stark beschädigt, wodurch er sich seinem Gott ferner fühlt. Er erhält die Zustände @Compendium[splittermond.statuseffects.Angsterfüllt]{Angsterfüllt}, @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 3}, @Compendium[splittermond.statuseffects.Benommen]{Benommen 2} und  @Compendium[splittermond.statuseffects.Glaubenskrise]{Glaubenskrise 3}.</p>",
+                    "result131": "<h3>verderblich</h3><p>Die Verbindung des Priesters zu seinem Gott reißt für kurze Zeit komplett ab. Er kann bis zur nächsten  <i>Ruhephase</i> keine Zauber wirken, da er keine Magie von seinem Patron erhält. Dies ist für den Priester eine zutiefst verstörende und unbehagliche Erfahrung. Er erhält die Zustände @Compendium[splittermond.statuseffects.Angsterfüllt]{Angsterfüllt}, @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 4} und @Compendium[splittermond.statuseffects.Benommen]{Benommen 3}.</p>"
+                },
+                "sorcerer": {
+                    "result1_2": "<h3>Nichts passiert.</h3>",
+                    "result3_20": "<h3>unangenehm</h3><p>Der Zauberer spürt leichtes Unbehagen, das oft mit Nasenbluten oder Ähnlichem einhergeht. Er verliert [[1d6]] Lebenspunkte und erleidet den Zustand @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 1}.</p>",
+                    "result21_35": "<h3>störend</h3><p>Der Zauberer kriegt rasende Kopfschmerzen und erleidet leichte Blessuren. Er verliert [[2d6]] Lebenspunkte und erleidet den Zustand @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2}.</p>",
+                    "result36_70": "<h3>beunruhigend</h3><p>Der Zauberer spürt nicht nur körperliches Unbehagen und erhält erste offene Wunden, sondern büßt  auch an Konzentration ein. Er verliert [[2d10]] Lebenspunkte und erleidet die Zustände @Compendium[splittermond.statuseffects.Erschöpft]{Erschöpft 2} und @Compendium[splittermond.statuseffects.Benommen]{Benommen 1}.</p>",
+                    "result71_100": "<h3>bedrohlich</h3><p>Der Zauberer kriegt starke Krämpfe und blutet aus Nase und Ohren. Ein unerklärliches Frösteln erfasst  ihn. Er verliert [[3d10]] Lebenspunkte und erhält die Zustände @Compendium[splittermond.statuseffects.Angsterfüllt]{Angsterfüllt} und @Compendium[splittermond.statuseffects.Benommen]{Benommen 1}.</p>",
+                    "result101_130": "<h3>schädlich</h3><p>Der Zauberer spürt starke Schmerzen und kann sich kaum noch konzentrieren. Er verliert[[4d10]] Lebenspunkte und erhält die Zustände @Compendium[splittermond.statuseffects.Angsterfüllt]{Angsterfüllt} und @Compendium[splittermond.statuseffects.Verwundet]{Verwundet 2}.</p>",
+                    "result131_175": "<h3>verderblich</h3><p>Der Zauberer siecht dahin und blutet am ganzen Körper. Er verliert [[5d10]] Lebenspunkte und erhält die  Zustände @Compendium[splittermond.statuseffects.Sterbend]{Sterbend 1} und @Compendium[splittermond.statuseffects.Verwundet]{Verwundet 2}.</p>",
+                    "result176_250": "<h3>tödlich</h3><p>Der Zauberer erleidet stärkste Schmerzen und blutet aus Augen, Nase, Ohren und Mund. Er verliert  [[7d10]] Lebenspunkte und erhält die Zustände @Compendium[splittermond.statuseffects.Sterbend]{Sterbend 2} und @Compendium[splittermond.statuseffects.Blutend]{Blutend 2}.</p>",
+                    "result251": "<h3>einäschernd</h3><p>Der Zauberer erleidet schrecklichste körperliche Schmerzen beim Verlust von [[10d10]] Lebenspunkten. Sollte er dies überleben, erhält er darüber hinaus einen der Zustände @Compendium[splittermond.statuseffects.Sterbend]{Sterbend 3}, @Compendium[splittermond.statuseffects.Brennend]{Brennend 5} oder @Compendium[splittermond.statuseffects.Blutend]{Blutend 3}. </p>"
+                }
+            }
+        },
+        "woundMalusLevels": {
+            "notinjured": "unverletzt",
+            "battered": "angeschlagen",
+            "injured": "verletzt",
+            "badlyinjured": "schwer verletzt",
+            "doomed": "todgeweiht"
+        },
+        "damageLevels": {
+            "undamaged": "unbeschädigt",
+            "tarnished": "angeschlagen",
+            "demolished": "demoliert",
+            "destroyed": "zerstört"
+        },
+        "requestSkillCheck": "Fertigkeitsprobe anfordern",
+        "pleaseSelectAToken": "Bitte selektiere ein Token!",
+        "applyDamage": "Schaden anwenden",
+        "apply": "Anwenden",
+        "applyDamageOnSelectedToken": "Der Schaden wird auf alle selektierten Token angewendet!",
+        "applyDamageOnSelectedTargets": "Der Schaden wird auf alle als <i>Ziel</i> markierte Token angewendet!",
+        "applyDamageOnToken": "Der Schaden wird auf <a class='entity-link' draggable='false' data-entity='Actor' data-id='{_id}'><i class='fas fa-user'></i> {name}</a> angewendet!",
+        "adventure": "Abenteuer",
+        "adventures": "Abenteuer",
+        "library": "Bibliothek",
+        "modificatorHelpText": "Mit Komma getrennte Modifikatoren, siehe @Compendium[splittermond.journal-entries.Modifikatoren]{Modifikatoren}.",
+        "minAttributesHelpText": "Mit Komma getrennte minimale Attribute. Beisp.: <pre>STÄ 3, BEW 2</pre>",
+        "pdfoundry": {
+            "page": "Seite",
+            "notinstalled": "Um PDF links zu verwenden muss PDFoundry installiert sein!",
+            "notfound": "Kein PDF mit dem angegebenen Code gefunden."
+        },
+        "settings": {
+            "reducibleEnhancementCosts": {
+                "name": "Reduzible Zauberverstärkungskosten",
+                "hint": "Erlaubt die Reduzierung der Verstärkungskosten durch die Verwendung von Erfolgsgraden."
+            },
+            "theme": {
+                "name": "UI-Theme",
+                "hint": "Wähle eine UI-Design",
+                "options": {
+                    "default": "Standard (Sepia)",
+                    "dark": "Dunkel",
+                    "splittermond_blue": "Splittermond-Blau"
+                }
+            },
+            "showActionBar": {
+                "name": "Token-Aktionsleiste",
+                "hint": "Aktiviert die Token-Aktionsleiste"
+            },
+            "showHotbarDuringActionBar": {
+                "name": "Macroleiste zeitgleich mit Aktionsleiste anzeigen",
+                "hint": "Ist diese Option aktiviert, wird die Macroleiste nicht ausgeblendet, wenn die Token-Aktionsleiste angezeigt wird."
+            },
+            "HGMultiplier": {
+                "name": "Heldengrad-Multiplikator",
+                "hint": "Der Multiplikator für die Berechnung der Fertigkeitspunkte und Attributsmodifikatoren."
+            },
+            "displayDamageDialog": {
+                "name": "Schadensdialog anzeigen",
+                "hint": "Zeigt einen Dialog zur Eingabe des Schadens an, wenn ein Token Schaden erhält.",
+                "options": {
+                    "once": "Nur den ersten",
+                    "never": "Nie",
+                    "always": "Immer"
+                }
+            },
+            "stableProtectsAllReduction": {
+                "name": "Merkmal Stabil negiert alle Durchdringung",
+                "hint": "Wird eine Rüstung mit dem Merkmal 'Stabil' von einer durchdringenden Waffe angegriffen, so wird die gesamte Schadensreduktion des Angegriffenen nicht durch 'Durchdringung' reduziert. Wird diese Option deaktiviert beschränkt sich diese Wirkung auf die Rüstung die sa Merkmal 'Stabil' hat."
+            }
+        },
+        "error": {
+            "parseError": "Fehler beim Parsen der Daten im Bereich: {section}"
+        },
+        "maneuver": "Manöver",
+        "maneuvers": "Manöver",
+        "grazingHit": "Streiftreffer",
+        "keybindings": {
+            "paste": {
+                "name": "Item Einfügen",
+                "hint": "Erlaubt das Importieren von Items aus der Zwischenablage."
+            }
+        },
+        "itemImport": {
+            "selectAFolder": "Wähle einen Ordner für den Import aus.",
+            "folder": "Ordner",
+            "noFolder": "Kein Ordner",
+            "skillSelection": {
+                "title": {
+                    "unknown": "Wählen Sie eine Fertigkeit",
+                    "weapon": "Waffenimport",
+                    "mastery": "Meisterschaftsimport"
+                },
+                "label": {
+                    "unknown": "Fertigkeit",
+                    "weapon": "Kampffertigkeit",
+                    "mastery": "Fertigkeit"
+                }
+            }
+        },
+        "genesisImport": {
+            "spellValidation": {
+                "nameUnknown": "Unbekannter Zauber",
+                "spellsExcluded": "Beim Import wurden einige Zauber ausgelassen. Überprüfen Sie die Browser-Konsole auf Details.",
+                "invalidSkillLevel": "Zauber '{spellName}' hat keinen gültigen Zaubergrad.",
+                "invalidFocusCosts": "Zauber '{spellName}' hat keine gültigen Fokuskosten.",
+                "invalidDifficulty": "Zauber '{spellName}' has no valid difficulty.",
+                "invalidDamage": "Zauber '{spellName}' hat keinen gültigen Schadenswert."
+            }
         }
-      }
     },
-    "genesisImport": {
-      "spellValidation": {
-        "nameUnknown": "Unbekannter Zauber",
-        "spellsExcluded": "Beim Import wurden einige Zauber ausgelassen. Überprüfen Sie die Browser-Konsole auf Details.",
-        "invalidSkillLevel": "Zauber '{spellName}' hat keinen gültigen Zaubergrad.",
-        "invalidFocusCosts": "Zauber '{spellName}' hat keine gültigen Fokuskosten.",
-        "invalidDifficulty": "Zauber '{spellName}' has no valid difficulty.",
-        "invalidDamage": "Zauber '{spellName}' hat keinen gültigen Schadenswert."
-      }
+    "COMBAT": {
+        "Round": "Tick"
     }
-  },
-  "COMBAT": {
-    "Round": "Tick"
-  }
 }

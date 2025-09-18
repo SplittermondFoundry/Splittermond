@@ -2,31 +2,31 @@ import {
     DegreeOfSuccessAction,
     DegreeOfSuccessOptionData,
     DegreeOfSuccessOptionInput,
-    isDegreeOfSuccessOptionData
+    isDegreeOfSuccessOptionData,
 } from "../interfaces";
 
 export const noOptionToUse = {
     usedDegreesOfSuccess: 0,
-    action: () => { }
+    action: () => {},
 } as const;
 
-type TypedDoSData<T extends string> = DegreeOfSuccessOptionData & {action:T};
+type TypedDoSData<T extends string> = DegreeOfSuccessOptionData & { action: T };
 
-export function configureUseOption<T extends string=never>(
+export function configureUseOption<T extends string = never>(
     usedEvaluator: () => boolean = () => false,
-    isOptionEvaluator: () => boolean = ()=>true,
+    isOptionEvaluator: () => boolean = () => true,
     optionsOnHandler: Readonly<T[]> = []
 ) {
     function withUsed(used: () => boolean) {
-        return configureUseOption(used,isOptionEvaluator, optionsOnHandler);
+        return configureUseOption(used, isOptionEvaluator, optionsOnHandler);
     }
 
     function withHandlesOptions<U extends string>(optionsHandled: Readonly<U[]>) {
         const newOptionsHandled = [...optionsOnHandler, ...optionsHandled];
-        return configureUseOption<T|U>(usedEvaluator, isOptionEvaluator, newOptionsHandled);
+        return configureUseOption<T | U>(usedEvaluator, isOptionEvaluator, newOptionsHandled);
     }
 
-    function withIsOption(isOption: () =>boolean){
+    function withIsOption(isOption: () => boolean) {
         return configureUseOption(usedEvaluator, isOption, optionsOnHandler);
     }
 
@@ -35,12 +35,12 @@ export function configureUseOption<T extends string=never>(
     ) {
         return {
             useOption: (degreeOfSuccessOptionData: DegreeOfSuccessOptionInput) =>
-                useOption(optionConsumer, degreeOfSuccessOptionData)
+                useOption(optionConsumer, degreeOfSuccessOptionData),
         };
     }
 
     function useOption(
-        optionConsumer: (degreeOfSuccessOptionData: TypedDoSData<T> ) => DegreeOfSuccessAction,
+        optionConsumer: (degreeOfSuccessOptionData: TypedDoSData<T>) => DegreeOfSuccessAction,
         degreeOfSuccessOptionData: DegreeOfSuccessOptionInput
     ): DegreeOfSuccessAction {
         if (!isDegreeOfSuccessOptionData(degreeOfSuccessOptionData)) {
@@ -52,7 +52,7 @@ export function configureUseOption<T extends string=never>(
             console.warn("Attempt to perform an action that is not handled by this handler");
             return noOptionToUse;
         }
-        if(!isOptionEvaluator()){
+        if (!isOptionEvaluator()) {
             console.warn("Attempt to use an option that should not have been provided to the user");
             return noOptionToUse;
         }

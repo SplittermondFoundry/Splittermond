@@ -1,5 +1,5 @@
-import {produceMasteryTags} from "../../item/tags/masteryTags.js";
-import {initializeMetadata} from "./metadataInitializer.js";
+import { produceMasteryTags } from "../../item/tags/masteryTags.js";
+import { initializeMetadata } from "./metadataInitializer.js";
 
 /**
  *
@@ -22,10 +22,13 @@ export function initializeMasteryItemPreparation(masteryAvailabiltyParser) {
     }
 
     function isDisplayableMastery(itemIndexEntity) {
-        return itemIndexEntity.type === "mastery" && typeof itemIndexEntity.system === "object" &&
+        return (
+            itemIndexEntity.type === "mastery" &&
+            typeof itemIndexEntity.system === "object" &&
             itemIndexEntity.system.level !== undefined &&
             itemIndexEntity.system.skill !== undefined &&
-            itemIndexEntity.system.availableIn !== undefined;
+            itemIndexEntity.system.availableIn !== undefined
+        );
     }
 
     /**
@@ -34,13 +37,11 @@ export function initializeMasteryItemPreparation(masteryAvailabiltyParser) {
     function initializeTagGenerator(item) {
         const property = "availableInList";
         if (!(property in item)) {
-            Object.defineProperty(item,
-                property,
-                {
-                    get: function () {
-                        return produceMasteryTags(this.system, masteryAvailabiltyParser);
-                    }
-                });
+            Object.defineProperty(item, property, {
+                get: function () {
+                    return produceMasteryTags(this.system, masteryAvailabiltyParser);
+                },
+            });
         }
     }
 }

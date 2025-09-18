@@ -1,154 +1,153 @@
 name: Schadenstypen, Verwundbarkeit und Resistenzen
 _id: r6hVjsY5HymINsfp
 pages:
-  - sort: 0
-    name: Allgemeines
-    type: text
-    _id: OIOwJ6I9Ss5Qgytk
-    system: {}
-    title:
-      show: false
-      level: 1
-    image: {}
-    text:
-      format: 1
-      content: >-
-        <p>Ab Version 0.12.12 ist es möglich Waffen und Zaubern Schadenstypen
-        zuzuordnen. Damit ist möglich Resistenzen und Verwundbarkeiten in der
-        Schadensberechnung zu berücksichtigen.</p><p>Standartmäßig ist
-        "physischer Schaden" und "normaler Schaden" ausgewählt. Ausgenommen ist
-        der bereits angelegte waffenlose Angriff. Dort ist "Betäubungsschaden"
-        ausgewählt.</p><p>Es sind 13 Schadenstypen im System
-        definiert.</p><p>Säure, Blutung, Kälte, Krankheit, Elektrizität, Feuer,
-        Hitze, Licht, Mental, Physisch, Gift, Fels und
-        Schattenschaden.</p><p>Info: z.Z. ist es noch nicht möglich Zaubern oder
-        Waffen einen zusätzlichen Schadenstyp zuzuordnen.</p><p><strong>Wichtig:
-        Da standartmäßig bei allen Schadensquellen "physicher Schaden" und
-        "normaler Schaden" ausgewählt ist, muss bei jeder Waffe und bei jedem
-        Zauber der korrekte Schadenstyp und -art eingestellt werden. Sie sind
-        unter "Waffeneigenschaften" bzw. "Allgemein" bei Zaubern zu
-        finden.</strong></p><p></p><table><tbody><tr><td
-        data-colwidth="553"><img
-        src="systems/splittermond/packs/Settings_DamageTypes.png" width="540"
-        height="360" /></td></tr></tbody></table>
-    video:
-      controls: true
-      volume: 0.5
-    src: null
-    ownership:
-      default: -1
-      2n6beZWSvIclIvyD: 3
-    flags: {}
-    _stats:
-      compendiumSource: null
-      duplicateSource: null
-      coreVersion: '13.342'
-      systemId: splittermond
-      systemVersion: 0.12.12
-      createdTime: 1741707001268
-      modifiedTime: 1741853172248
-      lastModifiedBy: 2n6beZWSvIclIvyD
-      exportSource: null
-    category: null
-    _key: '!journal.pages!r6hVjsY5HymINsfp.OIOwJ6I9Ss5Qgytk'
-  - sort: 200000
-    name: Verwundbarkeit und Resistenz
-    type: text
-    _id: nrkp47E0SCcE2PJy
-    system: {}
-    title:
-      show: false
-      level: 2
-    image: {}
-    text:
-      format: 1
-      content: >-
-        <p>Verwundbarkeiten und Resistenzen werden unterschiedlich gehandhabt
-        (S.264ff GRW)</p><ul><li><p>Verwundbarkeiten verdoppel den Schaden je
-        Stufe.</p><ul><li><p>weakness.fire 1 = doppelter
-        Schaden</p></li><li><p>weakness.fire 2 = vierfacher
-        Schaden</p></li></ul></li><li><p>Resistzenzen reduzieren den Schaden in
-        Höhe der Stufe</p><ul><li><p>resistance.fire 2 = -2 Punkte
-        Feuerschaden</p></li><li><p>resistance.fire 4 = -4 Punkte
-        Feuerschaden</p></li></ul></li></ul><p></p><p>Verwundbarkeiten und
-        Resistenzen können in jedem <strong>"Modifikator"</strong> Feld
-        eingetragen werden. Z.B. bei Stärken, Monstermerkmalen, Gegenständen,
-        Waffen, Rüstungen usw….</p><table><tbody><tr><td
-        data-colwidth="145"><p>weakness.physical</p></td><td
-        data-colwidth="152"><p>resistance.physical</p></td><td
-        data-colwidth="127"><p>Physisch</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.mental</p></td><td
-        data-colwidth="152"><p>resistance.mental</p></td><td
-        data-colwidth="127"><p>Mental</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.electric</p></td><td
-        data-colwidth="152"><p>resistance.electric</p></td><td
-        data-colwidth="127"><p>Elektrizität</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.acid</p></td><td
-        data-colwidth="152"><p>resistance.acid</p></td><td
-        data-colwidth="127"><p>Säure</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.rock</p></td><td
-        data-colwidth="152"><p>resistance.rock</p></td><td
-        data-colwidth="127"><p>Fels</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.fire</p></td><td
-        data-colwidth="152"><p>resistance.fire</p></td><td
-        data-colwidth="127"><p>Feuer</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.heat</p></td><td
-        data-colwidth="152"><p>resistance.heat</p></td><td
-        data-colwidth="127"><p>Hitze</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.cold</p></td><td
-        data-colwidth="152"><p>resistance.cold</p></td><td
-        data-colwidth="127"><p>Kälte</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.poison</p></td><td
-        data-colwidth="152"><p>resistance.poison</p></td><td
-        data-colwidth="127"><p>Gift</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.light</p></td><td
-        data-colwidth="152"><p>resistance.light</p></td><td
-        data-colwidth="127"><p>Licht</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.shadow</p></td><td
-        data-colwidth="152"><p>resistance.shadow</p></td><td
-        data-colwidth="127"><p>Schatten</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.bleeding</p></td><td
-        data-colwidth="152"><p>resistance.bleeding</p></td><td
-        data-colwidth="127"><p>Blutung</p></td></tr><tr><td
-        data-colwidth="145"><p>weakness.disease</p></td><td
-        data-colwidth="152"><p>resistance.disease</p></td><td
-        data-colwidth="127"><p>Krankheit</p></td></tr></tbody></table><p></p>
-    video:
-      controls: true
-      volume: 0.5
-    src: null
-    ownership:
-      default: -1
-      2n6beZWSvIclIvyD: 3
-    flags: {}
-    _stats:
-      compendiumSource: null
-      duplicateSource: null
-      coreVersion: '13.342'
-      systemId: splittermond
-      systemVersion: 0.12.12
-      createdTime: 1741707029832
-      modifiedTime: 1741853545734
-      lastModifiedBy: 2n6beZWSvIclIvyD
-      exportSource: null
-    category: null
-    _key: '!journal.pages!r6hVjsY5HymINsfp.nrkp47E0SCcE2PJy'
+    - sort: 0
+      name: Allgemeines
+      type: text
+      _id: OIOwJ6I9Ss5Qgytk
+      system: {}
+      title:
+          show: false
+          level: 1
+      image: {}
+      text:
+          format: 1
+          content: >-
+              <p>Ab Version 0.12.12 ist es möglich Waffen und Zaubern Schadenstypen
+              zuzuordnen. Damit ist möglich Resistenzen und Verwundbarkeiten in der
+              Schadensberechnung zu berücksichtigen.</p><p>Standartmäßig ist
+              "physischer Schaden" und "normaler Schaden" ausgewählt. Ausgenommen ist
+              der bereits angelegte waffenlose Angriff. Dort ist "Betäubungsschaden"
+              ausgewählt.</p><p>Es sind 13 Schadenstypen im System
+              definiert.</p><p>Säure, Blutung, Kälte, Krankheit, Elektrizität, Feuer,
+              Hitze, Licht, Mental, Physisch, Gift, Fels und
+              Schattenschaden.</p><p>Info: z.Z. ist es noch nicht möglich Zaubern oder
+              Waffen einen zusätzlichen Schadenstyp zuzuordnen.</p><p><strong>Wichtig:
+              Da standartmäßig bei allen Schadensquellen "physicher Schaden" und
+              "normaler Schaden" ausgewählt ist, muss bei jeder Waffe und bei jedem
+              Zauber der korrekte Schadenstyp und -art eingestellt werden. Sie sind
+              unter "Waffeneigenschaften" bzw. "Allgemein" bei Zaubern zu
+              finden.</strong></p><p></p><table><tbody><tr><td
+              data-colwidth="553"><img
+              src="systems/splittermond/packs/Settings_DamageTypes.png" width="540"
+              height="360" /></td></tr></tbody></table>
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      ownership:
+          default: -1
+          2n6beZWSvIclIvyD: 3
+      flags: {}
+      _stats:
+          compendiumSource: null
+          duplicateSource: null
+          coreVersion: "13.342"
+          systemId: splittermond
+          systemVersion: 0.12.12
+          createdTime: 1741707001268
+          modifiedTime: 1741853172248
+          lastModifiedBy: 2n6beZWSvIclIvyD
+          exportSource: null
+      category: null
+      _key: "!journal.pages!r6hVjsY5HymINsfp.OIOwJ6I9Ss5Qgytk"
+    - sort: 200000
+      name: Verwundbarkeit und Resistenz
+      type: text
+      _id: nrkp47E0SCcE2PJy
+      system: {}
+      title:
+          show: false
+          level: 2
+      image: {}
+      text:
+          format: 1
+          content: >-
+              <p>Verwundbarkeiten und Resistenzen werden unterschiedlich gehandhabt
+              (S.264ff GRW)</p><ul><li><p>Verwundbarkeiten verdoppel den Schaden je
+              Stufe.</p><ul><li><p>weakness.fire 1 = doppelter
+              Schaden</p></li><li><p>weakness.fire 2 = vierfacher
+              Schaden</p></li></ul></li><li><p>Resistzenzen reduzieren den Schaden in
+              Höhe der Stufe</p><ul><li><p>resistance.fire 2 = -2 Punkte
+              Feuerschaden</p></li><li><p>resistance.fire 4 = -4 Punkte
+              Feuerschaden</p></li></ul></li></ul><p></p><p>Verwundbarkeiten und
+              Resistenzen können in jedem <strong>"Modifikator"</strong> Feld
+              eingetragen werden. Z.B. bei Stärken, Monstermerkmalen, Gegenständen,
+              Waffen, Rüstungen usw….</p><table><tbody><tr><td
+              data-colwidth="145"><p>weakness.physical</p></td><td
+              data-colwidth="152"><p>resistance.physical</p></td><td
+              data-colwidth="127"><p>Physisch</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.mental</p></td><td
+              data-colwidth="152"><p>resistance.mental</p></td><td
+              data-colwidth="127"><p>Mental</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.electric</p></td><td
+              data-colwidth="152"><p>resistance.electric</p></td><td
+              data-colwidth="127"><p>Elektrizität</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.acid</p></td><td
+              data-colwidth="152"><p>resistance.acid</p></td><td
+              data-colwidth="127"><p>Säure</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.rock</p></td><td
+              data-colwidth="152"><p>resistance.rock</p></td><td
+              data-colwidth="127"><p>Fels</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.fire</p></td><td
+              data-colwidth="152"><p>resistance.fire</p></td><td
+              data-colwidth="127"><p>Feuer</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.heat</p></td><td
+              data-colwidth="152"><p>resistance.heat</p></td><td
+              data-colwidth="127"><p>Hitze</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.cold</p></td><td
+              data-colwidth="152"><p>resistance.cold</p></td><td
+              data-colwidth="127"><p>Kälte</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.poison</p></td><td
+              data-colwidth="152"><p>resistance.poison</p></td><td
+              data-colwidth="127"><p>Gift</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.light</p></td><td
+              data-colwidth="152"><p>resistance.light</p></td><td
+              data-colwidth="127"><p>Licht</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.shadow</p></td><td
+              data-colwidth="152"><p>resistance.shadow</p></td><td
+              data-colwidth="127"><p>Schatten</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.bleeding</p></td><td
+              data-colwidth="152"><p>resistance.bleeding</p></td><td
+              data-colwidth="127"><p>Blutung</p></td></tr><tr><td
+              data-colwidth="145"><p>weakness.disease</p></td><td
+              data-colwidth="152"><p>resistance.disease</p></td><td
+              data-colwidth="127"><p>Krankheit</p></td></tr></tbody></table><p></p>
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      ownership:
+          default: -1
+          2n6beZWSvIclIvyD: 3
+      flags: {}
+      _stats:
+          compendiumSource: null
+          duplicateSource: null
+          coreVersion: "13.342"
+          systemId: splittermond
+          systemVersion: 0.12.12
+          createdTime: 1741707029832
+          modifiedTime: 1741853545734
+          lastModifiedBy: 2n6beZWSvIclIvyD
+          exportSource: null
+      category: null
+      _key: "!journal.pages!r6hVjsY5HymINsfp.nrkp47E0SCcE2PJy"
 folder: null
 sort: 0
 ownership:
-  default: 0
-  2n6beZWSvIclIvyD: 3
+    default: 0
+    2n6beZWSvIclIvyD: 3
 flags: {}
 _stats:
-  compendiumSource: null
-  duplicateSource: null
-  coreVersion: '13.342'
-  systemId: splittermond
-  systemVersion: 0.12.12
-  createdTime: 1741706437626
-  modifiedTime: 1741706437626
-  lastModifiedBy: 2n6beZWSvIclIvyD
-  exportSource: null
+    compendiumSource: null
+    duplicateSource: null
+    coreVersion: "13.342"
+    systemId: splittermond
+    systemVersion: 0.12.12
+    createdTime: 1741706437626
+    modifiedTime: 1741706437626
+    lastModifiedBy: 2n6beZWSvIclIvyD
+    exportSource: null
 categories: []
-_key: '!journal!r6hVjsY5HymINsfp'
-
+_key: "!journal!r6hVjsY5HymINsfp"

@@ -5,31 +5,30 @@ flags: {}
 img: icons/svg/fire.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: >-
-    <p>Der Abenteurer erh&auml;lt alle 15 Ticks Brandschaden in der H&ouml;he
-    von [[/r 1d6 # Brandschaden]] Punkten pro Stufe. Der Abenteurer kann sich
-    f&uuml;r 10 Ticks auf den Boden w&auml;lzen um den Zustand um eine Stufe zu
-    verringern. Der Zustand h&auml;lt 90 Ticks an.</p>
-  source: ''
-  modifier: ''
-  level: '1'
-  startTick: 0
-  interval: '15'
-  times: '6'
+    description: >-
+        <p>Der Abenteurer erh&auml;lt alle 15 Ticks Brandschaden in der H&ouml;he
+        von [[/r 1d6 # Brandschaden]] Punkten pro Stufe. Der Abenteurer kann sich
+        f&uuml;r 10 Ticks auf den Boden w&auml;lzen um den Zustand um eine Stufe zu
+        verringern. Der Zustand h&auml;lt 90 Ticks an.</p>
+    source: ""
+    modifier: ""
+    level: "1"
+    startTick: 0
+    interval: "15"
+    times: "6"
 folder: null
 sort: 0
-_key: '!items!3YkS4JJANi0QBMaS'
-
+_key: "!items!3YkS4JJANi0QBMaS"

@@ -3,229 +3,228 @@ name: Modifikatoren
 folder: null
 sort: 0
 flags:
-  core: {}
+    core: {}
 pages:
-  - name: Modifikatoren
-    type: text
-    title:
-      show: false
-      level: 2
-    text:
-      format: 1
-      content: "<p>Mit Modifikatoren können Items (Stärken, Meisterschaften, Ausrüstungsgegenstände, Zustände etc.) Charakterwerte verändern. Diese Modifikatoren werden als kommagetrennte Liste in der Form <strong><code>&lt;Identifikator&gt; &lt;Wert&gt;</code></strong> gespeichert.</p><div class=\"box\"><h3>Beispiel:</h3><p>Die Stärke Erhöhter Fokuspool erhöht die Anzahl Fokuspunkte um fünf Punkte durch den Modifikator <strong><code>FO +5</code>.</strong></p></div><p>Für Fertigkeitswerte wird einfach die <span style=\"font-family:monospace\"><strong>{ID der Fertigkeit oder die Magischule}</strong></span> angegeben. In der folgenden Tabelle sind die möglichen Charakteridentifikatoren gruppiert nach Typen aufgelistet:</p><p></p><table><caption><strong>Abgeleitete Werte</strong></caption><thead><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\">Identifikator</td><td style=\"width:26.9283%;height:16px\">Charakterwert</td><td style=\"width:57.1282%;height:16px\">Bemerkung</td></tr></thead><tbody><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>GK</code></strong></td><td style=\"width:26.9283%;height:16px\">Größenklasse</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>GSW</code></strong></td><td style=\"width:26.9283%;height:16px\">Geschwindigkeit</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:10px\"><td style=\"width:15.0399%;height:10px\"><strong><code>GSW.mult</code></strong></td><td style=\"width:26.9283%;height:10px\">Geschwindigkeitsfaktor</td><td style=\"width:57.1282%;height:10px\">Beispiel: Zustand <em>Lahm </em><strong><code>GSW.mult 0.5</code></strong></td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>INI</code></strong></td><td style=\"width:26.9283%;height:16px\">Initiative</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>LP</code></strong></td><td style=\"width:26.9283%;height:16px\">Lebenspunkte</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>FO</code></strong></td><td style=\"width:26.9283%;height:16px\">Fokus</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>VTD</code></strong></td><td style=\"width:26.9283%;height:16px\">Verteidigung</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>KW</code></strong></td><td style=\"width:26.9283%;height:16px\">Körperlicher Widerstand</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>GW</code></strong></td><td style=\"width:26.9283%;height:16px\">Geistiger Widerstand</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr><td style=\"width:15.0399%\"><strong><code>SR</code></strong></td><td style=\"width:26.9283%\">Schadensreduktion</td><td style=\"width:57.1282%\">\_</td></tr></tbody></table><p></p><table><tbody><tr><td data-colwidth=\"326\"><img src=\"systems/splittermond/packs/CharMod_example.png\" alt=\"Beispielamulet\" width=\"300\" height=\"400\" /><p>Dieses Amulet würde dem Spieler +2 auf körperlichen und Geistigen Widerstand geben. Ebenso +1 auf seine Schadensreduktion.</p></td></tr><tr><td data-colwidth=\"326\"><img src=\"systems/splittermond/packs/Ability_Mod.png\" width=\"300\" height=\"400\" /><p>Das Amulet gibt +1 auf den Fähigkeitswert für <strong>alle</strong> Stangenwaffen. Es müssen die englischen Begriffe verwendet werden.</p><p>Will man dass das Amulet nur einer bestimmten Waffe einen Bonus verleit, lautet der Modifikator wie folgt:<br />staffs/waffenname +X</p><p>z.B.:</p><p>staffs/Kampfstab +1</p><p>Info: Haben mehrere Waffen des Charakters den gleichen Namen, bekommen sie auch den Bonus.</p></td></tr><tr><td data-colwidth=\"326\"><img src=\"systems/splittermond/packs/Ability_Mod_2.png\" width=\"300\" height=\"250\" /></td></tr></tbody></table><table><caption><strong>Sonstige</strong></caption><thead><tr style=\"height:16px\"><td style=\"width:194px;height:16px\">Identifikator</td><td style=\"width:306px;height:16px\">Charakterwert</td><td style=\"width:152px;height:16px\">Bemerkung</td></tr></thead><tbody><tr style=\"height:16px\"><td style=\"width:194px;height:16px\"><strong><code>handicap.shield.mod</code></strong></td><td style=\"width:306px;height:16px\">Behinderung durch Schild</td><td style=\"width:152px;height:16px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>handicap.armor.mod</code></strong></td><td style=\"width:306px\">Behinderung durch Rüstung</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>handicap.mod</code></strong></td><td style=\"width:306px\">Gesamtbehinderung</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>tickMalus.shield.mod</code></strong></td><td style=\"width:306px\">Tickzuschlag durch Schild</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>tickMalus.armor.mod</code></strong></td><td style=\"width:306px\"><span style=\"background-color:rgba(255, 255, 255, 0.2)\">Tickzuschlag</span>\_durch Rüstung</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>tickMalus.mod</code></strong></td><td style=\"width:306px\">Allgemeiner Tickzuschlag</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>woundMalus.nbrLevels</code></strong></td><td style=\"width:306px\">Anzahl Wundstufen</td><td style=\"width:152px\">mögliche Werte: 1/3/5</td></tr><tr><td style=\"width:194px\"><strong><code>woundMalus.mod</code></strong></td><td style=\"width:306px\">Wundabzugspunkte pro Wundstufe</td><td style=\"width:152px\">Verändert den Wundmalus um <strong>&lt;Wert&gt;</strong></td></tr><tr><td style=\"width:194px\"><strong><code>woundMalus.levelMod</code></strong></td><td style=\"width:306px\">Wundstufe</td><td style=\"width:152px\">Setzt den Wundmalus auf Stufe X</td></tr><tr><td style=\"width:194px\"><strong><code>splinterpoints</code></strong></td><td style=\"width:306px\">Splitterpunkte</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>healthRegeneration.multiplier</code></strong></td><td style=\"width:306px\">Faktor an KON-Punkte für Regeneration von Lebenpunkten</td><td style=\"width:152px\">Standardwert: 2</td></tr><tr><td style=\"width:194px\"><strong><code>focusRegeneration.multiplier</code></strong></td><td style=\"width:306px\">Faktor an WIL-Punkte für Regeneration von Fokuspunkten</td><td style=\"width:152px\">Standardwert: 2</td></tr><tr><td style=\"width:194px\"><strong><code>generalSkills</code></strong></td><td style=\"width:306px\">Alle allgemeinen Fertigkeiten</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>magicSkills</code></strong></td><td style=\"width:306px\">Alle Magischulen</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>fightingSkills</code></strong></td><td style=\"width:306px\">Alle Kampffertigkeiten</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>bonusCap</code></strong></td><td style=\"width:306px\">Maximaler Bonus auf alle Proben/abgeleitete Werte</td><td style=\"width:152px\">\_</td></tr><tr><td style=\"width:194px\"><strong><code>foreduction</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauber</td><td style=\"width:152px\">Beispiel: FoReduction 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foreduction.SPELLGROUP</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauber einer <strong>bestimmten</strong> Magieschule</td><td style=\"width:152px\">Beispiel: FoReduction.FireMagic 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foreduction.SPELLGROUP.SPELLTYPE</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauber eines bestimmten <strong>Typs</strong> in einer <strong>bestimmten</strong> Magieschule</td><td style=\"width:152px\">Beispiel: FoReduction.FireMagic.Schaden 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foEnhancedReduction</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauberverstärkungen</td><td style=\"width:152px\">Beispiel: FoEnhancedReduction 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foEnhancedReduction.SPELLGROUP</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauberverstärkungen einer <strong>bestimmten</strong> Magieschule</td><td style=\"width:152px\">Beispiel: FoEnhancedReduction.FireMagic 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foEnhancedReduction.SPELLGROUP.SPELLTYPE</code></strong></td><td style=\"width:306px\">Fokusreuzierung auf alle Zauberverstärkungen eines <strong>bestimmten Typs</strong> <strong>in einer</strong> <strong>bestimmten</strong> Magieschule</td><td style=\"width:152px\">Beispiel: FoEnhancedReduction.FireMagic.Schaden 1V1</td></tr></tbody></table><h2>Situationsabhängige Modifikatoren</h2><p>Stärken und Meisterschaften können unter bestimmten Situationen Boni für Proben geben. Diese situationsabhängigen Modifikatoren können durch die Syntax <strong><code>&lt;FertigkeitsID&gt;/&lt;Beschreibung&gt; &lt;Wert&gt;</code></strong> dargestellt werden. Im Probendialog kann dann gegebenenfalls der mit <strong><code>&lt;Beschreibung&gt;</code></strong> bezeichnete Modifikator ausgewählt werden.</p><div class=\"box\"><h3>Beispiel <em>Scharfes Gehör (Stärke)</em></h3><p><strong><code>perception/Scharfes Gehör +2</code></strong></p></div><p>Wird für eine Kampffertigkeit für die <strong><code>&lt;Beschreibung&gt;</code></strong> ein Waffenname angegeben, wird bei einem entsprechenden Angriff mit dieser Waffe der situationsabhängige Modifikator automatisch ausgewählt.</p><div class=\"box\"><h3>Beispiel</h3><p><strong><code>blades/Anderthalbhänder +1</code></strong></p></div><p>Wird für eine Magieschule für die<strong><code> &lt;Beschreibung&gt;</code></strong> ein Zaubertypus (Schwerpunkt) angegeben, wird bei einer entsprechenden Zauberprobe des angegebenen Typus der situationsabhängige Modifikator automatisch ausgewählt.</p><div class=\"box\"><h3><strong>Beispiel</strong></h3><p><strong><code>firemagic/Schaden +1</code></strong></p></div>"
-    _stats:
-      coreVersion: '13.342'
-      systemId: null
-      systemVersion: null
-      createdTime: null
-      modifiedTime: 1741850105057
-      lastModifiedBy: 2n6beZWSvIclIvyD
-      compendiumSource: null
-      duplicateSource: null
-      exportSource: null
-    _id: z1Xh1mRbjrGMieoq
-    system: {}
-    image: {}
-    video:
-      controls: true
-      volume: 0.5
-    src: null
-    sort: 0
-    ownership:
-      default: -1
-    flags: {}
-    category: null
-    _key: '!journal.pages!pJhqhFt40jZTI7rr.z1Xh1mRbjrGMieoq'
-  - sort: 100000
-    name: Merkmale (Waffen und Rüstung)
-    type: text
-    _id: 7sfLK2JBR8PtQKgV
-    system: {}
-    title:
-      show: false
-      level: 2
-    image: {}
-    text:
-      format: 1
-      content: >-
-        <p>Waffen und Rüstungen können zusätzliche Merkmale
-        haben.</p><p>Merkmale mit einem * sind in den Mondstahlklingen zu
-        finden.</p><p></p><h2>Rüstungsmerkmale</h2><table><tbody><tr><td
-        data-colwidth="170"><p><strong>Merkmal</strong></p></td><td><p><strong>Auswirkung</strong></p></td></tr><tr><td
-        data-colwidth="170"><p>Deckung</p></td><td><p>Ein geführter Schild mit
-        diesem Merkmal gilt als <strong>leichte Deckung</strong>, wenn er im
-        Kampf geführt wird</p></td></tr><tr><td
-        data-colwidth="170"><p>Primitiv</p></td><td><p>Schaden wird um 2 Punkte
-        reduziert wenn die gegnerische Rüstung nicht ebenfalls dieses Merkmal
-        hat.</p></td></tr><tr><td
-        data-colwidth="170"><p>Standfestigkeit</p></td><td><p>+3 KW gegen
-        Angriffe die die Position verändern (z.B.
-        <strong>Niederwerfen</strong>)</p></td></tr><tr><td
-        data-colwidth="170"><p>Wattiert</p></td><td><p>Eine Rüstung mit diesem
-        Merkmal <strong>halbiert</strong> den zusätzlichen Schaden auf dem
-        Manöver
-        <strong>Wuchtangriff</strong>.</p></td></tr></tbody></table><p></p><h2>Waffenmerkmale</h2><table><tbody><tr><td
-        data-colwidth="168"><p><strong>Merkmal</strong></p></td><td><p><strong>Auswirkung</strong></p></td></tr><tr><td
-        data-colwidth="168"><p>Ablenkend*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Auslöser</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Defensiv (Stufe)</p></td><td><p>Bei erfolgreicher
-        "aktiver Abwehr" wird die erreichte <strong>VTD</strong> um die Stufe
-        des Merkmals erhöht.</p></td></tr><tr><td
-        data-colwidth="168"><p>Detonation</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Doppelwaffe</p></td><td><p>Mit dieser Waffe
-        können die Meisterschaften zum <strong>Kampf mit zwei Händen (S.
-        171)</strong> genutzt werden.</p></td></tr><tr><td
-        data-colwidth="168"><p>Dornen*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Durchdringung (Stufe)</p></td><td><p>Waffe
-        ignoriert die gegnerische SR um die Stufe des
-        Merkmals.</p></td></tr><tr><td data-colwidth="168"><p>Entwaffnend*
-        (Stufe)</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Entwaffnungsimmunität*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Entwaffnungsschutz*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Exakt*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Ferndistanz*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Freihändig*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Gehärtet*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Improvisiert</p></td><td><p>Alltagsgegenstände.
-        +2 Schaden wenn der Kämpfer die Meistschaft
-        <strong>Improvisatation</strong> in der passenden
-        <strong>Kampffertigkeit</strong> verfügt.</p></td></tr><tr><td
-        data-colwidth="168"><p>Kälteschutz*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Kletterhilfe*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Kritisch*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Lange Waffe</p></td><td><p>Das eigene
-        <strong>Lösen auf dem Kampf</strong> erhält einen Bonus von +3, das
-        gegnerische einen Malus von -3.</p></td></tr><tr><td
-        data-colwidth="168"><p>Nahkampftauglich</p></td><td><p>Die
-        Fernkampfwaffe kann auch als Nahkampfwaffe (mit eigenen Werten)
-        verwendet werden.</p></td></tr><tr><td
-        data-colwidth="168"><p>Paarwaffe*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Parierwaffe (Stufe)</p></td><td><p>Eine
-        <strong>Aktive Abwehr</strong> mit einer Parierwaffe erfolgt immer über
-        die Kampffertigkeit dieser Waffe. Bei der Nutzung fällt eine
-        <strong>Behinderung</strong> in Höhe der Stufe an.</p></td></tr><tr><td
-        data-colwidth="168"><p>Primitiv</p></td><td><p>Schaden wird um 2 Punkte
-        reduziert wenn die gegnerische Rüstung nicht ebenfalls dieses Merkmal
-        hat.</p></td></tr><tr><td
-        data-colwidth="168"><p>Reiterrüstung*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Reiterschild*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Reiterwaffe* (Stufe)</p></td><td><p>Wird diese
-        Waffen vom Rücken eines Reittieres eingesetzt <strong>und</strong> hat
-        der Charakter die <strong>Meisterschaft Reiterkampf</strong> verursacht
-        die Waffen einen zusätzlichen Schadenspunkt in höhe des
-        Merkmals.</p></td></tr><tr><td
-        data-colwidth="168"><p>Rückkehrend*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Rückstoß*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Schadensschwund*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Scharf</p></td><td><p>Der minimale Wert jedes
-        Schadenswürfels der Waffe wird mit der Stufe dieses Merkmals ersetzt.
-        (2W6 sind dann nicht 2-12 Schaden, sondern 4-12 Schaden. 2x 2-6 je
-        Würfel.) Scharf kann nicht kleiner als 2 sein. Gilt nur für den reinen
-        Waffenschaden.</p></td></tr><tr><td
-        data-colwidth="168"><p>Schildwall*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Stabil*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Behinderung*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Stumpf</p></td><td><p>Waffe kann nur
-        Betäubungsschaden verursachen. Ausgenommen Effekte durch
-        Zauber.</p></td></tr><tr><td
-        data-colwidth="168"><p>Teilbar</p></td><td><p>Mit der Aktion
-        <strong>Gegenstand verwenden</strong> kann die Waffe in zwei einhändige
-        Waffen zerlegt werden.</p></td></tr><tr><td
-        data-colwidth="168"><p>Treffsicher*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Umklammern</p></td><td><p>Waffe kann für das
-        Manöver <strong>Umklammern</strong> genutzt werden.</p></td></tr><tr><td
-        data-colwidth="168"><p>Umwerfend*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Unaufällig*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Unhandlich</p></td><td><p>Bei Führung dieser
-        Waffe <strong>-2</strong> <strong>VTD</strong> für den
-        Charakter</p></td></tr><tr><td
-        data-colwidth="168"><p>Vielseitig</p></td><td><p>Waffe kann ein- oder
-        zweihändig geführt werden. Bei zweihändiger Führung <strong>+3
-        Schaden</strong>.</p></td></tr><tr><td
-        data-colwidth="168"><p>Wuchtig</p></td><td><p>Eine Waffe mit diesem
-        Merkmal erzeugt <strong>+2 Schaden</strong> für jeden eingesetzen
-        Erfolgsgrad aus dem Manöver
-        <strong>Wuchtangriff</strong></p></td></tr><tr><td
-        data-colwidth="168"><p>Wurffähig</p></td><td><p>Diese
-        <strong>Nahkampfwaffe</strong> kann als <strong>Wurfwaffe</strong> mit
-        eigenen Werten verwendet werden.</p></td></tr><tr><td
-        data-colwidth="168"><p>Wurfkörper*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Zebrechlich*</p></td><td><p></p></td></tr><tr><td
-        data-colwidth="168"><p>Zweihändig</p></td><td><p>Waffe muss mit beiden
-        Händen geführt werden. Sie kann nicht im berittenen Kampf eingesetzt
-        werden, außer sie besitzt das Merkmal
-        <strong>Reiterwaffe.</strong></p></td></tr></tbody></table>
-    video:
-      controls: true
-      volume: 0.5
-    src: null
-    ownership:
-      default: -1
-      2n6beZWSvIclIvyD: 3
-    flags: {}
-    _stats:
-      compendiumSource: null
-      duplicateSource: null
-      coreVersion: '13.342'
-      systemId: splittermond
-      systemVersion: 0.12.10
-      createdTime: 1741611275478
-      modifiedTime: 1741709215623
-      lastModifiedBy: 2n6beZWSvIclIvyD
-      exportSource: null
-    category: null
-    _key: '!journal.pages!pJhqhFt40jZTI7rr.7sfLK2JBR8PtQKgV'
-  - sort: -100000
-    name: Allgemeines
-    type: text
-    _id: UTxp35iMRe3TYNlP
-    system: {}
-    title:
-      show: false
-      level: 1
-    image: {}
-    text:
-      format: 1
-      content: >-
-        <p>Mit Modifikatoren können Waffen, Rüstungen und Gegenstände Merkmale
-        ihres Trägers verbessern. So kann z.b. ein "Amulett des geistigen
-        Widerstands" das Merkmal <strong>GW +1</strong>
-        erhalten.</p><p></p><p>Auch können verschiedene andere Werte damit
-        verändert werden. Wie z.B. Behinderungen, Tick-Zuschlag,
-        LP-Regeneration, Wundstufen, Wundmali usw…</p>
-    video:
-      controls: true
-      volume: 0.5
-    src: null
-    ownership:
-      default: -1
-      2n6beZWSvIclIvyD: 3
-    flags: {}
-    _stats:
-      compendiumSource: null
-      duplicateSource: null
-      coreVersion: '13.342'
-      systemId: splittermond
-      systemVersion: 0.12.12
-      createdTime: 1741686219344
-      modifiedTime: 1741710287976
-      lastModifiedBy: 2n6beZWSvIclIvyD
-      exportSource: null
-    category: null
-    _key: '!journal.pages!pJhqhFt40jZTI7rr.UTxp35iMRe3TYNlP'
+    - name: Modifikatoren
+      type: text
+      title:
+          show: false
+          level: 2
+      text:
+          format: 1
+          content: "<p>Mit Modifikatoren können Items (Stärken, Meisterschaften, Ausrüstungsgegenstände, Zustände etc.) Charakterwerte verändern. Diese Modifikatoren werden als kommagetrennte Liste in der Form <strong><code>&lt;Identifikator&gt; &lt;Wert&gt;</code></strong> gespeichert.</p><div class=\"box\"><h3>Beispiel:</h3><p>Die Stärke Erhöhter Fokuspool erhöht die Anzahl Fokuspunkte um fünf Punkte durch den Modifikator <strong><code>FO +5</code>.</strong></p></div><p>Für Fertigkeitswerte wird einfach die <span style=\"font-family:monospace\"><strong>{ID der Fertigkeit oder die Magischule}</strong></span> angegeben. In der folgenden Tabelle sind die möglichen Charakteridentifikatoren gruppiert nach Typen aufgelistet:</p><p></p><table><caption><strong>Abgeleitete Werte</strong></caption><thead><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\">Identifikator</td><td style=\"width:26.9283%;height:16px\">Charakterwert</td><td style=\"width:57.1282%;height:16px\">Bemerkung</td></tr></thead><tbody><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>GK</code></strong></td><td style=\"width:26.9283%;height:16px\">Größenklasse</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>GSW</code></strong></td><td style=\"width:26.9283%;height:16px\">Geschwindigkeit</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:10px\"><td style=\"width:15.0399%;height:10px\"><strong><code>GSW.mult</code></strong></td><td style=\"width:26.9283%;height:10px\">Geschwindigkeitsfaktor</td><td style=\"width:57.1282%;height:10px\">Beispiel: Zustand <em>Lahm </em><strong><code>GSW.mult 0.5</code></strong></td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>INI</code></strong></td><td style=\"width:26.9283%;height:16px\">Initiative</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>LP</code></strong></td><td style=\"width:26.9283%;height:16px\">Lebenspunkte</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>FO</code></strong></td><td style=\"width:26.9283%;height:16px\">Fokus</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>VTD</code></strong></td><td style=\"width:26.9283%;height:16px\">Verteidigung</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>KW</code></strong></td><td style=\"width:26.9283%;height:16px\">Körperlicher Widerstand</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr style=\"height:16px\"><td style=\"width:15.0399%;height:16px\"><strong><code>GW</code></strong></td><td style=\"width:26.9283%;height:16px\">Geistiger Widerstand</td><td style=\"width:57.1282%;height:16px\">-</td></tr><tr><td style=\"width:15.0399%\"><strong><code>SR</code></strong></td><td style=\"width:26.9283%\">Schadensreduktion</td><td style=\"width:57.1282%\">\_</td></tr></tbody></table><p></p><table><tbody><tr><td data-colwidth=\"326\"><img src=\"systems/splittermond/packs/CharMod_example.png\" alt=\"Beispielamulet\" width=\"300\" height=\"400\" /><p>Dieses Amulet würde dem Spieler +2 auf körperlichen und Geistigen Widerstand geben. Ebenso +1 auf seine Schadensreduktion.</p></td></tr><tr><td data-colwidth=\"326\"><img src=\"systems/splittermond/packs/Ability_Mod.png\" width=\"300\" height=\"400\" /><p>Das Amulet gibt +1 auf den Fähigkeitswert für <strong>alle</strong> Stangenwaffen. Es müssen die englischen Begriffe verwendet werden.</p><p>Will man dass das Amulet nur einer bestimmten Waffe einen Bonus verleit, lautet der Modifikator wie folgt:<br />staffs/waffenname +X</p><p>z.B.:</p><p>staffs/Kampfstab +1</p><p>Info: Haben mehrere Waffen des Charakters den gleichen Namen, bekommen sie auch den Bonus.</p></td></tr><tr><td data-colwidth=\"326\"><img src=\"systems/splittermond/packs/Ability_Mod_2.png\" width=\"300\" height=\"250\" /></td></tr></tbody></table><table><caption><strong>Sonstige</strong></caption><thead><tr style=\"height:16px\"><td style=\"width:194px;height:16px\">Identifikator</td><td style=\"width:306px;height:16px\">Charakterwert</td><td style=\"width:152px;height:16px\">Bemerkung</td></tr></thead><tbody><tr style=\"height:16px\"><td style=\"width:194px;height:16px\"><strong><code>handicap.shield.mod</code></strong></td><td style=\"width:306px;height:16px\">Behinderung durch Schild</td><td style=\"width:152px;height:16px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>handicap.armor.mod</code></strong></td><td style=\"width:306px\">Behinderung durch Rüstung</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>handicap.mod</code></strong></td><td style=\"width:306px\">Gesamtbehinderung</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>tickMalus.shield.mod</code></strong></td><td style=\"width:306px\">Tickzuschlag durch Schild</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>tickMalus.armor.mod</code></strong></td><td style=\"width:306px\"><span style=\"background-color:rgba(255, 255, 255, 0.2)\">Tickzuschlag</span>\_durch Rüstung</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>tickMalus.mod</code></strong></td><td style=\"width:306px\">Allgemeiner Tickzuschlag</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>woundMalus.nbrLevels</code></strong></td><td style=\"width:306px\">Anzahl Wundstufen</td><td style=\"width:152px\">mögliche Werte: 1/3/5</td></tr><tr><td style=\"width:194px\"><strong><code>woundMalus.mod</code></strong></td><td style=\"width:306px\">Wundabzugspunkte pro Wundstufe</td><td style=\"width:152px\">Verändert den Wundmalus um <strong>&lt;Wert&gt;</strong></td></tr><tr><td style=\"width:194px\"><strong><code>woundMalus.levelMod</code></strong></td><td style=\"width:306px\">Wundstufe</td><td style=\"width:152px\">Setzt den Wundmalus auf Stufe X</td></tr><tr><td style=\"width:194px\"><strong><code>splinterpoints</code></strong></td><td style=\"width:306px\">Splitterpunkte</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>healthRegeneration.multiplier</code></strong></td><td style=\"width:306px\">Faktor an KON-Punkte für Regeneration von Lebenpunkten</td><td style=\"width:152px\">Standardwert: 2</td></tr><tr><td style=\"width:194px\"><strong><code>focusRegeneration.multiplier</code></strong></td><td style=\"width:306px\">Faktor an WIL-Punkte für Regeneration von Fokuspunkten</td><td style=\"width:152px\">Standardwert: 2</td></tr><tr><td style=\"width:194px\"><strong><code>generalSkills</code></strong></td><td style=\"width:306px\">Alle allgemeinen Fertigkeiten</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>magicSkills</code></strong></td><td style=\"width:306px\">Alle Magischulen</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>fightingSkills</code></strong></td><td style=\"width:306px\">Alle Kampffertigkeiten</td><td style=\"width:152px\">-</td></tr><tr><td style=\"width:194px\"><strong><code>bonusCap</code></strong></td><td style=\"width:306px\">Maximaler Bonus auf alle Proben/abgeleitete Werte</td><td style=\"width:152px\">\_</td></tr><tr><td style=\"width:194px\"><strong><code>foreduction</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauber</td><td style=\"width:152px\">Beispiel: FoReduction 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foreduction.SPELLGROUP</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauber einer <strong>bestimmten</strong> Magieschule</td><td style=\"width:152px\">Beispiel: FoReduction.FireMagic 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foreduction.SPELLGROUP.SPELLTYPE</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauber eines bestimmten <strong>Typs</strong> in einer <strong>bestimmten</strong> Magieschule</td><td style=\"width:152px\">Beispiel: FoReduction.FireMagic.Schaden 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foEnhancedReduction</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauberverstärkungen</td><td style=\"width:152px\">Beispiel: FoEnhancedReduction 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foEnhancedReduction.SPELLGROUP</code></strong></td><td style=\"width:306px\">Fokusreduzierung auf alle Zauberverstärkungen einer <strong>bestimmten</strong> Magieschule</td><td style=\"width:152px\">Beispiel: FoEnhancedReduction.FireMagic 1V1</td></tr><tr><td style=\"width:194px\"><strong><code>foEnhancedReduction.SPELLGROUP.SPELLTYPE</code></strong></td><td style=\"width:306px\">Fokusreuzierung auf alle Zauberverstärkungen eines <strong>bestimmten Typs</strong> <strong>in einer</strong> <strong>bestimmten</strong> Magieschule</td><td style=\"width:152px\">Beispiel: FoEnhancedReduction.FireMagic.Schaden 1V1</td></tr></tbody></table><h2>Situationsabhängige Modifikatoren</h2><p>Stärken und Meisterschaften können unter bestimmten Situationen Boni für Proben geben. Diese situationsabhängigen Modifikatoren können durch die Syntax <strong><code>&lt;FertigkeitsID&gt;/&lt;Beschreibung&gt; &lt;Wert&gt;</code></strong> dargestellt werden. Im Probendialog kann dann gegebenenfalls der mit <strong><code>&lt;Beschreibung&gt;</code></strong> bezeichnete Modifikator ausgewählt werden.</p><div class=\"box\"><h3>Beispiel <em>Scharfes Gehör (Stärke)</em></h3><p><strong><code>perception/Scharfes Gehör +2</code></strong></p></div><p>Wird für eine Kampffertigkeit für die <strong><code>&lt;Beschreibung&gt;</code></strong> ein Waffenname angegeben, wird bei einem entsprechenden Angriff mit dieser Waffe der situationsabhängige Modifikator automatisch ausgewählt.</p><div class=\"box\"><h3>Beispiel</h3><p><strong><code>blades/Anderthalbhänder +1</code></strong></p></div><p>Wird für eine Magieschule für die<strong><code> &lt;Beschreibung&gt;</code></strong> ein Zaubertypus (Schwerpunkt) angegeben, wird bei einer entsprechenden Zauberprobe des angegebenen Typus der situationsabhängige Modifikator automatisch ausgewählt.</p><div class=\"box\"><h3><strong>Beispiel</strong></h3><p><strong><code>firemagic/Schaden +1</code></strong></p></div>"
+      _stats:
+          coreVersion: "13.342"
+          systemId: null
+          systemVersion: null
+          createdTime: null
+          modifiedTime: 1741850105057
+          lastModifiedBy: 2n6beZWSvIclIvyD
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+      _id: z1Xh1mRbjrGMieoq
+      system: {}
+      image: {}
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      sort: 0
+      ownership:
+          default: -1
+      flags: {}
+      category: null
+      _key: "!journal.pages!pJhqhFt40jZTI7rr.z1Xh1mRbjrGMieoq"
+    - sort: 100000
+      name: Merkmale (Waffen und Rüstung)
+      type: text
+      _id: 7sfLK2JBR8PtQKgV
+      system: {}
+      title:
+          show: false
+          level: 2
+      image: {}
+      text:
+          format: 1
+          content: >-
+              <p>Waffen und Rüstungen können zusätzliche Merkmale
+              haben.</p><p>Merkmale mit einem * sind in den Mondstahlklingen zu
+              finden.</p><p></p><h2>Rüstungsmerkmale</h2><table><tbody><tr><td
+              data-colwidth="170"><p><strong>Merkmal</strong></p></td><td><p><strong>Auswirkung</strong></p></td></tr><tr><td
+              data-colwidth="170"><p>Deckung</p></td><td><p>Ein geführter Schild mit
+              diesem Merkmal gilt als <strong>leichte Deckung</strong>, wenn er im
+              Kampf geführt wird</p></td></tr><tr><td
+              data-colwidth="170"><p>Primitiv</p></td><td><p>Schaden wird um 2 Punkte
+              reduziert wenn die gegnerische Rüstung nicht ebenfalls dieses Merkmal
+              hat.</p></td></tr><tr><td
+              data-colwidth="170"><p>Standfestigkeit</p></td><td><p>+3 KW gegen
+              Angriffe die die Position verändern (z.B.
+              <strong>Niederwerfen</strong>)</p></td></tr><tr><td
+              data-colwidth="170"><p>Wattiert</p></td><td><p>Eine Rüstung mit diesem
+              Merkmal <strong>halbiert</strong> den zusätzlichen Schaden auf dem
+              Manöver
+              <strong>Wuchtangriff</strong>.</p></td></tr></tbody></table><p></p><h2>Waffenmerkmale</h2><table><tbody><tr><td
+              data-colwidth="168"><p><strong>Merkmal</strong></p></td><td><p><strong>Auswirkung</strong></p></td></tr><tr><td
+              data-colwidth="168"><p>Ablenkend*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Auslöser</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Defensiv (Stufe)</p></td><td><p>Bei erfolgreicher
+              "aktiver Abwehr" wird die erreichte <strong>VTD</strong> um die Stufe
+              des Merkmals erhöht.</p></td></tr><tr><td
+              data-colwidth="168"><p>Detonation</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Doppelwaffe</p></td><td><p>Mit dieser Waffe
+              können die Meisterschaften zum <strong>Kampf mit zwei Händen (S.
+              171)</strong> genutzt werden.</p></td></tr><tr><td
+              data-colwidth="168"><p>Dornen*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Durchdringung (Stufe)</p></td><td><p>Waffe
+              ignoriert die gegnerische SR um die Stufe des
+              Merkmals.</p></td></tr><tr><td data-colwidth="168"><p>Entwaffnend*
+              (Stufe)</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Entwaffnungsimmunität*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Entwaffnungsschutz*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Exakt*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Ferndistanz*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Freihändig*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Gehärtet*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Improvisiert</p></td><td><p>Alltagsgegenstände.
+              +2 Schaden wenn der Kämpfer die Meistschaft
+              <strong>Improvisatation</strong> in der passenden
+              <strong>Kampffertigkeit</strong> verfügt.</p></td></tr><tr><td
+              data-colwidth="168"><p>Kälteschutz*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Kletterhilfe*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Kritisch*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Lange Waffe</p></td><td><p>Das eigene
+              <strong>Lösen auf dem Kampf</strong> erhält einen Bonus von +3, das
+              gegnerische einen Malus von -3.</p></td></tr><tr><td
+              data-colwidth="168"><p>Nahkampftauglich</p></td><td><p>Die
+              Fernkampfwaffe kann auch als Nahkampfwaffe (mit eigenen Werten)
+              verwendet werden.</p></td></tr><tr><td
+              data-colwidth="168"><p>Paarwaffe*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Parierwaffe (Stufe)</p></td><td><p>Eine
+              <strong>Aktive Abwehr</strong> mit einer Parierwaffe erfolgt immer über
+              die Kampffertigkeit dieser Waffe. Bei der Nutzung fällt eine
+              <strong>Behinderung</strong> in Höhe der Stufe an.</p></td></tr><tr><td
+              data-colwidth="168"><p>Primitiv</p></td><td><p>Schaden wird um 2 Punkte
+              reduziert wenn die gegnerische Rüstung nicht ebenfalls dieses Merkmal
+              hat.</p></td></tr><tr><td
+              data-colwidth="168"><p>Reiterrüstung*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Reiterschild*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Reiterwaffe* (Stufe)</p></td><td><p>Wird diese
+              Waffen vom Rücken eines Reittieres eingesetzt <strong>und</strong> hat
+              der Charakter die <strong>Meisterschaft Reiterkampf</strong> verursacht
+              die Waffen einen zusätzlichen Schadenspunkt in höhe des
+              Merkmals.</p></td></tr><tr><td
+              data-colwidth="168"><p>Rückkehrend*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Rückstoß*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Schadensschwund*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Scharf</p></td><td><p>Der minimale Wert jedes
+              Schadenswürfels der Waffe wird mit der Stufe dieses Merkmals ersetzt.
+              (2W6 sind dann nicht 2-12 Schaden, sondern 4-12 Schaden. 2x 2-6 je
+              Würfel.) Scharf kann nicht kleiner als 2 sein. Gilt nur für den reinen
+              Waffenschaden.</p></td></tr><tr><td
+              data-colwidth="168"><p>Schildwall*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Stabil*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Behinderung*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Stumpf</p></td><td><p>Waffe kann nur
+              Betäubungsschaden verursachen. Ausgenommen Effekte durch
+              Zauber.</p></td></tr><tr><td
+              data-colwidth="168"><p>Teilbar</p></td><td><p>Mit der Aktion
+              <strong>Gegenstand verwenden</strong> kann die Waffe in zwei einhändige
+              Waffen zerlegt werden.</p></td></tr><tr><td
+              data-colwidth="168"><p>Treffsicher*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Umklammern</p></td><td><p>Waffe kann für das
+              Manöver <strong>Umklammern</strong> genutzt werden.</p></td></tr><tr><td
+              data-colwidth="168"><p>Umwerfend*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Unaufällig*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Unhandlich</p></td><td><p>Bei Führung dieser
+              Waffe <strong>-2</strong> <strong>VTD</strong> für den
+              Charakter</p></td></tr><tr><td
+              data-colwidth="168"><p>Vielseitig</p></td><td><p>Waffe kann ein- oder
+              zweihändig geführt werden. Bei zweihändiger Führung <strong>+3
+              Schaden</strong>.</p></td></tr><tr><td
+              data-colwidth="168"><p>Wuchtig</p></td><td><p>Eine Waffe mit diesem
+              Merkmal erzeugt <strong>+2 Schaden</strong> für jeden eingesetzen
+              Erfolgsgrad aus dem Manöver
+              <strong>Wuchtangriff</strong></p></td></tr><tr><td
+              data-colwidth="168"><p>Wurffähig</p></td><td><p>Diese
+              <strong>Nahkampfwaffe</strong> kann als <strong>Wurfwaffe</strong> mit
+              eigenen Werten verwendet werden.</p></td></tr><tr><td
+              data-colwidth="168"><p>Wurfkörper*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Zebrechlich*</p></td><td><p></p></td></tr><tr><td
+              data-colwidth="168"><p>Zweihändig</p></td><td><p>Waffe muss mit beiden
+              Händen geführt werden. Sie kann nicht im berittenen Kampf eingesetzt
+              werden, außer sie besitzt das Merkmal
+              <strong>Reiterwaffe.</strong></p></td></tr></tbody></table>
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      ownership:
+          default: -1
+          2n6beZWSvIclIvyD: 3
+      flags: {}
+      _stats:
+          compendiumSource: null
+          duplicateSource: null
+          coreVersion: "13.342"
+          systemId: splittermond
+          systemVersion: 0.12.10
+          createdTime: 1741611275478
+          modifiedTime: 1741709215623
+          lastModifiedBy: 2n6beZWSvIclIvyD
+          exportSource: null
+      category: null
+      _key: "!journal.pages!pJhqhFt40jZTI7rr.7sfLK2JBR8PtQKgV"
+    - sort: -100000
+      name: Allgemeines
+      type: text
+      _id: UTxp35iMRe3TYNlP
+      system: {}
+      title:
+          show: false
+          level: 1
+      image: {}
+      text:
+          format: 1
+          content: >-
+              <p>Mit Modifikatoren können Waffen, Rüstungen und Gegenstände Merkmale
+              ihres Trägers verbessern. So kann z.b. ein "Amulett des geistigen
+              Widerstands" das Merkmal <strong>GW +1</strong>
+              erhalten.</p><p></p><p>Auch können verschiedene andere Werte damit
+              verändert werden. Wie z.B. Behinderungen, Tick-Zuschlag,
+              LP-Regeneration, Wundstufen, Wundmali usw…</p>
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      ownership:
+          default: -1
+          2n6beZWSvIclIvyD: 3
+      flags: {}
+      _stats:
+          compendiumSource: null
+          duplicateSource: null
+          coreVersion: "13.342"
+          systemId: splittermond
+          systemVersion: 0.12.12
+          createdTime: 1741686219344
+          modifiedTime: 1741710287976
+          lastModifiedBy: 2n6beZWSvIclIvyD
+          exportSource: null
+      category: null
+      _key: "!journal.pages!pJhqhFt40jZTI7rr.UTxp35iMRe3TYNlP"
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: 1741689533381
-  lastModifiedBy: 2n6beZWSvIclIvyD
-  compendiumSource: JournalEntry.UqRpqSt8TmGoGVvO
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: 1741689533381
+    lastModifiedBy: 2n6beZWSvIclIvyD
+    compendiumSource: JournalEntry.UqRpqSt8TmGoGVvO
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 categories: []
-_key: '!journal!pJhqhFt40jZTI7rr'
-
+_key: "!journal!pJhqhFt40jZTI7rr"

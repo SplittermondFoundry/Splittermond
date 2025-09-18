@@ -1,90 +1,89 @@
 name: Release new Splittermond version
 permissions:
-  contents: write
-  packages: write
+    contents: write
+    packages: write
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version (without v prefix)'
-        required: true
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "Version (without v prefix)"
+                required: true
 
 jobs:
-  release-new-version:
-    runs-on: ubuntu-latest
-    env:
-      outputName: splittermond-${{github.event.inputs.version}}
-      outputFile: splittermond-${{github.event.inputs.version}}.zip
-      prefixedVersion: v${{github.event.inputs.version}}
-    steps:
-      - name: check env
-        run: |
-          echo ${outputName}
-            echo ${outputFile}
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0 # fetch all history so we actually commit on top of main
-          #ref: main
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '22'
-      - name: Set new version in system.json
-        run: node ./.github/scripts/index.cjs
+    release-new-version:
+        runs-on: ubuntu-latest
         env:
-          fileToUpdate: './public/system.json'
-          version: ${{github.event.inputs.version}}
-      - name: Set new version in package.json
-        run: node ./.github/scripts/index.cjs
-        env:
-          fileToUpdate: './package.json'
-          version: ${{github.event.inputs.version}}
-      - name: Set new paths in System.json
-        run: node ./.github/scripts/replace_links.cjs
-        env:
-          fileToUpdate: './public/system.json'
-          newManifest: https://github.com/SplittermondFoundry/splittermond/releases/download/${{env.prefixedVersion}}/system.json
-          newDownload: https://github.com/SplittermondFoundry/Splittermond/releases/download/${{env.prefixedVersion}}/${{env.outputFile}}
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
-      - name: Push to main
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email github-actions[bot]@github.com
-          git add public/system.json package.json  package-lock.json
-          git commit -m "Update version to ${{github.event.inputs.version}}"
-          git tag ${{env.prefixedVersion}}
-          git push 
-          git push --tags
-      - name: Create Zip for foundry
-        run: |
-          sudo apt-get install zip 
-          cd dist/ && zip -r ../${{env.outputFile}} ./*; cd -
-          zip -r ${{env.outputFile}} README.md FoundryModule1.png screenshots
-      - name: Release package to github
-        run: |
-          npm set "//npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}}"
-          npm publish
-          npm set "//npm.pkg.github.com/:_authToken=garbage"
-        env:
-            NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: Upload release assets
-        uses: softprops/action-gh-release@v2.3.3
-        with:
-          generate_release_notes: true
-          draft: false
-          tag_name: v${{github.event.inputs.version}}
-          files: |
-            ${{env.outputFile}}
-            dist/system.json
-      - name: Release to Foundry
-        run: node ./.github/scripts/publish_to_foundry.mjs
-        env:
-          AUTH_TOKEN: ${{secrets.FOUNDRY_VTT_PUBLISH_TOKEN}}
-          SYSTEM_JSON_PATH: './dist/system.json'
-          DRY_RUN: 'false'
-
+            outputName: splittermond-${{github.event.inputs.version}}
+            outputFile: splittermond-${{github.event.inputs.version}}.zip
+            prefixedVersion: v${{github.event.inputs.version}}
+        steps:
+            - name: check env
+              run: |
+                  echo ${outputName}
+                    echo ${outputFile}
+            - name: Checkout code
+              uses: actions/checkout@v5
+              with:
+                  fetch-depth: 0 # fetch all history so we actually commit on top of main
+                  #ref: main
+            - name: Set up Node.js
+              uses: actions/setup-node@v5
+              with:
+                  node-version: "22"
+            - name: Set new version in system.json
+              run: node ./.github/scripts/index.cjs
+              env:
+                  fileToUpdate: "./public/system.json"
+                  version: ${{github.event.inputs.version}}
+            - name: Set new version in package.json
+              run: node ./.github/scripts/index.cjs
+              env:
+                  fileToUpdate: "./package.json"
+                  version: ${{github.event.inputs.version}}
+            - name: Set new paths in System.json
+              run: node ./.github/scripts/replace_links.cjs
+              env:
+                  fileToUpdate: "./public/system.json"
+                  newManifest: https://github.com/SplittermondFoundry/splittermond/releases/download/${{env.prefixedVersion}}/system.json
+                  newDownload: https://github.com/SplittermondFoundry/Splittermond/releases/download/${{env.prefixedVersion}}/${{env.outputFile}}
+            - name: Install dependencies
+              run: npm install
+            - name: Build
+              run: npm run build
+            - name: Push to main
+              run: |
+                  git config user.name github-actions[bot]
+                  git config user.email github-actions[bot]@github.com
+                  git add public/system.json package.json  package-lock.json
+                  git commit -m "Update version to ${{github.event.inputs.version}}"
+                  git tag ${{env.prefixedVersion}}
+                  git push 
+                  git push --tags
+            - name: Create Zip for foundry
+              run: |
+                  sudo apt-get install zip 
+                  cd dist/ && zip -r ../${{env.outputFile}} ./*; cd -
+                  zip -r ${{env.outputFile}} README.md FoundryModule1.png screenshots
+            - name: Release package to github
+              run: |
+                  npm set "//npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}}"
+                  npm publish
+                  npm set "//npm.pkg.github.com/:_authToken=garbage"
+              env:
+                  NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+            - name: Upload release assets
+              uses: softprops/action-gh-release@v2.3.3
+              with:
+                  generate_release_notes: true
+                  draft: false
+                  tag_name: v${{github.event.inputs.version}}
+                  files: |
+                      ${{env.outputFile}}
+                      dist/system.json
+            - name: Release to Foundry
+              run: node ./.github/scripts/publish_to_foundry.mjs
+              env:
+                  AUTH_TOKEN: ${{secrets.FOUNDRY_VTT_PUBLISH_TOKEN}}
+                  SYSTEM_JSON_PATH: "./dist/system.json"
+                  DRY_RUN: "false"

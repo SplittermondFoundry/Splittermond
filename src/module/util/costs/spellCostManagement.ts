@@ -1,21 +1,23 @@
-import {CostModifier} from "./Cost";
-import {type CostExpression, evaluate} from "../../modifiers/expressions/cost";
+import { CostModifier } from "./Cost";
+import { type CostExpression, evaluate } from "../../modifiers/expressions/cost";
 
 interface SpellCostReductionManagement {
     spellCostReduction: SpellCostReductionManager;
     spellEnhancedCostReduction: SpellCostReductionManager;
 }
 
-export function initializeSpellCostManagement<T extends Record<string, any>>(data: T): T & SpellCostReductionManagement {
+export function initializeSpellCostManagement<T extends Record<string, any>>(
+    data: T
+): T & SpellCostReductionManagement {
     Object.defineProperty(data, "spellCostReduction", {
         value: new SpellCostReductionManager(),
         writable: true,
-        enumerable: true
+        enumerable: true,
     });
     Object.defineProperty(data, "spellEnhancedCostReduction", {
         value: new SpellCostReductionManager(),
         writable: true,
-        enumerable: true
+        enumerable: true,
     });
     return data as T & SpellCostReductionManagement;
 }
@@ -52,29 +54,31 @@ class SpellCostReductionManager {
             type = labelParts[2].trim().toLowerCase();
         }
         if (labelParts.length >= 4) {
-            console.warn("The label " + modifier.label + " is not a valid cost modifier label. Extraneous parts will be ignored.")
+            console.warn(
+                "The label " + modifier.label + " is not a valid cost modifier label. Extraneous parts will be ignored."
+            );
         }
         if (group === null && modifier.skill) {
             group = modifier.skill;
         }
 
-        this.modifiersMap.put(modifier.value,group, type);
+        this.modifiersMap.put(modifier.value, group, type);
     }
 
     /**
      * convenience method for adding retrieving a modifier without having to get the map first
      */
     getCostModifiers(skill: string, type: string): CostModifier[] {
-        return this.modifiersMap.get(skill, type).map(mod => evaluate(mod));
+        return this.modifiersMap.get(skill, type).map((mod) => evaluate(mod));
     }
 }
 
-type Key = { spellType: string | null, skill: string | null };
+type Key = { spellType: string | null; skill: string | null };
 
 const nullKey = Symbol("nullKey");
 class SpellCostModifiers {
-    private backingMap: Map<Key|null, CostExpression[]>;
-    private keyMap: Map<string|null, Record<string|symbol, Key>>;
+    private backingMap: Map<Key | null, CostExpression[]>;
+    private keyMap: Map<string | null, Record<string | symbol, Key>>;
 
     constructor() {
         this.backingMap = new Map();
@@ -89,7 +93,7 @@ class SpellCostModifiers {
         const formattedGroup = group ? group.toLowerCase().trim() : null;
         const formattedType = type ? type.toLowerCase().trim() : null;
 
-        const groupAndTypeSpecificReductions = this.#internalGet(formattedGroup, formattedType)
+        const groupAndTypeSpecificReductions = this.#internalGet(formattedGroup, formattedType);
         const groupSpecificReductions = formattedGroup ? this.#internalGet(null, formattedType) : [];
         const typeSpecificReductions = formattedType ? this.#internalGet(formattedGroup, null) : [];
         const globalReductions = formattedType && formattedGroup ? this.#internalGet(null, null) : [];
@@ -97,11 +101,11 @@ class SpellCostModifiers {
             ...groupAndTypeSpecificReductions,
             ...groupSpecificReductions,
             ...typeSpecificReductions,
-            ...globalReductions
+            ...globalReductions,
         ];
     }
 
-    #internalGet(group: string|null, type: string|null): CostExpression[] {
+    #internalGet(group: string | null, type: string | null): CostExpression[] {
         return this.backingMap.get(this.#getMapKey(group, type)) ?? [];
     }
 
@@ -127,10 +131,10 @@ class SpellCostModifiers {
             this.keyMap.set(group, {});
         }
         if (this.keyMap.get(group)![typeKey] === undefined) {
-            const groupRecord= this.keyMap.get(group)!; //will never be undefined
-            groupRecord[typeKey] = {spellType: type, skill: group};
+            const groupRecord = this.keyMap.get(group)!; //will never be undefined
+            groupRecord[typeKey] = { spellType: type, skill: group };
         }
         return this.keyMap.get(group)![typeKey]; //will never be undefined
     }
 }
-export type {SpellCostReductionManager}
+export type { SpellCostReductionManager };

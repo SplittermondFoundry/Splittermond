@@ -1,18 +1,14 @@
-import {foundryApi} from "../api/foundryApi";
+import { foundryApi } from "../api/foundryApi";
 
 export class LanguageMapper<T extends string> {
     private translationsAsKeys: Map<string, T> = new Map();
     private internalsAsKeys: Map<T, string> = new Map();
 
-
-    constructor(
-        translations: Map<T, string>,
-        additionalTranslations: Map<string, T> = new Map()) {
-
+    constructor(translations: Map<T, string>, additionalTranslations: Map<string, T> = new Map()) {
         additionalTranslations.forEach((value, key) => this.translationsAsKeys.set(key.toLowerCase(), value));
         translations.forEach((value, key) => {
-            this.translationsAsKeys.set(value.toLowerCase(), key)
-            this.internalsAsKeys.set(key, value.toLowerCase())
+            this.translationsAsKeys.set(value.toLowerCase(), key);
+            this.internalsAsKeys.set(key, value.toLowerCase());
         });
     }
 
@@ -34,7 +30,7 @@ export function initMapper<T extends string>(codeCollection: Readonly<T[]>) {
     let languageMapper: LanguageMapper<T> | null = null;
     let localizer = (s: string) => foundryApi.localize(s);
     let translator: (s: T) => string;
-    let backTranslations: ((s: T) => string)[]=[];
+    let backTranslations: ((s: T) => string)[] = [];
     let directMaps: Map<string, T> = new Map();
 
     /**
@@ -42,7 +38,7 @@ export function initMapper<T extends string>(codeCollection: Readonly<T[]>) {
      */
     function withTranslator(codeToTranslation: (s: T) => string) {
         translator = codeToTranslation;
-        return {andOtherMappers, andDirectMap, andLocalizer, build};
+        return { andOtherMappers, andDirectMap, andLocalizer, build };
     }
 
     /**
@@ -50,29 +46,29 @@ export function initMapper<T extends string>(codeCollection: Readonly<T[]>) {
      */
     function andOtherMappers(...mappers: ((s: T) => string)[]) {
         backTranslations = mappers;
-        return {andDirectMap, andLocalizer, build};
+        return { andDirectMap, andLocalizer, build };
     }
 
     function andDirectMap(key: string, value: T) {
         directMaps.set(key, value);
-        return {andLocalizer, andDirectMap, andOtherMappers, build};
+        return { andLocalizer, andDirectMap, andOtherMappers, build };
     }
 
     function build() {
-        Object.defineProperty(getLanguageMapper, "clear", {value: () => languageMapper = null}); //secret workaround to reset the mapper for tests
+        Object.defineProperty(getLanguageMapper, "clear", { value: () => (languageMapper = null) }); //secret workaround to reset the mapper for tests
         return getLanguageMapper;
     }
 
     function andLocalizer(localizerFunction: (key: string) => string) {
         localizer = localizerFunction;
-        return {andDirectMap, andOtherMappers, build};
+        return { andDirectMap, andOtherMappers, build };
     }
 
     function getLanguageMapper(): LanguageMapper<T> {
         if (!languageMapper) {
-            const codeMappings = new Map<T, string>(codeCollection.map(code => [code, localizer(translator(code))]));
+            const codeMappings = new Map<T, string>(codeCollection.map((code) => [code, localizer(translator(code))]));
             const additionalTranslations = new Map<string, T>(
-                backTranslations.flatMap(mapper => codeCollection.map(code => [localizer(mapper(code)), code]))
+                backTranslations.flatMap((mapper) => codeCollection.map((code) => [localizer(mapper(code)), code]))
             );
             directMaps.forEach((value, key) => additionalTranslations.set(key, value));
             languageMapper = new LanguageMapper<T>(codeMappings, additionalTranslations);
@@ -80,5 +76,5 @@ export function initMapper<T extends string>(codeCollection: Readonly<T[]>) {
         return languageMapper;
     }
 
-    return {withTranslator};
+    return { withTranslator };
 }

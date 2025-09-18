@@ -8,7 +8,6 @@ ul.checkbox-list {
         margin: 0;
         padding: 0;
 
-
         input {
             display: none;
         }
@@ -25,20 +24,20 @@ ul.checkbox-list {
             white-space: nowrap;
         }
 
-        input:not(:checked)~label {
-            >i[data-name="checked"]{
-            display: none;
+        input:not(:checked) ~ label {
+            > i[data-name="checked"] {
+                display: none;
             }
-            >i[data-name="unchecked"] {
+            > i[data-name="unchecked"] {
                 display: inline;
             }
             opacity: 0.7;
         }
-        input:checked~label{
-            >i[data-name="unchecked"]{
+        input:checked ~ label {
+            > i[data-name="unchecked"] {
                 display: none;
             }
-            >i[data-name="checked"]{
+            > i[data-name="checked"] {
                 display: inline;
             }
             opacity: 1;

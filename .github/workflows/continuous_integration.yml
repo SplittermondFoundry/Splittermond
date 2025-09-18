@@ -1,26 +1,26 @@
 name: Splittermond CI
 
 on:
-  pull_request:
-    branches:
-      - main
-      - devV*
+    pull_request:
+        branches:
+            - main
+            - devV*
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '>=24.3.0'
-      - name: Install dependencies
-        run: npm install
-      - name: Check formatting
-        run: npm run format:check
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Run tests
-        run: npm run test
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ">=24.3.0"
+            - name: Install dependencies
+              run: npm install
+            - name: Check formatting
+              run: npm run format:check
+            - name: Typecheck
+              run: npm run typecheck
+            - name: Run tests
+              run: npm run test

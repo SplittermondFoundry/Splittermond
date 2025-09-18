@@ -1,6 +1,6 @@
-export function simplePropertyResolver(a:object,property:string){
-    let member:any = a;
-    property.split(".").forEach(prop => member = prop in member ? member[prop]: undefined);
+export function simplePropertyResolver(a: object, property: string) {
+    let member: any = a;
+    property.split(".").forEach((prop) => (member = prop in member ? member[prop] : undefined));
     return member;
 }
 

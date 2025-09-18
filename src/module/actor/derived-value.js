@@ -1,49 +1,53 @@
 import * as Tooltip from "../util/tooltip.js";
 import Modifiable from "./modifiable.js";
-import {evaluate, of, plus, times} from "../modifiers/expressions/scalar/index.js";
+import { evaluate, of, plus, times } from "../modifiers/expressions/scalar/index.js";
 
 export default class DerivedValue extends Modifiable {
     /**
-     * 
+     *
      * @param {Actor} actor Actor object of DerivedValue
      * @param {string} id ID of Derived value like "size", "speed", "initiative" etc.
      */
     constructor(actor, id) {
-        let path = [id]
+        let path = [id];
         if ("speed" === id) path.push("woundmalus");
-        if( "initiative" === id ) path.push("initiativewoundmalus");
+        if ("initiative" === id) path.push("initiativewoundmalus");
         super(actor, path);
         this.id = id;
         this.multiplier = 1;
         this.label = {
             short: `splittermond.derivedAttribute.${this.id}.short`,
-            long: `splittermond.derivedAttribute.${this.id}.long`
-        }
+            long: `splittermond.derivedAttribute.${this.id}.long`,
+        };
 
         this._cache = {
             enabled: false,
             baseValue: null,
-            value: null
-        }
+            value: null,
+        };
     }
 
     get sheetData() {
         return {
             id: this.id,
             label: this.label,
-            value: this.value
-        }
+            value: this.value,
+        };
     }
 
     get baseValue() {
-        if (this.actor.type !== "character" && this.actor.system.derivedAttributes[this.id].value > 0) return this.actor.system.derivedAttributes[this.id].value;
+        if (this.actor.type !== "character" && this.actor.system.derivedAttributes[this.id].value > 0)
+            return this.actor.system.derivedAttributes[this.id].value;
         if (this._cache.enabled && this._cache.baseValue !== null) return this._cache.baseValue;
         let baseValue = 0;
         const attributes = this.actor.attributes;
         const derivedValues = this.actor.derivedValues;
         switch (this.id) {
             case "size":
-                baseValue = this.actor.type === "npc" ? this.actor.system.derivedAttributes[this.id].value : parseInt(this.actor.system.species.size);
+                baseValue =
+                    this.actor.type === "npc"
+                        ? this.actor.system.derivedAttributes[this.id].value
+                        : parseInt(this.actor.system.species.size);
                 break;
             case "speed":
                 baseValue = attributes.agility.value + derivedValues.size.value;
@@ -58,7 +62,8 @@ export default class DerivedValue extends Modifiable {
                 baseValue = 2 * (attributes.mystic.value + attributes.willpower.value);
                 break;
             case "defense":
-                baseValue = 12 + attributes.agility.value + attributes.strength.value + 2 * (5 - derivedValues.size.value);
+                baseValue =
+                    12 + attributes.agility.value + attributes.strength.value + 2 * (5 - derivedValues.size.value);
                 break;
             case "bodyresist":
                 baseValue = 12 + attributes.willpower.value + attributes.constitution.value;
@@ -69,10 +74,8 @@ export default class DerivedValue extends Modifiable {
             default:
                 return 0;
                 break;
-
         }
-        if (this._cache.enabled && this._cache.baseValue === null)
-            this._cache.baseValue = baseValue;
+        if (this._cache.enabled && this._cache.baseValue === null) this._cache.baseValue = baseValue;
         return baseValue;
     }
 
@@ -90,7 +93,7 @@ export default class DerivedValue extends Modifiable {
                 formula.addPart(derivedValues.size.value, derivedValues.size.label.short);
                 break;
             case "initiative":
-                formula.addPart("10")
+                formula.addPart("10");
                 formula.addOperator("-");
                 formula.addPart(attributes.intuition.value, attributes.intuition.label.short);
                 break;
@@ -130,7 +133,6 @@ export default class DerivedValue extends Modifiable {
                 break;
             default:
                 break;
-
         }
         this.addModifierTooltipFormulaElements(formula);
         return formula.render();
@@ -139,21 +141,19 @@ export default class DerivedValue extends Modifiable {
     get value() {
         if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
         let value = Math.ceil(evaluate(this.valueAsExpression()));
-        if (this._cache.enabled && this._cache.value === null)
-            this._cache.value = value;
+        if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
         return value;
     }
 
     valueAsExpression() {
         const base = this.baseValue;
         const multiplier = this.multiplierAsExpression();
-        const modifier = of(this.mod)
+        const modifier = of(this.mod);
         return times(multiplier, plus(of(base), modifier));
     }
 
     multiplierAsExpression() {
-        return this.actor.modifier.getForId(`actor.${this.id}.multiplier`)
-            .notSelectable().getModifiers().product;
+        return this.actor.modifier.getForId(`actor.${this.id}.multiplier`).notSelectable().getModifiers().product;
     }
 
     enableCaching() {

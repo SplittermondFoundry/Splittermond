@@ -1,78 +1,78 @@
 .splittermond .immune-row {
-  position: relative;
+    position: relative;
 }
 
 .splittermond .immune-row td {
-  opacity: 0.4;
+    opacity: 0.4;
 }
 .splittermond .immune-row td::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 1px;
-  opacity: 0.8;
-  background: #a0a0a0;
-  z-index: 0;
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    opacity: 0.8;
+    background: #a0a0a0;
+    z-index: 0;
 }
 
 .splittermond .immune-row::after {
-  content: attr(data-immunity);
-  font-weight: bolder;
-  display: block;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  padding: 0 10px;
-  z-index: 1;
-  color: black;
-  padding-left: -25px;
-  background-color: inherit;
+    content: attr(data-immunity);
+    font-weight: bolder;
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 10px;
+    z-index: 1;
+    color: black;
+    padding-left: -25px;
+    background-color: inherit;
 }
 
 .splittermond.dialog-apply-damage div.dialog-content {
-  --input-height:0;
-  button {
-    width: 100%;
-  }
-
-  table {
-    thead {
-      background: #0000001f;
-      border-top: 0;
-      border-left: 0;
-      border-right:0;
+    --input-height: 0;
+    button {
+        width: 100%;
     }
-    background: none;
-  }
+
+    table {
+        thead {
+            background: #0000001f;
+            border-top: 0;
+            border-left: 0;
+            border-right: 0;
+        }
+        background: none;
+    }
 }
 
 .splittermond.dialog-apply-damage .number-col {
-  text-align: right;
+    text-align: right;
 }
-.splittermond.dialog-apply-damage  .sr-tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.splittermond.dialog-apply-damage  .sr-tooltip .sr-tooltip-text {
-  visibility: hidden;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  padding: 5px 3px;
-  border-radius: 6px;
-  position: absolute;
-  z-index: 1;
-  right:-10%;
-  bottom: 120%;
-  opacity: 0;
-  transition: opacity 0.3s;
+.splittermond.dialog-apply-damage .sr-tooltip {
+    position: relative;
+    display: inline-block;
 }
 
-.splittermond.dialog-apply-damage  .sr-tooltip:hover .sr-tooltip-text {
-  visibility: visible;
-  opacity: 0.9;
+.splittermond.dialog-apply-damage .sr-tooltip .sr-tooltip-text {
+    visibility: hidden;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    padding: 5px 3px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    right: -10%;
+    bottom: 120%;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.splittermond.dialog-apply-damage .sr-tooltip:hover .sr-tooltip-text {
+    visibility: visible;
+    opacity: 0.9;
 }

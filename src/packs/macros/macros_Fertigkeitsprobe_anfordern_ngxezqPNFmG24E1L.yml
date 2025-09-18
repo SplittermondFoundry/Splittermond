@@ -8,19 +8,18 @@ command: game.splittermond.requestSkillCheck();
 folder: null
 sort: 0
 flags:
-  core: {}
+    core: {}
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: Macro.3dhHSL4TZdbRfSdY
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: Macro.3dhHSL4TZdbRfSdY
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
-_key: '!macros!ngxezqPNFmG24E1L'
-
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
+_key: "!macros!ngxezqPNFmG24E1L"

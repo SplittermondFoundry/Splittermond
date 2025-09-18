@@ -5,25 +5,24 @@ flags: {}
 img: icons/svg/mystery-man.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: ''
-  source: ''
-  size: '6'
-  attributeMod: STÄ +2, WIL -1
-  strengths: Natürlicher Rüstungsschutz, Ausdauernd, Natürliche Waffe
+    description: ""
+    source: ""
+    size: "6"
+    attributeMod: STÄ +2, WIL -1
+    strengths: Natürlicher Rüstungsschutz, Ausdauernd, Natürliche Waffe
 folder: null
 sort: 0
-_key: '!items!hNMi0WGzIgpxW8bc'
-
+_key: "!items!hNMi0WGzIgpxW8bc"
