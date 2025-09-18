@@ -341,6 +341,13 @@ describe("addModifier", () => {
                 origin: item,
             });
         });
+
+        ["item='Schwert'", 'itemType="weapon"'].forEach((attribute) => {
+            it("should not warn for valid damage type attributes", () => {
+                addModifier(item, `item.damage damageType="fire" ${attribute} features="Kritisch 2" +2`);
+                expect((foundryApi.reportError as SinonStub).notCalled).to.be.true;
+            });
+        });
     });
 
     describe("weaponspeed modifiers", () => {
@@ -396,6 +403,13 @@ describe("addModifier", () => {
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "fern" },
                 origin: item,
+            });
+        });
+
+        ["item='Schwert'", 'itemType="weapon"'].forEach((attribute) => {
+            it("should not warn for valid damage type attributes", () => {
+                addModifier(item, `item.weaponspeed ${attribute} +2`);
+                expect((foundryApi.reportError as SinonStub).notCalled).to.be.true;
             });
         });
     });
@@ -462,6 +476,15 @@ describe("addModifier", () => {
                     origin: item,
                 });
             });
+
+            [`${path} item="Sword" feature="Scharf" +2`, `${path} feature="Scharf" itemType="weapon" +2`].forEach(
+                (input) => {
+                    it(`should not warn for valid feature attributes in ${input}`, () => {
+                        addModifier(item, input);
+                        expect((foundryApi.reportError as SinonStub).notCalled).to.be.true;
+                    });
+                }
+            );
         });
     });
 
