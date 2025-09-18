@@ -1,3 +1,10 @@
+## 13.5.2
+
+### Fixed
+
+- Korrekte optionale Attribute werfen jetzt keine Fehler mehr
+- Featuremodifikatoren müssen den Namen des Merkmals benutzen.
+
 ## 13.5.1
 
 ### Fixed

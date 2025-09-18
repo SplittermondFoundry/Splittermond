@@ -24,15 +24,17 @@ export class ItemModifierHandler extends ModifierHandler {
         topLevelPath: "item",
         subSegments: {
             damage: {
-                optionalAttributes: ["item", "damageType", "itemType"],
+                optionalAttributes: ["item", "damageType", "itemType", "features"],
             },
             weaponspeed: {
                 optionalAttributes: ["item", "itemType"],
             },
             mergeFeature: {
+                requiredAttributes: ["feature"],
                 optionalAttributes: ["item", "itemType"],
             },
             addFeature: {
+                requiredAttributes: ["feature"],
                 optionalAttributes: ["item", "itemType"],
             },
             castDuration: {
