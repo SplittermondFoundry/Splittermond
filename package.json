@@ -4,12 +4,17 @@
   "description": "A system for playing the german pen and paper RPG Splittermond.",
   "main": "src/splittermond.js",
   "type": "module",
+  "engines": {
+    "node": ">=24.3.0"
+  },
   "scripts": {
     "compileCss": "gulp less",
     "dev": "vite serve --config config/vite.config.mts",
     "typecheck": "tsc",
     "test": "npm run typecheck && mocha --config config/mocharc.json src/__tests__/unit",
-    "build": "npm run test && vite build --config config/vite.config.mts"
+    "build": "npm run test && vite build --config config/vite.config.mts",
+    "format": "prettier --write . --config config/prettierrc.ts --ignore-path config/prettierignore",
+    "format:check": "prettier --check . --config config/prettierrc.ts --ignore-path config/prettierignore"
   },
   "repository": {
     "type": "git",
@@ -48,6 +53,7 @@
     "sinon": "^21.0.0",
     "tsx": "^4.17.0",
     "typescript": "^5.6.3",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "prettier": "^3.0.0"
   }
 }
