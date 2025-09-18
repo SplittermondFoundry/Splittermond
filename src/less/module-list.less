@@ -18,14 +18,15 @@
         display: inline-flex;
         z-index: 100;
 
-        box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
     }
 
     *:hover > .list-actions {
         opacity: 1;
     }
 
-    .list-header, .list-item {
+    .list-header,
+    .list-item {
         display: flex;
         flex-direction: row;
         min-height: 28px;
@@ -44,7 +45,6 @@
                     text-overflow: ellipsis;
                     white-space: nowrap;
                 }
-                
             }
         }
 
@@ -81,10 +81,7 @@
         *:not(:first-child) {
             color: rgba(var(--color-text-secondary_rgb), 0.7);
         }
-
     }
-
-
 
     .list-body {
         display: block;
@@ -100,7 +97,8 @@
         min-height: 28px;
         /* border: 1px solid transparent; */
         border: 1px solid transparent;
-        border-image: linear-gradient(to right, transparent, rgba(var(--color-text-secondary_rgb),0.3), transparent) 0 0 100% 0;
+        border-image: linear-gradient(to right, transparent, rgba(var(--color-text-secondary_rgb), 0.3), transparent) 0
+            0 100% 0;
         /*
         &:nth-child(odd),
         &.odd {
@@ -112,10 +110,11 @@
         }
         */
 
-
         &:hover,
         &.hover {
-            background: linear-gradient(to right, transparent, rgba(var(--color-primary_rgb),0.1), transparent), url(../../public/images/noise6.png);
+            background:
+                linear-gradient(to right, transparent, rgba(var(--color-primary_rgb), 0.1), transparent),
+                url(../../public/images/noise6.png);
             background-blend-mode: multiply;
         }
 
@@ -129,7 +128,6 @@
             margin-top: @paddingSmall;
         }
         */
-
     }
 
     &.dialog .list {
@@ -140,7 +138,6 @@
     .list.inventory,
     .list.attack,
     .list.active-defense {
-
         img {
             width: 32;
             height: 32;
@@ -173,7 +170,6 @@
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }
-            
         }
 
         .damage,
@@ -188,7 +184,10 @@
             }
         }
 
-        .cast-duration, .damage, .weapon-speed, .costs {
+        .cast-duration,
+        .damage,
+        .weapon-speed,
+        .costs {
             //padding-bottom: 2px;
             //margin-bottom: -2px;
         }
@@ -209,7 +208,6 @@
             }
             font-size: @fontSizeSmall;
         }
-        
     }
 
     .list-attributes {
@@ -235,7 +233,7 @@
     }
 
     .attributes {
-        display:grid;
+        display: grid;
         grid-column: 1 / end;
         grid-row: 1;
         display: flex;
@@ -270,8 +268,6 @@
         }
     }
 
-
-
     .list.skills {
         max-width: 480px;
         position: relative;
@@ -290,10 +286,9 @@
             width: 3em;
         }
 
-
         .attribute {
             text-align: center;
-            color: rgba(var(--color-text-secondary),0.5);
+            color: rgba(var(--color-text-secondary), 0.5);
             font-weight: 500;
         }
 
@@ -301,10 +296,10 @@
         input {
             text-align: center;
         }
-
     }
 
-    .list.skills, .list.masteries {
+    .list.skills,
+    .list.masteries {
         position: relative;
         height: 100%;
         overflow-y: auto;
@@ -316,12 +311,12 @@
             flex-direction: column;
             align-items: flex-start;
 
-            >* {
+            > * {
                 border: none;
                 justify-content: flex-start;
             }
 
-            >label {
+            > label {
                 font-weight: bold;
                 z-index: 1;
             }
@@ -332,9 +327,9 @@
             height: unset;
             border: none;
             overflow: unset;
-            margin:0;
-            padding:0;
-            
+            margin: 0;
+            padding: 0;
+
             &::before:extend(.border-paper) {
                 border-image-repeat: repeat;
                 background: var(--splittermond-background-parchment);
@@ -345,8 +340,8 @@
 
             .list-body {
                 border: none;
-                margin:0;
-                padding:0;
+                margin: 0;
+                padding: 0;
             }
 
             .list-item {
@@ -362,5 +357,4 @@
     .not-available {
         opacity: 0.5;
     }
-
 }

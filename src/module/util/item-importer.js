@@ -1,37 +1,37 @@
-import {itemCreator} from "../data/EntityCreator.ts";
-import {foundryApi} from "../api/foundryApi";
-import {splittermond} from "../config.js";
-import {importSpell as spellImporter} from "./item-importer/spellImporter";
-import {importNpc as npcImporter} from "./item-importer/npcImporter";
-import {FoundryDialog} from "../api/Application.ts";
+import { itemCreator } from "../data/EntityCreator.ts";
+import { foundryApi } from "../api/foundryApi";
+import { splittermond } from "../config.js";
+import { importSpell as spellImporter } from "./item-importer/spellImporter";
+import { importNpc as npcImporter } from "./item-importer/npcImporter";
+import { FoundryDialog } from "../api/Application.ts";
 
 export default class ItemImporter {
-
     /**
      * Prompts the user to select a folder for the imported item.
      * @returns {Promise<string|"">} The ID of the selected folder, or an empty string if no folder is selected.
      * @internal
      */
     static async _folderDialog() {
-        let folderList = foundryApi.getFolders("Item")
+        let folderList = foundryApi
+            .getFolders("Item")
             .reduce((str, folder) => `${str} <option value="${folder.id}">${folder.name}</option>`, "");
         const folderLabel = foundryApi.localize("splittermond.itemImport.folder");
         const noFolderLabel = foundryApi.localize("splittermond.itemImport.noFolder");
         return await FoundryDialog.prompt({
-                window:{title: foundryApi.localize("splittermond.itemImport.selectAFolder")},
-                content: `<label>${folderLabel}</label> 
+            window: { title: foundryApi.localize("splittermond.itemImport.selectAFolder") },
+            content: `<label>${folderLabel}</label> 
                     <select name="folder">
                         <option value="">${noFolderLabel}</option>
                         ${folderList}
                     </select>`,
-                ok: {
-                    label: foundryApi.localize("splittermond.ok"),
-                    callback: (__, button) => {
-                        const selectedIndex = button.form.elements.folder.selectedIndex;
-                        return button.form.elements.folder[selectedIndex].value
-                    }
-                }
-            });
+            ok: {
+                label: foundryApi.localize("splittermond.ok"),
+                callback: (__, button) => {
+                    const selectedIndex = button.form.elements.folder.selectedIndex;
+                    return button.form.elements.folder[selectedIndex].value;
+                },
+            },
+        });
     }
 
     /**
@@ -40,7 +40,7 @@ export default class ItemImporter {
      * @returns {Promise<SplittermondSkill>}
      * @internal
      */
-    static async _skillDialog(skillOptions, type= "unknown") {
+    static async _skillDialog(skillOptions, type = "unknown") {
         let optionsList = skillOptions.reduce((str, skill) => {
             let skillLabel = foundryApi.localize(`splittermond.skillLabel.${skill}`);
             return `${str} <option value="${skill}">${skillLabel}</option>`;
@@ -48,7 +48,7 @@ export default class ItemImporter {
         const title = foundryApi.localize(`splittermond.itemImport.skillSelection.title.${type}`);
         const label = foundryApi.localize(`splittermond.itemImport.skillSelection.label.${type}`);
         return await FoundryDialog.prompt({
-            window:{title},
+            window: { title },
             content: `
                 <label>${label}</label> 
                 <select name="skill">
@@ -56,11 +56,11 @@ export default class ItemImporter {
                 </select>`,
             ok: {
                 label: foundryApi.localize("splittermond.ok"),
-                callback: ((__, button)=> {
+                callback: (__, button) => {
                     const selectedIndex = button.form.elements.skill.selectedIndex;
-                    return button.form.elements.skill[selectedIndex].value
-                })
-            }
+                    return button.form.elements.skill[selectedIndex].value;
+                },
+            },
         });
     }
 
@@ -81,7 +81,8 @@ export default class ItemImporter {
 
         if (rawData.includes("Schulen:") && rawData.includes("Typus:") && rawData.includes("Kosten:")) {
             let folder = await this._folderDialog();
-            let spellTokens = rawData.replace(/^[0-9]{3}\n/g, "") // Remove page numbers
+            let spellTokens = rawData
+                .replace(/^[0-9]{3}\n/g, "") // Remove page numbers
                 .split(/(.*\s+\((?:Spruch|Ritus)\))/gm); // Split into spell tokens
             let spellName = "";
             for (let k = 0; k < spellTokens.length; k++) {
@@ -106,7 +107,9 @@ export default class ItemImporter {
         let weaponRegex = `(.*?\\s*.*?)\\s+(?:Dorf|Kleinstadt|Großstadt|Metropole)\\s+(?:([0-9]+ [LST]|-|–)(?:\\s*\\/\\s*[0-9]+\\s[LST])?)\\s+([0-9]+|-|–)\\s+([0-9]+|-|–)\\s+([UGFMA]|-|–)\\s+([0-9+\\-W]+)\\s+([0-9]+)\\s+((AUS|BEW|INT|KON|MYS|STÄ|VER|WIL|\\+){3})\\s+(((AUS|BEW|INT|KON|MYS|STÄ|VER|WIL|)\\s*[0-9],?\\s*)*|–)\\s+((?:${splittermond.weaponFeatures.join("|").replace(/\s+/, "\\s+")}|\\s+|\s*[\\-–]\s*)\\s*[0-9]*\\s*,?\\s*)+`;
         let test = rawData.match(new RegExp(weaponRegex, "gm"));
         if (test && test.length > 0) {
-            let skills = splittermond.skillGroups.fighting.map(s => foundryApi.localize(`splittermond.skillLabel.${s}`)).join('|');
+            let skills = splittermond.skillGroups.fighting
+                .map((s) => foundryApi.localize(`splittermond.skillLabel.${s}`))
+                .join("|");
             weaponRegex = `${skills}|${weaponRegex}`;
             test = rawData.match(new RegExp(weaponRegex, "gm"));
             if (test.length > 0) {
@@ -114,13 +117,20 @@ export default class ItemImporter {
                 let skill = "";
 
                 for (let k = 0; k < test.length; k++) {
-                    const m = test[k].trim().replace(/\s{2,}/gm, " ").replace("(*)", "");
+                    const m = test[k]
+                        .trim()
+                        .replace(/\s{2,}/gm, " ")
+                        .replace("(*)", "");
                     if (m.match(new RegExp(skills, "gm"))) {
-                        skill = splittermond.skillGroups.fighting.find(s => foundryApi.localize(`splittermond.skillLabel.${s}`).trim().toLowerCase() === m.trim().toLowerCase());
+                        skill = splittermond.skillGroups.fighting.find(
+                            (s) =>
+                                foundryApi.localize(`splittermond.skillLabel.${s}`).trim().toLowerCase() ===
+                                m.trim().toLowerCase()
+                        );
                         continue;
                     }
                     if (skill === "") {
-                        skill = await this._skillDialog(splittermond.skillGroups.fighting,"weapon");
+                        skill = await this._skillDialog(splittermond.skillGroups.fighting, "weapon");
                     }
 
                     this.importWeapon(m, skill, folder);
@@ -129,13 +139,14 @@ export default class ItemImporter {
             }
         }
 
-
         // Check multiple Armor
-        test = rawData.match(/(.*?) +(Dorf|Kleinstadt|Großstadt|Metropole) +([0-9]+ [LST]) +([0-9]+) +([0-9]+) +([UGFMA]) +(\+[0-9]+|0) +([0-9]+) +([0-9]+) +([0-9]+) +([0-9]+) +(.+)/g);
+        test = rawData.match(
+            /(.*?) +(Dorf|Kleinstadt|Großstadt|Metropole) +([0-9]+ [LST]) +([0-9]+) +([0-9]+) +([UGFMA]) +(\+[0-9]+|0) +([0-9]+) +([0-9]+) +([0-9]+) +([0-9]+) +(.+)/g
+        );
         if (test) {
             if (test.length > 1) {
                 let folder = await this._folderDialog();
-                test.forEach(m => {
+                test.forEach((m) => {
                     this.importArmor(m, folder);
                 });
                 return;
@@ -143,16 +154,22 @@ export default class ItemImporter {
         }
 
         // Check Armor
-        if (rawData.match(/([^]*)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+([0-9]+ [LST])\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+(\+[0-9]+|0)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([^]+)/)) {
+        if (
+            rawData.match(
+                /([^]*)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+([0-9]+ [LST])\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+(\+[0-9]+|0)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([^]+)/
+            )
+        ) {
             return this.importArmor(rawData);
         }
 
         // Check multiple Shield
-        test = rawData.match(/(.*?) +(Dorf|Kleinstadt|Großstadt|Metropole) +([0-9]+ [LST]) +([0-9]+) +([0-9]+) +([UGFMA]) +(\+[0-9]+|0) +([0-9]+) +([0-9]+) +((?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL) [0-9]) +(.+)/g);
+        test = rawData.match(
+            /(.*?) +(Dorf|Kleinstadt|Großstadt|Metropole) +([0-9]+ [LST]) +([0-9]+) +([0-9]+) +([UGFMA]) +(\+[0-9]+|0) +([0-9]+) +([0-9]+) +((?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL) [0-9]) +(.+)/g
+        );
         if (test) {
             if (test.length > 1) {
                 let folder = await this._folderDialog();
-                test.forEach(m => {
+                test.forEach((m) => {
                     this.importShield(m, folder);
                 });
                 return;
@@ -160,7 +177,11 @@ export default class ItemImporter {
         }
 
         // Check Shield
-        if (rawData.match(/([^]*)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+([0-9]+ [LST])\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+(\+[0-9]+|0)\s+([0-9]+)\s+([0-9]+)\s+((?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL) [0-9])\s+([^]+)/)) {
+        if (
+            rawData.match(
+                /([^]*)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+([0-9]+ [LST])\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+(\+[0-9]+|0)\s+([0-9]+)\s+([0-9]+)\s+((?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL) [0-9])\s+([^]+)/
+            )
+        ) {
             this.importShield(rawData);
             return;
         }
@@ -188,20 +209,18 @@ export default class ItemImporter {
     }
 
     static async importMastery(rawData) {
-        const itemPromises= [];
+        const itemPromises = [];
         let folder = await this._folderDialog();
         let skill = await this._skillDialog(splittermond.skillGroups.all, "mastery");
 
         rawData.match(/Schwelle\s+[0-9]\n.+/gm).forEach((s) => {
-
             let token = s.match(/(Schwelle\s+([0-9]))\n.+/);
             let level = parseInt(token[2]);
-            let escapeStr = token[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            let escapeStr = token[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
             let levelData = rawData.match(new RegExp(`${escapeStr}\n([^]+?)\nSchwelle +[0-9]`));
             if (levelData === null) {
                 levelData = rawData.match(new RegExp(`${escapeStr}\n([^]+)`));
             }
-
 
             levelData[1].match(/^(.*): .*/gm).forEach((m) => {
                 let token = m.match(/(.*):/);
@@ -218,11 +237,13 @@ export default class ItemImporter {
                         skill: skill,
                         availableIn: skill,
                         level: level,
-                        modifier: splittermond.modifier[token[1].trim().toLowerCase()] || ""
-                    }
+                        modifier: splittermond.modifier[token[1].trim().toLowerCase()] || "",
+                    },
                 };
-                let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                let descriptionData = levelData[1].match(new RegExp(`${escapeStr} ([^]+?(?:Voraussetzung:[^]+?))(?=^.*:)`, "m"));
+                let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                let descriptionData = levelData[1].match(
+                    new RegExp(`${escapeStr} ([^]+?(?:Voraussetzung:[^]+?))(?=^.*:)`, "m")
+                );
                 if (descriptionData === null) {
                     descriptionData = levelData[1].match(new RegExp(`${escapeStr} ([^]+?)(?=^.*:)`, "m"));
                 }
@@ -234,9 +255,11 @@ export default class ItemImporter {
                 itemPromises.push(itemCreator.createMastery(itemData));
 
                 console.log(itemData);
-                foundryApi.informUser("splittermond.message.itemImported", { name: itemData.name, type: foundryApi.localize("ITEM.TypeMastery") });
+                foundryApi.informUser("splittermond.message.itemImported", {
+                    name: itemData.name,
+                    type: foundryApi.localize("ITEM.TypeMastery"),
+                });
             });
-
         });
         return Promise.all(itemPromises);
     }
@@ -252,21 +275,29 @@ export default class ItemImporter {
                 name: token[1].trim(),
                 folder: folder,
                 system: {
-                    modifier: splittermond.modifier[token[1].trim().toLowerCase()] || ""
-                }
-            }
-            let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    modifier: splittermond.modifier[token[1].trim().toLowerCase()] || "",
+                },
+            };
+            let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
             let descriptionData = rawData.match(new RegExp(`${escapeStr} ([^]+?)(?=^.*:)`, "m"));
             if (descriptionData === null) {
                 descriptionData = rawData.match(new RegExp(`${escapeStr} ([^]+)`));
             }
-            itemData.system.description = descriptionData[1].replaceAll("\n", " ").replaceAll("", "").replaceAll("  ", " ");
+            itemData.system.description = descriptionData[1]
+                .replaceAll("\n", " ")
+                .replaceAll("", "")
+                .replaceAll("  ", " ");
 
             Item.create(itemData);
 
             console.log(itemData);
-            ui.notifications.info(game.i18n.format("splittermond.message.itemImported", { name: itemData.name, type: foundryApi.localize("ITEM.TypeNpcfeature") }));
+            ui.notifications.info(
+                game.i18n.format("splittermond.message.itemImported", {
+                    name: itemData.name,
+                    type: foundryApi.localize("ITEM.TypeNpcfeature"),
+                })
+            );
         });
     }
 
@@ -282,10 +313,10 @@ export default class ItemImporter {
                     quantity: 1,
                     level: parseInt(token[2]),
                     onCreationOnly: token[3] === "*",
-                    modifier: splittermond.modifier[token[1].trim().toLowerCase()] || ""
-                }
-            }
-            let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    modifier: splittermond.modifier[token[1].trim().toLowerCase()] || "",
+                },
+            };
+            let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
             let descriptionData = rawData.match(new RegExp(`${escapeStr} ([^]+?)(?=^.* \\([0-9]\\*?\\):)`, "m"));
             if (descriptionData === null) {
@@ -296,20 +327,27 @@ export default class ItemImporter {
             Item.create(itemData);
 
             console.log(itemData);
-            ui.notifications.info(game.i18n.format("splittermond.message.itemImported", { name: itemData.name, type: foundryApi.localize("ITEM.TypeStrength") }));
+            ui.notifications.info(
+                game.i18n.format("splittermond.message.itemImported", {
+                    name: itemData.name,
+                    type: foundryApi.localize("ITEM.TypeStrength"),
+                })
+            );
         });
     }
 
     static async importShield(rawData, folder = "") {
         rawData = rawData.replace(/\n/g, " ");
-        let tokens = rawData.match(/(.*)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+([0-9]+ [LST])\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+(\+[0-9]+|0)\s+([0-9]+)\s+([0-9]+)\s+((?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL) [0-9])\s+(.+)/);
+        let tokens = rawData.match(
+            /(.*)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+([0-9]+ [LST])\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+(\+[0-9]+|0)\s+([0-9]+)\s+([0-9]+)\s+((?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL) [0-9])\s+(.+)/
+        );
 
         let itemData = {
             type: "shield",
             name: tokens[1].trim(),
             folder: folder,
             img: splittermond.icons.shield[tokens[1].trim()] || splittermond.icons.shield.default,
-            system: {}
+            system: {},
         };
 
         switch (tokens[2].trim()) {
@@ -342,20 +380,27 @@ export default class ItemImporter {
         Item.create(itemData);
 
         console.log(itemData);
-        ui.notifications.info(game.i18n.format("splittermond.message.itemImported", { name: itemData.name, type: foundryApi.localize("ITEM.TypeShield") }));
+        ui.notifications.info(
+            game.i18n.format("splittermond.message.itemImported", {
+                name: itemData.name,
+                type: foundryApi.localize("ITEM.TypeShield"),
+            })
+        );
     }
 
     static async importArmor(rawData, folder = "") {
         rawData = rawData.replace(/\n/g, " ");
 
-        let tokens = rawData.match(/(.*)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+([0-9]+ [LST])\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+(\+[0-9]+|0)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(.+)/);
+        let tokens = rawData.match(
+            /(.*)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+([0-9]+ [LST])\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+(\+[0-9]+|0)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(.+)/
+        );
 
         let itemData = {
             type: "armor",
             name: tokens[1].trim(),
             folder: folder,
             img: splittermond.icons.armor[tokens[1].trim()] || splittermond.icons.armor.default,
-            system: {}
+            system: {},
         };
 
         switch (tokens[2].trim()) {
@@ -386,12 +431,13 @@ export default class ItemImporter {
         itemData.system.minStr = parseInt(tokens[11]);
         itemData.system.features = tokens[12].trim();
 
-        return itemCreator.createArmor(itemData)
-            .then(()=>{
-                console.log(itemData);
-                foundryApi.informUser("splittermond.message.itemImported", { name: itemData.name, type: foundryApi.localize("ITEM.TypeArmor") });
+        return itemCreator.createArmor(itemData).then(() => {
+            console.log(itemData);
+            foundryApi.informUser("splittermond.message.itemImported", {
+                name: itemData.name,
+                type: foundryApi.localize("ITEM.TypeArmor"),
             });
-
+        });
     }
 
     static async importWeapon(rawData, skill = "", folder = "") {
@@ -400,17 +446,18 @@ export default class ItemImporter {
             skill = await this._skillDialog(splittermond.skillGroups.fighting, "weapon");
         }
 
-
         let isRanged = ["throwing", "longrange"].includes(skill);
 
-        let tokens = rawData.match(/([\s\S]*?)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+(?:([0-9]+ [LST]|-|–)(?:\s*\/\s*[0-9]+ [LST])?)\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+([0-9+\-W]+)\s+([0-9]+)\s+((?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL|\+){3})\s+((?:(?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL)\s*[0-9],?\s*)*|–)\s+(.+)/);
+        let tokens = rawData.match(
+            /([\s\S]*?)\s+(Dorf|Kleinstadt|Großstadt|Metropole)\s+(?:([0-9]+ [LST]|-|–)(?:\s*\/\s*[0-9]+ [LST])?)\s+([0-9]+)\s+([0-9]+)\s+([UGFMA])\s+([0-9+\-W]+)\s+([0-9]+)\s+((?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL|\+){3})\s+((?:(?:AUS|BEW|INT|KON|MYS|STÄ|VER|WIL)\s*[0-9],?\s*)*|–)\s+(.+)/
+        );
 
         let itemData = {
             type: "weapon",
             name: tokens[1].trim().replace(/[0-9]/g, ""),
             img: splittermond.icons.weapon[tokens[1].trim()] || splittermond.icons.weapon.default,
             folder: folder,
-            system: {}
+            system: {},
         };
 
         itemData.system.skill = skill;
@@ -472,23 +519,28 @@ export default class ItemImporter {
             itemData.system.range = 0;
         }
 
-        itemData.system.features = tokens[11].split(",").map((i) => {
-            let temp = i.match(/([^(]*)\s?\(?([0-9]*)\)?/);
-            if (temp[2]) {
-                return temp[1] + " " + temp[2];
-            } else {
-                return temp[1];
-            }
-
-        }).join(", ");
-        if(itemData.system.features.includes("Stumpf")){
+        itemData.system.features = tokens[11]
+            .split(",")
+            .map((i) => {
+                let temp = i.match(/([^(]*)\s?\(?([0-9]*)\)?/);
+                if (temp[2]) {
+                    return temp[1] + " " + temp[2];
+                } else {
+                    return temp[1];
+                }
+            })
+            .join(", ");
+        if (itemData.system.features.includes("Stumpf")) {
             itemData.system.costType = "E";
         }
 
         Item.create(itemData);
 
         console.log(itemData);
-        foundryApi.informUser("splittermond.message.itemImported", { name: itemData.name, type: foundryApi.localize("ITEM.TypeWeapon") });
+        foundryApi.informUser("splittermond.message.itemImported", {
+            name: itemData.name,
+            type: foundryApi.localize("ITEM.TypeWeapon"),
+        });
     }
 
     static importSpell = spellImporter;

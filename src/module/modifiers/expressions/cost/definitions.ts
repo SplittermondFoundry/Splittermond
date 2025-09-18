@@ -1,27 +1,29 @@
-import {CostModifier} from "../../../util/costs/Cost";
-import {Expression, of as scalarOf, AmountExpression as ScalarAmount} from "../scalar/definitions";
+import { CostModifier } from "../../../util/costs/Cost";
+import { AmountExpression as ScalarAmount, Expression, of as scalarOf } from "../scalar/definitions";
 
 export type CostExpression =
-    AmountExpression
+    | AmountExpression
     | ZeroExpression
     | AddExpression
     | SubtractExpression
     | MultiplyExpression
-    | ReferenceExpression
+    | ReferenceExpression;
 
 export function isExpression(value: unknown): value is CostExpression {
-    return value instanceof AmountExpression
-        || value instanceof AddExpression
-        || value instanceof SubtractExpression
-        || value instanceof MultiplyExpression
-        || value instanceof ReferenceExpression
+    return (
+        value instanceof AmountExpression ||
+        value instanceof AddExpression ||
+        value instanceof SubtractExpression ||
+        value instanceof MultiplyExpression ||
+        value instanceof ReferenceExpression
+    );
 }
 
 export function of(amount: CostModifier) {
     if (amount.length === 0) {
-        return new ZeroExpression()
+        return new ZeroExpression();
     } else {
-        return new AmountExpression(amount)
+        return new AmountExpression(amount);
     }
 }
 
@@ -49,7 +51,7 @@ export function times(scalar: Expression, cost: CostExpression) {
     if (scalar instanceof ScalarAmount && scalar.amount === 0) {
         return of(CostModifier.zero);
     } else if (scalar instanceof ScalarAmount && scalar.amount === 1) {
-            return cost;
+        return cost;
     } else if (cost instanceof ZeroExpression) {
         return of(CostModifier.zero);
     } else {
@@ -62,8 +64,7 @@ export function ref(propertyPath: string, source: object, stringRepresentation: 
 }
 
 export class AmountExpression {
-    constructor(public readonly amount: CostModifier) {
-    }
+    constructor(public readonly amount: CostModifier) {}
 }
 
 class ZeroExpression extends AmountExpression {
@@ -73,21 +74,30 @@ class ZeroExpression extends AmountExpression {
 }
 
 export class ReferenceExpression {
-    constructor(public readonly propertyPath: string, public readonly source: object, public readonly stringRep: string) {
-    }
+    constructor(
+        public readonly propertyPath: string,
+        public readonly source: object,
+        public readonly stringRep: string
+    ) {}
 }
 
 export class AddExpression {
-    constructor(public readonly left: CostExpression, public readonly right: CostExpression) {
-    }
+    constructor(
+        public readonly left: CostExpression,
+        public readonly right: CostExpression
+    ) {}
 }
 
 export class SubtractExpression {
-    constructor(public readonly left: CostExpression, public readonly right: CostExpression) {
-    }
+    constructor(
+        public readonly left: CostExpression,
+        public readonly right: CostExpression
+    ) {}
 }
 
 export class MultiplyExpression {
-    constructor(public readonly scalar: Expression, public readonly cost: CostExpression) {
-    }
+    constructor(
+        public readonly scalar: Expression,
+        public readonly cost: CostExpression
+    ) {}
 }

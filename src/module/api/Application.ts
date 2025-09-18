@@ -2,21 +2,18 @@
  * All types Straight from the foundry V13 API
  */
 export interface DialogV2RenderOptions {
-    force: boolean
+    force: boolean;
 }
 
-export interface DialogV2ConstructorInput extends foundry.applications.types.ApplicationConfiguration, foundry.DialogV2Configuration {
-
-}
-
+export interface DialogV2ConstructorInput
+    extends foundry.applications.types.ApplicationConfiguration,
+        foundry.DialogV2Configuration {}
 
 declare namespace foundry {
-
     import ApplicationV2 = foundry.applications.api.ApplicationV2;
     import ApplicationFormConfiguration = foundry.applications.types.ApplicationFormConfiguration;
     import ApplicationRenderContext = foundry.applications.types.ApplicationRenderContext;
     import ApplicationTabsConfiguration = foundry.applications.types.ApplicationTabsConfiguration;
-    import ApplicationConfiguration = foundry.applications.types.ApplicationConfiguration;
 
     interface DialogV2Configuration {
         modal: boolean;
@@ -31,20 +28,26 @@ declare namespace foundry {
         icon: string;
         class: string;
         default: boolean;
-        callback: ((event: PointerEvent | SubmitEvent, button: HTMLButtonElement, dialog: foundry.applications.api.DialogV2) => Promise<unknown>);
+        callback: (
+            event: PointerEvent | SubmitEvent,
+            button: HTMLButtonElement,
+            dialog: foundry.applications.api.DialogV2
+        ) => Promise<unknown>;
     }
 
     namespace applications {
         namespace types {
-
-            type ApplicationClickAction = (event: PointerEvent, target: HTMLElement) => Promise<void>
+            type ApplicationClickAction = (event: PointerEvent, target: HTMLElement) => Promise<void>;
             /**
              * Not a foundry type
              */
-            type ApplicationAction = string | ApplicationClickAction | {
-                buttons: number[],
-                handler: ApplicationClickAction
-            };
+            type ApplicationAction =
+                | string
+                | ApplicationClickAction
+                | {
+                      buttons: number[];
+                      handler: ApplicationClickAction;
+                  };
 
             interface ApplicationTabsConfiguration {
                 initial?: string;
@@ -122,7 +125,7 @@ declare namespace foundry {
             }
 
             interface ApplicationRenderContext {
-                tabs?: Record<string, ApplicationTab>
+                tabs?: Record<string, ApplicationTab>;
 
                 [x: string]: unknown;
             }
@@ -148,30 +151,29 @@ declare namespace foundry {
              * @see https://foundryvtt.com/api/classes/foundry.applications.api.DialogV2.html
              */
             export class DialogV2 extends ApplicationV2<DialogV2ConstructorInput> {
-
                 constructor(config: Partial<DialogV2ConstructorInput>);
 
-                static confirm(config: { content: string, rejectClose: boolean, modal: true }): Promise<boolean>;
+                static confirm(config: { content: string; rejectClose: boolean; modal: true }): Promise<boolean>;
 
                 //To lazy to actually type this right now.
                 static prompt(config: unknown): Promise<unknown>;
 
                 render(options?: DialogV2RenderOptions): Promise<this>;
-
             }
 
             /**
              * Type declarations for applications. incomplete, copied at V13
              * @see https://foundryvtt.com/api/classes/foundry.applications.api.ApplicationV2.html
              */
-            export class ApplicationV2<CONFIGURATION extends ApplicationConfiguration = ApplicationConfiguration,
-                RENDER_OPTIONS = ApplicationRenderOptions> {
-
+            export class ApplicationV2<
+                CONFIGURATION extends ApplicationConfiguration = ApplicationConfiguration,
+                RENDER_OPTIONS = ApplicationRenderOptions,
+            > {
                 constructor(options?: Partial<CONFIGURATION>);
 
-                options: Readonly<CONFIGURATION>
+                options: Readonly<CONFIGURATION>;
 
-                get classList(): DOMTokenList
+                get classList(): DOMTokenList;
 
                 get element(): HTMLElement;
 
@@ -189,10 +191,12 @@ declare namespace foundry {
 
                 close(): void;
 
-                protected _onRender(context: ApplicationRenderContext, options: RENDER_OPTIONS): Promise<void>
+                protected _onRender(context: ApplicationRenderContext, options: RENDER_OPTIONS): Promise<void>;
             }
 
-            export function HandlebarsApplicationMixin(BaseApplication: typeof ApplicationV2): typeof HandlebarsApplication;
+            export function HandlebarsApplicationMixin(
+                BaseApplication: typeof ApplicationV2
+            ): typeof HandlebarsApplication;
         }
 
         namespace ux {
@@ -204,15 +208,9 @@ declare namespace foundry {
         }
     }
 
-
     interface DragDropConfiguration {
         callbacks?: Record<
-            | "dragstart"
-            | "drop"
-            | "dragover"
-            | "dragenter"
-            | "dragleave"
-            | "dragend",
+            "dragstart" | "drop" | "dragover" | "dragenter" | "dragleave" | "dragend",
             (event: DragEvent) => void
         >;
         dragSelector?: null | string;
@@ -239,27 +237,29 @@ declare namespace foundry {
      * @see https://foundryvtt.com/api/classes/foundry.HandlebarsApplication.html
      */
     class HandlebarsApplication extends ApplicationV2 {
-        static TABS: Record<string, ApplicationTabsConfiguration>
-        static PARTS: Record<string, HandlebarsTemplatePart>
+        static TABS: Record<string, ApplicationTabsConfiguration>;
+        static PARTS: Record<string, HandlebarsTemplatePart>;
 
-        tabGroups: Record<string, null | string>
+        tabGroups: Record<string, null | string>;
 
         protected _preparePartContext(
             partId: string,
             context: ApplicationRenderContext,
-            options: HandlebarsRenderOptions,
-        ): Promise<ApplicationRenderContext>
+            options: HandlebarsRenderOptions
+        ): Promise<ApplicationRenderContext>;
 
-        changeTab(tab: string, group: string,
-                  options?: {
-                      event?: Event;
-                      force?: boolean;
-                      navElement?: HTMLElement;
-                      updatePosition?: boolean;
-                  },
-        ): void
+        changeTab(
+            tab: string,
+            group: string,
+            options?: {
+                event?: Event;
+                force?: boolean;
+                navElement?: HTMLElement;
+                updatePosition?: boolean;
+            }
+        ): void;
 
-        protected _prepareContext(options: HandlebarsRenderOptions ): Promise<ApplicationRenderContext>;
+        protected _prepareContext(options: HandlebarsRenderOptions): Promise<ApplicationRenderContext>;
 
         protected _onRender(context: ApplicationRenderContext, options: HandlebarsRenderOptions): Promise<void>;
 
@@ -267,10 +267,8 @@ declare namespace foundry {
     }
 }
 
-export const FoundryDialog = foundry.applications.api.DialogV2
+export const FoundryDialog = foundry.applications.api.DialogV2;
 export const FoundryApplication = foundry.applications.api.ApplicationV2;
-export const FoundryHandlebarsMixin = foundry.applications.api.HandlebarsApplicationMixin
+export const FoundryHandlebarsMixin = foundry.applications.api.HandlebarsApplicationMixin;
 
-export class FoundryDragDrop extends foundry.applications.ux.DragDrop {
-}
-
+export class FoundryDragDrop extends foundry.applications.ux.DragDrop {}

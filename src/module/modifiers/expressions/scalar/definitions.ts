@@ -1,10 +1,10 @@
-import {FoundryRoll} from "module/api/Roll";
-import {RollExpression} from "./rollExpressions";
+import { FoundryRoll } from "module/api/Roll";
+import { RollExpression } from "./rollExpressions";
 
-export * from './rollExpressions'
+export * from "./rollExpressions";
 
 export type Expression =
-    AmountExpression
+    | AmountExpression
     | ZeroExpression
     | OneExpression
     | RollExpression
@@ -14,28 +14,29 @@ export type Expression =
     | DivideExpression
     | ReferenceExpression
     | AbsExpression
-    | PowerExpression
-    ;
+    | PowerExpression;
 
 export function isExpression(value: unknown): value is Expression {
-    return value instanceof AmountExpression
-        || value instanceof AddExpression
-        || value instanceof SubtractExpression
-        || value instanceof MultiplyExpression
-        || value instanceof DivideExpression
-        || value instanceof ReferenceExpression
-        || value instanceof RollExpression
-        || value instanceof AbsExpression
-        || value instanceof PowerExpression
+    return (
+        value instanceof AmountExpression ||
+        value instanceof AddExpression ||
+        value instanceof SubtractExpression ||
+        value instanceof MultiplyExpression ||
+        value instanceof DivideExpression ||
+        value instanceof ReferenceExpression ||
+        value instanceof RollExpression ||
+        value instanceof AbsExpression ||
+        value instanceof PowerExpression
+    );
 }
 
 export function of(amount: number) {
     if (amount === 0) {
-        return new ZeroExpression()
+        return new ZeroExpression();
     } else if (amount === 1) {
         return new OneExpression();
     } else {
-        return new AmountExpression(amount)
+        return new AmountExpression(amount);
     }
 }
 
@@ -61,11 +62,11 @@ export function minus(left: Expression, right: Expression) {
 
 export function times(left: Expression, right: Expression) {
     if (left instanceof ZeroExpression) {
-        return of(0)
+        return of(0);
     } else if (left instanceof OneExpression) {
         return right;
     } else if (right instanceof ZeroExpression) {
-        return of(0)
+        return of(0);
     } else if (right instanceof OneExpression) {
         return left;
     } else {
@@ -75,9 +76,9 @@ export function times(left: Expression, right: Expression) {
 
 export function dividedBy(left: Expression, right: Expression) {
     if (right instanceof ZeroExpression) {
-        throw new Error("Division by zero")
+        throw new Error("Division by zero");
     } else if (left instanceof ZeroExpression) {
-        return of(0)
+        return of(0);
     } else if (right instanceof OneExpression) {
         return left;
     } else {
@@ -111,10 +112,8 @@ export function ref(propertyPath: string, source: object, stringRepresentation: 
     return new ReferenceExpression(propertyPath, source, stringRepresentation);
 }
 
-
 export class AmountExpression {
-    constructor(public readonly amount: number) {
-    }
+    constructor(public readonly amount: number) {}
 }
 
 class ZeroExpression extends AmountExpression {
@@ -130,36 +129,48 @@ class OneExpression extends AmountExpression {
 }
 
 export class ReferenceExpression {
-    constructor(public readonly propertyPath: string, public readonly source: object, public readonly stringRep: string) {
-    }
+    constructor(
+        public readonly propertyPath: string,
+        public readonly source: object,
+        public readonly stringRep: string
+    ) {}
 }
 
 export class AddExpression {
-    constructor(public readonly left: Expression, public readonly right: Expression) {
-    }
+    constructor(
+        public readonly left: Expression,
+        public readonly right: Expression
+    ) {}
 }
 
 export class SubtractExpression {
-    constructor(public readonly left: Expression, public readonly right: Expression) {
-    }
+    constructor(
+        public readonly left: Expression,
+        public readonly right: Expression
+    ) {}
 }
 
 export class MultiplyExpression {
-    constructor(public readonly left: Expression, public readonly right: Expression) {
-    }
+    constructor(
+        public readonly left: Expression,
+        public readonly right: Expression
+    ) {}
 }
 
 export class DivideExpression {
-    constructor(public readonly left: Expression, public readonly right: Expression) {
-    }
+    constructor(
+        public readonly left: Expression,
+        public readonly right: Expression
+    ) {}
 }
 
 export class PowerExpression {
-    constructor(public readonly base: Expression, public readonly exponent: Expression) {
-    }
+    constructor(
+        public readonly base: Expression,
+        public readonly exponent: Expression
+    ) {}
 }
 
 export class AbsExpression {
-    constructor(public readonly arg: Expression) {
-    }
+    constructor(public readonly arg: Expression) {}
 }

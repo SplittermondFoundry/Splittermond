@@ -1,4 +1,4 @@
-import {foundryApi} from "../api/foundryApi.ts";
+import { foundryApi } from "../api/foundryApi.ts";
 
 export class TooltipFormula {
     constructor() {
@@ -12,7 +12,8 @@ export class TooltipFormula {
     addParts(parts, joinedByOperator) {
         parts.forEach((part, index) => {
             this.addPart(part.value, part.description, part.classes);
-            if (index !== parts.length - 1) {//add an operator for all but the last attribute
+            if (index !== parts.length - 1) {
+                //add an operator for all but the last attribute
                 this.addOperator(joinedByOperator);
             }
         });
@@ -26,7 +27,7 @@ export class TooltipFormula {
             type: "part",
             classes: partClasses,
             value: `${value ?? ""}`,
-            description: description ?? null
+            description: description ?? null,
         });
     }
 
@@ -46,7 +47,7 @@ export class TooltipFormula {
 
     addBonus(value, description) {
         const strippedValue = preventOperatorDuplication("+", value);
-        this.addOperator("+")
+        this.addOperator("+");
         this.addPart(strippedValue, description, "bonus");
     }
 
@@ -54,19 +55,17 @@ export class TooltipFormula {
      * @returns {{classes: string, description: string, type: string, value: string}[]}
      */
     getData() {
-        return this.parts.map(p => (
-            {
-                type: `${p.type}`,
-                classes: p.classes.join(" "),
-                value: p.value ? foundryApi.localize(`${p.value}`) : "",
-                description: p.description ? foundryApi.localize(`${p.description}`) : ""
-
-            }));
+        return this.parts.map((p) => ({
+            type: `${p.type}`,
+            classes: p.classes.join(" "),
+            value: p.value ? foundryApi.localize(`${p.value}`) : "",
+            description: p.description ? foundryApi.localize(`${p.description}`) : "",
+        }));
     }
 
     render() {
         let result = `<span class="formula">`;
-        this.getData().forEach(part => {
+        this.getData().forEach((part) => {
             if (part.type === "part") {
                 result += `<span class="${part.classes}"><span class="value">${part.value}</span>
                 <span class="description">${part.description}</span></span>`;
@@ -89,7 +88,7 @@ export class TooltipFormula {
  */
 function preventOperatorDuplication(operator, value) {
     if (typeof value === "string" && new RegExp(`^\\s*[${operator}]`).test(value)) {
-        return value.trim().replace(operator, "")
+        return value.trim().replace(operator, "");
     } else {
         return value;
     }

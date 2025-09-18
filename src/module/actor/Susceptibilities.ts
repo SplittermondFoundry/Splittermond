@@ -1,9 +1,7 @@
-import {DamageType, damageTypes} from "../config/damageTypes";
+import { DamageType, damageTypes } from "../config/damageTypes";
 import ModifierManager from "./modifier-manager";
 
-
 export class Susceptibilities {
-
     private susceptibilities: Record<DamageType, number> = {
         physical: 0,
         mental: 0,
@@ -23,15 +21,16 @@ export class Susceptibilities {
         nature: 0,
     };
 
-    constructor(private keyword: string, private modifierManager: ModifierManager) {
-    }
+    constructor(
+        private keyword: string,
+        private modifierManager: ModifierManager
+    ) {}
 
     calculateSusceptibilities(): Record<DamageType, number> {
-        const susceptibilities = {...this.susceptibilities};
-        damageTypes.forEach(type => {
-                susceptibilities[type] = this.modifierManager.getForId(`${this.keyword}.${type}`).getModifiers().sum ?? 0;
-            }
-        );
+        const susceptibilities = { ...this.susceptibilities };
+        damageTypes.forEach((type) => {
+            susceptibilities[type] = this.modifierManager.getForId(`${this.keyword}.${type}`).getModifiers().sum ?? 0;
+        });
         return susceptibilities;
     }
 }

@@ -1,4 +1,4 @@
-export type ItemType = typeof itemTypes[number];
+export type ItemType = (typeof itemTypes)[number];
 export const itemTypes = [
     "weapon",
     "projectile",
@@ -20,5 +20,5 @@ export const itemTypes = [
     "culturelore",
     "statuseffect",
     "spelleffect",
-    "npcattack"
+    "npcattack",
 ] as const;

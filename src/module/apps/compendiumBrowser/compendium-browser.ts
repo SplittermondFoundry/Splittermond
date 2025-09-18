@@ -1,13 +1,12 @@
-import {initializeDisplayPreparation} from "./itemDisplayPreparation";
-import {FoundryApplication, FoundryDragDrop} from "../../api/Application";
-import {foundryApi} from "../../api/foundryApi";
-import {splittermond} from "../../config";
-import {itemRetriever} from "../../data/EntityRetriever";
+import { initializeDisplayPreparation } from "./itemDisplayPreparation";
+import { FoundryApplication, FoundryDragDrop } from "../../api/Application";
+import { foundryApi } from "../../api/foundryApi";
+import { splittermond } from "../../config";
+import { itemRetriever } from "../../data/EntityRetriever";
 import SplittermondItem from "../../item/item";
-import {CompendiumPacks} from "../../api/foundryTypes";
-import {closestData} from "../../data/ClosestDataMixin";
-import {SplittermondApplication} from "../../data/SplittermondApplication";
-
+import { CompendiumPacks } from "../../api/foundryTypes";
+import { closestData } from "../../data/ClosestDataMixin";
+import { SplittermondApplication } from "../../data/SplittermondApplication";
 
 type ItemIndexEntity = {
     type: string;
@@ -30,36 +29,34 @@ interface BrowserContext {
     [key: string]: any;
 }
 
-export type ApplicationOptions = ConstructorParameters<typeof FoundryApplication>[0]
+export type ApplicationOptions = ConstructorParameters<typeof FoundryApplication>[0];
 
 export default class SplittermondCompendiumBrowser extends SplittermondApplication {
     static TABS = {
         primary: {
             tabs: [
-                { id: 'spell', group: 'primary', label: 'splittermond.spells' },
-                { id: 'mastery', group: 'primary', label: 'splittermond.masteries' },
-                { id: 'weapon', group: 'primary', label: 'splittermond.weapons' },
+                { id: "spell", group: "primary", label: "splittermond.spells" },
+                { id: "mastery", group: "primary", label: "splittermond.masteries" },
+                { id: "weapon", group: "primary", label: "splittermond.weapons" },
             ],
-            initial: "spell"
-        }
-    }
+            initial: "spell",
+        },
+    };
     static PARTS = {
-        tabs:  {
+        tabs: {
             template: "systems/splittermond/templates/apps/compendium-browser/parts/tabs.hbs",
             //template: "templates/generic/tab-navigation.hbs"
         },
-        "spell": {
+        spell: {
             template: "systems/splittermond/templates/apps/compendium-browser/parts/spell.hbs",
         },
-        "mastery": {
+        mastery: {
             template: "systems/splittermond/templates/apps/compendium-browser/parts/mastery.hbs",
         },
-        "weapon": {
+        weapon: {
             template: "systems/splittermond/templates/apps/compendium-browser/parts/weapon.hbs",
-        }
+        },
     };
-
-
 
     private dragDrop: FoundryDragDrop[];
     private _produceDisplayableItems: ((...args: any[]) => any) | undefined;
@@ -74,7 +71,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
                 height: 700,
             },
             form: {
-                submitOnChange:false,
+                submitOnChange: false,
             },
             classes: ["splittermond", "compendium-browser"],
             window: {
@@ -92,16 +89,16 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     private produceDisplayableItems() {
         if (!this._produceDisplayableItems) {
             this._produceDisplayableItems = initializeDisplayPreparation(
-                {localize: foundryApi.localize},
+                { localize: foundryApi.localize },
                 [...splittermond.skillGroups.magic],
                 [...splittermond.skillGroups.all]
             );
         }
         return this._produceDisplayableItems;
-    };
+    }
 
     private createDragDropHandlers(): FoundryDragDrop[] {
-        return (this.options.dragDrop as Record<string,unknown>[]).map((d) => {
+        return (this.options.dragDrop as Record<string, unknown>[]).map((d) => {
             d.permissions = {
                 dragstart: this._canDragStart.bind(this),
                 drop: this._canDragDrop.bind(this),
@@ -117,25 +114,25 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
     async _prepareContext(options: any): Promise<BrowserContext> {
         const getDataTimerStart = performance.now();
-        const data = await super._prepareContext(options) as BrowserContext;
+        const data = (await super._prepareContext(options)) as BrowserContext;
         data.spellFilter = {
-            skills: foundryApi.utils.deepClone(splittermond.spellSkillsOption)
+            skills: foundryApi.utils.deepClone(splittermond.spellSkillsOption),
         };
 
         data.masteryFilter = {
-            skills: foundryApi.utils.deepClone(splittermond.masterySkillsOption)
+            skills: foundryApi.utils.deepClone(splittermond.masterySkillsOption),
         };
 
         data.weaponFilter = {
-            skills: foundryApi.utils.deepClone(splittermond.fightingSkillOptions)
+            skills: foundryApi.utils.deepClone(splittermond.fightingSkillOptions),
         };
 
-        delete (data.spellFilter.skills.arcanelore);
+        delete data.spellFilter.skills.arcanelore;
         data.spellFilter.skills.none = "splittermond.skillLabel.none";
         data.weaponFilter.skills.none = "splittermond.skillLabel.none";
 
-        const allItems = this.recordCompendiaItemsInCategories(foundryApi.collections.packs )
-            .then(record => this.appendWorldItemsToRecord(record, itemRetriever.items))
+        const allItems = this.recordCompendiaItemsInCategories(foundryApi.collections.packs)
+            .then((record) => this.appendWorldItemsToRecord(record, itemRetriever.items))
             .then(this.sortCategories);
         return new Promise(async (resolve, __) => {
             data.items = await allItems;
@@ -148,25 +145,35 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         let allItems: Record<string, ItemIndexEntity[]> = {};
 
         const indices = compendia
-            .filter(pack => pack.documentName === "Item")
-            .filter(pack => {
-                const wellFormedMetadata = "id" in pack.metadata && "label" in pack.metadata
+            .filter((pack) => pack.documentName === "Item")
+            .filter((pack) => {
+                const wellFormedMetadata = "id" in pack.metadata && "label" in pack.metadata;
                 if (!wellFormedMetadata) {
-                    console.warn(`Splittermond | Pack ${pack.metadata.name} does not have well-formed metadata. It will be ignored.`);
+                    console.warn(
+                        `Splittermond | Pack ${pack.metadata.name} does not have well-formed metadata. It will be ignored.`
+                    );
                 }
-                return wellFormedMetadata
+                return wellFormedMetadata;
             })
-            .map(pack => ({
+            .map((pack) => ({
                 metadata: { id: pack.metadata.id, label: pack.metadata.label },
                 index: pack.getIndex({
-                    fields: ["system.availableIn", "system.skill", "system.skillLevel", "system.features",
-                        "system.level", "system.spellType", "system.secondaryAttack.skill", "system.damage"]
-                })
+                    fields: [
+                        "system.availableIn",
+                        "system.skill",
+                        "system.skillLevel",
+                        "system.features",
+                        "system.level",
+                        "system.spellType",
+                        "system.secondaryAttack.skill",
+                        "system.damage",
+                    ],
+                }),
             }));
 
         return Promise.all(
-            indices.map(
-                (compendiumBrowserCompendium) => this.produceDisplayableItems()(
+            indices.map((compendiumBrowserCompendium) =>
+                this.produceDisplayableItems()(
                     compendiumBrowserCompendium.metadata,
                     compendiumBrowserCompendium.index,
                     allItems
@@ -175,7 +182,10 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         ).then(() => allItems);
     }
 
-    appendWorldItemsToRecord(record: Record<string, ItemIndexEntity[]>, items: Collection<SplittermondItem>): Record<string, ItemIndexEntity[]> {
+    appendWorldItemsToRecord(
+        record: Record<string, ItemIndexEntity[]>,
+        items: Collection<SplittermondItem>
+    ): Record<string, ItemIndexEntity[]> {
         items.forEach((item: SplittermondItem) => {
             if (!(item.type in record)) {
                 record[item.type] = [];
@@ -186,8 +196,8 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     }
 
     sortCategories(record: Record<string, ItemIndexEntity[]>): Record<string, ItemIndexEntity[]> {
-        Object.keys(record).forEach(k => {
-            record[k].sort((a, b) => (a.name < b.name) ? -1 : 1);
+        Object.keys(record).forEach((k) => {
+            record[k].sort((a, b) => (a.name < b.name ? -1 : 1));
         });
         return record;
     }
@@ -197,24 +207,28 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
         this.dragDrop.forEach((d) => d.bind(this.element));
 
-        this.element.querySelectorAll(".list li")
-            .forEach(el =>el.addEventListener('click', async (e) => this.listElementClickHandler(e)));
+        this.element
+            .querySelectorAll(".list li")
+            .forEach((el) => el.addEventListener("click", async (e) => this.listElementClickHandler(e)));
 
-        this.element.querySelectorAll('[data-tab="spell"] input, [data-tab="spell"] select').forEach(
-            el=>el.addEventListener('change', () => {
-            this._onSearchFilterSpell();
-        }));
-        this.element.querySelectorAll('[data-tab="mastery"] input, [data-tab="mastery"] select').forEach(
-            el => el.addEventListener('change', () => {
-            this._onSearchFilterMastery();
-        }));
-        this.element.querySelectorAll('[data-tab="weapon"] input, [data-tab="weapon"] select').forEach(
-            el => el.addEventListener('change', () => {
-            this._onSearchFilterWeapon();
-        }));
+        this.element.querySelectorAll('[data-tab="spell"] input, [data-tab="spell"] select').forEach((el) =>
+            el.addEventListener("change", () => {
+                this._onSearchFilterSpell();
+            })
+        );
+        this.element.querySelectorAll('[data-tab="mastery"] input, [data-tab="mastery"] select').forEach((el) =>
+            el.addEventListener("change", () => {
+                this._onSearchFilterMastery();
+            })
+        );
+        this.element.querySelectorAll('[data-tab="weapon"] input, [data-tab="weapon"] select').forEach((el) =>
+            el.addEventListener("change", () => {
+                this._onSearchFilterWeapon();
+            })
+        );
     }
 
-    async render(options: Parameters<InstanceType<typeof FoundryApplication>["render"]>[0] ={}): Promise<this> {
+    async render(options: Parameters<InstanceType<typeof FoundryApplication>["render"]>[0] = {}): Promise<this> {
         const renderResult = await super.render(options);
         // Initialize the spell section so that everything is visible.
         this._onSearchFilterSpell();
@@ -226,8 +240,8 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     private async listElementClickHandler(e: Event) {
         e.preventDefault();
         e.stopPropagation();
-        const itemId = closestData(e.currentTarget as HTMLElement/*we know this*/, "item-id");
-        if( !itemId) {
+        const itemId = closestData(e.currentTarget as HTMLElement /*we know this*/, "item-id");
+        if (!itemId) {
             console.warn("Splittermond | No item ID found in clicked compendium browser list element.");
             return;
         }
@@ -239,9 +253,9 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         sheet.render(true);
     }
 
-    _canDragStart(selector:string) {
+    _canDragStart(selector: string) {
         const selectedElement = this.element.querySelector(selector) as HTMLElement;
-        const itemId = closestData(selectedElement,"item-id");
+        const itemId = closestData(selectedElement, "item-id");
         return itemId !== undefined;
     }
 
@@ -251,15 +265,18 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
     _onDragStart(event: DragEvent): void {
         const li = event.currentTarget as HTMLElement;
-        event.dataTransfer?.setData("text/plain", JSON.stringify({
-            type: "Item",
-            uuid: li.dataset.itemId
-        }));
+        event.dataTransfer?.setData(
+            "text/plain",
+            JSON.stringify({
+                type: "Item",
+                uuid: li.dataset.itemId,
+            })
+        );
     }
 
     _onSearchFilterSpell(): void {
         const currentSection = this.element.querySelector('section.tab[data-tab="spell"]') as HTMLElement;
-        const {nameFilter, skillFilter, displayWorldItems} = this.getCommonFilters(currentSection);
+        const { nameFilter, skillFilter, displayWorldItems } = this.getCommonFilters(currentSection);
         const allowedLevels = this.getAllowedLevels(currentSection);
 
         filterItems(currentSection, (el) => {
@@ -267,10 +284,11 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
             const nameMatches = nameFilter.test(el.querySelector("label")?.textContent ?? "");
             const shouldDisplayWorldItem = displayWorldItems || !!el.dataset.itemId?.startsWith("Compendium");
-            const skillAndLevelMatches = allowedLevels.includes(parseInt(el.dataset.level ?? "")) &&
+            const skillAndLevelMatches =
+                allowedLevels.includes(parseInt(el.dataset.level ?? "")) &&
                 (el.dataset.skill === skillFilter || skillFilter === "none");
-            const availabilitiesMatch = availabilities.some(a =>
-               allowedLevels.includes(a.level) && (a.skill === skillFilter || skillFilter === "none")
+            const availabilitiesMatch = availabilities.some(
+                (a) => allowedLevels.includes(a.level) && (a.skill === skillFilter || skillFilter === "none")
             );
 
             return nameMatches && shouldDisplayWorldItem && (skillAndLevelMatches || availabilitiesMatch);
@@ -279,7 +297,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
     _onSearchFilterMastery(): void {
         const currentSection = this.element.querySelector('section.tab[data-tab="mastery"]') as HTMLElement;
-        const {nameFilter, skillFilter, displayWorldItems} = this.getCommonFilters(currentSection);
+        const { nameFilter, skillFilter, displayWorldItems } = this.getCommonFilters(currentSection);
         const allowedLevels = this.getAllowedLevels(currentSection);
 
         filterItems(currentSection, (el) => {
@@ -287,17 +305,17 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
             const nameMatches = nameFilter.test(el.querySelector("label")?.textContent ?? "");
             const shouldDisplayWorldItem = displayWorldItems || !!el.dataset.itemId?.startsWith("Compendium");
-            const levelsMatch = allowedLevels.includes(parseInt(el.dataset.level ?? ""))
-            const availabilitiesMatch= availabilities.some(a => a.skill === skillFilter || skillFilter === "none");
+            const levelsMatch = allowedLevels.includes(parseInt(el.dataset.level ?? ""));
+            const availabilitiesMatch = availabilities.some((a) => a.skill === skillFilter || skillFilter === "none");
 
-            const skillsMatch= (el.dataset.skill === skillFilter || skillFilter === "none") || availabilitiesMatch;
+            const skillsMatch = el.dataset.skill === skillFilter || skillFilter === "none" || availabilitiesMatch;
             return nameMatches && shouldDisplayWorldItem && levelsMatch && skillsMatch;
         });
     }
 
     _onSearchFilterWeapon(): void {
         const currentSection = this.element.querySelector('section.tab[data-tab="weapon"]') as HTMLElement;
-        const {nameFilter, skillFilter, displayWorldItems} = this.getCommonFilters(currentSection);
+        const { nameFilter, skillFilter, displayWorldItems } = this.getCommonFilters(currentSection);
 
         filterItems(currentSection, (el) => {
             const name = el.querySelector("label")!.textContent!;
@@ -305,10 +323,11 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
             let features = `${itemData.features} ${itemData.secondaryFeatures}`;
             let damage = `${itemData.damage} ${itemData.seconaryDamage}`;
 
-            const nameMatches= nameFilter.test(`${name} ${features} ${damage}`);
-            const shouldDisplayWorldItem = displayWorldItems || !! itemData.itemId?.startsWith("Compendium");
+            const nameMatches = nameFilter.test(`${name} ${features} ${damage}`);
+            const shouldDisplayWorldItem = displayWorldItems || !!itemData.itemId?.startsWith("Compendium");
 
-            const skillsMatch= (itemData.skill === skillFilter || itemData.secondarySkill == skillFilter||  skillFilter === "none" );
+            const skillsMatch =
+                itemData.skill === skillFilter || itemData.secondarySkill == skillFilter || skillFilter === "none";
             return nameMatches && shouldDisplayWorldItem && skillsMatch;
         });
     }
@@ -318,39 +337,47 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
             nameFilter: this.getNameFilter(currentSection),
             skillFilter: this.getSkillFilter(currentSection),
             displayWorldItems: this.getWorldItemsFilter(currentSection),
-        }
+        };
     }
     private getWorldItemsFilter(currentSection: HTMLElement): boolean {
-        const checkbox: HTMLInputElement|null = currentSection.querySelector('.row.flex-gap input[name="show-world-items"]');
+        const checkbox: HTMLInputElement | null = currentSection.querySelector(
+            '.row.flex-gap input[name="show-world-items"]'
+        );
         return checkbox?.checked ?? false;
     }
 
     private getSkillFilter(currentSection: HTMLElement): string {
-        const selectElement:HTMLSelectElement|null = currentSection.querySelector('.compendium-item-filters select[name="skill"]');
+        const selectElement: HTMLSelectElement | null = currentSection.querySelector(
+            '.compendium-item-filters select[name="skill"]'
+        );
         return selectElement?.value ?? "none";
     }
 
     private getNameFilter(currentSection: HTMLElement): RegExp {
-        const nameFilterInput:HTMLInputElement|null = currentSection.querySelector('input[name="search"]');
-        return new RegExp(this.escape_regex(nameFilterInput?.value ??""), "i");
+        const nameFilterInput: HTMLInputElement | null = currentSection.querySelector('input[name="search"]');
+        return new RegExp(this.escape_regex(nameFilterInput?.value ?? ""), "i");
     }
 
     private escape_regex(pattern: string): string {
-        return pattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        return pattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
     }
 
     private getAllowedLevels(currentSection: HTMLElement): number[] {
-        const levelFilters:NodeListOf<HTMLInputElement>|undefined= currentSection?.querySelectorAll('.compendium-item-filters input[type="checkbox"]')
+        const levelFilters: NodeListOf<HTMLInputElement> | undefined = currentSection?.querySelectorAll(
+            '.compendium-item-filters input[type="checkbox"]'
+        );
         let noneChecked = true;
-        levelFilters?.forEach(filter => {noneChecked = noneChecked && !filter.checked})
+        levelFilters?.forEach((filter) => {
+            noneChecked = noneChecked && !filter.checked;
+        });
 
-        const allowedLevels:number[] = [];
-        levelFilters?.forEach(filter => {
-            if(noneChecked ||filter.checked) {
-                allowedLevels.push(parseInt(filter.value))
+        const allowedLevels: number[] = [];
+        levelFilters?.forEach((filter) => {
+            if (noneChecked || filter.checked) {
+                allowedLevels.push(parseInt(filter.value));
             }
         });
-        return allowedLevels
+        return allowedLevels;
     }
 
     private getAvailablities(el: HTMLElement) {
@@ -362,21 +389,21 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     }
 }
 
-function filterItems(section: HTMLElement|null, shouldDisplay:(item: HTMLElement) => boolean) {
-    if(!section){
+function filterItems(section: HTMLElement | null, shouldDisplay: (item: HTMLElement) => boolean) {
+    if (!section) {
         console.debug("Splittermond | CompendiumBrowser: no section to filter Items from");
         return;
     }
-    const listItems = section.querySelectorAll('.list > ol > li') as NodeListOf<HTMLElement>;
+    const listItems = section.querySelectorAll(".list > ol > li") as NodeListOf<HTMLElement>;
 
     listItems.forEach((li) => {
-        li.style.display = shouldDisplay(li) ? 'flex':'none';
-    })
+        li.style.display = shouldDisplay(li) ? "flex" : "none";
+    });
 
     let index = 0;
-    listItems.forEach(li => {
-        li.classList.remove('even', 'odd');
-        li.classList.add(index % 2 == 0? 'even' :'odd');
-        index= index + 1;
+    listItems.forEach((li) => {
+        li.classList.remove("even", "odd");
+        li.classList.add(index % 2 == 0 ? "even" : "odd");
+        index = index + 1;
     });
 }

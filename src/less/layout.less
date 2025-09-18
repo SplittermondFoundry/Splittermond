@@ -7,13 +7,13 @@
 
         &.flex-gap {
             > *:not(:last-child) {
-                margin-right: @paddingMedium
+                margin-right: @paddingMedium;
             }
         }
 
         &.flex-gap-large {
             > *:not(:last-child) {
-                margin-right: @paddingLarge
+                margin-right: @paddingLarge;
             }
         }
     }
@@ -24,13 +24,13 @@
 
         &.flex-gap {
             > *:not(:last-child) {
-                margin-bottom: @paddingMedium
+                margin-bottom: @paddingMedium;
             }
         }
 
         &.flex-gap-large {
             > *:not(:last-child) {
-                margin-bottom: @paddingLarge
+                margin-bottom: @paddingLarge;
             }
         }
     }
@@ -54,7 +54,7 @@
             //overflow: hidden;
             display: flex;
             flex-direction: column;
-    
+
             main {
                 overflow: hidden;
                 flex: 1;
@@ -62,11 +62,9 @@
                 flex-direction: column;
                 position: relative;
             }
-    
         }
-              
     }
-    main>section {
+    main > section {
         min-height: 100px;
         &.tab.active[data-tab] {
             display: flex;
@@ -76,10 +74,10 @@
         }
     }
 
-    &.sheet main>section {
+    &.sheet main > section {
         &.tab.active[data-tab] {
             display: grid;
-            grid-gap:@paddingMedium;
+            grid-gap: @paddingMedium;
             overflow-y: auto;
             height: 100%;
         }
@@ -95,10 +93,10 @@
     &.npc section[data-tab="general"] {
         grid-template-columns: 200px 1fr;
         .list {
-            &.masteries, &.skills {
+            &.masteries,
+            &.skills {
                 overflow: unset;
             }
-            
         }
     }
 
@@ -121,7 +119,6 @@
         align-items: center;
     }
 
-
     &.compendium-browser .list {
         overflow-y: auto;
     }
@@ -129,8 +126,4 @@
     &.compendium-browser main > section.tab.active {
         overflow-y: hidden;
     }
-
-
-    
-
 }

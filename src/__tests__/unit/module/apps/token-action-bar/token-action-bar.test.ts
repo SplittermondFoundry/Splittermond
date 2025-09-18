@@ -1,13 +1,13 @@
 import "../../../foundryMocks.js";
-import sinon, {SinonSandbox, type SinonStub, type SinonStubbedInstance} from "sinon";
+import sinon, { SinonSandbox, type SinonStub, type SinonStubbedInstance } from "sinon";
 import { expect } from "chai";
 import { JSDOM } from "jsdom";
 import { createHtml } from "../../../../handlebarHarness";
 import TokenActionBar from "../../../../../module/apps/token-action-bar/token-action-bar";
 import SplittermondActor from "../../../../../module/actor/actor";
 import SplittermondSpellItem from "../../../../../module/item/spell";
-import {foundryApi} from "../../../../../module/api/foundryApi";
-import {SpellDataModel} from "../../../../../module/item/dataModel/SpellDataModel";
+import { foundryApi } from "../../../../../module/api/foundryApi";
+import { SpellDataModel } from "../../../../../module/item/dataModel/SpellDataModel";
 import Attack from "../../../../../module/actor/attack";
 
 describe("TokenActionBar", () => {
@@ -22,44 +22,43 @@ describe("TokenActionBar", () => {
 
         // Minimal actor stub
         actorStub = sandbox.createStubInstance(SplittermondActor);
-        sandbox.stub(actorStub,"id").get(()=>"actor1");
+        sandbox.stub(actorStub, "id").get(() => "actor1");
         actorStub.name = "Test Actor";
         const sampleSkill = {
-            acrobatics: { id: "acrobatics", label: "Acrobatics", value: 5, points: "1" }
-        }
-        const sampleItemCollection = {get: sandbox.stub()}
+            acrobatics: { id: "acrobatics", label: "Acrobatics", value: 5, points: "1" },
+        };
+        const sampleItemCollection = { get: sandbox.stub() };
         const sampleSheet = { render: sandbox.stub() };
         const sampleDerivedValues = {
             defense: { value: 10 },
             bodyresist: { value: 8 },
-            mindresist: { value: 6 }
-        }
-        Object.defineProperty(actorStub, "isToken", {value:false, enumerable:true});
-        Object.defineProperty(actorStub, "skills", {value:sampleSkill, enumerable:true});
-        Object.defineProperty(actorStub, "items", {value:sampleItemCollection, enumerable:true});
-        Object.defineProperty(actorStub, "derivedValues", {value:sampleDerivedValues, enumerable:true});
-        Object.defineProperty(actorStub, "sheet", {value:sampleSheet, enumerable:true});
-        Object.defineProperty(actorStub, "attacks", {value:[], enumerable:true});
-        actorStub.rollAttack.resolves(true)
-        actorStub.rollSpell.resolves(true)
+            mindresist: { value: 6 },
+        };
+        Object.defineProperty(actorStub, "isToken", { value: false, enumerable: true });
+        Object.defineProperty(actorStub, "skills", { value: sampleSkill, enumerable: true });
+        Object.defineProperty(actorStub, "items", { value: sampleItemCollection, enumerable: true });
+        Object.defineProperty(actorStub, "derivedValues", { value: sampleDerivedValues, enumerable: true });
+        Object.defineProperty(actorStub, "sheet", { value: sampleSheet, enumerable: true });
+        Object.defineProperty(actorStub, "attacks", { value: [], enumerable: true });
+        actorStub.rollAttack.resolves(true);
+        actorStub.rollSpell.resolves(true);
         actorStub.activeDefenseDialog = sandbox.stub();
-        actorStub.getFlag.returns(null)
+        actorStub.getFlag.returns(null);
 
         // Minimal spell stub
         spellStub = sandbox.createStubInstance(SplittermondSpellItem);
-        sandbox.stub(spellStub,"id").get(()=> "spell1");
+        sandbox.stub(spellStub, "id").get(() => "spell1");
         spellStub.name = "Fireball";
-        sandbox.stub(spellStub,"castDuration").get(()=> 2);
-        sandbox.stub(spellStub,"difficulty").get(()=> 5);
-        sandbox.stub(spellStub,"enhancementCosts").get(()=> 1);
-        sandbox.stub(spellStub,"enhancementDescription").get(()=> "Extra damage");
-        sandbox.stub(spellStub,"enoughFocus").get(()=> true);
+        sandbox.stub(spellStub, "castDuration").get(() => 2);
+        sandbox.stub(spellStub, "difficulty").get(() => 5);
+        sandbox.stub(spellStub, "enhancementCosts").get(() => 1);
+        sandbox.stub(spellStub, "enhancementDescription").get(() => "Extra damage");
+        sandbox.stub(spellStub, "enoughFocus").get(() => true);
         spellStub.img = "fireball.png";
-        sandbox.stub(spellStub,"skill").get(()=> ({ label: "Magic", value: 10 }));
-        sandbox.stub(spellStub,"spellTypeList").get(()=> []);
-        spellStub.system = sandbox.createStubInstance(SpellDataModel)
+        sandbox.stub(spellStub, "skill").get(() => ({ label: "Magic", value: 10 }));
+        sandbox.stub(spellStub, "spellTypeList").get(() => []);
+        spellStub.system = sandbox.createStubInstance(SpellDataModel);
         spellStub.system.description = "A big fireball";
-
 
         // Setup TokenActionBar
         bar = new TokenActionBar();
@@ -67,7 +66,7 @@ describe("TokenActionBar", () => {
         bar._currentActor = actorStub;
 
         // Render handlebars template
-        const html = createHtml("templates/apps/action-bar.hbs", bar._prepareContext({parts:[]}));
+        const html = createHtml("templates/apps/action-bar.hbs", bar._prepareContext({ parts: [] }));
         dom = new JSDOM(html);
         // @ts-expect-error: element needs to be set for test
         bar.element = dom.window.document.documentElement;
@@ -87,19 +86,18 @@ describe("TokenActionBar", () => {
     });
 
     it("should toggle prepared state for attack", async () => {
-        sandbox.stub(foundryApi, "localize").callsFake((key)=>key);
+        sandbox.stub(foundryApi, "localize").callsFake((key) => key);
         const attackLi = dom.window.document.createElement("li");
         const attackId = "attack1";
-        attackLi.dataset.attackId = attackId
+        attackLi.dataset.attackId = attackId;
         attackLi.dataset.prepared = "false";
         const attackStub = sandbox.createStubInstance(Attack);
         attackStub.toObject.returns({ ...getMockAttackObject(), id: attackId });
-        sandbox.stub(attackStub,"weaponSpeed").get(()=>3);
+        sandbox.stub(attackStub, "weaponSpeed").get(() => 3);
         actorStub.attacks.push(attackStub);
         await bar.rollAttack(null as any, attackLi);
         expect(actorStub.rollAttack.callCount).to.equal(0);
         expect(actorStub.setFlag.lastCall.args).to.have.members(["splittermond", "preparedAttack", attackId]);
-
     });
     it("should call rollSkill with correct skill", () => {
         const skillLi = dom.window.document.createElement("li");
@@ -124,7 +122,7 @@ describe("TokenActionBar", () => {
     });
 
     it("should prepare spell and set flag", () => {
-        sandbox.stub(foundryApi, "localize").callsFake((key)=>key);
+        sandbox.stub(foundryApi, "localize").callsFake((key) => key);
         (actorStub.items.get as SinonStub).withArgs("spell1").returns(spellStub);
         const spellLi = dom.window.document.createElement("li");
         spellLi.dataset.spellId = "spell1";
@@ -146,11 +144,10 @@ describe("TokenActionBar", () => {
         await bar.toogleEquipped(null as any, itemLi);
         expect(itemStub.update.calledWith({ "system.equipped": true })).to.be.true;
     });
-
 });
 
-function getMockAttackObject(){
-    return  {
+function getMockAttackObject() {
+    return {
         id: "",
         img: "",
         name: "",
@@ -164,7 +161,6 @@ function getMockAttackObject(){
         editable: false,
         deletable: false,
         isPrepared: false,
-        featureList: []
-    }
+        featureList: [],
+    };
 }
-

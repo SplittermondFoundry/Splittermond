@@ -5,8 +5,7 @@ declare class _InternalDataModel<
     out Schema extends object,
     // Do not inline. Being a type parameter is an important part of the circumvention of TypeScript's detection of dynamic classes.
     out _Computed extends object = Schema,
-> extends DynamicClass<_Computed> {
-}
+> extends DynamicClass<_Computed> {}
 
 /**
  * All known and relevant members for the foundry.abstract.DataModel base class.
@@ -17,11 +16,11 @@ declare class _InternalDataModel<
 export declare class DataModel<T extends object, PARENT> extends _InternalDataModel<Readonly<T>> {
     parent: PARENT extends never ? never : PARENT | null;
 
-    toObject(source?: boolean): T
+    toObject(source?: boolean): T;
 
     getFlag(scope: string, key: string): unknown;
 
-    updateSource(data: Partial<T>|Partial<DataModelConstructorInput<T>>): void;
+    updateSource(data: Partial<T> | Partial<DataModelConstructorInput<T>>): void;
 
     constructor(data: DataModelConstructorInput<T>, options?: any);
 
@@ -30,6 +29,9 @@ export declare class DataModel<T extends object, PARENT> extends _InternalDataMo
 }
 
 export type DataModelConstructorInput<T> = {
-    [K in keyof T]: T[K] extends DataModel<infer U, any> ? DataModelConstructorInput<U> :
-            T[K] extends object ? DataModelConstructorInput<T[K]>:
-                T[K] };
+    [K in keyof T]: T[K] extends DataModel<infer U, any>
+        ? DataModelConstructorInput<U>
+        : T[K] extends object
+          ? DataModelConstructorInput<T[K]>
+          : T[K];
+};

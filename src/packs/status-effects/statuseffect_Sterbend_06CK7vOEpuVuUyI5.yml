@@ -5,39 +5,38 @@ img: icons/svg/skull.svg
 effects: []
 _id: 06CK7vOEpuVuUyI5
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  nTPzNCzfwxAgnkMw: 3
+    default: 0
+    nTPzNCzfwxAgnkMw: 3
 system:
-  description: >-
-    <p>Der Abenteurer kann nicht durch nat&uuml;rliche Heilung, jedoch Heilkunde
-    und Heilungsmagie, geheilt werden. Er verliert eine volle Gesundheitsstufe
-    je Stufenabh&auml;ngige Intervalle:</p>
+    description: >-
+        <p>Der Abenteurer kann nicht durch nat&uuml;rliche Heilung, jedoch Heilkunde
+        und Heilungsmagie, geheilt werden. Er verliert eine volle Gesundheitsstufe
+        je Stufenabh&auml;ngige Intervalle:</p>
 
-    <p><strong>Stufe 1</strong>: ein Tag</p>
+        <p><strong>Stufe 1</strong>: ein Tag</p>
 
-    <p><strong>Stufe 2</strong>: eine Stunde</p>
+        <p><strong>Stufe 2</strong>: eine Stunde</p>
 
-    <p><strong>Stufe 3</strong>: 15 Ticks</p>
+        <p><strong>Stufe 3</strong>: 15 Ticks</p>
 
-    <p>Der Abenteurer kann aus verschiedenen Quellen und Stufen gleichzeitig an
-    diesem Zustand leiden.&nbsp;</p>
-  source: ''
-  modifier: ''
-  level: '1'
-  startTick: 0
-  interval: 0
-  times: 0
+        <p>Der Abenteurer kann aus verschiedenen Quellen und Stufen gleichzeitig an
+        diesem Zustand leiden.&nbsp;</p>
+    source: ""
+    modifier: ""
+    level: "1"
+    startTick: 0
+    interval: 0
+    times: 0
 folder: null
 sort: 0
-_key: '!items!06CK7vOEpuVuUyI5'
-
+_key: "!items!06CK7vOEpuVuUyI5"

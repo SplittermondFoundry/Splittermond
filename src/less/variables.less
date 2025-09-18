@@ -7,10 +7,10 @@
 @color-active-text: #30739a;
 @color-active-text-secondary: #30739a;
 @font-primary: "Vollkorn";
-@font-secondary:  "Almendra";
-@font-tertiary:  "Almendra SC";
+@font-secondary: "Almendra";
+@font-tertiary: "Almendra SC";
 
-@color-primary: #2E72B0;
+@color-primary: #2e72b0;
 
 @color-secondary: #65717b;
 @color-tertiary: #39464e;
@@ -21,8 +21,21 @@
 @image-noise: url(../../public/images/noise6.png);
 @image-grunge: url(../../public/images/grunge_alpha.png);
 
-@shine-gradient: url(../../public/images/noise5.png) repeat, repeating-linear-gradient(60deg, rgba(0,0,0,0), rgba(255, 255, 255, 0.7) 80px, rgba(0,0,0,0) 200px) no-repeat fixed;
-@shine-gradient-alt: url(../../public/images/noise5.png) repeat, repeating-linear-gradient(30deg, rgb(0,0,0), rgb(58, 58, 58) 80px, rgb(0,0,0) 200px, rgb(112, 112, 112) 250px, rgb(0,0,0) 300px) no-repeat fixed;
+@shine-gradient:
+    url(../../public/images/noise5.png) repeat,
+    repeating-linear-gradient(60deg, rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.7) 80px, rgba(0, 0, 0, 0) 200px) no-repeat
+        fixed;
+@shine-gradient-alt:
+    url(../../public/images/noise5.png) repeat,
+    repeating-linear-gradient(
+            30deg,
+            rgb(0, 0, 0),
+            rgb(58, 58, 58) 80px,
+            rgb(0, 0, 0) 200px,
+            rgb(112, 112, 112) 250px,
+            rgb(0, 0, 0) 300px
+        )
+        no-repeat fixed;
 
 @border-image-paper: var(--border-image-paper, url(../../public/images/border-paper-opt-2.png) 16 16);
 @border-image-width-paper: 16px;
@@ -36,7 +49,10 @@
 @border-image-width-corner-1: 16px;
 @border-image-outset-corner-1: 0px;
 
-@border-image-double-corner-1: var(--border-image-double-corner-1, url(../../public/images/double-border-corner-1.png) 21 21);
+@border-image-double-corner-1: var(
+    --border-image-double-corner-1,
+    url(../../public/images/double-border-corner-1.png) 21 21
+);
 @border-image-width-double-corner-1: 21px;
 @border-image-outset-double-corner-1: 1px;
 
@@ -48,7 +64,10 @@
 @border-image-width-wobbly-line: 3px;
 @border-image-outset-wobbly-line: 1px;
 
-@border-image-wobbly-line-double: var(--border-image-wobbly-line-double, url(../../public/images/double-border_small_2.png) 6 6);
+@border-image-wobbly-line-double: var(
+    --border-image-wobbly-line-double,
+    url(../../public/images/double-border_small_2.png) 6 6
+);
 @border-image-width-wobbly-line-double: 6px;
 @border-image-outset-wobbly-line-double: 1px;
 
@@ -62,18 +81,17 @@
 @paddingSmall: 3px;
 
 @activeTextColor: #143a66;
-@highlightTextColor: #2D80E1;
+@highlightTextColor: #2d80e1;
 @color-success: #458900;
 @color-fail: #892100;
 @color-grazing-hit: #ff9900;
 @color-health: @color-fail;
 @color-focus: @color-primary;
 
-@box-shadow-groove-border: inset 0 0 1px rgba(0,0,0,0.2), 
-    inset 0 -1px 1px rgba(0,0,0,0.2), 
-    inset 0 1px 1px rgba(255,255,255,0.3);
-
-
+@box-shadow-groove-border:
+    inset 0 0 1px rgba(0, 0, 0, 0.2),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
 
 .border-paper {
     border: 3px solid transparent;
@@ -139,7 +157,15 @@
 }
 
 .shiny-background {
-    background-image:  @image-grunge, repeating-linear-gradient(60deg, var(--color-shiny-border-dark), var(--color-shiny-border-light), var(--color-shiny-border-dark));    background-blend-mode: multiply;
+    background-image:
+        @image-grunge,
+        repeating-linear-gradient(
+            60deg,
+            var(--color-shiny-border-dark),
+            var(--color-shiny-border-light),
+            var(--color-shiny-border-dark)
+        );
+    background-blend-mode: multiply;
 }
 
 .shiny-border(@border-width: 2px, @border-radius: 1px, @background-clip: padding-box) {
@@ -150,18 +176,20 @@
     border-image-width: 2px;
     */
     .border-wobbly-line-double;
-    position: relative!important;
+    position: relative !important;
     &::before {
         content: "";
-        position:absolute;
-        top:0px; left: 0px; bottom: 0px; right: 0px;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        bottom: 0px;
+        right: 0px;
         z-index: -1;
         margin: -3px;
 
         .shiny-background;
         background-clip: border-box;
     }
-    
 }
 
 .button-style {
@@ -174,27 +202,45 @@
     padding-bottom: 2px;
     background-origin: border-box;
 
-    background-image:  @image-grunge,
-        linear-gradient(var(--color-secondary), var(--color-secondary)), @image-noise, repeating-linear-gradient(60deg, var(--color-shiny-border-dark), var(--color-shiny-border-light), var(--color-shiny-border-dark));
+    background-image:
+        @image-grunge, linear-gradient(var(--color-secondary), var(--color-secondary)), @image-noise,
+        repeating-linear-gradient(
+            60deg,
+            var(--color-shiny-border-dark),
+            var(--color-shiny-border-light),
+            var(--color-shiny-border-dark)
+        );
     background-clip: padding-box, padding-box, border-box, border-box;
     background-blend-mode: normal, multiply, normal, normal, normal;
 
+    text-shadow:
+        0 0 3px rgb(0, 0, 0),
+        0px -1px 0px rgb(0, 0, 0, 0.5),
+        0px 1px 0px rgb(255, 255, 255, 0.5);
 
-    text-shadow:  0 0 3px rgb(0,0,0), 0px -1px 0px rgb(0, 0,0,0.5), 0px 1px 0px rgb(255,255,255,0.5);
-    
     transition: box-shadow 0.1s;
 
-    box-shadow: inset 0 -8px 8px 0px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.3);
+    box-shadow:
+        inset 0 -8px 8px 0px rgba(0, 0, 0, 0.3),
+        inset 0 1px 1px rgba(255, 255, 255, 0.3);
 
     &:hover,
     &:focus {
-        box-shadow: inset 0 -8px 8px 0px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255,255,255,0.3);
-        text-shadow:  0 0 3px rgb(0,0,0), 0px -1px 0px rgb(0, 0,0,0.5), 0px 1px 0px rgb(255,255,255,0.5);
+        box-shadow:
+            inset 0 -8px 8px 0px rgba(0, 0, 0, 0.15),
+            inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        text-shadow:
+            0 0 3px rgb(0, 0, 0),
+            0px -1px 0px rgb(0, 0, 0, 0.5),
+            0px 1px 0px rgb(255, 255, 255, 0.5);
     }
 
     &:active {
-        box-shadow: inset 0 0px 20px rgba(0,0,0,0.8);
-        text-shadow:  0 0 3px rgb(0,0,0), 0px -1px 0px rgb(0, 0,0,0.3), 0px 1px 0px rgb(255,255,255,0.3);
+        box-shadow: inset 0 0px 20px rgba(0, 0, 0, 0.8);
+        text-shadow:
+            0 0 3px rgb(0, 0, 0),
+            0px -1px 0px rgb(0, 0, 0, 0.3),
+            0px 1px 0px rgb(255, 255, 255, 0.3);
     }
 
     &:disabled {
@@ -264,8 +310,9 @@
     --background-parchment-splittermond-blend-mode: multiply;
 
     //Source actually comes from foundry, but we're redeclaring it here to avoid naming conflicts,
-    --splittermond-background-denim: url(/ui/denim075.png) repeat ;
-    --splittermond-background-denim-blue: url(../../public/images/background_alpha_blueish_opt.png) bottom left / 400px no-repeat;
+    --splittermond-background-denim: url(/ui/denim075.png) repeat;
+    --splittermond-background-denim-blue: url(../../public/images/background_alpha_blueish_opt.png) bottom left / 400px
+        no-repeat;
     --background-denim-splittermond-blend-mode: normal;
 
     --color-border-highlight-alt: var(--color-primary);
@@ -282,7 +329,7 @@
     //--border-image-double-corner-1: url(../../systems/splittermond/images/double-border-corner-1_inv.png) 21 21;
 
     --color-shiny-border-light: fade(hsl(202, 10%, 70%), 80%);
-    --color-shiny-border-dark: fade(hsl(202, 10%, 40%), 80%); 
+    --color-shiny-border-dark: fade(hsl(202, 10%, 40%), 80%);
 
     .define-color(color-text, @color-text);
     .define-color(color-text-secondary, @color-text);
@@ -295,14 +342,11 @@
 
     .define-color(color-success, #59b300);
     .define-color(color-fail, #cc3000);
-
-    
 }
 
 .system-splittermond[data-theme="splittermond-blue"] {
     --splittermond-background-parchment: url(../../public/images/parchment.jpg) repeat;
     --splittermond-background-parchment-blue: url(../../public/images/background7.jpg) top right no-repeat;
-
 
     .define-color(color-text, #ebf0f5);
     .define-color(color-text-secondary, #303336);

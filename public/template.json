@@ -1,272 +1,213 @@
 {
-  "Item": {
-    "types": [
-      "weapon",
-      "projectile",
-      "equipment",
-      "shield",
-      "armor",
-      "spell",
-      "strength",
-      "weakness",
-      "mastery",
-      "species",
-      "culture",
-      "ancestry",
-      "education",
-      "resource",
-      "npcfeature",
-      "moonsign",
-      "language",
-      "culturelore",
-      "statuseffect",
-      "spelleffect",
-      "npcattack"
-    ],
-    "templates": {
-      "description": {
-        "description": "",
-        "source": ""
-      },
-      "physicalProperties": {
-        "quantity": 1,
-        "price": "",
-        "weight": 0,
-        "hardness": 0,
-        "complexity": "",
-        "availability": "",
-        "quality": 0,
-        "durability": 0,
-        "damageLevel": 0,
-        "sufferedDamage": 0
-      },
-      "defense": {
-        "tickMalus": 0,
-        "defenseBonus": 0,
-        "handicap": 0
-      },
-      "modifier": {
-        "modifier": ""
-      }
-    },
-    "weapon": {
-      "templates": [
-        "description",
-        "physicalProperties",
-        "modifier"
-      ],
-      "damage": "",
-      "range": 0,
-      "weaponSpeed": 0,
-      "skill": "",
-      "skillMod": 0,
-      "features": "",
-      "attribute1": "",
-      "attribute2": "",
-      "minAttributes": "",
-      "prepared": false,
-      "equipped": false,
-      "secondaryAttack": {
-        "skill": "none",
-        "skillMod": 0,
-        "attribute1": "",
-        "attribute2": "",
-        "damage": "",
-        "range": 0,
-        "weaponSpeed": 0,
-        "minAttributes": "",
-        "features": ""
-      }
-    },
-    "npcattack": {
-      "templates": [
-        "description"
-      ],
-      "damage": "",
-      "range": 0,
-      "weaponSpeed": 0,
-      "skillValue": 0,
-      "features": ""
-    },
-    "projectile": {
-      "templates": [
-        "description",
-        "physicalProperties"
-      ],
-      "skill": "craftmanship",
-      "subSkill": "",
-      "weapon": "",
-      "features": ""
-    },
-    "equipment": {
-      "templates": [
-        "description",
-        "physicalProperties",
-        "modifier"
-      ]
-    },
-    "shield": {
-      "templates": [
-        "description",
-        "physicalProperties",
-        "defense",
-        "modifier"
-      ],
-      "skill": "",
-      "features": "",
-      "minAttributes": "",
-      "equipped": false
-    },
-    "armor": {
-      "templates": [
-        "description",
-        "physicalProperties",
-        "defense",
-        "modifier"
-      ],
-      "minStr": 0,
-      "damageReduction": 0,
-      "features": "",
-      "equipped": false
-    },
-    "spell": {
-      "templates": [
-        "description"
-      ],
-      "availableIn": "",
-      "skill": "",
-      "skillLevel": 0,
-      "spellType": "",
-      "costs": "",
-      "difficulty": "",
-      "damage": "",
-      "range": "",
-      "castDuration": "",
-      "effectDuration": "",
-      "effectArea": "",
-      "enhancementDescription": "",
-      "enhancementCosts": "",
-      "features": "",
-      "degreeOfSuccessOptions": {
-        "castDuration": false,
-        "consumedFocus": false,
-        "exhaustedFocus": false,
-        "channelizedFocus": false,
-        "effectDuration": false,
-        "damage": false,
-        "range": false,
-        "effectArea": false
-      }
-    },
-    "statuseffect": {
-      "templates": [
-        "description",
-        "modifier"
-      ],
-      "level": 1,
-      "startTick": 0,
-      "interval": 0,
-      "times": 0
-    },
-    "spelleffect": {
-      "templates": [
-        "description",
-        "modifier"
-      ],
-      "active": true
-    },
-    "mastery": {
-      "templates": [
-        "description",
-        "modifier"
-      ],
-      "availableIn": "",
-      "skill": "",
-      "isGrandmaster": 0,
-      "isManeuver": false,
-      "level": 1
-    },
-    "strength": {
-      "templates": [
-        "description",
-        "modifier"
-      ],
-      "origin": "",
-      "level": 1,
-      "quantity": 1,
-      "multiSelectable": false,
-      "onCreationOnly": false
-    },
-    "species": {
-      "templates": [
-        "description"
-      ],
-      "size": 5,
-      "attributeMod": "",
-      "strengths": ""
-    },
-    "culture": {
-      "templates": [
-        "description"
-      ],
-      "typicalSpecies": "",
-      "typicalAncestries": "",
-      "cultureLore": "",
-      "language": "",
-      "strength": "",
-      "skills": "",
-      "mastery": ""
-    },
-    "ancestry": {
-      "templates": [
-        "description"
-      ],
-      "resources": "",
-      "skills": ""
-    },
-    "education": {
-      "templates": [
-        "description"
-      ],
-      "strength": "",
-      "resources": "",
-      "skills": "",
-      "masteries": ""
-    },
-    "weakness": {
-      "templates": [
-        "description"
-      ]
-    },
-    "resource": {
-      "templates": [
-        "description"
-      ],
-      "value": 1
-    },
-    "npcfeature": {
-      "templates": [
-        "description",
-        "modifier"
-      ]
-    },
-    "moonsign": {
-      "templates": [
-        "description"
-      ],
-      "enhancement": "",
-      "secretGift": ""
-    },
-    "language": {
-      "templates": [
-        "description"
-      ]
-    },
-    "culturelore": {
-      "templates": [
-        "description",
-        "modifier"
-      ]
+    "Item": {
+        "types": [
+            "weapon",
+            "projectile",
+            "equipment",
+            "shield",
+            "armor",
+            "spell",
+            "strength",
+            "weakness",
+            "mastery",
+            "species",
+            "culture",
+            "ancestry",
+            "education",
+            "resource",
+            "npcfeature",
+            "moonsign",
+            "language",
+            "culturelore",
+            "statuseffect",
+            "spelleffect",
+            "npcattack"
+        ],
+        "templates": {
+            "description": {
+                "description": "",
+                "source": ""
+            },
+            "physicalProperties": {
+                "quantity": 1,
+                "price": "",
+                "weight": 0,
+                "hardness": 0,
+                "complexity": "",
+                "availability": "",
+                "quality": 0,
+                "durability": 0,
+                "damageLevel": 0,
+                "sufferedDamage": 0
+            },
+            "defense": {
+                "tickMalus": 0,
+                "defenseBonus": 0,
+                "handicap": 0
+            },
+            "modifier": {
+                "modifier": ""
+            }
+        },
+        "weapon": {
+            "templates": ["description", "physicalProperties", "modifier"],
+            "damage": "",
+            "range": 0,
+            "weaponSpeed": 0,
+            "skill": "",
+            "skillMod": 0,
+            "features": "",
+            "attribute1": "",
+            "attribute2": "",
+            "minAttributes": "",
+            "prepared": false,
+            "equipped": false,
+            "secondaryAttack": {
+                "skill": "none",
+                "skillMod": 0,
+                "attribute1": "",
+                "attribute2": "",
+                "damage": "",
+                "range": 0,
+                "weaponSpeed": 0,
+                "minAttributes": "",
+                "features": ""
+            }
+        },
+        "npcattack": {
+            "templates": ["description"],
+            "damage": "",
+            "range": 0,
+            "weaponSpeed": 0,
+            "skillValue": 0,
+            "features": ""
+        },
+        "projectile": {
+            "templates": ["description", "physicalProperties"],
+            "skill": "craftmanship",
+            "subSkill": "",
+            "weapon": "",
+            "features": ""
+        },
+        "equipment": {
+            "templates": ["description", "physicalProperties", "modifier"]
+        },
+        "shield": {
+            "templates": ["description", "physicalProperties", "defense", "modifier"],
+            "skill": "",
+            "features": "",
+            "minAttributes": "",
+            "equipped": false
+        },
+        "armor": {
+            "templates": ["description", "physicalProperties", "defense", "modifier"],
+            "minStr": 0,
+            "damageReduction": 0,
+            "features": "",
+            "equipped": false
+        },
+        "spell": {
+            "templates": ["description"],
+            "availableIn": "",
+            "skill": "",
+            "skillLevel": 0,
+            "spellType": "",
+            "costs": "",
+            "difficulty": "",
+            "damage": "",
+            "range": "",
+            "castDuration": "",
+            "effectDuration": "",
+            "effectArea": "",
+            "enhancementDescription": "",
+            "enhancementCosts": "",
+            "features": "",
+            "degreeOfSuccessOptions": {
+                "castDuration": false,
+                "consumedFocus": false,
+                "exhaustedFocus": false,
+                "channelizedFocus": false,
+                "effectDuration": false,
+                "damage": false,
+                "range": false,
+                "effectArea": false
+            }
+        },
+        "statuseffect": {
+            "templates": ["description", "modifier"],
+            "level": 1,
+            "startTick": 0,
+            "interval": 0,
+            "times": 0
+        },
+        "spelleffect": {
+            "templates": ["description", "modifier"],
+            "active": true
+        },
+        "mastery": {
+            "templates": ["description", "modifier"],
+            "availableIn": "",
+            "skill": "",
+            "isGrandmaster": 0,
+            "isManeuver": false,
+            "level": 1
+        },
+        "strength": {
+            "templates": ["description", "modifier"],
+            "origin": "",
+            "level": 1,
+            "quantity": 1,
+            "multiSelectable": false,
+            "onCreationOnly": false
+        },
+        "species": {
+            "templates": ["description"],
+            "size": 5,
+            "attributeMod": "",
+            "strengths": ""
+        },
+        "culture": {
+            "templates": ["description"],
+            "typicalSpecies": "",
+            "typicalAncestries": "",
+            "cultureLore": "",
+            "language": "",
+            "strength": "",
+            "skills": "",
+            "mastery": ""
+        },
+        "ancestry": {
+            "templates": ["description"],
+            "resources": "",
+            "skills": ""
+        },
+        "education": {
+            "templates": ["description"],
+            "strength": "",
+            "resources": "",
+            "skills": "",
+            "masteries": ""
+        },
+        "weakness": {
+            "templates": ["description"]
+        },
+        "resource": {
+            "templates": ["description"],
+            "value": 1
+        },
+        "npcfeature": {
+            "templates": ["description", "modifier"]
+        },
+        "moonsign": {
+            "templates": ["description"],
+            "enhancement": "",
+            "secretGift": ""
+        },
+        "language": {
+            "templates": ["description"]
+        },
+        "culturelore": {
+            "templates": ["description", "modifier"]
+        }
     }
-  }
 }

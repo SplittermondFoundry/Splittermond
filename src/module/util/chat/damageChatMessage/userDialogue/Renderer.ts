@@ -1,6 +1,6 @@
-import {foundryApi} from "../../../../api/foundryApi";
-import {UserReport, UserReportRecord} from "./UserReporterImpl";
-import {CostType} from "../../../costs/costTypes";
+import { foundryApi } from "../../../../api/foundryApi";
+import { UserReport, UserReportRecord } from "./UserReporterImpl";
+import { CostType } from "../../../costs/costTypes";
 
 export interface DamageRecord {
     baseId: string;
@@ -15,7 +15,7 @@ export interface DamageRecord {
 }
 
 interface DamageRecordItem {
-    name: string
+    name: string;
     type: string;
     baseValue: number;
     modifiedBy: number;
@@ -24,19 +24,22 @@ interface DamageRecordItem {
 }
 
 export class Renderer {
-    constructor(private userModificationRecord: UserReport) {
-    }
+    constructor(private userModificationRecord: UserReport) {}
 
     async getHtml(): Promise<string> {
         const damageRecord = this.mapData();
-        const targetHasSplinterpoints = this.getTargetSplinterpoints() > 0
-        return await foundryApi.renderer("systems/splittermond/templates/apps/dialog/new-damage-report.hbs",
-            {...damageRecord, displaySplinterpoints: targetHasSplinterpoints});
+        const targetHasSplinterpoints = this.getTargetSplinterpoints() > 0;
+        return await foundryApi.renderer("systems/splittermond/templates/apps/dialog/new-damage-report.hbs", {
+            ...damageRecord,
+            displaySplinterpoints: targetHasSplinterpoints,
+        });
     }
 
     get attackerName(): string {
-        return this.userModificationRecord.event.causer?.getAgent().name ??
-            foundryApi.localize("splittermond.damageMessage.unknown");
+        return (
+            this.userModificationRecord.event.causer?.getAgent().name ??
+            foundryApi.localize("splittermond.damageMessage.unknown")
+        );
     }
 
     get defenderName(): string {
@@ -52,7 +55,6 @@ export class Renderer {
         return this.userModificationRecord.target.splinterpoints.max ?? 0;
     }
 
-
     private mapData(): DamageRecord {
         const source = this.userModificationRecord;
         return {
@@ -65,26 +67,26 @@ export class Renderer {
             items: this.mapRecords(source.records),
             totalBeforeGrazing: source.totalFromImplements.length,
             totalDamage: source.totalDamage.length,
-        }
+        };
     }
 
     private getEffectiveDamageReduction() {
         const source = this.userModificationRecord;
-        return source.event.costBase.add(source.damageReduction)
-            .subtract(source.overriddenReduction).toModifier(true).length;
+        return source.event.costBase.add(source.damageReduction).subtract(source.overriddenReduction).toModifier(true)
+            .length;
     }
 
     private mapRecords(records: UserReportRecord[]): DamageRecordItem[] {
-        return records.map(record => {
+        return records.map((record) => {
             const modifiedBySign = record.baseDamage.length > record.appliedDamage.length ? -1 : 1;
             return {
                 name: record.implementName,
-                    type: foundryApi.localize(`splittermond.damageTypes.short.${record.damageType}`),
+                type: foundryApi.localize(`splittermond.damageTypes.short.${record.damageType}`),
                 baseValue: record.baseDamage.length,
                 modifiedBy: modifiedBySign * record.modifiedBy.length,
                 subTotal: record.appliedDamage.length,
                 immunity: record.immunity?.name,
-            };}
-        );
+            };
+        });
     }
 }

@@ -5,29 +5,28 @@ flags: {}
 img: icons/svg/ice-aura.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: >-
-    <p>Es k&ouml;nnen nur noch <em>Risikow&uuml;rfe </em>durchgef&uuml;hrt
-    werden. Der Zustand dauert 60 Ticks an.</p>
-  source: ''
-  modifier: ''
-  level: '1'
-  startTick: 0
-  interval: '60'
-  times: '1'
+    description: >-
+        <p>Es k&ouml;nnen nur noch <em>Risikow&uuml;rfe </em>durchgef&uuml;hrt
+        werden. Der Zustand dauert 60 Ticks an.</p>
+    source: ""
+    modifier: ""
+    level: "1"
+    startTick: 0
+    interval: "60"
+    times: "1"
 folder: null
 sort: 0
-_key: '!items!liZ4JknMFsYFPcJu'
-
+_key: "!items!liZ4JknMFsYFPcJu"

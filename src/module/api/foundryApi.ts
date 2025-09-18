@@ -1,21 +1,23 @@
 import {
-    type ChatMessageTypes, type CompendiumPacks,
-    type Hooks, type KeybindingActionBinding, type KeybindingActionConfig,
+    type ChatMessageTypes,
+    type CompendiumPacks,
+    type FoundryCombat,
+    type FoundryScene,
+    type Hooks,
+    type KeybindingActionBinding,
+    type KeybindingActionConfig,
     type MergeObjectOptions,
     type SettingsConfig,
     type SettingTypeMapper,
     type Socket,
     type Speaker,
     type User,
-    type FoundryScene,
-    type FoundryCombat
 } from "./foundryTypes";
-import type {FoundryRoll, NumericTerm, OperatorTerm, Roll} from "./Roll";
-import {FoundryChatMessage} from "./ChatMessage";
-import {FoundryApplication} from "./Application";
+import type { FoundryRoll, NumericTerm, OperatorTerm } from "./Roll";
+import { FoundryChatMessage } from "./ChatMessage";
+import { FoundryApplication } from "./Application";
 
-export const foundryApi = new class FoundryApi {
-
+export const foundryApi = new (class FoundryApi {
     /**
      * @param messageKey the key to an entry in the localization file
      * @param templateArgs the arguments to be inserted into the localized string
@@ -46,7 +48,7 @@ export const foundryApi = new class FoundryApi {
         ui.notifications.info(message);
     }
 
-    get messages(): { get: (id: string) => FoundryChatMessage} {
+    get messages(): { get: (id: string) => FoundryChatMessage } {
         //@ts-ignore
         return game.messages;
     }
@@ -105,7 +107,7 @@ export const foundryApi = new class FoundryApi {
 
     get currentUser(): User {
         //@ts-ignore
-        return game.user
+        return game.user;
     }
 
     get currentScene(): FoundryScene | null {
@@ -122,7 +124,7 @@ export const foundryApi = new class FoundryApi {
         return game.scenes;
     }
 
-    get combats(): Collection<FoundryCombat> & {apps: InstanceType<typeof FoundryApplication>[]} {
+    get combats(): Collection<FoundryCombat> & { apps: InstanceType<typeof FoundryApplication>[] } {
         //@ts-ignore
         return game.combats;
     }
@@ -154,7 +156,7 @@ export const foundryApi = new class FoundryApi {
 
     roll(damageFormula: string, data: Record<string, string> = {}, context: object = {}): FoundryRoll {
         //@ts-ignore
-        return new Roll(damageFormula, data, context)
+        return new Roll(damageFormula, data, context);
     }
 
     get rollInfra() {
@@ -169,17 +171,17 @@ export const foundryApi = new class FoundryApi {
             },
             plusTerm(): OperatorTerm {
                 //@ts-ignore
-                return new foundry.dice.terms.OperatorTerm({operator: "+"})
+                return new foundry.dice.terms.OperatorTerm({ operator: "+" });
             },
             minusTerm(): OperatorTerm {
                 //@ts-ignore
-                return new foundry.dice.terms.OperatorTerm({operator: "-"})
+                return new foundry.dice.terms.OperatorTerm({ operator: "-" });
             },
             numericTerm(number: number): NumericTerm {
                 //@ts-ignore
-                return new foundry.dice.terms.NumericTerm({number})
-            }
-        }
+                return new foundry.dice.terms.NumericTerm({ number });
+            },
+        };
     }
 
     get settings() {
@@ -188,15 +190,22 @@ export const foundryApi = new class FoundryApi {
                 // @ts-ignore
                 return game.settings.set(namespace, key, value);
             },
-            get<T extends typeof Number | typeof Boolean | typeof String>(namespace: string, key: string): SettingTypeMapper<T> {
+            get<T extends typeof Number | typeof Boolean | typeof String>(
+                namespace: string,
+                key: string
+            ): SettingTypeMapper<T> {
                 // @ts-ignore
                 return game.settings.get(namespace, key);
             },
-            register<T extends typeof Number | typeof Boolean | typeof String>(namespace: string, key: string, data: SettingsConfig<T>): void {
+            register<T extends typeof Number | typeof Boolean | typeof String>(
+                namespace: string,
+                key: string,
+                data: SettingsConfig<T>
+            ): void {
                 // @ts-ignore
                 game.settings.register(namespace, key, data);
-            }
-        }
+            },
+        };
     }
 
     get keybindings() {
@@ -212,8 +221,8 @@ export const foundryApi = new class FoundryApi {
             set(namespace: string, action: string, data: KeybindingActionBinding[]) {
                 // @ts-ignore
                 game.keybindings.set(namespace, action, data);
-            }
-        }
+            },
+        };
     }
 
     getFolders(type: "Item" | "Actor" | "Scene" | null = null): Collection<Folder> {
@@ -242,31 +251,35 @@ export const foundryApi = new class FoundryApi {
             // @ts-ignore
             return foundry.utils.deepClone(object);
         },
-        mergeObject<T extends object, U extends object>(original: T, other?: U, options?: MergeObjectOptions): Partial<T> & Partial<U> {
+        mergeObject<T extends object, U extends object>(
+            original: T,
+            other?: U,
+            options?: MergeObjectOptions
+        ): Partial<T> & Partial<U> {
             // @ts-ignore
             return foundry.utils.mergeObject(original, other, options);
-        }
-    } as const
+        },
+    } as const;
 
     collections = {
-        get items():Collection<Item> {
+        get items(): Collection<Item> {
             // @ts-ignore
             return game.items;
         },
-        get actors():Collection<Actor> {
+        get actors(): Collection<Actor> {
             // @ts-ignore
             return game.actors;
         },
-        get packs():CompendiumPacks {
+        get packs(): CompendiumPacks {
             // @ts-ignore
             return game.packs;
-        }
-    }
+        },
+    };
 
     canvas = {
-        animatePan(view:unknown): Promise<boolean> {
+        animatePan(view: unknown): Promise<boolean> {
             // @ts-ignore
             return canvas.animatePan(view);
-        }
-    }
-}
+        },
+    };
+})();

@@ -38,7 +38,7 @@ describe("DocumentAccessMixin", () => {
         constructor(name: string = "OtherDocument") {
             super(name);
         }
-        parent: unknown|null = null;
+        parent: unknown | null = null;
     }
 
     describe("constructor", () => {
@@ -48,7 +48,6 @@ describe("DocumentAccessMixin", () => {
 
             expect(instance).to.be.instanceOf(MockBaseClass);
         });
-
     });
 
     describe("findDocument", () => {
@@ -128,14 +127,14 @@ describe("DocumentAccessMixin", () => {
                 setup: () => {
                     const nullParent = new MockParent(null);
                     return { parent: nullParent, expectedResult: null };
-                }
+                },
             },
             {
                 description: "should stop traversal when parent is not an object",
                 setup: () => {
                     const primitiveParent = { parent: "string" };
                     return { parent: primitiveParent, expectedResult: null };
-                }
+                },
             },
             {
                 description: "should stop traversal when parent has no parent property",
@@ -143,8 +142,8 @@ describe("DocumentAccessMixin", () => {
                     const noParentProperty = { someOtherProperty: "value" };
                     const parentWithoutParent = { parent: noParentProperty };
                     return { parent: parentWithoutParent, expectedResult: null };
-                }
-            }
+                },
+            },
         ];
 
         testCases.forEach(({ description, setup }) => {
@@ -183,7 +182,9 @@ describe("DocumentAccessMixin", () => {
 
         it("should throw IllegalStateException with correct document class name", () => {
             class CustomDocument extends MockDocument {
-                constructor() { super("CustomDocument"); }
+                constructor() {
+                    super("CustomDocument");
+                }
             }
 
             const MixedClass = DocumentAccessMixin(MockBaseClass, CustomDocument);
@@ -200,14 +201,14 @@ describe("DocumentAccessMixin", () => {
             const targetDoc = new MockTargetDocument();
             const instance = new MixedClass(targetDoc);
 
-            const findDocumentSpy = sandbox.spy(instance, 'findDocument');
+            const findDocumentSpy = sandbox.spy(instance, "findDocument");
 
             const firstAccess = instance.document;
             const secondAccess = instance.document;
 
             expect(firstAccess).to.equal(targetDoc);
             expect(secondAccess).to.equal(targetDoc);
-            expect(findDocumentSpy.callCount).to.equal(1)
+            expect(findDocumentSpy.callCount).to.equal(1);
         });
     });
 
@@ -227,8 +228,10 @@ describe("DocumentAccessMixin", () => {
 
         it("should work with multiple different document types in chain", () => {
             class AnotherDocument extends MockDocument {
-                constructor() { super("AnotherDocument"); }
-                parent: unknown|null = null;
+                constructor() {
+                    super("AnotherDocument");
+                }
+                parent: unknown | null = null;
             }
 
             const MixedClass = DocumentAccessMixin(MockBaseClass, MockTargetDocument);
@@ -247,7 +250,10 @@ describe("DocumentAccessMixin", () => {
 
         it("should handle when base class has its own parent property", () => {
             class BaseWithParent {
-                constructor(public parent: any = null, public baseProperty: string = "base") {}
+                constructor(
+                    public parent: any = null,
+                    public baseProperty: string = "base"
+                ) {}
             }
 
             const MixedClass = DocumentAccessMixin(BaseWithParent, MockTargetDocument);

@@ -1,9 +1,8 @@
-import { DataModelSchemaType, SplittermondDataModel } from "../../data/SplittermondDataModel";
-import { fields } from "../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "../../data/SplittermondDataModel";
 import SplittermondNpcAttackItem from "../npcattack";
-import {damage, getDescriptorFields} from "./commonFields";
-import {ItemFeaturesModel} from "./propertyModels/ItemFeaturesModel";
-import {from0_12_20_migrateDamage, from0_12_20_migrateFeatures, migrateFrom0_12_20} from "./migrations";
+import { damage, getDescriptorFields } from "./commonFields";
+import { ItemFeaturesModel } from "./propertyModels/ItemFeaturesModel";
+import { from0_12_20_migrateDamage, from0_12_20_migrateFeatures, migrateFrom0_12_20 } from "./migrations";
 
 function ItemNpcAttackDataModelSchema() {
     return {
@@ -12,7 +11,7 @@ function ItemNpcAttackDataModelSchema() {
         range: new fields.NumberField({ required: true, nullable: true, initial: 0 }),
         weaponSpeed: new fields.NumberField({ required: true, nullable: true, initial: 0 }),
         skillValue: new fields.NumberField({ required: true, nullable: true, initial: 0 }),
-        features: new fields.EmbeddedDataField(ItemFeaturesModel,{required: true, nullable: false}),
+        features: new fields.EmbeddedDataField(ItemFeaturesModel, { required: true, nullable: false }),
     };
 }
 

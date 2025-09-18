@@ -1,26 +1,25 @@
 name: Zauberpatzer
 type: script
 flags:
-  core: {}
+    core: {}
 scope: global
 command: game.splittermond.magicFumble()
 author: m5HI1NMGmW1y9fyL
 img: icons/svg/dice-target.svg
 _id: zV684bDKDprbrh52
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: Macro.lJ9xuBIlTNQIjwJD
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: Macro.lJ9xuBIlTNQIjwJD
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 folder: null
 sort: 0
-_key: '!macros!zV684bDKDprbrh52'
-
+_key: "!macros!zV684bDKDprbrh52"

@@ -1,4 +1,3 @@
-
 @import "./module-sheet-name.less";
 @import "./module-experience.less";
 @import "./module-moonsign.less";
@@ -20,36 +19,36 @@
 @import "./damageTable.less";
 @import "./sidebar-content.less";
 @import "./applications.less";
- 
+
 .splittermond {
     .list {
-        a.rollable, a.consume, a.add-tick {
+        a.rollable,
+        a.consume,
+        a.add-tick {
             display: inline-block;
             padding: 0;
             border: none;
             background: transparent;
-            border-bottom: 2px solid rgba(var(--color-text-secondary_rgb),0.2);
+            border-bottom: 2px solid rgba(var(--color-text-secondary_rgb), 0.2);
             margin-bottom: -2px;
-        
+
             &:hover {
                 text-shadow: none;
-                border-bottom: 2px solid rgba(var(--color-text-secondary_rgb),0.5);
+                border-bottom: 2px solid rgba(var(--color-text-secondary_rgb), 0.5);
             }
         }
     }
-    
 
     &.sheet.item .tab > * {
         padding: 7px;
     }
 
     .item-sheet-stat-block {
-        display:flex;
+        display: flex;
         flex-direction: row;
         margin-top: 1em;
         gap: 1em;
         justify-content: space-around;
-        
 
         .item-sheet-stat-block-item {
             display: flex;
@@ -68,7 +67,6 @@
             > * {
                 text-align: center;
             }
-            
         }
     }
 
@@ -127,9 +125,5 @@
                 font-size: @fontSizeNormal;
             }
         }
-
     }
 }
-
-
-

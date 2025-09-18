@@ -1,4 +1,4 @@
-import {Roll} from "./Roll";
+import { Roll } from "./Roll";
 
 declare class ChatMessage extends FoundryDocument {
     id: string;
@@ -9,14 +9,14 @@ declare class ChatMessage extends FoundryDocument {
 
     rolls: Roll[];
 
-    update(data: object): Promise<ChatMessage>
+    update(data: object): Promise<ChatMessage>;
 
-    getFlag(scope: string, key: string): object
+    getFlag(scope: string, key: string): object;
 
-    deleteDocuments(documentId: string[]): Promise<void>
+    deleteDocuments(documentId: string[]): Promise<void>;
 }
 
-const foundryChatMessage:typeof ChatMessage = ChatMessage
+const foundryChatMessage: typeof ChatMessage = ChatMessage;
 export type FoundryChatMessage = ChatMessage;
 
-export {foundryChatMessage as ChatMessage};
+export { foundryChatMessage as ChatMessage };

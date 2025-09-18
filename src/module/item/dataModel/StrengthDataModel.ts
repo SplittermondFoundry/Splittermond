@@ -1,7 +1,7 @@
-import {DataModelSchemaType, fields, SplittermondDataModel} from "../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "../../data/SplittermondDataModel";
 import SplittermondItem from "../item";
-import {migrateFrom0_12_13, migrateFrom0_12_20} from "./migrations";
-import {validatedBoolean} from "./commonFields";
+import { migrateFrom0_12_13, migrateFrom0_12_20 } from "./migrations";
+import { validatedBoolean } from "./commonFields";
 
 function ItemStrengthDataModelSchema() {
     return {
@@ -21,7 +21,7 @@ export type StrengthDataModelType = DataModelSchemaType<typeof ItemStrengthDataM
 export class StrengthDataModel extends SplittermondDataModel<StrengthDataModelType, SplittermondItem> {
     static defineSchema = ItemStrengthDataModelSchema;
 
-    static migrateData(source:unknown){
+    static migrateData(source: unknown) {
         source = migrateFrom0_12_13(source);
         source = migrateFrom0_12_20(source);
         return super.migrateData(source);

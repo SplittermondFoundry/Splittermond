@@ -30,7 +30,7 @@ Fertigkeiten: Akrobatik 10, Athletik 16, Entschlossenheit 8, Heimlichkeit 4, Wah
 Meisterschaften: Hiebwaffen (I: Umreißen [Schwierigkeit 20]; II:
 Rundumschlag, Schmetterschlag), Zähigkeit (II: Schmerzwiderstand I)
 Merkmale: Dämmersicht, Erschöpfungsresistenz 2, Schmerzresistenz
-Beute: Kriegshammer (18 Lunare)`
+Beute: Kriegshammer (18 Lunare)`;
 
 export const expected = {
     system: {
@@ -60,7 +60,8 @@ export const expected = {
                 value: 4,
             },
         },
-        biography: "<p>Mit einer Größe von über drei Metern gehören Oger zu den größeren humanoiden Wesen in Lorakis. Unter ihrer dunkelgrauen, stellenweise von schwarzen Schuppen bedeckten Haut zeichnen sich kräftige Muskeln ab, was gemeinsam mit den ungeschickten, vierfingrigen Händen und den unglaublich langen Armen ihre Vorliebe für klobige Wuchtwaffen erklärt. Ihr Kopf und ihr Körper sind kahl und haarlos, ihre Augen sind klein und verraten ihre außerordentliche Dumm- und Blödheit. Rüstungen tragen Vertreter dieser Rasse kaum einmal, finden sie doch nur selten einen Schmied, den sie zur Anfertigung von entsprechenden Stücken in ihrer Größe zwingen können. Oger leben üblicherweise abseits von Siedlungsgebieten und lediglich in kleinen Gruppen, schließen sich aber von Zeit zu Zeit zu kleinen Kriegszügen zusammen oder plündern eigenständig Dörfer. Manche Potentaten werben sie als Söldner oder gar als Leibwache an, um potenzielle Angreifer bereits im Vorfeld abzuschrecken. Im Gegensatz zu den meisten anderen intelligenten Rassen des Kontinents scheinen die Oger über keinerlei magische Begabung zu verfügen.</p><h2>Besonderheiten</h2><p>Kriegshammer (18 Lunare)</p>",
+        biography:
+            "<p>Mit einer Größe von über drei Metern gehören Oger zu den größeren humanoiden Wesen in Lorakis. Unter ihrer dunkelgrauen, stellenweise von schwarzen Schuppen bedeckten Haut zeichnen sich kräftige Muskeln ab, was gemeinsam mit den ungeschickten, vierfingrigen Händen und den unglaublich langen Armen ihre Vorliebe für klobige Wuchtwaffen erklärt. Ihr Kopf und ihr Körper sind kahl und haarlos, ihre Augen sind klein und verraten ihre außerordentliche Dumm- und Blödheit. Rüstungen tragen Vertreter dieser Rasse kaum einmal, finden sie doch nur selten einen Schmied, den sie zur Anfertigung von entsprechenden Stücken in ihrer Größe zwingen können. Oger leben üblicherweise abseits von Siedlungsgebieten und lediglich in kleinen Gruppen, schließen sich aber von Zeit zu Zeit zu kleinen Kriegszügen zusammen oder plündern eigenständig Dörfer. Manche Potentaten werben sie als Söldner oder gar als Leibwache an, um potenzielle Angreifer bereits im Vorfeld abzuschrecken. Im Gegensatz zu den meisten anderen intelligenten Rassen des Kontinents scheinen die Oger über keinerlei magische Begabung zu verfügen.</p><h2>Besonderheiten</h2><p>Kriegshammer (18 Lunare)</p>",
         currency: {
             L: 0,
             S: 0,
@@ -115,7 +116,7 @@ export const expected = {
             },
             melee: {
                 points: 10,
-                value: 20
+                value: 20,
             },
             perception: {
                 points: 1,
@@ -129,7 +130,6 @@ export const expected = {
         type: "Humanoider, Monster",
     },
     items: [
-
         {
             img: "icons/svg/sword.svg",
             name: "Körper",
@@ -221,4 +221,4 @@ export const expected = {
             type: "equipment",
         },
     ],
-}
+};

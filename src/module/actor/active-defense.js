@@ -1,4 +1,3 @@
-
 export default class ActiveDefense {
     /**
      * @param {string}id
@@ -8,7 +7,7 @@ export default class ActiveDefense {
      * @param {ItemFeaturesModel}features
      * @param {string|null}img
      */
-    constructor(id, type, name, skill, features , img = null) {
+    constructor(id, type, name, skill, features, img = null) {
         this.id = id;
         this.type = type;
         this.skill = skill;
@@ -25,7 +24,7 @@ export default class ActiveDefense {
     async roll(options = {}) {
         if (!this.actor) return Promise.resolve(false);
 
-        options = duplicate(options)
+        options = duplicate(options);
         options.type = "defense";
         options.preSelectedModifier = [];
         options.difficulty = 15;
@@ -33,8 +32,8 @@ export default class ActiveDefense {
         options.checkMessageData = {
             defenseType: this.type,
             baseDefense: this.actor.derivedValues[this.type].value,
-            itemData: this
-        }
+            itemData: this,
+        };
 
         return this.skill.roll(options);
     }

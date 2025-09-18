@@ -6,17 +6,18 @@
  * @returns {MasteryAvailabilityTag[]}
  */
 export function produceMasteryTags(system, availabilityParser) {
-const availableInIsUsable = system.availableIn && typeof system.availableIn === "string";
-const transformedAvailabilities = availabilityParser.toDisplayRepresentation(availableInIsUsable ? system.availableIn: null);
-const transformedSkill = availabilityParser.toDisplayRepresentation(system.skill);
+    const availableInIsUsable = system.availableIn && typeof system.availableIn === "string";
+    const transformedAvailabilities = availabilityParser.toDisplayRepresentation(
+        availableInIsUsable ? system.availableIn : null
+    );
+    const transformedSkill = availabilityParser.toDisplayRepresentation(system.skill);
 
-let list = [];
-if (transformedAvailabilities) {
-    transformedAvailabilities.split(",").forEach(item => list.push(item.trim()));
-}
-if (transformedSkill && !list.includes(transformedSkill)) {
-    list.push(transformedSkill);
-}
-return list.map(item => ({label: item}));
-
+    let list = [];
+    if (transformedAvailabilities) {
+        transformedAvailabilities.split(",").forEach((item) => list.push(item.trim()));
+    }
+    if (transformedSkill && !list.includes(transformedSkill)) {
+        list.push(transformedSkill);
+    }
+    return list.map((item) => ({ label: item }));
 }

@@ -1,8 +1,6 @@
 import SplittermondItem from "./item.js";
 
-
 export default class SplittermondPhysicalItem extends SplittermondItem {
-
     prepareBaseData() {
         super.prepareBaseData();
         const data = this.system;
@@ -16,7 +14,10 @@ export default class SplittermondPhysicalItem extends SplittermondItem {
                 data.damageLevel = 0;
             }
         } else {
-            data.damageLevel = Math.max(Math.min(Math.floor((parseInt(data.sufferedDamage) - 1) / data.durability), 3), 0);
+            data.damageLevel = Math.max(
+                Math.min(Math.floor((parseInt(data.sufferedDamage) - 1) / data.durability), 3),
+                0
+            );
             if (data.sufferedDamage === 3 * data.durability) {
                 data.damageLevel = 3;
             }
@@ -24,6 +25,4 @@ export default class SplittermondPhysicalItem extends SplittermondItem {
 
         data.damageLevelText = CONFIG.splittermond.damageLevel[data.damageLevel];
     }
-
-
 }

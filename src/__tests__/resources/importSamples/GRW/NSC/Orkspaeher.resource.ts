@@ -30,9 +30,9 @@ I*), Athletik (II: Flinker Verfolger), Heimlichkeit (II: Hinterhalt),
 Jagdkunst (I: Unermüdlicher Verfolger)
 Merkmale: Dämmersicht, Erschöpfungsresistenz 2, Schwächlich,
 Taktiker
-Beute: Kurzbogen (8 Lunare), Säbel (7 Lunare)`
+Beute: Kurzbogen (8 Lunare), Säbel (7 Lunare)`;
 
-export const  expected = {
+export const expected = {
     system: {
         attributes: {
             agility: {
@@ -60,7 +60,8 @@ export const  expected = {
                 value: 2,
             },
         },
-        biography: "<p>Im Gegensatz zu den Kriegern der Orks sind ihre Späher von kleinem Wuchs und überragen nicht einmal kleine Hobbitse, erst recht, da sie zu kriecherischem Gehen neigen. Dafür sind sie deutlich beweglicher als ihre größeren Artgenossen. Zudem verfügen sie über außerordentlich scharfe Zähne, weshalb sie sich besonders gut für das Herstellen von Orkmessern eignen. Auch im Kampf haben sie ihren Nutzen, sind sie doch verschlagen und hinterhältig. Bevorzugt lauern sie Gegnern auf und greifen aus der Ferne an, neigen aber zur Flucht, wenn sie in die Verteidigung gedrängt werden und nicht in der Überzahl sind. Ihr Aussehen gleicht dank gelber Augen und spitzer Ohren jenem anderer Orks.</p><h2>Besonderheiten</h2><p>Kurzbogen (8 Lunare), Säbel (7 Lunare)</p>",
+        biography:
+            "<p>Im Gegensatz zu den Kriegern der Orks sind ihre Späher von kleinem Wuchs und überragen nicht einmal kleine Hobbitse, erst recht, da sie zu kriecherischem Gehen neigen. Dafür sind sie deutlich beweglicher als ihre größeren Artgenossen. Zudem verfügen sie über außerordentlich scharfe Zähne, weshalb sie sich besonders gut für das Herstellen von Orkmessern eignen. Auch im Kampf haben sie ihren Nutzen, sind sie doch verschlagen und hinterhältig. Bevorzugt lauern sie Gegnern auf und greifen aus der Ferne an, neigen aber zur Flucht, wenn sie in die Verteidigung gedrängt werden und nicht in der Überzahl sind. Ihr Aussehen gleicht dank gelber Augen und spitzer Ohren jenem anderer Orks.</p><h2>Besonderheiten</h2><p>Kurzbogen (8 Lunare), Säbel (7 Lunare)</p>",
         currency: {
             L: 0,
             S: 0,
@@ -138,154 +139,154 @@ export const  expected = {
     },
     items: [
         {
-            "img": "icons/svg/sword.svg",
-            "name": "Körper",
-            "system": {
-                "damage": "1W6",
-                "features": "–",
-                "range": 0,
-                "skillValue": 8,
-                "weaponSpeed": 5,
+            img: "icons/svg/sword.svg",
+            name: "Körper",
+            system: {
+                damage: "1W6",
+                features: "–",
+                range: 0,
+                skillValue: 8,
+                weaponSpeed: 5,
             },
-            "type": "npcattack",
+            type: "npcattack",
         },
         {
-            "_id": 1,
-            "name": "Kurzbogen",
-            "system": {
-                "attribute1": "agility",
-                "attribute2": "strength",
-                "damage": "1W10+1",
-                "features": "Durchdringung 1, Scharf 2, Zweihändig",
-                "range": 20,
-                "skill": "melee",
-                "weaponSpeed": 5,
+            _id: 1,
+            name: "Kurzbogen",
+            system: {
+                attribute1: "agility",
+                attribute2: "strength",
+                damage: "1W10+1",
+                features: "Durchdringung 1, Scharf 2, Zweihändig",
+                range: 20,
+                skill: "melee",
+                weaponSpeed: 5,
             },
-            "type": "weapon",
+            type: "weapon",
         },
         {
-            "_id": 1,
-            "name": "Säbel",
-            "system": {
-                "attribute1": "agility",
-                "attribute2": "strength",
-                "damage": "1W6+4",
-                "features": "Scharf 2",
-                "range": 0,
-                "skill": "melee",
-                "weaponSpeed": 8,
+            _id: 1,
+            name: "Säbel",
+            system: {
+                attribute1: "agility",
+                attribute2: "strength",
+                damage: "1W6+4",
+                features: "Scharf 2",
+                range: 0,
+                skill: "melee",
+                weaponSpeed: 8,
             },
-            "type": "weapon",
+            type: "weapon",
         },
         {
-            "name": "Sicht verbessern",
-            "system": {
-                "skill": "enhancemagic",
-                "skillLevel": 1,
+            name: "Sicht verbessern",
+            system: {
+                skill: "enhancemagic",
+                skillLevel: 1,
             },
-            "type": "spell",
+            type: "spell",
         },
         {
-            "name": "Beschleunigen",
-            "system": {
-                "skill": "enhancemagic",
-                "skillLevel": 2,
+            name: "Beschleunigen",
+            system: {
+                skill: "enhancemagic",
+                skillLevel: 2,
             },
-            "type": "spell",
+            type: "spell",
         },
         {
-            "name": "Scharfschütze",
-            "system": {
-                "level": 1,
-                "skill": "longrange",
+            name: "Scharfschütze",
+            system: {
+                level: 1,
+                skill: "longrange",
             },
-            "type": "mastery",
+            type: "mastery",
         },
         {
-            "name": "Schnellschütze I*",
-            "system": {
-                "level": 1,
-                "skill": "longrange",
+            name: "Schnellschütze I*",
+            system: {
+                level: 1,
+                skill: "longrange",
             },
-            "type": "mastery",
+            type: "mastery",
         },
         {
-            "name": "Flinker Verfolger",
-            "system": {
-                "level": 2,
-                "skill": "athletics",
+            name: "Flinker Verfolger",
+            system: {
+                level: 2,
+                skill: "athletics",
             },
-            "type": "mastery",
+            type: "mastery",
         },
         {
-            "name": "Hinterhalt",
-            "system": {
-                "level": 2,
-                "skill": "stealth",
+            name: "Hinterhalt",
+            system: {
+                level: 2,
+                skill: "stealth",
             },
-            "type": "mastery",
+            type: "mastery",
         },
         {
-            "name": "Unermüdlicher Verfolger",
-            "system": {
-                "level": 1,
-                "skill": "hunting",
+            name: "Unermüdlicher Verfolger",
+            system: {
+                level: 1,
+                skill: "hunting",
             },
-            "type": "mastery",
+            type: "mastery",
         },
         {
-            "name": "Dämmersicht",
-            "system": {},
-            "type": "npcfeature",
+            name: "Dämmersicht",
+            system: {},
+            type: "npcfeature",
         },
         {
-            "name": "Erschöpfungsresistenz 2",
-            "system": {},
-            "type": "npcfeature",
+            name: "Erschöpfungsresistenz 2",
+            system: {},
+            type: "npcfeature",
         },
         {
-            "name": "Schwächlich",
-            "system": {},
-            "type": "npcfeature",
+            name: "Schwächlich",
+            system: {},
+            type: "npcfeature",
         },
         {
-            "name": "Taktiker",
-            "system": {},
-            "type": "npcfeature",
+            name: "Taktiker",
+            system: {},
+            type: "npcfeature",
         },
         {
-            "name": "Kurzbogen",
-            "system": {
-                "availability": null,
-                "complexity": "U",
-                "damageLevel": null,
-                "description": "8 Lunare",
-                "durability": null,
-                "hardness": null,
-                "price": "8 L",
-                "quality": 0,
-                "quantity": 1,
-                "sufferedDamage": null,
-                "weight": 0,
+            name: "Kurzbogen",
+            system: {
+                availability: null,
+                complexity: "U",
+                damageLevel: null,
+                description: "8 Lunare",
+                durability: null,
+                hardness: null,
+                price: "8 L",
+                quality: 0,
+                quantity: 1,
+                sufferedDamage: null,
+                weight: 0,
             },
-            "type": "equipment",
+            type: "equipment",
         },
         {
-            "name": "Säbel",
-            "system": {
-                "availability": null,
-                "complexity": "U",
-                "damageLevel": null,
-                "description": "7 Lunare",
-                "durability": null,
-                "hardness": null,
-                "price": "7 L",
-                "quality": 0,
-                "quantity": 1,
-                "sufferedDamage": null,
-                "weight": 0,
+            name: "Säbel",
+            system: {
+                availability: null,
+                complexity: "U",
+                damageLevel: null,
+                description: "7 Lunare",
+                durability: null,
+                hardness: null,
+                price: "7 L",
+                quality: 0,
+                quantity: 1,
+                sufferedDamage: null,
+                weight: 0,
             },
-            "type": "equipment",
-        } ,
+            type: "equipment",
+        },
     ],
-}
+};

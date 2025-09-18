@@ -1,16 +1,16 @@
-import Modifier, {Modifiers} from "./modifier";
-import {Expression} from "../modifiers/expressions/scalar";
-import {TooltipFormula} from "../util/tooltip";
+import Modifier, { Modifiers } from "./modifier";
+import { Expression } from "../modifiers/expressions/scalar";
+import { TooltipFormula } from "../util/tooltip";
 
 interface AttributeSelector {
-    key: string,
-    values: string[],
-    allowAbsent?: boolean
+    key: string;
+    values: string[];
+    allowAbsent?: boolean;
 }
 
 export interface ModifierAttributes {
     name: string;
-    type: ModifierType
+    type: ModifierType;
 
     [x: string]: string | undefined | null;
 }
@@ -33,14 +33,20 @@ export interface IModifier {
     readonly isBonus: boolean;
     readonly groupId: string;
     readonly selectable: boolean;
-    readonly attributes: ModifierAttributes
+    readonly attributes: ModifierAttributes;
     readonly origin: object | null;
 }
 
 export default class ModifierManager {
     private _modifier: Map<string, IModifier[]> = new Map();
 
-    add(path:string, attributes:  ModifierAttributes, value: Expression, origin: object | null = null, selectable = false) {
+    add(
+        path: string,
+        attributes: ModifierAttributes,
+        value: Expression,
+        origin: object | null = null,
+        selectable = false
+    ) {
         this.addModifier(new Modifier(path, value, attributes, origin, selectable));
     }
 
@@ -49,7 +55,7 @@ export default class ModifierManager {
         if (!this._modifier.get(lowerCaseGroupId)) {
             this._modifier.set(lowerCaseGroupId, []);
         }
-        this._modifier.get(lowerCaseGroupId)!.push(modifier)
+        this._modifier.get(lowerCaseGroupId)!.push(modifier);
     }
 
     getForIds(...groupIds: string[]) {
@@ -62,8 +68,8 @@ export default class ModifierManager {
     getModifiers(groupId: string, withAttributes: AttributeSelector[] = [], selectable: boolean | null = null) {
         const modifiersForPath = this._modifier.get(groupId.toLowerCase()) ?? [];
         return modifiersForPath
-            .filter(modifier => selectable === null || modifier.selectable === selectable)
-            .filter(mod => passesAttributeFilter(mod, withAttributes));
+            .filter((modifier) => selectable === null || modifier.selectable === selectable)
+            .filter((mod) => passesAttributeFilter(mod, withAttributes));
     }
 }
 
@@ -86,15 +92,17 @@ class AttributeBuilder {
     private _attributes: AttributeSelector[] = [];
     private _selectable: boolean | null = null;
 
-    constructor(private readonly groupId: string, private manager: ModifierManager) {
-    }
+    constructor(
+        private readonly groupId: string,
+        private manager: ModifierManager
+    ) {}
 
     /**
      * Will only select modifiers that have the attribute key with one of the values
      * @see withAttributeValuesOrAbsent
      */
     withAttributeValues(key: string, ...values: string[]) {
-        this._attributes.push({key, values, allowAbsent: false});
+        this._attributes.push({ key, values, allowAbsent: false });
         return this;
     }
 
@@ -104,7 +112,7 @@ class AttributeBuilder {
      * @see withAttributeValues
      */
     withAttributeValuesOrAbsent(key: string, ...values: string[]) {
-        this._attributes.push({key, values, allowAbsent: true});
+        this._attributes.push({ key, values, allowAbsent: true });
         return this;
     }
 
@@ -119,14 +127,16 @@ class AttributeBuilder {
     }
 
     getModifiers() {
-        return Modifiers.from(this.manager.getModifiers(this.groupId, this._attributes, this._selectable))
+        return Modifiers.from(this.manager.getModifiers(this.groupId, this._attributes, this._selectable));
     }
 }
 
 class MassExtractor {
     private _selectable: boolean | null = null;
-    constructor(private readonly groupIds:string[], private readonly manager:ModifierManager) {
-    }
+    constructor(
+        private readonly groupIds: string[],
+        private readonly manager: ModifierManager
+    ) {}
 
     selectable() {
         this._selectable = true;
@@ -139,6 +149,6 @@ class MassExtractor {
     }
 
     getModifiers() {
-        return Modifiers.from(this.groupIds.flatMap(id => this.manager.getModifiers(id, [], this._selectable)));
+        return Modifiers.from(this.groupIds.flatMap((id) => this.manager.getModifiers(id, [], this._selectable)));
     }
 }

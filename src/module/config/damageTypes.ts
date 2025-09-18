@@ -1,4 +1,3 @@
-
 export const damageTypes = [
     "physical",
     "mental",
@@ -18,7 +17,7 @@ export const damageTypes = [
     "nature",
 ] as const;
 
-export const damageTypeOptions:Record<DamageType, `splittermond.damageTypes.long.${DamageType}`> = {
+export const damageTypeOptions: Record<DamageType, `splittermond.damageTypes.long.${DamageType}`> = {
     acid: "splittermond.damageTypes.long.acid",
     bleeding: "splittermond.damageTypes.long.bleeding",
     cold: "splittermond.damageTypes.long.cold",
@@ -35,6 +34,6 @@ export const damageTypeOptions:Record<DamageType, `splittermond.damageTypes.long
     wind: "splittermond.damageTypes.long.wind",
     water: "splittermond.damageTypes.long.water",
     nature: "splittermond.damageTypes.long.nature",
-}
+};
 
-export type DamageType = typeof damageTypes[number];
+export type DamageType = (typeof damageTypes)[number];

@@ -1,11 +1,9 @@
 import ActiveDefense from "module/actor/active-defense";
 import AttackableItem from "module/item/attackable-item";
 import SplittermondPhysicalItem from "module/item/physical";
-import {WeaponDataModel} from "module/item/dataModel/WeaponDataModel";
-
+import { WeaponDataModel } from "module/item/dataModel/WeaponDataModel";
 
 export default class SplittermondWeaponItem extends AttackableItem(SplittermondPhysicalItem) {
-
     //overwrite type
     declare public system: WeaponDataModel;
 
@@ -13,7 +11,7 @@ export default class SplittermondWeaponItem extends AttackableItem(SplittermondP
     declare private activeDefense: ActiveDefense[];
 
     prepareBaseData() {
-        super.prepareBaseData()
+        super.prepareBaseData();
         this.activeDefense = [];
     }
 
@@ -28,13 +26,14 @@ export default class SplittermondWeaponItem extends AttackableItem(SplittermondP
     prepareActiveDefense() {
         if (!this.system.equipped && (this.system.damageLevel ?? 0) <= 1) return;
 
-        this.attacks.forEach(attack => {
+        this.attacks.forEach((attack) => {
             if (["melee", "slashing", "chains", "blades", "staffs"].includes(attack.skill.id)) {
-                this.activeDefense.push(new ActiveDefense(this.id, "defense", attack.name, attack.skill, attack.featuresAsRef, attack.img));
+                this.activeDefense.push(
+                    new ActiveDefense(this.id, "defense", attack.name, attack.skill, attack.featuresAsRef, attack.img)
+                );
             }
         });
 
-        this.activeDefense.forEach(d => this.actor.activeDefense.defense.push(d));
+        this.activeDefense.forEach((d) => this.actor.activeDefense.defense.push(d));
     }
-
 }

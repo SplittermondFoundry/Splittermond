@@ -1,9 +1,9 @@
-import {foundryApi} from "../api/foundryApi";
+import { foundryApi } from "../api/foundryApi";
 
 export const Dice = {
     check,
     evaluateCheck,
-    riskModifier
+    riskModifier,
 };
 
 /**
@@ -14,7 +14,6 @@ export const Dice = {
  * @return {GenericRollEvaluation}
  */
 export async function check(skill, difficulty, rollType = "standard", skillModifier = 0) {
-
     let rollFormula = `${CONFIG.splittermond.rollType[rollType].rollFormula} + @skillValue`;
 
     if (skillModifier) {
@@ -22,7 +21,7 @@ export async function check(skill, difficulty, rollType = "standard", skillModif
     }
     let rollData = {
         skillValue: skill.value,
-        modifier: skillModifier
+        modifier: skillModifier,
     };
     const roll = new Roll(rollFormula, rollData).evaluate();
 
@@ -42,14 +41,14 @@ export async function evaluateCheck(roll, skillPoints, difficulty, rollType) {
     const difference = roll.total - difficulty;
 
     let degreeOfSuccess = Math.sign(difference) * Math.floor(Math.abs(difference / 3));
-    degreeOfSuccess = ((skillPoints < 1) ? Math.min(degreeOfSuccess, 0) : degreeOfSuccess);
+    degreeOfSuccess = skillPoints < 1 ? Math.min(degreeOfSuccess, 0) : degreeOfSuccess;
     const isFumble = rollType !== "safety" && roll.dice[0].total <= 3;
     const isCrit = roll.dice[0].total >= 19;
     const succeeded = difference >= 0 && !isFumble;
     degreeOfSuccess = isFumble ? Math.min(degreeOfSuccess - 3, -1) : degreeOfSuccess;
-    degreeOfSuccess = degreeOfSuccess + ((isCrit && succeeded) ? 3 : 0);
+    degreeOfSuccess = degreeOfSuccess + (isCrit && succeeded ? 3 : 0);
 
-    const degreeOfSuccessMessageModifier = Math.min(Math.abs(degreeOfSuccess), 5)
+    const degreeOfSuccessMessageModifier = Math.min(Math.abs(degreeOfSuccess), 5);
     let degreeOfSuccessMessage;
     if (isCrit) {
         degreeOfSuccessMessage = foundryApi.localize(`splittermond.critical`);
@@ -73,14 +72,16 @@ export async function evaluateCheck(roll, skillPoints, difficulty, rollType) {
 
 export function riskModifier() {
     if (this.results.length === 4) {
-        const sortedResult = this.results.map(i => {
-            return {
-                result: i.result,
-                item: i
-            }
-        }).sort((a, b) => {
-            return a.result - b.result;
-        });
+        const sortedResult = this.results
+            .map((i) => {
+                return {
+                    result: i.result,
+                    item: i,
+                };
+            })
+            .sort((a, b) => {
+                return a.result - b.result;
+            });
 
         if (sortedResult[0].item.result < 2 && sortedResult[1].result < 3) {
             sortedResult[0].item.active = true;
@@ -103,15 +104,19 @@ export function riskModifier() {
         }
     }
 
-    if (this.results.length === 5) { // Grandmaster
-        let sortedResult = this.results.slice(0, -1).map(i => {
-            return {
-                result: i.result,
-                item: i
-            }
-        }).sort((a, b) => {
-            return a.result - b.result;
-        });
+    if (this.results.length === 5) {
+        // Grandmaster
+        let sortedResult = this.results
+            .slice(0, -1)
+            .map((i) => {
+                return {
+                    result: i.result,
+                    item: i,
+                };
+            })
+            .sort((a, b) => {
+                return a.result - b.result;
+            });
 
         if (sortedResult[0].result < 2 && sortedResult[1].result < 3) {
             sortedResult[0].item.active = true;
@@ -125,14 +130,16 @@ export function riskModifier() {
             this.results[4].active = false;
             this.results[4].discarded = true;
         } else {
-            let sortedResult = this.results.map(i => {
-                return {
-                    result: i.result,
-                    item: i
-                }
-            }).sort((a, b) => {
-                return a.result - b.result;
-            });
+            let sortedResult = this.results
+                .map((i) => {
+                    return {
+                        result: i.result,
+                        item: i,
+                    };
+                })
+                .sort((a, b) => {
+                    return a.result - b.result;
+                });
             sortedResult[0].item.active = false;
             sortedResult[0].item.discarded = true;
             sortedResult[1].item.active = false;
@@ -146,15 +153,19 @@ export function riskModifier() {
         }
     }
 
-    if (this.results.length === 3) { // Grandmaster (Standard)
-        let sortedResult = this.results.slice(0, -1).map(i => {
-            return {
-                result: i.result,
-                item: i
-            }
-        }).sort((a, b) => {
-            return a.result - b.result;
-        });
+    if (this.results.length === 3) {
+        // Grandmaster (Standard)
+        let sortedResult = this.results
+            .slice(0, -1)
+            .map((i) => {
+                return {
+                    result: i.result,
+                    item: i,
+                };
+            })
+            .sort((a, b) => {
+                return a.result - b.result;
+            });
 
         if (sortedResult[0].result < 2 && sortedResult[1].result < 3) {
             sortedResult[0].item.active = true;
@@ -164,14 +175,16 @@ export function riskModifier() {
             this.results[2].active = false;
             this.results[2].discarded = true;
         } else {
-            let sortedResult = this.results.map(i => {
-                return {
-                    result: i.result,
-                    item: i
-                }
-            }).sort((a, b) => {
-                return a.result - b.result;
-            });
+            let sortedResult = this.results
+                .map((i) => {
+                    return {
+                        result: i.result,
+                        item: i,
+                    };
+                })
+                .sort((a, b) => {
+                    return a.result - b.result;
+                });
             sortedResult[0].item.active = false;
             sortedResult[0].item.discarded = true;
             sortedResult[1].item.active = true;
@@ -181,5 +194,3 @@ export function riskModifier() {
         }
     }
 }
-
-

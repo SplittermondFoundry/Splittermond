@@ -1,119 +1,115 @@
 @import "base";
 
-
 //Mixin intended for the lists in the compendium browser
 .scrollbar-on-active-tab {
-  .window-content {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: 0;
-  }
+    .window-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+    }
 
-  .tab.active {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 0;
-    min-height: 0;
-  }
+    .tab.active {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 0;
+        min-height: 0;
+    }
 
-  .list {
-    flex: 1 1 0;
-    min-height: 0;
-    overflow-y: auto;
-  }
+    .list {
+        flex: 1 1 0;
+        min-height: 0;
+        overflow-y: auto;
+    }
 }
 
 #compendium-browser.compendium-browser {
-  .compendium-item-filters{
-    //no styling. This class is just for element selection
-  }
-
-  min-width: 540px; //Below this width, mastery names bleed into the level column
-
-  .scrollbar-on-active-tab;
-
-
-  nav.tabs.sheet-navigation {
-    border: none;
-    background: none;
-    padding-bottom: 5px;
-  }
-
-  .filter {
-    align-content: center;
-
-    .row {
-      align-items: center;
-    }
-
     .compendium-item-filters {
-      margin-top: 5px;
-      margin-bottom: 5px;
-
-      select {
-        margin-right: 5px;
-      }
-    }
-  }
-
-  .list {
-
-    div:first-child {
-      flex-direction: column;
-      align-items: flex-start;
+        //no styling. This class is just for element selection
     }
 
-    .level {
-      width: 80px;
-      text-align: center;
+    min-width: 540px; //Below this width, mastery names bleed into the level column
+
+    .scrollbar-on-active-tab;
+
+    nav.tabs.sheet-navigation {
+        border: none;
+        background: none;
+        padding-bottom: 5px;
     }
 
-    .skill {
-      width: 100px;
-      text-align: center;
+    .filter {
+        align-content: center;
+
+        .row {
+            align-items: center;
+        }
+
+        .compendium-item-filters {
+            margin-top: 5px;
+            margin-bottom: 5px;
+
+            select {
+                margin-right: 5px;
+            }
+        }
     }
 
-    .damage {
-      width: 60px;
-      text-align: center;
+    .list {
+        div:first-child {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .level {
+            width: 80px;
+            text-align: center;
+        }
+
+        .skill {
+            width: 100px;
+            text-align: center;
+        }
+
+        .damage {
+            width: 60px;
+            text-align: center;
+        }
+
+        .available-in {
+            font-family: "Signika";
+            font-size: 10px;
+            white-space: normal;
+        }
+
+        .features {
+            font-family: "Signika";
+            font-size: 10px;
+            white-space: normal;
+        }
+
+        .compendium {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            //padding: @paddingSmall;
+
+            width: 160px;
+
+            .id {
+                font-family: "Signika";
+                font-size: 10px;
+            }
+        }
+
+        .taglist li {
+            font-family: "Signika";
+            font-size: 10px;
+        }
+
+        .list-item {
+            padding-top: 3px;
+            padding-bottom: 3px;
+        }
     }
-
-    .available-in {
-      font-family: "Signika";
-      font-size: 10px;
-      white-space: normal;
-    }
-
-    .features {
-      font-family: "Signika";
-      font-size: 10px;
-      white-space: normal;
-    }
-
-    .compendium {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      //padding: @paddingSmall;
-
-      width: 160px;
-
-      .id {
-        font-family: "Signika";
-        font-size: 10px;
-      }
-    }
-
-    .taglist li {
-      font-family: "Signika";
-      font-size: 10px;
-
-    }
-
-    .list-item {
-      padding-top: 3px;
-      padding-bottom: 3px;
-    }
-  }
 }

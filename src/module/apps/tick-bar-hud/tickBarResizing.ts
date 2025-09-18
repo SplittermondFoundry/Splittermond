@@ -1,5 +1,5 @@
-import type {SplittermondApplication} from "../../data/SplittermondApplication";
-import {foundryApi} from "../../api/foundryApi";
+import type { SplittermondApplication } from "../../data/SplittermondApplication";
+import { foundryApi } from "../../api/foundryApi";
 
 /**
  * Selectors for important Foundry UI elements that we require in this module
@@ -15,9 +15,8 @@ export function initMaxWidthTransitionForTickBarHud(tickBarHud: SplittermondAppl
     // Initial positioning
     positionTickBarHudBetweenElements(tickBarHud);
 
-    foundryApi.hooks.on(
-        "splittermond.tickBarHudRendered",
-        (app: SplittermondApplication) => positionTickBarHudBetweenElementsImmediately(app)
+    foundryApi.hooks.on("splittermond.tickBarHudRendered", (app: SplittermondApplication) =>
+        positionTickBarHudBetweenElementsImmediately(app)
     );
 
     // Listen for window resize
@@ -35,10 +34,8 @@ function positionTickBarHudBetweenElements(tickBarHud: SplittermondApplication) 
     try {
         const tickBarElement = tickBarHud.element.querySelector(".tick-bar-hud") as HTMLElement;
         const availableWidth = calculateAvailableWidth(tickBarHud);
-        requestAnimationFrame(() => tickBarElement.style.maxWidth = `${availableWidth}px`);
-    }catch (e){
-
-    }
+        requestAnimationFrame(() => (tickBarElement.style.maxWidth = `${availableWidth}px`));
+    } catch (e) {}
 }
 
 function positionTickBarHudBetweenElementsImmediately(tickBarHud: SplittermondApplication) {
@@ -46,11 +43,8 @@ function positionTickBarHudBetweenElementsImmediately(tickBarHud: SplittermondAp
         const tickBarElement = tickBarHud.element.querySelector(".tick-bar-hud") as HTMLElement;
         const availableWidth = calculateAvailableWidth(tickBarHud);
         tickBarElement.style.maxWidth = `${availableWidth}px`;
-    }catch(e){
-
-    }
+    } catch (e) {}
 }
-
 
 function calculateAvailableWidth(tickBarHud: SplittermondApplication): number {
     const paddingForTickBar = 30;
@@ -96,8 +90,8 @@ function initSidebarMutationObserver(tickBarHud: SplittermondApplication) {
     // Create MutationObserver to watch for sidebar class changes
     const observer = new MutationObserver((mutations) => {
         // Only reposition if the mutation isn't from our own style changes
-        const isOurChange = mutations.some(mutation =>
-            mutation.target === tickBarHud.element.querySelector(".tick-bar-hud")
+        const isOurChange = mutations.some(
+            (mutation) => mutation.target === tickBarHud.element.querySelector(".tick-bar-hud")
         );
         if (!isOurChange) {
             // Small delay to ensure DOM changes are complete
@@ -106,6 +100,6 @@ function initSidebarMutationObserver(tickBarHud: SplittermondApplication) {
     });
     observer.observe(sidebar, {
         attributes: true,
-        attributeFilter: ['class', 'style']
+        attributeFilter: ["class", "style"],
     });
 }

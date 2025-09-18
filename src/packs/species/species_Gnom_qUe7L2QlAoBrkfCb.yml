@@ -5,25 +5,24 @@ flags: {}
 img: icons/svg/mystery-man.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: ''
-  source: ''
-  size: '3'
-  attributeMod: MYS +1, VER +1, STÄ -1
-  strengths: Feensinn, Hoher Geistiger Widerstand, Flink
+    description: ""
+    source: ""
+    size: "3"
+    attributeMod: MYS +1, VER +1, STÄ -1
+    strengths: Feensinn, Hoher Geistiger Widerstand, Flink
 folder: null
 sort: 0
-_key: '!items!qUe7L2QlAoBrkfCb'
-
+_key: "!items!qUe7L2QlAoBrkfCb"

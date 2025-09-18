@@ -1,5 +1,5 @@
-import {produceSpellAvailabilityTags} from "../../item/tags/spellTags.js";
-import {initializeMetadata} from "./metadataInitializer.js";
+import { produceSpellAvailabilityTags } from "../../item/tags/spellTags.js";
+import { initializeMetadata } from "./metadataInitializer.js";
 
 /**
  *
@@ -27,11 +27,14 @@ export function initializeSpellItemPreparation(spellAvailabilityParser) {
      * @returns {boolean}
      */
     function isDisplayableSpell(itemIndexEntity) {
-        return itemIndexEntity.type === "spell" && typeof itemIndexEntity.system === "object" &&
+        return (
+            itemIndexEntity.type === "spell" &&
+            typeof itemIndexEntity.system === "object" &&
             itemIndexEntity.system.skill !== undefined &&
             itemIndexEntity.system.skillLevel !== undefined &&
             itemIndexEntity.system.spellType !== undefined &&
-            itemIndexEntity.system.availableIn !== undefined;
+            itemIndexEntity.system.availableIn !== undefined
+        );
     }
 
     /**
@@ -40,11 +43,11 @@ export function initializeSpellItemPreparation(spellAvailabilityParser) {
     function initializeTagGenerators(item) {
         const properties = {
             availableInList: {
-                    get: function () {
-                        return produceSpellAvailabilityTags(this.system, spellAvailabilityParser);
-                    }
+                get: function () {
+                    return produceSpellAvailabilityTags(this.system, spellAvailabilityParser);
                 },
-            spellTypeList:  {value: item.system.spellType?.split(",")}
+            },
+            spellTypeList: { value: item.system.spellType?.split(",") },
         };
         for (const key in properties) {
             if (!(key in item)) {

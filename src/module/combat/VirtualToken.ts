@@ -7,5 +7,5 @@ export interface VirtualToken {
     /** Path to the image file */
     img: string;
     level: number;
-    statusId:string;
+    statusId: string;
 }

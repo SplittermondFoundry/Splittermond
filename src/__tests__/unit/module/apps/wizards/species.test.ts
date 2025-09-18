@@ -4,9 +4,9 @@ import { expect } from "chai";
 import { JSDOM } from "jsdom";
 import SplittermondSpeciesWizard from "../../../../../module/apps/wizards/species";
 import { createHtml } from "../../../../handlebarHarness";
-import {foundryApi} from "../../../../../module/api/foundryApi";
-import {FoundryApplication} from "../../../../../module/api/Application";
-import {SpeciesDataModel} from "../../../../../module/item/dataModel/SpeciesDataModel";
+import { foundryApi } from "../../../../../module/api/foundryApi";
+import { FoundryApplication } from "../../../../../module/api/Application";
+import { SpeciesDataModel } from "../../../../../module/item/dataModel/SpeciesDataModel";
 import SplittermondItem from "../../../../../module/item/item";
 
 describe("SplittermondSpeciesWizard", () => {
@@ -36,7 +36,7 @@ describe("SplittermondSpeciesWizard", () => {
         });
         sandbox.stub(foundryApi, "format").callsFake((key: string, data: any) => key.replace("{points}", data.points));
         //@ts-expect-error: _prepareContext is a protected method
-        sandbox.stub(FoundryApplication.prototype, "_prepareContext").callsFake((input)=>input)
+        sandbox.stub(FoundryApplication.prototype, "_prepareContext").callsFake((input) => input);
 
         // Minimal SpeciesDataModel stub
 
@@ -47,7 +47,7 @@ describe("SplittermondSpeciesWizard", () => {
             attributeMod: "AUS +1,BEW +1, KON -1",
             strengths: "Attraktivität, Dämmersicht, Scharfes Gehör",
             description: "",
-            source: ""
+            source: "",
         });
 
         // Minimal actor stub
@@ -56,7 +56,7 @@ describe("SplittermondSpeciesWizard", () => {
         };
 
         wizard = new SplittermondSpeciesWizard(actorStub, speciesStub);
-        const html = createHtml("templates/apps/wizards/species.hbs", await wizard._prepareContext({parts:[]}));
+        const html = createHtml("templates/apps/wizards/species.hbs", await wizard._prepareContext({ parts: [] }));
         dom = new JSDOM(html);
         // @ts-expect-error: element needs to be set for test
         wizard.element = dom.window.document.documentElement;
@@ -68,7 +68,7 @@ describe("SplittermondSpeciesWizard", () => {
 
     it("should render attribute controls and allow increment/decrement", async () => {
         // Initial values
-        await wizard._onRender({},{parts:[]});
+        await wizard._onRender({}, { parts: [] });
         expect(wizard.attributeModifiers.strength.value).to.equal(0);
         expect(wizard.attributeModifiers.charisma.value).to.equal(1);
         expect(wizard.attributeModifiers.agility.value).to.equal(1);
@@ -92,7 +92,7 @@ describe("SplittermondSpeciesWizard", () => {
         wizard.attributeModifiers["strength"].value = 1;
         wizard.attributeModifiers["agility"].value = 1;
 
-        const context = await wizard._prepareContext({parts:[]});
+        const context = await wizard._prepareContext({ parts: [] });
 
         expect((context.attributeModifiers as any)?.["strength"].incDisabled).to.be.true;
         expect((context.attributeModifiers as any)?.["agility"].incDisabled).to.be.true;
@@ -103,7 +103,7 @@ describe("SplittermondSpeciesWizard", () => {
         wizard.attributeModifiers["strength"].value = 1;
         wizard.attributeModifiers["agility"].value = 1;
 
-        wizard._onSave(null as any/*we don't need the event*/);
+        wizard._onSave(null as any /*we don't need the event*/);
 
         expect(actorStub.update.calledOnce).to.be.true;
         const updateArg = actorStub.update.firstCall.args[0];
@@ -122,7 +122,7 @@ describe("SplittermondSpeciesWizard", () => {
         const renderSpy = sandbox.spy(wizard, "render");
 
         // Attach listeners
-        await wizard._onRender({}, {parts:[]});
+        await wizard._onRender({}, { parts: [] });
 
         // Simulate click on increment for agility
         const agilityInc = wizard.element.querySelector('button[name="willpower"][value="+1"]') as HTMLButtonElement;
@@ -132,4 +132,3 @@ describe("SplittermondSpeciesWizard", () => {
         expect(renderSpy.called).to.be.true;
     });
 });
-

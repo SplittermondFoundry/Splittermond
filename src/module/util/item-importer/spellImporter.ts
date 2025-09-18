@@ -1,12 +1,12 @@
 import SplittermondSpellItem from "../../item/spell";
-import {splittermond} from "../../config";
-import {foundryApi} from "../../api/foundryApi";
-import {itemCreator} from "../../data/EntityCreator";
-import {getSpellAvailabilityParser} from "../../item/availabilityParser";
-import {SpellDataModelType} from "../../item";
-import {ItemFeatureDataModel} from "../../item/dataModel/propertyModels/ItemFeaturesModel";
-import {DataModelConstructorInput} from "../../api/DataModel";
-import {CastDurationModel} from "module/item/dataModel/propertyModels/CastDurationModel";
+import { splittermond } from "../../config";
+import { foundryApi } from "../../api/foundryApi";
+import { itemCreator } from "../../data/EntityCreator";
+import { getSpellAvailabilityParser } from "../../item/availabilityParser";
+import { SpellDataModelType } from "../../item";
+import { ItemFeatureDataModel } from "../../item/dataModel/propertyModels/ItemFeaturesModel";
+import { DataModelConstructorInput } from "../../api/DataModel";
+import { CastDurationModel } from "module/item/dataModel/propertyModels/CastDurationModel";
 
 export async function importSpell(spellName: string, rawData: string, folder: string): Promise<SplittermondSpellItem> {
     let spellData = {
@@ -16,10 +16,10 @@ export async function importSpell(spellName: string, rawData: string, folder: st
         folder: folder,
         system: {
             damage: {
-                stringInput:null
+                stringInput: null,
             },
-            damageType:null,
-            costType:null,
+            damageType: null,
+            costType: null,
             features: {
                 internalFeatureList: [] as ItemFeatureDataModel[],
             },
@@ -45,33 +45,51 @@ export async function importSpell(spellName: string, rawData: string, folder: st
                 effectDuration: false,
                 damage: false,
                 range: false,
-                effectArea: false
-            }
-        } as DataModelConstructorInput<SpellDataModelType>
+                effectArea: false,
+            },
+        } as DataModelConstructorInput<SpellDataModelType>,
     };
 
-    const sectionLabels = ["Schulen", "Typus", "Schwierigkeit", "Kosten", "Zauberdauer", "Reichweite", "Wirkung", "Wirkungsdauer", "Wirkungsbereich", "Erfolgsgrade"];
-    let tokens = rawData.split(new RegExp(`(${sectionLabels.map(sl => sl + ":").join("|")})`, "gm"));
+    const sectionLabels = [
+        "Schulen",
+        "Typus",
+        "Schwierigkeit",
+        "Kosten",
+        "Zauberdauer",
+        "Reichweite",
+        "Wirkung",
+        "Wirkungsdauer",
+        "Wirkungsbereich",
+        "Erfolgsgrade",
+    ];
+    let tokens = rawData.split(new RegExp(`(${sectionLabels.map((sl) => sl + ":").join("|")})`, "gm"));
 
     for (let k = 0; k < tokens.length - 1; k++) {
         const sectionHeading = tokens[k].trim();
         const sectionData = tokens[k + 1].trim();
         switch (sectionHeading) {
             case "Schulen:":
-                spellData.system.availableIn = getSpellAvailabilityParser(foundryApi, splittermond.skillGroups.magic).toInternalRepresentation(sectionData) ?? null;
+                spellData.system.availableIn =
+                    getSpellAvailabilityParser(foundryApi, splittermond.skillGroups.magic).toInternalRepresentation(
+                        sectionData
+                    ) ?? null;
                 break;
             case "Typus:":
                 spellData.system.spellType = sectionData;
                 break;
             case "Schwierigkeit:":
                 spellData.system.difficulty = sectionData;
-                if (spellData.system.difficulty.search("Geistiger Widerstand") >= 0 ||
-                    spellData.system.difficulty.search("Geist") >= 0) {
+                if (
+                    spellData.system.difficulty.search("Geistiger Widerstand") >= 0 ||
+                    spellData.system.difficulty.search("Geist") >= 0
+                ) {
                     spellData.system.difficulty = "GW";
                 }
 
-                if (spellData.system.difficulty.search("Körperlicher Widerstand") >= 0 ||
-                    spellData.system.difficulty.search("Körper") >= 0) {
+                if (
+                    spellData.system.difficulty.search("Körperlicher Widerstand") >= 0 ||
+                    spellData.system.difficulty.search("Körper") >= 0
+                ) {
                     spellData.system.difficulty = "KW";
                 }
 
@@ -102,7 +120,9 @@ export async function importSpell(spellName: string, rawData: string, folder: st
             case "Erfolgsgrade:":
                 let enhancementData = sectionData.match(/([0-9] EG) \(Kosten ([KV0-9+]+)\):? ([^]+)/);
                 if (!enhancementData) {
-                    foundryApi.reportError("The imported data appeared to be a spell, but the spell enhancement section did not contain any spell enhancement cost.")
+                    foundryApi.reportError(
+                        "The imported data appeared to be a spell, but the spell enhancement section did not contain any spell enhancement cost."
+                    );
                     return Promise.reject(new Error("Enhancement data not found"));
                 }
                 spellData.system.enhancementCosts = `${enhancementData[1]}/${enhancementData[2]}`;
@@ -116,8 +136,8 @@ export async function importSpell(spellName: string, rawData: string, folder: st
                     effectDuration: sectionData.search("Wirkungsd") >= 0 || sectionData.search("dauer") >= 0,
                     damage: sectionData.search("Schaden,") >= 0,
                     range: sectionData.search("Reichw") >= 0,
-                    effectArea: sectionData.search("Wirkungsb") >= 0 || sectionData.search("bereich") >= 0
-                }
+                    effectArea: sectionData.search("Wirkungsb") >= 0 || sectionData.search("bereich") >= 0,
+                };
         }
     }
 
@@ -135,7 +155,7 @@ export async function importSpell(spellName: string, rawData: string, folder: st
 
     foundryApi.informUser("splittermond.message.itemImported", {
         name: spellData.name,
-        type: foundryApi.localize("ITEM.TypeSpell")
+        type: foundryApi.localize("ITEM.TypeSpell"),
     });
     console.debug(spellData);
     return itemPromise;

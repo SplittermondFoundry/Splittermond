@@ -1,45 +1,47 @@
 @import "./variables.less";
 
 .regular-button() {
-  &:not(.icon):not(.control-icon):not(.combat-tracker-header .inline-control):not(.combatant-control) {
-  .button-style();
-  }
+    &:not(.icon):not(.control-icon):not(.combat-tracker-header .inline-control):not(.combatant-control) {
+        .button-style();
+    }
 }
 
 #sidebar-content {
-  button {
-    .regular-button();
-  }
+    button {
+        .regular-button();
+    }
 
-  .documentation a {
-    .button-style();
-    font-family: @font-secondary;
-  }
+    .documentation a {
+        .button-style();
+        font-family: @font-secondary;
+    }
 }
 
 #chat-notifications {
-  button {
-    .regular-button();
-  }
+    button {
+        .regular-button();
+    }
 }
 
 .chat-message {
-  color: var(--color-text-secondary);
+    color: var(--color-text-secondary);
 
-  &.emote, &.whisper, &.blind {
-    &:extend(.chat-message);
-    background: @image-grunge;
-  }
+    &.emote,
+    &.whisper,
+    &.blind {
+        &:extend(.chat-message);
+        background: @image-grunge;
+    }
 
-  &.emote {
-    background-color: var(--background-color-emote, #f3edde);
-  }
+    &.emote {
+        background-color: var(--background-color-emote, #f3edde);
+    }
 
-  &.whisper {
-    background-color: var(--background-color-whisper, #e8e8ef);
-  }
+    &.whisper {
+        background-color: var(--background-color-whisper, #e8e8ef);
+    }
 
-  &.blind {
-    background-color: var(--background-color-blind, #f5eaf5);
-  }
+    &.blind {
+        background-color: var(--background-color-blind, #f5eaf5);
+    }
 }

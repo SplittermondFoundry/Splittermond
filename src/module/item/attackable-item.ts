@@ -7,7 +7,6 @@ import SplittermondNPCAttackItem from "./npcattack";
 // Helper type to define a constructor
 type Constructor<T = {}> = new (...args: any[]) => T;
 
-
 // Mixin function to extend SplittermondItem
 function AttackableItem<TBase extends Constructor<SplittermondItem>>(Base: TBase) {
     return class AttackableItem extends Base {
@@ -22,13 +21,15 @@ function AttackableItem<TBase extends Constructor<SplittermondItem>>(Base: TBase
         prepareActorData(): void {
             super.prepareActorData();
 
-            const isUnequipped = !("equipped" in this.system  && this.system.equipped);
-            if ( isUnequipped && this.type !== "npcattack") {
+            const isUnequipped = !("equipped" in this.system && this.system.equipped);
+            if (isUnequipped && this.type !== "npcattack") {
                 return;
             }
-            if(!isAttackItem(this)) {
-               console.warn(`Splittermond | Item ${this.name} was declared attackable but is not a valid attack item!`);
-               return;
+            if (!isAttackItem(this)) {
+                console.warn(
+                    `Splittermond | Item ${this.name} was declared attackable but is not a valid attack item!`
+                );
+                return;
             }
 
             this.attacks.push(new Attack(this.actor, this));
@@ -41,7 +42,7 @@ function AttackableItem<TBase extends Constructor<SplittermondItem>>(Base: TBase
         }
 
         get featuresList() {
-            if("features" in this.system && this.system.features) {
+            if ("features" in this.system && this.system.features) {
                 return this.system.features.featuresAsStringList();
             } else {
                 return [];
@@ -50,7 +51,8 @@ function AttackableItem<TBase extends Constructor<SplittermondItem>>(Base: TBase
 
         get hasSecondaryAttack(): boolean {
             return (
-                "secondaryAttack" in this.system && !!this.system.secondaryAttack &&
+                "secondaryAttack" in this.system &&
+                !!this.system.secondaryAttack &&
                 this.system.secondaryAttack.skill !== "" &&
                 this.system.secondaryAttack.skill !== "none"
             );
@@ -58,9 +60,10 @@ function AttackableItem<TBase extends Constructor<SplittermondItem>>(Base: TBase
     };
 }
 
-function isAttackItem(item: SplittermondItem): item is SplittermondNPCAttackItem|SplittermondShieldItem|SplittermondWeaponItem {
+function isAttackItem(
+    item: SplittermondItem
+): item is SplittermondNPCAttackItem | SplittermondShieldItem | SplittermondWeaponItem {
     return ["npcattack", "shield", "weapon"].includes(item.type);
-
 }
 
 export default AttackableItem;

@@ -3,12 +3,11 @@
  * into data that can be displayed in the compendium browser, by transforming system properties into legible labels and
  * sorting the items into categories.
  */
-import {initializeSpellItemPreparation} from "./prepareSpellItemIndex.js";
-import {initializeMasteryItemPreparation} from "./prepareMasteryItemIndex.js";
-import {initializeMetadata} from "./metadataInitializer.js";
-import {prepareWeaponItemIndex} from "./prepareWeaponsIndex.js";
-import {getMasteryAvailabilityParser, getSpellAvailabilityParser} from "../../item/availabilityParser.ts";
-
+import { initializeSpellItemPreparation } from "./prepareSpellItemIndex.js";
+import { initializeMasteryItemPreparation } from "./prepareMasteryItemIndex.js";
+import { initializeMetadata } from "./metadataInitializer.js";
+import { prepareWeaponItemIndex } from "./prepareWeaponsIndex.js";
+import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "../../item/availabilityParser.ts";
 
 /**
  * Initializes the module by providing the appropriate localization context.
@@ -32,15 +31,17 @@ export function initializeDisplayPreparation(i18n, magicSkills, masterySkills) {
      * @returns {Promise<void>}
      */
     function produceDisplayableItems(metadata, index, data) {
-        return index.then(/**@param {ItemIndexEntity[]} itemIndexEntities*/(itemIndexEntities) => {
-            for (const itemIndex of itemIndexEntities) {
-                if (!["spell", "mastery", "weapon"].includes(itemIndex.type)) {
-                    continue;
+        return index.then(
+            /**@param {ItemIndexEntity[]} itemIndexEntities*/ (itemIndexEntities) => {
+                for (const itemIndex of itemIndexEntities) {
+                    if (!["spell", "mastery", "weapon"].includes(itemIndex.type)) {
+                        continue;
+                    }
+                    data = initializeItemType(itemIndex.type, data);
+                    data[itemIndex.type].push(getTransformer(itemIndex.type)(metadata, itemIndex));
                 }
-                data = initializeItemType(itemIndex.type, data);
-                data[itemIndex.type].push(getTransformer(itemIndex.type)(metadata, itemIndex));
             }
-        });
+        );
     }
 
     /**

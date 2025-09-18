@@ -1,22 +1,18 @@
 export default class SplittermondCombatTracker extends foundry.applications.sidebar.tabs.CombatTracker {
-
-
     async getData(options) {
         const data = await super.getData(options);
-        if ( !data.hasCombat ) return data;
-        data.turns.forEach(c => {
+        if (!data.hasCombat) return data;
+        data.turns.forEach((c) => {
             if (parseInt(c.initiative) === 10000) {
                 c.initiative = game.i18n.localize("splittermond.wait");
-
             } else if (parseInt(c.initiative) === 20000) {
                 c.initiative = game.i18n.localize("splittermond.keepReady");
             } else {
                 let tickNumber = c.initiative ? Math.round(c.initiative) : 0;
                 c.initiative = tickNumber + " | " + Math.round(100 * (c.initiative - tickNumber));
             }
-
         });
-        data.round = data.combat.started ?  Math.round(parseFloat(data.combat.turns[0]?.initiative)) + "" : "";
+        data.round = data.combat.started ? Math.round(parseFloat(data.combat.turns[0]?.initiative)) + "" : "";
         if (game.release.generation < 10) {
             data.combat = data.combat.toObject();
             data.combat.data = data.combat;
@@ -25,8 +21,7 @@ export default class SplittermondCombatTracker extends foundry.applications.side
             data.combat = data.combat.toObject();
             data.combat.round = data.round;
         }
-        
-        
+
         return data;
     }
 
@@ -39,28 +34,26 @@ export default class SplittermondCombatTracker extends foundry.applications.side
         const c = combat.combatants.get(li.dataset.combatantId);
 
         if (c.initiative < 10000) {
-
             let dialog = new Dialog({
                 title: "Abwarten / Bereithalten",
                 buttons: {
                     cancel: {
                         label: game.i18n.localize("splittermond.cancel"),
-                        callback: html => {
-                        }
+                        callback: (html) => {},
                     },
                     keepReady: {
                         label: game.i18n.localize("splittermond.keepReady"),
-                        callback: html => {
+                        callback: (html) => {
                             combat.setInitiative(c.id, 20000);
-                        }
+                        },
                     },
                     wait: {
                         label: game.i18n.localize("splittermond.wait"),
-                        callback: html => {
+                        callback: (html) => {
                             combat.setInitiative(c.id, 10000);
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             });
             dialog.render(true);
         } else {
@@ -91,47 +84,44 @@ export default class SplittermondCombatTracker extends foundry.applications.side
             buttons: {
                 ok: {
                     label: "Ok",
-                    callback: html => {
+                    callback: (html) => {
                         let nTicks = parseInt(html.find(".ticks")[0].value);
                         let newInitiative = Math.round(c.initiative) + nTicks;
 
                         combat.setInitiative(c.id, newInitiative);
-                    }
+                    },
                 },
                 cancel: {
                     label: "Cancel",
-                }
-            }
+                },
+            },
         }).render(true);
     }
 
     activateListeners(html) {
         super.activateListeners(html);
-        
+
         const combat = this.viewed;
-        $(html.find('.combatant')).each(function () {
+        $(html.find(".combatant")).each(function () {
             const cid = $(this).closestData("combatant-id");
             const c = combat.combatants.get(cid);
             if (c && c.isOwner) {
                 if (c.initiative < 10000) {
-                    $(".token-initiative .initiative", this).wrap('<a class="combatant-control" title="" data-control="addTicks"/>');
-                    $('.combatant-controls', this).prepend(`<a class="combatant-control" title="" data-control="togglePause">
+                    $(".token-initiative .initiative", this).wrap(
+                        '<a class="combatant-control" title="" data-control="addTicks"/>'
+                    );
+                    $(".combatant-controls", this)
+                        .prepend(`<a class="combatant-control" title="" data-control="togglePause">
             <i class= "fas fa-pause-circle" ></i></a>`);
                 } else {
-                    $('.combatant-controls', this).prepend(`<a class="combatant-control" title="" data-control="togglePause">
+                    $(".combatant-controls", this)
+                        .prepend(`<a class="combatant-control" title="" data-control="togglePause">
             <i class= "fas fa-play-circle" ></i></a>`);
                 }
-
-
             }
-
         });
 
         html.find('[data-control="togglePause"]').click((ev) => this._onTogglePause(ev));
         html.find('[data-control="addTicks"]').click((ev) => this._onAddTicks(ev));
-
-        
     }
-    
-
 }

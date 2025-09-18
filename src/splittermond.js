@@ -1,5 +1,3 @@
-import SplittermondActor from "./module/actor/actor";
-import SplittermondItem from "./module/item/item";
 import SplittermondCharacterSheet from "./module/actor/sheets/character-sheet";
 import SplittermondNPCSheet from "./module/actor/sheets/npc-sheet";
 import SplittermondItemSheet from "./module/item/sheets/item-sheet";
@@ -8,42 +6,32 @@ import SplittermondWeaponSheet from "./module/item/sheets/weapon-sheet";
 import SplittermondShieldSheet from "./module/item/sheets/shield-sheet";
 import SplittermondArmorSheet from "./module/item/sheets/armor-sheet";
 import SplittermondAttackSheet from "./module/item/sheets/attack-sheet";
-import {splittermond} from "./module/config";
-import * as Dice from "./module/util/dice"
-import * as Macros from "./module/util/macros"
+import { splittermond } from "./module/config";
+import * as Dice from "./module/util/dice";
+import * as Macros from "./module/util/macros";
 import SplittermondCombat from "./module/combat/combat";
 import SplittermondCombatTracker from "./module/apps/sidebar/combat-tracker";
 import ItemImporter from "./module/util/item-importer";
 import SplittermondCompendiumBrowser from "./module/apps/compendiumBrowser/compendium-browser.js";
-import {registerRequestedSystemSettings} from "./module/settings";
-import TickBarHud, {initTickBarHud} from "./module/apps/tick-bar-hud/tick-bar-hud";
+import { registerRequestedSystemSettings } from "./module/settings";
+import { initTickBarHud } from "./module/apps/tick-bar-hud/tick-bar-hud";
 
-import {chatActionFeature} from "./module/util/chat/chatActionFeature";
-import SplittermondWeaponItem from "./module/item/weapon";
-import SplittermondShieldItem from "./module/item/shield";
-import SplittermondArmorItem from "./module/item/armor";
-import SplittermondSpellItem from "./module/item/spell";
-import SplittermondEquipmentItem from "./module/item/equipment";
-import SplittermondNPCAttackItem from "./module/item/npcattack";
-import SplittermondMastery from "./module/item/mastery";
-import {referencesUtils} from "./module/data/references/referencesUtils";
-import {foundryApi} from "./module/api/foundryApi";
-import {canEditMessageOf} from "./module/util/chat";
-import {initTokenActionBar} from "./module/apps/token-action-bar/token-action-bar";
+import { chatActionFeature } from "./module/util/chat/chatActionFeature";
+import { referencesUtils } from "./module/data/references/referencesUtils";
+import { foundryApi } from "./module/api/foundryApi";
+import { canEditMessageOf } from "./module/util/chat";
+import { initTokenActionBar } from "./module/apps/token-action-bar/token-action-bar";
 
-import './less/splittermond.less';
-import {initTheme} from "./module/theme";
-import {CharacterDataModel} from "./module/actor/dataModel/CharacterDataModel";
-import {NpcDataModel} from "./module/actor/dataModel/NpcDataModel";
-import {initializeItem} from "./module/item";
-import {DamageInitializer} from "./module/util/chat/damageChatMessage/initDamage";
-import {CostBase} from "./module/util/costs/costTypes";
-import {DamageRoll} from "./module/util/damage/DamageRoll.js";
-import {ItemFeaturesModel} from "./module/item/dataModel/propertyModels/ItemFeaturesModel.js";
-import {toggleElement} from "./module/util/animatedDisplay";
-import {initializeActor} from "module/actor/index.js";
-import {initializeModifiers} from "module/modifiers/index.js";
-
+import "./less/splittermond.less";
+import { initTheme } from "./module/theme";
+import { initializeItem } from "./module/item";
+import { DamageInitializer } from "./module/util/chat/damageChatMessage/initDamage";
+import { CostBase } from "./module/util/costs/costTypes";
+import { DamageRoll } from "./module/util/damage/DamageRoll.js";
+import { ItemFeaturesModel } from "./module/item/dataModel/propertyModels/ItemFeaturesModel.js";
+import { toggleElement } from "./module/util/animatedDisplay";
+import { initializeActor } from "module/actor/index.js";
+import { initializeModifiers } from "module/modifiers/index.js";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -52,69 +40,66 @@ $.fn.closestData = function (dataName, defaultValue = "") {
 
 function handlePdf(links) {
     if (!ui.PDFoundry) {
-        ui.notifications.warn(game.i18n.localize("splittermond.pdfoundry.notinstalled"))
-        return
+        ui.notifications.warn(game.i18n.localize("splittermond.pdfoundry.notinstalled"));
+        return;
     }
 
-    links.split(',').forEach(link => {
+    links.split(",").forEach((link) => {
         let t = link.trim();
-        let i = t.indexOf(':');
-        let book = '';
+        let i = t.indexOf(":");
+        let book = "";
         let page = 0;
 
         if (i > 0) {
             book = t.substring(0, i).trim();
             page = parseInt(t.substring(i + 1));
         } else {
-            book = t.replace(/[0-9]*/g, '').trim()
-            page = parseInt(t.replace(/[a-zA-Z]*/g, ''))
+            book = t.replace(/[0-9]*/g, "").trim();
+            page = parseInt(t.replace(/[a-zA-Z]*/g, ""));
         }
 
-        const pdf = ui.PDFoundry.findPDFDataByCode(book)
+        const pdf = ui.PDFoundry.findPDFDataByCode(book);
         if (pdf) {
-            ui.PDFoundry.openPDF(pdf, {page})
+            ui.PDFoundry.openPDF(pdf, { page });
         } else {
-            ui.notifications.warn(game.i18n.localize("splittermond.pdfoundry.notfound"))
+            ui.notifications.warn(game.i18n.localize("splittermond.pdfoundry.notfound"));
         }
     });
-};
+}
 
 Hooks.once("ready", async function () {
-    return Promise.all([
-        initTickBarHud(game.splittermond),
-        initTokenActionBar(game.splittermond)
-    ]).then(()=>{
-        console.log("Splittermond | Ready")
-        foundryApi.hooks.call("splittermond.ready")
+    return Promise.all([initTickBarHud(game.splittermond), initTokenActionBar(game.splittermond)]).then(() => {
+        console.log("Splittermond | Ready");
+        foundryApi.hooks.call("splittermond.ready");
     });
 });
 
 Hooks.once("init", async function () {
     console.log(
         " __\n" +
-        "(_  ._  | o _|_ _|_  _  ._ ._ _   _  ._   _|\n" +
-        "__) |_) | |  |_  |_ (/_ |  | | | (_) | | (_|\n" +
-        "    |");
+            "(_  ._  | o _|_ _|_  _  ._ ._ _   _  ._   _|\n" +
+            "__) |_) | |  |_  |_ (/_ |  | | | (_) | | (_|\n" +
+            "    |"
+    );
     console.log("Splittermond | Initialising Splittermond System ...");
     if (CONFIG.compatibility) {
         CONFIG.compatibility.excludePatterns.push(new RegExp("systems/splittermond/"));
         CONFIG.compatibility.excludePatterns.push(new RegExp("Splittermond"));
     }
-    game.splittermond = {}
+    game.splittermond = {};
     const modifierModule = initializeModifiers();
-    game.splittermond.API = {modifierRegistry: modifierModule.modifierRegistry}
-    initializeActor(CONFIG.Actor,modifierModule.addModifier)
+    game.splittermond.API = { modifierRegistry: modifierModule.modifierRegistry };
+    initializeActor(CONFIG.Actor, modifierModule.addModifier);
     initializeItem(CONFIG, modifierModule.modifierRegistry);
-    chatActionFeature(CONFIG.ChatMessage)
+    chatActionFeature(CONFIG.ChatMessage);
 
     CONFIG.Combat.documentClass = SplittermondCombat;
     CONFIG.ui.combat = SplittermondCombatTracker;
 
     CONFIG.splittermond = {
         ...(CONFIG.splittermond ?? {}),
-        ...splittermond
+        ...splittermond,
     };
-
 
     initTheme();
     await registerRequestedSystemSettings();
@@ -133,47 +118,46 @@ Hooks.once("init", async function () {
     Actors.registerSheet("splittermond", SplittermondCharacterSheet, {
         types: ["character"],
         makeDefault: true,
-        label: "splittermond.character"
+        label: "splittermond.character",
     });
 
     Actors.registerSheet("splittermond", SplittermondNPCSheet, {
         types: ["npc"],
         makeDefault: true,
-        label: "splittermond.npc"
+        label: "splittermond.npc",
     });
 
     Items.unregisterSheet("core", ItemSheet);
     Items.registerSheet("splittermond", SplittermondItemSheet, {
-        makeDefault: true
+        makeDefault: true,
     });
     Items.registerSheet("splittermond", SplittermondSpellSheet, {
         types: ["spell"],
         makeDefault: true,
-        label: "splittermond.spell"
+        label: "splittermond.spell",
     });
     Items.registerSheet("splittermond", SplittermondWeaponSheet, {
         types: ["weapon"],
         makeDefault: true,
-        label: "splittermond.weapon"
+        label: "splittermond.weapon",
     });
     Items.registerSheet("splittermond", SplittermondShieldSheet, {
         types: ["shield"],
         makeDefault: true,
-        label: "splittermond.shield"
+        label: "splittermond.shield",
     });
     Items.registerSheet("splittermond", SplittermondArmorSheet, {
         types: ["armor"],
         makeDefault: true,
-        label: "splittermond.armor"
+        label: "splittermond.armor",
     });
     Items.registerSheet("splittermond", SplittermondAttackSheet, {
         types: ["npcattack"],
         makeDefault: true,
-        label: "splittermond.npcattack"
+        label: "splittermond.npcattack",
     });
 
-
-    const templateBasePath = "systems/splittermond/templates"
+    const templateBasePath = "systems/splittermond/templates";
 
     loadTemplates([
         // Actor Partials
@@ -184,48 +168,46 @@ Hooks.once("init", async function () {
         `${templateBasePath}/sheets/actor/parts/spells-list.hbs`,
         `${templateBasePath}/sheets/actor/parts/combat-actions.hbs`,
         `${templateBasePath}/sheets/actor/parts/inventory-list.hbs`,
-        `${templateBasePath}/sheets/actor/parts/status-tab.hbs`
+        `${templateBasePath}/sheets/actor/parts/status-tab.hbs`,
     ]);
 
-    Handlebars.registerHelper('times', function (n, block) {
-        var accum = '';
-        for (var i = 0; i < n; ++i)
-            accum += block.fn(i);
+    Handlebars.registerHelper("times", function (n, block) {
+        var accum = "";
+        for (var i = 0; i < n; ++i) accum += block.fn(i);
         return accum;
     });
-    getTemplate(`${templateBasePath}/chat/partials/degree-of-success-display.hbs`)
-        .then(template => {
-            Handlebars.registerPartial("degree-of-success-display", template)
-        });
-    getTemplate(`${templateBasePath}/chat/partials/roll-result.hbs`)
-        .then(template => {
-            Handlebars.registerPartial("roll-result", template)
-        });
-
+    getTemplate(`${templateBasePath}/chat/partials/degree-of-success-display.hbs`).then((template) => {
+        Handlebars.registerPartial("degree-of-success-display", template);
+    });
+    getTemplate(`${templateBasePath}/chat/partials/roll-result.hbs`).then((template) => {
+        Handlebars.registerPartial("roll-result", template);
+    });
 
     foundryApi.keybindings.register("splittermond", "paste", {
         name: foundryApi.localize("splittermond.keybindings.paste.name"),
         hint: foundryApi.localize("splittermond.keybindings.paste.hint"),
-        uneditable: [{
-            key: "KeyV",
-            modifiers: ["Control"],
-        }],
-        onDown: ()=> {
-            if(CONFIG.debug.keybindings) {
+        uneditable: [
+            {
+                key: "KeyV",
+                modifiers: ["Control"],
+            },
+        ],
+        onDown: () => {
+            if (CONFIG.debug.keybindings) {
                 console.debug("Splittermond | Keybinding paste event triggered");
             }
             //Direct access of the clipboard is only allowed in a secure context (HTTPS or localhost), which not all users have.
             //Therefore, we set up a one time paste event to trigger the item importer.
-            document.addEventListener('paste', (e) => ItemImporter.pasteEventhandler(e), {once:true});
+            document.addEventListener("paste", (e) => ItemImporter.pasteEventhandler(e), { once: true });
             //Do not report as consumed such that the paste event gets produced.
             return false;
         },
-        restricted:true,
+        restricted: true,
         //Run after the default handler from foundry, we don't want to care about a document copy operation
-        precedence: CONST.KEYBINDING_PRECEDENCE.DEFERRED
-    })
+        precedence: CONST.KEYBINDING_PRECEDENCE.DEFERRED,
+    });
 
-    if(import.meta.env.PROD !== true) {
+    if (import.meta.env.PROD !== true) {
         const quenchTestsInit = (await import("./__tests__/integration/quench")).init;
         quenchTestsInit();
     }
@@ -237,7 +219,7 @@ Hooks.on("redraw-combat-tick", async () => {
     //yes i know this is not ideal, but either this or a websocket lib like https://github.com/manuelVo/foundryvtt-socketlib to signal the update of the combat tracker
     //Update: Since foundry now has its own socket system, this should maybe be changed?
     const currentScene = game.scenes.current?.id || null;
-    let activeCombat = game.combats.find(c => (c.scene === null) || (c.scene.id === currentScene));
+    let activeCombat = game.combats.find((c) => c.scene === null || c.scene.id === currentScene);
     if (activeCombat == null) {
         return;
     }
@@ -255,35 +237,29 @@ Hooks.on("hotbarDrop", async (bar, data, slot) => {
         name: "",
         type: "script",
         img: "icons/svg/dice-target.svg",
-        command: ""
+        command: "",
     };
 
     if (data.type === "skill") {
         macroData.name = game.i18n.localize(`splittermond.skillLabel.${data.skill}`);
         macroData.command = `game.splittermond.skillCheck("${data.skill}")`;
     }
-    ;
-
     if (data.type === "attack") {
         let actorId = data.actorId || "";
         let actor = game.actors.get(actorId);
         if (!actor) return;
-        const attack = actor.attacks.find(a => a._id === data.attackId);
+        const attack = actor.attacks.find((a) => a._id === data.attackId);
         if (!attack) return;
 
         macroData.name = attack.name;
         macroData.img = attack.img;
-
 
         if (game.user.isGM) {
             macroData.name += ` (${actor.data.name})`;
         }
 
         macroData.command = `game.splittermond.attackCheck("${actorId}","${data.attackId}")`;
-
     }
-    ;
-
     if (data.type === "Item") {
         if (data.id) {
             data.data = game.items.get(data.id).data;
@@ -300,29 +276,22 @@ Hooks.on("hotbarDrop", async (bar, data, slot) => {
             }
 
             macroData.command = `game.splittermond.itemCheck("${data.data.type}","${data.data.name}","${actorId}","${data.data._id}")`;
-
         }
     }
-    ;
-
-
     if (macroData.command != "" && macroData.name != "") {
-        let macro = await Macro.create(macroData, {displaySheet: false});
+        let macro = await Macro.create(macroData, { displaySheet: false });
 
         game.user.assignHotbarMacro(macro, slot);
     }
-
-
 });
 
-Hooks.on('preCreateActor', async (actor) => {
-    if (actor.type === 'character') {
-        await actor.prototypeToken.updateSource({vision: true, actorLink: true, name: actor.name});
+Hooks.on("preCreateActor", async (actor) => {
+    if (actor.type === "character") {
+        await actor.prototypeToken.updateSource({ vision: true, actorLink: true, name: actor.name });
     }
 });
 
-Hooks.on('init', function () {
-
+Hooks.on("init", function () {
     // Patch enrichHTML function for Custom Links
 
     CONFIG.TextEditor.enrichers.push(
@@ -343,14 +312,20 @@ Hooks.on('init', function () {
                         skillLabel = parsedString[1].trim().toLowerCase();
                         difficulty = parseInt(parsedString[3]);
                     }
-                    skill = [...CONFIG.splittermond.skillGroups.general, ...CONFIG.splittermond.skillGroups.magic].find((skill) => skill === skillLabel || game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase() === skillLabel);
+                    skill = [...CONFIG.splittermond.skillGroups.general, ...CONFIG.splittermond.skillGroups.magic].find(
+                        (skill) =>
+                            skill === skillLabel ||
+                            game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase() === skillLabel
+                    );
                 }
                 if (skill) {
-                    return $(`<a class="rollable" data-roll-type="skill" data-skill="${skill}" data-difficulty="${difficulty}"><i class="fas fa-dice"></i> ${label}</a>`)[0]
+                    return $(
+                        `<a class="rollable" data-roll-type="skill" data-skill="${skill}" data-difficulty="${difficulty}"><i class="fas fa-dice"></i> ${label}</a>`
+                    )[0];
                 } else {
                     return match;
                 }
-            }
+            },
         },
         {
             pattern: /@RequestSkillCheck\[([^\]]+)\](?:\{([^}]*)\})?/g,
@@ -369,14 +344,20 @@ Hooks.on('init', function () {
                         skillLabel = parsedString[1].trim().toLowerCase();
                         difficulty = parseInt(parsedString[3]);
                     }
-                    skill = [...CONFIG.splittermond.skillGroups.general, ...CONFIG.splittermond.skillGroups.magic].find((skill) => skill === skillLabel || game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase() === skillLabel);
+                    skill = [...CONFIG.splittermond.skillGroups.general, ...CONFIG.splittermond.skillGroups.magic].find(
+                        (skill) =>
+                            skill === skillLabel ||
+                            game.i18n.localize(`splittermond.skillLabel.${skill}`).toLowerCase() === skillLabel
+                    );
                 }
                 if (skill) {
-                    return $(`<a class="request-skill-check" data-skill="${skill}" data-difficulty="${difficulty}"><i class="fas fa-comment"></i> ${label}</a>`)[0]
+                    return $(
+                        `<a class="request-skill-check" data-skill="${skill}" data-difficulty="${difficulty}"><i class="fas fa-comment"></i> ${label}</a>`
+                    )[0];
                 } else {
                     return match;
                 }
-            }
+            },
         },
         {
             pattern: /@Ticks\[([^\]]+)\](?:\{([^}]*)\})?/g,
@@ -394,8 +375,10 @@ Hooks.on('init', function () {
                     message = parsedString[1];
                 }
 
-                return $(`<a class="add-tick" data-ticks="${ticks}" data-message="${message}"><i class="fas fa-stopwatch"></i> ${label}</a>`)[0]
-            }
+                return $(
+                    `<a class="add-tick" data-ticks="${ticks}" data-message="${message}"><i class="fas fa-stopwatch"></i> ${label}</a>`
+                )[0];
+            },
         },
         {
             pattern: /@PdfLink\[([^\]]+)\](?:\{([^}]*)\})?/g,
@@ -409,11 +392,13 @@ Hooks.on('init', function () {
                     label = match[2];
                 }
 
-                return $(`<a class="pdflink" data-pdfcode="${pdfcode}" data-pdfpage="${pdfpage}"><i class="fas fa-file-pdf"></i> ${label}</a>`)[0];
-            }
-        });
-
-})
+                return $(
+                    `<a class="pdflink" data-pdfcode="${pdfcode}" data-pdfpage="${pdfpage}"><i class="fas fa-file-pdf"></i> ${label}</a>`
+                )[0];
+            },
+        }
+    );
+});
 
 /**
  *
@@ -422,35 +407,34 @@ Hooks.on('init', function () {
  * @param {Record<string,string>} data
  */
 function commonEventHandlerHTMLEdition(app, html, data) {
-
-    html.querySelectorAll(".rollable").forEach(element => {
-        element.addEventListener("click", event => {
+    html.querySelectorAll(".rollable").forEach((element) => {
+        element.addEventListener("click", (event) => {
             const type = element.closest("[data-roll-type]").getAttribute("data-roll-type");
             if (type === "skill") {
                 event.preventDefault();
-                event.stopPropagation()
+                event.stopPropagation();
                 const difficulty = element.closest("[data-difficulty]").getAttribute("data-difficulty");
                 const skill = element.closest("[data-skill]").getAttribute("data-skill");
-                Macros.skillCheck(skill, {difficulty: difficulty});
+                Macros.skillCheck(skill, { difficulty: difficulty });
             }
         });
     });
 
-    html.querySelectorAll(".request-skill-check").forEach(element => {
-        element.addEventListener("click", event => {
+    html.querySelectorAll(".request-skill-check").forEach((element) => {
+        element.addEventListener("click", (event) => {
             event.preventDefault();
-            event.stopPropagation()
+            event.stopPropagation();
             const type = element.closest("[data-roll-type]").getAttribute("data-roll-type");
 
             const difficulty = element.closest("[data-difficulty]").getAttribute("data-difficulty");
             const skill = element.closest("[data-skill]").getAttribute("data-skill");
 
-            Macros.requestSkillCheck(skill,difficulty);
+            Macros.requestSkillCheck(skill, difficulty);
         });
     });
 
-    html.querySelectorAll(".pdflink").forEach(element => {
-        element.addEventListener("click", event => {
+    html.querySelectorAll(".pdflink").forEach((element) => {
+        element.addEventListener("click", (event) => {
             event.preventDefault();
             event.stopPropagation();
 
@@ -463,10 +447,10 @@ function commonEventHandlerHTMLEdition(app, html, data) {
         });
     });
 
-    html.querySelectorAll(".add-tick").forEach(element => {
-        element.addEventListener("click", event => {
+    html.querySelectorAll(".add-tick").forEach((element) => {
+        element.addEventListener("click", (event) => {
             event.preventDefault();
-            event.stopPropagation()
+            event.stopPropagation();
             let value = element.closest("[data-ticks]").getAttribute("data-ticks");
             let message = element.closest("[data-message]").getAttribute("data-message");
             let chatMessageId = element.closest("[data-message-id]").getAttribute("data-message-id");
@@ -477,16 +461,16 @@ function commonEventHandlerHTMLEdition(app, html, data) {
             if (!actor) actor = game.actors.get(speaker.actor);
             if (!actor) {
                 ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
-                return
+                return;
             }
 
             actor.addTicks(value, message);
         });
     });
 
-    html.querySelectorAll(".maneuver").forEach(element => {
-        element.addEventListener("click", event => {
-            let descriptionElement = element.querySelector(".description")
+    html.querySelectorAll(".maneuver").forEach((element) => {
+        element.addEventListener("click", (event) => {
+            let descriptionElement = element.querySelector(".description");
 
             if (descriptionElement.classList.contains("expanded")) {
                 descriptionElement.style.display = "none";
@@ -499,7 +483,6 @@ function commonEventHandlerHTMLEdition(app, html, data) {
     });
 }
 
-
 /**
  * @deprecated
  * @param {object} app
@@ -507,33 +490,29 @@ function commonEventHandlerHTMLEdition(app, html, data) {
  * @param {Record<string,string>} data
  */
 function commonEventHandler(app, html, data) {
-
-    html.find(".rollable").click(event => {
-
+    html.find(".rollable").click((event) => {
         const type = $(event.currentTarget).closestData("roll-type");
         if (type === "skill") {
             event.preventDefault();
-            event.stopPropagation()
+            event.stopPropagation();
             const difficulty = $(event.currentTarget).closestData("difficulty");
             const skill = $(event.currentTarget).closestData("skill");
-            Macros.skillCheck(skill, {difficulty: difficulty});
+            Macros.skillCheck(skill, { difficulty: difficulty });
         }
-
     });
 
-    html.find(".request-skill-check").click(event => {
+    html.find(".request-skill-check").click((event) => {
         event.preventDefault();
-        event.stopPropagation()
+        event.stopPropagation();
         const type = $(event.currentTarget).closestData("roll-type");
 
         const difficulty = $(event.currentTarget).closestData("difficulty");
         const skill = $(event.currentTarget).closestData("skill");
 
         Macros.requestSkillCheck(skill, difficulty);
-
     });
 
-    html.find(".pdflink").click(event => {
+    html.find(".pdflink").click((event) => {
         event.preventDefault();
         event.stopPropagation();
 
@@ -545,9 +524,9 @@ function commonEventHandler(app, html, data) {
         handlePdf(pdfcodelink);
     });
 
-    html.find(".add-tick").click(event => {
+    html.find(".add-tick").click((event) => {
         event.preventDefault();
-        event.stopPropagation()
+        event.stopPropagation();
         let value = $(event.currentTarget).closestData("ticks");
         let message = $(event.currentTarget).closestData("message");
         let chatMessageId = $(event.currentTarget).closestData("message-id");
@@ -558,15 +537,13 @@ function commonEventHandler(app, html, data) {
         if (!actor) actor = game.actors.get(speaker.actor);
         if (!actor) {
             ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
-            return
+            return;
         }
-        ;
-
         actor.addTicks(value, message);
     });
 
-    html.find(".maneuver").click(event => {
-        let descriptionElement = $(event.currentTarget).find(".description")
+    html.find(".maneuver").click((event) => {
+        let descriptionElement = $(event.currentTarget).find(".description");
 
         if (descriptionElement.hasClass("expanded")) {
             descriptionElement.slideUp(200);
@@ -575,155 +552,162 @@ function commonEventHandler(app, html, data) {
         }
 
         descriptionElement.toggleClass("expanded");
-
-
     });
-
 }
 
-Hooks.on('renderJournalPageSheet', function (app, html, data) {
-    commonEventHandler(app, html, data);
-
-
-});
-
-Hooks.on('renderItemSheet', function (app, html, data) {
+Hooks.on("renderJournalPageSheet", function (app, html, data) {
     commonEventHandler(app, html, data);
 });
 
-Hooks.on('renderChatMessageHTML', /**@param {HTMLElement} html*/function (app, html, data) {
-    let actor = ChatMessage.getSpeakerActor(data.message.speaker);
+Hooks.on("renderItemSheet", function (app, html, data) {
+    commonEventHandler(app, html, data);
+});
 
-    if (!game.user.isGM) {
-        html.querySelectorAll(".gm-only").forEach(el => el.remove());
-    }
+Hooks.on(
+    "renderChatMessageHTML",
+    /**@param {HTMLElement} html*/ function (app, html, data) {
+        let actor = ChatMessage.getSpeakerActor(data.message.speaker);
 
-    if (!((actor && actor.isOwner) || canEditMessageOf(data.author.id))) {
-        //splittermond-chat-action is handled by chatActionFeature
-        html.querySelectorAll(".actions button:not(.splittermond-chat-action):not(.active-defense)")
-            .forEach(el => el.remove());
-    }
+        if (!game.user.isGM) {
+            html.querySelectorAll(".gm-only").forEach((el) => el.remove());
+        }
 
-    
-    html.querySelectorAll(".actions:not(:has(button))").forEach(el => el.remove());
+        if (!((actor && actor.isOwner) || canEditMessageOf(data.author.id))) {
+            //splittermond-chat-action is handled by chatActionFeature
+            html.querySelectorAll(".actions button:not(.splittermond-chat-action):not(.active-defense)").forEach((el) =>
+                el.remove()
+            );
+        }
 
-    commonEventHandlerHTMLEdition(app, html, data)
+        html.querySelectorAll(".actions:not(:has(button))").forEach((el) => el.remove());
 
-    html.querySelector(".rollable")?.addEventListener("click", event => {
-        
-        const type = $(event.currentTarget).closestData("roll-type");
+        commonEventHandlerHTMLEdition(app, html, data);
 
-        if (type === "damage") {
-            //Don't ask me why the serialized json we put into the attribute comes out deserialized, but it does.
-            const serializedImplementsParsed = $(event.currentTarget).closestData("damageimplements");
-            const implementsAsArray = [serializedImplementsParsed.principalComponent, ...serializedImplementsParsed.otherComponents];
-            const damageImplements = implementsAsArray.map(i => {
-                const features = ItemFeaturesModel.from(i.features)
-                const damageRoll = DamageRoll.from(i.formula, features)
-                //the modifier we 'reflected' from inside damage roll already accounted for "Wuchtig" so, if we reapply modifiers,
-                //we have to make sure we don't double damage by accident
-                const modifier = features.hasFeature("Wuchtig") ? Math.floor(i.modifier * 0.5) : i.modifier;
-                damageRoll.increaseDamage(modifier)
-                return {
-                    damageRoll,
-                    damageType: i.damageType,
-                    damageSource: i.damageSource,
+        html.querySelector(".rollable")?.addEventListener("click", (event) => {
+            const type = $(event.currentTarget).closestData("roll-type");
+
+            if (type === "damage") {
+                //Don't ask me why the serialized json we put into the attribute comes out deserialized, but it does.
+                const serializedImplementsParsed = $(event.currentTarget).closestData("damageimplements");
+                const implementsAsArray = [
+                    serializedImplementsParsed.principalComponent,
+                    ...serializedImplementsParsed.otherComponents,
+                ];
+                const damageImplements = implementsAsArray.map((i) => {
+                    const features = ItemFeaturesModel.from(i.features);
+                    const damageRoll = DamageRoll.from(i.formula, features);
+                    //the modifier we 'reflected' from inside damage roll already accounted for "Wuchtig" so, if we reapply modifiers,
+                    //we have to make sure we don't double damage by accident
+                    const modifier = features.hasFeature("Wuchtig") ? Math.floor(i.modifier * 0.5) : i.modifier;
+                    damageRoll.increaseDamage(modifier);
+                    return {
+                        damageRoll,
+                        damageType: i.damageType,
+                        damageSource: i.damageSource,
+                    };
+                });
+
+                const costType = $(event.currentTarget).closestData("costtype") ?? "V";
+                const actorId = $(event.currentTarget).closestData("actorid");
+                const actor = foundryApi.getActor(actorId) ?? null; //May fail if ID refers to a token
+                return DamageInitializer.rollFromDamageRoll(damageImplements, CostBase.create(costType), actor).then(
+                    (message) => message.sendToChat()
+                );
+            }
+
+            if (type === "magicFumble") {
+                event.preventDefault();
+                event.stopPropagation();
+                const eg = $(event.currentTarget).closestData("success");
+                const costs = $(event.currentTarget).closestData("costs");
+                const skill = $(event.currentTarget).closestData("skill");
+
+                actor.rollMagicFumble(eg, costs, skill);
+            }
+
+            if (type === "attackFumble") {
+                event.preventDefault();
+                actor.rollAttackFumble();
+            }
+        });
+
+        html.querySelectorAll(".consume").forEach((el) =>
+            el.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const type = $(event.currentTarget).closestData("type");
+                const value = $(event.currentTarget).closestData("value");
+                const description = $(event.currentTarget).closestData("description");
+                actor.consumeCost(type, value, description);
+            })
+        );
+
+        html.querySelectorAll(".active-defense").forEach((el) =>
+            el.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                let type = $(event.currentTarget).closestData("type");
+                try {
+                    const actorReference = referencesUtils.findBestUserActor();
+                    actorReference.getAgent().activeDefenseDialog(type);
+                } catch (e) {
+                    foundryApi.informUser("splittermond.pleaseSelectAToken");
                 }
-            });
+            })
+        );
 
-            const costType = $(event.currentTarget).closestData("costtype") ?? "V";
-            const actorId = $(event.currentTarget).closestData("actorid");
-            const actor = foundryApi.getActor(actorId) ?? null;//May fail if ID refers to a token
-            return DamageInitializer.rollFromDamageRoll(damageImplements, CostBase.create(costType), actor)
-                .then(message => message.sendToChat());
-        }
+        html.querySelectorAll(".fumble-table-result").forEach((el) =>
+            el.addEventListener("click", (event) => {
+                html.querySelectorAll(".fumble-table-result-item:not(.fumble-table-result-item-active)").forEach(
+                    toggleElement
+                );
+            })
+        );
 
-        if (type === "magicFumble") {
-            event.preventDefault();
-            event.stopPropagation()
-            const eg = $(event.currentTarget).closestData("success");
-            const costs = $(event.currentTarget).closestData("costs");
-            const skill = $(event.currentTarget).closestData("skill");
+        html.querySelectorAll(".use-splinterpoint").forEach((el) =>
+            el.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
 
-            actor.rollMagicFumble(eg, costs, skill);
-        }
+                let chatMessageId = $(event.currentTarget).closestData("message-id");
+                let message = game.messages.get(chatMessageId);
 
-        if (type === "attackFumble") {
-            event.preventDefault();
-            actor.rollAttackFumble();
-        }
-    });
+                const speaker = message.speaker;
+                let actor;
+                if (speaker.token) actor = game.actors.tokens[speaker.token];
+                if (!actor) actor = game.actors.get(speaker.actor);
 
-    html.querySelectorAll(".consume")
-        .forEach(el => el.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation()
-        const type = $(event.currentTarget).closestData('type');
-        const value = $(event.currentTarget).closestData('value');
-        const description = $(event.currentTarget).closestData('description');
-        actor.consumeCost(type, value, description);
-    }));
+                actor.useSplinterpointBonus(message);
+            })
+        );
 
-    html.querySelectorAll(".active-defense").forEach(
-        el => el.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation()
-        let type = $(event.currentTarget).closestData("type");
-        try {
-            const actorReference = referencesUtils.findBestUserActor();
-            actorReference.getAgent().activeDefenseDialog(type)
-        } catch (e) {
-            foundryApi.informUser("splittermond.pleaseSelectAToken")
-        }
-    }));
+        html.querySelectorAll(".remove-status").forEach((el) =>
+            el.addEventListener("click", async (event) => {
+                const statusId = $(event.currentTarget).closestData("status-id");
 
-    html.querySelectorAll(".fumble-table-result")
-        .forEach(el => el.addEventListener("click", event => {
-        html.querySelectorAll(".fumble-table-result-item:not(.fumble-table-result-item-active)")
-            .forEach(toggleElement);
-    }));
+                let chatMessageId = $(event.currentTarget).closestData("message-id");
+                let message = foundryApi.messages.get(chatMessageId);
 
-    html.querySelectorAll(".use-splinterpoint")
-        .forEach(el => el.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation()
+                const speaker = message.speaker;
+                let actor;
+                if (speaker.token) actor = game.actors.tokens[speaker.token];
+                if (!actor) actor = game.actors.get(speaker.actor);
 
-        let chatMessageId = $(event.currentTarget).closestData("message-id");
-        let message = game.messages.get(chatMessageId);
+                await actor.deleteEmbeddedDocuments("Item", [statusId]);
+                await foundryApi.hooks.call("redraw-combat-tick");
+            })
+        );
+    }
+);
 
-        const speaker = message.speaker;
-        let actor;
-        if (speaker.token) actor = game.actors.tokens[speaker.token];
-        if (!actor) actor = game.actors.get(speaker.actor);
-
-        actor.useSplinterpointBonus(message);
-    }));
-
-    html.querySelectorAll('.remove-status')
-        .forEach(el => el.addEventListener("click", async event => {
-        const statusId = $(event.currentTarget).closestData('status-id');
-
-        let chatMessageId = $(event.currentTarget).closestData("message-id");
-        let message = foundryApi.messages.get(chatMessageId);
-
-        const speaker = message.speaker;
-        let actor;
-        if (speaker.token) actor = game.actors.tokens[speaker.token];
-        if (!actor) actor = game.actors.get(speaker.actor);
-
-        await actor.deleteEmbeddedDocuments("Item", [statusId]);
-        await foundryApi.hooks.call("redraw-combat-tick");
-    }));
-});
-
-
-Hooks.on("renderCompendiumDirectory", (app,/**@type HTMLElement*/ html) => {
+Hooks.on("renderCompendiumDirectory", (app, /**@type HTMLElement*/ html) => {
     html.querySelector(".header-actions").innerHTML += `
         <button type="button" data-action="open-compendium">
             <i class="fas fa-university"></i>
             ${foundryApi.localize("splittermond.compendiumBrowser")}
         </button>
         `;
-    html.querySelector(".header-actions button[data-action='open-compendium']")?.addEventListener("click", ()=> { game.splittermond.compendiumBrowser.render(true) });
+    html.querySelector(".header-actions button[data-action='open-compendium']")?.addEventListener("click", () => {
+        game.splittermond.compendiumBrowser.render(true);
+    });
 });
-

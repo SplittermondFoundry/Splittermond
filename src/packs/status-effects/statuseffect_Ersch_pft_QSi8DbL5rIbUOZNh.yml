@@ -5,32 +5,31 @@ flags: {}
 img: icons/svg/mystery-man.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: >-
-    <p>Alle Proben auf <em>Kampffertigkeiten </em>und <em>allgemeine
-    Fertigkeiten</em>, sowie die <em>Geschwindigkeit </em>erhalten einen Malus
-    von 1 Punkt pro Stufe. Zus&auml;tzlich ist die <em>Initiative </em>um einen
-    Punkt erh&ouml;ht. Es kann durch eine <em>Verschnaufpause </em>der Zustand
-    um eine Stufe verringert werden.</p>
-  source: ''
-  modifier: fightingSkills -1, generalSkills -1, GSW -1, INI +1, npcattacks -1
-  level: '1'
-  startTick: 0
-  interval: 0
-  times: 0
+    description: >-
+        <p>Alle Proben auf <em>Kampffertigkeiten </em>und <em>allgemeine
+        Fertigkeiten</em>, sowie die <em>Geschwindigkeit </em>erhalten einen Malus
+        von 1 Punkt pro Stufe. Zus&auml;tzlich ist die <em>Initiative </em>um einen
+        Punkt erh&ouml;ht. Es kann durch eine <em>Verschnaufpause </em>der Zustand
+        um eine Stufe verringert werden.</p>
+    source: ""
+    modifier: fightingSkills -1, generalSkills -1, GSW -1, INI +1, npcattacks -1
+    level: "1"
+    startTick: 0
+    interval: 0
+    times: 0
 folder: null
 sort: 0
-_key: '!items!QSi8DbL5rIbUOZNh'
-
+_key: "!items!QSi8DbL5rIbUOZNh"

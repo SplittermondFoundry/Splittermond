@@ -1,12 +1,8 @@
 {
-  "$schema": "https://json.schemastore.org/mocharc.json",
-  "extension": ["js", "ts"],
+    "$schema": "https://json.schemastore.org/mocharc.json",
+    "extension": ["js", "ts"],
 
-  "recursive": true,
-  "require": [
-    "src/__tests__/unit/foundryMocks.js",
-    "tsx",
-    "src/__tests__/unit/settingsMock.ts"
-  ],
-  "ui": "bdd"
+    "recursive": true,
+    "require": ["src/__tests__/unit/foundryMocks.js", "tsx", "src/__tests__/unit/settingsMock.ts"],
+    "ui": "bdd"
 }

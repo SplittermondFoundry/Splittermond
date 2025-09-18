@@ -1,11 +1,11 @@
-import * as Tooltip from './tooltip.js';
-import {foundryApi} from "../api/foundryApi.ts";
+import * as Tooltip from "./tooltip.js";
+import { foundryApi } from "../api/foundryApi.ts";
 
 /**
  * @param {string|null} userId
  * @return {boolean}
  */
-export function canEditMessageOf(userId){
+export function canEditMessageOf(userId) {
     return userId === foundryApi.currentUser.id || foundryApi.currentUser.isGM;
 }
 
@@ -22,7 +22,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         roll: roll,
         rollMode: rollMode,
         tooltip: await roll.getTooltip(),
-        actions: []
+        actions: [],
     };
 
     let template = "systems/splittermond/templates/chat/skill-check.hbs";
@@ -31,13 +31,13 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
 
     let formula = new Tooltip.TooltipFormula();
 
-    Object.keys(data.skillAttributes).forEach(key => {
+    Object.keys(data.skillAttributes).forEach((key) => {
         formula.addPart(data.skillAttributes[key], game.i18n.localize(`splittermond.attribute.${key}.short`));
         formula.addOperator("+");
-    })
+    });
 
     formula.addPart(data.skillPoints, game.i18n.localize(`splittermond.skillPointsAbbrev`));
-    data.modifierElements.forEach(e => {
+    data.modifierElements.forEach((e) => {
         if (e.isMalus) {
             formula.addMalus(e.value, e.description);
         } else {
@@ -45,13 +45,20 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         }
     });
 
-
-    templateContext.tooltip = $(templateContext.tooltip).prepend(`
+    templateContext.tooltip = $(templateContext.tooltip)
+        .prepend(
+            `
         <section class="tooltip-part">
         <p>${formula.render()}</p>
-        </section>`).wrapAll('<div>').parent().html();
+        </section>`
+        )
+        .wrapAll("<div>")
+        .parent()
+        .html();
 
-    templateContext.degreeOfSuccessMessage = game.i18n.localize(`splittermond.${data.succeeded ? "success" : "fail"}Message.${Math.min(Math.abs(data.degreeOfSuccess), 5)}`);
+    templateContext.degreeOfSuccessMessage = game.i18n.localize(
+        `splittermond.${data.succeeded ? "success" : "fail"}Message.${Math.min(Math.abs(data.degreeOfSuccess), 5)}`
+    );
     if (data.isCrit) {
         templateContext.degreeOfSuccessMessage = game.i18n.localize(`splittermond.critical`);
     }
@@ -74,7 +81,8 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                 }
 
                 if (data.maneuvers.length > 0) {
-                    templateContext.degreeOfSuccessDescription = "<h3>" + game.i18n.localize(`splittermond.maneuver`) + "</h3>";
+                    templateContext.degreeOfSuccessDescription =
+                        "<h3>" + game.i18n.localize(`splittermond.maneuver`) + "</h3>";
                     templateContext.degreeOfSuccessDescription += "<ol>";
                     for (let i = 0; i < data.maneuvers.length; i++) {
                         templateContext.degreeOfSuccessDescription += `<li class="maneuver">
@@ -90,31 +98,31 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                     icon: "fa-shield-alt",
                     classes: "active-defense",
                     data: {
-                        type: "defense"
-                    }
+                        type: "defense",
+                    },
                 });
 
                 //Officially damage modifier is a private member. We're exploiting the fact that we're using JS here
                 //where the TS compile will not notice. I find this hack acceptable, because this code should be
                 //migrated
                 const serializedImplements = {
-                    principalComponent:{
+                    principalComponent: {
                         formula: data.weapon.damageImplements.principalComponent.damageRoll.backingRoll.formula,
                         features: data.weapon.damageImplements.principalComponent.damageRoll._features.features,
                         modifier: data.weapon.damageImplements.principalComponent.damageRoll._damageModifier,
-                        damageSource:data.weapon.damageImplements.principalComponent.damageSource,
-                        damageType: data.weapon.damageImplements.principalComponent.damageType
+                        damageSource: data.weapon.damageImplements.principalComponent.damageSource,
+                        damageType: data.weapon.damageImplements.principalComponent.damageType,
                     },
-                    otherComponents: data.weapon.damageImplements.otherComponents.map(i => {
+                    otherComponents: data.weapon.damageImplements.otherComponents.map((i) => {
                         return {
                             formula: i.damageRoll.backingRoll.formula,
                             features: i.damageRoll._features.features,
                             modifier: i.damageRoll._damageModifier,
                             damageSource: i.damageSource,
-                            damageType: i.damageType
-                        }
-                    })
-                }
+                            damageType: i.damageType,
+                        };
+                    }),
+                };
                 templateContext.actions.push({
                     name: game.i18n.localize(`splittermond.damage`) + " (" + data.weapon.damage + ")",
                     icon: "fa-heart-broken",
@@ -124,7 +132,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                         actorId: actor.id,
                         costType: data.weapon.costType,
                         damageImplements: JSON.stringify(serializedImplements),
-                    }
+                    },
                 });
             }
 
@@ -134,8 +142,8 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                     icon: "fa-dice",
                     classes: "rollable",
                     data: {
-                        "roll-type": "attackFumble"
-                    }
+                        "roll-type": "attackFumble",
+                    },
                 });
             }
 
@@ -145,8 +153,8 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                 classes: "add-tick",
                 data: {
                     ticks: ticks,
-                    message: data.weapon.name
-                }
+                    message: data.weapon.name,
+                },
             });
             break;
         case "spell":
@@ -155,30 +163,37 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         case "defense":
             templateContext.title = data.itemData.name;
             templateContext.img = data.itemData.img;
-            templateContext.rollType = game.i18n.localize(`splittermond.activeDefense`) + " | " + game.i18n.localize(`splittermond.rollType.${data.rollType}`);
+            templateContext.rollType =
+                game.i18n.localize(`splittermond.activeDefense`) +
+                " | " +
+                game.i18n.localize(`splittermond.rollType.${data.rollType}`);
             let tickCost = 3;
             let defenseValue = data.baseDefense;
             if (data.succeeded) {
                 defenseValue = defenseValue + 1 + data.degreeOfSuccess + data.itemData.itemFeatures.valueOf("Defensiv");
-                templateContext.degreeOfSuccessDescription = "<p style='text-align: center'><strong>" + game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) + `: ${defenseValue}</strong></p>`;
-
+                templateContext.degreeOfSuccessDescription =
+                    "<p style='text-align: center'><strong>" +
+                    game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
+                    `: ${defenseValue}</strong></p>`;
 
                 if (data.degreeOfSuccess >= 5) {
-                    templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.outstanding")}</p>`
+                    templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.outstanding")}</p>`;
                     tickCost = 2;
                 }
             } else {
-
                 if (data.degreeOfSuccess === 0) {
                     defenseValue += 1;
-
                 }
-                templateContext.degreeOfSuccessDescription = "<p style='text-align: center'><strong>" + game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) + `: ${defenseValue}</strong></p>`;
+                templateContext.degreeOfSuccessDescription =
+                    "<p style='text-align: center'><strong>" +
+                    game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
+                    `: ${defenseValue}</strong></p>`;
                 if (data.degreeOfSuccess === 0) {
                     templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.nearmiss")}</p>`;
                 }
 
-                const fumbledFightingSkillCheck =  data.isFumble && !["acrobatics","determination", "endurance"].includes(data.itemData.id)
+                const fumbledFightingSkillCheck =
+                    data.isFumble && !["acrobatics", "determination", "endurance"].includes(data.itemData.id);
                 if (data.degreeOfSuccess <= -5 || fumbledFightingSkillCheck) {
                     if (data.itemData.id === "acrobatics") {
                         templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.devastating.acrobatics")}</p>`;
@@ -193,13 +208,11 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                             icon: "fa-dice",
                             classes: "rollable",
                             data: {
-                                "roll-type": "attackFumble"
-                            }
+                                "roll-type": "attackFumble",
+                            },
                         });
                     }
-
                 }
-
             }
 
             templateContext.actions.push({
@@ -208,8 +221,13 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                 classes: "add-tick",
                 data: {
                     ticks: tickCost,
-                    message: game.i18n.localize(`splittermond.activeDefense`) + " (" + game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) + "): " + templateContext.title
-                }
+                    message:
+                        game.i18n.localize(`splittermond.activeDefense`) +
+                        " (" +
+                        game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
+                        "): " +
+                        templateContext.title,
+                },
             });
 
             break;
@@ -222,21 +240,21 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         templateContext.actions.push({
             name: game.i18n.localize(`splittermond.splinterpoint`),
             icon: "fa-moon",
-            classes: "use-splinterpoint"
+            classes: "use-splinterpoint",
         });
     }
     let checkMessageData = {
         user: game.user.id,
-        speaker: ChatMessage.getSpeaker({actor: actor}),
+        speaker: ChatMessage.getSpeaker({ actor: actor }),
         rolls: [roll],
         content: await renderTemplate(template, templateContext),
         sound: CONFIG.sounds.dice,
         type: CONST.CHAT_MESSAGE_TYPES.OTHER,
         flags: {
             splittermond: {
-                check: flagsData
-            }
-        }
+                check: flagsData,
+            },
+        },
     };
 
     return ChatMessage.applyRollMode(checkMessageData, rollMode);
@@ -264,8 +282,8 @@ export async function prepareStatusEffectMessage(actor, data) {
         subtitle: foundryApi.format("splittermond.combatEffect.statusEffectActivated.subtitle", {
             onTick: data.onTick,
             activationNo: data.activationNo,
-            maxActivation: data.virtualToken.times
-        })
+            maxActivation: data.virtualToken.times,
+        }),
     };
 
     if (data.activationNo == data.virtualToken.times) {
@@ -274,8 +292,8 @@ export async function prepareStatusEffectMessage(actor, data) {
             icon: "fa-remove",
             classes: "remove-status",
             data: {
-                "status-id": data.virtualToken.statusId
-            }
+                "status-id": data.virtualToken.statusId,
+            },
         });
     }
 
@@ -283,7 +301,7 @@ export async function prepareStatusEffectMessage(actor, data) {
 
     let statusEffectData = {
         user: foundryApi.currentUser.id,
-        speaker: foundryApi.getSpeaker({actor: actor}),
+        speaker: foundryApi.getSpeaker({ actor: actor }),
         content: await foundryApi.renderer(template, templateContext),
         sound: CONFIG.sounds.notification,
         type: foundryApi.chatMessageTypes.OTHER,

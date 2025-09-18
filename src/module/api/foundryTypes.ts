@@ -1,5 +1,6 @@
-import {DataModel} from "./DataModel";
-import type {FoundryApplication} from "./Application";
+import { DataModel } from "./DataModel";
+import type { FoundryApplication } from "./Application";
+
 export type FoundryCombat = foundry.documents.Combat;
 export type FoundryCombatant = foundry.documents.Combatant;
 export type FoundryScene = foundry.documents.Scene;
@@ -27,8 +28,8 @@ export interface KeybindingActionBinding {
 
 export interface Speaker {
     scene: string;
-    actor: string|null;
-    token: string|null;
+    actor: string | null;
+    token: string | null;
     alias: string;
 }
 
@@ -36,18 +37,18 @@ export enum ChatMessageTypes {
     OTHER,
     OOC,
     IC,
-    EMOTE
+    EMOTE,
 }
 
 export interface User {
     isGM: boolean;
     id: string;
     active: boolean;
-    name:string;
-    get targets(): {user:User, size:number} & Iterable<Token>;
-    get character(): Actor|null;
+    name: string;
+    get targets(): { user: User; size: number } & Iterable<Token>;
+    get character(): Actor | null;
     /** @internal*/
-    set character(actor: Actor|null);
+    set character(actor: Actor | null);
 }
 
 export interface Socket {
@@ -57,14 +58,20 @@ export interface Socket {
 
 export interface Hooks {
     once: (key: string, callback: (...args: any[]) => void) => number;
-    on: ((key: string, callback: (...args: any[]) => void) => number);
+    on: (key: string, callback: (...args: any[]) => void) => number;
     off: (key: string, id: number) => void;
     callAll(key: string, ...args: any[]): boolean;
     call(key: string, ...args: any[]): boolean;
 }
 
-export type SettingTypeMapper<T extends SettingTypes> = T extends typeof Number ? number:T extends typeof Boolean?boolean:T extends typeof String?string:never;
-export type SettingTypes = NumberConstructor|BooleanConstructor|StringConstructor;
+export type SettingTypeMapper<T extends SettingTypes> = T extends typeof Number
+    ? number
+    : T extends typeof Boolean
+      ? boolean
+      : T extends typeof String
+        ? string
+        : never;
+export type SettingTypes = NumberConstructor | BooleanConstructor | StringConstructor;
 export interface SettingsConfig<T extends SettingTypes> {
     name?: string;
     hint?: string;
@@ -73,52 +80,50 @@ export interface SettingsConfig<T extends SettingTypes> {
     /** will default to false if you not configurable. e.g. missing type */
     config: boolean;
     type: T;
-    range?: T extends NumberConstructor ? {min: number, max:number, step:number}: never;
+    range?: T extends NumberConstructor ? { min: number; max: number; step: number } : never;
     default: InstanceType<T>;
     onChange?: (value: SettingTypeMapper<T>) => void;
-    choices?: Record<string, InstanceType<T>>
+    choices?: Record<string, InstanceType<T>>;
 }
 
 declare global {
-    type Collection<T> =
-        ReadonlyMap<string, T>
-        & Omit<ReadonlyArray<T>, "length" | "push" | "pop" | "shift" | "unshift" | "splice" | "sort" | "reverse">
-        & { get contents(): T[]}
+    type Collection<T> = ReadonlyMap<string, T> &
+        Omit<ReadonlyArray<T>, "length" | "push" | "pop" | "shift" | "unshift" | "splice" | "sort" | "reverse"> & {
+            get contents(): T[];
+        };
 
     /**
      * A folder in the Foundry VTT file system. Incomplete typing
      */
     class Folder extends FoundryDocument {
-
         readonly name: string;
         readonly id: string;
         /**
          * The type of {@link FoundryDocument} this folder contains. Typing is not complete.
          */
         readonly type: "Item" | "Actor" | "Scene";
-        readonly children: Folder[]
+        readonly children: Folder[];
         readonly ancestors: Folder[];
     }
 
     class Actor extends FoundryDocument {
         name: string;
-        items: Collection<Item>
-        readonly folder: string
-        system: Record<string, any>
-        owner: User
-        sheet: InstanceType<typeof FoundryApplication> //true in the future, now we're still on AppV1
+        items: Collection<Item>;
+        readonly folder: string;
+        system: Record<string, any>;
+        owner: User;
+        sheet: InstanceType<typeof FoundryApplication>; //true in the future, now we're still on AppV1
 
         get inCombat(): boolean;
-
     }
 
     class Item extends FoundryDocument {
-        readonly actor: Actor
+        readonly actor: Actor;
         name: string;
-        img: string
+        img: string;
         type: string;
-        readonly folder: string
-        system: Record<string, any>
+        readonly folder: string;
+        system: Record<string, any>;
     }
 
     class Token {
@@ -128,34 +133,30 @@ declare global {
 
         get controlled(): boolean;
 
-        _onHoverOut(event:any):void
-        _onHoverIn(event:any):void
-        control(options?: {releaseOthers?: boolean}): boolean;
+        _onHoverOut(event: any): void;
+        _onHoverIn(event: any): void;
+        control(options?: { releaseOthers?: boolean }): boolean;
     }
 
     //This is not quite correct, global Combat is foundry.documents.Combat
-    class Combat extends foundry.documents.Combat{
-
-    }
-
-
+    class Combat extends foundry.documents.Combat {}
 
     class TokenDocument extends FoundryDocument {
         /** this is at least true for all the purposes for which we use {@link TokenDocument}*/
         readonly parent: FoundryDocument;
         actor: Actor;
-        x:number
-        y:number
-        get object(): Token
+        x: number;
+        y: number;
+        get object(): Token;
     }
 
     class FoundryDocument extends DataModel<any, any> {
         constructor(data: Object, options?: Record<string, any>);
 
-        readonly id: string
-        readonly documentName: string
-        readonly parent: FoundryDocument | undefined
-        readonly uuid: string
+        readonly id: string;
+        readonly documentName: string;
+        readonly parent: FoundryDocument | undefined;
+        readonly uuid: string;
         readonly metadata: foundry.abstract.types.DocumentClassMetadata;
 
         updateSource(data: object): void;
@@ -164,9 +165,9 @@ declare global {
 
         prepareBaseData(): void;
 
-        testUserPermission(user: User, permission: string, options?:{exact?:boolean}): boolean;
+        testUserPermission(user: User, permission: string, options?: { exact?: boolean }): boolean;
 
-        static deleteDocuments(documentId: string[]): Promise<void>
+        static deleteDocuments(documentId: string[]): Promise<void>;
 
         static create(data: object, options?: Record<string, any>): Promise<FoundryDocument>;
 
@@ -180,11 +181,11 @@ declare global {
         setFlag(scope: string, key: string, value: unknown): Promise<FoundryDocument>;
     }
 
-    const CONFIG:{
-        Item: {documentClass: Function, dataModels:Record<string, unknown>} & Record<string, unknown>
-        Actor: {documentClass: Function, dataModels:Record<string, unknown>} & Record<string, unknown>
-        ChatMessage: {documentClass: Function, dataModels:Record<string, unknown>} & Record<string, unknown>
-    } & Record<string, unknown>
+    const CONFIG: {
+        Item: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
+        Actor: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
+        ChatMessage: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
+    } & Record<string, unknown>;
 }
 
 export interface MergeObjectOptions {
@@ -199,64 +200,59 @@ export interface MergeObjectOptions {
      */
     performDeletions?: boolean;
 }
-export interface CompendiumPacks extends Collection<foundry.documents.collections.CompendiumCollection>{
+export interface CompendiumPacks extends Collection<foundry.documents.collections.CompendiumCollection> {}
 
-}
-
-declare namespace foundry{
+declare namespace foundry {
     namespace documents {
         import CombatHistoryData = foundry.documents.types.CombatHistoryData;
 
-        class Scene extends FoundryDocument {
-
-        }
+        class Scene extends FoundryDocument {}
 
         class Combat extends FoundryDocument {
             readonly turns: Combatant[];
-            readonly current: CombatHistoryData
+            readonly current: CombatHistoryData;
             combatants: Collection<Combatant>; //defineSchema field. not actually part of the API
             /**The scene this {@link Combat} is linked to. Is `null` when the combat is globally available */
-            readonly scene: Scene|null //defineSchema field. not actually part of the API
+            readonly scene: Scene | null; //defineSchema field. not actually part of the API
             readonly turn: number; //defineSchema field. not actually part of the API
             get isActive(): boolean;
             get started(): boolean;
 
-            startCombat():Promise<this>;
+            startCombat(): Promise<this>;
         }
 
         class Combatant extends FoundryDocument {
             get isDefeated(): boolean;
             get combat(): Combat;
             get visible(): boolean;
-            get token(): TokenDocument|null
+            get token(): TokenDocument | null;
 
-            initiative: number|null; //defineSchema field. not actually part of the API
-            tokenId: string|null; //defineSchema field. not actually part of the API
-            actorId: string|null; //defineSchema field. not actually part of the API
-            sceneId: string|null; //defineSchema field. not actually part of the API
+            initiative: number | null; //defineSchema field. not actually part of the API
+            tokenId: string | null; //defineSchema field. not actually part of the API
+            actorId: string | null; //defineSchema field. not actually part of the API
+            sceneId: string | null; //defineSchema field. not actually part of the API
         }
 
         namespace types {
             interface CombatHistoryData {
-                combatantId: string|null;
-                round: number|null;
-                tokenId: string|null;
-                turn: number|null;
+                combatantId: string | null;
+                round: number | null;
+                tokenId: string | null;
+                turn: number | null;
             }
         }
         namespace collections {
-            class CompendiumCollection{
-                metadata: Record<string|symbol|number,unknown>;
+            class CompendiumCollection {
+                metadata: Record<string | symbol | number, unknown>;
                 /**
                  * The index of the compendium collection. That is, the reduced data set
                  */
-                index: Collection<Record<string|symbol|number,unknown>>;
+                index: Collection<Record<string | symbol | number, unknown>>;
                 documentName: string;
-                name:string;
-                getIndex<T extends string>(options?: {fields?: T[];}): Promise<Collection<Record<T,unknown>>>;
+                name: string;
+                getIndex<T extends string>(options?: { fields?: T[] }): Promise<Collection<Record<T, unknown>>>;
             }
         }
-
     }
     namespace abstract {
         namespace types {
@@ -270,10 +266,7 @@ declare namespace foundry{
                 label: string;
                 name: string;
                 permissions: Record<
-                    "update"
-                    | "delete"
-                    | "view"
-                    | "create",
+                    "update" | "delete" | "view" | "create",
                     | "INHERIT"
                     | "NONE"
                     | "LIMITED"
@@ -288,11 +281,11 @@ declare namespace foundry{
                 preserveOnImport: string[];
                 schemaVersion?: string;
             }
-            type DocumentPermissionTest =  (
+            type DocumentPermissionTest = (
                 user: unknown, //actually BaseUser but I did not want to continue typing
                 document: Document,
-                data?: object,
-            ) => boolean
+                data?: object
+            ) => boolean;
         }
     }
 }

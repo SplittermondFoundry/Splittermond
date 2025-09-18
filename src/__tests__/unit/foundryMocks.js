@@ -1,27 +1,23 @@
 global.Application = class {
-    constructor(app) {
-    }
+    constructor(app) {}
 
-    activateListeners(html) {
-    }
+    activateListeners(html) {}
 
-    getData() {
-    }
+    getData() {}
 };
 
 global.Hooks = {
-    once(){},
-    on(){},
-    off(){},
-    callAll(){},
-    call(){},
-}
+    once() {},
+    on() {},
+    off() {},
+    callAll() {},
+    call() {},
+};
 
 class FoundryDocument {
-    constructor(data, context) {
-    }
+    constructor(data, context) {}
 
-    async update(data, options){
+    async update(data, options) {
         for (const key in data) {
             this[key] = data[key];
         }
@@ -30,31 +26,40 @@ class FoundryDocument {
     get id() {}
     get uuid() {}
 
-    getFlag(){}
-    setFlag(){}
+    getFlag() {}
+    setFlag() {}
 
-    testUserPermission(){}
+    testUserPermission() {}
 }
 
-global.Actor = class Actor extends FoundryDocument{
-}
+global.Actor = class Actor extends FoundryDocument {};
 
-global.Item = class Item extends FoundryDocument{
-};
+global.Item = class Item extends FoundryDocument {};
 
-global.ChatMessage = class ChatMessage extends FoundryDocument{
-};
-global.Combat = class Combat extends FoundryDocument{
+global.ChatMessage = class ChatMessage extends FoundryDocument {};
+global.Combat = class Combat extends FoundryDocument {
     scene = null;
-    get isActive() { return false; }
-    get started() { return false; }
-}
-global.Combatant = class Combatant extends FoundryDocument{
-    get isDefeated() { return false; }
-    get combat() { return null; }
-    get visible() { return true; }
-    get token() { return null; }
-}
+    get isActive() {
+        return false;
+    }
+    get started() {
+        return false;
+    }
+};
+global.Combatant = class Combatant extends FoundryDocument {
+    get isDefeated() {
+        return false;
+    }
+    get combat() {
+        return null;
+    }
+    get visible() {
+        return true;
+    }
+    get token() {
+        return null;
+    }
+};
 
 global.foundry = {
     data: {
@@ -63,21 +68,21 @@ global.foundry = {
                 options = null;
 
                 constructor(options) {
-                    this.options = options
+                    this.options = options;
                 }
             },
             NumberField: class {
                 options = null;
 
                 constructor(options) {
-                    this.options = options
+                    this.options = options;
                 }
             },
             ObjectField: class {
                 options = null;
 
                 constructor(options) {
-                    this.options = options
+                    this.options = options;
                 }
             },
             SchemaField: class {
@@ -86,14 +91,14 @@ global.foundry = {
 
                 constructor(schema, options) {
                     this.schema = schema;
-                    this.options = options
+                    this.options = options;
                 }
             },
             BooleanField: class {
                 /**@type unknown */ options = null;
 
                 constructor(options) {
-                    this.options = options
+                    this.options = options;
                 }
             },
             EmbeddedDataField: class {
@@ -104,8 +109,8 @@ global.foundry = {
                     this.type = type;
                     this.options = options;
                 }
-            }
-        }
+            },
+        },
     },
     abstract: {
         DataModel: class {
@@ -115,15 +120,15 @@ global.foundry = {
                         value: data[key],
                         writable: true,
                         enumerable: true,
-                        configurable: true
+                        configurable: true,
                     });
                 }
-                if("parent" in context){
+                if ("parent" in context) {
                     Object.defineProperty(this, "parent", {
                         value: context.parent,
                         writable: true,
                         enumerable: true,
-                        configurable: true
+                        configurable: true,
                     });
                 }
             }
@@ -140,7 +145,7 @@ global.foundry = {
             toObject() {
                 return JSON.parse(JSON.stringify(this));
             }
-        }
+        },
     },
     appv1: {
         sheets: {
@@ -155,43 +160,42 @@ global.foundry = {
                     this.item = item;
                     this.system = {};
                 }
-            }
-        }
+            },
+        },
     },
-    applications:{
+    applications: {
         ux: {
             DragDrop: class {
-                bind(){};
-            }
+                bind() {}
+            },
         },
-        api:{
-            HandlebarsApplicationMixin: function(arg) {
-                return arg
+        api: {
+            HandlebarsApplicationMixin: function (arg) {
+                return arg;
             },
             DialogV2: class {
-                render(){};
-                addEventListener(){};
-                close(){};
-                static prompt(){};
+                render() {}
+                addEventListener() {}
+                close() {}
+                static prompt() {}
             },
             ApplicationV2: class {
-                constructor(options){
+                constructor(options) {
                     this.options = options;
                 }
-                render(){};
-                _prepareContext(){};
-                _onRender(){};
-                addEventListener(){};
-                close(){};
-                static prompt(){};
-            }
-        }
-    }
+                render() {}
+                _prepareContext() {}
+                _onRender() {}
+                addEventListener() {}
+                close() {}
+                static prompt() {}
+            },
+        },
+    },
 };
 
 global.Dialog = class {
-    constructor(dialogData, options) {
-    }
+    constructor(dialogData, options) {}
 };
 
 global.game = {};
@@ -205,6 +209,5 @@ global.CONFIG = {};
 export function identity(input) {
     return input;
 }
-
 
 export default {};

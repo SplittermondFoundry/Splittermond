@@ -1,13 +1,12 @@
 import Modifiable from "./modifiable";
-import CheckDialog from "../apps/dialog/check-dialog"
-import * as Dice from "../util/dice"
+import CheckDialog from "../apps/dialog/check-dialog";
+import * as Dice from "../util/dice";
 import * as Chat from "../util/chat";
 import * as Tooltip from "../util/tooltip";
-import {parseRollDifficulty} from "../util/rollDifficultyParser";
-import {asString} from "module/modifiers/expressions/scalar";
-import {foundryApi} from "../api/foundryApi";
-import {splittermond} from "../config";
-
+import { parseRollDifficulty } from "../util/rollDifficultyParser";
+import { asString } from "module/modifiers/expressions/scalar";
+import { foundryApi } from "../api/foundryApi";
+import { splittermond } from "../config";
 
 export default class Skill extends Modifiable {
     /**
@@ -31,10 +30,9 @@ export default class Skill extends Modifiable {
 
         this._skillValue = skillValue;
 
-
         this._cache = {
             enabled: false,
-            value: null
+            value: null,
         };
     }
 
@@ -44,8 +42,8 @@ export default class Skill extends Modifiable {
             label: this.label,
             value: this.value,
             attribute1: this.attribute1?.toObject(),
-            attribute2: this.attribute2?.toObject()
-        }
+            attribute2: this.attribute2?.toObject(),
+        };
     }
 
     get points() {
@@ -57,7 +55,6 @@ export default class Skill extends Modifiable {
         } else {
             return this._skillValue - (this.attribute1?.value || 0) - (this.attribute2?.value || 0);
         }
-
     }
 
     get value() {
@@ -66,8 +63,7 @@ export default class Skill extends Modifiable {
         let value = (this.attribute1?.value || 0) + (this.attribute2?.value || 0) + this.points;
         value += this.mod;
 
-        if (this._cache.enabled && this._cache.value === null)
-            this._cache.value = value;
+        if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
         return value;
     }
 
@@ -75,11 +71,16 @@ export default class Skill extends Modifiable {
      * @returns {IModifier[]}
      */
     get selectableModifier() {
-        return this.actor.modifier.getForIds(...this._modifierPath).selectable().getModifiers();
+        return this.actor.modifier
+            .getForIds(...this._modifierPath)
+            .selectable()
+            .getModifiers();
     }
 
     get isGrandmaster() {
-        return this.actor.items.find(i => i.type === "mastery" && (i.system.isGrandmaster || 0) && i.system.skill === this.id);
+        return this.actor.items.find(
+            (i) => i.type === "mastery" && (i.system.isGrandmaster || 0) && i.system.skill === this.id
+        );
     }
 
     enableCaching() {
@@ -92,13 +93,15 @@ export default class Skill extends Modifiable {
     }
 
     get maneuvers() {
-        return this.actor.items.filter(i => i.type === "mastery" && (i.system.isManeuver || false) && i.system.skill === this.id);
+        return this.actor.items.filter(
+            (i) => i.type === "mastery" && (i.system.isManeuver || false) && i.system.skill === this.id
+        );
     }
 
     /** @return {Record<string,number>} */
     get attributeValues() {
         const skillAttributes = {};
-        [this.attribute1, this.attribute2].forEach(attribute => {
+        [this.attribute1, this.attribute2].forEach((attribute) => {
             if (attribute?.id && attribute?.value) {
                 skillAttributes[attribute.id] = attribute.value;
             }
@@ -112,13 +115,18 @@ export default class Skill extends Modifiable {
      */
     async roll(options = {}) {
         let checkData = await this.prepareRollDialog(
-            options.preSelectedModifier ?? [], options.title, options.subtitle, options.difficulty, options.modifier);
+            options.preSelectedModifier ?? [],
+            options.title,
+            options.subtitle,
+            options.difficulty,
+            options.modifier
+        );
         if (!checkData) {
             return false;
         }
         const principalTarget = Array.from(game.user.targets)[0];
-        const rollDifficulty = parseRollDifficulty(checkData.difficulty)
-        let hideDifficulty = rollDifficulty.isTargetDependentValue()
+        const rollDifficulty = parseRollDifficulty(checkData.difficulty);
+        let hideDifficulty = rollDifficulty.isTargetDependentValue();
         if (principalTarget) {
             rollDifficulty.evaluate(principalTarget);
         }
@@ -130,23 +138,26 @@ export default class Skill extends Modifiable {
         let rollResult = await Dice.check(this, checkData.difficulty, checkData.rollType, checkData.modifier);
         let skillAttributes = this.attributeValues;
 
-        const mappedModifiers = checkData.modifierElements.map(mod => ({
+        const mappedModifiers = checkData.modifierElements.map((mod) => ({
             isMalus: mod.value < 0,
             value: `${Math.abs(mod.value)}`,
-            description: mod.description
+            description: mod.description,
         }));
         if (options.type === "spell") {
             return {
-                rollOptions: ChatMessage.applyRollMode({
-                    rolls: [rollResult.roll],
-                    type: CONST.CHAT_MESSAGE_TYPES.OTHER,
-                }, checkData.rollMode),
+                rollOptions: ChatMessage.applyRollMode(
+                    {
+                        rolls: [rollResult.roll],
+                        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+                    },
+                    checkData.rollMode
+                ),
                 /**@type CheckReport*/
                 report: {
                     skill: {
                         id: this.id,
                         attributes: skillAttributes,
-                        points: this.points
+                        points: this.points,
                     },
                     difficulty: rollResult.difficulty,
                     rollType: checkData.rollType,
@@ -162,10 +173,9 @@ export default class Skill extends Modifiable {
                     degreeOfSuccess: rollResult.degreeOfSuccess,
                     degreeOfSuccessMessage: rollResult.degreeOfSuccessMessage,
                     hideDifficulty: hideDifficulty,
-                }
-            }
+                },
+            };
         }
-
 
         let checkMessageData = {
             type: options.type || "skill",
@@ -183,10 +193,12 @@ export default class Skill extends Modifiable {
             availableSplinterpoints: this.actor.type === "character" ? this.actor.system.splinterpoints.value : 0,
             hideDifficulty: hideDifficulty,
             maneuvers: checkData.maneuvers || [],
-            ...(options.checkMessageData || {})
+            ...(options.checkMessageData || {}),
         };
 
-        return ChatMessage.create(await Chat.prepareCheckMessageData(this.actor, checkData.rollMode, rollResult.roll, checkMessageData));
+        return ChatMessage.create(
+            await Chat.prepareCheckMessageData(this.actor, checkData.rollMode, rollResult.roll, checkMessageData)
+        );
     }
 
     /**
@@ -208,10 +220,10 @@ export default class Skill extends Modifiable {
     async prepareRollDialog(selectedModifiers, title, subtitle, difficulty, modifier) {
         let emphasisData = [];
         let selectableModifier = this.selectableModifier;
-        selectedModifiers = selectedModifiers.map(s => s.trim().toLowerCase());
+        selectedModifiers = selectedModifiers.map((s) => s.trim().toLowerCase());
         if (selectableModifier) {
             emphasisData = selectableModifier
-                .map(mod => [mod.attributes.name, asString(mod.value)])
+                .map((mod) => [mod.attributes.name, asString(mod.value)])
                 .map(([key, value]) => {
                     const operator = /(?<=^\s*)[+-]/.exec(value)?.[0] ?? "+";
                     const cleanedValue = value.replace(/^\s*[+-]/, "").trim();
@@ -219,7 +231,7 @@ export default class Skill extends Modifiable {
                         name: key,
                         label: `${key} ${operator} ${cleanedValue}`,
                         value: value,
-                        active: selectedModifiers.includes(key.trim().toLowerCase())
+                        active: selectedModifiers.includes(key.trim().toLowerCase()),
                     };
                 });
         }
@@ -250,11 +262,14 @@ export default class Skill extends Modifiable {
     }
 
     #getStaticModifiersForReport() {
-        return this.actor.modifier.getForIds(...this._modifierPath).notSelectable().getModifiers()
-            .map(mod => ({
+        return this.actor.modifier
+            .getForIds(...this._modifierPath)
+            .notSelectable()
+            .getModifiers()
+            .map((mod) => ({
                 isMalus: mod.isMalus,
                 value: asString(mod.value),
-                description: mod.attributes.name
+                description: mod.attributes.name,
             }));
     }
 
@@ -268,7 +283,7 @@ export default class Skill extends Modifiable {
             formula.addPart(this.attribute2.value, this.attribute2.label.short);
         }
         const skillPoints = this.points;
-        if(this.attribute1 || this.attribute2) {
+        if (this.attribute1 || this.attribute2) {
             formula.addOperator(this.points < 0 ? "-" : "+");
         }
         formula.addPart(Math.abs(this.points), game.i18n.localize("splittermond.skillPointsAbbrev"));
@@ -280,5 +295,4 @@ export default class Skill extends Modifiable {
     tooltip() {
         return this.getFormula().render();
     }
-
 }

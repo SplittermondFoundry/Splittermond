@@ -5,33 +5,32 @@ flags: {}
 img: icons/svg/mystery-man-black.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: >-
-    <p>Der Abenteurer schl&auml;ft (<em>liegend</em>) und kann damit keine
-    Handlungen ausf&uuml;hren. Alle <em>kontinuierlichen Handlungen</em> und
-    <em>kanalisierten Zauber</em> enden. Der Zustand kann nach einigen Stunden
-    aufgehoben werden. Durch eine <em>Wahrnehmung</em>-Probe gegen 10 - 35,
-    abh&auml;ngig vom L&auml;rm, oder durch Schaden kann der Abenteurer
-    vorzeitig erwachen.&nbsp;</p>
-  source: ''
-  modifier: ''
-  level: '1'
-  startTick: 0
-  interval: 0
-  times: 0
+    description: >-
+        <p>Der Abenteurer schl&auml;ft (<em>liegend</em>) und kann damit keine
+        Handlungen ausf&uuml;hren. Alle <em>kontinuierlichen Handlungen</em> und
+        <em>kanalisierten Zauber</em> enden. Der Zustand kann nach einigen Stunden
+        aufgehoben werden. Durch eine <em>Wahrnehmung</em>-Probe gegen 10 - 35,
+        abh&auml;ngig vom L&auml;rm, oder durch Schaden kann der Abenteurer
+        vorzeitig erwachen.&nbsp;</p>
+    source: ""
+    modifier: ""
+    level: "1"
+    startTick: 0
+    interval: 0
+    times: 0
 folder: null
 sort: 0
-_key: '!items!EVXvZDWJbio1wROA'
-
+_key: "!items!EVXvZDWJbio1wROA"

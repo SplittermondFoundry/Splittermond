@@ -1,32 +1,35 @@
-import {identity} from "../../../foundryMocks.js"; //also declares core foundry objects globally
-import {beforeEach,afterEach} from "mocha";
-import {expect} from 'chai';
-import {createHtml} from "../../../../handlebarHarness.ts";
-import {produceJQuery} from "../../../../jQueryHarness.js";
+import { identity } from "../../../foundryMocks.js"; //also declares core foundry objects globally
+import { afterEach, beforeEach } from "mocha";
+import { expect } from "chai";
+import { createHtml } from "../../../../handlebarHarness.ts";
+import { produceJQuery } from "../../../../jQueryHarness.js";
 import SplittermondSpellSheet from "../../../../../module/item/sheets/spell-sheet.js";
 import SplittermondSpellItem from "../../../../../module/item/spell.js";
-import {getSpellAvailabilityParser} from "../../../../../module/item/availabilityParser.ts";
-import {simplePropertyResolver} from "../../../../util.ts";
-
+import { getSpellAvailabilityParser } from "../../../../../module/item/availabilityParser.ts";
+import { simplePropertyResolver } from "../../../../util.ts";
 
 describe("Spell Properties display", () => {
-    const testParser = getSpellAvailabilityParser({localize: (str) => str}, ["illusionmagic", "deathmagic"]);
+    const testParser = getSpellAvailabilityParser({ localize: (str) => str }, ["illusionmagic", "deathmagic"]);
     global.foundry.appv1.sheets.ItemSheet.prototype.getData = function () {
-        return {data: this.item};
+        return { data: this.item };
     };
     global.foundry.appv1.sheets.ItemSheet.prototype.activateListeners = () => {};
-    beforeEach(()=> {global.duplicate = (obj) => obj});
-    afterEach(() => {global.duplicate = undefined;});
+    beforeEach(() => {
+        global.duplicate = (obj) => obj;
+    });
+    afterEach(() => {
+        global.duplicate = undefined;
+    });
 
     it("displays the availableIn property of the spell item", async () => {
         const availableInDisplayConfig = {
             field: "system.availableIn",
             placeholderText: "splittermond.availableInPlaceholder",
             label: "splittermond.availableIn",
-            template: "input"
+            template: "input",
         };
-        const spellItem = new SplittermondSpellItem({}, {splittermond: {ready: true}}, testParser);
-        spellItem.system = {availableIn: "deathmagic 1"};
+        const spellItem = new SplittermondSpellItem({}, { splittermond: { ready: true } }, testParser);
+        spellItem.system = { availableIn: "deathmagic 1" };
         spellItem.type = "spell";
 
         const renderedInput = await renderRelevantInput(availableInDisplayConfig, spellItem);
@@ -34,15 +37,14 @@ describe("Spell Properties display", () => {
     });
 
     it("displays a placeholder if no availableIn property is set", async () => {
-
         const availableInDisplayConfig = {
             field: "system.availableIn",
             placeholderText: "splittermond.availableInPlaceholder",
             label: "splittermond.availableIn",
-            template: "input"
+            template: "input",
         };
-        const spellItem = new SplittermondSpellItem({}, {splittermond: {ready: true}}, testParser);
-        spellItem.system = {availableIn: ""};
+        const spellItem = new SplittermondSpellItem({}, { splittermond: { ready: true } }, testParser);
+        spellItem.system = { availableIn: "" };
         spellItem.type = "spell";
 
         const renderedInput = await renderRelevantInput(availableInDisplayConfig, spellItem);
@@ -55,10 +57,10 @@ describe("Spell Properties display", () => {
         const availableInDisplayConfig = {
             field: "system.availableIn",
             label: "splittermond.availableIn",
-            template: "input"
+            template: "input",
         };
-        const spellItem = new SplittermondSpellItem({}, {splittermond: {ready: true}}, testParser);
-        spellItem.system = {availableIn: ""};
+        const spellItem = new SplittermondSpellItem({}, { splittermond: { ready: true } }, testParser);
+        spellItem.system = { availableIn: "" };
         spellItem.type = "spell";
 
         const renderedInput = await renderRelevantInput(availableInDisplayConfig, spellItem);
@@ -68,21 +70,28 @@ describe("Spell Properties display", () => {
     });
 
     async function renderRelevantInput(displayProperty, spellItem) {
-        const CONFIG = {splittermond: {itemSheetProperties: {}, displayOptions: {itemSheet: {}}}};
-        CONFIG.splittermond.displayOptions.itemSheet["default"] = {width: 1, height: 1};
-        CONFIG.splittermond.itemSheetProperties.spell = [{
-            groupName: "splittermond.generalProperties",
-            properties: [displayProperty]
-        }];
+        const CONFIG = { splittermond: { itemSheetProperties: {}, displayOptions: { itemSheet: {} } } };
+        CONFIG.splittermond.displayOptions.itemSheet["default"] = { width: 1, height: 1 };
+        CONFIG.splittermond.itemSheetProperties.spell = [
+            {
+                groupName: "splittermond.generalProperties",
+                properties: [displayProperty],
+            },
+        ];
         const objectUnderTest = new SplittermondSpellSheet(
-            spellItem,{},{
-                getProperty:simplePropertyResolver},
-            {localize: identity},
+            spellItem,
+            {},
+            {
+                getProperty: simplePropertyResolver,
+            },
+            { localize: identity },
             CONFIG.splittermond,
-            {enrichHTML: promiseIdentity });
-        return objectUnderTest.getData()
-            .then(data =>produceJQuery(createHtml("./templates/sheets/item/item-sheet.hbs", data)))
-            .then(domUnderTest => domUnderTest(`.properties-editor input[name='${displayProperty.field}']`));
+            { enrichHTML: promiseIdentity }
+        );
+        return objectUnderTest
+            .getData()
+            .then((data) => produceJQuery(createHtml("./templates/sheets/item/item-sheet.hbs", data)))
+            .then((domUnderTest) => domUnderTest(`.properties-editor input[name='${displayProperty.field}']`));
     }
 });
 
@@ -91,6 +100,6 @@ describe("Spell Properties display", () => {
  * @param {T} input
  * @returns {Promise<T>}
  */
-function promiseIdentity(input){
+function promiseIdentity(input) {
     return Promise.resolve(input);
 }

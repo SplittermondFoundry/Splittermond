@@ -5,30 +5,29 @@ flags: {}
 img: icons/svg/angel.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: >-
-    <p>Alle <em>Magieschul</em>-Proben erhalten einen Malus von einem Punkt pro
-    Zustandsstufe. Der Zustand kann nach einer <em>Verschnaufpause
-    </em>aufgehoben werden.</p>
-  source: ''
-  modifier: magicSkills -1
-  level: '1'
-  startTick: 0
-  interval: 0
-  times: 0
+    description: >-
+        <p>Alle <em>Magieschul</em>-Proben erhalten einen Malus von einem Punkt pro
+        Zustandsstufe. Der Zustand kann nach einer <em>Verschnaufpause
+        </em>aufgehoben werden.</p>
+    source: ""
+    modifier: magicSkills -1
+    level: "1"
+    startTick: 0
+    interval: 0
+    times: 0
 folder: null
 sort: 0
-_key: '!items!fR11oP9ST4AjSw4T'
-
+_key: "!items!fR11oP9ST4AjSw4T"

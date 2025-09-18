@@ -1,4 +1,4 @@
-import {RollType} from "../config/RollType";
+import { RollType } from "../config/RollType";
 
 interface RollResultForSplittermond {
     total: number;

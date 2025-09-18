@@ -1,14 +1,20 @@
 import {
     ApplicationContextOptions,
     ApplicationOptions,
-    SplittermondApplication
+    SplittermondApplication,
 } from "../../data/SplittermondApplication";
 
 export default abstract class SplittermondWizard extends SplittermondApplication {
-    constructor(options: ApplicationOptions= {}) {
+    constructor(options: ApplicationOptions = {}) {
         const actions = options.actions ?? {};
-        actions.save = (event: Event) => {this._onSave(event);return Promise.resolve();};
-        actions.cancel= (event: Event) => {this._onCancel(event);return Promise.resolve();};
+        actions.save = (event: Event) => {
+            this._onSave(event);
+            return Promise.resolve();
+        };
+        actions.cancel = (event: Event) => {
+            this._onCancel(event);
+            return Promise.resolve();
+        };
         options.actions = actions;
         super(options);
     }
@@ -35,7 +41,6 @@ export default abstract class SplittermondWizard extends SplittermondApplication
         this.close();
     }
 
-    protected abstract _onCancelEvent(event: Event):void;
+    protected abstract _onCancelEvent(event: Event): void;
     protected abstract _onSaveEvent(event: Event): void;
 }
-

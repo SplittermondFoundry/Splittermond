@@ -1,5 +1,5 @@
-import {GenericRollEvaluation} from "../util/GenericRollEvaluation";
-import {SplittermondSkill} from "../config/skillGroups";
+import { GenericRollEvaluation } from "../util/GenericRollEvaluation";
+import { SplittermondSkill } from "../config/skillGroups";
 
 export interface CheckReport extends Omit<GenericRollEvaluation, "roll"> {
     skill: {
@@ -12,6 +12,6 @@ export interface CheckReport extends Omit<GenericRollEvaluation, "roll"> {
         dice: { total: number }[];
         tooltip: string;
     };
-    modifierElements: {isMalus:boolean, value:string, description:string}[];
+    modifierElements: { isMalus: boolean; value: string; description: string }[];
     hideDifficulty: boolean;
 }

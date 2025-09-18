@@ -5,31 +5,30 @@ flags: {}
 img: icons/svg/explosion.svg
 effects: []
 _stats:
-  coreVersion: '13.342'
-  systemId: null
-  systemVersion: null
-  createdTime: null
-  modifiedTime: null
-  lastModifiedBy: null
-  compendiumSource: null
-  duplicateSource: null
-  exportSource: null
+    coreVersion: "13.342"
+    systemId: null
+    systemVersion: null
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
 ownership:
-  default: 0
-  m5HI1NMGmW1y9fyL: 3
+    default: 0
+    m5HI1NMGmW1y9fyL: 3
 system:
-  description: >-
-    <p><em>Wahrnehmungs</em>-Proben auf Sicht erhalten einen Malus von 2 Punkten
-    pro Zustandsstufe (max. Stufe 4). Maximal kann der Malus durch diesen
-    <em>Zustand </em>und <em>Lichtverh&auml;ltnise </em>12 betragen. Nach 60
-    Ticks wird der Zustand aufgehoben.</p>
-  source: ''
-  modifier: ''
-  level: '1'
-  startTick: 0
-  interval: '60'
-  times: '1'
+    description: >-
+        <p><em>Wahrnehmungs</em>-Proben auf Sicht erhalten einen Malus von 2 Punkten
+        pro Zustandsstufe (max. Stufe 4). Maximal kann der Malus durch diesen
+        <em>Zustand </em>und <em>Lichtverh&auml;ltnise </em>12 betragen. Nach 60
+        Ticks wird der Zustand aufgehoben.</p>
+    source: ""
+    modifier: ""
+    level: "1"
+    startTick: 0
+    interval: "60"
+    times: "1"
 folder: null
 sort: 0
-_key: '!items!uyXtwhA8wKPVHsHy'
-
+_key: "!items!uyXtwhA8wKPVHsHy"

@@ -15,8 +15,8 @@ Erfolgsgrade:
 • Auslösezeit, Erschöpfter Fokus, Reichweite, Schaden, Verstärken (s. u.), Verzehrter
 Fokus
 • 1 EG (Kosten +1V1) Lorem ipsum dolor sit 30 Ticks mundo Zustand Benommen 1.
-`
-export const expected  = {
+`;
+export const expected = {
     name: "Machtexplosion",
     img: "icons/svg/daze.svg",
     system: {
@@ -25,7 +25,7 @@ export const expected  = {
         costs: "8V3",
         difficulty: "KW",
         range: "10 m",
-        castDuration:{
+        castDuration: {
             value: 9,
             unit: "T",
             _document: null,
@@ -36,7 +36,8 @@ export const expected  = {
         },
         damageType: "physical",
         costType: "V",
-        description: "O feiticeiro alcancea seu arvore com uma toca doce e nao faz 5W6 Punkte Schaden. Schadensreduktion wirkt hier nicht wenn der Gegner ein Token ist. Das Ziel isst für 30 Ticks den Zustand Erschöpft 2.",
+        description:
+            "O feiticeiro alcancea seu arvore com uma toca doce e nao faz 5W6 Punkte Schaden. Schadensreduktion wirkt hier nicht wenn der Gegner ein Token ist. Das Ziel isst für 30 Ticks den Zustand Erschöpft 2.",
         effectArea: null,
         effectDuration: null,
         enhancementCosts: "1 EG/+1V1",
@@ -48,15 +49,15 @@ export const expected  = {
         skillLevel: null,
         source: null,
         degreeOfSuccessOptions: {
-            "castDuration": true,
-            "consumedFocus": true,
-            "exhaustedFocus": true,
-            "channelizedFocus": false,
-            "effectDuration": false,
-            "damage": true,
-            "range": true,
-            "effectArea": false
-        }
+            castDuration: true,
+            consumedFocus: true,
+            exhaustedFocus: true,
+            channelizedFocus: false,
+            effectDuration: false,
+            damage: true,
+            range: true,
+            effectArea: false,
+        },
     },
     type: "spell",
 };

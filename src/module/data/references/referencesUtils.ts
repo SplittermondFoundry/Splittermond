@@ -1,19 +1,19 @@
-import {foundryApi} from "module/api/foundryApi";
-import {AgentReference} from "./AgentReference";
+import { foundryApi } from "module/api/foundryApi";
+import { AgentReference } from "./AgentReference";
 
 export const referencesUtils = {
-    /**@type {() => AgentReference}*/findBestUserActor,
-}
+    /**@type {() => AgentReference}*/ findBestUserActor,
+};
 
 /**
  * @throws {Error}
  */
 function findBestUserActor(): AgentReference {
     /*
-  * Incredible as it is, as of V11, going via the chat system is actually the best and most robust way to
-  * figure out against whom to send the active defense action. It checks, explicitly given actors, controlled
-  * tokens (via game.canvas.tokens.controlled), or owned actors (via game.user.character).
-  */
+     * Incredible as it is, as of V11, going via the chat system is actually the best and most robust way to
+     * figure out against whom to send the active defense action. It checks, explicitly given actors, controlled
+     * tokens (via game.canvas.tokens.controlled), or owned actors (via game.user.character).
+     */
     const speaker = foundryApi.getSpeaker({});
     let actor: AgentReference | null = null;
     if (speaker.token) {
@@ -26,9 +26,9 @@ function findBestUserActor(): AgentReference {
         actor = topLevelActor ? withTry(() => AgentReference.initialize(topLevelActor)) : null;
     }
     if (!actor) {
-        throw new Error("No actor found for the current user.")
+        throw new Error("No actor found for the current user.");
     }
-    return actor
+    return actor;
 }
 
 function withTry(callback: Function) {

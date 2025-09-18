@@ -55,5 +55,5 @@ export const splittermondSpellEnhancement = {
         focusCostReduction: "0",
         castDurationReduction: 0,
         damageIncrease: 0,
-    }
-} as const
+    },
+} as const;

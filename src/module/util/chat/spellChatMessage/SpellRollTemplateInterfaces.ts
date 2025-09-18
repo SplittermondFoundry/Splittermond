@@ -2,12 +2,18 @@
  * WARNING: DO NOT CHANGE THIS FILE UNLESS YOU ALSO CHANGE THE HANDLEBARS TEMPLATE
  */
 
-
 /**
  * Available actions as specified in spell-chat-card.hbs
  */
-const availableActions = ["activeDefense", "applyDamage", "consumeCosts", "advanceToken", "useSplinterpoint", "rollMagicFumble"] as const;
-export type AvailableActions = typeof availableActions[number]
+const availableActions = [
+    "activeDefense",
+    "applyDamage",
+    "consumeCosts",
+    "advanceToken",
+    "useSplinterpoint",
+    "rollMagicFumble",
+] as const;
+export type AvailableActions = (typeof availableActions)[number];
 
 export function isAvailableAction(action: string): action is AvailableActions {
     return (availableActions as readonly string[]).includes(action);
@@ -20,11 +26,11 @@ export interface SpellRollMessageRenderedData {
         rollTypeMessage: string;
         difficulty: string;
         hideDifficulty: boolean;
-    }
+    };
     rollResultClass: string;
     rollResult: {
         rollTotal: number;
-        skillAndModifierTooltip: { type: string; classes: string; value: string; description: string; }[];
+        skillAndModifierTooltip: { type: string; classes: string; value: string; description: string }[];
         rollTooltip: string;
         actionDescription: string;
     };
@@ -35,7 +41,7 @@ export interface SpellRollMessageRenderedData {
         openDegreesOfSuccess: number;
     };
     degreeOfSuccessOptions: SpellDegreesOfSuccessRenderedData[];
-    actions: Partial<Record<AvailableActions,object>>;
+    actions: Partial<Record<AvailableActions, object>>;
 }
 
 interface SpellDegreesOfSuccessRenderedData {
@@ -48,9 +54,9 @@ interface SpellDegreesOfSuccessRenderedData {
 }
 
 export interface DegreeOfSuccessOption {
-    checked: boolean
-    disabled: boolean
-    action: string
-    multiplicity: string
-    text: string
+    checked: boolean;
+    disabled: boolean;
+    action: string;
+    multiplicity: string;
+    text: string;
 }
