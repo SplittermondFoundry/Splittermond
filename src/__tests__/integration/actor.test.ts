@@ -18,7 +18,7 @@ declare const Actor: any;
 declare var Dialog: any;
 
 export function actorTest(context: QuenchBatchContext) {
-    const { it, expect, afterEach, beforeEach } = context;
+    const { it, expect, afterEach, beforeEach, describe } = context;
 
     describe("Actor import", () => {
         const sandbox = sinon.createSandbox();
@@ -258,7 +258,6 @@ export function actorTest(context: QuenchBatchContext) {
         });
     });
 
-    // New integration test for update propagation
     describe("Actor rest methods update document", () => {
         let actor: SplittermondActor;
         let originalDialog: any;
@@ -412,6 +411,46 @@ export function actorTest(context: QuenchBatchContext) {
             expect(itemOnActor).to.exist;
             expect((itemOnActor?.system as SpellDataModel).skill).to.equal("deathmagic");
             expect((itemOnActor?.system as SpellDataModel).skillLevel).to.equal(1);
+        });
+    });
+
+    describe("Actor functions", () => {
+        let actorsToDelete: string[] = [];
+        beforeEach(() => (actorsToDelete = []));
+        afterEach(async () => {
+            await Actor.deleteDocuments(actorsToDelete);
+        });
+
+        async function createActor() {
+            const actor = await actorCreator.createCharacter({ type: "character", name: "Level Up Test", system: {} });
+            actorsToDelete.push(actor.id);
+            return actor;
+        }
+
+        it("should increase derived values on hero level up", async () => {
+            const actor = await createActor();
+            await actor.update({
+                system: {
+                    experience: { spent: 101 },
+                    species: { size: 5 },
+                    attributes: {
+                        mind: { species: 0, initial: 1, advances: 0 },
+                        agility: { species: 0, initial: 2, advances: 0 },
+                        strength: { species: 0, initial: 3, advances: 0 },
+                        willpower: { species: 0, initial: 4, advances: 0 },
+                        constitution: { species: 0, initial: 5, advances: 0 },
+                    },
+                },
+            });
+            await actor.prepareBaseData();
+            await actor.prepareDerivedData();
+
+            expect((actor.system as CharacterDataModel).experience.heroLevel).to.equal(2);
+            expect(actor.derivedValues.size.value, "Size value").to.equal(5);
+            expect(actor.derivedValues.defense.value, "Defense value").to.equal(19);
+            expect(actor.derivedValues.bodyresist.value, "Bodyresist value").to.equal(23);
+            expect(actor.derivedValues.mindresist.value, "Mindresist value").to.equal(19);
+            expect(actor.splinterpoints.max, "Splinterpoints max value").to.equal(4);
         });
     });
 }
