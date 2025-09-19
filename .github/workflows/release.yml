@@ -86,4 +86,4 @@ jobs:
               env:
                   AUTH_TOKEN: ${{secrets.FOUNDRY_VTT_PUBLISH_TOKEN}}
                   SYSTEM_JSON_PATH: "./dist/system.json"
-                  DRY_RUN: "false"
+                  DRY_RUN: "true"
