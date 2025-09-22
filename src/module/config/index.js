@@ -12,6 +12,7 @@ import { attributes, derivedAttributes } from "./attributes";
 import { itemFeatures } from "./itemFeatures";
 import { itemTypes } from "./itemTypes";
 import { time } from "module/config/timeUnits";
+import { splinterpoints } from "module/config/splinterpoints.js";
 
 /**
  * Global configuration object for the Splittermond system. Stores constants that are specific to Splittermond behavior.
@@ -1136,6 +1137,7 @@ splittermond.spellEnhancement = splittermondSpellEnhancement;
 splittermond.degreeOfSuccessThresholds = {
     critical: 5,
 };
+splittermond.splinterpoints = splinterpoints;
 splittermond.damageTypes = damageTypes;
 splittermond.itemTypes = itemTypes;
 splittermond.time = time;
