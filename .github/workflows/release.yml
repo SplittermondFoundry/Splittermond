@@ -49,6 +49,8 @@ jobs:
                   newDownload: https://github.com/SplittermondFoundry/Splittermond/releases/download/${{env.prefixedVersion}}/${{env.outputFile}}
             - name: Install dependencies
               run: npm install
+            - name: Lint
+              run: npm run format
             - name: Build
               run: npm run build
             - name: Push to main
