@@ -10,7 +10,7 @@ import ActiveDefense from "./active-defense.js";
 import { parseCostString } from "../util/costs/costParser";
 import { initializeSpellCostManagement } from "../util/costs/spellCostManagement";
 import { settings } from "../settings";
-import { splittermond } from "../config.js";
+import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { Susceptibilities } from "./Susceptibilities.js";
 import { addModifier } from "./addModifierAdapter";
@@ -191,7 +191,7 @@ export default class SplittermondActor extends Actor {
             if (!data.splinterpoints) {
                 data.splinterpoints = {};
             }
-            data.splinterpoints.max = 3;
+            data.splinterpoints.max = splittermond.splinterpoints.max;
         }
 
         if (this.type === "npc") {
@@ -1008,23 +1008,28 @@ export default class SplittermondActor extends Actor {
      * @return {number}
      */
     #getSplinterpointBonus(skillName) {
-        if (skillName === "health") {
-            return 5;
-        }
+        const baseBonus =
+            skillName === "health" ? splittermond.splinterpoints.healthBonus : splittermond.splinterpoints.skillBonus;
         const bonusFromModifiers = this.modifier
             .getForId("splinterpoints.bonus")
             .withAttributeValuesOrAbsent("skill", skillName)
             .notSelectable()
             .getModifiers()
             .map((m) => evaluate(m.value));
-        const highestValue = Math.max(3, ...bonusFromModifiers);
+        const highestValue = Math.max(baseBonus, ...bonusFromModifiers);
         //Issue a warning when someone added a modifier that does not actually benefit them
-        if (bonusFromModifiers.length > 0 && highestValue === 3) {
+        if (bonusFromModifiers.length > 0 && highestValue === baseBonus) {
             console.warn("Splittermond | Handed out minimum Splinterpoint bonus despite modifiers present");
         }
         return highestValue;
     }
 
+    /**
+     * @deprecated Use actor.spendSplinterpoint() instead, as it allows the callser to specify if and how a spent point, or
+     * the inability to do so should be communicated to the user.
+     * @param message
+     * @return {Promise<void>}
+     */
     async useSplinterpointBonus(message) {
         if (
             !message.flags.splittermond ||
@@ -1037,11 +1042,12 @@ export default class SplittermondActor extends Actor {
 
         let checkMessageData = message.flags.splittermond.check;
 
+        const bonus = splittermond.splinterpoints.skillBonus;
         //Magic number 0; Message comes with a storage for several rolls, but we only set one roll in chat.js.
-        message.rolls[0]._total = message.rolls[0]._total + 3;
+        message.rolls[0]._total = message.rolls[0]._total + bonus;
         checkMessageData.modifierElements.push({
-            value: 3,
-            description: game.i18n.localize("splittermond.splinterpoint"),
+            value: bonus,
+            description: foundryApi.localize("splittermond.splinterpoint"),
         });
 
         this.update({ system: { splinterpoints: { value: parseInt(this.splinterpoints.value) - 1 } } });

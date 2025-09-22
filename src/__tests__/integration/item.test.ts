@@ -1,5 +1,5 @@
 import { foundryApi } from "../../module/api/foundryApi";
-import { splittermond } from "../../module/config.js";
+import { splittermond } from "../../module/config";
 import { MasteryDataModel } from "../../module/item/dataModel/MasteryDataModel.js";
 import { SpellDataModel } from "../../module/item/dataModel/SpellDataModel";
 import SplittermondSpellItem from "../../module/item/spell";

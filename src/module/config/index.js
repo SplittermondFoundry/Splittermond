@@ -1,13 +1,22 @@
-import { rollType } from "./config/RollType";
-import { splittermondSpellEnhancement } from "./config/SplittermondSpellEnhancements";
-import { modifiers } from "./config/modifiers";
-import { skillGroups } from "./config/skillGroups";
-import { damageTypeOptions, damageTypes } from "./config/damageTypes";
-import { attributes, derivedAttributes } from "./config/attributes";
-import { itemFeatures } from "./config/itemFeatures";
-import { itemTypes } from "./config/itemTypes";
-import { time } from "module/config/timeUnits.js";
+/**
+ * This file is the old config.js file from Splittermond. It is intended to be separated into smaller parts whenever
+ * The need for a typed subset of the splittermond configuration arises. See the other files in this folder for already
+ * separated parts.
+ */
+import { rollType } from "./RollType";
+import { splittermondSpellEnhancement } from "./SplittermondSpellEnhancements";
+import { modifiers } from "./modifiers";
+import { skillGroups } from "./skillGroups";
+import { damageTypeOptions, damageTypes } from "./damageTypes";
+import { attributes, derivedAttributes } from "./attributes";
+import { itemFeatures } from "./itemFeatures";
+import { itemTypes } from "./itemTypes";
+import { time } from "module/config/timeUnits";
+import { splinterpoints } from "module/config/splinterpoints.js";
 
+/**
+ * Global configuration object for the Splittermond system. Stores constants that are specific to Splittermond behavior.
+ */
 export const splittermond = {};
 
 splittermond.heroLevel = [0, 100, 300, 600];
@@ -1128,6 +1137,7 @@ splittermond.spellEnhancement = splittermondSpellEnhancement;
 splittermond.degreeOfSuccessThresholds = {
     critical: 5,
 };
+splittermond.splinterpoints = splinterpoints;
 splittermond.damageTypes = damageTypes;
 splittermond.itemTypes = itemTypes;
 splittermond.time = time;

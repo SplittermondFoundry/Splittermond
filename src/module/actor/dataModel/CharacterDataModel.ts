@@ -3,13 +3,22 @@ import SplittermondActor from "../actor";
 import { HealthDataModel } from "./HealthDataModel";
 import { FocusDataModel } from "./FocusSchemaModel";
 import { CharacterAttribute } from "./CharacterAttribute";
+import { splittermond } from "module/config";
 
 function CharacterDataModelSchema() {
     return {
         splinterpoints: new fields.SchemaField(
             {
-                max: new fields.NumberField({ required: true, nullable: false, initial: 3 }),
-                value: new fields.NumberField({ required: true, nullable: false, initial: 3 }),
+                max: new fields.NumberField({
+                    required: true,
+                    nullable: false,
+                    initial: splittermond.splinterpoints.max,
+                }),
+                value: new fields.NumberField({
+                    required: true,
+                    nullable: false,
+                    initial: splittermond.splinterpoints.max,
+                }),
             },
             { required: true, nullable: false }
         ),

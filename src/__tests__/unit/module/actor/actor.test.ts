@@ -150,6 +150,8 @@ describe("SplittermondActor", () => {
         });
 
         it("should spend a splinterpoint and return the correct bonus", () => {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            actor.prepareBaseData();
             asCharacter(actor).updateSource({ splinterpoints: { value: 1, max: 3 } });
             const result = actor.spendSplinterpoint();
             expect(result.pointSpent).to.be.true;

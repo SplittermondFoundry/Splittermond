@@ -1,6 +1,6 @@
 import { itemCreator } from "../data/EntityCreator.ts";
 import { foundryApi } from "../api/foundryApi";
-import { splittermond } from "../config.js";
+import { splittermond } from "../config";
 import { importSpell as spellImporter } from "./item-importer/spellImporter";
 import { importNpc as npcImporter } from "./item-importer/npcImporter";
 import { FoundryDialog } from "../api/Application.ts";
