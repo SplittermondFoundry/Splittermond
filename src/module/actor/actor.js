@@ -10,7 +10,7 @@ import ActiveDefense from "./active-defense.js";
 import { parseCostString } from "../util/costs/costParser";
 import { initializeSpellCostManagement } from "../util/costs/spellCostManagement";
 import { settings } from "../settings";
-import { splittermond } from "../config.js";
+import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { Susceptibilities } from "./Susceptibilities.js";
 import { addModifier } from "./addModifierAdapter";

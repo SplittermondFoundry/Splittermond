@@ -1,5 +1,5 @@
 import * as Tooltip from "../../util/tooltip.js";
-import { splittermond } from "../../config.js";
+import { splittermond } from "../../config";
 import { foundryApi } from "../../api/foundryApi";
 import { DamageInitializer } from "../../util/chat/damageChatMessage/initDamage";
 import { ItemFeaturesModel } from "../../item/dataModel/propertyModels/ItemFeaturesModel.js";
