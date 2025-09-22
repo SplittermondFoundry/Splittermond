@@ -1,9 +1,11 @@
-import { getActor, getSpell, getUnlinkedToken } from "../fixtures.js";
-import { AgentReference } from "../../../module/data/references/AgentReference";
-import { foundryApi } from "../../../module/api/foundryApi";
-import { ItemReference } from "../../../module/data/references/ItemReference";
-import { OnAncestorReference } from "../../../module/data/references/OnAncestorReference";
+import { getUnlinkedToken } from "../fixtures.js";
+import { AgentReference } from "module/data/references/AgentReference";
+import { foundryApi } from "module/api/foundryApi";
+import { ItemReference } from "module/data/references/ItemReference";
+import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
+import type SplittermondSpellItem from "module/item/spell";
+import type SplittermondActor from "module/actor/actor";
 
 declare const DataModelValidationError: any;
 declare namespace foundry {
@@ -23,7 +25,27 @@ declare namespace foundry {
 }
 
 export function dataModelTest(context: QuenchBatchContext) {
-    const { describe, it, expect } = context;
+    const { describe, it, expect, afterEach } = context;
+    let createdActors: string[] = [];
+    let createdSpells: string[] = [];
+
+    async function createActor() {
+        const actor = await Actor.create({ type: "character", name: "Test Actor" });
+        createdActors.push(actor.id);
+        return actor as SplittermondActor;
+    }
+    async function createSpell() {
+        const spell = await Item.create({ type: "spell", name: "Test Spell" });
+        createdSpells.push(spell.id);
+        return spell as SplittermondSpellItem;
+    }
+    afterEach(async () => {
+        await Actor.deleteDocuments(createdActors);
+        await Item.deleteDocuments(createdSpells);
+        createdActors = [];
+        createdSpells = [];
+    });
+
     describe("foundry data model API", () => {
         const TestChild = class extends foundry.abstract.DataModel {
             static defineSchema() {
@@ -98,7 +120,7 @@ export function dataModelTest(context: QuenchBatchContext) {
 
     describe("references API", () => {
         it("should get an actor by id", async () => {
-            const sampleActor = getActor(it);
+            const sampleActor = await createActor();
             const fromApi = foundryApi.getActor(sampleActor.id);
 
             expect(fromApi).to.equal(sampleActor);
@@ -127,8 +149,8 @@ export function dataModelTest(context: QuenchBatchContext) {
     });
 
     describe("ItemReference", () => {
-        it("should find an item in a top level collection", () => {
-            const /**@type SplittermondSpellItem */ sampleItem = getSpell(it);
+        it("should find an item in a top level collection", async () => {
+            const sampleItem = (await createSpell()) as SplittermondSpellItem;
 
             const underTest = ItemReference.initialize(sampleItem);
 
@@ -136,22 +158,20 @@ export function dataModelTest(context: QuenchBatchContext) {
         });
 
         it("should find an item in an actor's collection", async () => {
-            const /**@type SplittermondSpellItem */ sampleItem = getSpell(it);
-            const sampleActor = getActor(it);
+            const sampleActor = await createActor();
             const itemOnActor = await sampleActor
-                .createEmbeddedDocuments("Item", [sampleItem])
+                .createEmbeddedDocuments("Item", [{ type: "spell", name: "Test Spell on Actor" }])
                 .then((a: unknown[]) => a[0]);
 
             const underTest = ItemReference.initialize(itemOnActor);
 
             expect(underTest.getItem()).to.equal(itemOnActor);
-            await sampleActor.deleteEmbeddedDocuments("Item", [itemOnActor.id]);
         });
     });
 
     describe("AgentReference", () => {
-        it("should return an actor from a reference", () => {
-            const sampleActor = getActor(it);
+        it("should return an actor from a reference", async () => {
+            const sampleActor = await createActor();
             const reference = AgentReference.initialize(sampleActor);
 
             expect(reference.getAgent()).to.equal(sampleActor);
@@ -171,8 +191,9 @@ export function dataModelTest(context: QuenchBatchContext) {
             expect(reference.getAgent()).to.equal(sampleToken.actor);
         });
 
-        it("should be able to read the document type from the document name field", () => {
-            expect(getActor(it).documentName).to.equal("Actor");
+        it("should be able to read the document type from the document name field", async () => {
+            const actor = await createActor();
+            expect(actor.documentName).to.equal("Actor");
             expect(getUnlinkedToken(it).documentName).to.equal("Token");
         });
     });

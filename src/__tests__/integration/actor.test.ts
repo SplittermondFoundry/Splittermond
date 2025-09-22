@@ -2,17 +2,18 @@ import { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import sinon from "sinon";
 import ItemImporter from "../../module/util/item-importer";
 import * as Baumwandler from "../resources/importSamples/GRW/NSC/Baumwandler.resource";
-import { foundryApi } from "../../module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 import SplittermondActor from "../../module/actor/actor";
-import { actorCreator, itemCreator } from "../../module/data/EntityCreator";
+import { actorCreator, itemCreator } from "module/data/EntityCreator";
 import * as Cara_Aeternia from "../resources/importSamples/Hexenkönigin/Cara_Aeternia.json";
-import { CharacterDataModel } from "../../module/actor/dataModel/CharacterDataModel";
-import SplittermondMasteryItem from "../../module/item/mastery";
-import { MasteryDataModel } from "../../module/item/dataModel/MasteryDataModel";
-import SplittermondSpellItem from "../../module/item/spell";
-import { SpellDataModel } from "../../module/item/dataModel/SpellDataModel";
-import { FoundryDialog } from "../../module/api/Application";
+import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
+import SplittermondMasteryItem from "module/item/mastery";
+import { MasteryDataModel } from "module/item/dataModel/MasteryDataModel";
+import SplittermondSpellItem from "module/item/spell";
+import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
+import { FoundryDialog } from "module/api/Application";
 import SplittermondActorSheet from "../../module/actor/sheets/actor-sheet";
+import { withActor } from "./fixtures";
 
 declare const Actor: any;
 declare var Dialog: any;
@@ -270,19 +271,22 @@ export function actorTest(context: QuenchBatchContext) {
             Dialog = originalDialog;
         });
 
-        it("shortRest persists replenishment of exhausted stats", async () => {
-            const systemCopy = new CharacterDataModel((actor.system as CharacterDataModel).toObject());
-            systemCopy.focus.updateSource({ exhausted: { value: 10 } });
-            systemCopy.health.updateSource({ exhausted: { value: 8 } });
-            await actor.update({ system: actor.system });
+        it(
+            "shortRest persists replenishment of exhausted stats",
+            withActor(async (actor) => {
+                const systemCopy = new CharacterDataModel((actor.system as CharacterDataModel).toObject());
+                systemCopy.focus.updateSource({ exhausted: { value: 10 } });
+                systemCopy.health.updateSource({ exhausted: { value: 8 } });
+                await actor.update({ system: systemCopy });
 
-            await actor.shortRest();
+                await actor.shortRest();
 
-            // Refetch actor from database to ensure update was persisted
-            const updated = foundryApi.getActor(actor.id);
-            expect(updated?.system.focus.exhausted.value).to.equal(0);
-            expect(updated?.system.health.exhausted.value).to.equal(0);
-        });
+                // Refetch actor from database to ensure update was persisted
+                const updated = foundryApi.getActor(actor.id);
+                expect(updated?.system.focus.exhausted.value).to.equal(0);
+                expect(updated?.system.health.exhausted.value).to.equal(0);
+            })
+        );
 
         it("longRest persits replenishment of consumed stats", async () => {
             // Simulate dialog auto-confirmation
@@ -415,42 +419,32 @@ export function actorTest(context: QuenchBatchContext) {
     });
 
     describe("Actor functions", () => {
-        let actorsToDelete: string[] = [];
-        beforeEach(() => (actorsToDelete = []));
-        afterEach(async () => {
-            await Actor.deleteDocuments(actorsToDelete);
-        });
-
-        async function createActor() {
-            const actor = await actorCreator.createCharacter({ type: "character", name: "Level Up Test", system: {} });
-            actorsToDelete.push(actor.id);
-            return actor;
-        }
-
-        it("should increase derived values on hero level up", async () => {
-            const actor = await createActor();
-            await actor.update({
-                system: {
-                    experience: { spent: 101 },
-                    species: { size: 5 },
-                    attributes: {
-                        mind: { species: 0, initial: 1, advances: 0 },
-                        agility: { species: 0, initial: 2, advances: 0 },
-                        strength: { species: 0, initial: 3, advances: 0 },
-                        willpower: { species: 0, initial: 4, advances: 0 },
-                        constitution: { species: 0, initial: 5, advances: 0 },
+        it(
+            "should increase derived values on hero level up",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        experience: { spent: 101 },
+                        species: { size: 5 },
+                        attributes: {
+                            mind: { species: 0, initial: 1, advances: 0 },
+                            agility: { species: 0, initial: 2, advances: 0 },
+                            strength: { species: 0, initial: 3, advances: 0 },
+                            willpower: { species: 0, initial: 4, advances: 0 },
+                            constitution: { species: 0, initial: 5, advances: 0 },
+                        },
                     },
-                },
-            });
-            await actor.prepareBaseData();
-            await actor.prepareDerivedData();
-
-            expect((actor.system as CharacterDataModel).experience.heroLevel).to.equal(2);
-            expect(actor.derivedValues.size.value, "Size value").to.equal(5);
-            expect(actor.derivedValues.defense.value, "Defense value").to.equal(19);
-            expect(actor.derivedValues.bodyresist.value, "Bodyresist value").to.equal(23);
-            expect(actor.derivedValues.mindresist.value, "Mindresist value").to.equal(19);
-            expect(actor.splinterpoints.max, "Splinterpoints max value").to.equal(4);
-        });
+                });
+                await actor.prepareBaseData();
+                await actor.prepareDerivedData();
+                expect((actor.system as CharacterDataModel).experience.heroLevel).to.equal(2);
+                expect((actor.system as CharacterDataModel).experience.heroLevel).to.equal(2);
+                expect(actor.derivedValues.size.value, "Size value").to.equal(5);
+                expect(actor.derivedValues.defense.value, "Defense value").to.equal(19);
+                expect(actor.derivedValues.bodyresist.value, "Bodyresist value").to.equal(23);
+                expect(actor.derivedValues.mindresist.value, "Mindresist value").to.equal(19);
+                expect(actor.splinterpoints.max, "Splinterpoints max value").to.equal(4);
+            })
+        );
     });
 }

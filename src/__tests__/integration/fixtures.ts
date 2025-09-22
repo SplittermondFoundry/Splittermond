@@ -1,21 +1,21 @@
-import type { TestFunction } from "mocha";
+import { type TestFunction } from "mocha";
+import type SplittermondActor from "module/actor/actor";
 
 declare const game: any;
-export function getActor(test: TestFunction) {
-    const anyActor = game.actors.find(() => true);
-    if (!anyActor) {
-        test.skip("No actor found");
-    }
-    return anyActor;
+async function createActor() {
+    const actor = await Actor.create({ type: "character", name: `Test Actor${nextId()}` });
+    return actor as SplittermondActor;
 }
 
-export function getSpell(test: TestFunction) {
-    const anySpell = game.items.find((item: any) => item.type === "spell");
-    if (!anySpell) {
-        console.log(test);
-        test.skip("No spell found");
-    }
-    return anySpell;
+export function withActor(fn: (actor: SplittermondActor) => Promise<unknown>) {
+    return async () => {
+        const actor = await createActor();
+        try {
+            return await fn(actor as SplittermondActor);
+        } finally {
+            await Actor.deleteDocuments([actor.id]);
+        }
+    };
 }
 
 export function getActorWithItemOfType(test: TestFunction, itemType: string) {
@@ -38,3 +38,13 @@ export function getUnlinkedToken(test: TestFunction) {
     }
     return anyToken;
 }
+
+function nextId() {
+    return idGenerator.next().value;
+}
+const idGenerator = (function* () {
+    let id = 0;
+    while (true) {
+        yield id++;
+    }
+})();
