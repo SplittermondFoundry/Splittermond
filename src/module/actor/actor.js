@@ -1024,6 +1024,12 @@ export default class SplittermondActor extends Actor {
         return highestValue;
     }
 
+    /**
+     * @deprecated Use actor.spendSplinterpoint() instead, as it allows the callser to specify if and how a spent point, or
+     * the inability to do so should be communicated to the user.
+     * @param message
+     * @return {Promise<void>}
+     */
     async useSplinterpointBonus(message) {
         if (
             !message.flags.splittermond ||
