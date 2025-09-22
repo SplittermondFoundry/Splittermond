@@ -1,12 +1,12 @@
-import { rollType } from "./config/RollType";
-import { splittermondSpellEnhancement } from "./config/SplittermondSpellEnhancements";
-import { modifiers } from "./config/modifiers";
-import { skillGroups } from "./config/skillGroups";
-import { damageTypeOptions, damageTypes } from "./config/damageTypes";
-import { attributes, derivedAttributes } from "./config/attributes";
-import { itemFeatures } from "./config/itemFeatures";
-import { itemTypes } from "./config/itemTypes";
-import { time } from "module/config/timeUnits.js";
+import { rollType } from "./RollType";
+import { splittermondSpellEnhancement } from "./SplittermondSpellEnhancements";
+import { modifiers } from "./modifiers";
+import { skillGroups } from "./skillGroups";
+import { damageTypeOptions, damageTypes } from "./damageTypes";
+import { attributes, derivedAttributes } from "./attributes";
+import { itemFeatures } from "./itemFeatures";
+import { itemTypes } from "./itemTypes";
+import { time } from "module/config/timeUnits";
 
 export const splittermond = {};
 
