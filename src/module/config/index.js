@@ -1,3 +1,8 @@
+/**
+ * This file is the old config.js file from Splittermond. It is intended to be separated into smaller parts whenever
+ * The need for a typed subset of the splittermond configuration arises. See the other files in this folder for already
+ * separated parts.
+ */
 import { rollType } from "./RollType";
 import { splittermondSpellEnhancement } from "./SplittermondSpellEnhancements";
 import { modifiers } from "./modifiers";
@@ -8,6 +13,9 @@ import { itemFeatures } from "./itemFeatures";
 import { itemTypes } from "./itemTypes";
 import { time } from "module/config/timeUnits";
 
+/**
+ * Global configuration object for the Splittermond system. Stores constants that are specific to Splittermond behavior.
+ */
 export const splittermond = {};
 
 splittermond.heroLevel = [0, 100, 300, 600];
