@@ -1,4 +1,3 @@
-import { getUnlinkedToken } from "../fixtures.js";
 import { AgentReference } from "module/data/references/AgentReference";
 import { foundryApi } from "module/api/foundryApi";
 import { ItemReference } from "module/data/references/ItemReference";
@@ -28,6 +27,7 @@ export function dataModelTest(context: QuenchBatchContext) {
     const { describe, it, expect, afterEach } = context;
     let createdActors: string[] = [];
     let createdSpells: string[] = [];
+    let createdTokens: string[] = [];
 
     async function createActor() {
         const actor = await Actor.create({ type: "character", name: "Test Actor" });
@@ -39,9 +39,29 @@ export function dataModelTest(context: QuenchBatchContext) {
         createdSpells.push(spell.id);
         return spell as SplittermondSpellItem;
     }
+
+    async function createUnlinkedToken() {
+        const actor = await createActor();
+        const tokenDocument = (
+            await foundryApi.currentScene!.createEmbeddedDocuments("Token", [
+                {
+                    type: "base",
+                    actorLink: false,
+                    actorId: actor.id,
+                    x: (foundryApi.currentScene as any)._viewPosition.x,
+                    y: (foundryApi.currentScene as any)._viewPosition.y,
+                },
+            ])
+        )[0] as TokenDocument;
+        createdTokens.push(tokenDocument.id);
+        return tokenDocument;
+    }
+
     afterEach(async () => {
         await Actor.deleteDocuments(createdActors);
         await Item.deleteDocuments(createdSpells);
+        await foundryApi.currentScene!.deleteEmbeddedDocuments("Token", createdTokens);
+        createdTokens = [];
         createdActors = [];
         createdSpells = [];
     });
@@ -133,7 +153,7 @@ export function dataModelTest(context: QuenchBatchContext) {
         });
 
         it("should get a token by id and scene", async () => {
-            const sampleToken = getUnlinkedToken(it);
+            const sampleToken = await createUnlinkedToken();
 
             const sceneId = sampleToken.parent.id;
             const fromAPI = foundryApi.getToken(sceneId, sampleToken.id);
@@ -177,15 +197,16 @@ export function dataModelTest(context: QuenchBatchContext) {
             expect(reference.getAgent()).to.equal(sampleActor);
         });
 
-        it("should return a token from an actor reference", () => {
-            const sampleToken = getUnlinkedToken(it);
+        it("should return a token from an actor reference", async () => {
+            const sampleToken = await createUnlinkedToken();
             const reference = AgentReference.initialize(sampleToken.actor);
 
             expect(reference.getAgent()).to.equal(sampleToken.actor);
         });
 
-        it("should return a actor from a token input", () => {
-            const sampleToken = getUnlinkedToken(it);
+        it("should return a actor from a token input", async () => {
+            const sampleToken = await createUnlinkedToken();
+            expect(sampleToken.actorLink).to.equal(false);
             const reference = AgentReference.initialize(sampleToken);
 
             expect(reference.getAgent()).to.equal(sampleToken.actor);
@@ -194,7 +215,7 @@ export function dataModelTest(context: QuenchBatchContext) {
         it("should be able to read the document type from the document name field", async () => {
             const actor = await createActor();
             expect(actor.documentName).to.equal("Actor");
-            expect(getUnlinkedToken(it).documentName).to.equal("Token");
+            expect((await createUnlinkedToken()).documentName).to.equal("Token");
         });
     });
 
