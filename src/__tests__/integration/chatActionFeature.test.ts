@@ -1,4 +1,4 @@
-import { getActorWithItemOfType, withActor } from "./fixtures.js";
+import { withActor } from "./fixtures.js";
 import { ChatMessage } from "../../module/api/ChatMessage";
 import { handleChatAction, SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { foundryApi } from "module/api/foundryApi";
@@ -7,7 +7,6 @@ import type { Hooks } from "module/api/foundryTypes";
 import SplittermondActor from "../../module/actor/actor";
 import SplittermondSpellItem from "module/item/spell";
 import { CheckReport } from "module/actor/CheckReport";
-import SplittermondItem from "../../module/item/item";
 import { SpellRollMessage } from "module/util/chat/spellChatMessage/SpellRollMessage";
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 
@@ -110,43 +109,39 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
     });
 
     describe("SpellRollMessage", () => {
-        it("actor should consume enhanced spell", async () => {
-            const actor = getActorWithItemOfType(it, "spell");
-            await actor.update({
-                system: {
-                    focus: {
-                        channeled: { entries: [] },
-                        exhausted: { value: 0 },
-                        consumed: { value: 0 },
-                    },
-                },
-            });
-            const spell = actor.items.find((item: SplittermondItem) => item.type === "spell");
-            console.log(spell);
-            const chatMessage = createSampleChatMessage(actor, spell);
-
-            await chatMessage.sendToChat();
-            const messageId = chatMessage.messageId ?? "This is not a chat message";
-            await handleChatAction({ action: "spellEnhancementUpdate", multiplicity: 1 }, messageId);
-            await handleChatAction({ action: "consumeCosts", multiplicity: 1 }, messageId);
-
-            expect(
-                actor.system.focus.exhausted.value +
-                    actor.system.focus.consumed.value +
-                    actor.system.focus.channeled.value
-            ).to.be.greaterThan(0);
-
-            await actor.update({
-                system: {
-                    focus: {
-                        channeled: { entries: [] },
-                        exhausted: { value: 0 },
-                        consumed: { value: 0 },
-                    },
-                },
-            });
-            return ChatMessage.deleteDocuments([messageId]);
+        let messagesToDelete: string[] = [];
+        afterEach(async () => {
+            await ChatMessage.deleteDocuments(messagesToDelete);
+            messagesToDelete = [];
         });
+        it(
+            "actor should consume enhanced spell",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        focus: {
+                            channeled: { entries: [] },
+                            exhausted: { value: 0 },
+                            consumed: { value: 0 },
+                        },
+                    },
+                });
+                const spell: SplittermondSpellItem = (
+                    await actor.createEmbeddedDocuments("Item", [{ type: "spell", name: "Test Spell" }])
+                )[0];
+                await spell.update({ system: { costs: "4V1", skill: "lightmagic", enhancementCosts: "1EG/+1V1" } });
+                const chatMessage = createSampleChatMessage(actor, spell);
+
+                await chatMessage.sendToChat();
+                const messageId = chatMessage.messageId ?? "This is not a chat message";
+                messagesToDelete.push(messageId);
+                await handleChatAction({ action: "spellEnhancementUpdate", multiplicity: 1 }, messageId);
+                await handleChatAction({ action: "consumeCosts", multiplicity: 1 }, messageId);
+
+                expect(actor.system.focus.exhausted.value).to.equal(3);
+                expect(actor.system.focus.consumed.value).to.equal(1);
+            })
+        );
 
         function createSampleChatMessage(actor: SplittermondActor, spell: SplittermondSpellItem): SplittermondChatCard {
             const checkReport: CheckReport = {

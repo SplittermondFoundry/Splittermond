@@ -13,7 +13,7 @@ declare class SplittermondSpellItem extends AttackableItem(SplittermondItem) {
     get costs(): string;
     get enhancementCosts(): string;
     get availableIn(): any;
-    update(data: any, context: any): any;
+    update(data: any, context?: any): any;
 
     get skill(): any;
     get enoughFocus(): boolean;

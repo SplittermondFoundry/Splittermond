@@ -18,15 +18,6 @@ export function withActor(fn: (actor: SplittermondActor) => Promise<unknown>) {
     };
 }
 
-export function getActorWithItemOfType(test: TestFunction, itemType: string) {
-    const actorWithItem = game.actors.find((actor: any) => actor.items.find((item: any) => item.type === itemType));
-    if (!actorWithItem) {
-        console.log(test);
-        test.skip("No actor with item found");
-    }
-    return actorWithItem;
-}
-
 export function getUnlinkedToken(test: TestFunction) {
     const anyToken = game.scenes
         .map((scene: any) => scene.tokens)
