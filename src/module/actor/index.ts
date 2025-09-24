@@ -9,6 +9,7 @@ const trackableResources = {
 };
 
 export function initializeActor(actorConfig: (typeof CONFIG)["Actor"], addModifier: IAddModifier) {
+    console.log("Splittermond | Initializing Actor feature");
     actorConfig.documentClass = SplittermondActor;
     actorConfig.dataModels.character = CharacterDataModel;
     actorConfig.dataModels.npc = NpcDataModel;

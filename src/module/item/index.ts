@@ -102,6 +102,7 @@ export type {
 };
 
 export function initializeItem(config: typeof CONFIG, modifierRegistry: ModifierRegistry) {
+    console.log("Splittermond | Initializing Item feature");
     config.Item.documentClass = SplittermondItem;
     config.Item.dataModels = {
         ...(CONFIG.Item.dataModels ?? {}),

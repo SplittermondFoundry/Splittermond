@@ -6,6 +6,7 @@ export { ModifierHandler } from "./ModiferHandler";
 export { makeConfig, type Config } from "./ModifierConfig";
 
 export function initializeModifiers() {
+    console.log("Splittermond | Initializing Modifier feature");
     const modifierRegistry = new ModifierRegistry();
     return {
         modifierRegistry,
