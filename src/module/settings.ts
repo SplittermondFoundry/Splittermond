@@ -36,7 +36,7 @@ async function registerSetting<T extends SettingTypes>(
         },
     };
     if (!gameInitialized) {
-        console.debug(`Game not initialized, adding ${key} to queue`);
+        console.debug(`Splittermond | Game not initialized, adding ${key} to queue`);
         addToRegisterQueue(action, setting.position ?? null);
         return delayAccessors(() => accessors);
     }
@@ -106,6 +106,7 @@ export const settings = {
 };
 
 export const registerRequestedSystemSettings = function (): void {
+    console.log("Splittermond | Registering requested system settings");
     settingsQueue.forEach(({ action }) => action());
     settingsQueue.splice(0, settingsQueue.length); //delete all elements
     gameInitialized = true;
