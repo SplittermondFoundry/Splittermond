@@ -10,6 +10,7 @@ import sinon from "sinon";
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 
 import { itemTypes } from "../../module/config/itemTypes";
+import { withActor } from "./fixtures";
 
 declare const Item: any;
 declare const game: any;
@@ -17,16 +18,21 @@ declare const game: any;
 export function itemTest(this: any, context: QuenchBatchContext) {
     const { describe, it, expect, afterEach } = context;
     describe("foundry API compatibility", () => {
-        it("has an actor attached if on an actor", () => {
-            const actorWithItem = game.actors.filter((actor: Actor) => actor.items.size > 0);
-            if (actorWithItem.length === 0) {
-                it.skip("No actor with items found");
-            }
-            const actor = actorWithItem[0];
-            const underTest = actor.items.find(() => true); //get first item
+        it(
+            "has an actor attached if on an actor",
+            withActor(async (actor) => {
+                await actor.createEmbeddedDocuments("Item", [
+                    {
+                        name: "Test Item",
+                        type: "spell",
+                        system: {},
+                    },
+                ]);
+                const underTest = actor.items.find(() => true); //get first item
 
-            expect(underTest.actor).to.equal(actor);
-        });
+                expect(underTest!.actor, "Item defines actor").to.equal(actor);
+            })
+        );
 
         it("can create a new mastery item", async () => {
             let itemData = {

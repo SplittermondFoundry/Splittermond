@@ -18,8 +18,6 @@ declare class Scene extends FoundryDocument {}
 function registerQuenchTests(quench: Quench) {
     console.log("Splittermond | Initializing quench tests");
 
-    quench.mocha.rootHooks(createTestScene());
-
     quench.registerBatch("splittermond.roll", foundryRollTest);
     quench.registerBatch("splittermond.applications", applicationTests);
     quench.registerBatch("splittermond.item", itemTest);
@@ -32,20 +30,6 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.SettingsModule", settingsTest);
     quench.registerBatch("splittermond.modifier", modifierTest);
     quench.registerBatch("splittermond.keybindings", foundryKeybindingsTest);
-}
-
-function createTestScene(): Mocha.RootHookObject {
-    let testScene: Scene;
-    return {
-        beforeAll: async () => {
-            console.debug("Splittermond | Creating test scene for quench tests");
-            testScene = await Scene.create({ name: "Test Scene" });
-        },
-        afterAll: async () => {
-            await Scene.deleteDocuments([testScene.id]);
-            console.debug("Splittermond | Removed test scene for quench tests");
-        },
-    };
 }
 
 export function init() {
