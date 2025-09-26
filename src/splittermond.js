@@ -207,7 +207,7 @@ Hooks.once("init", async function () {
         precedence: CONST.KEYBINDING_PRECEDENCE.DEFERRED,
     });
 
-    if (import.meta.env.PROD !== true) {
+    if (import.meta.env.MODE !== "PROD") {
         const quenchTestsInit = (await import("./__tests__/integration/quench")).init;
         quenchTestsInit();
     }
@@ -484,7 +484,7 @@ function commonEventHandlerHTMLEdition(app, html, data) {
 }
 
 /**
- * @deprecated
+ * @deprecated use {@link commonEventHandlerHTMLEdition} instead
  * @param {object} app
  * @param {JQuery} html
  * @param {Record<string,string>} data
