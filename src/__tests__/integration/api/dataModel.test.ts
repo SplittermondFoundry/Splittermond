@@ -4,7 +4,7 @@ import { ItemReference } from "module/data/references/ItemReference";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import type SplittermondSpellItem from "module/item/spell";
-import type SplittermondActor from "module/actor/actor";
+import { withActor, withUnlinkedToken } from "../fixtures";
 
 declare const DataModelValidationError: any;
 declare namespace foundry {
@@ -25,44 +25,16 @@ declare namespace foundry {
 
 export function dataModelTest(context: QuenchBatchContext) {
     const { describe, it, expect, afterEach } = context;
-    let createdActors: string[] = [];
     let createdSpells: string[] = [];
-    let createdTokens: string[] = [];
 
-    async function createActor() {
-        const actor = await Actor.create({ type: "character", name: "Test Actor" });
-        createdActors.push(actor.id);
-        return actor as SplittermondActor;
-    }
     async function createSpell() {
         const spell = await Item.create({ type: "spell", name: "Test Spell" });
         createdSpells.push(spell.id);
         return spell as SplittermondSpellItem;
     }
 
-    async function createUnlinkedToken() {
-        const actor = await createActor();
-        const tokenDocument = (
-            await foundryApi.currentScene!.createEmbeddedDocuments("Token", [
-                {
-                    type: "base",
-                    actorLink: false,
-                    actorId: actor.id,
-                    x: (foundryApi.currentScene as any)._viewPosition.x,
-                    y: (foundryApi.currentScene as any)._viewPosition.y,
-                },
-            ])
-        )[0] as TokenDocument;
-        createdTokens.push(tokenDocument.id);
-        return tokenDocument;
-    }
-
     afterEach(async () => {
-        await Actor.deleteDocuments(createdActors);
         await Item.deleteDocuments(createdSpells);
-        await foundryApi.currentScene!.deleteEmbeddedDocuments("Token", createdTokens);
-        createdTokens = [];
-        createdActors = [];
         createdSpells = [];
     });
 
@@ -139,12 +111,14 @@ export function dataModelTest(context: QuenchBatchContext) {
     });
 
     describe("references API", () => {
-        it("should get an actor by id", async () => {
-            const sampleActor = await createActor();
-            const fromApi = foundryApi.getActor(sampleActor.id);
+        it(
+            "should get an actor by id",
+            withActor(async (sampleActor) => {
+                const fromApi = foundryApi.getActor(sampleActor.id);
 
-            expect(fromApi).to.equal(sampleActor);
-        });
+                expect(fromApi).to.equal(sampleActor);
+            })
+        );
 
         it("should return undefined for nonsense id", () => {
             const fromAPI = foundryApi.getActor("nonsense");
@@ -152,14 +126,15 @@ export function dataModelTest(context: QuenchBatchContext) {
             expect(fromAPI).to.be.undefined;
         });
 
-        it("should get a token by id and scene", async () => {
-            const sampleToken = await createUnlinkedToken();
+        it(
+            "should get a token by id and scene",
+            withUnlinkedToken(async (sampleToken) => {
+                const sceneId = sampleToken.parent.id;
+                const fromAPI = foundryApi.getToken(sceneId, sampleToken.id);
 
-            const sceneId = sampleToken.parent.id;
-            const fromAPI = foundryApi.getToken(sceneId, sampleToken.id);
-
-            expect(sampleToken).to.equal(fromAPI);
-        });
+                expect(sampleToken).to.equal(fromAPI);
+            })
+        );
 
         it("should return undefined for nonsense id", () => {
             const fromAPI = foundryApi.getToken("nonsense", "bogus");
@@ -177,46 +152,58 @@ export function dataModelTest(context: QuenchBatchContext) {
             expect(underTest.getItem()).to.equal(sampleItem);
         });
 
-        it("should find an item in an actor's collection", async () => {
-            const sampleActor = await createActor();
-            const itemOnActor = await sampleActor
-                .createEmbeddedDocuments("Item", [{ type: "spell", name: "Test Spell on Actor" }])
-                .then((a: unknown[]) => a[0]);
+        it(
+            "should find an item in an actor's collection",
+            withActor(async (sampleActor) => {
+                const itemOnActor = await sampleActor
+                    .createEmbeddedDocuments("Item", [{ type: "spell", name: "Test Spell on Actor" }])
+                    .then((a: unknown[]) => a[0]);
 
-            const underTest = ItemReference.initialize(itemOnActor);
+                const underTest = ItemReference.initialize(itemOnActor);
 
-            expect(underTest.getItem()).to.equal(itemOnActor);
-        });
+                expect(underTest.getItem()).to.equal(itemOnActor);
+            })
+        );
     });
 
     describe("AgentReference", () => {
-        it("should return an actor from a reference", async () => {
-            const sampleActor = await createActor();
-            const reference = AgentReference.initialize(sampleActor);
+        it(
+            "should return an actor from a reference",
+            withActor(async (sampleActor) => {
+                const reference = AgentReference.initialize(sampleActor);
 
-            expect(reference.getAgent()).to.equal(sampleActor);
-        });
+                expect(reference.getAgent()).to.equal(sampleActor);
+            })
+        );
 
-        it("should return a token from an actor reference", async () => {
-            const sampleToken = await createUnlinkedToken();
-            const reference = AgentReference.initialize(sampleToken.actor);
+        it(
+            "should return a token from an actor reference",
+            withUnlinkedToken(async (sampleToken) => {
+                const reference = AgentReference.initialize(sampleToken.actor);
 
-            expect(reference.getAgent()).to.equal(sampleToken.actor);
-        });
+                expect(reference.getAgent()).to.equal(sampleToken.actor);
+            })
+        );
 
-        it("should return a actor from a token input", async () => {
-            const sampleToken = await createUnlinkedToken();
-            expect(sampleToken.actorLink).to.equal(false);
-            const reference = AgentReference.initialize(sampleToken);
+        it(
+            "should return a actor from a token input",
+            withUnlinkedToken(async (sampleToken) => {
+                expect(sampleToken.actorLink).to.equal(false);
+                const reference = AgentReference.initialize(sampleToken);
 
-            expect(reference.getAgent()).to.equal(sampleToken.actor);
-        });
+                expect(reference.getAgent()).to.equal(sampleToken.actor);
+            })
+        );
 
-        it("should be able to read the document type from the document name field", async () => {
-            const actor = await createActor();
-            expect(actor.documentName).to.equal("Actor");
-            expect((await createUnlinkedToken()).documentName).to.equal("Token");
-        });
+        it(
+            "should be able to read the document type from the document name field",
+            withUnlinkedToken(
+                withActor(async (actor, unlinkedToken) => {
+                    expect(actor.documentName).to.equal("Actor");
+                    expect(unlinkedToken.documentName).to.equal("Token");
+                })
+            )
+        );
     });
 
     describe("OnAncestorReference", () => {

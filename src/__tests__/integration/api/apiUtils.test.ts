@@ -1,4 +1,5 @@
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
+import { withScene } from "../fixtures";
 
 declare const foundry: any;
 declare const canvas: any;
@@ -124,8 +125,11 @@ export function apiUtilsTest(context: QuenchBatchContext) {
         expect(probe.topLevel).to.have.property("deleteMe");
     });
 
-    it("should have a canvas with an anmiate pan function", async () => {
-        expect(canvas).to.have.property("animatePan").that.is.a("function");
-        expect(await canvas.animatePan()).to.be.a("boolean");
-    });
+    it(
+        "should have a canvas with an anmiate pan function",
+        withScene(async () => {
+            expect(canvas).to.have.property("animatePan").that.is.a("function");
+            expect(await canvas.animatePan()).to.be.a("boolean");
+        })
+    );
 }

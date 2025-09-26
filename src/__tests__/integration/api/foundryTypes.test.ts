@@ -1,11 +1,13 @@
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
-import { foundryApi } from "../../../module/api/foundryApi";
-import { actorCreator } from "../../../module/data/EntityCreator";
+import { foundryApi } from "module/api/foundryApi";
+import { actorCreator } from "module/data/EntityCreator";
 import { ChatMessage } from "../../../module/api/ChatMessage";
-import { fields } from "../../../module/data/SplittermondDataModel";
-import SplittermondCombat from "../../../module/combat/combat";
-import { CharacterDataModel } from "../../../module/actor/dataModel/CharacterDataModel";
+import { fields } from "module/data/SplittermondDataModel";
+import SplittermondCombat from "module/combat/combat";
+import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import SplittermondCharacterSheet from "../../../module/actor/sheets/character-sheet";
+import { withActor, withPlayer, withUnlinkedToken } from "../fixtures";
+import { User } from "module/api/foundryTypes";
 
 declare const game: any;
 declare const Combat: any;
@@ -178,14 +180,16 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         });
 
         ["document", "controlled"].forEach((property) => {
-            const sampleToken = new Token(game.scenes.find(() => true).tokens.find(() => true));
-            it(`should have a property called ${property}`, () => {
-                expect(sampleToken, `Token does not have ${property}`).to.have.property(property);
-                expect(
-                    typeof sampleToken[property as keyof typeof sampleToken],
-                    `Token property ${property} is a function`
-                ).to.not.equal("function");
-            });
+            it(
+                `should have a property called ${property}`,
+                withUnlinkedToken(async (sampleToken) => {
+                    expect(sampleToken, `Token does not have ${property}`).to.have.property(property);
+                    expect(
+                        typeof sampleToken[property as keyof typeof sampleToken],
+                        `Token property ${property} is a function`
+                    ).to.not.equal("function");
+                })
+            );
         });
 
         ["_onHoverOut", "_onHoverIn", "control"].forEach((property) => {
@@ -233,18 +237,15 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(gm?.character).to.be.null;
         });
 
-        it("should return an actor for a set character", async () => {
-            const testActor = await actorCreator.createCharacter({
-                type: "character",
-                name: "Test Character",
-                system: {},
-            });
-            const nonGM = foundryApi.users.find((user) => !user.isGM);
-            expect(nonGM, "No non-GM user found").to.not.be.null;
-            nonGM!.character = testActor;
-            expect(nonGM!.character).to.be.instanceof(Actor);
-            await Actor.deleteDocuments([testActor.id]);
-        });
+        it(
+            "should return an actor for a set character",
+            withPlayer(
+                withActor(async (testActor, nonGM: User) => {
+                    await (nonGM as unknown as FoundryDocument).update({ character: testActor });
+                    expect(nonGM.character).to.be.instanceof(Actor);
+                })
+            )
+        );
     });
 
     describe("CONFIG", () => {

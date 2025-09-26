@@ -1,25 +1,29 @@
-import { passesEventually, simplePropertyResolver } from "../util";
-import { QuenchBatchContext } from "@ethaks/fvtt-quench";
+import {passesEventually, simplePropertyResolver} from "../util";
+import {QuenchBatchContext} from "@ethaks/fvtt-quench";
 import type TokenActionBar from "../../module/apps/token-action-bar/token-action-bar";
 import type SplittermondActor from "../../module/actor/actor";
-import { actorCreator } from "module/data/EntityCreator";
-import sinon, { type SinonSandbox } from "sinon";
-import { splittermond } from "module/config";
-import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
-import { foundryUISelectors } from "module/apps/tick-bar-hud/tickBarResizing";
+import {actorCreator, itemCreator} from "module/data/EntityCreator";
+import sinon, {type SinonSandbox} from "sinon";
+import {splittermond} from "module/config";
+import {CharacterDataModel} from "module/actor/dataModel/CharacterDataModel";
+import {foundryUISelectors} from "module/apps/tick-bar-hud/tickBarResizing";
 import SplittermondCombat from "../../module/combat/combat";
-import type { FoundryCombatant } from "module/api/foundryTypes";
+import type {FoundryCombatant, FoundryScene} from "module/api/foundryTypes";
 import TickBarHud from "../../module/apps/tick-bar-hud/tick-bar-hud";
-import { foundryApi } from "module/api/foundryApi";
-import { FoundryDragDrop } from "module/api/Application";
+import {foundryApi} from "module/api/foundryApi";
+import {FoundryDragDrop} from "module/api/Application";
+import {createScene} from "./fixtures";
+import type SplittermondItem from "module/item/item";
 
 declare const game: any;
 declare const deepClone: any;
+declare const foundry: any;
+declare const Scene: FoundryScene;
 
 declare class Collection {}
 
 export function applicationTests(context: QuenchBatchContext) {
-    const { describe, it, expect, beforeEach, afterEach } = context;
+    const { describe, it, expect, beforeEach, afterEach, before, after } = context;
 
     describe("foundry API compatibility", () => {
         it("game.packs can be sorted by documentName", () => {
@@ -30,9 +34,12 @@ export function applicationTests(context: QuenchBatchContext) {
             );
         });
 
+        //Species pack is delivered with the system and should always be there
         it("receives an index with objects that have the expected properties", async () => {
-            const searchParam = { fields: ["system.skill", "name"] };
-            const firstItemCompendium = game.packs.find((p: any) => p.documentName === "Item");
+            const searchParam = { fields: ["system.size", "name"] };
+            const firstItemCompendium = game.packs.find(
+                (p: any) => p.documentName === "Item" && p.metadata.path === "systems/splittermond/packs/species"
+            );
             if (!firstItemCompendium) {
                 it.skip("No item compendium found");
             }
@@ -69,10 +76,26 @@ export function applicationTests(context: QuenchBatchContext) {
     });
 
     describe("Compendium Browser getData", () => {
+        let testCompendium: any;
+
+        beforeEach(async () => {
+            testCompendium = await foundry.documents.collections.CompendiumCollection.createCompendium({
+                type: "Item",
+                label: "Test Compendium",
+            });
+            const spell = await itemCreator.createSpell({ type: "spell", name: "Test Spell", system: {} });
+            await testCompendium.importDocument(spell);
+            const mastery = await itemCreator.createMastery({ type: "mastery", name: "Test Mastery", system: {} });
+            await testCompendium.importDocument(mastery);
+            const weapon = await itemCreator.createWeapon({ type: "weapon", name: "Test Mastery", system: {} });
+            await testCompendium.importDocument(weapon);
+            await Item.deleteDocuments([spell.id, mastery.id, weapon.id]);
+        });
+        afterEach(async () => {
+            await testCompendium.deleteCompendium();
+        });
+
         it("should return an object with the expected properties", async () => {
-            if (game.packs.length === 0) {
-                it.skip("No compendiums found");
-            }
             const data = await game.splittermond.compendiumBrowser._prepareContext();
             expect(data).to.have.property("items");
             expect(data.items).to.have.property("mastery");
@@ -185,9 +208,9 @@ export function applicationTests(context: QuenchBatchContext) {
                 getTestWeapon(),
                 getTestShield(),
             ]);
-            const spell = createdDocuments[0];
-            const weapon = createdDocuments[1];
-            const shield = createdDocuments[2];
+            const spell = createdDocuments.find((d: SplittermondItem) => d.type == "spell")!;
+            const weapon = createdDocuments.find((d: SplittermondItem) => d.type == "weapon")!;
+            const shield = createdDocuments.find((d: SplittermondItem) => d.type == "shield")!;
 
             actor.prepareBaseData();
             await actor.prepareEmbeddedDocuments();
@@ -291,14 +314,29 @@ export function applicationTests(context: QuenchBatchContext) {
         let actors: SplittermondActor[] = [];
         let tokens: TokenDocument[] = [];
         let sandbox: SinonSandbox;
+        let scene: FoundryScene;
 
+        before(async () => {
+            /*
+             * For creating valid tokens we need a fully loaded and active scene. Unfortunately, scene loading happens
+             * asynchronously and there is no "scene loaded" event we could hook into. So we just wait a second after
+             * the scene was activated.
+             */
+            scene = await createScene();
+            await scene.view();
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await scene.activate();
+        });
+        after(async () => {
+            await Scene.deleteDocuments([scene.id]);
+        });
         beforeEach(() => (sandbox = sinon.createSandbox()));
 
         afterEach(() => {
             Combat.deleteDocuments(combats.map((c) => c.id));
             Actor.deleteDocuments(actors.map((a) => a.id));
             tokens.forEach((t) => t.actor?.sheet.close());
-            foundryApi.currentScene!.deleteEmbeddedDocuments(
+            scene.deleteEmbeddedDocuments(
                 "Token",
                 tokens.map((t) => t.id)
             );
@@ -319,22 +357,23 @@ export function applicationTests(context: QuenchBatchContext) {
         async function createCombatant(name: string, combat: SplittermondCombat) {
             const actor = await actorCreator.createCharacter({ type: "character", name, system: {} });
             const tokenDocument = (
-                await foundryApi.currentScene!.createEmbeddedDocuments("Token", [
+                await scene.createEmbeddedDocuments("Token", [
                     {
                         type: "base",
                         actorId: actor.id,
-                        x: (foundryApi.currentScene as any)._viewPosition.x,
-                        y: (foundryApi.currentScene as any)._viewPosition.y,
+                        x: scene._viewPosition.x,
+                        y: scene._viewPosition.y,
                     },
                 ])
             )[0] as TokenDocument;
+            console.debug("Token created");
             actors.push(actor);
             tokens.push(tokenDocument);
             const combatants = await combat.createEmbeddedDocuments("Combatant", [
                 {
                     type: "base",
                     actorId: actor.id,
-                    sceneId: foundryApi.currentScene!.id,
+                    sceneId: scene.id,
                     tokenId: tokenDocument.id,
                     defeated: false,
                     group: null,
@@ -369,7 +408,7 @@ export function applicationTests(context: QuenchBatchContext) {
 
             expect(combat.combatants.contents).to.have.length(1);
             expect(combatant.combat).to.deep.equal(combat);
-            expect(combatant.actor, "comatant actor is actor").to.deep.equal(actor);
+            expect(combatant.actor, "combatant actor is actor").to.deep.equal(actor);
             expect(combatant.token, "combatant token is token").to.deep.equal(token);
             expect(combatant.actor.token, "actor token is token").to.deep.equal(token);
             expect((game.splittermond.tickBarHud as TickBarHud).viewed).to.equal(combat);

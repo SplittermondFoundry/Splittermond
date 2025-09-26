@@ -1,4 +1,4 @@
-import { withActor } from "./fixtures.js";
+import { withActor, withScene } from "./fixtures.js";
 import { ChatMessage } from "../../module/api/ChatMessage";
 import { handleChatAction, SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { foundryApi } from "module/api/foundryApi";
@@ -12,7 +12,7 @@ import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 
 declare const game: any;
 declare const Hooks: Hooks;
-declare const CONFIG: any;
+declare class Scene extends FoundryDocument {}
 
 type ChatMessageConfig = Parameters<(typeof SplittermondChatCard)["create"]>[2];
 export function chatActionFeatureTest(context: QuenchBatchContext) {
@@ -189,14 +189,16 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
 
         it(
             "should produce a speaker from actor",
-            withActor(async (actor) => {
-                const speaker = foundryApi.getSpeaker({ actor });
+            withScene(
+                withActor(async (actor, scene) => {
+                    const speaker = foundryApi.getSpeaker({ actor });
 
-                expect(speaker, "speaker is an object").to.be.an("object");
-                expect(speaker.scene, "speaker has a scene").to.be.a("string");
-                expect(speaker.token, "speaker declares a token").to.not.be.undefined;
-                expect(speaker.actor, "speaker declares an actor").to.equal(actor.id);
-            })
+                    expect(speaker, "speaker is an object").to.be.an("object");
+                    expect(speaker.scene, "speaker has a scene").to.equal(scene.id);
+                    expect(speaker.token, "speaker declares a token").to.not.be.undefined;
+                    expect(speaker.actor, "speaker declares an actor").to.equal(actor.id);
+                })
+            )
         );
 
         it(

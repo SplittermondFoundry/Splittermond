@@ -7,6 +7,8 @@ import { NpcDataModelType } from "../actor/dataModel/NpcDataModel";
 import SplittermondArmorItem from "../item/armor";
 import { DataModelConstructorInput } from "../api/DataModel";
 import { ArmorDataModelType, MasteryDataModelType, SpellDataModelType } from "../item";
+import type { WeaponDataModel } from "module/item/dataModel/WeaponDataModel";
+import type SplittermondWeaponItem from "module/item/weapon";
 
 interface CommonItemInput {
     name?: string;
@@ -30,6 +32,11 @@ export const itemCreator = {
         data: CommonItemInput & { type: "armor"; system: Partial<DataModelConstructorInput<ArmorDataModelType>> }
     ): Promise<SplittermondArmorItem> {
         return foundryApi.createItem(data) as Promise<SplittermondArmorItem>;
+    },
+    createWeapon(
+        data: CommonItemInput & { type: "weapon"; system: Partial<DataModelConstructorInput<WeaponDataModel>> }
+    ): Promise<SplittermondWeaponItem> {
+        return foundryApi.createItem(data) as Promise<SplittermondWeaponItem>;
     },
 };
 
