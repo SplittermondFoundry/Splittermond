@@ -67,9 +67,14 @@ async function evaluateImplements(damageImplements: ProtoDamageImplement[]) {
     return new EvaluatedImplements(evaluatedImplements);
 }
 
+interface DamageRollOptions {
+    costBase: CostBase;
+    isGrazingHit: boolean;
+}
+
 async function rollFromDamageRoll(
     damages: ProtoDamageImplement[],
-    costBase: CostBase,
+    damageRollOptions: DamageRollOptions,
     speaker: SplittermondActor | null
 ) {
     const evaluatedImplements = await evaluateImplements(damages);
@@ -77,11 +82,11 @@ async function rollFromDamageRoll(
     const totalRoll = evaluatedImplements.evaluatedRoll;
     const damageEvent = new DamageEvent({
         causer: speaker ? AgentReference.initialize(speaker) : null,
-        _costBase: costBase,
+        _costBase: damageRollOptions.costBase,
         formulaToDisplay: toDisplayFormula(asString(condense(mapRoll(totalRoll)))),
         tooltip: await totalRoll.getTooltip(),
         implements: damageImplements,
-        isGrazingHit: false,
+        isGrazingHit: damageRollOptions.isGrazingHit,
     });
 
     return SplittermondChatCard.create(speaker, DamageMessage.initialize(damageEvent, evaluatedImplements.features), {

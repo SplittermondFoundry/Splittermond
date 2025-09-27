@@ -1,3 +1,9 @@
+## 13.6.0
+
+### New Features
+
+- Streiftreffer bei Angriffen werden jetzt bei der Schadenbserechnung berücksichtigt.
+
 ## 13.5.2
 
 ### Fixed
