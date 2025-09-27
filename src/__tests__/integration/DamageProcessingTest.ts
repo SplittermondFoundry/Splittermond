@@ -72,9 +72,13 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
                 damageSource: "Brennende Klinge",
                 damageType: "fire" as const,
             };
+            const rollOptions = {
+                costBase: CostBase.create("V"),
+                isGrazingHit: false,
+            };
             const chatMessage = await DamageInitializer.rollFromDamageRoll(
                 [firstImplement, secondImplement],
-                CostBase.create("V"),
+                rollOptions,
                 null
             );
             const damageMessage = chatMessage.system as DamageMessage;

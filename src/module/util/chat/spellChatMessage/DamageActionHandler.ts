@@ -112,9 +112,13 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
                 this.updateSource({ used: true });
                 const spell = this.spellReference.getItem();
                 const damages = this.totalDamage;
+                const rollOptions = {
+                    costBase: CostBase.create(spell.system.costType ?? "V"),
+                    isGrazingHit: false /*spells cannot be grazing hits*/,
+                };
                 return DamageInitializer.rollFromDamageRoll(
                     [damages.principalComponent, ...damages.otherComponents],
-                    CostBase.create(spell.system.costType ?? "V"),
+                    rollOptions,
                     this.actorReference.getAgent()
                 ).then((chatCard) => chatCard.sendToChat());
             })

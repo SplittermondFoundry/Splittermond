@@ -377,8 +377,13 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
                 const costType = $(event.currentTarget).closestData("costtype") ?? "V";
                 const actorId = $(event.currentTarget).closestData("actorid");
                 const actor = foundryApi.getActor("source") ?? null; //May fail if ID refers to a token
-                return DamageInitializer.rollFromDamageRoll(damageImplements, CostBase.create(costType), actor).then(
-                    (message) => message.sendToChat()
+                /** @type DamageRollOptions */
+                const rollOptions = {
+                    costBase: CostBase.create(costType),
+                    isGrazingHit: false,
+                };
+                return DamageInitializer.rollFromDamageRoll(damageImplements, rollOptions, actor).then((message) =>
+                    message.sendToChat()
                 );
             }
 
