@@ -98,8 +98,12 @@ function setUpCostExpression(expression: Value, source: object): CostExpression 
     }
 }
 
-function modifiesFocus(modifierId: string) {
-    return (
-        modifierId.toLowerCase().startsWith("foreduction") || modifierId.toLowerCase().startsWith("foenhancedreduction")
-    );
+/**
+ * This is a bit of a hack. Unfortunately, the only way of distinguishing focus modifiers from others is by path
+ * because focus modifiers overlap with scalar modifiers for reductions that only cover exhausted focus.
+ * A generally better way of handling this would be to check the registries if they handle the given path
+ * and then validate the attributes accordingly.
+ */
+function modifiesFocus(groupId: string): boolean {
+    return groupId.toLowerCase().includes("focus") && !groupId.toLowerCase().includes("regeneration");
 }

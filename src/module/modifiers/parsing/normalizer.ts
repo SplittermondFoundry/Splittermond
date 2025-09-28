@@ -13,6 +13,7 @@ const modifierKeys = [
     "features",
     "item",
     "itemType",
+    "type",
     "unit",
 ] as const;
 const attributeMapper = initMapper(attributes)

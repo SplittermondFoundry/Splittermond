@@ -2,9 +2,8 @@ import SplittermondItem from "../item/item";
 import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
-import { parseModifiers, processValues, Value } from "./parsing";
+import { type FocusModifier, parseModifiers, processValues, type ScalarModifier, Value } from "./parsing";
 import { condense, Expression as ScalarExpression, of, pow, times } from "./expressions/scalar";
-import { times as timesCost } from "./expressions/cost";
 import Modifier from "../actor/modifier";
 import { validateDescriptors } from "./parsing/validators";
 import { normalizeDescriptor } from "./parsing/normalizer";
@@ -18,7 +17,10 @@ export interface AddModifierResult {
     costModifiers: ICostModifier[];
 }
 
-export function initAddModifier(registry: ModifierRegistry) {
+export function initAddModifier(
+    registry: ModifierRegistry<ScalarModifier>,
+    costRegistry: ModifierRegistry<FocusModifier>
+) {
     return function addModifier(
         item: SplittermondItem,
         str = "",
@@ -38,21 +40,13 @@ export function initAddModifier(registry: ModifierRegistry) {
         const allErrors = [...parsedResult.errors, ...normalizedModifiers.errors];
         const errorLogger = (...msg: string[]) => allErrors.push(...msg);
         const handlerCache = registry.getCache(errorLogger, item, type, of(multiplier));
+        const costHandlerCache = costRegistry.getCache(errorLogger, item, type, of(multiplier));
 
         normalizedModifiers.vectorModifiers.forEach((mod) => {
-            const modifierLabel = mod.path.toLowerCase();
-            const itemSkill = "skill" in item.system ? item.system.skill : null;
-            if (modifierLabel.startsWith("foreduction") || modifierLabel.startsWith("foenhancedreduction")) {
-                const costModifier: ICostModifier = {
-                    label: mod.path,
-                    value: timesCost(of(multiplier), mod.value),
-                    skill: itemSkill,
-                };
+            const costModifierHandler = costHandlerCache.getHandler(mod.path);
+            const costModifier = costModifierHandler.processModifier(mod);
+            if (costModifier) {
                 costModifiers.push(costModifier);
-            } else {
-                console.warn(
-                    `Splittermond | Encountered a focus modifier for whose path '${modifierLabel} is unknown.`
-                );
             }
             return;
         });

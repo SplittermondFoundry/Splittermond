@@ -32,6 +32,7 @@ import { ItemFeaturesModel } from "./module/item/dataModel/propertyModels/ItemFe
 import { toggleElement } from "./module/util/animatedDisplay";
 import { initializeActor } from "module/actor/index.js";
 import { initializeModifiers } from "module/modifiers/index.js";
+import { initializeCosts } from "module/util/costs/index.js";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -91,6 +92,7 @@ Hooks.once("init", async function () {
     game.splittermond.API = { modifierRegistry: modifierModule.modifierRegistry };
     initializeActor(CONFIG.Actor, modifierModule.addModifier);
     initializeItem(CONFIG, modifierModule.modifierRegistry);
+    initializeCosts(modifierModule.costModifierRegistry);
     chatActionFeature(CONFIG.ChatMessage);
 
     CONFIG.Combat.documentClass = SplittermondCombat;

@@ -1,4 +1,4 @@
-import { ModifierHandler } from "module/modifiers/ModiferHandler";
+import { type AnyModifier, ModifierHandler } from "module/modifiers/ModiferHandler";
 import type { ModifierType } from "module/actor/modifier-manager";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import { IllegalStateException } from "module/data/exceptions";
@@ -12,13 +12,13 @@ type HandlerConstructorArgs = [
     type: ModifierType,
     multiplier: Expression,
 ];
-type HandlerConstructor<T extends ModifierHandler> = new (...args: HandlerConstructorArgs) => T;
-type HandlerArgs<T extends ModifierHandler = ModifierHandler> = ConstructorParameters<HandlerConstructor<T>>;
+type HandlerConstructor<T extends ModifierHandler<any>> = new (...args: HandlerConstructorArgs) => T;
+type HandlerArgs<T extends ModifierHandler<any> = ModifierHandler<any>> = ConstructorParameters<HandlerConstructor<T>>;
 
-export class ModifierRegistry {
-    private registeredHandlers: Map<string, HandlerConstructor<ModifierHandler>> = new Map();
+export class ModifierRegistry<TYPE extends AnyModifier> {
+    private registeredHandlers: Map<string, HandlerConstructor<ModifierHandler<TYPE>>> = new Map();
 
-    addHandler<T extends ModifierHandler>(groupId: string, handlerClass: HandlerConstructor<T>) {
+    addHandler<T extends ModifierHandler<TYPE>>(groupId: string, handlerClass: HandlerConstructor<T>) {
         const lowerGroupId = groupId.toLowerCase();
         this.validateGroupId(lowerGroupId);
         this.checkHandlerShadowing(lowerGroupId);
@@ -78,15 +78,15 @@ export class ModifierRegistry {
 
 type ModifierRegister<T> = { get(groupId: string): T | undefined; has(groupId: string): boolean };
 
-class ModifierCache {
-    private cachedHandlers: Map<string, ModifierHandler> = new Map();
+class ModifierCache<TYPE extends AnyModifier> {
+    private cachedHandlers: Map<string, ModifierHandler<TYPE>> = new Map();
 
     constructor(
-        private readonly registry: ModifierRegister<HandlerConstructor<ModifierHandler>>,
+        private readonly registry: ModifierRegister<HandlerConstructor<ModifierHandler<TYPE>>>,
         private readonly handlerArgs: HandlerArgs
     ) {}
 
-    getHandler(groupId: string): ModifierHandler {
+    getHandler(groupId: string): ModifierHandler<TYPE> {
         const lowerGroupId = groupId.toLowerCase();
         const cachedKey = firstMatchingSuperSegment(lowerGroupId, this.cachedHandlers);
         if (cachedKey !== null) {
@@ -99,7 +99,7 @@ class ModifierCache {
         return new NoActionModifierHandler(...this.handlerArgs);
     }
 
-    private instantiateHandler(groupId: string): ModifierHandler {
+    private instantiateHandler(groupId: string): ModifierHandler<TYPE> {
         const constructor = this.registry.get(groupId);
         if (!constructor) {
             throw new IllegalStateException("No constructor found for groupId " + groupId);
@@ -110,7 +110,7 @@ class ModifierCache {
     }
 }
 
-class NoActionModifierHandler extends ModifierHandler {
+class NoActionModifierHandler<T extends AnyModifier> extends ModifierHandler<T> {
     constructor(logErrors: ErrorLogger, _: SplittermondItem, __: ModifierType, ___: Expression) {
         super(logErrors, makeConfig({ topLevelPath: "" }));
     }

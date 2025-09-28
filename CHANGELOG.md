@@ -1,8 +1,15 @@
 ## 13.6.0
 
+### Breaking Changes
+
+- Die Modifikatoren `foreduction` und `foenhancedreduction` sind veraltet. Sie werden durch `focus.reduction` und
+  `focus.enhancedreduction` ersetzt.
+    - Existierende Modifikatoren werden bei der Migration automatisch umbenannt.
+
 ### New Features
 
 - Streiftreffer bei Angriffen werden jetzt bei der Schadenbserechnung berücksichtigt.
+- es gibt jetzt Modifikatoren `focus.addition` und `focus.enchandedaddition`, die es erlauben Fokuskosten zu erhöhen.
 
 ## 13.5.2
 

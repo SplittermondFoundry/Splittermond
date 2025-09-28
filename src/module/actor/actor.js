@@ -545,9 +545,9 @@ export default class SplittermondActor extends Actor {
         const data = asPreparedData(this.system);
         result.costModifiers.forEach((costModifier) => {
             const modifierLabel = costModifier.label.toLowerCase();
-            if (modifierLabel.startsWith("foreduction")) {
+            if (modifierLabel.startsWith("focus.reduction")) {
                 data.spellCostReduction.addCostModifier(costModifier);
-            } else if (modifierLabel.startsWith("foenhancedreduction")) {
+            } else if (modifierLabel.startsWith("focus.enhancedreduction")) {
                 data.spellEnhancedCostReduction.addCostModifier(costModifier);
             }
         });

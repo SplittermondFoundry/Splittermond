@@ -10,7 +10,7 @@ import { type TimeUnit } from "module/config/timeUnits";
 
 type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
 
-export class ItemModifierHandler extends ModifierHandler {
+export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
     constructor(
         logErrors: (...message: string[]) => void,
         private readonly sourceItem: SplittermondItem,

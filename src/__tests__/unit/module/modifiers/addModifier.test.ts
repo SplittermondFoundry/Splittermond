@@ -11,16 +11,19 @@ import { CharacterAttribute } from "module/actor/dataModel/CharacterAttribute";
 import Attribute from "module/actor/attribute";
 import { clearMappers } from "module/modifiers/parsing/normalizer";
 import { evaluate, of, pow } from "module/modifiers/expressions/scalar";
-import { of as ofCost } from "module/modifiers/expressions/cost";
+import { of as ofCost, times } from "module/modifiers/expressions/cost";
 import { stubRollApi } from "../../RollMock";
 import { InverseModifier } from "module/actor/InverseModifier";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
+import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
 
-function setupAddModiferFunction() {
+function setupAddModifierFunction() {
     const modifierRegistry = new ModifierRegistry();
-    modifierRegistry.addHandler("item", ItemModifierHandler);
-    return initAddModifier(modifierRegistry);
+    const costModifierRegistry = new ModifierRegistry();
+    costModifierRegistry.addHandler(CostModifierHandler.config.topLevelPath, CostModifierHandler);
+    modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);
+    return initAddModifier(modifierRegistry, costModifierRegistry);
 }
 
 describe("addModifier", () => {
@@ -28,7 +31,7 @@ describe("addModifier", () => {
     let actor: SinonStubbedInstance<SplittermondActor>;
     let item: SinonStubbedInstance<SplittermondItem>;
     let systemData: any;
-    const addModifier = setupAddModiferFunction();
+    const addModifier = setupAddModifierFunction();
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
@@ -546,23 +549,35 @@ describe("addModifier", () => {
             ["4V2", new Cost(2, 2, false).asModifier()],
         ] as const
     ).forEach(([cost, expected]) => {
-        it(`should return focus costs of ${cost} for spell manager`, () => {
-            const result = addModifier(item, `foreduction.protectionmagic ${cost}`);
+        it(`should return reduced focus costs of ${cost} for spell manager`, () => {
+            const result = addModifier(item, `focus.reduction skill="protectionmagic" ${cost}`);
             expect(result.costModifiers).to.have.length(1);
             expect(result.costModifiers[0]).to.deep.equal({
-                label: "foreduction.protectionmagic",
+                label: "focus.reduction",
                 value: ofCost(expected),
                 skill: null,
+                attributes: { skill: "protectionmagic", type: undefined },
+            });
+        });
+        it(`should return added focus costs of ${cost} for spell manager`, () => {
+            const result = addModifier(item, `focus.addition skill="protectionmagic" ${cost}`);
+            expect(result.costModifiers).to.have.length(1);
+            expect(result.costModifiers[0]).to.deep.equal({
+                label: "focus.reduction",
+                value: times(of(-1), ofCost(expected)),
+                skill: null,
+                attributes: { skill: "protectionmagic", type: undefined },
             });
         });
 
         it(`should return focus costs of ${cost} for spell enhancement manager`, () => {
-            const result = addModifier(item, `foenhancedreduction.combatmagic ${cost}`);
+            const result = addModifier(item, `focus.enhancedreduction skill="combatmagic" ${cost}`);
             expect(result.costModifiers).to.have.length(1);
             expect(result.costModifiers[0]).to.deep.equal({
-                label: "foenhancedreduction.combatmagic",
+                label: "focus.enhancedreduction",
                 value: ofCost(expected),
                 skill: null,
+                attributes: { skill: "combatmagic", type: undefined },
             });
         });
     });

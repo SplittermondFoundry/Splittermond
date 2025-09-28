@@ -127,7 +127,7 @@ describe("Value Processor", () => {
     //Because the only strings that are valid after processing are focus cost modifier strings
     it("should count string values as vector expressions", () => {
         const complexModifier: ParsedModifier = {
-            path: "foreduction.path",
+            path: "focus.reduction skill=path",
             attributes: {
                 value: "K7V5",
             },
@@ -144,7 +144,7 @@ describe("Value Processor", () => {
     it("should provide references for cost expressions", () => {
         const focusSource = { existing: { path: "1" } };
         const complexModifier: ParsedModifier = {
-            path: "foenhancedreduction.path",
+            path: "focus.enhancedreduction skill=path",
             attributes: {
                 value: {
                     propertyPath: "existing.path",
