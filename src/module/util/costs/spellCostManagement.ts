@@ -23,12 +23,16 @@ export function initializeSpellCostManagement<T extends Record<string, any>>(
 }
 
 export interface ICostModifier {
-    /**the unparsed input formula for spell reducctions, of the form: foreduction([.]skill|[.]skill[.]type)?*/
+    /**the unparsed input formula for spell reductions, of the form: foreduction([.]skill|[.]skill[.]type)?*/
     readonly label: string;
     /** the unevaluated splittermond spell cost reduction formula*/
     readonly value: CostExpression;
     /** the skill that is attached to the item that carries the modifier label. Global reductions on skilled items will be assumed to apply to that skill only.*/
     readonly skill: string | null;
+    readonly attributes: {
+        skill?: string;
+        type?: string;
+    };
 }
 
 class SpellCostReductionManager {
@@ -43,21 +47,9 @@ class SpellCostReductionManager {
     }
 
     addCostModifier(modifier: ICostModifier) {
-        let group = null;
-        let type = null;
-        let labelParts = modifier.label.split(".");
+        let group = modifier.attributes.skill ?? null;
+        let type = modifier.attributes.type?.toLowerCase() ?? null;
 
-        if (labelParts.length >= 2) {
-            group = labelParts[1].trim().toLowerCase();
-        }
-        if (labelParts.length >= 3) {
-            type = labelParts[2].trim().toLowerCase();
-        }
-        if (labelParts.length >= 4) {
-            console.warn(
-                "The label " + modifier.label + " is not a valid cost modifier label. Extraneous parts will be ignored."
-            );
-        }
         if (group === null && modifier.skill) {
             group = modifier.skill;
         }

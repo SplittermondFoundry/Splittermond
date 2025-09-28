@@ -612,7 +612,39 @@ export function modifierTest(context: QuenchBatchContext) {
                     system: {
                         skill: "deathmagic",
                         level: 1,
-                        modifier: "foreduction.deathmagic 2V1",
+                        modifier: "focus.reduction skill=deathmagic 2V1",
+                    },
+                },
+            ]);
+            await subject.createEmbeddedDocuments("Item", [spellDefinition]);
+
+            subject.prepareBaseData();
+            await subject.prepareEmbeddedDocuments();
+            subject.prepareDerivedData();
+
+            expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("2V1");
+        });
+        it("should handle foreduction correctly for a type only modifier", async () => {
+            const subject = await defaultActor("SpellMaster", "");
+            const spellDefinition = {
+                type: "spell",
+                name: "Pseudotodeszauber",
+                system: {
+                    skill: "deathmagic",
+                    spellType: "lässt Siechen",
+                    level: 1,
+                    costs: "4V2",
+                    difficulty: "18",
+                },
+            };
+            await subject.createEmbeddedDocuments("Item", [
+                {
+                    type: "mastery",
+                    name: "Sparsamer Zauberer",
+                    system: {
+                        skill: "deathmagic",
+                        level: 1,
+                        modifier: "focus.reduction Typus='lässt Siechen' 2V1",
                     },
                 },
             ]);
@@ -644,7 +676,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     system: {
                         skill: "deathmagic",
                         level: 1,
-                        modifier: "foreduction.deathmagic 1",
+                        modifier: "focus.reduction Fertigkeit='Todesmagie' 1",
                     },
                 },
             ]);

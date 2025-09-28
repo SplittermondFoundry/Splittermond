@@ -27,7 +27,7 @@ import { StatusEffectDataModel, type StatusEffectDataModelType } from "./dataMod
 import { StrengthDataModel, type StrengthDataModelType } from "./dataModel/StrengthDataModel";
 import { WeaknessDataModel, type WeaknessDataModelType } from "./dataModel/WeaknessDataModel";
 import { WeaponDataModel, type WeaponDataModelType } from "./dataModel/WeaponDataModel";
-import { ModifierRegistry } from "module/modifiers";
+import { type ScalarRegistry } from "module/modifiers";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 
 type SplittermondItemDataModel =
@@ -101,7 +101,7 @@ export type {
     SplittermondItemDataModel,
 };
 
-export function initializeItem(config: typeof CONFIG, modifierRegistry: ModifierRegistry) {
+export function initializeItem(config: typeof CONFIG, modifierRegistry: ScalarRegistry) {
     console.log("Splittermond | Initializing Item feature");
     config.Item.documentClass = SplittermondItem;
     config.Item.dataModels = {

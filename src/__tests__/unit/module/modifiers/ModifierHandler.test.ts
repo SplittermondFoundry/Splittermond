@@ -8,7 +8,7 @@ import { type Expression, of } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "module/api/foundryApi";
 import { type ConfigSegment, makeConfig } from "module/modifiers/ModifierConfig";
 
-class TestModifierHandler extends ModifierHandler {
+class TestModifierHandler extends ModifierHandler<ScalarModifier> {
     static get config() {
         return makeConfig({
             topLevelPath: "test",

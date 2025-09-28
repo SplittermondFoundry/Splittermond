@@ -1,17 +1,23 @@
 import type { IModifier } from "module/actor/modifier-manager";
 import { foundryApi } from "module/api/foundryApi";
-import type { ScalarModifier, Value } from "module/modifiers/parsing";
+import type { FocusModifier, ScalarModifier, Value } from "module/modifiers/parsing";
 import { validateDescriptors } from "module/modifiers/parsing/validators";
-import type { Expression } from "module/modifiers/expressions/scalar";
 import type { Config, ConfigSegment } from "module/modifiers/ModifierConfig";
+import type { CostExpression } from "module/modifiers/expressions/cost";
+import type { Expression } from "module/modifiers/expressions/scalar";
+import type { ICostModifier } from "module/util/costs/spellCostManagement";
 
-export abstract class ModifierHandler {
+export type AnyModifier = ScalarModifier | FocusModifier;
+
+type ExpressionType<T extends AnyModifier> = T["value"] & (Expression | CostExpression);
+type ResultType<T extends AnyModifier> = T extends ScalarModifier ? IModifier : ICostModifier;
+export abstract class ModifierHandler<TYPE extends AnyModifier> {
     constructor(
         private readonly logErrors: (...messages: string[]) => void,
         private readonly config: Config
     ) {}
 
-    processModifier(modifier: ScalarModifier): IModifier | null {
+    processModifier(modifier: TYPE): ResultType<TYPE> | null {
         if (this.omitForValue(modifier.value)) {
             console.debug(`Splittermond | Omitting modifier ${modifier.path} because of its value:`, modifier.value);
             return null;
@@ -29,9 +35,9 @@ export abstract class ModifierHandler {
         return this.buildModifier(modifier, pathConfig);
     }
 
-    protected abstract omitForValue(value: Expression): boolean;
+    protected abstract omitForValue(value: ExpressionType<TYPE>): boolean;
 
-    protected abstract buildModifier(modifier: ScalarModifier, pathConfig: ConfigSegment): IModifier | null;
+    protected abstract buildModifier(modifier: TYPE, pathConfig: ConfigSegment): ResultType<TYPE> | null;
 
     private getPathConfig(path: string): ConfigSegment | null {
         const pathElements = path.split(".").map((e) => e.toLowerCase());
@@ -51,7 +57,7 @@ export abstract class ModifierHandler {
         return currentSegment;
     }
 
-    protected reportUnknownAttributes(modifier: ScalarModifier, config: ConfigSegment) {
+    protected reportUnknownAttributes(modifier: TYPE, config: ConfigSegment) {
         const knownAttributes = [...config.requiredAttributes, ...config.optionalAttributes];
         Object.keys(modifier.attributes)
             .filter((key) => !knownAttributes.includes(key))
@@ -69,11 +75,11 @@ export abstract class ModifierHandler {
         this.logErrors(foundryApi.format("splittermond.modifiers.parseMessages.unknownGroupId", { groupId }));
     }
 
-    private noMissingAttributes(modifier: ScalarModifier, config: ConfigSegment) {
+    private noMissingAttributes(modifier: TYPE, config: ConfigSegment) {
         return this.findMissingAttributes(modifier, config).length === 0;
     }
 
-    private reportMissingAttributeError(modifier: ScalarModifier, pathConfig: ConfigSegment) {
+    private reportMissingAttributeError(modifier: TYPE, pathConfig: ConfigSegment) {
         const failedValidations = this.findMissingAttributes(modifier, pathConfig).map((attributeKey) =>
             foundryApi.format("splittermond.modifiers.parseMessages.missingDescriptor", {
                 groupId: modifier.path,
@@ -83,7 +89,7 @@ export abstract class ModifierHandler {
         this.logErrors(...failedValidations);
     }
 
-    private findMissingAttributes(modifier: ScalarModifier, config: ConfigSegment) {
+    private findMissingAttributes(modifier: TYPE, config: ConfigSegment) {
         return config.requiredAttributes.filter(
             (requiredAttribute) => modifier.attributes[requiredAttribute] === undefined
         );

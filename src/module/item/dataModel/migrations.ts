@@ -3,6 +3,8 @@ import { validateDescriptors } from "module/modifiers/parsing/validators";
 import { isRoll } from "module/api/Roll";
 import { parseFeatures } from "./propertyModels/ItemFeaturesModel";
 
+/* Remove migrations after advancing two major versions. I.e. remove 12.x migrations with Foundry v14 */
+
 export function migrateFrom0_12_13(source: unknown) {
     if (!!source && typeof source === "object" && "modifier" in source && typeof source.modifier === "string") {
         const keep = source.modifier
@@ -138,4 +140,31 @@ function mapDamageModifier(mod: string): string {
     } else {
         return `${path} ${valueAsString}`;
     }
+}
+
+export function from13_5_2_migrate_fo_modifiers(source: unknown) {
+    if (!source || typeof source !== "object" || !("modifier" in source) || typeof source.modifier !== "string") {
+        return source;
+    }
+    const keep = source.modifier
+        .split(",")
+        .map((mod) => mod.trim())
+        .filter((mod) => !mod.startsWith("foreduction") && !mod.startsWith("foenhancedreduction"));
+    const change = source.modifier
+        .split(",")
+        .map((mod) => mod.trim())
+        .filter((mod) => mod.startsWith("foreduction") || mod.startsWith("foenhancedreduction"))
+        .map(mapFoReduction);
+
+    source.modifier = [...keep, ...change].join(", ");
+    return source;
+}
+
+function mapFoReduction(mod: string): string {
+    const groupId = mod.split(" ")[0].split(".");
+    const group = groupId[0];
+    const skill = groupId[1] ?? "";
+    const type = groupId[2] ?? "";
+    const newGroup = group === "foreduction" ? "focus.reduction" : "focus.enhancedreduction";
+    return `${newGroup} skill="${skill}" type="${type}" ${mod.replace(/^\S+/, "").trim()}`;
 }

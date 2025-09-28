@@ -8,14 +8,15 @@ import { ModifierType } from "module/actor/modifier-manager";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import { foundryApi } from "module/api/foundryApi";
 import { of } from "module/modifiers/expressions/scalar";
+import type { ScalarModifier } from "module/modifiers/parsing";
 
 describe("ModifierRegistry", () => {
     let sandbox: SinonSandbox;
-    let registry: ModifierRegistry;
+    let registry: ModifierRegistry<ScalarModifier>;
     let consoleDebugSpy: SinonSpy;
 
     // Mock handler classes for testing
-    class TestHandler extends ModifierHandler {
+    class TestHandler extends ModifierHandler<ScalarModifier> {
         constructor(logErrors: (...messages: string[]) => void, _: SplittermondItem, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "test" }));
         }
@@ -29,7 +30,7 @@ describe("ModifierRegistry", () => {
         }
     }
 
-    class AnotherTestHandler extends ModifierHandler {
+    class AnotherTestHandler extends ModifierHandler<ScalarModifier> {
         constructor(logErrors: (...messages: string[]) => void, _: SplittermondItem, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "another" }));
         }
