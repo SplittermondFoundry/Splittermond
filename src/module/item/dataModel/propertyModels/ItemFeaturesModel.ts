@@ -48,7 +48,7 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
         return this.featureList.some((f) => f.name === feature);
     }
 
-    valueOf(feature: ItemFeature) {
+    featureValue(feature: ItemFeature): number {
         return this.findFeature(feature)?.value ?? 0;
     }
 
