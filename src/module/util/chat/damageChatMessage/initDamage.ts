@@ -107,7 +107,7 @@ async function mapToImplement(proto: EvaluatedImplement) {
         formula: proto.evaluatedRoll.roll.formula,
         implementName: proto.damageSource ?? "",
         damageExplanation: explanation,
-        _baseReductionOverride: proto.evaluatedRoll.features.valueOf("Durchdringung"),
+        _baseReductionOverride: proto.evaluatedRoll.features.featureValue("Durchdringung"),
         damageType: proto.damageType,
     });
 }

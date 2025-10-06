@@ -11,6 +11,10 @@
 - Streiftreffer bei Angriffen werden jetzt bei der Schadenbserechnung berücksichtigt.
 - es gibt jetzt Modifikatoren `focus.addition` und `focus.enchandedaddition`, die es erlauben Fokuskosten zu erhöhen.
 
+### Fixed
+
+- VTD bei aktiver Abwehr wird korrekt angezeigt, wenn der Wert mittels Splitterpunkt modifiziert wird.
+
 ## 13.5.2
 
 ### Fixed

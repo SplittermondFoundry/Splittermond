@@ -1,5 +1,6 @@
 import * as Tooltip from "./tooltip.js";
 import { foundryApi } from "../api/foundryApi.ts";
+import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel.js";
 
 /**
  * @param {string|null} userId
@@ -171,7 +172,11 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
             let tickCost = 3;
             let defenseValue = data.baseDefense;
             if (data.succeeded) {
-                defenseValue = defenseValue + 1 + data.degreeOfSuccess + data.itemData.itemFeatures.valueOf("Defensiv");
+                const itemFeatures =
+                    data.itemData.itemFeatures instanceof ItemFeaturesModel
+                        ? data.itemData.itemFeatures
+                        : new ItemFeaturesModel(data.itemData.itemFeatures);
+                defenseValue = defenseValue + 1 + data.degreeOfSuccess + itemFeatures.featureValue("Defensiv");
                 templateContext.degreeOfSuccessDescription =
                     "<p style='text-align: center'><strong>" +
                     game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +

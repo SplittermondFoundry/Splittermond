@@ -1025,7 +1025,7 @@ export default class SplittermondActor extends Actor {
     }
 
     /**
-     * @deprecated Use actor.spendSplinterpoint() instead, as it allows the callser to specify if and how a spent point, or
+     * @deprecated Use actor.spendSplinterpoint() instead, as it allows the caller to specify if and how a spent point, or
      * the inability to do so should be communicated to the user.
      * @param message
      * @return {Promise<void>}

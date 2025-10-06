@@ -144,7 +144,7 @@ async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel
     return { roll, activeFeatures };
 
     function modifyFormulaForExactFeature() {
-        const exactValue = features.valueOf("Exakt");
+        const exactValue = features.featureValue("Exakt");
         if (exactValue) {
             activeFeatures.add("Exakt");
             const dieTerm = getFirstDieTerm(roll);
@@ -156,7 +156,7 @@ async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel
     }
 
     function modifyResultForScharfFeature() {
-        const scharfValue = features.valueOf("Scharf");
+        const scharfValue = features.featureValue("Scharf");
         if (scharfValue) {
             let scharfBonus = 0;
             const firstDie = getFirstDieTerm(roll);
@@ -184,7 +184,7 @@ async function evaluateDamageRoll(roll: FoundryRoll, features: ItemFeaturesModel
     }
 
     function modifyResultForKritischFeature() {
-        const kritischValue = features.valueOf("Kritisch");
+        const kritischValue = features.featureValue("Kritisch");
         if (kritischValue) {
             let kritischBonus = 0;
             const firstDie = getFirstDieTerm(roll);
