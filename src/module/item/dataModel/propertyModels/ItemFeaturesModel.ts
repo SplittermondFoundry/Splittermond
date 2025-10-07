@@ -68,6 +68,7 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
             .getForId(groupId)
             .withAttributeValuesOrAbsent("item", this.getName() ?? "")
             .withAttributeValuesOrAbsent("itemType", this.getItemType() ?? "")
+            .withAttributeValuesOrAbsent("skill", this.getItemSkill() ?? "")
             .getModifiers()
             .flatMap((m) => {
                 const value = `${evaluate(m.value)}` || "";
@@ -102,8 +103,13 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
     private getName(): string | null {
         return this.findDocument()?.name ?? null;
     }
+
     private getItemType(): string | null {
         return this.findDocument()?.type ?? null;
+    }
+    private getItemSkill(): string | null {
+        const doc = this.findDocument();
+        return doc && "skill" in doc.system && doc.system.skill ? doc.system.skill : null;
     }
 }
 

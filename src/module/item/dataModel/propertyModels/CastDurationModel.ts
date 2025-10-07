@@ -1,13 +1,13 @@
 import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import SplittermondItem from "module/item/item";
 import { foundryApi } from "module/api/foundryApi";
-import { SplittermondItemDataModel } from "../../index";
 import { DocumentAccessMixin } from "module/data/AncestorDocumentMixin";
 import { asString, condense, evaluate, isGreaterZero, of, plus, times } from "module/modifiers/expressions/scalar";
 import type { TimeUnit } from "module/config/timeUnits";
 import { splittermond } from "module/config";
 import { getTimeUnitConversion } from "module/util/timeUnitConversion";
 import ModifierManager from "module/actor/modifier-manager";
+import type { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 
 function CastDurationSchema() {
     return {
@@ -23,7 +23,7 @@ function CastDurationSchema() {
 
 export type CastDurationType = DataModelSchemaType<typeof CastDurationSchema>;
 
-export class CastDurationBase extends SplittermondDataModel<CastDurationType, SplittermondItemDataModel> {
+export class CastDurationBase extends SplittermondDataModel<CastDurationType, SpellDataModel> {
     static defineSchema = CastDurationSchema;
 }
 
@@ -93,7 +93,8 @@ export class CastDurationModel extends DocumentAccessMixin(CastDurationBase, Spl
             .getForId(groupId)
             .notSelectable()
             .withAttributeValuesOrAbsent("item", this.getItemName())
-            .withAttributeValuesOrAbsent("itemType", this.getItemType());
+            .withAttributeValuesOrAbsent("itemType", this.getItemType())
+            .withAttributeValuesOrAbsent("skill", this.parent?.skill ?? "");
     }
 
     private getItemName(): string {

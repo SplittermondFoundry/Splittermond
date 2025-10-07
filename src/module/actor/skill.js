@@ -8,6 +8,9 @@ import { asString } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
 
+/**
+ * @property {string} id
+ */
 export default class Skill extends Modifiable {
     /**
      * @param {SplittermondActor} actor

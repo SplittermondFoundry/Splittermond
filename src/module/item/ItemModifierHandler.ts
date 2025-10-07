@@ -24,25 +24,25 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
         topLevelPath: "item",
         subSegments: {
             damage: {
-                optionalAttributes: ["item", "damageType", "itemType", "features"],
+                optionalAttributes: ["item", "damageType", "itemType", "features", "skill"],
             },
             weaponspeed: {
-                optionalAttributes: ["item", "itemType"],
+                optionalAttributes: ["item", "itemType", "skill"],
             },
             mergeFeature: {
                 requiredAttributes: ["feature"],
-                optionalAttributes: ["item", "itemType"],
+                optionalAttributes: ["item", "itemType", "skill"],
             },
             addFeature: {
                 requiredAttributes: ["feature"],
-                optionalAttributes: ["item", "itemType"],
+                optionalAttributes: ["item", "itemType", "skill"],
             },
             castDuration: {
                 requiredAttributes: ["unit"],
-                optionalAttributes: ["item", "itemType"],
+                optionalAttributes: ["item", "itemType", "skill"],
                 subSegments: {
                     multiplier: {
-                        optionalAttributes: ["item", "itemType"],
+                        optionalAttributes: ["item", "itemType", "skill"],
                     },
                 },
             },
@@ -82,6 +82,8 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
                 return this.normalizeItemType(path, value);
             case "unit":
                 return this.normalizeUnit(path, value);
+            case "skill":
+                return this.normalizeSkill(path, value);
             default:
                 return this.validatedAttribute(value);
         }
@@ -117,6 +119,18 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
             return undefined;
         } else if (!(splittermond.itemTypes as Readonly<string[]>).includes(normalized)) {
             this.reportInvalidDescriptor(path, "itemType", normalized);
+            return normalized;
+        } else {
+            return normalized;
+        }
+    }
+
+    normalizeSkill(path: string, skill: Value | undefined): string | undefined {
+        const normalized = this.normalizeAttribute(skill, "skills");
+        if (!normalized) {
+            return undefined;
+        } else if (!(splittermond.skillGroups.all as Readonly<string[]>).includes(normalized)) {
+            this.reportInvalidDescriptor(path, "skill", normalized);
             return normalized;
         } else {
             return normalized;

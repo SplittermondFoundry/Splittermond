@@ -274,6 +274,21 @@ describe("Spell item damage report", () => {
         expect(damages.otherComponents).to.have.lengthOf(1);
     });
 
+    it("should account for skill modifiers", () => {
+        const underTest = setUpSpell(sandbox);
+        defineValue(underTest, "name", "Kettenblitz");
+        const modifierProperties = {
+            type: "magic" as const,
+            skill: underTest.system.skill,
+            name: "Klinge aus Licht",
+        };
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+
+        const damages = underTest.getForDamageRoll();
+
+        expect(damages.otherComponents).to.have.lengthOf(1);
+    });
+
     it("should filter out type modifiers", () => {
         const underTest = setUpSpell(sandbox);
         defineValue(underTest, "name", "Kettenblitz");
@@ -317,6 +332,20 @@ describe("Spell item damage report", () => {
         expect(damages.otherComponents).to.have.lengthOf(0);
     });
 
+    it("should ignore skill modifiers for different skills", () => {
+        const underTest = setUpSpell(sandbox);
+        defineValue(underTest, "name", "Kettenblitz");
+        const modifierProperties = {
+            type: "magic" as const,
+            skill: underTest.system.skill !== "deathmagic" ? "deathmagic" : "illusionmagic",
+            name: "Klinge aus Licht",
+        };
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+
+        const damages = underTest.getForDamageRoll();
+
+        expect(damages.otherComponents).to.be.empty;
+    });
     it("should produce a printable damage report via a getter", () => {
         sandbox.stub(foundryApi.utils, "mergeObject").returns({});
         const parser = getSpellAvailabilityParser({ localize: (str) => str.split(".").pop() ?? str }, []);

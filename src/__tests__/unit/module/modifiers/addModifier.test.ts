@@ -345,7 +345,29 @@ describe("addModifier", () => {
             });
         });
 
-        ["item='Schwert'", 'itemType="weapon"'].forEach((attribute) => {
+        it("should pass valid item skills on modifiers", () => {
+            const result = addModifier(item, 'item.damage skill="arcanelore" +5');
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0]).to.deep.include({
+                path: "item.damage",
+                value: of(5),
+                attributes: { name: "Test Item", type: null, skill: "arcanelore" },
+                origin: item,
+            });
+        });
+
+        it("should keep invalid item skills on modifiers", () => {
+            const result = addModifier(item, 'item.damage skill="blubb" +5');
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0]).to.deep.include({
+                path: "item.damage",
+                value: of(5),
+                attributes: { name: "Test Item", type: null, skill: "blubb" },
+                origin: item,
+            });
+        });
+
+        ["item='Schwert'", 'itemType="weapon"', "skill=blades"].forEach((attribute) => {
             it("should not warn for valid damage type attributes", () => {
                 addModifier(item, `item.damage damageType="fire" ${attribute} features="Kritisch 2" +2`);
                 expect((foundryApi.reportError as SinonStub).notCalled).to.be.true;
@@ -409,10 +431,56 @@ describe("addModifier", () => {
             });
         });
 
-        ["item='Schwert'", 'itemType="weapon"'].forEach((attribute) => {
+        it("should pass skill weaponspeed modifiers", () => {
+            const result = addModifier(item, 'item.weaponspeed skill="melee" +5');
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0]).to.deep.include({
+                path: "item.weaponspeed",
+                value: of(5),
+                attributes: { name: "Test Item", type: null, skill: "melee" },
+                origin: item,
+            });
+        });
+
+        it("should keep invalid skill weaponspeed modifiers", () => {
+            const result = addModifier(item, 'item.weaponspeed skill="fern" +5');
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0]).to.deep.include({
+                path: "item.weaponspeed",
+                value: of(5),
+                attributes: { name: "Test Item", type: null, skill: "fern" },
+                origin: item,
+            });
+        });
+
+        ["item='Schwert'", 'itemType="weapon"', "skill=blades"].forEach((attribute) => {
             it("should not warn for valid damage type attributes", () => {
                 addModifier(item, `item.weaponspeed ${attribute} +2`);
                 expect((foundryApi.reportError as SinonStub).notCalled).to.be.true;
+            });
+        });
+    });
+
+    describe("cast duration modifiers", () => {
+        it("should handle cast duration modifiers", () => {
+            const result = addModifier(item, 'item.castDuration unit="Ticks" +2');
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0]).to.deep.include({
+                path: "item.castDuration",
+                value: of(2),
+                attributes: { name: "Test Item", type: null, unit: "T" },
+                origin: item,
+            });
+        });
+
+        it("should handle cast duration multiplier modifiers", () => {
+            const result = addModifier(item, "item.castDuration.multiplier +2");
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0]).to.deep.include({
+                path: "item.castDuration.multiplier",
+                value: of(2),
+                attributes: { name: "Test Item", type: null },
+                origin: item,
             });
         });
     });
@@ -463,6 +531,28 @@ describe("addModifier", () => {
                 });
             });
 
+            it(`should pass valid item types on item feature modifiers for ${path}`, () => {
+                const result = addModifier(item, `${path} feature="masterwork" skill="blades" +3`);
+                expect(result.modifiers).to.have.length(1);
+                expect(result.modifiers[0]).to.deep.include({
+                    path,
+                    value: of(3),
+                    attributes: { name: "Test Item", type: null, feature: "masterwork", skill: "blades" },
+                    origin: item,
+                });
+            });
+
+            it(`should keep invalid item types on item feature modifiers for ${path}`, () => {
+                const result = addModifier(item, `${path} feature="enchanted" skill="invalid" +1`);
+                expect(result.modifiers).to.have.length(1);
+                expect(result.modifiers[0]).to.deep.include({
+                    path,
+                    value: of(1),
+                    attributes: { name: "Test Item", type: null, feature: "enchanted", skill: "invalid" },
+                    origin: item,
+                });
+            });
+
             it(`should handle item feature modifiers with multiple attributes for ${path}`, () => {
                 const result = addModifier(item, `${path} feature="blessed" item="Holy Sword" itemType="weapon" +5`);
                 expect(result.modifiers).to.have.length(1);
@@ -479,15 +569,16 @@ describe("addModifier", () => {
                     origin: item,
                 });
             });
-
-            [`${path} item="Sword" feature="Scharf" +2`, `${path} feature="Scharf" itemType="weapon" +2`].forEach(
-                (input) => {
-                    it(`should not warn for valid feature attributes in ${input}`, () => {
-                        addModifier(item, input);
-                        expect((foundryApi.reportError as SinonStub).notCalled).to.be.true;
-                    });
-                }
-            );
+            [
+                `${path} item="Sword" feature="Scharf" +2`,
+                `${path} feature="Scharf" itemType="weapon" +2`,
+                `${path} feature="Scharf" skill=blades +2`,
+            ].forEach((input) => {
+                it(`should not warn for valid feature attributes in ${input}`, () => {
+                    addModifier(item, input);
+                    expect((foundryApi.reportError as SinonStub).notCalled).to.be.true;
+                });
+            });
         });
     });
 

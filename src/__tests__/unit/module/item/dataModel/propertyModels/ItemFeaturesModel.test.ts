@@ -176,6 +176,54 @@ describe("ItemFeaturesModel", () => {
         expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 3"]);
     });
 
+    it("should filter modifier feature merge by skill", () => {
+        const internal1 = new ItemFeatureDataModel({ name: "Ablenkend", value: 1 });
+        const internal2 = new ItemFeatureDataModel({ name: "Scharf", value: 2 });
+        const parent = setupParent();
+        parent.updateSource({ skill: "blades" });
+        parent.parent!.actor.modifier.add(
+            "item.mergeFeature",
+            { name: "Test", feature: "Scharf", skill: "blades", type: "magic" },
+            of(4),
+            null,
+            false
+        );
+        parent.parent!.actor.modifier.add(
+            "item.mergeFeature",
+            { name: "Test", feature: "Scharf", skill: "staffs", type: "magic" },
+            of(5),
+            null,
+            false
+        );
+        const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
+
+        expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 4"]);
+    });
+
+    it("should filter modifier feature add by skill", () => {
+        const internal1 = new ItemFeatureDataModel({ name: "Ablenkend", value: 1 });
+        const internal2 = new ItemFeatureDataModel({ name: "Scharf", value: 2 });
+        const parent = setupParent();
+        parent.updateSource({ skill: "blades" });
+        parent.parent!.actor.modifier.add(
+            "item.addFeature",
+            { name: "Test", feature: "Scharf", skill: "blades", type: "innate" },
+            of(1),
+            null,
+            false
+        );
+        parent.parent!.actor.modifier.add(
+            "item.addFeature",
+            { name: "Test", feature: "Scharf", skill: "staffs", type: "innate" },
+            of(5),
+            null,
+            false
+        );
+        const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
+
+        expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 3"]);
+    });
+
     it("should merge features", () => {
         const one = ItemFeaturesModel.from("Ablenkend 1, Scharf 2, Durchdringung 3");
         const other = ItemFeaturesModel.from("Wuchtig, Scharf 5, Durchdringung 1");
@@ -186,11 +234,13 @@ describe("ItemFeaturesModel", () => {
 
     function setupParent() {
         const parent = sandbox.createStubInstance(WeaponDataModel);
+        parent.updateSource.callThrough();
         const actor = sandbox.createStubInstance(SplittermondActor);
         Object.defineProperty(actor, "modifier", { value: new ModifierManager(), enumerable: true, writable: false });
         parent.parent = sandbox.createStubInstance(SplittermondWeaponItem);
         parent.parent.name = "Test";
         Object.defineProperty(parent.parent, "actor", { value: actor, enumerable: true, writable: false });
+        Object.defineProperty(parent.parent, "system", { value: parent, enumerable: true, writable: false });
         return parent;
     }
 });
