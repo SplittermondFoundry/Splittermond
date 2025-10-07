@@ -119,6 +119,11 @@ describe("ItemModifierHandler", () => {
             expect(result).to.equal("weapon");
         });
 
+        it("should handle valid item type", () => {
+            const result = handler.mapAttribute("item.weaponspeed", "skill", "windmagic");
+            expect(result).to.equal("windmagic");
+        });
+
         it("should keep invalid item type", () => {
             const result = handler.mapAttribute("item.weaponspeed", "itemType", "invalid");
             expect(result).to.equal("invalid");

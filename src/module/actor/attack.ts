@@ -256,6 +256,7 @@ export default class Attack {
             .notSelectable()
             .withAttributeValuesOrAbsent("item", this.name)
             .withAttributeValuesOrAbsent("itemType", this.item.type)
+            .withAttributeValuesOrAbsent("skill", this.skill.id)
             .getModifiers()
             .map((m) => {
                 const features = mergeFeatures(
@@ -300,6 +301,7 @@ export default class Attack {
             .getForId("item.weaponspeed")
             .withAttributeValuesOrAbsent("item", this.item.id, this.item.name)
             .withAttributeValuesOrAbsent("itemType", this.item.type)
+            .withAttributeValuesOrAbsent("skill", this.skill.id)
             .getModifiers().value;
 
         this.getImproviationBonus().forEach((bonus) => (weaponSpeed -= evaluate(bonus.damageExpression)));

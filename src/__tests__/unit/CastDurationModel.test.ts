@@ -7,6 +7,7 @@ import ModifierManager from "module/actor/modifier-manager";
 import SplittermondActor from "module/actor/actor";
 import SplittermondItem from "module/item/item";
 import { of } from "module/modifiers/expressions/scalar";
+import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 
 describe("parseCastDuration", () => {
     const sandbox = sinon.createSandbox();
@@ -238,6 +239,27 @@ describe("CastDurationModel", () => {
 
             expect(model.inTicks).to.equal(10);
         });
+
+        [{ skill: "deathmagic" }, { itemType: "weapon" }, { item: "Some other spell" }].forEach((attrs) => {
+            it(`ignores modifiers with wrong value for ${Object.keys(attrs).pop()}`, () => {
+                const model = createModel(sandbox, { value: 10, unit: "T" });
+                model.parent?.updateSource({ skill: "windmagic" });
+                const modifierManager = model.document.actor.modifier;
+                const attributes = { ...attrs, name: "TestMod", type: "innate" as const };
+                modifierManager.add("item.castDuration.multiplier", attributes, of(2));
+                modifierManager.add("item.castDuration", { ...attributes, unit: "T" }, of(-5));
+
+                expect(model.inTicks).to.equal(10);
+            });
+        });
+        const model = createModel(sandbox, { value: 10, unit: "T" });
+        const modifierManager = model.document.actor.modifier;
+        const attributes = { item: "Test Spell", itemType: "spell", name: "Test Spell", type: "innate" as const };
+        modifierManager.add("item.castDuration.multiplier", attributes, of(3));
+        modifierManager.add("item.castDuration.multiplier", attributes, of(0.5));
+
+        // Should calculate: 10 * (3 * 0.5) + 0 = 15
+        expect(model.inTicks).to.equal(15);
     });
 
     describe("edge cases", () => {
@@ -285,7 +307,13 @@ function createModel(sandbox: SinonSandbox, props: Props) {
     mockDocument.name = "Test Spell";
     mockDocument.type = "spell";
     Object.defineProperty(mockDocument, "actor", { value: mockActor, enumerable: true });
+
+    const system = sandbox.createStubInstance(SpellDataModel);
+    system.updateSource.callThrough();
+    Object.defineProperty(mockDocument, "system", { value: system, enumerable: true });
+    Object.defineProperty(system, "parent", { value: mockDocument, enumerable: true });
+
     const model = new CastDurationModel(props);
-    Object.defineProperty(model, "parent", { value: mockDocument, enumerable: true });
+    Object.defineProperty(model, "parent", { value: system, enumerable: true });
     return model;
 }

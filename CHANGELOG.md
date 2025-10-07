@@ -1,5 +1,16 @@
 ## 13.6.2
 
+### New Features
+
+- Modifikatoren für Items können auf Items mit bestimmten Fertigkeiten beschränkt werden
+    - Attribut `skill` kann genutzt werden, um den Modifikator auf Items zu beschränken, die eine bestimmte Fertigkeit
+      nutzen.
+    - Beispiel: `damage itemSkill="Klingenwaffen" 2` addiert 2 Schaden zu allen Waffen, die die Fertigkeit "
+      Klingenwaffen" nutzen.
+    - Das Attribut kann mit "itemType" kombiniert werden, um z.B. nur Schilde mit der Fertigkeit "Klingenwaffen" zu
+      modifizieren.
+    -
+
 ### Fixed
 
 - Fokusmodifikatoren werden automatisch migriert

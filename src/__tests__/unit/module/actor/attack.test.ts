@@ -113,6 +113,23 @@ describe("Attack", () => {
             expect(damageItems.otherComponents).to.have.length(1);
         });
 
+        it("should account for skill modifiers", () => {
+            const actor = setUpActor(sandbox);
+            const attackItem = setUpAttackItem({ skill: "blades" });
+            attackItem.name = "Langschwert";
+            const modifierAttributes = {
+                type: "magic" as const,
+                skill: "blades",
+                name: "Klinge des Lichts",
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            const underTest = new Attack(actor, attackItem);
+
+            const damageItems = underTest.getForDamageRoll();
+
+            expect(damageItems.otherComponents).to.have.length(1);
+        });
+
         it("should filter out type modifiers", () => {
             const actor = setUpActor(sandbox);
             const attackItem = setUpAttackItem();
@@ -162,6 +179,23 @@ describe("Attack", () => {
             const damageItems = underTest.getForDamageRoll();
 
             expect(damageItems.otherComponents).to.have.length(0);
+        });
+
+        it("should ignore for modifiers for different skills", () => {
+            const actor = setUpActor(sandbox);
+            const attackItem = setUpAttackItem({ skill: "blades" });
+            attackItem.name = "Langschwert";
+            const modifierAttributes = {
+                type: "magic" as const,
+                skill: "staffs",
+                name: "Klinge des Lichts",
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            const underTest = new Attack(actor, attackItem);
+
+            const damageItems = underTest.getForDamageRoll();
+
+            expect(damageItems.otherComponents).to.be.empty;
         });
 
         it("should account for Improvisation feature", () => {
@@ -327,6 +361,21 @@ describe("Attack", () => {
         actor.modifier.add(
             "item.weaponspeed",
             { type: "magic", name: attackItem?.name, itemType: "weapon" },
+            of(3),
+            null,
+            false
+        );
+        const underTest = new Attack(actor, attackItem);
+
+        expect(underTest.weaponSpeed).to.equal(7);
+    });
+
+    it("should filter out weapon speed modifiers by item skill", () => {
+        const actor = setUpActor(sandbox);
+        const attackItem = setUpAttackItem({ weaponSpeed: 7, skill: "staffs" });
+        actor.modifier.add(
+            "item.weaponspeed",
+            { type: "magic", name: attackItem?.name, skill: "blades" },
             of(3),
             null,
             false
