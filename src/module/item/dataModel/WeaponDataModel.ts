@@ -4,6 +4,7 @@ import { damage, getDescriptorFields, getPhysicalProperties, validatedBoolean } 
 import {
     from0_12_20_migrateDamage,
     from0_12_20_migrateFeatures,
+    from13_5_2_migrate_fo_modifiers,
     migrateFrom0_12_13,
     migrateFrom0_12_20,
 } from "./migrations";
@@ -52,6 +53,7 @@ export class WeaponDataModel extends SplittermondDataModel<WeaponDataModelType, 
         source = migrateFrom0_12_20(source);
         source = from0_12_20_migrateFeatures(source);
         source = from0_12_20_migrateDamage(source);
+        source = from13_5_2_migrate_fo_modifiers(source);
         return super.migrateData(source);
     }
 }
