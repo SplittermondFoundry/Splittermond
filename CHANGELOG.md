@@ -1,3 +1,9 @@
+## 13.6.2
+
+### Fixed
+
+- Fokusmodifikatoren werden automatisch migriert
+
 ## 13.6.1
 
 ### Breaking Changes
