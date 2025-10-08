@@ -1,3 +1,10 @@
+## 13.6.3
+
+### Fixed
+
+- Ein Fehler wurde behoben bei dem Fokusmodifikatoren mit ungültigen Fertigkeits- oder Typusfiltern ausgestattet wurden
+- Ein Fehler wurde behoben, bei denen Änderungen an Kampteilnehmern nicht auf der Tickleiste aktualisiert wurden
+
 ## 13.6.2
 
 ### New Features

@@ -2,7 +2,6 @@ import { FoundryDragDrop } from "../../api/Application";
 import { TickBarHudTemplateData } from "./templateInterface";
 import type { StatusEffectMessageData } from "../../util/chat.js";
 import * as Chat from "../../util/chat.js";
-import type { FoundryCombat, FoundryCombatant } from "module/api/foundryTypes";
 import { closestData } from "../../data/ClosestDataMixin";
 import { foundryApi } from "../../api/foundryApi";
 import {
@@ -13,6 +12,7 @@ import {
 } from "../../data/SplittermondApplication";
 import type { VirtualToken } from "../../combat/VirtualToken";
 import { initMaxWidthTransitionForTickBarHud } from "./tickBarResizing";
+import type { FoundryCombat, FoundryCombatant } from "module/api/foundryTypes";
 
 export default class TickBarHud extends SplittermondApplication {
     viewed: FoundryCombat | null = null;
@@ -122,9 +122,10 @@ export default class TickBarHud extends SplittermondApplication {
                 })
             );
 
-            var lastTick = this.minTick;
+            let lastTick = this.minTick;
             this.maxTick = Math.max(Math.max(...iniData, maxStatusEffectTick) + 25, 50);
             this.minTick = Math.min(...iniData);
+            this.validateTickRange();
             for (let tickNumber = this.minTick; tickNumber <= this.maxTick; tickNumber++) {
                 data.ticks.push({
                     tickNumber: tickNumber,
@@ -147,7 +148,7 @@ export default class TickBarHud extends SplittermondApplication {
                         defeated: c.isDefeated,
                         hidden: c.hidden,
                         initiative: c.initiative,
-                        hasRolled: c.initiative !== null,
+                        hasRolled: true,
                     };
 
                     if (c.initiative === 10000) {
@@ -219,6 +220,7 @@ export default class TickBarHud extends SplittermondApplication {
             });
             for (let index = 0; index < activatedStatusTokens.length; index++) {
                 const element = activatedStatusTokens[index];
+                // noinspection ES6MissingAwait Chat message is info for the user, we don't need to await it.
                 foundryApi.createChatMessage(await Chat.prepareStatusEffectMessage(element.combatant.actor, element));
             }
         }
@@ -226,6 +228,24 @@ export default class TickBarHud extends SplittermondApplication {
         this.lastStatusTick = this.currentTick;
 
         return data;
+    }
+
+    /**
+     * Validates the calculated tick range to ensure it falls within acceptable bounds. Through mishap or malicious input
+     * The range can be made to be absurdly large (like billions of ticks). For each tick we create and allocate an object
+     * easily crashing foundry on startup.
+     */
+    private validateTickRange() {
+        if (isNaN(this.minTick) || !isFinite(this.minTick) || this.minTick < -100) {
+            console.warn(
+                "Splittermond | Tick Bar HUD calculated a faulty minimum tick value. Setting -20 as min Tick."
+            );
+            this.minTick = -20;
+        }
+        if (isNaN(this.maxTick) || !isFinite(this.maxTick) || this.maxTick > 1000) {
+            console.warn("Splittermond | Tick Bar HUD calculated a faulty maximum tick value. Setting 50 as max Tick.");
+            this.maxTick = 50;
+        }
     }
 
     private animateMouseMovement(event: Event, animation: (e: HTMLElement) => Keyframe[] | PropertyIndexedKeyframes) {
@@ -528,5 +548,14 @@ export function initTickBarHud(splittermond: Record<string, unknown>) {
     const tickBarHud = new TickBarHud();
     splittermond.tickBarHud = tickBarHud;
     foundryApi.combats.apps.push(tickBarHud);
+
+    function renderForActiveCombatant(combatant: FoundryCombatant) {
+        if (tickBarHud.combats.find((c) => c.isActive && c === combatant.combat)) {
+            tickBarHud.render(true);
+        }
+    }
+    foundryApi.hooks.on("updateCombatant", renderForActiveCombatant);
+    foundryApi.hooks.on("deleteCombatant", renderForActiveCombatant);
+
     return tickBarHud.render(true).then(() => initMaxWidthTransitionForTickBarHud(tickBarHud));
 }

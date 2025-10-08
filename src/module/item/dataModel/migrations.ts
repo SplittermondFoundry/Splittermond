@@ -166,5 +166,7 @@ function mapFoReduction(mod: string): string {
     const skill = groupId[1] ?? "";
     const type = groupId[2] ?? "";
     const newGroup = group === "foreduction" ? "focus.reduction" : "focus.enhancedreduction";
-    return `${newGroup} skill="${skill}" type="${type}" ${mod.replace(/^\S+/, "").trim()}`;
+    const skillAttribute = skill ? ` skill="${skill}"` : "";
+    const typeAttribute = type ? ` type="${type}"` : "";
+    return `${newGroup}${skillAttribute}${typeAttribute} ${mod.replace(/^\S+/, "").trim()}`;
 }
