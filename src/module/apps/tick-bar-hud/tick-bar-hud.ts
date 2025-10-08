@@ -2,7 +2,6 @@ import { FoundryDragDrop } from "../../api/Application";
 import { TickBarHudTemplateData } from "./templateInterface";
 import type { StatusEffectMessageData } from "../../util/chat.js";
 import * as Chat from "../../util/chat.js";
-import type { FoundryCombat, FoundryCombatant } from "module/api/foundryTypes";
 import { closestData } from "../../data/ClosestDataMixin";
 import { foundryApi } from "../../api/foundryApi";
 import {
@@ -13,6 +12,7 @@ import {
 } from "../../data/SplittermondApplication";
 import type { VirtualToken } from "../../combat/VirtualToken";
 import { initMaxWidthTransitionForTickBarHud } from "./tickBarResizing";
+import type { FoundryCombat, FoundryCombatant } from "module/api/foundryTypes";
 
 export default class TickBarHud extends SplittermondApplication {
     viewed: FoundryCombat | null = null;
@@ -220,6 +220,7 @@ export default class TickBarHud extends SplittermondApplication {
             });
             for (let index = 0; index < activatedStatusTokens.length; index++) {
                 const element = activatedStatusTokens[index];
+                // noinspection ES6MissingAwait Chat message is info for the user, we don't need to await it.
                 foundryApi.createChatMessage(await Chat.prepareStatusEffectMessage(element.combatant.actor, element));
             }
         }
@@ -547,6 +548,14 @@ export function initTickBarHud(splittermond: Record<string, unknown>) {
     const tickBarHud = new TickBarHud();
     splittermond.tickBarHud = tickBarHud;
     foundryApi.combats.apps.push(tickBarHud);
+
+    function renderForActiveCombatant(combatant: FoundryCombatant) {
+        if (tickBarHud.combats.find((c) => c.isActive && c === combatant.combat)) {
+            tickBarHud.render(true);
+        }
+    }
+    foundryApi.hooks.on("updateCombatant", renderForActiveCombatant);
+    foundryApi.hooks.on("deleteCombatant", renderForActiveCombatant);
 
     return tickBarHud.render(true).then(() => initMaxWidthTransitionForTickBarHud(tickBarHud));
 }
