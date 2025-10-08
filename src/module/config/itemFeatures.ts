@@ -60,7 +60,7 @@ const itemImprovements = [
     "Erhöhter Waffenschaden",
     "Gehärtet",
     "Geheimfach",
-    "Haleterung",
+    "Halterung",
     "Hochwertige Fertigung",
     "Ferndistanz",
     "Fertigkeitsbonus",
