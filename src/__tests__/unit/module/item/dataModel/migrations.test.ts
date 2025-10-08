@@ -155,7 +155,7 @@ describe("Migrations from 13.5.2", () => {
                 const expectedMethod = method === "foreduction" ? "focus.reduction" : "focus.enhancedreduction";
                 expect(result).to.deep.equal({
                     unrelated: 42,
-                    modifier: `${expectedMethod} skill="" type="" ${value}`,
+                    modifier: `${expectedMethod} ${value}`,
                 });
             });
         });
@@ -163,7 +163,7 @@ describe("Migrations from 13.5.2", () => {
             const input = { modifier: `${method}.deathmagic K2V1` };
             const result = from13_5_2_migrate_fo_modifiers(input);
             const expectedMethod = method === "foreduction" ? "focus.reduction" : "focus.enhancedreduction";
-            expect(result).to.deep.equal({ modifier: `${expectedMethod} skill="deathmagic" type="" K2V1` });
+            expect(result).to.deep.equal({ modifier: `${expectedMethod} skill="deathmagic" K2V1` });
         });
 
         it(`should transfer type selectors on ${method} modifiers`, () => {
@@ -199,7 +199,7 @@ describe("Migrations from 13.5.2", () => {
         const result = from13_5_2_migrate_fo_modifiers(input);
         expect(result).to.deep.equal({
             modifier:
-                'VTD +1, damage +2, focus.reduction skill="deathmagic" type="" K2V1, focus.enhancedreduction skill="lifemagic" type="defensive" 3V2',
+                'VTD +1, damage +2, focus.reduction skill="deathmagic" K2V1, focus.enhancedreduction skill="lifemagic" type="defensive" 3V2',
         });
     });
 
@@ -207,7 +207,7 @@ describe("Migrations from 13.5.2", () => {
         const input = { modifier: "VTD +1, foreduction K2V1,   damage +2" };
         const result = from13_5_2_migrate_fo_modifiers(input);
         expect(result).to.deep.equal({
-            modifier: 'VTD +1, damage +2, focus.reduction skill="" type="" K2V1',
+            modifier: "VTD +1, damage +2, focus.reduction K2V1",
         });
     });
 
