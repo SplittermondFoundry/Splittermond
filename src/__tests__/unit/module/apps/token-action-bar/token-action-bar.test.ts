@@ -127,7 +127,7 @@ describe("TokenActionBar", () => {
         const spellLi = dom.window.document.createElement("li");
         spellLi.dataset.spellId = "spell1";
         bar.prepareSpell(null as any, spellLi);
-        expect(actorStub.addTicks.calledWith(spellStub.castDuration, sinon.match.string)).to.be.true;
+        expect(actorStub.addTicks.calledWith(spellStub.castDuration.inTicks, sinon.match.string)).to.be.true;
         expect(actorStub.setFlag.calledWith("splittermond", "preparedSpell", "spell1")).to.be.true;
     });
 

@@ -3,6 +3,7 @@ import AttackableItem from "./attackable-item";
 import { SpellDataModelType } from "./dataModel/SpellDataModel";
 import { DamageInitializer } from "../util/chat/damageChatMessage/initDamage";
 import type { PrimaryCost } from "module/util/costs/PrimaryCost";
+import type { CastDurationModel } from "module/item/dataModel/propertyModels/CastDurationModel";
 
 type ProtoDamageImplement = Parameters<typeof DamageInitializer.rollFromDamageRoll>[0][number];
 declare class SplittermondSpellItem extends AttackableItem(SplittermondItem) {
@@ -18,7 +19,7 @@ declare class SplittermondSpellItem extends AttackableItem(SplittermondItem) {
     get skill(): any;
     get enoughFocus(): boolean;
     get difficulty(): any;
-    get castDuration(): any;
+    get castDuration(): CastDurationModel;
     get range(): any;
     get effectDuration(): any;
     get effectArea(): any;
