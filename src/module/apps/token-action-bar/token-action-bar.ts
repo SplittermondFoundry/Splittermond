@@ -226,8 +226,8 @@ export default class TokenActionBar extends SplittermondApplication {
             throw new Error(`${preparedSpellId} does not point to a valid spell item`);
         }
         return {
-            castDuration: preparedItem.castDuration,
-            costs: preparedItem.castDuration,
+            castDuration: preparedItem.castDuration.display,
+            costs: preparedItem.costs,
             damage: preparedItem.damage,
             difficulty: preparedItem.difficulty,
             effectDuration: preparedItem.difficulty,
@@ -315,7 +315,7 @@ export default class TokenActionBar extends SplittermondApplication {
             return;
         }
         this._currentActor?.addTicks(
-            spell.castDuration,
+            spell.castDuration.inTicks,
             `${foundryApi.localize("splittermond.castDuration")}: ${spell.name}`
         );
         await this._currentActor?.setFlag("splittermond", "preparedSpell", itemId);
