@@ -7,6 +7,8 @@ import { foundryApi } from "../../api/foundryApi";
  */
 export const foundryUISelectors = {
     sidebar: "#sidebar",
+    sidebarContent: "#sidebar-content",
+    sidebarButtons: "#sidebar menu button",
     sidebarExpansionToggle: "#sidebar menu button.collapse[data-action='toggleState']",
     controlPanel: "#ui-left-column-1",
 } as const;
@@ -23,6 +25,7 @@ export function initMaxWidthTransitionForTickBarHud(tickBarHud: SplittermondAppl
     window.addEventListener("resize", () => positionTickBarHudBetweenElements(tickBarHud));
 
     initSidebarToggleListener(tickBarHud);
+    initSidebarExpansionListener(tickBarHud);
     initSidebarMutationObserver(tickBarHud);
 }
 
@@ -81,6 +84,27 @@ function initSidebarToggleListener(tickBarHud: SplittermondApplication) {
                 positionTickBarHudBetweenElements(tickBarHud);
             }, 800);
         });
+}
+
+function initSidebarExpansionListener(tickBarHud: SplittermondApplication) {
+    tickBarHud.element.ownerDocument.querySelectorAll(foundryUISelectors.sidebarButtons).forEach((el) => {
+        if (el.matches(foundryUISelectors.sidebarExpansionToggle)) {
+            return;
+        }
+        el.addEventListener("click", () => {
+            const sidebarContent = tickBarHud.element.ownerDocument.querySelector(foundryUISelectors.sidebarContent);
+            if (sidebarContent?.classList.contains("expanded")) {
+                return;
+            }
+            setTimeout(() => {
+                positionTickBarHudBetweenElements(tickBarHud);
+            }, 300);
+            //Fallback to place our bar in the correct position in case the first timeout was too early
+            setTimeout(() => {
+                positionTickBarHudBetweenElements(tickBarHud);
+            }, 800);
+        });
+    });
 }
 
 function initSidebarMutationObserver(tickBarHud: SplittermondApplication) {
