@@ -158,6 +158,14 @@
                 "unknownDescriptor": "Das Attribut '{attribute}' für den Modifikator '{groupId}' ist unbekannt."
             }
         },
+      "applications": {
+        "addTickDialogue": {
+          "title": "Ticks hinzufügen",
+          "noNegativeNumbers": "Eine Dauer kann nicht negativ sein.",
+          "invalidNumber": "Bitte geben Sie eine gültige Zahl ein.",
+          "okLabel": "OK"
+        }
+      },
         "modifier": "Modifikator",
         "minStrength": "min. Stärke",
         "generalSkills": "Allgemeine Fertigkeiten",
@@ -307,7 +315,6 @@
         "damageReductionAbbrev": "SR",
         "tickMalus": "Tick+",
         "ticks": "Ticks",
-        "addTicks": "Ticks hinzufügen",
         "tick": "Tick",
         "skillMod": "Kampffertigkeitsmod.",
         "handicap": "Behinderung",

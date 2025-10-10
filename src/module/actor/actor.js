@@ -19,6 +19,7 @@ import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeatures
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
 import { InverseModifier } from "./InverseModifier.js";
 import { genesisSpellImport } from "./genesisImport/spellImport";
+import { askUserForTickAddition } from "module/actor/TickAdditionDialog.js";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -1349,28 +1350,9 @@ export default class SplittermondActor extends Actor {
         let combatant = combat.combatants.find((c) => c.actor === this);
 
         if (!combatant) return;
-        let nTicks = value;
-        if (askPlayer) {
-            let p = new Promise((resolve, reject) => {
-                let dialog = new Dialog({
-                    title: this.name + " - Ticks",
-                    content: `<p>${message}</p><input type='text' class='ticks' value='${value}'>`,
-                    buttons: {
-                        ok: {
-                            label: "Ok",
-                            callback: (html) => {
-                                resolve(parseInt(html.find(".ticks")[0].value));
-                            },
-                        },
-                    },
-                });
-                dialog.render(true);
-            });
+        let nTicks = askPlayer ? await askUserForTickAddition(value, message) : Math.round(value);
 
-            nTicks = await p;
-        }
-
-        let newInitiative = Math.round(combatant.initiative) + parseInt(nTicks);
+        let newInitiative = Math.round(combatant.initiative) + nTicks;
 
         return combat.setInitiative(combatant.id, newInitiative);
     }
