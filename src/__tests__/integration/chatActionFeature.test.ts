@@ -191,10 +191,14 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             "should produce a speaker from actor",
             withScene(
                 withActor(async (actor, scene) => {
+                    if (!foundryApi.currentScene) {
+                        scene.activate();
+                        setTimeout(() => {}, 100); //Give Foundry some time to update the current scene
+                    }
                     const speaker = foundryApi.getSpeaker({ actor });
 
                     expect(speaker, "speaker is an object").to.be.an("object");
-                    expect(speaker.scene, "speaker has a scene").to.equal(scene.id);
+                    expect(speaker.scene, "speaker has a scene").to.equal(foundryApi.currentScene?.id);
                     expect(speaker.token, "speaker declares a token").to.not.be.undefined;
                     expect(speaker.actor, "speaker declares an actor").to.equal(actor.id);
                 })

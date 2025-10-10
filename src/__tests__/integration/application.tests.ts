@@ -315,6 +315,7 @@ export function applicationTests(context: QuenchBatchContext) {
         let tokens: TokenDocument[] = [];
         let sandbox: SinonSandbox;
         let scene: FoundryScene;
+        let originalScene: FoundryScene | null;
 
         before(async () => {
             /*
@@ -322,6 +323,7 @@ export function applicationTests(context: QuenchBatchContext) {
              * asynchronously and there is no "scene loaded" event we could hook into. So we just wait a second after
              * the scene was activated.
              */
+            originalScene = foundryApi.currentScene;
             scene = await createScene();
             await scene.view();
             await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -329,6 +331,7 @@ export function applicationTests(context: QuenchBatchContext) {
         });
         after(async () => {
             await Scene.deleteDocuments([scene.id]);
+            originalScene?.activate();
         });
         beforeEach(() => (sandbox = sinon.createSandbox()));
 
