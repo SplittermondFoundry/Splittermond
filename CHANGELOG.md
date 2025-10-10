@@ -1,3 +1,9 @@
+## 13.6.4
+
+### Fixed
+
+- Die Tickleiste positiniert sich jetzt auch neu, wenn die Seitenleiste durch einen Click auf einen Tab geöffnet wird.
+
 ## 13.6.3
 
 ### Fixed

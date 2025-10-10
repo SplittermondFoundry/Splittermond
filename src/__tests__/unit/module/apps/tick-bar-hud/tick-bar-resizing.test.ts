@@ -24,8 +24,14 @@ async function setupTickBarHud() {
       ${createHtml("./templates/apps/tick-bar-hud.hbs", context)}
       <div id="sidebar" style="width: 200px; height: 100vh; position: absolute; left: 0; top: 0;">
         <menu>
+        <li>
+            <button data-action="tab"></button>
+            </li>
+        <li>
             <button class="collapse" data-action="toggleState">Toggle</button>
+            </li>
         </menu>
+        <div id="sidebar-content"></div>
       </div>
       `;
     const dom = new JSDOM(html);
@@ -190,6 +196,55 @@ describe("tick-bar-resizing", () => {
             setTimeoutStub.secondCall.firstArg();
 
             expect(requestAnimationFrameStub.callCount).to.equal(2);
+        });
+
+        it("should reposition tick bar when sidebar gets expanded by button click", async () => {
+            const { underTest } = await setupTickBarHud();
+            const sidebarToggle = underTest.element.querySelector(
+                foundryUISelectors.sidebarButtons + "[data-action=tab]"
+            ) as HTMLElement;
+            const leftColumn = underTest.element.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
+            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            sandbox.stub(leftColumn, "getBoundingClientRect").returns({ right: 250 } as DOMRect);
+            sandbox.stub(sidebar, "getBoundingClientRect").returns({ left: 800 } as DOMRect);
+
+            initMaxWidthTransitionForTickBarHud(underTest);
+            const setTimeoutStub = sandbox.stub(global, "setTimeout");
+
+            requestAnimationFrameStub.resetHistory();
+
+            sidebarToggle.click();
+
+            //Positioning should be scheduled twice with increasing delays
+            expect(setTimeoutStub.callCount).to.equal(2);
+            expect(setTimeoutStub.firstCall.lastArg).to.be.lessThan(setTimeoutStub.secondCall.lastArg);
+
+            // Execute the timeout callbacks to verify positioning is called
+            setTimeoutStub.firstCall.firstArg();
+            setTimeoutStub.secondCall.firstArg();
+
+            expect(requestAnimationFrameStub.callCount).to.equal(2);
+        });
+
+        it("should not reposition tick bar when button clicked on expanded sidebar", async () => {
+            const { underTest } = await setupTickBarHud();
+            const sidebarToggle = underTest.element.querySelector(
+                foundryUISelectors.sidebarButtons + "[data-action=tab]"
+            ) as HTMLElement;
+            const leftColumn = underTest.element.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
+            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            sidebar.querySelector(foundryUISelectors.sidebarContent)?.classList.add("expanded");
+            sandbox.stub(leftColumn, "getBoundingClientRect").returns({ right: 250 } as DOMRect);
+            sandbox.stub(sidebar, "getBoundingClientRect").returns({ left: 800 } as DOMRect);
+
+            initMaxWidthTransitionForTickBarHud(underTest);
+            const setTimeoutStub = sandbox.stub(global, "setTimeout");
+
+            requestAnimationFrameStub.resetHistory();
+
+            sidebarToggle.click();
+
+            expect(setTimeoutStub.callCount).to.equal(0);
         });
     });
 
