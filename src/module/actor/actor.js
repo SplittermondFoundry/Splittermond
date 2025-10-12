@@ -12,14 +12,14 @@ import { initializeSpellCostManagement } from "../util/costs/spellCostManagement
 import { settings } from "../settings";
 import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
-import { Susceptibilities } from "./Susceptibilities.js";
+import { Susceptibilities } from "./Susceptibilities";
 import { addModifier } from "./addModifierAdapter";
 import { evaluate, of } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
-import { InverseModifier } from "./InverseModifier.js";
+import { InverseModifier } from "./InverseModifier";
 import { genesisSpellImport } from "./genesisImport/spellImport";
-import { askUserForTickAddition } from "module/actor/TickAdditionDialog.js";
+import { addTicks } from "module/combat/addTicks";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -1340,21 +1340,8 @@ export default class SplittermondActor extends Actor {
         d.render(true);
     }
 
-    async addTicks(value = 3, message = "", askPlayer = true) {
-        const combat = game.combat;
-        value = parseInt(value);
-        if (!value) return;
-        if (!combat) return;
-
-        // Find combatant
-        let combatant = combat.combatants.find((c) => c.actor === this);
-
-        if (!combatant) return;
-        let nTicks = askPlayer ? await askUserForTickAddition(value, message) : Math.round(value);
-
-        let newInitiative = Math.round(combatant.initiative) + nTicks;
-
-        return combat.setInitiative(combatant.id, newInitiative);
+    async addTicks(value = 3, message, askPlayer) {
+        return addTicks(this, value, { message, askPlayer });
     }
 
     getRollData() {

@@ -132,7 +132,8 @@ export default class SplittermondCombat extends Combat {
     }
 
     async previousRound() {
-        if (!this.started) return;
+        if (!this.started) {
+        }
     }
 
     async rollInitiative(ids, { formula = null, updateTurn = true, messageOptions = {} } = {}) {

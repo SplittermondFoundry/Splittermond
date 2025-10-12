@@ -2,7 +2,7 @@ import { FoundryDialog } from "module/api/Application";
 import sinon, { type SinonStub } from "sinon";
 import { foundryApi } from "module/api/foundryApi";
 import { expect } from "chai";
-import { askUserForTickAddition } from "module/actor/TickAdditionDialog";
+import { askUserForTickAddition } from "module/combat/TickAdditionDialog";
 import { JSDOM } from "jsdom";
 import { splittermond } from "module/config";
 
