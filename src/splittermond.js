@@ -33,6 +33,7 @@ import { toggleElement } from "./module/util/animatedDisplay";
 import { initializeActor } from "module/actor/index.js";
 import { initializeModifiers } from "module/modifiers/index.js";
 import { initializeCosts } from "module/util/costs/index.js";
+import { addTicks } from "module/combat/addTicks.js";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -89,7 +90,10 @@ Hooks.once("init", async function () {
     }
     game.splittermond = {};
     const modifierModule = initializeModifiers();
-    game.splittermond.API = { modifierRegistry: modifierModule.modifierRegistry };
+    game.splittermond.API = {
+        modifierRegistry: modifierModule.modifierRegistry,
+        addTicks,
+    };
     initializeActor(CONFIG.Actor, modifierModule.addModifier);
     initializeItem(CONFIG, modifierModule.modifierRegistry);
     initializeCosts(modifierModule.costModifierRegistry);
