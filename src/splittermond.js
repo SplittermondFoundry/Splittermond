@@ -409,39 +409,47 @@ Hooks.on("init", function () {
  * @param {Record<string,string>} data
  */
 function commonEventHandlerHTMLEdition(app, html, data) {
-    html.querySelectorAll(".rollable").forEach((element) => {
-        element.addEventListener("click", (event) => {
+    html.querySelectorAll(".rollable").forEach((el) => {
+        el.addEventListener("click", (event) => {
             const type = element.closest("[data-roll-type]").getAttribute("data-roll-type");
             if (type === "skill") {
                 event.preventDefault();
                 event.stopPropagation();
-                const difficulty = element.closest("[data-difficulty]").getAttribute("data-difficulty");
-                const skill = element.closest("[data-skill]").getAttribute("data-skill");
+                console.debug("Splittermond | Invoked Skill Check handler");
+                /**@type {HTMLElement}*/
+                const element = event.currentTarget;
+                const difficulty = element.dataset.difficulty;
+                const skill = element.dataset.skill;
                 Macros.skillCheck(skill, { difficulty: difficulty });
             }
         });
     });
 
-    html.querySelectorAll(".request-skill-check").forEach((element) => {
-        element.addEventListener("click", (event) => {
+    html.querySelectorAll(".request-skill-check").forEach((el) => {
+        el.addEventListener("click", (event) => {
             event.preventDefault();
             event.stopPropagation();
-            const type = element.closest("[data-roll-type]").getAttribute("data-roll-type");
+            console.debug("Splittermond | Invoked Request Skill Check handler");
+            /**@type {HTMLElement}*/
+            const element = event.currentTarget;
+            const type = element.dataset.rollType;
 
-            const difficulty = element.closest("[data-difficulty]").getAttribute("data-difficulty");
-            const skill = element.closest("[data-skill]").getAttribute("data-skill");
-
-            Macros.requestSkillCheck(skill, difficulty);
+            const difficulty = element.dataset.difficulty;
+            const skill = element.dataset.skill;
+            return Macros.requestSkillCheck(skill, difficulty);
         });
     });
 
-    html.querySelectorAll(".pdflink").forEach((element) => {
-        element.addEventListener("click", (event) => {
+    html.querySelectorAll(".pdflink").forEach((el) => {
+        el.addEventListener("click", (event) => {
             event.preventDefault();
             event.stopPropagation();
+            console.debug("Splittermond | Invoked PDF link handler");
+            /**@type {HTMLElement}*/
+            const element = event.currentTarget;
 
-            let pdfcode = element.closest("[data-pdfcode]").getAttribute("data-pdfcode");
-            let pdfpage = element.closest("[data-pdfpage]").getAttribute("data-pdfpage");
+            let pdfcode = element.dataset.pdfcode;
+            let pdfpage = element.dataset.pdfpage;
 
             let pdfcodelink = pdfcode + pdfpage;
 
@@ -449,23 +457,25 @@ function commonEventHandlerHTMLEdition(app, html, data) {
         });
     });
 
-    html.querySelectorAll(".add-tick").forEach((element) => {
-        element.addEventListener("click", (event) => {
+    html.querySelectorAll(".add-tick").forEach((el) => {
+        el.addEventListener("click", (event) => {
             event.preventDefault();
             event.stopPropagation();
-            let value = element.closest("[data-ticks]").getAttribute("data-ticks");
-            let message = element.closest("[data-message]").getAttribute("data-message");
-            let chatMessageId = element.closest("[data-message-id]").getAttribute("data-message-id");
+            console.debug("Splittermond | Invoked Tick addition handler");
+            /**@type {HTMLElement}*/
+            const element = event.currentTarget;
+            let value = element.dataset.ticks;
+            let message = element.dataset.message;
+            let chatMessageId = element.dataset.messageId;
 
-            const speaker = game.messages.get(chatMessageId).speaker;
+            const speaker = foundryApi.messages.get(chatMessageId).speaker;
             let actor;
-            if (speaker.token) actor = game.actors.tokens[speaker.token];
-            if (!actor) actor = game.actors.get(speaker.actor);
+            if (speaker.token) actor = foundryApi.collections.actors.tokens[speaker.token];
+            if (!actor) actor = game.getActor(speaker.actor);
             if (!actor) {
-                ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
+                foundryApi.informUser("splittermond.pleaseSelectAToken");
                 return;
             }
-
             actor.addTicks(value, message);
         });
     });
@@ -484,85 +494,14 @@ function commonEventHandlerHTMLEdition(app, html, data) {
         });
     });
 }
-
-/**
- * @deprecated use {@link commonEventHandlerHTMLEdition} instead
- * @param {object} app
- * @param {JQuery} html
- * @param {Record<string,string>} data
- */
-function commonEventHandler(app, html, data) {
-    html.find(".rollable").click((event) => {
-        const type = $(event.currentTarget).closestData("roll-type");
-        if (type === "skill") {
-            event.preventDefault();
-            event.stopPropagation();
-            const difficulty = $(event.currentTarget).closestData("difficulty");
-            const skill = $(event.currentTarget).closestData("skill");
-            Macros.skillCheck(skill, { difficulty: difficulty });
-        }
-    });
-
-    html.find(".request-skill-check").click((event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const type = $(event.currentTarget).closestData("roll-type");
-
-        const difficulty = $(event.currentTarget).closestData("difficulty");
-        const skill = $(event.currentTarget).closestData("skill");
-
-        Macros.requestSkillCheck(skill, difficulty);
-    });
-
-    html.find(".pdflink").click((event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        let pdfcode = $(event.currentTarget).closestData("pdfcode");
-        let pdfpage = $(event.currentTarget).closestData("pdfpage");
-
-        let pdfcodelink = pdfcode + pdfpage;
-
-        handlePdf(pdfcodelink);
-    });
-
-    html.find(".add-tick").click((event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        let value = $(event.currentTarget).closestData("ticks");
-        let message = $(event.currentTarget).closestData("message");
-        let chatMessageId = $(event.currentTarget).closestData("message-id");
-
-        const speaker = game.messages.get(chatMessageId).speaker;
-        let actor;
-        if (speaker.token) actor = game.actors.tokens[speaker.token];
-        if (!actor) actor = game.actors.get(speaker.actor);
-        if (!actor) {
-            ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
-            return;
-        }
-        actor.addTicks(value, message);
-    });
-
-    html.find(".maneuver").click((event) => {
-        let descriptionElement = $(event.currentTarget).find(".description");
-
-        if (descriptionElement.hasClass("expanded")) {
-            descriptionElement.slideUp(200);
-        } else {
-            descriptionElement.slideDown(200);
-        }
-
-        descriptionElement.toggleClass("expanded");
-    });
-}
-
-Hooks.on("renderJournalPageSheet", function (app, html, data) {
-    commonEventHandler(app, html, data);
+Hooks.on("renderApplicationV2", function (app, html, data) {
+    if (["JournalEntryPage"].includes(data?.document?.documentName)) {
+        commonEventHandlerHTMLEdition(app, html, data);
+    }
 });
 
 Hooks.on("renderItemSheet", function (app, html, data) {
-    commonEventHandler(app, html, data);
+    commonEventHandlerHTMLEdition(app, html[0], data);
 });
 
 Hooks.on(

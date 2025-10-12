@@ -58,7 +58,13 @@ export function itemCheck(itemType, itemName, actorId = "", itemId = "") {
 }
 
 export function requestSkillCheck(preSelectedSkill = "", difficulty = 15) {
-    RequestCheckDialog.create({
+    console.log(
+        "Splittermond | Preparing skill check request dialog with preselected skill",
+        preSelectedSkill,
+        "and difficulty",
+        difficulty
+    );
+    return RequestCheckDialog.create({
         skill: preSelectedSkill,
         difficulty: difficulty,
     });
