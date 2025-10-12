@@ -23,6 +23,7 @@ import {
 } from "module/modifiers/expressions/scalar";
 import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 import type SplittermondSpellItem from "module/item/spell";
+import { withActor } from "./fixtures";
 
 export function modifierTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
@@ -324,6 +325,36 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(splinterpointSpender.pointSpent).to.be.true;
             expect(splinterpointSpender.getBonus("eloquence")).to.equal(7);
         });
+    });
+
+    describe("Derived Value modifiers", () => {
+        it(
+            "should modify speed",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        size: 5,
+                        attributes: {
+                            agility: { initial: 3, advances: 0 },
+                        },
+                    },
+                });
+                actor.createEmbeddedDocuments("Item", [
+                    {
+                        type: "spelleffect",
+                        name: "Haste",
+                        //all three must take effect to achieve an overall modifier of 1.5
+                        system: { modifier: "actor.speed.multiplier 1.25, gsw.mult 0.6, speed.multiplier: 2" },
+                    },
+                ]);
+                actor.prepareBaseData();
+                actor.prepareEmbeddedDocuments();
+                actor.prepareDerivedData();
+                actor.modifier.add("actor.speed.multiplier", { name: "Haste", type: "magic" }, of(1.5), null, false);
+
+                expect(actor.derivedValues.speed.value).to.equal(12);
+            })
+        );
     });
 
     describe("Wound malus", () => {

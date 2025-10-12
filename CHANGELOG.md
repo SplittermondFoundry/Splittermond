@@ -7,6 +7,7 @@
 ### Fixed
 
 - Die Tickleiste positiniert sich jetzt auch neu, wenn die Seitenleiste durch einen Click auf einen Tab geöffnet wird.
+  -Ein Fehler wurde behoben, bei dem Geschwindigkeitsmodiffikatoren nicht beachtet wurden.
 
 ## 13.6.3
 
