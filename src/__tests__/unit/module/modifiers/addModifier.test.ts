@@ -116,7 +116,7 @@ describe("addModifier", () => {
             const result = addModifier(item, modifier, "innate", 2);
             expect(result.modifiers).to.have.length(1);
             expect(result.modifiers[0]).to.deep.contain({
-                groupId: "actor.speedmultiplier",
+                groupId: "actor.speed.multiplier",
                 attributes: { name: "Test Item", type: "innate" },
                 value: expected,
                 origin: item,

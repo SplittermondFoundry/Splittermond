@@ -188,5 +188,13 @@
                 "invalidDamage": "Spell '{spellName}' has no valid damage value."
             }
         }
+    },
+    "applications": {
+        "addTickDialogue": {
+            "title": "Add Ticks",
+            "noNegativeNumbers": "A duration many not be negative.",
+            "invalidNumber": "Please enter a valid number.",
+            "okLabel": "OK"
+        }
     }
 }

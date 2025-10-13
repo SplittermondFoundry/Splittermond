@@ -240,7 +240,6 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
 
             if (await p) {
                 await this.actor.deleteEmbeddedDocuments("Item", [itemId]);
-                await Hooks.call("redraw-combat-tick");
             }
         });
 
@@ -695,11 +694,11 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             itemData.system.level = selectedSkill.level;
         }
 
-        let rerenderCombatTracker = false;
         if (itemData.type === "statuseffect") {
             const currentScene = game.scenes.current?.id || null;
             let combats = game.combats.filter((c) => c.scene === null || c.scene.id === currentScene);
             if (combats.length > 0) {
+                console.log("Splittermond | Adapting status effect to account for current combat.");
                 var activeCombat = combats.find((e) => e.combatants.find((f) => f.actor.id === this.actor.id));
                 if (activeCombat != null) {
                     var currentTick = activeCombat.current.round;
@@ -723,17 +722,14 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
                         //there is already an status with the same type so the new one will start always at the next tick
                         itemData.data.startTick = hasSameStatus[0].ticks[0];
                     } else {
-                        itemData.system.startTick = parseInt(activeCombat.round) + parseInt(itemData.system.interval);
+                        itemData.system.startTick =
+                            parseInt(activeCombat.currentTick) + parseInt(itemData.system.interval);
                     }
-                    rerenderCombatTracker = true;
                 }
             }
         }
 
         await super._onDropItemCreate(itemData);
-        if (rerenderCombatTracker) {
-            foundryApi.hooks.call("redraw-combat-tick");
-        }
     }
 
     render(force = false, options = {}) {

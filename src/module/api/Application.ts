@@ -14,6 +14,7 @@ declare namespace foundry {
     import ApplicationFormConfiguration = foundry.applications.types.ApplicationFormConfiguration;
     import ApplicationRenderContext = foundry.applications.types.ApplicationRenderContext;
     import ApplicationTabsConfiguration = foundry.applications.types.ApplicationTabsConfiguration;
+    import DialogV2 = foundry.applications.api.DialogV2;
 
     interface DialogV2Configuration {
         modal: boolean;
@@ -33,6 +34,12 @@ declare namespace foundry {
             button: HTMLButtonElement,
             dialog: foundry.applications.api.DialogV2
         ) => Promise<unknown>;
+    }
+
+    interface DialogV2WaitOptions {
+        close?: (event: Event, dialog: DialogV2) => unknown;
+        rejectClose?: boolean;
+        render?: (event: Event, dialog: DialogV2) => unknown;
     }
 
     namespace applications {
@@ -155,8 +162,9 @@ declare namespace foundry {
 
                 static confirm(config: { content: string; rejectClose: boolean; modal: true }): Promise<boolean>;
 
-                //To lazy to actually type this right now.
-                static prompt(config: unknown): Promise<unknown>;
+                static prompt(
+                    config: Partial<ApplicationConfiguration & DialogV2Configuration & DialogV2WaitOptions>
+                ): Promise<unknown>;
 
                 render(options?: DialogV2RenderOptions): Promise<this>;
             }

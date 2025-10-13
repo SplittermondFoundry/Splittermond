@@ -12,13 +12,14 @@ import { initializeSpellCostManagement } from "../util/costs/spellCostManagement
 import { settings } from "../settings";
 import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
-import { Susceptibilities } from "./Susceptibilities.js";
+import { Susceptibilities } from "./Susceptibilities";
 import { addModifier } from "./addModifierAdapter";
 import { evaluate, of } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
-import { InverseModifier } from "./InverseModifier.js";
+import { InverseModifier } from "./InverseModifier";
 import { genesisSpellImport } from "./genesisImport/spellImport";
+import { addTicks } from "module/combat/addTicks";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -1339,40 +1340,8 @@ export default class SplittermondActor extends Actor {
         d.render(true);
     }
 
-    async addTicks(value = 3, message = "", askPlayer = true) {
-        const combat = game.combat;
-        value = parseInt(value);
-        if (!value) return;
-        if (!combat) return;
-
-        // Find combatant
-        let combatant = combat.combatants.find((c) => c.actor === this);
-
-        if (!combatant) return;
-        let nTicks = value;
-        if (askPlayer) {
-            let p = new Promise((resolve, reject) => {
-                let dialog = new Dialog({
-                    title: this.name + " - Ticks",
-                    content: `<p>${message}</p><input type='text' class='ticks' value='${value}'>`,
-                    buttons: {
-                        ok: {
-                            label: "Ok",
-                            callback: (html) => {
-                                resolve(parseInt(html.find(".ticks")[0].value));
-                            },
-                        },
-                    },
-                });
-                dialog.render(true);
-            });
-
-            nTicks = await p;
-        }
-
-        let newInitiative = Math.round(combatant.initiative) + parseInt(nTicks);
-
-        return combat.setInitiative(combatant.id, newInitiative);
+    async addTicks(value = 3, message, askPlayer) {
+        return addTicks(this, value, { message, askPlayer });
     }
 
     getRollData() {

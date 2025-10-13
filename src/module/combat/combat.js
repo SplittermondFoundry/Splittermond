@@ -102,7 +102,7 @@ export default class SplittermondCombat extends Combat {
             initiative: value,
         });
         if (this.started) {
-            await this.nextRound();
+            await this.nextRound(); // I honestly have no clue what this is for.
         }
     }
 
@@ -129,10 +129,6 @@ export default class SplittermondCombat extends Combat {
         const updateOptions = { direction: 1 };
         Hooks.callAll("combatRound", this, updateData, updateOptions);
         return this.update(updateData);
-    }
-
-    async previousRound() {
-        if (!this.started) return;
     }
 
     async rollInitiative(ids, { formula = null, updateTurn = true, messageOptions = {} } = {}) {

@@ -129,6 +129,11 @@ export const foundryApi = new (class FoundryApi {
         return game.combats;
     }
 
+    get combat(): FoundryCombat {
+        //@ts-ignore
+        return game.combat;
+    }
+
     get socket(): Socket {
         //@ts-ignore
         return game.socket;

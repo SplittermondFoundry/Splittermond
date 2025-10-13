@@ -92,7 +92,7 @@ export function initAddModifier(
                 case "gsw.mult":
                 case "actor.speed.multiplier":
                     const speedModifier = new MultiplicativeModifier(
-                        "actor.speedmultiplier",
+                        "actor.speed.multiplier",
                         pow(modifier.value, of(multiplier)),
                         { ...modifier.attributes, name: item.name, type },
                         item,
