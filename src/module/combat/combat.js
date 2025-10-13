@@ -102,7 +102,7 @@ export default class SplittermondCombat extends Combat {
             initiative: value,
         });
         if (this.started) {
-            await this.nextRound();
+            await this.nextRound(); // I honestly have no clue what this is for.
         }
     }
 
