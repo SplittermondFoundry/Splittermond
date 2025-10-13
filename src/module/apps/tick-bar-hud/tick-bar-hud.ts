@@ -13,6 +13,7 @@ import {
 import type { VirtualToken } from "../../combat/VirtualToken";
 import { initMaxWidthTransitionForTickBarHud } from "./tickBarResizing";
 import type { FoundryCombat, FoundryCombatant } from "module/api/foundryTypes";
+import type SplittermondItem from "module/item/item";
 
 export default class TickBarHud extends SplittermondApplication {
     viewed: FoundryCombat | null = null;
@@ -554,8 +555,18 @@ export function initTickBarHud(splittermond: Record<string, unknown>) {
             tickBarHud.render(true);
         }
     }
+    function renderForItemChange(item: SplittermondItem) {
+        if (!item.actor) return;
+        const combatant = foundryApi.combat.combatants.find((c) => c.actorId === item.actor.id);
+        if (combatant && item.type === "statuseffect") {
+            renderForActiveCombatant(combatant);
+        }
+    }
     foundryApi.hooks.on("updateCombatant", renderForActiveCombatant);
     foundryApi.hooks.on("deleteCombatant", renderForActiveCombatant);
+    foundryApi.hooks.on("updateItem", renderForItemChange);
+    foundryApi.hooks.on("deleteItem", renderForItemChange);
+    foundryApi.hooks.on("createItem", renderForItemChange);
 
     return tickBarHud.render(true).then(() => initMaxWidthTransitionForTickBarHud(tickBarHud));
 }

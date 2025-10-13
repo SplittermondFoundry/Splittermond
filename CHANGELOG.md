@@ -7,7 +7,9 @@
 ### Fixed
 
 - Die Tickleiste positiniert sich jetzt auch neu, wenn die Seitenleiste durch einen Click auf einen Tab geöffnet wird.
-  -Ein Fehler wurde behoben, bei dem Geschwindigkeitsmodiffikatoren nicht beachtet wurden.
+- Ein Fehler wurde behoben, bei dem Geschwindigkeitsmodiffikatoren nicht beachtet wurden.
+- Ein Fehler wurde behoben bei der sich die Tickleiste nicht aktualisiert hat, wenn ein der Statuseffekt eines
+  Kampfteilnehmers geändert wurde.
 
 ## 13.6.3
 
