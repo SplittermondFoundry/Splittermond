@@ -1,201 +1,204 @@
 {
-    "splittermond": {
-        "chooseMagicSkill": "Choose a school af magic!",
-        "chooseSkill": "Choose a skill!",
-        "damageType": "damage type",
-        "damageCategory": "damage category",
-        "channeledDamage": "channeled damage",
-        "normalDamage": "normal damage",
-        "stunDamage": "stun damage",
-        "noDamage": "no damage category",
-        "unknownError": "An unknown error occurred. Please file a bug report.",
-        "chatCard": {
-            "noGMConnected": "Action cannot be performed, because no authorized user (GM) is connected",
-            "messageNotFound": "Message to update not found in the chat log",
-            "actionNotFound": "The selected action could not be executed, because the recipient does not know it. Please file a bug report.",
-            "spellMessage": {
-                "noHandler": "No handler registered for action '{action}'. Please contact the developer.",
-                "tooManyHandlers": "More than one handler registered for action '{action}'. Please contact the developer"
-            },
-            "damageMessage": {
-                "applyToTargets": "Apply to targets",
-                "applyToSelf": "Apply to self",
-                "applyToUserTargets": "Apply to {user}'s targets",
-                "noActorFound": "Found no actor to route damage to",
-                "noUserFound": "No user found for {actor}",
-                "youHaveNoTargets": "You have no targets selected",
-                "noUserTargetsFound": "User {user} has no targets selected.",
-                "noTargetsFound": "Could not find targets for Damage",
-                "consumptionMessage": "{principalImplement} by {sourceName}"
-            }
-        },
-        "damageMessage": {
-            "title": "{attacker} deals damage to {defender} ",
-            "name": "Mean",
-            "type": "damage type",
-            "baseValue": "causes damage",
-            "modifiedBy": "by weakness",
-            "subTotal": "sub total",
-            "damageReduction": "damage reduction",
-            "damageReductionOverride": "ignored",
-            "displaySettings": {
-                "once": "First one only",
-                "never": "Never",
-                "always": "Always"
-            },
-            "skip": "Skip",
-            "tooltip": {
-                "base": "DR",
-                "ignored": "ignoring"
-            },
-            "modifiers": {
-                "displayName": "Modifiers",
-                "keys": {
-                    "damageType": "damageType",
-                    "emphasis": "emphasis",
-                    "feature": "feature",
-                    "features": "features",
-                    "item": "item",
-                    "itemType": "itemType",
-                    "skill": "skill",
-                    "type": "type",
-                    "unit": "unit",
-                    "value": "value"
-                },
-                "parseMessages": {
-                    "notAModifier": "Modifier '{modifier}' is not of a modifier format.",
-                    "duplicateEmphasis": "Duplicate emphasis in '{modifier}'.",
-                    "duplicateValue": "Modifier '{modifier}' contains duplicate declaration of value",
-                    "noValue": "Modifier '{modifier}' contains no declaration of value",
-                    "duplicateAttribute": "Attribute '{attribute}' exists several times in modifier.",
-                    "noAttributeKey": "Could not identify key for Attribute '{attribute}'.",
-                    "noAttributeValue": "Could not identify value for Attribute '{attribute}'.",
-                    "invalidAttributeKey": "Invalid key for Attribute '{attribute}', found:",
-                    "keyHasExpressionFormat": "Key should not have expression format",
-                    "shouldNotBeNumber": "Input '{input}' is should not be a number.",
-                    "shouldNotBeAnExpression": "Input '{input}' should not be an expression.",
-                    "referenceNotPrimitive": "'{propertyPath}' does not resolve to a primitve on '{objectName}'.",
-                    "unknownObject": "unknown",
-                    "allErrorMessage": "Syntax error in modifier string '{str}' in '{objectName}'!",
-                    "foNoCost": "Expression '{expression}' is not convertible to focus costs.",
-                    "notANumber": "Expression '{expression}' is not convertible to a number.",
-                    "deprecatedPath": "The path '{oldPath}' in {itemName} is deprecated. Use '{newPath}' instead.",
-                    "unknownGroupId": "The path '{groupId}' is unknown.",
-                    "missingDescriptor": "The attribute '{attribute}' for the modifier '{groupId}' is missing.",
-                    "invalidDescriptorValue": "The value '{value}' for the attribute '{attribute}' for the modifier '{groupId}' is invalid.",
-                    "unknownDescriptor": "The attribute '{attribute}' for the modifier '{groupId}' ist unknown."
-                }
-            }
-        },
-        "message": {
-            "itemImported": "The item \"{name}\" was imported as \"{type}\"!",
-            "mangledTableData": "table data is corrupted. Please check attributes and derived values.",
-          "featureParsingFailure": "Feature '{feature}' did not resolve to a valid feature descriptor",
-          "invalidStatusEffectInterval": "The value for the interval on item '{name}' is invalid "
-        },
-        "settings": {
-            "reducibleEnhancementCosts": {
-                "name": "Reducable Spell Enhancement Costs",
-                "hint": "Permits the reduction of enhancement costs by using degrees of success"
-            },
-            "HGMultiplier": {
-                "name": "Hero level multiplier",
-                "hint": "Multiplier for calculating skill points and attribute modifiers."
-            },
-            "displayDamageDialog": {
-                "name": "Show damage dialog",
-                "hint": "Displays a dialog to review the damage applied to target",
-                "options": {
-                    "once": "First target only",
-                    "never": "Never",
-                    "always": "Always"
-                }
-            },
-            "stableProtectsAllReduction": {
-                "name": "Feature 'stable' nullifies all 'Piercing' features",
-                "hint": "If an armor with feature 'stable' is attacked by a piercing weapon, then the effect of 'piercing' on the entire damage reduction is negated. If this option is deactivated, this effect only applies to the damage reduction provided by the armor with the feature."
-            }
-        },
-        "damageTypes": {
-            "short": {
-                "physical": "physical",
-                "mental": "mental",
-                "electric": "electric",
-                "acid": "acid",
-                "rock": "rock",
-                "fire": "fire",
-                "heat": "heat",
-                "cold": "cold",
-                "poison": "poison",
-                "bleeding": "bleed",
-                "disease": "disease",
-                "light": "light",
-                "shadow": "shadow",
-                "wind": "wind",
-                "water": "water",
-                "nature": "nature",
-                "none": "none"
-            },
-            "long": {
-                "physical": "physical damage",
-                "mental": "mental damage",
-                "electric": "electric damage",
-                "acid": "acid damage",
-                "rock": "rock damage",
-                "fire": "fire damage",
-                "heat": "heat damage",
-                "cold": "cold damage",
-                "poison": "poison damage",
-                "bleeding": "bleeding damage",
-                "disease": "disease damage",
-                "light": "light damage",
-                "shadow": "shadow damage",
-                "wind": "wind damage",
-                "water": "water damage",
-                "nature": "nature damage",
-                "none": "no damage type"
-            }
-        },
-        "keybindings": {
-            "paste": {
-                "name": "Paste Item",
-                "hint": "Permits importing items from the clipboard into the game"
-            }
-        },
-        "itemImport": {
-            "selectAFolder": "Select a folder to import the item into",
-            "folder": "Folder",
-            "noFolder": "No Folder",
-            "skillSelection": {
-                "title": {
-                    "unknown": "Choose a Skill",
-                    "weapon": "Weapon Import",
-                    "mastery": "Mastery Import"
-                },
-                "label": {
-                    "unknown": "Skill",
-                    "weapon": "Fighting skill",
-                    "mastery": "Skill"
-                }
-            }
-        },
-        "genesisImport": {
-            "spellValidation": {
-                "nameUnknown": "unknown spell",
-                "spellsExcluded": "Upon import, some spells were omitted. See console for details.",
-                "invalidSkillLevel": "Spell '{spellName}' has no valid spell level.",
-                "invalidFocusCosts": "Spell '{spellName}' has no valid focus costs.",
-                "invalidDifficulty": "Spell '{spellName}' has no valid difficulty.",
-                "invalidDamage": "Spell '{spellName}' has no valid damage value."
-            }
-        }
+  "splittermond": {
+    "chooseMagicSkill": "Choose a school af magic!",
+    "chooseSkill": "Choose a skill!",
+    "damageType": "damage type",
+    "damageCategory": "damage category",
+    "channeledDamage": "channeled damage",
+    "normalDamage": "normal damage",
+    "stunDamage": "stun damage",
+    "noDamage": "no damage category",
+    "unknownError": "An unknown error occurred. Please file a bug report.",
+    "chatCard": {
+      "noGMConnected": "Action cannot be performed, because no authorized user (GM) is connected",
+      "messageNotFound": "Message to update not found in the chat log",
+      "actionNotFound": "The selected action could not be executed, because the recipient does not know it. Please file a bug report.",
+      "spellMessage": {
+        "noHandler": "No handler registered for action '{action}'. Please contact the developer.",
+        "tooManyHandlers": "More than one handler registered for action '{action}'. Please contact the developer"
+      },
+      "damageMessage": {
+        "applyToTargets": "Apply to targets",
+        "applyToSelf": "Apply to self",
+        "applyToUserTargets": "Apply to {user}'s targets",
+        "noActorFound": "Found no actor to route damage to",
+        "noUserFound": "No user found for {actor}",
+        "youHaveNoTargets": "You have no targets selected",
+        "noUserTargetsFound": "User {user} has no targets selected.",
+        "noTargetsFound": "Could not find targets for Damage",
+        "consumptionMessage": "{principalImplement} by {sourceName}"
+      }
     },
-    "applications": {
-        "addTickDialogue": {
-            "title": "Add Ticks",
-            "noNegativeNumbers": "A duration many not be negative.",
-            "invalidNumber": "Please enter a valid number.",
-            "okLabel": "OK"
+    "damageMessage": {
+      "title": "{attacker} deals damage to {defender} ",
+      "name": "Mean",
+      "type": "damage type",
+      "baseValue": "causes damage",
+      "modifiedBy": "by weakness",
+      "subTotal": "sub total",
+      "damageReduction": "damage reduction",
+      "damageReductionOverride": "ignored",
+      "displaySettings": {
+        "once": "First one only",
+        "never": "Never",
+        "always": "Always"
+      },
+      "skip": "Skip",
+      "tooltip": {
+        "base": "DR",
+        "ignored": "ignoring"
+      },
+      "modifiers": {
+        "displayName": "Modifiers",
+        "keys": {
+          "damageType": "damageType",
+          "emphasis": "emphasis",
+          "feature": "feature",
+          "features": "features",
+          "item": "item",
+          "itemType": "itemType",
+          "skill": "skill",
+          "type": "type",
+          "unit": "unit",
+          "value": "value"
+        },
+        "parseMessages": {
+          "notAModifier": "Modifier '{modifier}' is not of a modifier format.",
+          "duplicateEmphasis": "Duplicate emphasis in '{modifier}'.",
+          "duplicateValue": "Modifier '{modifier}' contains duplicate declaration of value",
+          "noValue": "Modifier '{modifier}' contains no declaration of value",
+          "duplicateAttribute": "Attribute '{attribute}' exists several times in modifier.",
+          "noAttributeKey": "Could not identify key for Attribute '{attribute}'.",
+          "noAttributeValue": "Could not identify value for Attribute '{attribute}'.",
+          "invalidAttributeKey": "Invalid key for Attribute '{attribute}', found:",
+          "keyHasExpressionFormat": "Key should not have expression format",
+          "shouldNotBeNumber": "Input '{input}' is should not be a number.",
+          "shouldNotBeAnExpression": "Input '{input}' should not be an expression.",
+          "referenceNotPrimitive": "'{propertyPath}' does not resolve to a primitve on '{objectName}'.",
+          "unknownObject": "unknown",
+          "allErrorMessage": "Syntax error in modifier string '{str}' in '{objectName}'!",
+          "foNoCost": "Expression '{expression}' is not convertible to focus costs.",
+          "notANumber": "Expression '{expression}' is not convertible to a number.",
+          "deprecatedPath": "The path '{oldPath}' in {itemName} is deprecated. Use '{newPath}' instead.",
+          "unknownGroupId": "The path '{groupId}' is unknown.",
+          "missingDescriptor": "The attribute '{attribute}' for the modifier '{groupId}' is missing.",
+          "invalidDescriptorValue": "The value '{value}' for the attribute '{attribute}' for the modifier '{groupId}' is invalid.",
+          "unknownDescriptor": "The attribute '{attribute}' for the modifier '{groupId}' ist unknown."
         }
+      }
+    },
+    "message": {
+      "itemImported": "The item \"{name}\" was imported as \"{type}\"!",
+      "mangledTableData": "table data is corrupted. Please check attributes and derived values.",
+      "featureParsingFailure": "Feature '{feature}' did not resolve to a valid feature descriptor",
+      "invalidStatusEffectInterval": "The value for the interval on item '{name}' is invalid "
+    },
+    "settings": {
+      "reducibleEnhancementCosts": {
+        "name": "Reducable Spell Enhancement Costs",
+        "hint": "Permits the reduction of enhancement costs by using degrees of success"
+      },
+      "HGMultiplier": {
+        "name": "Hero level multiplier",
+        "hint": "Multiplier for calculating skill points and attribute modifiers."
+      },
+      "displayDamageDialog": {
+        "name": "Show damage dialog",
+        "hint": "Displays a dialog to review the damage applied to target",
+        "options": {
+          "once": "First target only",
+          "never": "Never",
+          "always": "Always"
+        }
+      },
+      "stableProtectsAllReduction": {
+        "name": "Feature 'stable' nullifies all 'Piercing' features",
+        "hint": "If an armor with feature 'stable' is attacked by a piercing weapon, then the effect of 'piercing' on the entire damage reduction is negated. If this option is deactivated, this effect only applies to the damage reduction provided by the armor with the feature."
+      }
+    },
+    "damageTypes": {
+      "short": {
+        "physical": "physical",
+        "mental": "mental",
+        "electric": "electric",
+        "acid": "acid",
+        "rock": "rock",
+        "fire": "fire",
+        "heat": "heat",
+        "cold": "cold",
+        "poison": "poison",
+        "bleeding": "bleed",
+        "disease": "disease",
+        "light": "light",
+        "shadow": "shadow",
+        "wind": "wind",
+        "water": "water",
+        "nature": "nature",
+        "none": "none"
+      },
+      "long": {
+        "physical": "physical damage",
+        "mental": "mental damage",
+        "electric": "electric damage",
+        "acid": "acid damage",
+        "rock": "rock damage",
+        "fire": "fire damage",
+        "heat": "heat damage",
+        "cold": "cold damage",
+        "poison": "poison damage",
+        "bleeding": "bleeding damage",
+        "disease": "disease damage",
+        "light": "light damage",
+        "shadow": "shadow damage",
+        "wind": "wind damage",
+        "water": "water damage",
+        "nature": "nature damage",
+        "none": "no damage type"
+      }
+    },
+    "keybindings": {
+      "paste": {
+        "name": "Paste Item",
+        "hint": "Permits importing items from the clipboard into the game"
+      }
+    },
+    "itemImport": {
+      "selectAFolder": "Select a folder to import the item into",
+      "folder": "Folder",
+      "noFolder": "No Folder",
+      "skillSelection": {
+        "title": {
+          "unknown": "Choose a Skill",
+          "weapon": "Weapon Import",
+          "mastery": "Mastery Import"
+        },
+        "label": {
+          "unknown": "Skill",
+          "weapon": "Fighting skill",
+          "mastery": "Skill"
+        }
+      }
+    },
+    "genesisImport": {
+      "spellValidation": {
+        "nameUnknown": "unknown spell",
+        "spellsExcluded": "Upon import, some spells were omitted. See console for details.",
+        "invalidSkillLevel": "Spell '{spellName}' has no valid spell level.",
+        "invalidFocusCosts": "Spell '{spellName}' has no valid focus costs.",
+        "invalidDifficulty": "Spell '{spellName}' has no valid difficulty.",
+        "invalidDamage": "Spell '{spellName}' has no valid damage value."
+      }
     }
+  },
+  "applications": {
+    "addTickDialogue": {
+      "title": "Add Ticks",
+      "noNegativeNumbers": "A duration many not be negative.",
+      "invalidNumber": "Please enter a valid number.",
+      "okLabel": "OK"
+    }
+  },
+  "COMBAT": {
+    "Round": "Tick {round}"
+  }
 }

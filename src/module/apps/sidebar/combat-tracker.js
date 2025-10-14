@@ -1,28 +1,40 @@
+import { foundryApi } from "module/api/foundryApi.js";
+
 export default class SplittermondCombatTracker extends foundry.applications.sidebar.tabs.CombatTracker {
-    async getData(options) {
-        const data = await super.getData(options);
-        if (!data.hasCombat) return data;
-        data.turns.forEach((c) => {
-            if (parseInt(c.initiative) === 10000) {
-                c.initiative = game.i18n.localize("splittermond.wait");
+    /**
+     * @param {string} partId
+     * @param {ApplicationRenderContext} context
+     * @param {HandlebarsRenderOptions} options
+     * @returns {Promise<ApplicationRenderContext>}
+     * @protected
+     */
+    async _preparePartContext(partId, context, options) {
+        const renderContext = await super._preparePartContext(partId, context, options);
+        switch (partId) {
+            case "tracker":
+                return this.prepareTracker(renderContext);
+            default:
+                return renderContext;
+        }
+    }
+
+    /**
+     * @returns {ApplicationRenderContext}
+     * @private
+     */
+    prepareTracker(renderContext) {
+        renderContext.turns?.forEach((c) => {
+            if (c.initiative === null || c.initiative === undefined) {
+            } else if (parseInt(c.initiative) === 10000) {
+                c.initiative = foundryApi.localize("splittermond.wait");
             } else if (parseInt(c.initiative) === 20000) {
-                c.initiative = game.i18n.localize("splittermond.keepReady");
+                c.initiative = foundryApi.localize("splittermond.keepReady");
             } else {
                 let tickNumber = c.initiative ? Math.round(c.initiative) : 0;
                 c.initiative = tickNumber + " | " + Math.round(100 * (c.initiative - tickNumber));
             }
         });
-        data.round = data.combat.started ? Math.round(parseFloat(data.combat.turns[0]?.initiative)) + "" : "";
-        if (game.release.generation < 10) {
-            data.combat = data.combat.toObject();
-            data.combat.data = data.combat;
-            data.combat.data.round = data.round;
-        } else {
-            data.combat = data.combat.toObject();
-            data.combat.round = data.round;
-        }
-
-        return data;
+        return renderContext;
     }
 
     _onTogglePause(ev) {
@@ -98,8 +110,9 @@ export default class SplittermondCombatTracker extends foundry.applications.side
         }).render(true);
     }
 
-    activateListeners(html) {
-        super.activateListeners(html);
+    _onRender(context, options) {
+        super._onRender(context, options);
+        const html = $(this.element);
 
         const combat = this.viewed;
         $(html.find(".combatant")).each(function () {

@@ -11,8 +11,8 @@ export default class SplittermondCombat extends Combat {
 
         // if equal intuition => player character first!
         if (iniA === iniB) {
-            iniA = a.actor.type == "character" ? iniA - 1 : iniA;
-            iniB = b.actor.type == "character" ? iniB - 1 : iniB;
+            iniA = a.actor.type === "character" ? iniA - 1 : iniA;
+            iniB = b.actor.type === "character" ? iniB - 1 : iniB;
         }
 
         // if equal intuition => else random
@@ -24,25 +24,12 @@ export default class SplittermondCombat extends Combat {
 
         return iniA + (a.isDefeated ? 1000 : 0) - (iniB + (b.isDefeated ? 1000 : 0));
     }
-    /*
+
     async startCombat() {
-        await this.setupTurns();
-        await this.setFlag("splittermond", "tickHistory", [{
-            round: 1,
-            turns: this.turns.map(c => {
-                return {
-                    _id: c.id,
-                    initiative: c.initiative,
-                    defeated: c.defeated
-                }
-            })
-        }]);
-
-        await this.setFlag("splittermond", "tickHistoryPointer", 0);
-
-        return super.startCombat();
+        await super.startCombat();
+        this.update({ round: this.currentTick ?? 0 });
     }
-*/
+
     async resetAll() {
         await super.resetAll();
 
@@ -50,7 +37,7 @@ export default class SplittermondCombat extends Combat {
     }
 
     async nextTurn(nTicks = 0) {
-        if (nTicks == 0) {
+        if (nTicks === 0) {
             let p = new Promise((resolve, reject) => {
                 let dialog = new Dialog({
                     title: "Ticks",
@@ -120,11 +107,9 @@ export default class SplittermondCombat extends Combat {
     }
 
     async nextRound() {
-        //await super.nextRound();
         if (!this.started) return;
 
-        let nextRound = this.round + 1;
-        const updateData = { round: nextRound, turn: 0 };
+        const updateData = { round: this.currentTick, turn: 0 };
         this.setupTurns();
         const updateOptions = { direction: 1 };
         Hooks.callAll("combatRound", this, updateData, updateOptions);
