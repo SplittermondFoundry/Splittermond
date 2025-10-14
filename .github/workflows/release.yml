@@ -28,7 +28,7 @@ jobs:
                   fetch-depth: 0 # fetch all history so we actually commit on top of main
                   #ref: main
             - name: Set up Node.js
-              uses: actions/setup-node@v5
+              uses: actions/setup-node@v6
               with:
                   node-version: "22"
             - name: Set new version in system.json
