@@ -352,7 +352,8 @@
         "message": {
             "itemImported": "Das Item \"{name}\" wurde als \"{type}\" importiert!",
             "mangledTableData": "Tabellendaten sind beschädigt. Bitte überprüfen Sie Attribute und abgeleitete Werte.",
-            "featureParsingFailure": "Merkmal '{feature}' konnte nicht in ein bekanntes Merkmal umgewandelt werden."
+          "featureParsingFailure": "Merkmal '{feature}' konnte nicht in ein bekanntes Merkmal umgewandelt werden.",
+          "invalidStatusEffectInterval": "Der Intervallwert für den Zustand '{name}' ist ungültig."
         },
         "masteryItem": {
             "level": "Schwelle"

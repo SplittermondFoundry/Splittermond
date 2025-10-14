@@ -9,7 +9,6 @@ import SplittermondAttackSheet from "./module/item/sheets/attack-sheet";
 import { splittermond } from "./module/config";
 import * as Dice from "./module/util/dice";
 import * as Macros from "./module/util/macros";
-import SplittermondCombat from "./module/combat/combat";
 import SplittermondCombatTracker from "./module/apps/sidebar/combat-tracker";
 import ItemImporter from "./module/util/item-importer";
 import SplittermondCompendiumBrowser from "./module/apps/compendiumBrowser/compendium-browser.js";
@@ -34,6 +33,7 @@ import { initializeActor } from "module/actor/index.js";
 import { initializeModifiers } from "module/modifiers/index.js";
 import { initializeCosts } from "module/util/costs/index.js";
 import { addTicks } from "module/combat/addTicks.js";
+import { initializeCombat } from "module/combat/index.js";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -99,7 +99,7 @@ Hooks.once("init", async function () {
     initializeCosts(modifierModule.costModifierRegistry);
     chatActionFeature(CONFIG.ChatMessage);
 
-    CONFIG.Combat.documentClass = SplittermondCombat;
+    initializeCombat(CONFIG.Combat);
     CONFIG.ui.combat = SplittermondCombatTracker;
 
     CONFIG.splittermond = {

@@ -1,3 +1,10 @@
+## 13.6.7
+
+### Fixed
+
+- Statuseffekte die im Kampf anwendet werden beginnen immer am aktuellen Tick
+- Alle Statuseffekte die während eines Kampfes angelegt werden werden berücksichtigt.
+
 ## 13.6.5, 13.6.6
 
 ### Fixed

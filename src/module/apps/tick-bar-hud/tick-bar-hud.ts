@@ -557,7 +557,7 @@ export function initTickBarHud(splittermond: Record<string, unknown>) {
     }
     function renderForItemChange(item: SplittermondItem) {
         if (!item.actor) return;
-        const combatant = foundryApi.combat.combatants.find((c) => c.actorId === item.actor.id);
+        const combatant = foundryApi.combat?.combatants.find((c) => c.actorId === item.actor.id);
         if (combatant && item.type === "statuseffect") {
             renderForActiveCombatant(combatant);
         }

@@ -90,7 +90,8 @@
         "message": {
             "itemImported": "The item \"{name}\" was imported as \"{type}\"!",
             "mangledTableData": "table data is corrupted. Please check attributes and derived values.",
-            "featureParsingFailure": "Feature '{feature}' did not resolve to a valid feature descriptor"
+          "featureParsingFailure": "Feature '{feature}' did not resolve to a valid feature descriptor",
+          "invalidStatusEffectInterval": "The value for the interval on item '{name}' is invalid "
         },
         "settings": {
             "reducibleEnhancementCosts": {
