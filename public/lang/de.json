@@ -164,6 +164,15 @@
         "noNegativeNumbers": "Eine Dauer kann nicht negativ sein.",
         "invalidNumber": "Bitte geben Sie eine gültige Zahl ein.",
         "okLabel": "OK"
+      },
+      "pauseCombatantDialogue": {
+        "title": "Abwarten / Bereithalten"
+      },
+      "combatTracker": {
+        "addTickDialogueMessage": "{name} vorrücken",
+        "addTickAriaLabel": "Kämpfer vorrücken",
+        "pauseCombatantAriaLabel": "Kämpfer abwarten/bereithalten",
+        "activateCombatantAriaLabel": "Kämpfer auf Tickleise setzen"
       }
     },
     "modifier": "Modifikator",

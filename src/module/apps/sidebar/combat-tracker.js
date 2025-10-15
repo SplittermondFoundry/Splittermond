@@ -1,8 +1,23 @@
-import { foundryApi } from "module/api/foundryApi.js";
-import { askUserAboutPauseType } from "module/apps/sidebar/TogglePauseDialogue.js";
-import { combatantIsPaused, CombatPauseType } from "module/combat/index.js";
+import { foundryApi } from "module/api/foundryApi";
+import { askUserAboutPauseType } from "module/apps/sidebar/PauseCombatantDialogue";
+import { combatantIsPaused, CombatPauseType } from "module/combat";
+import { askUserForTickAddition } from "module/combat/TickAdditionDialog";
+import { closestData } from "module/data/ClosestDataMixin";
 
 export default class SplittermondCombatTracker extends foundry.applications.sidebar.tabs.CombatTracker {
+    /**
+     * @param {ApplicationOptions} options
+     */
+    constructor(options = {}) {
+        options.actions = {
+            ...options.actions,
+            addTicks(event, target) {
+                this._onAddTicks(event, target);
+            },
+        };
+        super(options);
+    }
+
     /**
      * @param {string} partId
      * @param {ApplicationRenderContext} context
@@ -65,59 +80,72 @@ export default class SplittermondCombatTracker extends foundry.applications.side
         }
     }
 
-    _onAddTicks(ev) {
+    async _onAddTicks(ev, target) {
         ev.preventDefault();
         ev.stopPropagation();
-        const btn = ev.currentTarget;
-        const li = btn.closest(".combatant");
         const combat = this.viewed;
-        const c = combat.combatants.get(li.dataset.combatantId);
+        const c = combat.combatants.get(closestData(target, "combatant-id"));
+        const ticksToAdd = await askUserForTickAddition(
+            3,
+            foundryApi.format("splittermond.applications.combatTracker.addTickDialogueMessage", { name: c.name })
+        );
 
-        let dialog = new Dialog({
-            title: "Ticks",
-            content: "<input type='text' class='ticks' value='3'>",
-            buttons: {
-                ok: {
-                    label: "Ok",
-                    callback: (html) => {
-                        let nTicks = parseInt(html.find(".ticks")[0].value);
-                        let newInitiative = Math.round(c.initiative) + nTicks;
-
-                        combat.setInitiative(c.id, newInitiative);
-                    },
-                },
-                cancel: {
-                    label: "Cancel",
-                },
-            },
-        }).render(true);
+        const newInitiative = Math.round(c.initiative) + ticksToAdd;
+        return combat.setInitiative(c.id, newInitiative);
     }
 
     _onRender(context, options) {
         super._onRender(context, options);
-        const html = $(this.element);
 
         const combat = this.viewed;
-        $(html.find(".combatant")).each(function () {
-            const cid = $(this).closestData("combatant-id");
+        this.element.querySelectorAll(".combatant").forEach((/**@type HTMLElement*/ element) => {
+            const cid = element.dataset.combatantId;
             const c = combat.combatants.get(cid);
             if (c && c.isOwner) {
-                if (combatantIsPaused(c)) {
-                    $(".token-initiative .initiative", this).wrap(
-                        '<a class="combatant-control" title="" data-control="addTicks"/>'
-                    );
-                    $(".combatant-controls", this)
-                        .prepend(`<a class="combatant-control" title="" data-control="togglePause">
-            <i class= "fas fa-pause-circle" ></i></a>`);
-                } else {
-                    $(".combatant-controls", this)
-                        .prepend(`<a class="combatant-control" title="" data-control="togglePause">
-            <i class= "fas fa-play-circle" ></i></a>`);
+                const combatantControls = element.querySelector(".combatant-controls");
+                if (combatantControls) {
+                    if (!combatantIsPaused(c)) {
+                        const pauseCombatantLabel = foundryApi.localize(
+                            "splittermond.applications.combatTracker.pauseCombatantAriaLabel"
+                        );
+                        combatantControls.insertAdjacentHTML(
+                            "afterbegin",
+                            `<button 
+                                        class="inline-control combatant-control icon fa-solid fa-pause-circle" 
+                                        data-tooltip aria-label="${pauseCombatantLabel}" 
+                                        data-control="togglePause"
+                                   />`
+                        );
+                        const ariaLabel = foundryApi.localize(
+                            "splittermond.applications.combatTracker.addTickAriaLabel"
+                        );
+                        combatantControls.querySelector(".token-effects")?.insertAdjacentHTML(
+                            "beforebegin",
+                            `<button 
+                                            class="inline-control combatant-control icon fa-solid fa-circle-right" 
+                                            data-tooltip aria-label="${ariaLabel}" 
+                                            data-action="addTicks"/>`
+                        );
+                    } else {
+                        const activateCombatantLabel = foundryApi.localize(
+                            "splittermond.applications.combatTracker.activateCombatantAriaLabel"
+                        );
+                        combatantControls.insertAdjacentHTML(
+                            "afterbegin",
+                            `<button 
+                                        class="inline-control combatant-control icon fa-solid fa-play-circle" 
+                                        data-tooltip aria-label="${activateCombatantLabel}"
+                                        data-control="togglePause"
+                                   />`
+                        );
+                    }
                 }
             }
         });
-
-        html.find('[data-control="togglePause"]').click((ev) => this._onTogglePause(ev));
-        html.find('[data-control="addTicks"]').click((ev) => this._onAddTicks(ev));
+        this.element.querySelectorAll('[data-control="togglePause"]').forEach((el) => {
+            el.addEventListener("click", (event) => {
+                this._onTogglePause(event);
+            });
+        });
     }
 }

@@ -6,6 +6,8 @@
 - Alle Statuseffekte die während eines Kampfes angelegt werden werden berücksichtigt.
 - Ein Fehler wude behoben, bei dem Ticks von Angriffen nicht abgerechnet werden konnten.
 - Der Combat Tracker funktioniert wieder.
+    - Korrekte Behandlung von Abwarten / Bereithalten
+    - Dialog zum Vorrücken von Kampftteilnehmern
 
 ## 13.6.5, 13.6.6
 

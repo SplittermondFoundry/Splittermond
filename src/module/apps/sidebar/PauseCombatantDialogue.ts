@@ -8,7 +8,7 @@ export async function askUserAboutPauseType(): Promise<CombatPauseType> {
 
 function renderDialogue(resolve: (value: CombatPauseType) => void, reject: (reason?: any) => void) {
     let dialog = new FoundryDialog({
-        window: { title: "Abwarten / Bereithalten" },
+        window: { title: "splittermond.applications.pauseCombatantDialogue.title" },
         content: "",
         buttons: [
             {

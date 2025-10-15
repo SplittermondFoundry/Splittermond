@@ -30,6 +30,7 @@ export default class SplittermondCombat extends Combat {
     async startCombat() {
         await super.startCombat();
         this.update({ round: this.currentTick ?? 0 });
+        return this;
     }
 
     async resetAll() {

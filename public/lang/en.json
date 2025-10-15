@@ -196,6 +196,15 @@
       "noNegativeNumbers": "A duration many not be negative.",
       "invalidNumber": "Please enter a valid number.",
       "okLabel": "OK"
+    },
+    "pauseCombatantDialogue": {
+      "title": "Wait / Keep Ready"
+    },
+    "combatTracker": {
+      "addTickDialogueMessage": "Advance {name} ",
+      "addTickAriaLabel": "Advance Combatant",
+      "pauseCombatantAriaLabel": "Wait / Keep Ready",
+      "activateCombatantAriaLabel": "Rejoin Combat"
     }
   },
   "COMBAT": {
