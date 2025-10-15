@@ -34,6 +34,7 @@ import { initializeModifiers } from "module/modifiers/index.js";
 import { initializeCosts } from "module/util/costs/index.js";
 import { addTicks } from "module/combat/addTicks.js";
 import { initializeCombat } from "module/combat/index.js";
+import { closestData } from "module/data/ClosestDataMixin.js";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -451,12 +452,12 @@ function commonEventHandlerHTMLEdition(app, html, data) {
             const element = event.currentTarget;
             let value = element.dataset.ticks;
             let message = element.dataset.message;
-            let chatMessageId = element.dataset.messageId;
+            let chatMessageId = closestData(element, "message-id");
 
             const speaker = foundryApi.messages.get(chatMessageId).speaker;
             let actor;
             if (speaker.token) actor = foundryApi.collections.actors.tokens[speaker.token];
-            if (!actor) actor = game.getActor(speaker.actor);
+            if (!actor) actor = foundryApi.getActor(speaker.actor);
             if (!actor) {
                 foundryApi.informUser("splittermond.pleaseSelectAToken");
                 return;
