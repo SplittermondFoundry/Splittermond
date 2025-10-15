@@ -129,7 +129,7 @@ export const foundryApi = new (class FoundryApi {
         return game.combats;
     }
 
-    get combat(): FoundryCombat {
+    get combat(): FoundryCombat | null {
         //@ts-ignore
         return game.combat;
     }

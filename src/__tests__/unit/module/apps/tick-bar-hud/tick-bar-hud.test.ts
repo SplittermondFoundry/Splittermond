@@ -1,10 +1,10 @@
 import { afterEach, describe, it } from "mocha";
 import { expect } from "chai";
 import sinon from "sinon";
-import { foundryApi } from "../../../../../module/api/foundryApi";
-import SplittermondCombat from "../../../../../module/combat/combat";
-import TickBarHud from "../../../../../module/apps/tick-bar-hud/tick-bar-hud";
-import type { FoundryCombatant } from "../../../../../module/api/foundryTypes";
+import { foundryApi } from "module/api/foundryApi";
+import SplittermondCombat from "module/combat/combat";
+import TickBarHud from "module/apps/tick-bar-hud/tick-bar-hud";
+import type { FoundryCombatant } from "module/api/foundryTypes";
 import { JSDOM } from "jsdom";
 import { createHtml } from "../../../../handlebarHarness";
 import { addNewCombatant, createCombat, type MockedCombatant } from "./tickBarHudTestHelpers";

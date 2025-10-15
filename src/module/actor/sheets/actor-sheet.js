@@ -694,41 +694,6 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             itemData.system.level = selectedSkill.level;
         }
 
-        if (itemData.type === "statuseffect") {
-            const currentScene = game.scenes.current?.id || null;
-            let combats = game.combats.filter((c) => c.scene === null || c.scene.id === currentScene);
-            if (combats.length > 0) {
-                console.log("Splittermond | Adapting status effect to account for current combat.");
-                var activeCombat = combats.find((e) => e.combatants.find((f) => f.actor.id === this.actor.id));
-                if (activeCombat != null) {
-                    var currentTick = activeCombat.current.round;
-                    //check if this status is already present
-                    var hasSameStatus = this.actor.items
-                        .filter((e) => {
-                            return e.type === "statuseffect" && e.name === itemData.name && e.system.startTick;
-                        })
-                        .map((e) => {
-                            var ticks = [];
-                            for (let index = 0; index < parseInt(e.system.times); index++) {
-                                ticks.push(parseInt(e.system.startTick) + index * parseInt(e.system.interval));
-                            }
-                            return {
-                                ticks: ticks.filter((f) => f >= currentTick),
-                                status: e,
-                            };
-                        })
-                        .filter((e) => e.ticks.length > 0);
-                    if (hasSameStatus.length > 0) {
-                        //there is already an status with the same type so the new one will start always at the next tick
-                        itemData.data.startTick = hasSameStatus[0].ticks[0];
-                    } else {
-                        itemData.system.startTick =
-                            parseInt(activeCombat.currentTick) + parseInt(itemData.system.interval);
-                    }
-                }
-            }
-        }
-
         await super._onDropItemCreate(itemData);
     }
 

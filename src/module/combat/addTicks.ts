@@ -15,7 +15,7 @@ interface AddTicksOptions {
  * @param addTickOptions options for a message to display and whether to ask the player
  */
 export async function addTicks(actor: SplittermondActor, ticksToAdd: number, addTickOptions: AddTicksOptions = {}) {
-    const combat = foundryApi.combat as SplittermondCombat;
+    const combat = foundryApi.combat as SplittermondCombat | null;
     if (ticksToAdd <= 0) {
         console.debug("Splittermond | Not adding ticks, value is <= 0");
         return;
