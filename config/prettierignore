@@ -6,5 +6,6 @@ build/
 package-lock.json
 yarn.lock
 *.hbs
-public/system.json
-public/lang/
+system.json
+de.json
+en.json
