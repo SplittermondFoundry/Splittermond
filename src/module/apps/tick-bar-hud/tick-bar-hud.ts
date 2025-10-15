@@ -14,6 +14,7 @@ import type { VirtualToken } from "../../combat/VirtualToken";
 import { initMaxWidthTransitionForTickBarHud } from "./tickBarResizing";
 import type { FoundryCombat, FoundryCombatant } from "module/api/foundryTypes";
 import type SplittermondItem from "module/item/item";
+import { combatantIsPaused, CombatPauseType } from "module/combat";
 
 export default class TickBarHud extends SplittermondApplication {
     viewed: FoundryCombat | null = null;
@@ -139,7 +140,7 @@ export default class TickBarHud extends SplittermondApplication {
             for (let [i, c] of combat.turns.entries()) {
                 if (c.initiative == null) continue;
 
-                if (c.initiative > 9999) {
+                if (combatantIsPaused(c)) {
                     let combatantData = {
                         id: c.id,
                         name: c.name,
@@ -152,11 +153,11 @@ export default class TickBarHud extends SplittermondApplication {
                         hasRolled: true,
                     };
 
-                    if (c.initiative === 10000) {
+                    if (c.initiative === CombatPauseType.wait) {
                         data.wait.push(combatantData);
                     }
 
-                    if (c.initiative === 20000) {
+                    if (c.initiative === CombatPauseType.keepReady) {
                         data.keepReady.push(combatantData);
                     }
 
@@ -456,7 +457,7 @@ export default class TickBarHud extends SplittermondApplication {
         if (tick !== undefined && data.type === "Combatant") {
             const combatant = this.viewed.combatants.get(data.combatantId);
             if (combatant && combatant.isOwner) {
-                if (combatant.initiative === 20000) {
+                if (combatant.initiative === CombatPauseType.keepReady) {
                     this.viewed.setInitiative(data.combatantId, tick, true);
                 } else {
                     this.viewed.setInitiative(data.combatantId, tick);

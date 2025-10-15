@@ -4,6 +4,8 @@
 
 - Statuseffekte die im Kampf anwendet werden beginnen immer am aktuellen Tick
 - Alle Statuseffekte die während eines Kampfes angelegt werden werden berücksichtigt.
+- Ein Fehler wude behoben, bei dem Ticks von Angriffen nicht abgerechnet werden konnten.
+- Der Combat Tracker funktioniert wieder.
 
 ## 13.6.5, 13.6.6
 

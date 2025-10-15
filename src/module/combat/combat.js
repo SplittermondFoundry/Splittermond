@@ -1,3 +1,5 @@
+import { CombatPauseType } from "module/combat/index.js";
+
 export default class SplittermondCombat extends Combat {
     _sortCombatants(a, b) {
         let iniA = parseFloat(a.initiative);
@@ -69,7 +71,7 @@ export default class SplittermondCombat extends Combat {
 
     async setInitiative(id, value, first = false) {
         value = Math.round(value);
-        if (value < 10000) {
+        if (value < CombatPauseType.wait) {
             if (!first) {
                 value = this.combatants.reduce((acc, c) => {
                     return Math.round(c.initiative) === value ? Math.max((c.initiative || 0) + 0.01, acc) : acc;
@@ -80,7 +82,7 @@ export default class SplittermondCombat extends Combat {
                 }, value);
             }
         } else {
-            if (value !== 10000 && value !== 20000) {
+            if (value !== CombatPauseType.wait && value !== CombatPauseType.keepReady) {
                 return;
             }
         }

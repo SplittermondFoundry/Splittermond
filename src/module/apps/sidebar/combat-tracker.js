@@ -1,4 +1,6 @@
 import { foundryApi } from "module/api/foundryApi.js";
+import { askUserAboutPauseType } from "module/apps/sidebar/TogglePauseDialogue.js";
+import { combatantIsPaused, CombatPauseType } from "module/combat/index.js";
 
 export default class SplittermondCombatTracker extends foundry.applications.sidebar.tabs.CombatTracker {
     /**
@@ -25,9 +27,9 @@ export default class SplittermondCombatTracker extends foundry.applications.side
     prepareTracker(renderContext) {
         renderContext.turns?.forEach((c) => {
             if (c.initiative === null || c.initiative === undefined) {
-            } else if (parseInt(c.initiative) === 10000) {
+            } else if (parseInt(c.initiative) === CombatPauseType.wait) {
                 c.initiative = foundryApi.localize("splittermond.wait");
-            } else if (parseInt(c.initiative) === 20000) {
+            } else if (parseInt(c.initiative) === CombatPauseType.keepReady) {
                 c.initiative = foundryApi.localize("splittermond.keepReady");
             } else {
                 let tickNumber = c.initiative ? Math.round(c.initiative) : 0;
@@ -45,37 +47,18 @@ export default class SplittermondCombatTracker extends foundry.applications.side
         const combat = this.viewed;
         const c = combat.combatants.get(li.dataset.combatantId);
 
-        if (c.initiative < 10000) {
-            let dialog = new Dialog({
-                title: "Abwarten / Bereithalten",
-                buttons: {
-                    cancel: {
-                        label: game.i18n.localize("splittermond.cancel"),
-                        callback: (html) => {},
-                    },
-                    keepReady: {
-                        label: game.i18n.localize("splittermond.keepReady"),
-                        callback: (html) => {
-                            combat.setInitiative(c.id, 20000);
-                        },
-                    },
-                    wait: {
-                        label: game.i18n.localize("splittermond.wait"),
-                        callback: (html) => {
-                            combat.setInitiative(c.id, 10000);
-                        },
-                    },
-                },
-            });
-            dialog.render(true);
+        if (!combatantIsPaused(c)) {
+            return askUserAboutPauseType()
+                .then((pauseType) => {
+                    return combat.setInitiative(c.id, pauseType);
+                })
+                .catch(() => {});
         } else {
             switch (c.initiative) {
-                case 10000:
-                    combat.setInitiative(c.id, parseInt(combat.round));
-                    break;
-                case 20000:
-                    combat.setInitiative(c.id, parseInt(combat.round), true);
-                    break;
+                case CombatPauseType.wait:
+                    return combat.setInitiative(c.id, parseInt(combat.round));
+                case CombatPauseType.keepReady:
+                    return combat.setInitiative(c.id, parseInt(combat.round), true);
                 default:
                     break;
             }
@@ -119,7 +102,7 @@ export default class SplittermondCombatTracker extends foundry.applications.side
             const cid = $(this).closestData("combatant-id");
             const c = combat.combatants.get(cid);
             if (c && c.isOwner) {
-                if (c.initiative < 10000) {
+                if (combatantIsPaused(c)) {
                     $(".token-initiative .initiative", this).wrap(
                         '<a class="combatant-control" title="" data-control="addTicks"/>'
                     );
