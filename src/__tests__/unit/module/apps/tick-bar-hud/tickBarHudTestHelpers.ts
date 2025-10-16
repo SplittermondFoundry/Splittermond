@@ -11,6 +11,7 @@ const nextId = (function* () {
 
 export function createCombat(sandbox: SinonSandbox, props: Partial<SplittermondCombat> = {}) {
     const combat = sandbox.createStubInstance(SplittermondCombat);
+    combat.update.callThrough();
     const combatants = [] as FoundryCombatant[];
     const combatId = `CombatId${nextId.next().value}`;
 

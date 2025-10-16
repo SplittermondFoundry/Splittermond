@@ -261,6 +261,10 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(CONFIG, "CONFIG does not have a property called ChatMessage").to.have.property("ChatMessage");
         });
 
+        it("should have a property called Combat", () => {
+            expect(CONFIG, "CONFIG does not have a property called Combat").to.have.property("Combat");
+        });
+
         it("should have required Item properties", () => {
             expect(CONFIG.Item.dataModels, "CONFIG.Item is not initialized").to.deep.contain.keys([
                 "education",
@@ -360,7 +364,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 });
             });
         });
-        ["system", "turns", "current", "scene"].forEach((property) => {
+        ["system", "turns", "current", "scene", "round"].forEach((property) => {
             it(`should have an object property ${property}`, () => {
                 game.combats.forEach((combat: FoundryDocument) => {
                     expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);

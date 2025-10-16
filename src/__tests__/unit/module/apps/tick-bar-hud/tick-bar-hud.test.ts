@@ -147,6 +147,36 @@ describe("TickBarHud", () => {
             expect(tickBarHud.maxTick).to.be.at.least(50); // At least 50, could be more due to +25 buffer
         });
 
+        it("should fallback to combat round for min ticks when no combatants", async () => {
+            const combat = createCombat(sandbox, {
+                isActive: true,
+                started: true,
+                turns: [],
+            });
+            await combat.update({ round: 10 });
+            sandbox.stub(foundryApi, "combats").get(() => [combat]);
+
+            const tickBarHud = new TickBarHud();
+            await tickBarHud._prepareContext({ parts: [] });
+
+            expect(tickBarHud.minTick).to.equal(10);
+        });
+
+        it("should use default values when no combatants and no round", async () => {
+            const combat = createCombat(sandbox, {
+                isActive: true,
+                started: true,
+                turns: [],
+            });
+            sandbox.stub(foundryApi, "combats").get(() => [combat]);
+
+            const tickBarHud = new TickBarHud();
+            await tickBarHud._prepareContext({ parts: [] });
+
+            expect(tickBarHud.minTick).to.equal(-20);
+            expect(tickBarHud.maxTick).to.equal(50);
+        });
+
         it("should populate ticks with combatants", async () => {
             // Setup: Mock combat with combatants having various initiatives
             const combat = createCombat(sandbox, { isActive: true, started: true });

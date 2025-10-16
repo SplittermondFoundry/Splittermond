@@ -216,6 +216,7 @@ declare namespace foundry {
             /**The scene this {@link Combat} is linked to. Is `null` when the combat is globally available */
             readonly scene: Scene | null; //defineSchema field. not actually part of the API
             readonly turn: number; //defineSchema field. not actually part of the API
+            readonly round: number; //defineSchema field. not actually part of the API
             get isActive(): boolean;
             get started(): boolean;
 
