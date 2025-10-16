@@ -1,3 +1,12 @@
+## 13.6.8
+
+### Fixed
+
+- Bei Streiftreffern wird jetzt das doppelte der Anzahl der angesagten Manöver vom Schaden abgezogen.
+    - Die Option Schaden selber zu nehmen muss manuell umgesetzt werden.
+- Ein Fehler wurde behoben, der die Kampfanzeige brach, wenn man alle Kämpfer auf abwarten gesetzt hat.
+- Bei Herausragenden Erfolgen für Angriffe wird jetzt die Tickzahl um 1 reduziert.
+
 ## 13.6.7
 
 ### Fixed

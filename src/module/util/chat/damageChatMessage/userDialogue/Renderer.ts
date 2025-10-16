@@ -6,7 +6,7 @@ export interface DamageRecord {
     baseId: string;
     type: CostType;
     items: DamageRecordItem[];
-    isGrazingHit: boolean;
+    grazingHitPenalty: number;
     damageReduction: number;
     ignoredReduction: number;
     totalBeforeGrazing: number;
@@ -63,7 +63,7 @@ export class Renderer {
             damageReduction: source.damageReduction.length,
             effectiveDamageReduction: this.getEffectiveDamageReduction(),
             ignoredReduction: source.overriddenReduction.length,
-            isGrazingHit: source.event.isGrazingHit,
+            grazingHitPenalty: source.event.grazingHitPenalty,
             items: this.mapRecords(source.records),
             totalBeforeGrazing: source.totalFromImplements.length,
             totalDamage: source.totalDamage.length,

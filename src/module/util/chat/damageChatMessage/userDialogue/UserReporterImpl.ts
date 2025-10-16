@@ -25,7 +25,7 @@ export interface UserReport {
 
 export interface EventReport {
     causer: AgentReference | null;
-    isGrazingHit: boolean;
+    grazingHitPenalty: number;
     costBase: CostBase;
 }
 

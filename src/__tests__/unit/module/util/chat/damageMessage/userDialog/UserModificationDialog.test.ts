@@ -1,18 +1,18 @@
 import { expect } from "chai";
 import { asMock } from "../../../../../settingsMock";
-import { settings } from "../../../../../../../module/settings";
-import { UserModificationDialogue } from "../../../../../../../module/util/chat/damageChatMessage/userDialogue/UserModificationDialogue";
+import { settings } from "module/settings";
+import { UserModificationDialogue } from "module/util/chat/damageChatMessage/userDialogue/UserModificationDialogue";
 import sinon, { SinonSandbox } from "sinon";
 import {
     DamageReportDialog,
     UserAdjustments,
-} from "../../../../../../../module/util/chat/damageChatMessage/userDialogue/DamageReportDialog";
-import { UserReport } from "../../../../../../../module/util/chat/damageChatMessage/userDialogue/UserReporterImpl";
-import { Cost, CostModifier } from "../../../../../../../module/util/costs/Cost";
-import SplittermondActor from "../../../../../../../module/actor/actor";
-import { AgentReference } from "../../../../../../../module/data/references/AgentReference";
-import { PrimaryCost } from "../../../../../../../module/util/costs/PrimaryCost";
-import { CostBase } from "../../../../../../../module/util/costs/costTypes";
+} from "module/util/chat/damageChatMessage/userDialogue/DamageReportDialog";
+import { UserReport } from "module/util/chat/damageChatMessage/userDialogue/UserReporterImpl";
+import { Cost, CostModifier } from "module/util/costs/Cost";
+import SplittermondActor from "module/actor/actor";
+import { AgentReference } from "module/data/references/AgentReference";
+import { PrimaryCost } from "module/util/costs/PrimaryCost";
+import { CostBase } from "module/util/costs/costTypes";
 
 describe("UserModificationDialog", () => {
     let sandbox: SinonSandbox;
@@ -175,7 +175,7 @@ function createUserReport(sandbox: SinonSandbox, props: ReportProps = {}): UserR
         damageReduction: props.damageReduction ?? CostModifier.zero,
         event: {
             causer: props.event?.causer ?? sandbox.createStubInstance(AgentReference),
-            isGrazingHit: props.event?.isGrazingHit ?? false,
+            grazingHitPenalty: props.event?.grazingHitPenalty ?? 0,
             costBase: props.event?.costBase ?? CostBase.create("V"),
         },
         overriddenReduction: props.overriddenReduction ?? CostModifier.zero,

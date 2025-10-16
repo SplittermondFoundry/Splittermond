@@ -93,6 +93,9 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                     }
                     templateContext.degreeOfSuccessDescription += "</ol>";
                 }
+                if (data.degreeOfSuccess >= 5) {
+                    ticks = ticks - 1;
+                }
 
                 templateContext.actions.push({
                     name: `${game.i18n.localize("splittermond.activeDefense")} (${game.i18n.localize("splittermond.derivedAttribute.defense.short")})`,
@@ -132,7 +135,8 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                         "roll-type": "damage",
                         actorId: actor.id,
                         costType: data.weapon.costType,
-                        isGrazingHit: templateContext.isGrazingHit,
+                        grazingHitPenalty: data.maneuvers.length * 2,
+                        isGrazingHit: true,
                         damageImplements: JSON.stringify(serializedImplements),
                     },
                 });

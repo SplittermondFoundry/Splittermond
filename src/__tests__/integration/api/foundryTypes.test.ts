@@ -261,6 +261,10 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(CONFIG, "CONFIG does not have a property called ChatMessage").to.have.property("ChatMessage");
         });
 
+        it("should have a property called Combat", () => {
+            expect(CONFIG, "CONFIG does not have a property called Combat").to.have.property("Combat");
+        });
+
         it("should have required Item properties", () => {
             expect(CONFIG.Item.dataModels, "CONFIG.Item is not initialized").to.deep.contain.keys([
                 "education",
@@ -386,6 +390,13 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                     typeof Combat.prototype[property as keyof typeof Combat.prototype],
                     `combat property ${property} is not a function`
                 ).to.equal("function");
+            });
+        });
+
+        ([["round", fields.NumberField]] as const).forEach(([key, type]) => {
+            it(`should have a schema property ${key}`, () => {
+                expect(Combat.defineSchema(), `Did not find key ${key} in schema`).to.have.property(key);
+                expect((Combat.defineSchema() as any)[key], `${key} is not of type`).to.be.instanceOf(type);
             });
         });
 

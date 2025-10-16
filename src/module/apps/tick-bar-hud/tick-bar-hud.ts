@@ -59,6 +59,12 @@ export default class TickBarHud extends SplittermondApplication {
         return foundryApi.combats.filter((c: FoundryCombat) => c.scene === null || c.scene === currentScene);
     }
 
+    get firstApplicableCombat(): FoundryCombat | null {
+        const combats = this.combats;
+        //Finds the first active combat or the first combat if none is active. Null if no combats exist
+        return combats.length ? combats.find((c) => c.isActive) || combats[0] : null;
+    }
+
     async _prepareContext(
         options: ApplicationContextOptions
     ): Promise<TickBarHudTemplateData & ApplicationRenderContext> {
@@ -70,13 +76,11 @@ export default class TickBarHud extends SplittermondApplication {
         };
 
         //saveguard against a botched calculation in a previous call
+        const firstApplicableCombat = this.firstApplicableCombat;
         if (isNaN(this.viewedTick)) {
             this.viewedTick = 0;
         }
 
-        const combats = this.combats;
-        //Finds the first active combat or the first combat if none is active. Null if no combats exist
-        const firstApplicableCombat = combats.length ? combats.find((c) => c.isActive) || combats[0] : null;
         if (firstApplicableCombat != this.viewed) {
             this.viewedTick = 0;
         }
@@ -239,6 +243,12 @@ export default class TickBarHud extends SplittermondApplication {
      */
     private validateTickRange() {
         if (isNaN(this.minTick) || !isFinite(this.minTick) || this.minTick < -100) {
+            //try to set minTick from combat
+            const combatRound: number | undefined = this.firstApplicableCombat?.round;
+            if (combatRound !== undefined && isFinite(combatRound)) {
+                this.minTick = combatRound;
+                return;
+            }
             console.warn(
                 "Splittermond | Tick Bar HUD calculated a faulty minimum tick value. Setting -20 as min Tick."
             );
@@ -262,7 +272,6 @@ export default class TickBarHud extends SplittermondApplication {
         this.dragDrop.forEach((d) => d.bind(this.element));
         // Listeners and UI logic
         const html = this.element;
-        // Replace jQuery .each with native forEach
         html.querySelectorAll(".tick-bar-hud-combatant-list").forEach((list) => {
             let zIndexCounter = list.children.length - 1;
             Array.from(list.children).forEach((child) => {

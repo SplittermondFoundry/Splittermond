@@ -379,7 +379,7 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
                 /** @type DamageRollOptions */
                 const rollOptions = {
                     costBase: CostBase.create(costType),
-                    isGrazingHit: false,
+                    grazingHitPenalty: false,
                 };
                 return DamageInitializer.rollFromDamageRoll(damageImplements, rollOptions, actor).then((message) =>
                     message.sendToChat()

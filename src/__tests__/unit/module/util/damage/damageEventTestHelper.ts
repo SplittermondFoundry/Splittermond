@@ -1,10 +1,10 @@
-import { DamageType } from "../../../../../module/config/damageTypes";
-import { DamageEvent, DamageImplement } from "../../../../../module/util/damage/DamageEvent";
+import { DamageType } from "module/config/damageTypes";
+import { DamageEvent, DamageImplement } from "module/util/damage/DamageEvent";
 import { SinonSandbox } from "sinon";
-import { AgentReference } from "../../../../../module/data/references/AgentReference";
-import SplittermondActor from "../../../../../module/actor/actor";
+import { AgentReference } from "module/data/references/AgentReference";
+import SplittermondActor from "module/actor/actor";
 import { injectParent } from "../../../testUtils";
-import { CostBase } from "../../../../../module/util/costs/costTypes";
+import { CostBase } from "module/util/costs/costTypes";
 
 export function createDamageImplement(
     damage: number,
@@ -30,7 +30,7 @@ export function createDamageEvent(sandbox: SinonSandbox, eventProps: EventProps 
         _costBase: eventProps._costBase ?? new CostBase({ costType: "E" }),
         formulaToDisplay: eventProps.formulaToDisplay ?? damageImplements.map((imp) => imp.formula).join(" + "),
         tooltip: eventProps.tooltip ?? "",
-        isGrazingHit: eventProps.isGrazingHit ?? false,
+        grazingHitPenalty: eventProps.grazingHitPenalty ?? 0,
         implements: damageImplements,
     });
     injectParent(event);

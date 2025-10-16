@@ -261,7 +261,7 @@ describe("DamageActionHandler", () => {
             expect(initMock.lastCall.args[0][1]).to.deep.equal(
                 underTest.spellReference.getItem().getForDamageRoll().otherComponents[0]
             );
-            expect(initMock.lastCall.args[1]).to.deep.equal({ costBase: CostBase.create("V"), isGrazingHit: false });
+            expect(initMock.lastCall.args[1]).to.deep.equal({ costBase: CostBase.create("V"), grazingHitPenalty: 0 });
         });
     });
 });

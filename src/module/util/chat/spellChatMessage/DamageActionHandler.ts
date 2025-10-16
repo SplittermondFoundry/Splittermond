@@ -114,7 +114,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
                 const damages = this.totalDamage;
                 const rollOptions = {
                     costBase: CostBase.create(spell.system.costType ?? "V"),
-                    isGrazingHit: false /*spells cannot be grazing hits*/,
+                    grazingHitPenalty: 0 /*spells cannot be grazing hits*/,
                 };
                 return DamageInitializer.rollFromDamageRoll(
                     [damages.principalComponent, ...damages.otherComponents],

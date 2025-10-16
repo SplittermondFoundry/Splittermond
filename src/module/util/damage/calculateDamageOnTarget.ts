@@ -16,7 +16,7 @@ export interface UserReporter {
 
     set totalDamage(value: CostModifier);
 
-    set event(event: { causer: AgentReference | null; isGrazingHit: boolean; costBase: CostBase });
+    set event(event: { causer: AgentReference | null; grazingHitPenalty: number; costBase: CostBase });
 
     set immunity(immunity: Immunity | undefined);
 
@@ -38,7 +38,7 @@ export class NoReporter implements UserReporter {
 
     set totalDamage(__: CostModifier) {}
 
-    set event(__: { causer: AgentReference | null; isGrazingHit: boolean; costBase: CostBase }) {}
+    set event(__: { causer: AgentReference | null; grazingHitPenalty: number; costBase: CostBase }) {}
 
     set immunity(__: Immunity | undefined) {}
 
@@ -76,7 +76,8 @@ export function calculateDamageOnTarget(
     reporter.totalFromImplements = damageBeforeGrazingAndReduction;
     reporter.overriddenReduction = applicableOverriddenReduction;
 
-    const damageBeforeReduction = damageBeforeGrazingAndReduction.multiply(event.isGrazingHit ? 0.5 : 1);
+    const grazingHitPenalty = event.costBase.multiply(event.grazingHitPenalty);
+    const damageBeforeReduction = damageBeforeGrazingAndReduction.subtract(grazingHitPenalty);
     const remainingReduction = calculateActualDamageReduction(event, target, applicableOverriddenReduction);
     const totalDamage = event.costBase.add(damageBeforeReduction.subtract(remainingReduction)).round();
     reporter.totalDamage = totalDamage.toModifier(true);

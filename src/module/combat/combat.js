@@ -29,7 +29,7 @@ export default class SplittermondCombat extends Combat {
 
     async startCombat() {
         await super.startCombat();
-        this.update({ round: this.currentTick ?? 0 });
+        this.update({ round: this.calculateCurrentRound() ?? 0 });
         return this;
     }
 
@@ -103,16 +103,28 @@ export default class SplittermondCombat extends Combat {
 
     get currentTick() {
         if (this.turns) {
-            return Math.round(parseFloat(this.turns[0]?.initiative));
+            const lowestInitiative = this.turns[0]?.initiative;
+            if (!lowestInitiative || !isFinite(lowestInitiative)) {
+                return 0;
+            }
+            return Math.round(lowestInitiative);
         } else {
             return null;
         }
+    }
+    calculateCurrentRound() {
+        const round = Math.floor(this.currentTick ?? 0);
+        if ([CombatPauseType.keepReady, CombatPauseType.wait].includes(round)) {
+            /**@type number*/
+            return this.round; //reuse the last stored round value if all combatants are paused
+        }
+        return round;
     }
 
     async nextRound() {
         if (!this.started) return;
 
-        const updateData = { round: this.currentTick, turn: 0 };
+        const updateData = { round: this.calculateCurrentRound(), turn: 0 };
         this.setupTurns();
         const updateOptions = { direction: 1 };
         Hooks.callAll("combatRound", this, updateData, updateOptions);
