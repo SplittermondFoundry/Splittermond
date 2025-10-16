@@ -364,7 +364,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 });
             });
         });
-        ["system", "turns", "current", "scene", "round"].forEach((property) => {
+        ["system", "turns", "current", "scene"].forEach((property) => {
             it(`should have an object property ${property}`, () => {
                 game.combats.forEach((combat: FoundryDocument) => {
                     expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);
@@ -390,6 +390,13 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                     typeof Combat.prototype[property as keyof typeof Combat.prototype],
                     `combat property ${property} is not a function`
                 ).to.equal("function");
+            });
+        });
+
+        ([["round", fields.NumberField]] as const).forEach(([key, type]) => {
+            it(`should have a schema property ${key}`, () => {
+                expect(Combat.defineSchema(), `Did not find key ${key} in schema`).to.have.property(key);
+                expect((Combat.defineSchema() as any)[key], `${key} is not of type`).to.be.instanceOf(type);
             });
         });
 
