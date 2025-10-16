@@ -12,7 +12,10 @@ export default class SplittermondCombatTracker extends foundry.applications.side
         options.actions = {
             ...options.actions,
             addTicks(event, target) {
-                this._onAddTicks(event, target);
+                return this._onAddTicks(event, target);
+            },
+            togglePause(event, target) {
+                return this._onTogglePause(event, target);
             },
         };
         super(options);
@@ -54,21 +57,22 @@ export default class SplittermondCombatTracker extends foundry.applications.side
         return renderContext;
     }
 
-    _onTogglePause(ev) {
+    /**
+     *
+     * @param {Event} ev
+     * @param {HTMLElement} target
+     * @return {Promise<void>}
+     * @private
+     */
+    async _onTogglePause(ev, target) {
         ev.preventDefault();
         ev.stopPropagation();
-        const btn = ev.currentTarget;
-        const li = btn.closest(".combatant");
+
+        const li = target.closest(".combatant");
         const combat = this.viewed;
         const c = combat.combatants.get(li.dataset.combatantId);
 
-        if (!combatantIsPaused(c)) {
-            return askUserAboutPauseType()
-                .then((pauseType) => {
-                    return combat.setInitiative(c.id, pauseType);
-                })
-                .catch(() => {});
-        } else {
+        if (combatantIsPaused(c)) {
             switch (c.initiative) {
                 case CombatPauseType.wait:
                     return combat.setInitiative(c.id, parseInt(combat.round));
@@ -77,6 +81,12 @@ export default class SplittermondCombatTracker extends foundry.applications.side
                 default:
                     break;
             }
+        } else {
+            return askUserAboutPauseType()
+                .then((pauseType) => {
+                    return combat.setInitiative(c.id, pauseType);
+                })
+                .catch(() => {});
         }
     }
 
@@ -103,49 +113,69 @@ export default class SplittermondCombatTracker extends foundry.applications.side
             const c = combat.combatants.get(cid);
             if (c && c.isOwner) {
                 const combatantControls = element.querySelector(".combatant-controls");
-                if (combatantControls) {
-                    if (!combatantIsPaused(c)) {
-                        const pauseCombatantLabel = foundryApi.localize(
-                            "splittermond.applications.combatTracker.pauseCombatantAriaLabel"
-                        );
-                        combatantControls.insertAdjacentHTML(
-                            "afterbegin",
-                            `<button 
-                                        class="inline-control combatant-control icon fa-solid fa-pause-circle" 
-                                        data-tooltip aria-label="${pauseCombatantLabel}" 
-                                        data-control="togglePause"
-                                   />`
-                        );
-                        const ariaLabel = foundryApi.localize(
-                            "splittermond.applications.combatTracker.addTickAriaLabel"
-                        );
-                        combatantControls.querySelector(".token-effects")?.insertAdjacentHTML(
-                            "beforebegin",
-                            `<button 
-                                            class="inline-control combatant-control icon fa-solid fa-circle-right" 
-                                            data-tooltip aria-label="${ariaLabel}" 
-                                            data-action="addTicks"/>`
-                        );
-                    } else {
-                        const activateCombatantLabel = foundryApi.localize(
-                            "splittermond.applications.combatTracker.activateCombatantAriaLabel"
-                        );
-                        combatantControls.insertAdjacentHTML(
-                            "afterbegin",
-                            `<button 
-                                        class="inline-control combatant-control icon fa-solid fa-play-circle" 
-                                        data-tooltip aria-label="${activateCombatantLabel}"
-                                        data-control="togglePause"
-                                   />`
-                        );
-                    }
+                if (!combatantControls) {
+                    console.warn("Splittermond | Could not find combatant controls to insert buttons into");
+                    return;
+                }
+                if (combatantIsPaused(c)) {
+                    this.#insertActivateButton(combatantControls);
+                } else {
+                    this.#insertPauseButton(combatantControls);
+                    this.#insertAddTickButton(combatantControls);
                 }
             }
         });
-        this.element.querySelectorAll('[data-control="togglePause"]').forEach((el) => {
-            el.addEventListener("click", (event) => {
-                this._onTogglePause(event);
-            });
-        });
+    }
+
+    /**
+     * @param {HTMLElement} combatantControls
+     */
+    #insertAddTickButton(combatantControls) {
+        const ariaLabel = foundryApi.localize("splittermond.applications.combatTracker.addTickAriaLabel");
+        const spacerElement = combatantControls.querySelector(".token-effects");
+        if (!spacerElement) {
+            console.warn("Splittermond | Could not find spacer element in combatant controls.");
+            return;
+        }
+        spacerElement.insertAdjacentHTML(
+            "beforebegin",
+            `<button 
+                     class="inline-control combatant-control icon fa-solid fa-circle-right" 
+                     data-tooltip aria-label="${ariaLabel}" 
+                     data-action="addTicks"
+                   />`
+        );
+    }
+
+    /**
+     * @param {HTMLElement} combatantControls
+     */
+    #insertPauseButton(combatantControls) {
+        const labelKey = "splittermond.applications.combatTracker.pauseCombatantAriaLabel";
+        const pauseCombatantLabel = foundryApi.localize(labelKey);
+        combatantControls.insertAdjacentHTML(
+            "afterbegin",
+            `<button 
+                        class="inline-control combatant-control icon fa-solid fa-pause-circle" 
+                        data-tooltip aria-label="${pauseCombatantLabel}" 
+                        data-action="togglePause"
+                   />`
+        );
+    }
+
+    /**
+     * @param {HTMLElement} combatantControls
+     */
+    #insertActivateButton(combatantControls) {
+        const labelKey = "splittermond.applications.combatTracker.activateCombatantAriaLabel";
+        const activateCombatantLabel = foundryApi.localize(labelKey);
+        combatantControls.insertAdjacentHTML(
+            "afterbegin",
+            `<button 
+                            class="inline-control combatant-control icon fa-solid fa-play-circle" 
+                            data-tooltip aria-label="${activateCombatantLabel}"
+                            data-action="togglePause"
+                       />`
+        );
     }
 }
