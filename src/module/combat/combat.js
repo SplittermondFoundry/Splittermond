@@ -103,7 +103,11 @@ export default class SplittermondCombat extends Combat {
 
     get currentTick() {
         if (this.turns) {
-            return Math.round(parseFloat(this.turns[0]?.initiative));
+            const lowestInitiative = this.turns[0]?.initiative;
+            if (!lowestInitiative || !isFinite(lowestInitiative)) {
+                return 0;
+            }
+            return Math.round(lowestInitiative);
         } else {
             return null;
         }

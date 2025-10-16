@@ -272,7 +272,6 @@ export default class TickBarHud extends SplittermondApplication {
         this.dragDrop.forEach((d) => d.bind(this.element));
         // Listeners and UI logic
         const html = this.element;
-        // Replace jQuery .each with native forEach
         html.querySelectorAll(".tick-bar-hud-combatant-list").forEach((list) => {
             let zIndexCounter = list.children.length - 1;
             Array.from(list.children).forEach((child) => {

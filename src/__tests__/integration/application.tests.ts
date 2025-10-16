@@ -421,7 +421,8 @@ export function applicationTests(context: QuenchBatchContext) {
             it("should handle double-click to open character sheet", async () => {
                 const combat = await createActiveCombat();
                 const { combatant, token } = await createCombatant("Test Fighter", combat);
-                await combat.setInitiative(combatant.id, 10);
+                await combat.rollInitiative(combatant.id);
+                await combat.startCombat();
 
                 await (game.splittermond.tickBarHud as TickBarHud).render(false);
 
@@ -441,7 +442,8 @@ export function applicationTests(context: QuenchBatchContext) {
                 // Setup: Create combatant item with token
                 const combat = await createActiveCombat();
                 const { combatant, token } = await createCombatant("Test Fighter", combat);
-                await combat.setInitiative(combatant.id, 10);
+                await combat.rollInitiative(combatant.id);
+                await combat.startCombat();
 
                 await (game.splittermond.tickBarHud as TickBarHud).render(false);
 
@@ -471,7 +473,8 @@ export function applicationTests(context: QuenchBatchContext) {
                 // Setup: Set currentTick equal to viewedTick
                 const combat = await createActiveCombat();
                 const { combatant } = await createCombatant("Test Fighter", combat);
-                await combat.setInitiative(combatant.id, 10);
+                await combat.rollInitiative(combatant.id);
+                await combat.startCombat();
 
                 const tickBarHud = game.splittermond.tickBarHud as TickBarHud;
 
