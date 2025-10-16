@@ -2,8 +2,8 @@ import { describe } from "mocha";
 import sinon, { SinonSandbox } from "sinon";
 import { expect } from "chai";
 import { createDamageEvent, createDamageImplement } from "./damageEventTestHelper";
-import { Cost } from "../../../../../module/util/costs/Cost";
-import { CostBase } from "../../../../../module/util/costs/costTypes";
+import { Cost } from "module/util/costs/Cost";
+import { CostBase } from "module/util/costs/costTypes";
 
 describe("DamageEvent", () => {
     let sandbox: SinonSandbox;
@@ -18,13 +18,22 @@ describe("DamageEvent", () => {
         expect(damageEvent.totalDamage()).to.equal(damages.reduce((acc, damage) => acc + damage, 0));
     });
 
-    it("should return half damage on grazing hit", () => {
+    it("should reduce damage by grazing hit penalty", () => {
         const damages = [5, 3, 2, 10];
         const damageImplements = damages.map((damage) => createDamageImplement(damage, 0));
         const damageEvent = createDamageEvent(sandbox, { implements: damageImplements });
-        damageEvent.updateSource({ isGrazingHit: true });
+        damageEvent.updateSource({ grazingHitPenalty: 2 });
 
-        expect(damageEvent.totalDamage()).to.equal(damages.reduce((acc, damage) => acc + damage, 0) / 2);
+        expect(damageEvent.totalDamage()).to.equal(damages.reduce((acc, damage) => acc + damage, 0) - 2);
+    });
+
+    it("should not reduce damage beyond 0 with grazing hit penalty", () => {
+        const damage = 5;
+        const damageImplements = [createDamageImplement(damage, 0)];
+        const damageEvent = createDamageEvent(sandbox, { implements: damageImplements });
+        damageEvent.updateSource({ grazingHitPenalty: 6 });
+
+        expect(damageEvent.totalDamage()).to.equal(0);
     });
 
     it("should cap damage reduction override to damage", () => {

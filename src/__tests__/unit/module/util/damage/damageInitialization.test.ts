@@ -47,7 +47,7 @@ describe("Damage Event initialization", () => {
     it("should output the sum of two rolls", async () => {
         const damageRollOptions = {
             costBase: CostBase.create("V"),
-            isGrazingHit: false,
+            grazingHitPenalty: 0,
         };
         const damageMessage = await DamageInitializer.rollFromDamageRoll(
             [firstImplement, secondImplement],
@@ -64,7 +64,7 @@ describe("Damage Event initialization", () => {
     it("should record damage reduction override", async () => {
         const damageRollOptions = {
             costBase: CostBase.create("V"),
-            isGrazingHit: false,
+            grazingHitPenalty: 0,
         };
         const damageMessage = await DamageInitializer.rollFromDamageRoll([thirdImplement], damageRollOptions, null)
             .then((chatMessage) => chatMessage.system)

@@ -58,12 +58,12 @@ describe("Damage Application", () => {
         expect(result.render()).to.equal("3V3");
     });
 
-    it("should halve damage for grazing hits", () => {
+    it("should reduce damage by grazing hit penalty", () => {
         const damageImplement = createDamageImplement(21, 0);
         const damageEvent = createDamageEvent(sandbox, {
             implements: [damageImplement],
             _costBase: consumed,
-            isGrazingHit: true,
+            grazingHitPenalty: 10,
         });
         const target = setUpTarget(sandbox, 0, {});
 
@@ -81,7 +81,7 @@ describe("Damage Application", () => {
         const damageEvent = createDamageEvent(sandbox, {
             implements: [damageImplement],
             _costBase: consumed,
-            isGrazingHit: true,
+            grazingHitPenalty: 10,
         });
         const target = setUpTarget(sandbox, 0, {});
 
@@ -152,7 +152,7 @@ describe("Damage Application", () => {
             const damageEvent = createDamageEvent(sandbox, {
                 implements: [damageImplement],
                 _costBase: consumed,
-                isGrazingHit: true,
+                grazingHitPenalty: 2,
             });
             const target = setUpTarget(sandbox, 3, {});
 
@@ -261,14 +261,14 @@ describe("Damage Application", () => {
             const damageEvent = createDamageEvent(sandbox, {
                 implements: [damageImplement],
                 _costBase: consumed,
-                isGrazingHit: true,
+                grazingHitPenalty: 2,
             });
             const target = setUpTarget(sandbox, 0, {});
             const recorder = new MockReporter();
 
             calculateDamageOnTarget(damageEvent, target, recorder);
 
-            expect(recorder._event?.isGrazingHit).to.be.true;
+            expect(recorder._event?.grazingHitPenalty).to.equal(2);
             expect(recorder.totalDamage.length).to.equal(3);
         });
 
@@ -421,13 +421,13 @@ type RecordItem = {
 
 class MockReporter implements UserReporter {
     public _target: SplittermondActor | null = null;
-    public _event: { causer: AgentReference | null; isGrazingHit: boolean; costBase: CostBase } | null = null;
+    public _event: { causer: AgentReference | null; grazingHitPenalty: number; costBase: CostBase } | null = null;
     public records: RecordItem[] = [];
     public totalDamage: CostModifier = new Cost(0, 0, false).asModifier();
     public overriddenReduction: CostModifier = new Cost(0, 0, false).asModifier();
     public immunity: Immunity | undefined;
 
-    set event(value: { causer: AgentReference | null; isGrazingHit: boolean; costBase: CostBase }) {
+    set event(value: { causer: AgentReference | null; grazingHitPenalty: number; costBase: CostBase }) {
         this._event = value;
     }
 

@@ -132,7 +132,8 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                         "roll-type": "damage",
                         actorId: actor.id,
                         costType: data.weapon.costType,
-                        isGrazingHit: templateContext.isGrazingHit,
+                        grazingHitPenalty: data.maneuvers.length * 2,
+                        isGrazingHit: true,
                         damageImplements: JSON.stringify(serializedImplements),
                     },
                 });

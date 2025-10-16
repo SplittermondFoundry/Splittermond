@@ -24,10 +24,10 @@
                 <td colspan="4">{{localize "splittermond.damageMessage.subTotal"}}</td>
                 <td style="text-align: right;border-top: 1px solid black">{{totalBeforeGrazing}}</td>
             </tr>
-            {{#if isGrazingHit}}
+            {{#if grazingHitPenalty}}
                 <tr>
                     <td colspan="4">{{localize "splittermond.grazingHit"}}</td>
-                    <td>&divide;2</td>
+                    <td>-{{grazingHitPenalty}}</td>
                 </tr>
             {{/if}}
             <tr>

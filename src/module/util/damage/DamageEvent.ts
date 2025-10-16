@@ -12,7 +12,7 @@ function DamageEventSchema() {
         formulaToDisplay: new fields.StringField({ required: true, nullable: false }),
         tooltip: new fields.StringField({ required: true, nullable: false }),
         _costBase: new fields.EmbeddedDataField(CostBase, { required: true, nullable: false }),
-        isGrazingHit: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+        grazingHitPenalty: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
         implements: new fields.ArrayField(
             new fields.EmbeddedDataField(DamageImplement, { required: true, nullable: false }),
             { required: true, nullable: false, initial: [] }
@@ -34,7 +34,7 @@ export class DamageEvent extends SplittermondDataModel<DamageEventType> {
 
     totalDamage() {
         const accumulated = this.implements.reduce((acc, implement) => acc + implement.damage, 0);
-        return Math.floor(accumulated * (this.isGrazingHit ? 0.5 : 1));
+        return Math.max(0, Math.floor(accumulated - this.grazingHitPenalty));
     }
 
     get costBase() {

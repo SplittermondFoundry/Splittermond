@@ -536,12 +536,12 @@ Hooks.on(
 
                 const costType = $(event.currentTarget).closestData("costtype") ?? "V";
                 const actorId = $(event.currentTarget).closestData("actorid");
-                const isGrazingHit = $(event.currentTarget).closestData("isgrazinghit") ?? false;
+                const grazingHitPenalty = $(event.currentTarget).closestData("grazinghitpenalty") ?? 0;
                 const actor = foundryApi.getActor(actorId) ?? null; //May fail if ID refers to a token
                 /** @type DamageRollOptions */
                 const rollOptions = {
                     costBase: CostBase.create(costType),
-                    isGrazingHit: isGrazingHit,
+                    grazingHitPenalty: grazingHitPenalty,
                 };
                 return DamageInitializer.rollFromDamageRoll(damageImplements, rollOptions, actor).then((message) =>
                     message.sendToChat()

@@ -74,7 +74,7 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
             };
             const rollOptions = {
                 costBase: CostBase.create("V"),
-                isGrazingHit: false,
+                grazingHitPenalty: 0,
             };
             const chatMessage = await DamageInitializer.rollFromDamageRoll(
                 [firstImplement, secondImplement],
@@ -151,7 +151,7 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
                     _costBase: CostBase.create("K"),
                     formulaToDisplay: "1W6",
                     tooltip: "",
-                    isGrazingHit: false,
+                    grazingHitPenalty: 0,
                     implements: [implement],
                 });
                 const id = foundryApi.hooks.on(eventImmunityHook, (_, __, imms) => {

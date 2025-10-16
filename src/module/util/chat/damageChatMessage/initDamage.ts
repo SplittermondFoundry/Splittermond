@@ -1,15 +1,15 @@
 import { DamageEvent, DamageImplement } from "../../damage/DamageEvent";
-import { AgentReference } from "../../../data/references/AgentReference";
+import { AgentReference } from "module/data/references/AgentReference";
 import { DamageRoll, type EvaluatedDamageRoll } from "../../damage/DamageRoll";
-import { DamageType } from "../../../config/damageTypes";
+import { DamageType } from "module/config/damageTypes";
 import { DamageMessage } from "./DamageMessage";
-import { sumRolls } from "../../../api/Roll";
+import { sumRolls } from "module/api/Roll";
 import { DamageFeature } from "../../damage/DamageFeature";
 import SplittermondActor from "../../../actor/actor";
 import { CostBase } from "../../costs/costTypes";
 import { SplittermondChatCard } from "../SplittermondChatCard";
 import { toDisplayFormula } from "../../damage/util";
-import { asString, condense, mapRoll } from "../../../modifiers/expressions/scalar";
+import { asString, condense, mapRoll } from "module/modifiers/expressions/scalar";
 
 export const DamageInitializer = {
     rollFromDamageRoll,
@@ -69,7 +69,7 @@ async function evaluateImplements(damageImplements: ProtoDamageImplement[]) {
 
 interface DamageRollOptions {
     costBase: CostBase;
-    isGrazingHit: boolean;
+    grazingHitPenalty: number;
 }
 
 async function rollFromDamageRoll(
@@ -86,7 +86,7 @@ async function rollFromDamageRoll(
         formulaToDisplay: toDisplayFormula(asString(condense(mapRoll(totalRoll)))),
         tooltip: await totalRoll.getTooltip(),
         implements: damageImplements,
-        isGrazingHit: damageRollOptions.isGrazingHit,
+        grazingHitPenalty: damageRollOptions.grazingHitPenalty,
     });
 
     return SplittermondChatCard.create(speaker, DamageMessage.initialize(damageEvent, evaluatedImplements.features), {
