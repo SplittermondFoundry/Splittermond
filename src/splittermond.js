@@ -397,6 +397,7 @@ Hooks.on("init", function () {
 function commonEventHandlerHTMLEdition(app, html, data) {
     html.querySelectorAll(".rollable").forEach((el) => {
         el.addEventListener("click", (event) => {
+            const element = event.target;
             const type = element.closest("[data-roll-type]").getAttribute("data-roll-type");
             if (type === "skill") {
                 event.preventDefault();

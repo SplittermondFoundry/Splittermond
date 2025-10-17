@@ -1,3 +1,9 @@
+## 13.6.9
+
+### Fixed
+
+- Ein Fehler wurde behoben, der Proben aus Fließtexten verhinderte
+
 ## 13.6.8
 
 ### Fixed
