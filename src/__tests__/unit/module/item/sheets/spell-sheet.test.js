@@ -7,13 +7,14 @@ import SplittermondSpellSheet from "../../../../../module/item/sheets/spell-shee
 import SplittermondSpellItem from "../../../../../module/item/spell.js";
 import { getSpellAvailabilityParser } from "../../../../../module/item/availabilityParser.ts";
 import { simplePropertyResolver } from "../../../../util.ts";
+import { SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
 
 describe("Spell Properties display", () => {
     const testParser = getSpellAvailabilityParser({ localize: (str) => str }, ["illusionmagic", "deathmagic"]);
-    global.foundry.appv1.sheets.ItemSheet.prototype.getData = function () {
-        return { data: this.item };
+    SplittermondBaseItemSheet.prototype._prepareContext = function () {
+        return Promise.resolve({ data: this.item });
     };
-    global.foundry.appv1.sheets.ItemSheet.prototype.activateListeners = () => {};
+    SplittermondBaseItemSheet.prototype._onRender = () => {};
     beforeEach(() => {
         global.duplicate = (obj) => obj;
     });
@@ -79,8 +80,7 @@ describe("Spell Properties display", () => {
             },
         ];
         const objectUnderTest = new SplittermondSpellSheet(
-            spellItem,
-            {},
+            { document: spellItem },
             {
                 getProperty: simplePropertyResolver,
             },
@@ -89,7 +89,7 @@ describe("Spell Properties display", () => {
             { enrichHTML: promiseIdentity }
         );
         return objectUnderTest
-            .getData()
+            ._prepareContext()
             .then((data) => produceJQuery(createHtml("./templates/sheets/item/item-sheet.hbs", data)))
             .then((domUnderTest) => domUnderTest(`.properties-editor input[name='${displayProperty.field}']`));
     }

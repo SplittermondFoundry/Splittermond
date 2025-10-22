@@ -30,17 +30,19 @@ export default class SplittermondSpellSheet extends SplittermondItemSheet {
         ];
     }
 
-    _updateObject(event, formData) {
-        if (formData["system.damageType"] === "null") {
-            formData["system.damageType"] = null;
+    _prepareSubmitData(event, form, formData, updateObject) {
+        if (formData.object["system.damageType"] === "null") {
+            formData.object["system.damageType"] = null;
         }
-        if (formData["system.costType"] === "null") {
-            formData["system.costType"] = null;
+        if (formData.object["system.costType"] === "null") {
+            formData.object["system.costType"] = null;
         }
-        if (formData["system.castDuration.innateDuration"] !== undefined) {
-            formData["system.castDuration"] = parseCastDuration(formData["system.castDuration.innateDuration"]);
-            delete formData["system.features.innateDuration"];
+        if (formData.object["system.castDuration.innateDuration"] !== undefined) {
+            formData.object["system.castDuration"] = parseCastDuration(
+                updateObject["system.castDuration.innateDuration"]
+            );
+            delete updateObject["system.castDuration.innateDuration"];
         }
-        return super._updateObject(event, formData);
+        return super._prepareSubmitData(event, form, formData, updateObject);
     }
 }

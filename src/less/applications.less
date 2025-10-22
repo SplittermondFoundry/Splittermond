@@ -40,6 +40,20 @@
     }
 }
 
+.description-spans-app() {
+  section {
+    flex: 1;
+  }
+
+  .editor {
+    flex: 1;
+    justify-self: stretch;
+    align-self: stretch;
+    height: 100%;
+    min-height: 100px;
+  }
+}
+
 //DialogV2 header
 dialog.application.dialog .window-header {
     .window-header-def();
@@ -196,4 +210,19 @@ form.application .window-content {
         display: inline-block;
         margin-left: 0.5em;
     }
+}
+
+.splittermond.item.sheet {
+  img {
+    cursor: pointer;
+  }
+
+  .window-content {
+    .application-override-mixin();
+    .description-spans-app();
+
+    .editor {
+      margin-top: 5px;
+    }
+  }
 }

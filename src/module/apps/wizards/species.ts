@@ -105,7 +105,7 @@ export default class SplittermondSpeciesWizard extends SplittermondWizard {
         return data;
     }
 
-    async _onRender(context: ApplicationRenderContext, options?: { parts: string[] }): Promise<void> {
+    async _onRender(context: ApplicationRenderContext, options?: { parts?: string[] }): Promise<void> {
         await super._onRender(context, options);
 
         // Replace jQuery with direct DOM manipulation

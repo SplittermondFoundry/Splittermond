@@ -3,9 +3,10 @@ import { foundryApi } from "../../api/foundryApi";
 import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
 
 export default class SplittermondWeaponSheet extends SplittermondItemSheet {
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
+    constructor(options) {
+        super({
             classes: ["splittermond", "sheet", "item", "weapon"],
+            ...options,
         });
     }
 
@@ -17,7 +18,7 @@ export default class SplittermondWeaponSheet extends SplittermondItemSheet {
             },
         ];
 
-        if (this.item.system.skill == "longrange" || this.item.system.skill == "throwing") {
+        if (this.item.system.skill === "longrange" || this.item.system.skill === "throwing") {
             data.push({
                 label: "splittermond.range",
                 value: this.item.system.range,
@@ -45,11 +46,21 @@ export default class SplittermondWeaponSheet extends SplittermondItemSheet {
         return data;
     }
 
-    _updateObject(event, formData) {
-        formData["system.secondaryAttack.features.internalFeatureList"] = parseFeatures(
-            formData["system.secondaryAttack.features.innateFeatures"]
-        );
-        delete formData["system.secondaryAttack.features.features"];
-        return super._updateObject(event, formData);
+    _prepareSubmitData(event, form, formData, updateObject = {}) {
+        const featureAddress = "system.secondaryAttack.features.innateFeatures";
+        const secondaryAttackFeatures = formData.object[featureAddress];
+        delete formData.object[featureAddress];
+        /**@type {?name:string, system:Partial<DataModelConstructorInput<WeaponDataModel>>} */
+        const mappedFormData = {
+            system: {
+                secondaryAttack: {
+                    features: {
+                        internalFeatureList: parseFeatures(secondaryAttackFeatures),
+                    },
+                },
+            },
+        };
+        const submitObject = foundryApi.utils.mergeObject(updateObject, mappedFormData);
+        return super._prepareSubmitData(event, form, formData, submitObject);
     }
 }

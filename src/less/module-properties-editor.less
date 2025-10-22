@@ -1,5 +1,13 @@
+@import "base";
+
 .splittermond {
     .properties-editor {
+
+
+      input {
+        .base-input-style();
+        line-height: unset; //negate the line height input from foundryvtt
+      }
         display: grid;
         grid-template-columns: 2fr 3fr;
         gap: 3px;
@@ -13,10 +21,13 @@
         h3:extend(.border-wobbly-line-double) {
             grid-column-start: 1;
             grid-column-end: 3;
+          font-weight: unset;
+          font-size: large;
             text-align: center;
             padding: 5px;
             width: 100%;
             margin-top: 7px;
+          color: var(--color-text-secondary);
         }
 
         > label {
