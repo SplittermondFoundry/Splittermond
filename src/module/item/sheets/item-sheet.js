@@ -136,6 +136,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return sheetProperties;
     }
 
+    /** @returns {{label:string, value:string}[]} */
     _getStatBlock() {
         return [];
     }
@@ -224,7 +225,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
 
     roll() {}
 
-    _prepareSubmitData(event, form, formData, updateObject) {
+    _prepareSubmitData(event, form, formData, updateObject = {}) {
         const featureAddress = "system.features.innateFeatures";
         let submitObject = {};
         if (featureAddress in formData.object) {

@@ -1,16 +1,22 @@
-import { foundryApi } from "../../module/api/foundryApi";
-import { splittermond } from "../../module/config";
-import { MasteryDataModel } from "../../module/item/dataModel/MasteryDataModel.js";
-import { SpellDataModel } from "../../module/item/dataModel/SpellDataModel";
-import SplittermondSpellItem from "../../module/item/spell";
-import { itemCreator } from "../../module/data/EntityCreator";
-import ItemImporter from "../../module/util/item-importer";
+import { foundryApi } from "module/api/foundryApi";
+import { splittermond } from "module/config";
+import { MasteryDataModel } from "module/item/dataModel/MasteryDataModel";
+import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
+import SplittermondSpellItem from "module/item/spell";
+import { itemCreator } from "module/data/EntityCreator";
+import ItemImporter from "module/util/item-importer";
 import * as Machtexplosion from "../resources/importSamples/GRW/spells/Machtexplosion.resource";
 import sinon from "sinon";
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 
-import { itemTypes } from "../../module/config/itemTypes";
+import { itemTypes } from "module/config/itemTypes";
 import { withActor } from "./fixtures";
+import type SplittermondItem from "module/item/item";
+import SplittermondWeaponSheet from "module/item/sheets/weapon-sheet";
+import { passesEventually } from "../util";
+import type SplittermondWeaponItem from "module/item/weapon";
+import SplittermondItemSheet from "module/item/sheets/item-sheet";
+import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
 
 declare const Item: any;
 declare const game: any;
@@ -151,6 +157,61 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             it(`Item data models key exists in item Type '${itemType}'`, () => {
                 expect(itemTypes).to.contain(itemType);
             });
+        });
+    });
+
+    describe("item sheet save operation", () => {
+        let items: SplittermondItem[] = [];
+
+        async function createItem(type: string) {
+            const item = (await foundryApi.createItem({ type, name: "Test Item", system: {} })) as SplittermondItem;
+            items.push(item);
+            return item;
+        }
+        afterEach(() => {
+            Item.deleteDocuments(items.map((i) => i.id));
+            items = [];
+        });
+
+        async function enterInSheet(sheet: SplittermondItemSheet, inputName: string, value: string) {
+            await sheet.render(true);
+            const featureInput = sheet.element.querySelector(`input[name='${inputName}']`) as HTMLInputElement | null;
+            expect(featureInput, "Feature input found").to.not.be.null;
+            featureInput!.value = value;
+            featureInput!.dispatchEvent(new Event("input", { bubbles: true }));
+            featureInput!.dispatchEvent(new Event("change", { bubbles: true }));
+            sheet.close();
+        }
+
+        it("should save secondaryAttack features", async () => {
+            const item = (await createItem("weapon")) as SplittermondWeaponItem;
+            const sheet = new SplittermondWeaponSheet({ document: item });
+
+            await enterInSheet(sheet, "system.secondaryAttack.features.innateFeatures", "Ablenkend");
+
+            await passesEventually(
+                () => expect(item.system.secondaryAttack!.features.innateFeatures).to.equal("Ablenkend"),
+                1000,
+                100
+            );
+        });
+
+        it("should save weapon features", async () => {
+            const item = (await createItem("weapon")) as SplittermondWeaponItem;
+            const sheet = new SplittermondWeaponSheet({ document: item });
+
+            await enterInSheet(sheet, "system.features.innateFeatures", "Ablenkend");
+
+            await passesEventually(() => expect(item.system.features.innateFeatures).to.equal("Ablenkend"), 1000, 100);
+        });
+
+        it("should save cast duration", async () => {
+            const item = (await createItem("spell")) as SplittermondSpellItem;
+            const sheet = new SplittermondSpellSheet({ document: item });
+
+            await enterInSheet(sheet, "system.castDuration.innateDuration", "20 T");
+
+            await passesEventually(() => expect(item.system.castDuration.inTicks).to.equal(20), 1000, 100);
         });
     });
 }

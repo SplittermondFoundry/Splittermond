@@ -1,13 +1,10 @@
 import SplittermondItemSheet from "./item-sheet.js";
-import { foundryApi } from "../../api/foundryApi";
 import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel.js";
 
 export default class SplittermondSpellSheet extends SplittermondItemSheet {
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            classes: ["splittermond", "sheet", "item", "spell"],
-        });
-    }
+    static DEFAULT_OPTIONS = {
+        classes: ["splittermond", "sheet", "item", "spell"],
+    };
 
     _getStatBlock() {
         return [
@@ -39,9 +36,9 @@ export default class SplittermondSpellSheet extends SplittermondItemSheet {
         }
         if (formData.object["system.castDuration.innateDuration"] !== undefined) {
             formData.object["system.castDuration"] = parseCastDuration(
-                updateObject["system.castDuration.innateDuration"]
+                formData.object["system.castDuration.innateDuration"]
             );
-            delete updateObject["system.castDuration.innateDuration"];
+            delete formData.object["system.castDuration.innateDuration"];
         }
         return super._prepareSubmitData(event, form, formData, updateObject);
     }
