@@ -3,7 +3,7 @@ import { afterEach, beforeEach } from "mocha";
 import { expect } from "chai";
 import { createHtml } from "../../../../handlebarHarness.ts";
 import { produceJQuery } from "../../../../jQueryHarness.js";
-import SplittermondSpellSheet from "../../../../../module/item/sheets/spell-sheet.js";
+import SplittermondSpellSheet from "module/item/sheets/spell-sheet.ts";
 import SplittermondSpellItem from "../../../../../module/item/spell.js";
 import { getSpellAvailabilityParser } from "module/item/availabilityParser.js";
 import { promiseIdentity, simplePropertyResolver } from "../../../../util.ts";
@@ -85,12 +85,10 @@ describe("Spell Properties display", () => {
         ];
         const objectUnderTest = new SplittermondSpellSheet(
             { document: spellItem },
-            {
-                getProperty: simplePropertyResolver,
-            },
+            simplePropertyResolver,
             { localize: identity },
             config,
-            { enrichHTML: promiseIdentity }
+            promiseIdentity
         );
         return objectUnderTest
             ._prepareContext()

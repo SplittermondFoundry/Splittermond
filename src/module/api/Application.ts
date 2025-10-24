@@ -212,6 +212,7 @@ declare namespace foundry {
                 protected _prepareTabs(group: string): Record<string, ApplicationTab>;
             }
             export class DocumentSheetV2 extends foundry.applications.api.ApplicationV2 {
+                get document(): FoundryDocument;
                 _prepareSubmitData(
                     event: SubmitEvent,
                     form: HTMLFormElement,

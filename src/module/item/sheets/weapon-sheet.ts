@@ -1,13 +1,19 @@
-import SplittermondItemSheet from "./item-sheet";
+import SplittermondItemSheet from "./item-sheet.js";
 import { foundryApi } from "../../api/foundryApi";
 import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
+import type { ApplicationContextOptions } from "module/data/SplittermondApplication";
+import type SplittermondWeaponItem from "module/item/weapon";
 
 export default class SplittermondWeaponSheet extends SplittermondItemSheet {
-    constructor(options) {
+    constructor(options: ApplicationContextOptions) {
         super({
             classes: ["splittermond", "sheet", "item", "weapon"],
             ...options,
         });
+    }
+
+    get item(): SplittermondWeaponItem {
+        return super.item as SplittermondWeaponItem;
     }
 
     _getStatBlock() {
@@ -21,21 +27,21 @@ export default class SplittermondWeaponSheet extends SplittermondItemSheet {
         if (this.item.system.skill === "longrange" || this.item.system.skill === "throwing") {
             data.push({
                 label: "splittermond.range",
-                value: this.item.system.range,
+                value: `${this.item.system.range}`,
             });
         }
 
         data = data.concat([
             {
                 label: "splittermond.weaponSpeedAbbrev",
-                value: this.item.system.weaponSpeed,
+                value: `${this.item.system.weaponSpeed}`,
             },
             {
                 label: "splittermond.attributes",
                 value:
-                    game.i18n.localize("splittermond.attribute." + this.item.system.attribute1 + ".short") +
+                    this.localizer.localize("splittermond.attribute." + this.item.system.attribute1 + ".short") +
                     " + " +
-                    game.i18n.localize("splittermond.attribute." + this.item.system.attribute2 + ".short"),
+                    this.localizer.localize("splittermond.attribute." + this.item.system.attribute2 + ".short"),
             },
             {
                 label: "splittermond.minAttributes",
@@ -46,7 +52,7 @@ export default class SplittermondWeaponSheet extends SplittermondItemSheet {
         return data;
     }
 
-    _prepareSubmitData(event, form, formData, updateObject = {}) {
+    _prepareSubmitData(event: SubmitEvent, form: HTMLFormElement, formData: any, updateObject: object = {}): object {
         const featureAddress = "system.secondaryAttack.features.innateFeatures";
         const secondaryAttackFeatures = formData.object[featureAddress];
         delete formData.object[featureAddress];

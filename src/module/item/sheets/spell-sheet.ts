@@ -1,10 +1,16 @@
-import SplittermondItemSheet from "./item-sheet.js";
+import SplittermondItemSheet from "./item-sheet";
 import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel.js";
+import type SplittermondSpellItem from "module/item/spell";
 
 export default class SplittermondSpellSheet extends SplittermondItemSheet {
     static DEFAULT_OPTIONS = {
+        ...super.DEFAULT_OPTIONS,
         classes: ["splittermond", "sheet", "item", "spell"],
     };
+
+    get item(): SplittermondSpellItem {
+        return super.item as SplittermondSpellItem;
+    }
 
     _getStatBlock() {
         return [
@@ -27,7 +33,7 @@ export default class SplittermondSpellSheet extends SplittermondItemSheet {
         ];
     }
 
-    _prepareSubmitData(event, form, formData, updateObject) {
+    _prepareSubmitData(event: SubmitEvent, form: HTMLFormElement, formData: any, updateObject: object = {}): object {
         if (formData.object["system.damageType"] === "null") {
             formData.object["system.damageType"] = null;
         }

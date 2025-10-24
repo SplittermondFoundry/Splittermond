@@ -1,11 +1,55 @@
 import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
-import { SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
+import { ApplicationRenderContext, SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
 import { foundryApi } from "module/api/foundryApi.js";
 import { autoExpandInputs } from "module/util/autoexpandDummyInjector.js";
 import { splittermond } from "module/config/index.js";
 
+interface ItemSheetData {
+    cssClass: string;
+    editable: any;
+    document: any;
+    data: any;
+    limited: any;
+    options: any;
+    owner: any;
+    title: string;
+    type: string;
+}
+
+interface SplittermondItemSheetData extends ItemSheetData {
+    itemProperties: any;
+    statBlock: any;
+    typeLabel: string;
+    item?: any;
+}
+
+interface Localizer {
+    localize: (key: string) => string;
+}
+
+interface InputItemProperty {
+    field: string;
+    value?: any;
+    template?: string;
+    placeholderText?: string;
+    label?: string;
+    help?: string;
+}
+
+interface ItemSheetPropertyDisplayProperty extends InputItemProperty {}
+
+interface PropertyGroup {
+    properties: (InputItemProperty | ItemSheetPropertyDisplayProperty)[];
+}
+
+type SplittermondItemSheetProperties = PropertyGroup[];
+
+interface StatBlockEntry {
+    label: string;
+    value: string;
+}
+
 export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
-    /** @type {Partial<ApplicationOptions>} */
     static DEFAULT_OPTIONS = {
         form: {
             submitOnChange: true,
@@ -17,6 +61,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         tag: "form",
         classes: ["splittermond", "sheet", "item"],
     };
+
     static TABS = {
         primary: {
             tabs: [
@@ -46,22 +91,18 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         },
     };
 
-    /**
-     * @param {document: SplittermondItem} options
-     * @param {{getProperty:(object, string)=> unknown}} propertyResolver
-     * @param {{localize:(string)=>string}} localizer
-     * @param config
-     * @param {enrichHTML:(string)=>Promise<string>} textEditor
-     */
+    protected readonly localizer: Localizer;
+    private itemSheetProperties: any[];
+
     constructor(
-        options = {},
-        propertyResolver = foundry.utils,
-        localizer = foundryApi,
-        config = splittermond,
-        textEditor = foundry.applications.ux.TextEditor.implementation
+        options: any = {},
+        private resolveProperty = foundryApi.utils.resolveProperty,
+        localizer: Localizer = foundryApi,
+        config: any = splittermond,
+        private htmlEnricher = foundryApi.utils.enrichHtml
     ) {
         const item = options.document;
-        var displayProperties =
+        const displayProperties =
             config.displayOptions.itemSheet[item.type] || config.displayOptions.itemSheet["default"];
         options.position = {
             width: displayProperties.width,
@@ -69,29 +110,12 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
             ...(options.position ?? {}),
         };
         super(options);
-        this.propertyResolver = propertyResolver;
         this.localizer = localizer;
         this.itemSheetProperties = config.itemSheetProperties[this.item.type] || [];
-        this.textEditor = textEditor;
     }
 
-    /**
-     * @typedef SplittermondItemSheetData
-     * @type {ItemSheetData & { itemProperties: any, statBlock: any, typeLabel: string}}
-     */
-
-    /**
-     * @override
-     * @param {options: HandlebarsRenderOptions} options
-     * @returns {Promise<ApplicationRenderContext & SplittermondItemSheetData>}
-     * @protected
-     */
-    async _prepareContext(options) {
-        /**
-         * @typedef ItemSheetData
-         * @type {{cssClass:string, editable:any, document: ClientDocument, data: any, limited: any, options: any, owner: any,title: string, type: string}}
-         */
-        const data = await super._prepareContext(options);
+    protected async _prepareContext(options: any): Promise<ApplicationRenderContext & SplittermondItemSheetData> {
+        const data = (await super._prepareContext(options)) as any;
         data.itemProperties = await this._getItemProperties();
         data.typeLabel = "splittermond." + this.item.type;
         data.item = this.item;
@@ -99,19 +123,12 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return data;
     }
 
-    /**
-     * @returns {!SplittermondItemSheetProperties}
-     * @private
-     */
-    async _getItemProperties() {
-        /**
-         * @type SplittermondItemSheetProperties
-         */
-        const promisesToAwait = [];
-        let sheetProperties = foundryApi.utils.deepClone(this.itemSheetProperties);
+    private async _getItemProperties(): Promise<SplittermondItemSheetProperties> {
+        const promisesToAwait: Promise<string>[] = [];
+        const sheetProperties: SplittermondItemSheetProperties = foundryApi.utils.deepClone(this.itemSheetProperties);
         sheetProperties.forEach((grp) => {
-            grp.properties.forEach(async (/** @type {InputItemProperty|ItemSheetPropertyDisplayProperty}*/ prop) => {
-                prop.value = this.propertyResolver.getProperty(this.item, prop.field);
+            grp.properties.forEach(async (prop: InputItemProperty | ItemSheetPropertyDisplayProperty) => {
+                prop.value = this.resolveProperty(this.item, prop.field);
                 /*
                  * These type guards exist because our multiselects cannot handle an undefined or null option well.
                  * However,Foundry seems to like to use null for nullable boolean values. If that is the case
@@ -125,7 +142,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
                 }
                 prop.placeholderText = prop.placeholderText ?? prop.label;
                 if (prop.help) {
-                    const promisedHelp = this.textEditor.enrichHTML(this.localizer.localize(prop.help));
+                    const promisedHelp = this.htmlEnricher(this.localizer.localize(prop.help));
                     //Push promises first. Else, they will have ceased to exist.
                     promisesToAwait.push(promisedHelp);
                     prop.help = await promisedHelp;
@@ -138,12 +155,11 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return sheetProperties;
     }
 
-    /** @returns {{label:string, value:string}[]} */
-    _getStatBlock() {
+    protected _getStatBlock(): StatBlockEntry[] {
         return [];
     }
 
-    async _preparePartContext(partId, context, options) {
+    async _preparePartContext(partId: string, context: any, options: any): Promise<any> {
         const data = await super._preparePartContext(partId, context, options);
         switch (partId) {
             case "description":
@@ -154,8 +170,8 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return data;
     }
 
-    async #prepareDescriptionPart(context) {
-        context.description = await this.textEditor.enrichHTML(this.document.system.description, {
+    async #prepareDescriptionPart(context: any): Promise<any> {
+        context.description = await this.htmlEnricher(this.document.system.description ?? "", {
             secrets: this.document.isOwner,
             relativeTo: this.document,
         });
@@ -163,66 +179,46 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return context;
     }
 
-    async #prepareStatBlockPart(context) {
+    async #prepareStatBlockPart(context: any): Promise<any> {
         context.statBlock = this._getStatBlock();
         return context;
     }
 
-    /**
-     * @param {ApplicationRenderContext} context
-     * @param {HandlebarsRenderOptions} options
-     * @return {Promise<void>}
-     * @protected
-     */
-    async _onRender(context, options) {
+    protected async _onRender(context: ApplicationRenderContext, options: any): Promise<void> {
         await super._onRender(context, options);
         autoExpandInputs(this.element);
     }
 
-    /**
-     * @param {Event}__
-     * @param {HTMLElement} target
-     * @private
-     */
-    static #increaseValue(__, target) {
-        SplittermondItemSheet.#changeValue((input) => input + 1).for(target);
+    static #increaseValue(_event: Event, target: HTMLElement): void {
+        SplittermondItemSheet.#changeValue((input: number) => input + 1).for(target);
     }
 
-    /**
-     * @param {Event} __
-     * @param {HTMLElement} target
-     * @private
-     */
-    static #decreaseValue(__, target) {
-        SplittermondItemSheet.#changeValue((input) => input - 1).for(target);
+    static #decreaseValue(_event: Event, target: HTMLElement): void {
+        SplittermondItemSheet.#changeValue((input: number) => input - 1).for(target);
     }
 
-    /**
-     * @param {(a:number)=>number}operation
-     * @private
-     */
-    static #changeValue(operation) {
+    static #changeValue(operation: (a: number) => number): { for: (target: HTMLElement) => void } {
         return {
-            /** @param {HTMLElement} target*/
-            for(target) {
-                const matchingInput = target.parentElement.querySelector("input");
-                const newValue = operation(matchingInput?.valueAsNumber);
+            for(target: HTMLElement): void {
+                const matchingInput = target.parentElement?.querySelector("input");
+                if (!matchingInput) return;
+
+                const newValue = operation(matchingInput.valueAsNumber);
                 matchingInput.value = isNaN(newValue) ? matchingInput.value : `${newValue}`;
-                matchingInput?.dispatchEvent(new Event("input", { bubbles: true }));
-                matchingInput?.dispatchEvent(new Event("change", { bubbles: true }));
+                matchingInput.dispatchEvent(new Event("input", { bubbles: true }));
+                matchingInput.dispatchEvent(new Event("change", { bubbles: true }));
             },
         };
     }
 
-    roll() {}
+    roll(): void {}
 
-    _prepareSubmitData(event, form, formData, updateObject = {}) {
+    _prepareSubmitData(event: SubmitEvent, form: HTMLFormElement, formData: any, updateObject: object = {}): object {
         const featureAddress = "system.features.innateFeatures";
-        let submitObject = {};
+        let submitObject: any = {};
         if (featureAddress in formData.object) {
             const attackFeatures = formData.object[featureAddress];
             delete formData.object[featureAddress];
-            /**@type {?name:string, system:Partial<DataModelConstructorInput<WeaponDataModel>>} */
             const mappedFormData = {
                 system: {
                     features: {

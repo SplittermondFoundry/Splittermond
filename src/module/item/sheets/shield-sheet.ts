@@ -1,12 +1,10 @@
-import SplittermondItemSheet from "./item-sheet.js";
-import { foundryApi } from "../../api/foundryApi";
+import SplittermondItemSheet from "./item-sheet";
 
 export default class SplittermondShieldSheet extends SplittermondItemSheet {
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            classes: ["splittermond", "sheet", "item", "shield"],
-        });
-    }
+    static DEFAULT_OPTIONS = {
+        ...super.DEFAULT_OPTIONS,
+        classes: ["splittermond", "sheet", "item", "shield"],
+    };
 
     _getStatBlock() {
         return [

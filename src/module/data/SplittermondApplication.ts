@@ -1,6 +1,6 @@
+import type SplittermondItem from "module/item/item";
 import { FoundryActorSheet, FoundryApplication, FoundryHandlebarsMixin, FoundryItemSheet } from "../api/Application";
 import { ClosestDataMixin } from "./ClosestDataMixin";
-import type SplittermondItem from "module/item/item";
 import type SplittermondActor from "module/actor/actor";
 
 export type ApplicationOptions = ConstructorParameters<typeof SplittermondApplication>[0];
@@ -11,7 +11,11 @@ export type ApplicationRenderContext = Parameters<SplittermondApplication["_onRe
 export class SplittermondApplication extends ClosestDataMixin(FoundryHandlebarsMixin(FoundryApplication)) {}
 
 export class SplittermondBaseActorSheet extends FoundryHandlebarsMixin(FoundryActorSheet) {}
+
 export class SplittermondBaseItemSheet extends FoundryHandlebarsMixin(FoundryItemSheet) {
+    get document(): SplittermondItem {
+        return super.document as SplittermondItem;
+    }
     get item(): SplittermondItem {
         return super.item as SplittermondItem;
     }

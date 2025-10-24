@@ -1,11 +1,15 @@
-import SplittermondItemSheet from "./item-sheet.js";
-import { foundryApi } from "../../api/foundryApi";
+import SplittermondItemSheet from "./item-sheet";
+import { NpcAttackDataModel } from "module/item/dataModel/NpcAttackDataModel.js";
+import type SplittermondItem from "module/item/item";
 
 export default class SplittermondAttackSheet extends SplittermondItemSheet {
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            classes: ["splittermond", "sheet", "item", "npcattack"],
-        });
+    static DEFAULT_OPTIONS = {
+        ...super.DEFAULT_OPTIONS,
+        classes: ["splittermond", "sheet", "item", "npcattack"],
+    };
+
+    get item(): SplittermondItem & { system: NpcAttackDataModel } {
+        return super.item;
     }
 
     _getStatBlock() {

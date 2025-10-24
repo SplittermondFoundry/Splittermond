@@ -1,11 +1,11 @@
 import SplittermondActor from "../actor/actor";
-import type { SplittermondItemDataModel } from "./index";
+import type { SplittermondItemDataModelType } from "./index";
 
 declare class SplittermondItem extends Item {
     readonly actor: SplittermondActor;
     type: string;
     prepareActorData(): void;
-    system: SplittermondItemDataModel;
+    system: SplittermondItemDataModelType;
 }
 
 export default SplittermondItem;
