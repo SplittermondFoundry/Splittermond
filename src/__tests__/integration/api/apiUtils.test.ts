@@ -1,5 +1,6 @@
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import { withScene } from "../fixtures";
+import { foundryApi } from "module/api/foundryApi";
 
 declare const foundry: any;
 declare const canvas: any;
@@ -132,4 +133,14 @@ export function apiUtilsTest(context: QuenchBatchContext) {
             expect(await canvas.animatePan()).to.be.a("boolean");
         })
     );
+
+    it("should have a text enricher", async () => {
+        const text = await foundryApi.utils.enrichHtml("Some <strong>bold</strong> text");
+        expect(text).to.contain("<strong>bold</strong>");
+    });
+
+    it("should have a property resolver", () => {
+        const value = foundryApi.utils.resolveProperty({ a: { b: "value" } }, "a.b");
+        expect(value).to.equal("value");
+    });
 }

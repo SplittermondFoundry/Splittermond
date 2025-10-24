@@ -264,6 +264,15 @@ export const foundryApi = new (class FoundryApi {
             // @ts-ignore
             return foundry.utils.mergeObject(original, other, options);
         },
+
+        enrichHtml(content: string, options?: { secrets: boolean; relativeTo: object }): Promise<string> {
+            // @ts-ignore
+            return foundry.applications.ux.TextEditor.implementation.enrichHTML(content, options);
+        },
+        resolveProperty(object: object, path: string): unknown {
+            // @ts-ignore
+            return foundry.utils.getProperty(object, path);
+        },
     } as const;
 
     collections = {
