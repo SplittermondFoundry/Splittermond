@@ -17,6 +17,7 @@ import { passesEventually } from "../util";
 import type SplittermondWeaponItem from "module/item/weapon";
 import SplittermondItemSheet from "module/item/sheets/item-sheet";
 import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
+import type SplittermondEquipmentItem from "module/item/equipment";
 
 declare const Item: any;
 declare const game: any;
@@ -212,6 +213,46 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             await enterInSheet(sheet, "system.castDuration.innateDuration", "20 T");
 
             await passesEventually(() => expect(item.system.castDuration.inTicks).to.equal(20), 1000, 100);
+        });
+
+        it("should save when numeric values are incremented", async () => {
+            const item = (await createItem("equipment")) as SplittermondEquipmentItem;
+            await item.update({ system: { quantity: 1 } });
+            const sheet = new SplittermondItemSheet({ document: item });
+
+            await sheet.render(true);
+            const featureInput = sheet.element.querySelector(
+                `input[name='system.quantity']`
+            ) as HTMLInputElement | null;
+            expect(featureInput, "Feature input found").to.not.be.null;
+
+            featureInput?.parentElement
+                ?.querySelector("button[data-action='inc-value']")
+                ?.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+            sheet.close();
+
+            expect(featureInput?.valueAsNumber, "Input was updated").to.equal(2);
+            await passesEventually(() => expect(item.system.quantity).to.equal(2), 1000, 100);
+        });
+
+        it("should save when numeric values are incremented", async () => {
+            const item = (await createItem("equipment")) as SplittermondEquipmentItem;
+            await item.update({ system: { quantity: 2 } });
+            const sheet = new SplittermondItemSheet({ document: item });
+
+            await sheet.render(true);
+            const featureInput = sheet.element.querySelector(
+                `input[name='system.quantity']`
+            ) as HTMLInputElement | null;
+            expect(featureInput, "Feature input found").to.not.be.null;
+
+            featureInput?.parentElement
+                ?.querySelector("button[data-action='dec-value']")
+                ?.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+            sheet.close();
+
+            expect(featureInput?.valueAsNumber, "Input was updated").to.equal(1);
+            await passesEventually(() => expect(item.system.quantity).to.equal(1), 1000, 100);
         });
     });
 }

@@ -6,20 +6,24 @@ import { produceJQuery } from "../../../../jQueryHarness.js";
 import SplittermondSpellSheet from "../../../../../module/item/sheets/spell-sheet.js";
 import SplittermondSpellItem from "../../../../../module/item/spell.js";
 import { getSpellAvailabilityParser } from "module/item/availabilityParser.js";
-import { simplePropertyResolver } from "../../../../util.ts";
+import { promiseIdentity, simplePropertyResolver } from "../../../../util.ts";
 import { SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
+import { foundryApi } from "module/api/foundryApi.js";
+import sinon from "sinon";
 
 describe("Spell Properties display", () => {
+    const sandbox = sinon.createSandbox();
     const testParser = getSpellAvailabilityParser({ localize: (str) => str }, ["illusionmagic", "deathmagic"]);
     SplittermondBaseItemSheet.prototype._prepareContext = function () {
         return Promise.resolve({ data: this.item });
     };
     SplittermondBaseItemSheet.prototype._onRender = () => {};
     beforeEach(() => {
-        global.duplicate = (obj) => obj;
+        sandbox.stub(foundryApi.utils, "deepClone").callsFake((obj) => JSON.parse(JSON.stringify(obj)));
     });
+
     afterEach(() => {
-        global.duplicate = undefined;
+        sandbox.restore();
     });
 
     it("displays the availableIn property of the spell item", async () => {
@@ -71,9 +75,9 @@ describe("Spell Properties display", () => {
     });
 
     async function renderRelevantInput(displayProperty, spellItem) {
-        const CONFIG = { splittermond: { itemSheetProperties: {}, displayOptions: { itemSheet: {} } } };
-        CONFIG.splittermond.displayOptions.itemSheet["default"] = { width: 1, height: 1 };
-        CONFIG.splittermond.itemSheetProperties.spell = [
+        const config = { itemSheetProperties: {}, displayOptions: { itemSheet: {} } };
+        config.displayOptions.itemSheet["default"] = { width: 1, height: 1 };
+        config.itemSheetProperties.spell = [
             {
                 groupName: "splittermond.generalProperties",
                 properties: [displayProperty],
@@ -85,21 +89,12 @@ describe("Spell Properties display", () => {
                 getProperty: simplePropertyResolver,
             },
             { localize: identity },
-            CONFIG.splittermond,
+            config,
             { enrichHTML: promiseIdentity }
         );
         return objectUnderTest
             ._prepareContext()
-            .then((data) => produceJQuery(createHtml("./templates/sheets/item/item-sheet.hbs", data)))
+            .then((data) => produceJQuery(createHtml("./templates/sheets/item/properties.hbs", data)))
             .then((domUnderTest) => domUnderTest(`.properties-editor input[name='${displayProperty.field}']`));
     }
 });
-
-/**
- * @template T
- * @param {T} input
- * @returns {Promise<T>}
- */
-function promiseIdentity(input) {
-    return Promise.resolve(input);
-}

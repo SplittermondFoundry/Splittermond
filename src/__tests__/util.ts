@@ -23,3 +23,7 @@ export function passesEventually(expectation: () => void, timeout = 500, interva
         attempt();
     });
 }
+
+export function promiseIdentity<T>(input: T): Promise<T> {
+    return Promise.resolve(input);
+}

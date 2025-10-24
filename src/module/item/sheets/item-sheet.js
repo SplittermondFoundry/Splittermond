@@ -1,6 +1,8 @@
 import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
 import { SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
 import { foundryApi } from "module/api/foundryApi.js";
+import { autoExpandInputs } from "module/util/autoexpandDummyInjector.js";
+import { splittermond } from "module/config/index.js";
 
 export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     /** @type {Partial<ApplicationOptions>} */
@@ -55,7 +57,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         options = {},
         propertyResolver = foundry.utils,
         localizer = foundryApi,
-        config = CONFIG.splittermond,
+        config = splittermond,
         textEditor = foundry.applications.ux.TextEditor.implementation
     ) {
         const item = options.document;
@@ -106,7 +108,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
          * @type SplittermondItemSheetProperties
          */
         const promisesToAwait = [];
-        let sheetProperties = duplicate(this.itemSheetProperties);
+        let sheetProperties = foundryApi.utils.deepClone(this.itemSheetProperties);
         sheetProperties.forEach((grp) => {
             grp.properties.forEach(async (/** @type {InputItemProperty|ItemSheetPropertyDisplayProperty}*/ prop) => {
                 prop.value = this.propertyResolver.getProperty(this.item, prop.field);
@@ -174,18 +176,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
      */
     async _onRender(context, options) {
         await super._onRender(context, options);
-        const html = $(this.element); //Deprecated: use this.element directly
-        html.find("input.autoexpand")
-            .on("input", function () {
-                let dummyElement = $('<span id="autoexpanddummy"/>').hide();
-                $(this).after(dummyElement);
-                dummyElement.text($(this).val() || $(this).text() || $(this).attr("placeholder"));
-                $(this).css({
-                    width: dummyElement.width(),
-                });
-                dummyElement.remove();
-            })
-            .trigger("input");
+        autoExpandInputs(this.element);
     }
 
     /**
