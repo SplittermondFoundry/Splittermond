@@ -3,6 +3,7 @@ import { ApplicationRenderContext, SplittermondBaseItemSheet } from "module/data
 import { foundryApi } from "module/api/foundryApi.js";
 import { autoExpandInputs } from "module/util/autoexpandDummyInjector.js";
 import { splittermond } from "module/config/index.js";
+import { getSpellAvailabilityParser } from "module/item/availabilityParser";
 
 interface ItemSheetData {
     cssClass: string;
@@ -99,7 +100,8 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         private resolveProperty = foundryApi.utils.resolveProperty,
         localizer: Localizer = foundryApi,
         config: any = splittermond,
-        private htmlEnricher = foundryApi.utils.enrichHtml
+        private htmlEnricher = foundryApi.utils.enrichHtml,
+        private availabilityParser = getSpellAvailabilityParser(foundryApi, splittermond.skillGroups.magic)
     ) {
         const item = options.document;
         const displayProperties =
@@ -227,6 +229,12 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
                 },
             };
             submitObject = foundryApi.utils.mergeObject(updateObject, mappedFormData);
+        }
+        if ("availableIn" in formData.object) {
+            formData.object["system.availableIn"] = this.availabilityParser.toInternalRepresentation(
+                formData.object.availableIn
+            );
+            delete formData.availableIn;
         }
         return super._prepareSubmitData(event, form, formData, submitObject);
     }
