@@ -1,45 +1,44 @@
 @import "base";
 
 .sheet-navigation-style() {
-  .basic-tab-style();
-  display: flex;
-  line-height: 26px;
+    .basic-tab-style();
+    display: flex;
+    line-height: 26px;
 }
 
 .splittermond {
+    //Style the nav bar from foundry
+    .sheet-tabs.tabs {
+        .sheet-navigation-style();
+        gap: 0; //override foundry gap for nav bar
+    }
 
-  //Style the nav bar from foundry
-  .sheet-tabs.tabs {
-    .sheet-navigation-style();
-    gap: 0 //override foundry gap for nav bar
-  }
+    //Style the nav bar items from foundry
+    .sheet-tabs.tabs a[data-action="tab"]:extend(.tabs-style .item all) {
+    }
 
-  //Style the nav bar items from foundry
-  .sheet-tabs.tabs a[data-action='tab']:extend(.tabs-style .item all) {
-  }
+    .sheet-navigation {
+        .sheet-navigation-style();
+    }
 
-  .sheet-navigation {
-    .sheet-navigation-style();
-  }
+    &.sheet.actor .sheet-navigation {
+        margin-left: -8px;
+        margin-right: -8px;
+        margin-bottom: 7px;
+    }
 
-  &.sheet.actor .sheet-navigation {
-    margin-left: -8px;
-    margin-right: -8px;
-    margin-bottom: 7px;
-  }
+    .sheet-navigation-item:extend(.tabs-style .item all) {
+        flex: 1;
+        text-align: center;
+    }
 
-  .sheet-navigation-item:extend(.tabs-style .item all) {
-    flex: 1;
-    text-align: center;
-  }
+    .subnav:extend(.tabs-style all) {
+        display: flex;
+        line-height: 26px;
+    }
 
-  .subnav:extend(.tabs-style all) {
-    display: flex;
-    line-height: 26px;
-  }
-
-  .subnav-item:extend(.tabs-style .item all) {
-    flex: 1;
-    text-align: center;
-  }
+    .subnav-item:extend(.tabs-style .item all) {
+        flex: 1;
+        text-align: center;
+    }
 }
