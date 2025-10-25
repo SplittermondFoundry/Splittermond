@@ -62,25 +62,6 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
         return this.availabilityParser.toDisplayRepresentation(this.system.availableIn);
     }
 
-    /**
-     * @override
-     */
-    update(data, context) {
-        if ("availableIn" in data) {
-            data["system.availableIn"] = this.availabilityParser.toInternalRepresentation(data.availableIn);
-            delete data.availableIn;
-        }
-        return super.update(data, context);
-    }
-
-    updateSource(data, context) {
-        if ("availableIn" in data) {
-            data["system.availableIn"] = this.availabilityParser.toInternalRepresentation(data.availableIn);
-            delete data.availableIn;
-        }
-        return super.updateSource(data, context);
-    }
-
     get skill() {
         if (!splittermond.skillGroups.all.includes(this.system.skill)) {
             console.warn(

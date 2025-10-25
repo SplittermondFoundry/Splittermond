@@ -61,6 +61,41 @@ global.Combatant = class Combatant extends FoundryDocument {
     }
 };
 
+const foundryApplicationsApi = {
+    HandlebarsApplicationMixin: function (arg) {
+        return arg;
+    },
+    DialogV2: class {
+        render() {}
+        addEventListener() {}
+        close() {}
+        static prompt() {}
+    },
+    ApplicationV2: class {
+        constructor(options) {
+            this.options = options;
+        }
+        render() {}
+        _prepareContext() {}
+        _onRender() {}
+        addEventListener() {}
+        close() {}
+        static prompt() {}
+    },
+};
+const foundryApplicationSheets = {
+    ItemSheetV2: class extends foundryApplicationsApi.ApplicationV2 {
+        constructor(props) {
+            super(props);
+        }
+
+        get item() {
+            return this.options.document;
+        }
+    },
+    ActorSheetV2: class {},
+};
+
 global.foundry = {
     data: {
         fields: {
@@ -169,28 +204,8 @@ global.foundry = {
                 bind() {}
             },
         },
-        api: {
-            HandlebarsApplicationMixin: function (arg) {
-                return arg;
-            },
-            DialogV2: class {
-                render() {}
-                addEventListener() {}
-                close() {}
-                static prompt() {}
-            },
-            ApplicationV2: class {
-                constructor(options) {
-                    this.options = options;
-                }
-                render() {}
-                _prepareContext() {}
-                _onRender() {}
-                addEventListener() {}
-                close() {}
-                static prompt() {}
-            },
-        },
+        api: foundryApplicationsApi,
+        sheets: foundryApplicationSheets,
     },
 };
 

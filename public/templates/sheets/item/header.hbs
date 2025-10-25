@@ -1,0 +1,79 @@
+<header class="row flex-gap">
+    <div class="item-image">
+        <img src="{{item.img}}" data-action="editImage" data-edit="img" title="{{item.name}}" height="92" width="92"/>
+    </div>
+    <div style="flex-grow: 1;">
+        <div class="row flex-gap" style="flex-grow: 1; align-items: baseline">
+            <div class="item-type" style="flex-grow: 1;">
+                {{ localize typeLabel }}
+            </div>
+            {{#if (eq item.type "spell")}}
+                <div class="magic-skill">
+                    <ul class="taglist-small">
+                        {{#each item.availableInList}}
+                            <li{{#if (eq this.skillId ../item.system.skill)}} class="active"{{/if}}>{{this.label}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+            {{/if}}
+            {{#if (eq item.type "weapon")}}
+                <div class="skill">
+                    <ul class="taglist-small">
+                        <li class="active">{{localize (concat "splittermond.skillLabel." item.system.skill)
+                                                      'string'}}</li>
+                    </ul>
+                </div>
+            {{/if}}
+            {{#if (eq item.type "mastery")}}
+                <div class="skill">
+                    <ul class="taglist-small">
+                        {{#each item.availableInList}}
+                            <li {{#if
+                                    (eq this.label (localize (concat "splittermond.skillLabel." ../item.system.skill)))}}
+                            class="active"{{/if}}>{{this.label}}</li>
+                        {{/each}}
+                        <li class="active">{{localize "splittermond.masteryItem.level" }} {{item.system.level}}</li>
+                    </ul>
+                </div>
+            {{/if}}
+        </div>
+        <input style="flex-grow: 1;" class="item-name" name="name" type="text" value="{{item.name}}"
+               placeholder="{{localize 'splittermond.name' }}"/>
+        {{#if (eq item.type "spell")}}
+            <div class="spell-type">
+                <ul class="taglist-small">
+                    {{#each item.spellTypeList}}
+                        <li class="active">{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        {{/if}}
+        {{#if (eq item.type "weapon")}}
+            <div class="features">
+                <ul class="taglist-small">
+                    {{#each item.featuresList}}
+                        <li class="active">{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        {{/if}}
+        {{#if (eq item.type "shield")}}
+            <div class="features">
+                <ul class="taglist-small">
+                    {{#each item.featuresList}}
+                        <li class="active">{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        {{/if}}
+        {{#if (eq item.type "armor")}}
+            <div class="features">
+                <ul class="taglist-small">
+                    {{#each item.featuresList}}
+                        <li class="active">{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        {{/if}}
+    </div>
+</header>

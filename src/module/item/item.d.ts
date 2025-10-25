@@ -1,5 +1,5 @@
 import SplittermondActor from "../actor/actor";
-import { SplittermondItemDataModelType } from "./index";
+import type { SplittermondItemDataModelType } from "./index";
 
 declare class SplittermondItem extends Item {
     readonly actor: SplittermondActor;

@@ -1,8 +1,24 @@
+@import "base";
+
+.sheet-navigation-style() {
+    .basic-tab-style();
+    display: flex;
+    line-height: 26px;
+}
+
 .splittermond {
-    .sheet-navigation:extend(.tabs-style all) {
-        //.tabs();
-        display: flex;
-        line-height: 26px;
+    //Style the nav bar from foundry
+    .sheet-tabs.tabs {
+        .sheet-navigation-style();
+        gap: 0; //override foundry gap for nav bar
+    }
+
+    //Style the nav bar items from foundry
+    .sheet-tabs.tabs a[data-action="tab"]:extend(.tabs-style .item all) {
+    }
+
+    .sheet-navigation {
+        .sheet-navigation-style();
     }
 
     &.sheet.actor .sheet-navigation {

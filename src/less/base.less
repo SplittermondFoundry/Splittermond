@@ -110,7 +110,7 @@ img {
     }
 }
 
-.tabs-style {
+.basic-tab-style() {
     &:extend(.border-wobbly-line);
     &:extend(.shiny-background);
 
@@ -169,8 +169,14 @@ img {
     }
 }
 
-.tabs:not(#sidebar-tabs):not(.sidebar .tabs):extend(.tabs-style all) {
+.tabs-style {
+    .basic-tab-style();
 }
+
+.tabs:not(#sidebar-tabs):not(.sidebar .tabs) {
+    .basic-tab-style();
+}
+
 #sidebar-tabs {
     border-bottom-color: var(--color-primary);
     box-shadow: 0 0 10px var(--color-primary);
@@ -239,13 +245,7 @@ dialog section form input[type="file"] {
     color: var(--color-text-secondary);
 }
 
-input[type="text"],
-input[type="number"],
-input[type="password"],
-input[type="date"],
-input[type="time"],
-input[type="search"],
-input[type="file"] #autoexpanddummy {
+.base-input-style() {
     padding: 1px 3px;
     border-width: 4px;
     background: @image-noise;
@@ -283,42 +283,7 @@ input[type="file"] #autoexpanddummy {
     }
 }
 
-.dark {
-    input[type="text"],
-    input[type="number"],
-    input[type="password"],
-    input[type="date"],
-    input[type="time"] {
-        background:
-            @image-noise center center,
-            var(--splittermond-background-parchment);
-
-        &:hover,
-        &:focus {
-            background:
-                @image-noise center center,
-                var(--splittermond-background-parchment);
-        }
-    }
-}
-
-select:extend(.button-style all) {
-    .border-wobbly-line;
-    text-decoration: none;
-
-    &:before {
-        content: unset;
-        display: none;
-    }
-
-    option {
-        background-color: @color-text;
-        color: @color-text-secondary;
-        font-family: @font-primary;
-    }
-}
-
-input[type="checkbox"] {
+.checkbox-input-style() {
     .button-style();
     .button-inline();
     -webkit-appearance: none;
@@ -362,6 +327,55 @@ input[type="checkbox"] {
             &:extend(.button-style:disabled);
         }
     }
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+input[type="search"],
+input[type="file"] #autoexpanddummy {
+    .base-input-style();
+}
+
+.dark {
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    input[type="date"],
+    input[type="time"] {
+        background:
+            @image-noise center center,
+            var(--splittermond-background-parchment);
+
+        &:hover,
+        &:focus {
+            background:
+                @image-noise center center,
+                var(--splittermond-background-parchment);
+        }
+    }
+}
+
+select:extend(.button-style all) {
+    .border-wobbly-line;
+    text-decoration: none;
+
+    &:before {
+        content: unset;
+        display: none;
+    }
+
+    option {
+        background-color: @color-text;
+        color: @color-text-secondary;
+        font-family: @font-primary;
+    }
+}
+
+input[type="checkbox"] {
+    .checkbox-input-style();
 }
 
 label.checkbox {
@@ -454,14 +468,6 @@ button.capture-position:extend(button.button-inline all) {
 form .notes,
 form .hint {
     color: rgba(var(--color-text-secondary_rgb), 0.7);
-}
-
-.editor {
-    flex: 1;
-    justify-self: stretch;
-    align-self: stretch;
-    height: 100%;
-    min-height: 100px;
 }
 
 :root {
@@ -566,4 +572,9 @@ a.pdflink {
     display: flex;
     justify-content: flex-start;
     text-align: left;
+}
+
+// The scrollable class from foundryvtt calculates a right margin, but that places the scrollbar on the edge of the item sheet.
+.scrollable-margin-mitigation {
+    margin-right: 0;
 }

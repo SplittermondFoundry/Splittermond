@@ -17,12 +17,10 @@
     <div class="properties-editor">
         <label>{{localize "splittermond.modifier"}}</label>
         <div class="row">
-            <button class="button-inline" type="button" data-action="dec-value"
-                    data-input-query="input[name='modifier']">
+            <button class="button-inline" type="button" data-action="dec-value">
                 <i class="fa fa-minus" aria-hidden="true"></i></button>
             <input name="modifier" value="{{modifier}}" type="number">
-            <button class="button-inline" type="button" data-action="inc-value"
-                    data-input-query="input[name='modifier']">
+            <button class="button-inline" type="button" data-action="inc-value">
                 <i class="fa fa-plus" aria-hidden="true"></i></button>
         </div>
         {{#if emphasis}}
@@ -43,31 +41,27 @@
         {{/if}}
         <label>{{localize "splittermond.difficulty"}}</label>
         <div class="row">
-            <button class="button-inline" type="button" data-action="dec-value-3"
-                    data-input-query="input[name='difficulty']">
+            <button class="button-inline" type="button" data-action="dec-value-3">
                 -3
             </button>
-            <button class="button-inline" type="button" data-action="dec-value"
-                    data-input-query="input[name='difficulty']">
+            <button class="button-inline" type="button" data-action="dec-value">
                 <i class="fa fa-minus" aria-hidden="true"></i></button>
             <input name="difficulty" value="{{difficulty}}" type="text">
-            <button class="button-inline" type="button" data-action="inc-value"
-                    data-input-query="input[name='difficulty']">
+            <button class="button-inline" type="button" data-action="inc-value">
                 <i class="fa fa-plus" aria-hidden="true"></i></button>
-            <button class="button-inline" type="button" data-action="inc-value-3"
-                    data-input-query="input[name='difficulty']">
+            <button class="button-inline" type="button" data-action="inc-value-3">
                 +3
             </button>
         </div>
         <label></label>
-        <div class="row">
-            <button class="button" type="button" data-action="difficulty-vtd">
+        <div class="row resistance-selectors">
+            <button class="button" type="button" data-resistance="VTD" data-action="difficulty-vtd">
                 VTD
             </button>
-            <button class="button" type="button" data-action="difficulty-kw">
+            <button class="button" type="button" data-resistance="KW" data-action="difficulty-kw">
                 KW
             </button>
-            <button class="button" type="button" data-action="difficulty-gw">
+            <button class="button" type="button" data-resistance="GW" data-action="difficulty-gw">
                 GW
             </button>
         </div>

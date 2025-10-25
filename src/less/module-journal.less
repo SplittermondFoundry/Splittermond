@@ -1,32 +1,92 @@
-.sheet.journal-entry .journal-entry-content {
-    --line-height: 24px;
-    --line-width: 520px;
-    line-height: var(--line-height);
+@import "./variables.less";
 
-    background: var(--splittermond-background-parchment-blue), var(--splittermond-background-parchment);
-    background-position: top right;
-    background-blend-mode: var(--background-parchment-splittermond-blend-mode);
-    background-clip: padding-box;
+.sheet.journal-entry {
+    //White text in journal header
+    .window-header {
+        h1.window-title {
+            color: @color-text;
+        }
 
-    .journal-header {
-        .title {
-            background: none;
-            border: none;
-            font-family: @font-tertiary;
-            display: block;
+        button.header-control.icon {
+            color: @color-text;
         }
     }
 
-    .journal-entry-page {
-        width: 100%;
-    }
+    .journal-entry-content {
+        --line-height: 24px;
+        --line-width: 520px;
+        line-height: var(--line-height);
 
-    .journal-page-content {
-        padding-bottom: var(--line-height);
-        > * {
-            max-width: var(--line-width);
-            margin-left: auto;
-            margin-right: auto;
+        background: var(--splittermond-background-parchment-blue), var(--splittermond-background-parchment);
+        background-position: top right;
+        background-blend-mode: var(--background-parchment-splittermond-blend-mode);
+        background-clip: padding-box;
+
+        .journal-header {
+            .title {
+                background: none;
+                border: none;
+                font-family: @font-tertiary;
+                display: block;
+            }
+        }
+
+        .journal-entry-page {
+            width: 100%;
+        }
+
+        .journal-page-content {
+            padding-bottom: var(--line-height);
+
+            > * {
+                max-width: var(--line-width);
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 48px;
+                margin-bottom: var(--line-height);
+            }
+
+            h1,
+            h2,
+            h3 {
+                max-width: fit-content;
+            }
+
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                margin-bottom: calc(0.5 * var(--line-height));
+            }
+
+            table {
+                max-width: fit-content;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        .journal-page-header {
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                margin-top: var(--line-height);
+                color: var(--color-active-text);
+            }
         }
 
         h1,
@@ -35,318 +95,278 @@
         h4,
         h5,
         h6 {
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: 48px;
-            margin-bottom: var(--line-height);
+            font-family: @font-secondary;
+            font-weight: 400;
+            line-height: normal;
+            color: var(--color-active-text);
         }
 
         h1,
         h2,
         h3 {
-            max-width: fit-content;
+            font-family: @font-tertiary;
+            text-align: center;
         }
 
-        h2,
-        h3,
-        h4,
-        h5,
+        h1 {
+            font-size: 42px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+
+            /*
+&::before {
+    content: url(../../systems/splittermond/images/tribal-1-left.svg);
+}
+
+&::after {
+    content: url(../../systems/splittermond/images/tribal-1-right.svg);
+}
+*/
+        }
+
+        .level1 .subtitle {
+            font-size: 27px;
+            font-family: @font-secondary;
+            color: var(--color-active-text);
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 34px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+
+            /*
+&::before {
+    content: url(../../systems/splittermond/images/tribal-2-left.svg);
+}
+
+&::after {
+    content: url(../../systems/splittermond/images/tribal-2-right.svg);
+}
+*/
+        }
+
+        .level2 .subtitle {
+            font-size: 22px;
+            font-family: @font-secondary;
+            color: var(--color-active-text);
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 27px;
+        }
+
+        .level3 .subtitle {
+            font-size: 18px;
+            font-family: @font-primary;
+            color: var(--color-active-text);
+            text-align: center;
+        }
+
+        h4 {
+            font-size: 22px;
+        }
+
+        h5 {
+            font-size: 18px;
+        }
+
         h6 {
-            margin-bottom: calc(0.5 * var(--line-height));
+            font-family: @font-primary;
+
+            font-size: 16px;
+            font-variant: all-small-caps;
+        }
+
+        .scrollable {
+            display: flex;
+            justify-content: center;
+        }
+
+        article > header:first-child + section > p:not(.subtitle):first-of-type::first-letter,
+        article > header:first-child + section > p.subtitle + p::first-letter {
+            line-height: calc(2 * var(--line-height));
+            color: var(--color-active-text);
+            margin-right: 4px;
+            font-family: @font-tertiary;
+            font-size: 48px;
+            float: left;
+        }
+
+        p {
+            margin: 0px;
+            margin-top: calc(0.5 * var(--line-height));
+            margin-bottom: var(--line-height);
+        }
+
+        dl {
+            display: grid;
+
+            grid-template-columns: min-content 1fr;
+
+            gap: 1em;
+            align-items: baseline;
+
+            margin-bottom: var(--line-height);
+            margin-top: var(--line-height);
+
+            dt {
+                text-align: right;
+                font-weight: 700;
+                //font-family: @font-secondary;
+                //font-size: 16px;
+                //font-variant: all-small-caps;
+                white-space: nowrap;
+            }
+
+            dd,
+            dt {
+                margin: 0;
+                padding: 0;
+                line-height: var(--line-height);
+            }
+        }
+
+        .box-blue:extend(.border-double-corner-1) {
+            padding: var(--line-height);
+            padding: var(--line-height);
+
+            background: rgba(0, 133, 255, 0.1);
+            //border-radius: 8px;
+            //border-top: 1px solid #4A4A4A;
+            //border-bottom: 1px solid #4A4A4A;
+
+            box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.3);
+
+            margin-top: var(--line-height);
+            margin-bottom: var(--line-height);
+
+            :first-child {
+                margin-top: 0px;
+            }
+
+            :last-child {
+                margin-bottom: 0px;
+            }
+        }
+
+        .example:extend(.border-paper) {
+            padding: var(--line-height);
+            //color: var(--color-active-text);
+
+            background-color: rgba(255, 255, 255, 0.1);
+
+            &::before {
+                content: "Beispiel: ";
+                font-weight: bold;
+            }
+
+            margin-top: var(--line-height);
+            margin-bottom: var(--line-height);
+
+            box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.3);
+
+            :first-child {
+                margin-top: 0px;
+            }
+
+            :last-child {
+                margin-bottom: 0px;
+            }
         }
 
         table {
-            max-width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    }
-
-    .journal-page-header {
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            margin-top: var(--line-height);
-            color: var(--color-active-text);
-        }
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        font-family: @font-secondary;
-        font-weight: 400;
-        line-height: normal;
-        color: var(--color-active-text);
-    }
-
-    h1,
-    h2,
-    h3 {
-        font-family: @font-tertiary;
-        text-align: center;
-    }
-
-    h1 {
-        font-size: 42px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
-
-        /*
-        &::before {
-            content: url(../../systems/splittermond/images/tribal-1-left.svg);
-        }
-
-        &::after {
-            content: url(../../systems/splittermond/images/tribal-1-right.svg);
-        }
-        */
-    }
-
-    .level1 .subtitle {
-        font-size: 27px;
-        font-family: @font-secondary;
-        color: var(--color-active-text);
-        text-align: center;
-    }
-
-    h2 {
-        font-size: 34px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
-
-        /*
-        &::before {
-            content: url(../../systems/splittermond/images/tribal-2-left.svg);
-        }
-
-        &::after {
-            content: url(../../systems/splittermond/images/tribal-2-right.svg);
-        }
-        */
-    }
-
-    .level2 .subtitle {
-        font-size: 22px;
-        font-family: @font-secondary;
-        color: var(--color-active-text);
-        text-align: center;
-    }
-
-    h3 {
-        font-size: 27px;
-    }
-
-    .level3 .subtitle {
-        font-size: 18px;
-        font-family: @font-primary;
-        color: var(--color-active-text);
-        text-align: center;
-    }
-
-    h4 {
-        font-size: 22px;
-    }
-
-    h5 {
-        font-size: 18px;
-    }
-
-    h6 {
-        font-family: @font-primary;
-
-        font-size: 16px;
-        font-variant: all-small-caps;
-    }
-
-    .scrollable {
-        display: flex;
-        justify-content: center;
-    }
-
-    article > header:first-child + section > p:not(.subtitle):first-of-type::first-letter,
-    article > header:first-child + section > p.subtitle + p::first-letter {
-        line-height: calc(2 * var(--line-height));
-        color: var(--color-active-text);
-        margin-right: 4px;
-        font-family: @font-tertiary;
-        font-size: 48px;
-        float: left;
-    }
-
-    p {
-        margin: 0px;
-        margin-top: calc(0.5 * var(--line-height));
-        margin-bottom: var(--line-height);
-    }
-
-    dl {
-        display: grid;
-
-        grid-template-columns: min-content 1fr;
-
-        gap: 1em;
-        align-items: baseline;
-
-        margin-bottom: var(--line-height);
-        margin-top: var(--line-height);
-
-        dt {
-            text-align: right;
-            font-weight: 700;
-            //font-family: @font-secondary;
-            //font-size: 16px;
-            //font-variant: all-small-caps;
-            white-space: nowrap;
-        }
-
-        dd,
-        dt {
-            margin: 0;
-            padding: 0;
-            line-height: var(--line-height);
-        }
-    }
-
-    .box-blue:extend(.border-double-corner-1) {
-        padding: var(--line-height);
-        padding: var(--line-height);
-
-        background: rgba(0, 133, 255, 0.1);
-        //border-radius: 8px;
-        //border-top: 1px solid #4A4A4A;
-        //border-bottom: 1px solid #4A4A4A;
-
-        box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.3);
-
-        margin-top: var(--line-height);
-        margin-bottom: var(--line-height);
-
-        :first-child {
-            margin-top: 0px;
-        }
-
-        :last-child {
-            margin-bottom: 0px;
-        }
-    }
-
-    .example:extend(.border-paper) {
-        padding: var(--line-height);
-        //color: var(--color-active-text);
-
-        background-color: rgba(255, 255, 255, 0.1);
-
-        &::before {
-            content: "Beispiel: ";
-            font-weight: bold;
-        }
-
-        margin-top: var(--line-height);
-        margin-bottom: var(--line-height);
-
-        box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.3);
-
-        :first-child {
-            margin-top: 0px;
-        }
-
-        :last-child {
-            margin-bottom: 0px;
-        }
-    }
-
-    table {
-        border: none;
-        background-color: transparent;
-        margin-top: 14px;
-        margin-bottom: 14px;
-        th,
-        td {
-            padding-left: 8px;
-            padding-right: 8px;
-            padding-top: 4px;
-            padding-bottom: 4px;
-            font-weight: 400;
-        }
-        thead {
-            background-color: transparent;
-            color: var(--color-text-secondary);
             border: none;
-            text-shadow: none;
-            font-family: @font-secondary;
-            font-size: 16px;
-            font-weight: 400;
+            background-color: transparent;
+            margin-top: 14px;
+            margin-bottom: 14px;
+
+            th,
+            td {
+                padding-left: 8px;
+                padding-right: 8px;
+                padding-top: 4px;
+                padding-bottom: 4px;
+                font-weight: 400;
+            }
+
+            thead {
+                background-color: transparent;
+                color: var(--color-text-secondary);
+                border: none;
+                text-shadow: none;
+                font-family: @font-secondary;
+                font-size: 16px;
+                font-weight: 400;
+            }
+
+            tbody {
+                border-top: 1px solid var(--color-text-secondary);
+                border-bottom: 1px solid var(--color-text-secondary);
+            }
         }
 
-        tbody {
-            border-top: 1px solid var(--color-text-secondary);
-            border-bottom: 1px solid var(--color-text-secondary);
+        blockquote {
+            font-size: 18px;
+            color: var(--color-active-text);
+            border: none;
+        }
+
+        img {
+            &.float-right {
+                float: right;
+                max-width: 60%;
+                margin-left: var(--line-height);
+                margin-bottom: var(--line-height);
+                shape-margin: var(--line-height);
+                margin-right: -60px;
+            }
+
+            &.float-left {
+                float: left;
+                max-width: 40%;
+                margin-right: var(--line-height);
+                margin-bottom: var(--line-height);
+                shape-margin: var(--line-height);
+                //margin-left: -40px;
+            }
         }
     }
 
-    blockquote {
-        font-size: 18px;
-        color: var(--color-active-text);
-        border: none;
-    }
+    .sheet.journal-entry .journal-sidebar {
+        .pages-list {
+            .level1 .headings {
+                margin-left: var(--sidebar-width-collapsed);
+            }
 
-    img {
-        &.float-right {
-            float: right;
-            max-width: 60%;
-            margin-left: var(--line-height);
-            margin-bottom: var(--line-height);
-            shape-margin: var(--line-height);
-            margin-right: -60px;
-        }
+            .level2 .headings {
+                margin-left: calc(1 * var(--level-indent) + var(--sidebar-width-collapsed));
+            }
 
-        &.float-left {
-            float: left;
-            max-width: 40%;
-            margin-right: var(--line-height);
-            margin-bottom: var(--line-height);
-            shape-margin: var(--line-height);
-            //margin-left: -40px;
+            .level3 .headings {
+                margin-left: calc(2 * var(--level-indent) + var(--sidebar-width-collapsed));
+            }
         }
     }
-}
 
-.sheet.journal-entry .journal-sidebar {
-    .pages-list {
-        .level1 .headings {
-            margin-left: var(--sidebar-width-collapsed);
-        }
-        .level2 .headings {
-            margin-left: calc(1 * var(--level-indent) + var(--sidebar-width-collapsed));
-        }
-
-        .level3 .headings {
-            margin-left: calc(2 * var(--level-indent) + var(--sidebar-width-collapsed));
-        }
-    }
-}
-
-.sheet.journal-sheet {
-    .editor-content {
-        color: var(--color-text-secondary);
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
+    .sheet.journal-sheet {
+        .editor-content {
             color: var(--color-text-secondary);
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                color: var(--color-text-secondary);
+            }
         }
     }
 }

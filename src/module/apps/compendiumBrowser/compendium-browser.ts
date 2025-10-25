@@ -247,9 +247,6 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         }
         const item = await foundryApi.utils.fromUUID(itemId);
         let sheet = item.sheet;
-        //@ts-expect-error ui windows will only show ApplicationV1 windows, so its days are numbered.
-        sheet = Object.values(ui.windows).find((app: any) => app.id === sheet.id) ?? sheet;
-        if (sheet._minimized) return sheet.maximize();
         sheet.render(true);
     }
 

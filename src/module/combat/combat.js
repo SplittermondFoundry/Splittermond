@@ -1,4 +1,5 @@
 import { CombatPauseType } from "module/combat/index.js";
+import { askUserForTickAddition } from "module/combat/TickAdditionDialog.js";
 
 export default class SplittermondCombat extends Combat {
     _sortCombatants(a, b) {
@@ -41,22 +42,8 @@ export default class SplittermondCombat extends Combat {
 
     async nextTurn(nTicks = 0) {
         if (nTicks === 0) {
-            let p = new Promise((resolve, reject) => {
-                let dialog = new Dialog({
-                    title: "Ticks",
-                    content: "<input type='text' class='ticks' value='3'>",
-                    buttons: {
-                        ok: {
-                            label: "Ok",
-                            callback: (html) => {
-                                resolve(parseInt(html.find(".ticks")[0].value));
-                            },
-                        },
-                    },
-                });
-                dialog.render(true);
-            });
-            nTicks = await p;
+            nTicks = await askUserForTickAddition(3, "").catch(() => 0);
+            if (nTicks === 0) return;
         }
 
         let combatant = this.combatant;

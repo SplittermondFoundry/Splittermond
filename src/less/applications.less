@@ -40,6 +40,20 @@
     }
 }
 
+.description-spans-app() {
+    section {
+        flex: 1;
+    }
+
+    .editor {
+        flex: 1;
+        justify-self: stretch;
+        align-self: stretch;
+        height: 100%;
+        min-height: 100px;
+    }
+}
+
 //DialogV2 header
 dialog.application.dialog .window-header {
     .window-header-def();
@@ -106,6 +120,22 @@ form.application .window-content {
     }
 }
 
+.splittermond.dialog-check .dialog-content {
+    --input-height: 0; //makes buttons and inputs smaller
+
+    input {
+        max-width: 200px;
+    }
+
+    input[name="maneuvers"],
+    input[name="emphasis"] {
+        display: none;
+    }
+
+    .resistance-selectors {
+        justify-content: center;
+    }
+}
 .window-app.sheet.splittermond:not(.dark):not(.journal-entry) .window-content {
     .application-override-mixin();
 }
@@ -195,5 +225,20 @@ form.application .window-content {
     label {
         display: inline-block;
         margin-left: 0.5em;
+    }
+}
+
+.splittermond.item.sheet {
+    img {
+        cursor: pointer;
+    }
+
+    .window-content {
+        .application-override-mixin();
+        .description-spans-app();
+
+        .editor {
+            margin-top: 5px;
+        }
     }
 }

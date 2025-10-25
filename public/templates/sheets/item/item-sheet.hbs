@@ -1,4 +1,4 @@
-<form class="{{cssClass}}" autocomplete="off">
+<div class="{{cssClass}}" autocomplete="off">
     <header class="row flex-gap">
         <div class="item-image">
             <img src="{{item.img}}" data-edit="img" title="{{item.name}}" height="92" width="92" />
@@ -96,57 +96,59 @@
         </section>
         <section class="tab" data-group="primary" data-tab="properties">
             {{#*inline "readonlyLocalize"}}
-            <label>{{localize templateData.label}}</label>
-            <span>{{localize templateData.value}}</span>
+                <label>{{localize templateData.label}}</label>
+                <span>{{localize templateData.value}}</span>
             {{/inline}}
             {{#*inline "readonly"}}
-            <label>{{localize templateData.label}}</label>
-            <span>{{templateData.value}}</span>
+                <label>{{localize templateData.label}}</label>
+                <span>{{templateData.value}}</span>
             {{/inline}}
             {{#*inline "input"}}
-            <label>{{localize templateData.label}}</label>
-            <input name="{{templateData.field}}" type="text" value="{{templateData.value}}"
-                placeholder="{{localize templateData.placeholderText}}" />
+                <label>{{localize templateData.label}}</label>
+                <input name="{{templateData.field}}" type="text" value="{{templateData.value}}"
+                       placeholder="{{localize templateData.placeholderText}}"/>
             {{/inline}}
             {{#*inline "textarea"}}
-            <label>{{localize templateData.label}}</label>
-            <textarea name="{{templateData.field}}">{{templateData.value}}</textarea>
+                <label>{{localize templateData.label}}</label>
+                <textarea name="{{templateData.field}}">{{templateData.value}}</textarea>
             {{/inline}}
             {{#*inline "bool"}}
-            <label>{{localize templateData.label}}</label>
-            <input name="{{templateData.field}}" type="checkbox" value="true" {{#if
-                templateData.value}}checked{{/if}} />
+                <label>{{localize templateData.label}}</label>
+                <input name="{{templateData.field}}" type="checkbox" value="true" {{#if
+                        templateData.value}}checked{{/if}} />
             {{/inline}}
             {{#*inline "select"}}
-            <label>{{localize templateData.label}}</label>
-            <select name="{{templateData.field}}">
-                {{selectOptions templateData.choices selected=templateData.value localize=true}}
-            </select>
+                <label>{{localize templateData.label}}</label>
+                <select name="{{templateData.field}}">
+                    {{selectOptions templateData.choices selected=templateData.value localize=true}}
+                </select>
             {{/inline}}
             {{#*inline "inputNumberWithSpinner"}}
-            <label>{{localize templateData.label}}</label>
-            <div class="row">
-                <button class="button-inline" type="button" data-action="dec-value" data-input-query="input[name='{{templateData.field}}']">
-                            <i class="fa fa-minus" aria-hidden="true"></i></button>
-                <input name="{{templateData.field}}" type="number" value="{{templateData.value}}"
-                    placeholder="{{localize label}}" dtype="Number" />
-                <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='{{templateData.field}}']">
+                <label>{{localize templateData.label}}</label>
+                <div class="row">
+                    <button class="button-inline" type="button" data-action="dec-value"
+                            data-input-query="input[name='{{templateData.field}}']">
+                        <i class="fa fa-minus" aria-hidden="true"></i></button>
+                    <input name="{{templateData.field}}" type="number" value="{{templateData.value}}"
+                           placeholder="{{localize label}}" dtype="Number"/>
+                    <button class="button-inline" type="button" data-action="inc-value"
+                            data-input-query="input[name='{{templateData.field}}']">
                         <i class="fa fa-plus" aria-hidden="true"></i></button>
-            </div>
+                </div>
             {{/inline}}
             <div class="properties-editor">
 
-            {{#each itemProperties}}
-            <h3>{{localize this.groupName}}</h3>
-            {{#each this.properties}}
-            {{> (lookup . 'template') templateData=this}}
-            {{#if this.help}}
-            <label></label>
-            <div class="help-text">{{{this.help}}}</div>
-            {{/if}}
-            {{/each}}
-            {{/each}}
+                {{#each itemProperties}}
+                    <h3>{{localize this.groupName}}</h3>
+                    {{#each this.properties}}
+                        {{> (lookup . 'template') templateData=this}}
+                        {{#if this.help}}
+                            <label></label>
+                            <div class="help-text">{{{this.help}}}</div>
+                        {{/if}}
+                    {{/each}}
+                {{/each}}
             </div>
         </section>
     </main>
-</form>
+</div>

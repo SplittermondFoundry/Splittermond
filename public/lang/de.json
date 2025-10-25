@@ -69,7 +69,8 @@
       "tooltip": {
         "base": "SR",
         "ignored": "davon ignoriert"
-      }
+      },
+      "unknown": "Unbekannter Angreifer"
     },
     "start": "Start",
     "value": "Wert",

@@ -16,6 +16,13 @@ declare namespace foundry {
     import ApplicationTabsConfiguration = foundry.applications.types.ApplicationTabsConfiguration;
     import DialogV2 = foundry.applications.api.DialogV2;
 
+    interface DocumentSheetConfiguration {
+        canCreate?: boolean;
+        document: FoundryDocument;
+        editPermission?: number;
+        sheetConfig?: boolean;
+        viewPermission?: number;
+    }
     interface DialogV2Configuration {
         modal: boolean;
         buttons: Partial<DialogV2Button>[];
@@ -152,6 +159,8 @@ declare namespace foundry {
             import ApplicationConfiguration = foundry.applications.types.ApplicationConfiguration;
             import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
             import ApplicationRenderContext = foundry.applications.types.ApplicationRenderContext;
+            import FormDataExtended = foundry.applications.ux.FormDataExtended;
+            import ApplicationTab = foundry.applications.types.ApplicationTab;
 
             /**
              * Type declarations for applications. incomplete, copied at V13
@@ -198,13 +207,32 @@ declare namespace foundry {
                 addEventListener(type: string, listener: (event: Event) => void): void;
 
                 close(): void;
+                _preClose(options: ApplicationRenderOptions): Promise<void>;
 
                 protected _onRender(context: ApplicationRenderContext, options: RENDER_OPTIONS): Promise<void>;
+
+                protected _onSubmitForm(
+                    formConfig: ApplicationFormConfiguration,
+                    event: Event | SubmitEvent
+                ): Promise<void>;
+
+                protected _prepareTabs(group: string): Record<string, ApplicationTab>;
+            }
+            export class DocumentSheetV2 extends foundry.applications.api.ApplicationV2 {
+                constructor(options: any, ...args: any[]);
+                options: ApplicationConfiguration & DocumentSheetConfiguration;
+                get document(): FoundryDocument;
+                _prepareSubmitData(
+                    event: SubmitEvent,
+                    form: HTMLFormElement,
+                    formData: FormDataExtended,
+                    updateData?: object
+                ): object;
             }
 
-            export function HandlebarsApplicationMixin(
-                BaseApplication: typeof ApplicationV2
-            ): typeof HandlebarsApplication;
+            export function HandlebarsApplicationMixin<T extends ApplicationV2>(
+                BaseApplication: new (...args: any[]) => T
+            ): new (...args: ConstructorParameters<typeof HandlebarsApplication>) => HandlebarsApplication & T;
         }
 
         namespace ux {
@@ -213,6 +241,20 @@ declare namespace foundry {
                 permissions: Record<"dragstart" | "drop", (selector: string) => boolean>;
                 bind(html: HTMLElement): this;
             }
+
+            class FormDataExtended {
+                //This class is a stub. Doc found https://foundryvtt.com/api/classes/foundry.applications.ux.FormDataExtended.html
+            }
+        }
+
+        namespace sheets {
+            import DocumentSheetV2 = foundry.applications.api.DocumentSheetV2;
+
+            class ItemSheetV2 extends DocumentSheetV2 {
+                get actor(): Actor | null;
+                get item(): Item;
+            }
+            class ActorSheetV2 extends DocumentSheetV2 {}
         }
     }
 
@@ -277,6 +319,8 @@ declare namespace foundry {
 
 export const FoundryDialog = foundry.applications.api.DialogV2;
 export const FoundryApplication = foundry.applications.api.ApplicationV2;
+export const FoundryItemSheet = foundry.applications.sheets.ItemSheetV2;
+export const FoundryActorSheet = foundry.applications.sheets.ActorSheetV2;
 export const FoundryHandlebarsMixin = foundry.applications.api.HandlebarsApplicationMixin;
 
 export class FoundryDragDrop extends foundry.applications.ux.DragDrop {}
