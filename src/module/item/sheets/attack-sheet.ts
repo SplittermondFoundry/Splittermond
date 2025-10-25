@@ -9,7 +9,7 @@ export default class SplittermondAttackSheet extends SplittermondItemSheet {
     };
 
     get item(): SplittermondItem & { system: NpcAttackDataModel } {
-        return super.item;
+        return super.item as SplittermondItem & { system: NpcAttackDataModel };
     }
 
     _getStatBlock() {
@@ -20,11 +20,11 @@ export default class SplittermondAttackSheet extends SplittermondItemSheet {
             },
             {
                 label: "splittermond.range",
-                value: this.item.system.range,
+                value: `${this.item.system.range}`,
             },
             {
                 label: "splittermond.weaponSpeedAbbrev",
-                value: this.item.system.weaponSpeed,
+                value: `${this.item.system.weaponSpeed}`,
             },
         ];
     }
