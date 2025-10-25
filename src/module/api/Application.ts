@@ -16,6 +16,13 @@ declare namespace foundry {
     import ApplicationTabsConfiguration = foundry.applications.types.ApplicationTabsConfiguration;
     import DialogV2 = foundry.applications.api.DialogV2;
 
+    interface DocumentSheetConfiguration {
+        canCreate?: boolean;
+        document: FoundryDocument;
+        editPermission?: number;
+        sheetConfig?: boolean;
+        viewPermission?: number;
+    }
     interface DialogV2Configuration {
         modal: boolean;
         buttons: Partial<DialogV2Button>[];
@@ -212,6 +219,8 @@ declare namespace foundry {
                 protected _prepareTabs(group: string): Record<string, ApplicationTab>;
             }
             export class DocumentSheetV2 extends foundry.applications.api.ApplicationV2 {
+                constructor(options: any, ...args: any[]);
+                options: ApplicationConfiguration & DocumentSheetConfiguration;
                 get document(): FoundryDocument;
                 _prepareSubmitData(
                     event: SubmitEvent,

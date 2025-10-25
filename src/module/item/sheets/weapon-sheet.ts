@@ -1,11 +1,10 @@
 import SplittermondItemSheet from "./item-sheet.js";
 import { foundryApi } from "../../api/foundryApi";
 import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
-import type { ApplicationContextOptions } from "module/data/SplittermondApplication";
 import type SplittermondWeaponItem from "module/item/weapon";
 
 export default class SplittermondWeaponSheet extends SplittermondItemSheet {
-    constructor(options: ApplicationContextOptions) {
+    constructor(options: any) {
         super({
             classes: ["splittermond", "sheet", "item", "weapon"],
             ...options,
