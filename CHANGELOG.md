@@ -1,3 +1,15 @@
+## 13.7.0
+
+### New Features:
+
+- ItemSheet wurde auf V2 migriert
+- Der Check Dialog wurde auf V2 migriert.
+- Der Dialog des NPC Import Makros wurde auf V2 migriert
+
+### Fixed:
+
+- Ein Fehler wurde behoben, bei dem Streiftrefferreduktionen immer ausgewertet wurden.
+
 ## 13.6.9
 
 ### Fixed
