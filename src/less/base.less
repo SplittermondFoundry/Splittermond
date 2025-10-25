@@ -281,6 +281,52 @@ dialog section form input[type="file"] {
   }
 }
 
+.checkbox-input-style() {
+  .button-style();
+  .button-inline();
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  width: 20px;
+  height: 20px;
+
+  font-family: "Font Awesome 6 Pro", serif;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  font-weight: 900;
+  text-decoration: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: transparent;
+
+  &:checked,
+  &:active {
+    -webkit-filter: none;
+    background-color: rgba(var(--color-primary_rgb), 0.8);
+
+    &:after {
+      text-align-last: center;
+      content: "\f00c";
+      font-size: medium;
+      text-decoration: none;
+      color: #e0e0e0;
+    }
+  }
+
+  &:disabled {
+    &:checked,
+    &:hover {
+      &:extend(.button-style:disabled);
+    }
+  }
+}
+
 input[type="text"],
 input[type="number"],
 input[type="password"],
@@ -325,49 +371,7 @@ select:extend(.button-style all) {
 }
 
 input[type="checkbox"] {
-  .button-style();
-  .button-inline();
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-
-  width: 20px;
-  height: 20px;
-
-  font-family: "Font Awesome 6 Pro", serif;
-  -webkit-font-smoothing: antialiased;
-  font-style: normal;
-  font-variant: normal;
-  text-rendering: auto;
-  font-weight: 900;
-  text-decoration: none;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background-color: transparent;
-
-  &:checked,
-  &:active {
-    -webkit-filter: none;
-    background-color: rgba(var(--color-primary_rgb), 0.8);
-
-    &:after {
-      text-align-last: center;
-      content: "\f00c";
-      font-size: medium;
-      text-decoration: none;
-      color: #e0e0e0;
-    }
-  }
-
-  &:disabled {
-    &:checked,
-    &:hover {
-      &:extend(.button-style:disabled);
-    }
-  }
+  .checkbox-input-style()
 }
 
 label.checkbox {
