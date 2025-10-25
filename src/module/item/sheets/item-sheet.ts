@@ -206,7 +206,8 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
                 if (!matchingInput) return;
 
                 const newValue = operation(matchingInput.valueAsNumber);
-                matchingInput.value = isNaN(newValue) ? matchingInput.value : `${newValue}`;
+                if (isNaN(newValue)) return;
+                matchingInput.value = `${newValue}`;
                 matchingInput.dispatchEvent(new Event("input", { bubbles: true }));
                 matchingInput.dispatchEvent(new Event("change", { bubbles: true }));
             },

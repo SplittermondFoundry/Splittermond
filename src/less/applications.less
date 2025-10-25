@@ -120,6 +120,23 @@ form.application .window-content {
     }
 }
 
+.splittermond.dialog-check .dialog-content {
+  --input-height: 0; //makes buttons and inputs smaller
+
+  input {
+    max-width: 200px;
+  }
+
+  input[name="maneuvers"],
+  input[name="emphasis"] {
+    display: none;
+  }
+
+  .resistance-selectors {
+    justify-content: center;
+  }
+
+}
 .window-app.sheet.splittermond:not(.dark):not(.journal-entry) .window-content {
     .application-override-mixin();
 }

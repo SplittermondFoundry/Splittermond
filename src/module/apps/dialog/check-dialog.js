@@ -1,18 +1,28 @@
 import { foundryApi } from "../../api/foundryApi";
+import { FoundryDialog } from "module/api/Application";
 
-export default class CheckDialog extends Dialog {
+export default class CheckDialog extends FoundryDialog {
     constructor(checkData, dialogData = {}, options = {}) {
         super(dialogData, options);
 
         this.checkData = checkData;
     }
 
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            classes: ["splittermond", "dialog", "dialog-check"],
+    static DEFAULT_OPTIONS = {
+        classes: ["splittermond", "dialog", "dialog-check"],
+        position: {
             width: 450,
-        });
-    }
+        },
+        actions: {
+            "dec-value": CheckDialog.#decreaseValue,
+            "inc-value": CheckDialog.#increaseValue,
+            "dec-value-3": CheckDialog.#decreaseBy3,
+            "inc-value-3": CheckDialog.#increaseBy3,
+            "difficulty-gw": CheckDialog.#setToResistance,
+            "difficulty-kw": CheckDialog.#setToResistance,
+            "difficulty-vtd": CheckDialog.#setToResistance,
+        },
+    };
 
     static async create(checkData) {
         checkData.rollMode = game.settings.get("core", "rollMode");
@@ -26,38 +36,34 @@ export default class CheckDialog extends Dialog {
 
         return new Promise((resolve) => {
             const dlg = new this(checkData, {
-                title: checkData.title || game.i18n.localize("splittermond.skillCheck"),
-                content: html,
-                buttons: {
-                    risk: {
-                        //icon: "<img src='../../icons/dice/d10black.svg' style='border: none; opacity: 0.5' width=18 height=18/><img src='../../icons/dice/d10black.svg'   style='border: none; opacity: 0.5' width=18 height=18/><img src='../../icons/dice/d10black.svg' style='border: none' width=18 height=18/><img src='../../icons/dice/d10black.svg' style='border: none' width=18 height=18/>",
-                        label: game.i18n.localize("splittermond.rollType.risk"),
-                        callback: (html) => {
-                            let fd = CheckDialog._prepareFormData(html, checkData);
-                            fd.rollType = "risk";
-                            resolve(fd);
-                        },
-                    },
-                    normal: {
-                        //icon: "<img src='../../icons/dice/d10black.svg' style='border: none' width=18 height=18/><img src='../../icons/dice/d10black.svg'  style='border: none' width=18 height=18/>",
-                        label: game.i18n.localize("splittermond.rollType.standard"),
-                        callback: (html) => {
-                            let fd = CheckDialog._prepareFormData(html, checkData);
-                            fd.rollType = "standard";
-                            resolve(fd);
-                        },
-                    },
-                    safety: {
-                        //icon: "<img src='../../icons/dice/d10black.svg' style='border: none; opacity: 0.5' width=18 height=18/><img src='../../icons/dice/d10black.svg'  style='border: none' width=18 height=18/>",
-                        label: game.i18n.localize("splittermond.rollType.safety"),
-                        callback: (html) => {
-                            let fd = CheckDialog._prepareFormData(html, checkData);
-                            fd.rollType = "safety";
-                            resolve(fd);
-                        },
-                    },
+                window: {
+                    title: checkData.title || foundryApi.localize("splittermond.skillCheck"),
                 },
-                default: "normal",
+                content: html,
+                buttons: [
+                    {
+                        action: "risk",
+                        label: foundryApi.localize("splittermond.rollType.risk"),
+                    },
+                    {
+                        action: "standard",
+                        default: true,
+                        label: foundryApi.localize("splittermond.rollType.standard"),
+                    },
+                    {
+                        action: "safety",
+                        label: foundryApi.localize("splittermond.rollType.safety"),
+                    },
+                ],
+                /**
+                 * @param {"risk"|"standard"|"safety"} result
+                 * @param {CheckDialog} dialog
+                 */
+                submit: (result, dialog) => {
+                    let fd = CheckDialog._prepareFormData(dialog.element, checkData);
+                    fd.rollType = result;
+                    resolve(fd);
+                },
                 close: () => resolve(null),
             });
             dlg.render(true);
@@ -65,102 +71,106 @@ export default class CheckDialog extends Dialog {
     }
 
     static _prepareFormData(html, checkData) {
-        let fd = new FormDataExtended(html[0].querySelector("form")).object;
+        let fd = new FormDataExtended(html.querySelector("form")).object;
         fd.modifierElements = [];
         if (parseInt(fd.modifier) || 0) {
             fd.modifierElements.push({
                 value: parseInt(fd.modifier) || 0,
-                description: game.i18n.localize("splittermond.modifier"),
+                description: foundryApi.localize("splittermond.modifier"),
             });
         }
-        $(html)
-            .find("[name='emphasis']")
-            .each(function () {
-                if (this.checked) {
-                    fd.modifierElements.push({
-                        value: parseInt(this.value) || 0,
-                        description: this.dataset.name,
-                    });
-                }
-            });
+        html.querySelectorAll("[name='emphasis']").forEach((el) => {
+            if (el.checked) {
+                fd.modifierElements.push({
+                    value: parseInt(el.value) || 0,
+                    description: el.dataset.name,
+                });
+            }
+        });
+
         fd.maneuvers = [];
-        $(html)
-            .find("[name='maneuvers']")
-            .each(function () {
-                if (this.checked) {
-                    fd.maneuvers.push(checkData.skill.maneuvers[parseInt(this.value)]);
-                }
-            });
+        html.querySelectorAll("[name='maneuvers']").forEach((el) => {
+            if (el.checked) {
+                fd.maneuvers.push(checkData.skill.maneuvers[parseInt(el.value)]);
+            }
+        });
 
         fd.modifier = fd.modifierElements.reduce((acc, el) => acc + el.value, 0);
 
         return fd;
     }
 
-    activateListeners(html) {
-        html.find('[data-action="inc-value"]').click((event) => {
-            const query = $(event.currentTarget).closestData("input-query");
-            let value = parseInt($(html).find(query).val()) || 0;
-            $(html)
-                .find(query)
-                .val(value + 1)
-                .change();
-        });
+    async _onRender(options) {
+        await super._onRender(options);
+        const html = $(this.element);
 
-        html.find('[data-action="dec-value"]').click((event) => {
-            const query = $(event.currentTarget).closestData("input-query");
-            let value = parseInt($(html).find(query).val()) || 0;
-            $(html)
-                .find(query)
-                .val(value - 1)
-                .change();
-        });
-
-        html.find('[data-action="inc-value-3"]').click((event) => {
-            const query = $(event.currentTarget).closestData("input-query");
-            let value = parseInt($(html).find(query).val()) || 0;
-            $(html)
-                .find(query)
-                .val(value + 3)
-                .change();
-        });
-
-        html.find('[data-action="dec-value-3"]').click((event) => {
-            const query = $(event.currentTarget).closestData("input-query");
-            let value = parseInt($(html).find(query).val()) || 0;
-            $(html)
-                .find(query)
-                .val(value - 3)
-                .change();
-        });
-
-        html.find('input[name="difficulty"]').on("wheel", (event) => {
-            let value = parseInt($(html).find('input[name="difficulty"]').val()) || 0;
-            if (event.originalEvent.deltaY < 0) {
-                $(html)
-                    .find('input[name="difficulty"]')
-                    .val(value + 1)
-                    .change();
+        this.element.querySelector('input[name="difficulty"]').addEventListener("wheel", (event) => {
+            if (event.deltaY < 0) {
+                CheckDialog.#increaseValue(event, event.target);
             } else {
-                $(html)
-                    .find('input[name="difficulty"]')
-                    .val(value - 1)
-                    .change();
+                CheckDialog.#decreaseValue(event, event.target);
             }
         });
+    }
 
-        html.find('[data-action="difficulty-vtd"]').click((event) => {
-            $(html).find('input[name="difficulty"]').val("VTD").change();
-        });
+    /**
+     * @param {Event} _event
+     * @param {HTMLElement} target
+     */
+    static #setToResistance(_event, target) {
+        const input = target.parentElement?.parentElement?.querySelector("input[name='difficulty']");
+        if (input) {
+            input.value = target.dataset.resistance;
+        }
+    }
 
-        html.find('[data-action="difficulty-kw"]').click((event) => {
-            $(html).find('input[name="difficulty"]').val("KW").change();
-        });
+    /**
+     * @param {Event} _event
+     * @param {HTMLElement} target
+     */
+    static #increaseBy3(_event, target) {
+        CheckDialog.#changeValue((value) => value + 3).for(target);
+    }
 
-        html.find('[data-action="difficulty-gw"]').click((event) => {
-            $(html).find('input[name="difficulty"]').val("GW").change();
-        });
+    /**
+     * @param {Event} _event
+     * @param {HTMLElement} target
+     */
+    static #decreaseBy3(_event, target) {
+        CheckDialog.#changeValue((value) => value - 3).for(target);
+    }
+    /**
+     * @param {Event} _event
+     * @param {HTMLElement} target
+     */
+    static #increaseValue(_event, target) {
+        CheckDialog.#changeValue((value) => value + 1).for(target);
+    }
 
-        super.activateListeners(html);
+    /**
+     * @param {Event} _event
+     * @param {HTMLElement} target
+     */
+    static #decreaseValue(_event, target) {
+        CheckDialog.#changeValue((value) => value - 1).for(target);
+    }
+
+    /**
+     * @param {(a:number)=>number} operation
+     * @return {{for(HTMLElement): void}}
+     */
+    static #changeValue(operation) {
+        return {
+            for(target) {
+                const matchingInput = target.parentElement?.querySelector("input");
+                if (!matchingInput) return;
+
+                const newValue = operation(parseInt(matchingInput.value));
+                if (isNaN(newValue)) return;
+                matchingInput.value = `${newValue}`;
+                matchingInput.dispatchEvent(new Event("input", { bubbles: true }));
+                matchingInput.dispatchEvent(new Event("change", { bubbles: true }));
+            },
+        };
     }
 }
