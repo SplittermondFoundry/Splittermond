@@ -2,7 +2,6 @@ import { identity } from "../../../foundryMocks.js"; //also declares core foundr
 import { afterEach, beforeEach } from "mocha";
 import { expect } from "chai";
 import { createHtml } from "../../../../handlebarHarness.ts";
-import { produceJQuery } from "../../../../jQueryHarness.js";
 import SplittermondSpellSheet from "module/item/sheets/spell-sheet.ts";
 import SplittermondSpellItem from "../../../../../module/item/spell.js";
 import { getSpellAvailabilityParser } from "module/item/availabilityParser.js";
@@ -10,6 +9,7 @@ import { promiseIdentity, simplePropertyResolver } from "../../../../util.ts";
 import { SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
 import { foundryApi } from "module/api/foundryApi.js";
 import sinon from "sinon";
+import { JSDOM } from "jsdom";
 
 describe("Spell Properties display", () => {
     const sandbox = sinon.createSandbox();
@@ -38,7 +38,7 @@ describe("Spell Properties display", () => {
         spellItem.type = "spell";
 
         const renderedInput = await renderRelevantInput(availableInDisplayConfig, spellItem);
-        expect(renderedInput.val()).to.equal(spellItem.system.availableIn);
+        expect(renderedInput?.value).to.equal(spellItem.system.availableIn);
     });
 
     it("displays a placeholder if no availableIn property is set", async () => {
@@ -54,8 +54,8 @@ describe("Spell Properties display", () => {
 
         const renderedInput = await renderRelevantInput(availableInDisplayConfig, spellItem);
 
-        expect(renderedInput.prop("placeholder")).to.equal(availableInDisplayConfig.placeholderText);
-        expect(renderedInput.val()).to.equal(spellItem.system.availableIn);
+        expect(renderedInput.attributes["placeholder"].value).to.equal(availableInDisplayConfig.placeholderText);
+        expect(renderedInput?.value).to.equal(spellItem.system.availableIn);
     });
 
     it("renders the availableIn label as placeholder if no placeholderText is set", async () => {
@@ -70,10 +70,15 @@ describe("Spell Properties display", () => {
 
         const renderedInput = await renderRelevantInput(availableInDisplayConfig, spellItem);
 
-        expect(renderedInput.prop("placeholder")).to.equal(availableInDisplayConfig.label);
-        expect(renderedInput.val()).to.equal(spellItem.system.availableIn);
+        expect(renderedInput.attributes["placeholder"].value).to.equal(availableInDisplayConfig.label);
+        expect(renderedInput.value).to.equal(spellItem.system.availableIn);
     });
 
+    /**
+     * @param {string} displayProperty
+     * @param {SplittermondSpellItem} spellItem
+     * @return {Promise<HTMLInputElement|null>}
+     */
     async function renderRelevantInput(displayProperty, spellItem) {
         const config = { itemSheetProperties: {}, displayOptions: { itemSheet: {} } };
         config.displayOptions.itemSheet["default"] = { width: 1, height: 1 };
@@ -92,7 +97,8 @@ describe("Spell Properties display", () => {
         );
         return objectUnderTest
             ._prepareContext()
-            .then((data) => produceJQuery(createHtml("./templates/sheets/item/properties.hbs", data)))
-            .then((domUnderTest) => domUnderTest(`.properties-editor input[name='${displayProperty.field}']`));
+            .then((data) => new JSDOM(createHtml("./templates/sheets/item/properties.hbs", data)))
+            .then((domUnderTest) => domUnderTest.window.document)
+            .then((doc) => doc.querySelector(`.properties-editor input[name='${displayProperty.field}']`));
     }
 });
