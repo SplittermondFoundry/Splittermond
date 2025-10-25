@@ -1,12 +1,14 @@
 import RequestCheckDialog from "../apps/dialog/request-check-dialog.js";
+import { FoundryDialog } from "module/api/Application.js";
+import { foundryApi } from "module/api/foundryApi.js";
 
 export function skillCheck(skill, options = {}) {
-    const speaker = ChatMessage.getSpeaker();
+    const speaker = foundryApi.getSpeaker();
     let actor;
     if (speaker.token) actor = game.actors.tokens[speaker.token];
     if (!actor) actor = game.actors.get(speaker.actor);
     if (!actor) {
-        ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
+        foundryApi.informUser("splittermond.pleaseSelectAToken");
         return;
     }
     actor.rollSkill(skill, options);
@@ -15,7 +17,7 @@ export function skillCheck(skill, options = {}) {
 export function attackCheck(actorId, attack) {
     const actor = game.actors.get(actorId);
     if (!actor) {
-        ui.notifications.info(game.i18n.localize("splittermond.pleaseSelectAToken"));
+        foundryApi.informUser("splittermond.pleaseSelectAToken");
         return;
     }
     actor.rollAttack(attack);
@@ -85,19 +87,22 @@ export async function importNpc() {
             stats = temp[3];
         }
     }
-    let d = new Dialog({
-        title: game.i18n.localize(`splittermond.importNpcData`),
+    let d = new FoundryDialog({
+        window: { title: foundryApi.localize(`splittermond.importNpcData`) },
         content: `<form><label>Name</label><input type="text" name="name" value="${name}"><label>Beschreibung</label><textarea style="height: 300px" name='description'>${description}</textarea><label>Data</label><textarea style="height: 300px;" name='data'>${stats}</textarea></form>`,
-        buttons: {
-            cancel: {
+        buttons: [
+            {
+                action: "cancel",
                 icon: '<i class="fas fa-times"></i>',
                 label: "Cancel",
             },
-            import: {
+            {
+                action: "import",
+                default: true,
                 icon: '<i class="fas fa-check"></i>',
                 label: "Import",
-                callback: (html) => {
-                    let importData = html.find('[name="data"]')[0].value;
+                callback: (event, button, dialog) => {
+                    let importData = dialog.querySelector('[name="data"]')?.value;
                     let parsedData =
                         /AUS BEW INT KON MYS STÄ VER WIL\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)/.exec(
                             importData
@@ -419,7 +424,7 @@ export async function importNpc() {
                     });
                 },
             },
-        },
+        ],
         default: "ok",
     });
     d.render(true);
