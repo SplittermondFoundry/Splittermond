@@ -1221,25 +1221,13 @@ export default class SplittermondActor extends Actor {
     }
 
     #askUserForLongRest() {
-        return new Promise((resolve) => {
-            let dialog = new FoundryDialog({
-                title: foundryApi.localize("splittermond.clearChanneledFocus"),
-                content: "<p>" + foundryApi.localize("splittermond.clearChanneledFocus") + "</p>",
-                buttons: [
-                    {
-                        action: "yes",
-                        default: true,
-                        label: foundryApi.localize("splittermond.yes"),
-                    },
-                    {
-                        action: "no",
-                        label: foundryApi.localize("splittermond.no"),
-                    },
-                ],
-                submit: (result) => resolve(result === "yes"),
-            });
-            return dialog.render(true);
-        });
+        const labels = {
+            titleKey: "splittermond.clearChanneledFocus",
+            contentKey: "splittermond.clearChanneledFocus",
+            yesKey: "splittermond.yes",
+            noKey: "splittermond.no",
+        };
+        return askUser(labels);
     }
 
     get healthRegenMultiplier() {
@@ -1284,7 +1272,7 @@ export default class SplittermondActor extends Actor {
 
     /**
      *
-     * @param {CostTypes} type
+     * @param {"health"|"focus"} type
      * @param {string} valueStr  a string of same form as given for Splittermond Spells
      * @param description
      */
@@ -1411,30 +1399,42 @@ export default class SplittermondActor extends Actor {
     }
 }
 
-/**
- * @returns {Promise<boolean>}
- */
 async function askUserAboutActorOverwrite() {
+    const labels = {
+        titleKey: "Import",
+        contentKey: "splittermond.updateOrOverwriteActor",
+        yesKey: "splittermond.update",
+        noKey: "splittermond.overwrite",
+    };
+    return askUser(labels);
+}
+
+/**
+ * @param {string} titleKey The title of the dialog
+ * @param {string} contentKey The content of the dialog
+ * @param {string} yesKey The label of the button that resolves to true
+ * @param {string} noKey The label of the button that resolves to false
+ * @return {Promise<boolean>}
+ */
+async function askUser({ titleKey, contentKey, yesKey, noKey }) {
     return new Promise((resolve) => {
-        let dialog = new Dialog({
-            title: "Import",
-            content: "<p>" + foundryApi.localize("splittermond.updateOrOverwriteActor") + "</p>",
-            buttons: {
-                overwrite: {
-                    label: foundryApi.localize("splittermond.overwrite"),
-                    callback: (html) => {
-                        resolve(false);
-                    },
+        let dialog = new FoundryDialog({
+            window: { title: foundryApi.localize(titleKey) },
+            content: "<p>" + foundryApi.localize(contentKey) + "</p>",
+            buttons: [
+                {
+                    action: "yes",
+                    default: true,
+                    label: foundryApi.localize(yesKey),
                 },
-                update: {
-                    label: foundryApi.localize("splittermond.update"),
-                    callback: (html) => {
-                        resolve(true);
-                    },
+                {
+                    action: "no",
+                    label: foundryApi.localize(noKey),
                 },
-            },
+            ],
+            submit: (result) => resolve(result === "yes"),
         });
-        dialog.render(true);
+        return dialog.render(true);
     });
 }
 
