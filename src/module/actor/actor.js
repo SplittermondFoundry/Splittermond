@@ -151,14 +151,6 @@ export default class SplittermondActor extends Actor {
             };
         }
 
-        if (!data.activeDefense) {
-            data.activeDefense = {
-                defense: [],
-                bodyresist: [],
-                mindresist: [],
-            };
-        }
-
         data.health.woundMalus = {
             nbrLevels: 5,
             level: 0,
