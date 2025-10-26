@@ -298,10 +298,10 @@ describe("CastDurationModel", () => {
 type Props = ConstructorParameters<typeof CastDurationModel>[0];
 
 function createModel(sandbox: SinonSandbox, props: Props) {
-    const mockModiferManager = new ModifierManager();
+    const mockModifierManager = new ModifierManager();
 
     const mockActor = sandbox.createStubInstance(SplittermondActor);
-    Object.defineProperty(mockActor, "modifier", { value: mockModiferManager, enumerable: true });
+    Object.defineProperty(mockActor, "modifier", { value: mockModifierManager, enumerable: true });
 
     const mockDocument = sandbox.createStubInstance(SplittermondItem);
     mockDocument.name = "Test Spell";
