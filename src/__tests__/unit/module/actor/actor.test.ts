@@ -191,17 +191,13 @@ describe("SplittermondActor", () => {
         });
         afterEach(() => {
             global.duplicate = undefined;
+            global.foundry.applications.api.DialogV2.prototype.render = async function () {};
         });
 
         function autoApproveLongRest() {
-            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?.yes) {
-                    options.buttons.yes.callback();
-                }
-                return {
-                    render: () => {},
-                };
-            });
+            global.foundry.applications.api.DialogV2.prototype.render = async function () {
+                await this.options.submit("yes", null);
+            };
         }
 
         it("should initialize health and focus data", () => {
@@ -240,6 +236,18 @@ describe("SplittermondActor", () => {
             expect(actor.system.health.consumed.value).to.equal(2);
             // Ensure update was called
             expect((actor.update as sinon.SinonSpy).calledOnce).to.be.true;
+        });
+
+        it("should clear channeled health and focus on long rest", async () => {
+            autoApproveLongRest();
+            actor.system.focus.updateSource({ channeled: { entries: [{ description: "Zauber", costs: 7 }] } });
+            actor.system.health.updateSource({ channeled: { entries: [{ description: "Seuche", costs: 20 }] } });
+            actor.prepareBaseData();
+
+            await actor.longRest();
+
+            expect(actor.system.health.channeled.entries).to.be.empty;
+            expect(actor.system.focus.channeled.entries).to.be.empty;
         });
 
         (
@@ -340,6 +348,17 @@ describe("SplittermondActor", () => {
 
             expect(actor.system.focus.consumed.value).to.equal(2);
         });
+
+        it("should not prompt for long rest when overridden", async () => {
+            actor.system.focus.updateSource({ channeled: { entries: [{ description: "Zauber", costs: 7 }] } });
+            actor.system.health.updateSource({ channeled: { entries: [{ description: "Seuche", costs: 20 }] } });
+            actor.prepareBaseData();
+
+            await actor.longRest(false, false);
+
+            expect(actor.system.health.channeled.entries).to.be.empty;
+            expect(actor.system.focus.channeled.entries).not.to.be.empty;
+        });
     });
 
     describe("Active Defense", () => {
@@ -436,6 +455,10 @@ describe("SplittermondActor", () => {
                 return createHtml(fixedPath, data);
             });
             actor.prepareBaseData();
+        });
+
+        afterEach(() => {
+            global.foundry.applications.api.DialogV2.prototype.render = function () {};
         });
 
         it("should take fumble lowering modifier into account", async () => {

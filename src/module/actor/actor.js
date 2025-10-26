@@ -21,6 +21,7 @@ import { InverseModifier } from "./InverseModifier";
 import { genesisSpellImport } from "./genesisImport/spellImport";
 import { addTicks } from "module/combat/addTicks";
 import { rollMagicFumble } from "module/actor/fumble/handleMagicFumble";
+import { FoundryDialog } from "module/api/Application.js";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -1189,33 +1190,12 @@ export default class SplittermondActor extends Actor {
         return await this.update({ system: { health: healthData, focus: focusData } }); //propagate update to the database
     }
 
-    async longRest() {
-        let p = new Promise((resolve) => {
-            let dialog = new Dialog({
-                title: foundryApi.localize("splittermond.clearChanneledFocus"),
-                content: "<p>" + foundryApi.localize("splittermond.clearChanneledFocus") + "</p>",
-                buttons: {
-                    yes: {
-                        label: foundryApi.localize("splittermond.yes"),
-                        callback: (html) => {
-                            resolve(true);
-                        },
-                    },
-                    no: {
-                        label: foundryApi.localize("splittermond.no"),
-                        callback: (html) => {
-                            resolve(false);
-                        },
-                    },
-                },
-            });
-            dialog.render(true);
-        });
-
+    async longRest(clearChanneled = true, askUser = true) {
+        const finalClearChanneled = askUser ? await this.#askUserForLongRest() : clearChanneled;
         let focusData = duplicate(this.system.focus);
         let healthData = duplicate(this.system.health);
 
-        if (await p) {
+        if (finalClearChanneled) {
             focusData.channeled.entries = [];
         }
 
@@ -1238,6 +1218,28 @@ export default class SplittermondActor extends Actor {
         );
 
         return await this.update({ system: { health: healthData, focus: focusData } }); //propagate update to the database
+    }
+
+    #askUserForLongRest() {
+        return new Promise((resolve) => {
+            let dialog = new FoundryDialog({
+                title: foundryApi.localize("splittermond.clearChanneledFocus"),
+                content: "<p>" + foundryApi.localize("splittermond.clearChanneledFocus") + "</p>",
+                buttons: [
+                    {
+                        action: "yes",
+                        default: true,
+                        label: foundryApi.localize("splittermond.yes"),
+                    },
+                    {
+                        action: "no",
+                        label: foundryApi.localize("splittermond.no"),
+                    },
+                ],
+                submit: (result) => resolve(result === "yes"),
+            });
+            return dialog.render(true);
+        });
     }
 
     get healthRegenMultiplier() {
@@ -1389,19 +1391,11 @@ export default class SplittermondActor extends Actor {
         let targetName = null;
         const actor = this;
 
-        /**
-         * @param {string} type
-         * @returns {SplittermondItem}
-         */
         function withType(type) {
             targetType = type.toLowerCase();
             return { withName: withName };
         }
 
-        /**
-         * @param {string} name
-         * @returns {SplittermondItem}
-         */
         function withName(name) {
             targetName = name.toLowerCase();
             return execute();

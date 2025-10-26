@@ -289,13 +289,6 @@ export function actorTest(context: QuenchBatchContext) {
         );
 
         it("longRest persits replenishment of consumed stats", async () => {
-            // Simulate dialog auto-confirmation
-            Dialog = class {
-                constructor(options: any) {
-                    if (options?.buttons?.yes) options.buttons.yes.callback();
-                }
-                render() {}
-            };
             const systemCopy = new CharacterDataModel((actor.system as CharacterDataModel).toObject());
             systemCopy.focus.updateSource({ exhausted: { value: 10 } });
             systemCopy.health.updateSource({ exhausted: { value: 8 } });
@@ -310,7 +303,7 @@ export function actorTest(context: QuenchBatchContext) {
             });
             await actor.update({ system: systemCopy });
 
-            await actor.longRest();
+            await actor.longRest(true, false);
 
             // Refetch actor from database to ensure update was persisted
             const updated = foundryApi.getActor(actor.id);

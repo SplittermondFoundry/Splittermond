@@ -7,6 +7,7 @@ import { NpcDataModel } from "./dataModel/NpcDataModel";
 import { Susceptibilities } from "./Susceptibilities";
 import ModifierManager from "./modifier-manager";
 import type { VirtualToken } from "../combat/VirtualToken";
+import type { ItemType } from "module/config/itemTypes";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 declare class SplittermondActor extends Actor {
@@ -50,7 +51,7 @@ declare class SplittermondActor extends Actor {
 }
 
 interface FindOptions {
-    withType(type: string): Omit<FindOptions, "withType">;
+    withType(type: ItemType): Omit<FindOptions, "withType">;
     withName(name: string): SplittermondItem | undefined;
 }
 
