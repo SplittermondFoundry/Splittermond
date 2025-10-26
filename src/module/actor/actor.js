@@ -22,6 +22,7 @@ import { genesisSpellImport } from "./genesisImport/spellImport";
 import { addTicks } from "module/combat/addTicks";
 import { rollMagicFumble } from "module/actor/fumble/handleMagicFumble";
 import { FoundryDialog } from "module/api/Application.js";
+import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -1108,6 +1109,7 @@ export default class SplittermondActor extends Actor {
         return item.roll();
     }
 
+    //Could be merged with magic fumble handler
     async rollAttackFumble() {
         let roll = await new Roll("2d10").evaluate();
 
@@ -1319,46 +1321,9 @@ export default class SplittermondActor extends Actor {
         if (type.toLowerCase() === "gw") {
             type = "mindresist";
         }
-
-        if (type === "defense") {
-            let content = await renderTemplate("systems/splittermond/templates/apps/dialog/active-defense.hbs", {
-                activeDefense: this.activeDefense.defense,
-            });
-            let p = new Promise((resolve, reject) => {
-                let dialog = new Dialog(
-                    {
-                        title: game.i18n.localize("splittermond.activeDefense"),
-                        content: content,
-                        buttons: {
-                            cancel: {
-                                label: game.i18n.localize("splittermond.cancel"),
-                                callback: (html) => {
-                                    resolve(false);
-                                },
-                            },
-                        },
-                        render: (html) => {
-                            html.find(".rollable").click((event) => {
-                                const type = $(event.currentTarget).closestData("roll-type");
-                                if (type === "activeDefense") {
-                                    const itemId = $(event.currentTarget).closestData("defense-id");
-                                    const defenseType = $(event.currentTarget).closestData("defense-type");
-                                    this.rollActiveDefense(
-                                        defenseType,
-                                        this.activeDefense.defense.find((el) => el.id === itemId)
-                                    );
-                                    dialog.close();
-                                }
-                            });
-                        },
-                    },
-                    { classes: ["splittermond", "dialog"], width: 500 }
-                );
-                dialog.render(true);
-            });
-        } else {
-            this.rollActiveDefense(type, this.activeDefense[type][0]);
-        }
+        return type === "defense"
+            ? showActiveDefenseDialog(this)
+            : this.rollActiveDefense(type, this.activeDefense[type][0]);
     }
 
     toCompendium(pack) {
