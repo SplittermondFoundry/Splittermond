@@ -66,6 +66,9 @@ const foundryApplicationsApi = {
         return arg;
     },
     DialogV2: class {
+        constructor(options) {
+            this.options = options;
+        }
         render() {}
         addEventListener() {}
         close() {}

@@ -27,7 +27,7 @@ declare namespace foundry {
         modal: boolean;
         buttons: Partial<DialogV2Button>[];
         content: string;
-        submit: (result: unknown) => Promise<void>;
+        submit: (result: unknown, dialog: DialogV2) => Promise<void>;
     }
 
     interface DialogV2Button {
@@ -176,6 +176,8 @@ declare namespace foundry {
                 ): Promise<unknown>;
 
                 render(options?: DialogV2RenderOptions): Promise<this>;
+
+                get form(): null | HTMLFormElement;
             }
 
             /**

@@ -33,7 +33,7 @@ declare class SplittermondActor extends Actor {
 
     spendSplinterpoint(): { pointSpent: boolean; getBonus(skillName: SplittermondSkill | "health"): number };
 
-    async rollMagicFumble(eg: number, costs?: string, skill?: SplittermondSkill): Promise<void>;
+    async rollMagicFumble(eg: number, costs?: string, skill?: SplittermondSkill, askUser = true): Promise<void>;
 
     async addTicks(value: number, message?: string, askPlayer?: boolean): Promise<void>;
 
@@ -41,12 +41,17 @@ declare class SplittermondActor extends Actor {
 
     importFromJSON(json: string, overwriteData?): Promise<unknown>;
 
-    findItem();
+    findItem(): FindOptions;
 
     getVirtualStatusTokens(): VirtualToken[];
 
     attacks: Attack[];
     type: "character" | "npc";
+}
+
+interface FindOptions {
+    withType(type: string): Omit<FindOptions, "withType">;
+    withName(name: string): SplittermondItem | undefined;
 }
 
 export default SplittermondActor;
