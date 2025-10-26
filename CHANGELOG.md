@@ -1,3 +1,9 @@
+## 13.7.1
+
+### Other
+
+- Der Dialog zum Löschen von Items wurde auf V2 migriert
+
 ## 13.7.0
 
 ### New Features:
