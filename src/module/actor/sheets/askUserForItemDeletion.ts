@@ -11,16 +11,16 @@ export async function userConfirmsItemDeletion(itemName: string): Promise<boolea
 
 function createDialog(deletionQuestion: string, resolve: (result: boolean) => void) {
     return new FoundryDialog({
-        window: { title: foundryApi.localize("splittermond.deleteItem") },
+        window: { title: "splittermond.deleteItem" },
         content: `<p>${deletionQuestion}</p>`,
         buttons: [
             {
                 action: "delete",
-                label: foundryApi.localize("splittermond.delete"),
+                label: "splittermond.delete",
             },
             {
                 action: "cancel",
-                label: foundryApi.localize("splittermond.cancel"),
+                label: "splittermond.cancel",
                 default: true,
             },
         ],

@@ -12,7 +12,7 @@ export async function askUserForTickAddition(ticksToAdd: number, message: string
     const enteredNumber = await FoundryDialog.prompt({
         classes: ["splittermond", "tick-addition-dialog"],
         window: {
-            title: foundryApi.localize("splittermond.applications.addTickDialogue.title"),
+            title: "splittermond.applications.addTickDialogue.title", //foundry translates this
         },
         content: `<p>${message}</p>
                   <div>
@@ -20,7 +20,7 @@ export async function askUserForTickAddition(ticksToAdd: number, message: string
                     <label for="timeInput">${unit}</label>
                   </div>`,
         ok: {
-            label: foundryApi.localize("splittermond.applications.addTickDialogue.okLabel"),
+            label: "splittermond.applications.addTickDialogue.okLabel", //foundry translates this
             callback: acceptTickIncrease,
         },
         rejectClose: true,

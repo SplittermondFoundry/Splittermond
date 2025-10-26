@@ -18,7 +18,7 @@ export class FumbleDialog extends FoundryDialog {
         fumbleData: FumbleDialogOptions
     ) {
         super({
-            window: { title: foundryApi.localize("splittermond.magicFumble") },
+            window: { title: "splittermond.magicFumble" },
             content: populateHtml(`${fumbleData.eg}`, fumbleData.costs, `${fumbleData.lowerFumbleResult}`),
             position: {
                 width: 400,

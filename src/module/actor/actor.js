@@ -1411,17 +1411,17 @@ async function askUserAboutActorOverwrite() {
 async function askUser({ titleKey, contentKey, yesKey, noKey }) {
     return new Promise((resolve) => {
         let dialog = new FoundryDialog({
-            window: { title: foundryApi.localize(titleKey) },
+            window: { title: titleKey }, // foundry translates this
             content: "<p>" + foundryApi.localize(contentKey) + "</p>",
             buttons: [
                 {
                     action: "yes",
                     default: true,
-                    label: foundryApi.localize(yesKey),
+                    label: yesKey, // foundry translates this
                 },
                 {
                     action: "no",
-                    label: foundryApi.localize(noKey),
+                    label: noKey, //foundry translates this
                 },
             ],
             submit: (result) => resolve(result === "yes"),
