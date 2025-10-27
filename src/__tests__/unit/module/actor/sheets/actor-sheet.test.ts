@@ -2,10 +2,10 @@ import "../../../foundryMocks";
 import { expect } from "chai";
 import { afterEach, beforeEach, describe, it } from "mocha";
 import sinon from "sinon";
-import SplittermondActorSheet from "../../../../../module/actor/sheets/actor-sheet.js";
-import { splittermond } from "../../../../../module/config";
-import { foundryApi } from "../../../../../module/api/foundryApi";
-import { FoundryDialog } from "../../../../../module/api/Application";
+import SplittermondActorSheet from "module/actor/sheets/actor-sheet.js";
+import { splittermond } from "module/config";
+import { foundryApi } from "module/api/foundryApi";
+import { FoundryDialog } from "module/api/Application";
 
 declare const foundry: any;
 declare const global: any;
@@ -29,6 +29,7 @@ describe("SplittermondActorSheet", () => {
     });
     afterEach(() => {
         sandbox.restore();
+
         delete foundry.appv1.sheets.ActorSheet.prototype._onDropItemCreate;
     });
 
@@ -78,14 +79,11 @@ describe("SplittermondActorSheet", () => {
         });
 
         it("should prompt for skill selection if availableIn has multiple skills", async () => {
-            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?.deathmagic) {
-                    options.buttons.deathmagic.callback();
-                }
-                return {
-                    render: () => {},
-                };
-            });
+            foundry.applications.api.DialogV2.prototype.render = function () {
+                return this.options.buttons
+                    .find((b: { action: string; callback: Function }) => b.action === "deathmagic")
+                    .callback();
+            };
 
             const itemData: any = {
                 type: "spell",
@@ -100,14 +98,13 @@ describe("SplittermondActorSheet", () => {
         });
 
         it("should not prompt for skill selection if valid skill exists at empty available in", async () => {
-            const dialogStub = sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?.deathmagic) {
-                    options.buttons.deathmagic.callback();
-                }
-                return {
-                    render: () => {},
-                };
-            });
+            let invocationCount = 0;
+            foundry.applications.api.DialogV2.prototype.render = function () {
+                invocationCount += 1;
+                return this.options.buttons
+                    .find((b: { action: string; callback: Function }) => b.action === "deathmagic")
+                    .callback();
+            };
 
             const itemData: any = {
                 type: "spell",
@@ -116,7 +113,7 @@ describe("SplittermondActorSheet", () => {
 
             await sheet._onDropItemCreate(itemData);
 
-            expect(dialogStub.called).to.be.false;
+            expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("deathmagic");
             expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(1);
@@ -148,15 +145,11 @@ describe("SplittermondActorSheet", () => {
         });
 
         it("should return early if dialog is cancelled", async () => {
-            // Simulate dialog cancel
-            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?._cancel) {
-                    options.buttons._cancel.callback();
-                }
-                return {
-                    render: () => {},
-                };
-            });
+            foundry.applications.api.DialogV2.prototype.render = function () {
+                return this.options.buttons
+                    .find((b: { action: string; callback: Function }) => b.action === "_cancel")
+                    .callback();
+            };
 
             const itemData: any = {
                 type: "spell",
@@ -203,14 +196,11 @@ describe("SplittermondActorSheet", () => {
         });
 
         it("should prompt for skill selection if availableIn has multiple skills", async () => {
-            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?.acrobatics) {
-                    options.buttons.acrobatics.callback();
-                }
-                return {
-                    render: () => {},
-                };
-            });
+            foundry.applications.api.DialogV2.prototype.render = function () {
+                return this.options.buttons
+                    .find((b: { action: string; callback: Function }) => b.action === "acrobatics")
+                    .callback();
+            };
 
             const itemData: any = {
                 type: "mastery",
@@ -225,15 +215,11 @@ describe("SplittermondActorSheet", () => {
         });
 
         it("should return early if dialog is cancelled", async () => {
-            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?._cancel) {
-                    options.buttons._cancel.callback();
-                }
-                return {
-                    render: () => {},
-                };
-            });
-
+            foundry.applications.api.DialogV2.prototype.render = function () {
+                return this.options.buttons
+                    .find((b: { action: string; callback: Function }) => b.action === "_cancel")
+                    .callback();
+            };
             const itemData: any = {
                 type: "mastery",
                 system: { availableIn: "athletics 2, acrobatics 1" },
@@ -245,14 +231,13 @@ describe("SplittermondActorSheet", () => {
             expect(itemData.system.skill).to.be.undefined;
         });
         it("should not prompt for skill selection if valid skill exists at empty available in", async () => {
-            const dialogStub = sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?.melee) {
-                    options.buttons.melee.callback();
-                }
-                return {
-                    render: () => {},
-                };
-            });
+            let invocationCount = 0;
+            foundry.applications.api.DialogV2.prototype.render = function () {
+                invocationCount += 1;
+                return this.options.buttons
+                    .find((b: { action: string; callback: Function }) => b.action === "melee")
+                    .callback();
+            };
 
             const itemData: any = {
                 type: "mastery",
@@ -261,7 +246,7 @@ describe("SplittermondActorSheet", () => {
 
             await sheet._onDropItemCreate(itemData);
 
-            expect(dialogStub.called).to.be.false;
+            expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("melee");
             expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(2);

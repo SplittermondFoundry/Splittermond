@@ -3,21 +3,24 @@ import { expect } from "chai";
 import { afterEach, beforeEach, describe, it } from "mocha";
 import SplittermondActor from "../../../../module/actor/actor.js";
 import SplittermondItem from "../../../../module/item/item.js";
-import { CharacterDataModel } from "../../../../module/actor/dataModel/CharacterDataModel";
+import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import sinon from "sinon";
-import { HealthDataModel } from "../../../../module/actor/dataModel/HealthDataModel";
-import { FocusDataModel } from "../../../../module/actor/dataModel/FocusSchemaModel";
-import { CharacterAttribute } from "../../../../module/actor/dataModel/CharacterAttribute";
-import { foundryApi } from "../../../../module/api/foundryApi";
-import { calculateHeroLevels } from "../../../../module/actor/actor";
+import { HealthDataModel } from "module/actor/dataModel/HealthDataModel";
+import { FocusDataModel } from "module/actor/dataModel/FocusSchemaModel";
+import { CharacterAttribute } from "module/actor/dataModel/CharacterAttribute";
+import { foundryApi } from "module/api/foundryApi";
+import { calculateHeroLevels } from "module/actor/actor";
 import { asMock } from "../../settingsMock";
-import { settings } from "../../../../module/settings";
+import { settings } from "module/settings";
 import { JSDOM } from "jsdom";
-import { StrengthDataModel } from "../../../../module/item/dataModel/StrengthDataModel";
+import { StrengthDataModel } from "module/item/dataModel/StrengthDataModel";
 import Modifier from "../../../../module/actor/modifier";
-import { of } from "../../../../module/modifiers/expressions/scalar";
+import { of } from "module/modifiers/expressions/scalar";
 import { actualAddModifierFunction } from "module/actor/addModifierAdapter";
 import { initializeModifiers } from "module/modifiers";
+import { createTestRoll, stubFoundryRoll } from "../../RollMock";
+import type { User } from "module/api/foundryTypes";
+import { createHtml } from "../../../handlebarHarness";
 
 declare const global: any;
 
@@ -188,17 +191,13 @@ describe("SplittermondActor", () => {
         });
         afterEach(() => {
             global.duplicate = undefined;
+            global.foundry.applications.api.DialogV2.prototype.render = async function () {};
         });
 
         function autoApproveLongRest() {
-            sandbox.stub(global, "Dialog").callsFake(function (options: any) {
-                if (options?.buttons?.yes) {
-                    options.buttons.yes.callback();
-                }
-                return {
-                    render: () => {},
-                };
-            });
+            global.foundry.applications.api.DialogV2.prototype.render = async function () {
+                await this.options.submit("yes", null);
+            };
         }
 
         it("should initialize health and focus data", () => {
@@ -237,6 +236,18 @@ describe("SplittermondActor", () => {
             expect(actor.system.health.consumed.value).to.equal(2);
             // Ensure update was called
             expect((actor.update as sinon.SinonSpy).calledOnce).to.be.true;
+        });
+
+        it("should clear channeled health and focus on long rest", async () => {
+            autoApproveLongRest();
+            actor.system.focus.updateSource({ channeled: { entries: [{ description: "Zauber", costs: 7 }] } });
+            actor.system.health.updateSource({ channeled: { entries: [{ description: "Seuche", costs: 20 }] } });
+            actor.prepareBaseData();
+
+            await actor.longRest();
+
+            expect(actor.system.health.channeled.entries).to.be.empty;
+            expect(actor.system.focus.channeled.entries).to.be.empty;
         });
 
         (
@@ -337,6 +348,17 @@ describe("SplittermondActor", () => {
 
             expect(actor.system.focus.consumed.value).to.equal(2);
         });
+
+        it("should not prompt for long rest when overridden", async () => {
+            actor.system.focus.updateSource({ channeled: { entries: [{ description: "Zauber", costs: 7 }] } });
+            actor.system.health.updateSource({ channeled: { entries: [{ description: "Seuche", costs: 20 }] } });
+            actor.prepareBaseData();
+
+            await actor.longRest(false, false);
+
+            expect(actor.system.health.channeled.entries).to.be.empty;
+            expect(actor.system.focus.channeled.entries).not.to.be.empty;
+        });
     });
 
     describe("Active Defense", () => {
@@ -421,30 +443,76 @@ describe("SplittermondActor", () => {
     describe("Fumbles", () => {
         enableModifiers();
         beforeEach(() => {
+            const speaker = { actor: actor.id, token: "dfad", scene: "dfad", alias: actor.name };
             sandbox.stub(foundryApi, "localize").callsFake((key) => key);
             sandbox.stub(foundryApi, "format").callsFake((key) => key);
             sandbox.stub(foundryApi, "reportError");
+            sandbox.stub(foundryApi, "chatMessageTypes").get(() => ({ OTHER: 1 }));
+            sandbox.stub(foundryApi, "currentUser").get(() => ({ id: "user1" }) as User);
+            sandbox.stub(foundryApi, "getSpeaker").returns(speaker);
+            sandbox.stub(foundryApi, "renderer").get(() => async (template: string, data: object) => {
+                const fixedPath = template.replace("systems/splittermond/", "");
+                return createHtml(fixedPath, data);
+            });
             actor.prepareBaseData();
         });
+
+        afterEach(() => {
+            global.foundry.applications.api.DialogV2.prototype.render = function () {};
+        });
+
         it("should take fumble lowering modifier into account", async () => {
+            const testRoll = createTestRoll("2d10", [10, 10]); //Will set the fumble result to 20!
+            stubFoundryRoll(testRoll, sandbox);
+            const chatStub = sandbox.stub(foundryApi, "createChatMessage");
+
             const item = sandbox.createStubInstance(SplittermondItem);
             item.system = sandbox.createStubInstance(StrengthDataModel);
             actor.addModifier(item, "lowerFumbleResult +1", "innate");
-            let input = { content: "" };
-            global.Dialog = class {
-                constructor(inp: { content: string }) {
-                    input = inp;
-                }
 
-                render() {}
+            await actor.rollMagicFumble(3, "4V2", "firemagic", false);
+
+            expect(chatStub.calledOnce).to.be.true;
+            expect(chatStub.firstCall.firstArg.content).not.to.be.null;
+            const chatContent = new JSDOM(chatStub.firstCall.firstArg.content).window.document.documentElement;
+            const activeFumble = chatContent.querySelector(".fumble-table-result-item-active");
+            //20 sets the fumble result to the second entry, lowered by 1 to the first entry
+            expect(activeFumble?.textContent).to.contain("splittermond.fumbleTable.magic.sorcerer.result1_2");
+        });
+
+        it("should use priest table for priests", async () => {
+            const testRoll = createTestRoll("2d10", [10, 10]); //Will set the fumble result to 20!
+            stubFoundryRoll(testRoll, sandbox);
+            const chatStub = sandbox.stub(foundryApi, "createChatMessage");
+
+            const priestStrength = sandbox.createStubInstance(SplittermondItem);
+            sandbox.stub(actor, "findItem").returns({
+                withType: () => ({ withName: () => priestStrength }),
+                withName: () => priestStrength,
+            });
+
+            await actor.rollMagicFumble(3, "4V2", "firemagic", false);
+
+            expect(chatStub.calledOnce).to.be.true;
+            expect(chatStub.firstCall.firstArg.content).not.to.be.null;
+            const chatContent = new JSDOM(chatStub.firstCall.firstArg.content).window.document.documentElement;
+            const activeFumble = chatContent.querySelector(".fumble-table-result-item-active");
+            expect(activeFumble?.textContent).to.contain("splittermond.fumbleTable.magic.priest.result3_20");
+        });
+
+        it("should allow user to override settings", async () => {
+            const rollStub = stubFoundryRoll(createTestRoll("2d10", [10, 10]), sandbox);
+            sandbox.stub(foundryApi, "createChatMessage");
+
+            global.foundry.applications.api.DialogV2.prototype.render = function () {
+                this.element = new JSDOM(this.options.content).window.document.documentElement;
+                this.element.querySelector("input[name='eg']")!.value = "4";
+                if (this.options.buttons[2].callback) this.options.buttons[2].callback();
+                return this.options.submit("sorcerer", this);
             };
+            await actor.rollMagicFumble(3, "4V2", "firemagic", true);
 
-            await actor.rollMagicFumble(3, "4V2", "firemagic");
-            const dom = new JSDOM(input.content).window.document.documentElement;
-            const lowerFumbleInput = dom.querySelector("input[name=lowerFumbleResult]") as HTMLInputElement | null;
-
-            expect(lowerFumbleInput).to.not.be.null;
-            expect(lowerFumbleInput?.value).to.equal("1");
+            expect(rollStub.firstCall.lastArg).to.deep.contain({ eg: "4" });
         });
     });
 });

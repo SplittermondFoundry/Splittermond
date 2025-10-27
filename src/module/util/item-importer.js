@@ -18,14 +18,14 @@ export default class ItemImporter {
         const folderLabel = foundryApi.localize("splittermond.itemImport.folder");
         const noFolderLabel = foundryApi.localize("splittermond.itemImport.noFolder");
         return await FoundryDialog.prompt({
-            window: { title: foundryApi.localize("splittermond.itemImport.selectAFolder") },
+            window: { title: "splittermond.itemImport.selectAFolder" },
             content: `<label>${folderLabel}</label> 
                     <select name="folder">
                         <option value="">${noFolderLabel}</option>
                         ${folderList}
                     </select>`,
             ok: {
-                label: foundryApi.localize("splittermond.ok"),
+                label: "splittermond.ok",
                 callback: (__, button) => {
                     const selectedIndex = button.form.elements.folder.selectedIndex;
                     return button.form.elements.folder[selectedIndex].value;

@@ -66,6 +66,9 @@ const foundryApplicationsApi = {
         return arg;
     },
     DialogV2: class {
+        constructor(options) {
+            this.options = options;
+        }
         render() {}
         addEventListener() {}
         close() {}
@@ -207,10 +210,6 @@ global.foundry = {
         api: foundryApplicationsApi,
         sheets: foundryApplicationSheets,
     },
-};
-
-global.Dialog = class {
-    constructor(dialogData, options) {}
 };
 
 global.game = {};

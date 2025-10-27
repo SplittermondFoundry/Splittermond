@@ -20,6 +20,9 @@ import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
 import { InverseModifier } from "./InverseModifier";
 import { genesisSpellImport } from "./genesisImport/spellImport";
 import { addTicks } from "module/combat/addTicks";
+import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
+import { FoundryDialog } from "module/api/Application.js";
+import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -146,14 +149,6 @@ export default class SplittermondActor extends Actor {
                 channeled: {
                     entries: [],
                 },
-            };
-        }
-
-        if (!data.activeDefense) {
-            data.activeDefense = {
-                defense: [],
-                bodyresist: [],
-                mindresist: [],
             };
         }
 
@@ -1115,229 +1110,18 @@ export default class SplittermondActor extends Actor {
     }
 
     async rollAttackFumble() {
-        let roll = await new Roll("2d10").evaluate();
-
-        let result = CONFIG.splittermond.fumbleTable.fight.find((el) => el.min <= roll.total && el.max >= roll.total);
-
-        let data = {};
-        data.roll = roll;
-        data.title = "Kampfpatzer";
-        data.img = "";
-        //data.rollType = "2d10";
-
-        data.degreeOfSuccessDescription = `<div class="fumble-table-result">`;
-        CONFIG.splittermond.fumbleTable.fight.forEach((el) => {
-            if (el === result) {
-                data.degreeOfSuccessDescription += `<div class="fumble-table-result-item fumble-table-result-item-active"><div class="fumble-table-result-item-range">${el.min}&ndash;${el.max}</div>${game.i18n.localize(el.text)}</div>`;
-            } else {
-                data.degreeOfSuccessDescription += `<div class="fumble-table-result-item"><div class="fumble-table-result-item-range">${el.min}&ndash;${el.max}</div>${game.i18n.localize(el.text)}</div>`;
-            }
-        });
-        data.degreeOfSuccessDescription += `</div>`;
-
-        let templateContext = {
-            ...data,
-            tooltip: await data.roll.getTooltip(),
-        };
-
-        let chatData = {
-            user: game.user.id,
-            speaker: ChatMessage.getSpeaker({ actor: this }),
-            rolls: [roll],
-            content: await renderTemplate("systems/splittermond/templates/chat/skill-check.hbs", templateContext),
-            sound: CONFIG.sounds.dice,
-            type: CONST.CHAT_MESSAGE_TYPES.OTHER,
-        };
-
-        ChatMessage.create(chatData);
+        return rollAttackFumble(this);
     }
 
     /**
      * @param {number} eg
      * @param {string} costs A cost string as used for Splittermond spells
      * @param {SplittermondSkill} skill
-     * @return {Promise<void>}
+     * @param {boolean} askUser whether to ask the user for confirmation before applying the fumble effects
+     * @return {Promise<FoundryChatMessage>}
      */
-    async rollMagicFumble(eg = 0, costs = 0, skill = "") {
-        let defaultTable = "sorcerer";
-        eg = Math.abs(eg);
-        const lowerFumbleResult = this.modifier
-            .getForId("lowerfumbleresult")
-            .notSelectable()
-            .withAttributeValuesOrAbsent("skill", skill)
-            .getModifiers().value;
-        if (this.items.find((i) => i.type === "strength" && i.name.toLowerCase() === "priester")) {
-            defaultTable = "priest";
-        }
-
-        let d = new Dialog(
-            {
-                title: "Zauberpatzer",
-                content: `<form>
-            <div class="properties-editor">
-            <label>${foundryApi.localize("splittermond.negativeDegreeOfSuccess")}</label><input name='eg' type='text' value='${eg}' data-dtype='Number'>
-            <label>${foundryApi.localize("splittermond.focusCosts")}</label><input name='costs' type='text' value='${costs}' data-dtype='Number'>
-            <label title="${foundryApi.localize("splittermond.lowerFumbleResultHelp")}">${foundryApi.localize("splittermond.lowerFumbleResult")}</label><input title="${foundryApi.localize("splittermond.lowerFumbleResultHelp")}"name='lowerFumbleResult' type='text' value='${lowerFumbleResult}' data-dtype='Number'>
-            </div>
-            </form>`,
-                buttons: {
-                    cancel: {
-                        icon: '<i class="fas fa-times"></i>',
-                        label: foundryApi.localize("splittermond.cancel"),
-                    },
-                    priest: {
-                        icon: '<i class="fas fa-check"></i>',
-                        label: foundryApi.localize("splittermond.priest"),
-                        callback: async (html) => {
-                            const rollTable = CONFIG.splittermond.fumbleTable.magic.priest;
-                            let eg = parseInt(html.find("[name=eg]")[0].value || 0);
-                            let costs = html.find("[name=costs]")[0].value;
-                            let lowerFumbleResult = Math.abs(
-                                parseInt(html.find("[name=lowerFumbleResult]")[0].value) || 0
-                            );
-                            if (parseInt(costs)) {
-                                costs = parseInt(costs);
-                            } else {
-                                let costDataRaw = /([k]{0,1})([0-9]+)v{0,1}([0-9]*)/.exec(costs.toLowerCase());
-                                costs = parseInt(costDataRaw[2]);
-                            }
-
-                            let roll = await new Roll(
-                                `2d10+@eg[${foundryApi.localize("splittermond.degreeOfSuccessAbbrev")}]*@costs[${game.i18n.localize("splittermond.focusCosts")}]`,
-                                {
-                                    eg: eg,
-                                    costs: costs,
-                                }
-                            ).evaluate();
-
-                            let result = rollTable.find((el) => el.min <= roll.total && el.max >= roll.total);
-                            let index = rollTable.indexOf(result);
-
-                            if (lowerFumbleResult) {
-                                index = Math.max(index - lowerFumbleResult, 0);
-                                result = rollTable[index];
-                            }
-
-                            let data = {};
-                            data.roll = roll;
-                            data.title = foundryApi.localize("splittermond.magicFumble");
-                            data.rollType = roll.formula;
-                            data.img = "";
-                            data.degreeOfSuccessDescription = `<div class="fumble-table-result">`;
-                            rollTable.forEach((el) => {
-                                if (el === result) {
-                                    data.degreeOfSuccessDescription += `<div class="fumble-table-result-item fumble-table-result-item-active"><div class="fumble-table-result-item-range">${el.min}&ndash;${el.max}</div>${game.i18n.localize(el.text)}</div>`;
-                                } else {
-                                    data.degreeOfSuccessDescription += `<div class="fumble-table-result-item"><div class="fumble-table-result-item-range">${el.min}&ndash;${el.max}</div>${game.i18n.localize(el.text)}</div>`;
-                                }
-                            });
-                            data.degreeOfSuccessDescription += `</div>`;
-                            if (lowerFumbleResult) {
-                                data.degreeOfSuccessDescription =
-                                    `${lowerFumbleResult} ${foundryApi.localize("splittermond.lowerFumbleResultChat")}` +
-                                    data.degreeOfSuccessDescription;
-                            }
-                            //data.degreeOfSuccessDescription = `<div class="fumble-table-result fumble-table-result-active">"${game.i18n.localize(result.text)}</div>`;
-
-                            let templateContext = {
-                                ...data,
-                                tooltip: await data.roll.getTooltip(),
-                            };
-
-                            let chatData = {
-                                user: game.user.id,
-                                speaker: ChatMessage.getSpeaker({ actor: this }),
-                                rolls: [roll],
-                                content: await renderTemplate(
-                                    "systems/splittermond/templates/chat/skill-check.hbs",
-                                    templateContext
-                                ),
-                                sound: CONFIG.sounds.dice,
-                                type: CONST.CHAT_MESSAGE_TYPES.OTHER,
-                            };
-
-                            foundryApi.createChatMessage(chatData);
-                        },
-                    },
-                    sorcerer: {
-                        icon: '<i class="fas fa-check"></i>',
-                        label: foundryApi.localize("splittermond.sorcerer"),
-                        callback: async (html) => {
-                            const rollTable = CONFIG.splittermond.fumbleTable.magic.sorcerer;
-                            let eg = parseInt(html.find("[name=eg]")[0].value || 0);
-                            let costs = html.find("[name=costs]")[0].value;
-                            let lowerFumbleResult = Math.abs(
-                                parseInt(html.find("[name=lowerFumbleResult]")[0].value) || 0
-                            );
-                            if (parseInt(costs)) {
-                                costs = parseInt(costs);
-                            } else {
-                                let costDataRaw = /([k]{0,1})([0-9]+)v{0,1}([0-9]*)/.exec(costs.toLowerCase());
-                                costs = parseInt(costDataRaw[2]);
-                            }
-
-                            let roll = await new Roll(
-                                `2d10+@eg[${game.i18n.localize("splittermond.degreeOfSuccessAbbrev")}]*@costs[${game.i18n.localize("splittermond.focusCosts")}]`,
-                                {
-                                    eg: eg,
-                                    costs: costs,
-                                }
-                            ).evaluate();
-
-                            let result = rollTable.find((el) => el.min <= roll.total && el.max >= roll.total);
-                            let index = rollTable.indexOf(result);
-
-                            if (lowerFumbleResult) {
-                                index = Math.max(index - lowerFumbleResult, 0);
-                                result = rollTable[index];
-                            }
-
-                            let data = {};
-                            data.roll = roll;
-                            data.title = game.i18n.localize("splittermond.magicFumble");
-                            data.rollType = roll.formula;
-                            data.img = "";
-                            data.degreeOfSuccessDescription = `<div class="fumble-table-result">`;
-                            rollTable.forEach((el) => {
-                                if (el === result) {
-                                    data.degreeOfSuccessDescription += `<div class="fumble-table-result-item fumble-table-result-item-active"><div class="fumble-table-result-item-range">${el.min}&ndash;${el.max}</div>${game.i18n.localize(el.text)}</div>`;
-                                } else {
-                                    data.degreeOfSuccessDescription += `<div class="fumble-table-result-item"><div class="fumble-table-result-item-range">${el.min}&ndash;${el.max}</div>${game.i18n.localize(el.text)}</div>`;
-                                }
-                            });
-                            data.degreeOfSuccessDescription += `</div>`;
-                            if (lowerFumbleResult) {
-                                data.degreeOfSuccessDescription =
-                                    `${lowerFumbleResult} ${game.i18n.localize("splittermond.lowerFumbleResultChat")}` +
-                                    data.degreeOfSuccessDescription;
-                            }
-
-                            let templateContext = {
-                                ...data,
-                                tooltip: await data.roll.getTooltip(),
-                            };
-
-                            let chatData = {
-                                user: game.user.id,
-                                speaker: ChatMessage.getSpeaker({ actor: this }),
-                                rolls: [roll],
-                                content: await renderTemplate(
-                                    "systems/splittermond/templates/chat/skill-check.hbs",
-                                    templateContext
-                                ),
-                                sound: CONFIG.sounds.dice,
-                                type: CONST.CHAT_MESSAGE_TYPES.OTHER,
-                            };
-
-                            foundryApi.createChatMessage(chatData);
-                        },
-                    },
-                },
-                default: defaultTable,
-            },
-            { classes: ["splittermond", "dialog"] }
-        );
-        d.render(true);
+    async rollMagicFumble(eg = 0, costs = 0, skill = null, askUser = true) {
+        return rollMagicFumble(this, { eg, costs, skill, askUser });
     }
 
     async addTicks(value = 3, message, askPlayer) {
@@ -1365,33 +1149,12 @@ export default class SplittermondActor extends Actor {
         return await this.update({ system: { health: healthData, focus: focusData } }); //propagate update to the database
     }
 
-    async longRest() {
-        let p = new Promise((resolve) => {
-            let dialog = new Dialog({
-                title: foundryApi.localize("splittermond.clearChanneledFocus"),
-                content: "<p>" + foundryApi.localize("splittermond.clearChanneledFocus") + "</p>",
-                buttons: {
-                    yes: {
-                        label: foundryApi.localize("splittermond.yes"),
-                        callback: (html) => {
-                            resolve(true);
-                        },
-                    },
-                    no: {
-                        label: foundryApi.localize("splittermond.no"),
-                        callback: (html) => {
-                            resolve(false);
-                        },
-                    },
-                },
-            });
-            dialog.render(true);
-        });
-
+    async longRest(clearChanneled = true, askUser = true) {
+        const finalClearChanneled = askUser ? await this.#askUserForLongRest() : clearChanneled;
         let focusData = duplicate(this.system.focus);
         let healthData = duplicate(this.system.health);
 
-        if (await p) {
+        if (finalClearChanneled) {
             focusData.channeled.entries = [];
         }
 
@@ -1414,6 +1177,16 @@ export default class SplittermondActor extends Actor {
         );
 
         return await this.update({ system: { health: healthData, focus: focusData } }); //propagate update to the database
+    }
+
+    #askUserForLongRest() {
+        const labels = {
+            titleKey: "splittermond.clearChanneledFocus",
+            contentKey: "splittermond.clearChanneledFocus",
+            yesKey: "splittermond.yes",
+            noKey: "splittermond.no",
+        };
+        return askUser(labels);
     }
 
     get healthRegenMultiplier() {
@@ -1458,7 +1231,7 @@ export default class SplittermondActor extends Actor {
 
     /**
      *
-     * @param {CostTypes} type
+     * @param {"health"|"focus"} type
      * @param {string} valueStr  a string of same form as given for Splittermond Spells
      * @param description
      */
@@ -1513,46 +1286,9 @@ export default class SplittermondActor extends Actor {
         if (type.toLowerCase() === "gw") {
             type = "mindresist";
         }
-
-        if (type === "defense") {
-            let content = await renderTemplate("systems/splittermond/templates/apps/dialog/active-defense.hbs", {
-                activeDefense: this.activeDefense.defense,
-            });
-            let p = new Promise((resolve, reject) => {
-                let dialog = new Dialog(
-                    {
-                        title: game.i18n.localize("splittermond.activeDefense"),
-                        content: content,
-                        buttons: {
-                            cancel: {
-                                label: game.i18n.localize("splittermond.cancel"),
-                                callback: (html) => {
-                                    resolve(false);
-                                },
-                            },
-                        },
-                        render: (html) => {
-                            html.find(".rollable").click((event) => {
-                                const type = $(event.currentTarget).closestData("roll-type");
-                                if (type === "activeDefense") {
-                                    const itemId = $(event.currentTarget).closestData("defense-id");
-                                    const defenseType = $(event.currentTarget).closestData("defense-type");
-                                    this.rollActiveDefense(
-                                        defenseType,
-                                        this.activeDefense.defense.find((el) => el.id === itemId)
-                                    );
-                                    dialog.close();
-                                }
-                            });
-                        },
-                    },
-                    { classes: ["splittermond", "dialog"], width: 500 }
-                );
-                dialog.render(true);
-            });
-        } else {
-            this.rollActiveDefense(type, this.activeDefense[type][0]);
-        }
+        return type === "defense"
+            ? showActiveDefenseDialog(this)
+            : this.rollActiveDefense(type, this.activeDefense[type][0]);
     }
 
     toCompendium(pack) {
@@ -1565,19 +1301,11 @@ export default class SplittermondActor extends Actor {
         let targetName = null;
         const actor = this;
 
-        /**
-         * @param {string} type
-         * @returns {SplittermondItem}
-         */
         function withType(type) {
             targetType = type.toLowerCase();
             return { withName: withName };
         }
 
-        /**
-         * @param {string} name
-         * @returns {SplittermondItem}
-         */
         function withName(name) {
             targetName = name.toLowerCase();
             return execute();
@@ -1593,30 +1321,42 @@ export default class SplittermondActor extends Actor {
     }
 }
 
-/**
- * @returns {Promise<boolean>}
- */
 async function askUserAboutActorOverwrite() {
+    const labels = {
+        titleKey: "Import",
+        contentKey: "splittermond.updateOrOverwriteActor",
+        yesKey: "splittermond.update",
+        noKey: "splittermond.overwrite",
+    };
+    return askUser(labels);
+}
+
+/**
+ * @param {string} titleKey The title of the dialog
+ * @param {string} contentKey The content of the dialog
+ * @param {string} yesKey The label of the button that resolves to true
+ * @param {string} noKey The label of the button that resolves to false
+ * @return {Promise<boolean>}
+ */
+async function askUser({ titleKey, contentKey, yesKey, noKey }) {
     return new Promise((resolve) => {
-        let dialog = new Dialog({
-            title: "Import",
-            content: "<p>" + foundryApi.localize("splittermond.updateOrOverwriteActor") + "</p>",
-            buttons: {
-                overwrite: {
-                    label: foundryApi.localize("splittermond.overwrite"),
-                    callback: (html) => {
-                        resolve(false);
-                    },
+        let dialog = new FoundryDialog({
+            window: { title: titleKey }, // foundry translates this
+            content: "<p>" + foundryApi.localize(contentKey) + "</p>",
+            buttons: [
+                {
+                    action: "yes",
+                    default: true,
+                    label: yesKey, // foundry translates this
                 },
-                update: {
-                    label: foundryApi.localize("splittermond.update"),
-                    callback: (html) => {
-                        resolve(true);
-                    },
+                {
+                    action: "no",
+                    label: noKey, //foundry translates this
                 },
-            },
+            ],
+            submit: (result) => resolve(result === "yes"),
         });
-        dialog.render(true);
+        return dialog.render(true);
     });
 }
 

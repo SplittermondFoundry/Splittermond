@@ -88,13 +88,13 @@ export async function importNpc() {
         }
     }
     let d = new FoundryDialog({
-        window: { title: foundryApi.localize(`splittermond.importNpcData`) },
+        window: { title: `splittermond.importNpcData` },
         content: `<form><label>Name</label><input type="text" name="name" value="${name}"><label>Beschreibung</label><textarea style="height: 300px" name='description'>${description}</textarea><label>Data</label><textarea style="height: 300px;" name='data'>${stats}</textarea></form>`,
         buttons: [
             {
                 action: "cancel",
                 icon: '<i class="fas fa-times"></i>',
-                label: "Cancel",
+                label: "splittermond.cancel",
             },
             {
                 action: "import",

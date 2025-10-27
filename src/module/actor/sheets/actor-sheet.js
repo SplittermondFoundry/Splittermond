@@ -6,6 +6,7 @@ import { ItemFeaturesModel } from "../../item/dataModel/propertyModels/ItemFeatu
 import { DamageRoll } from "../../util/damage/DamageRoll.js";
 import { CostBase } from "../../util/costs/costTypes.js";
 import { parseAvailableIn, selectFromAllSkills, selectFromParsedSkills } from "./parseAvailableIn";
+import { userConfirmsItemDeletion } from "module/actor/sheets/askUserForItemDeletion.js";
 
 export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSheet {
     constructor(...args) {
@@ -211,34 +212,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
 
         html.find('[data-action="delete-item"]').click(async (event) => {
             const itemId = $(event.currentTarget).closestData("item-id");
-            let p = new Promise((resolve, reject) => {
-                let dialog = new Dialog({
-                    title: game.i18n.localize("splittermond.deleteItem"),
-                    content:
-                        "<p>" +
-                        game.i18n.format("splittermond.deleteItemQuestion", {
-                            itemName: this.actor.items.get(itemId).name,
-                        }) +
-                        "</p>",
-                    buttons: {
-                        delete: {
-                            label: game.i18n.localize("splittermond.delete"),
-                            callback: (html) => {
-                                resolve(true);
-                            },
-                        },
-                        cancel: {
-                            label: game.i18n.localize("splittermond.cancel"),
-                            callback: (html) => {
-                                resolve(false);
-                            },
-                        },
-                    },
-                });
-                dialog.render(true);
-            });
-
-            if (await p) {
+            const itemName = this.actor.items.get(itemId).name;
+            const userConfirmedDeletion = await userConfirmsItemDeletion(itemName);
+            if (userConfirmedDeletion) {
                 await this.actor.deleteEmbeddedDocuments("Item", [itemId]);
             }
         });

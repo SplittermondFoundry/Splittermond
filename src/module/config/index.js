@@ -1099,7 +1099,7 @@ splittermond.fumbleTable = {
             {
                 min: 3,
                 max: 20,
-                text: "splittermond.fumbleTable.magic.sorcerer.result3_20",
+                text: "splittermond.fumbleTable.magic.priest.result3_20",
             },
             {
                 min: 21,

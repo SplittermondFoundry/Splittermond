@@ -45,7 +45,6 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     static PARTS = {
         tabs: {
             template: "systems/splittermond/templates/apps/compendium-browser/parts/tabs.hbs",
-            //template: "templates/generic/tab-navigation.hbs"
         },
         spell: {
             template: "systems/splittermond/templates/apps/compendium-browser/parts/spell.hbs",
