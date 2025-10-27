@@ -6,8 +6,7 @@ export interface FumbledCheckData {
     skill: SplittermondSkill;
     askUser?: boolean;
 }
-export interface ConfirmedFumbledCheckData extends FumbledCheckData {
+export interface ConfirmedFumbledCheckData extends Omit<FumbledCheckData, "skill" | "askUser"> {
     lowerFumbleResult: number;
-    rollTable: { min: number; max: number; text: string }[];
 }
-export type FumbleDialogResult = Omit<ConfirmedFumbledCheckData, "rollTable">;
+export type FumbleDialogResult = ConfirmedFumbledCheckData;

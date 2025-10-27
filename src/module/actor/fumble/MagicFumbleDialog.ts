@@ -55,7 +55,6 @@ export class FumbleDialog extends FoundryDialog {
                 const costs = selectInput(form, "costs").value;
                 const lowerFumbleResult = parseInt(lowerFumbleResultValue ?? "NaN");
                 resolve({
-                    skill: fumbleData.skill,
                     eg: isNaN(eg) ? fumbleData.eg : eg,
                     costs: costs || fumbleData.costs,
                     lowerFumbleResult: isNaN(lowerFumbleResult) ? fumbleData.lowerFumbleResult : lowerFumbleResult,

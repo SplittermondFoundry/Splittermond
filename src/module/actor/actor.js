@@ -20,7 +20,7 @@ import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
 import { InverseModifier } from "./InverseModifier";
 import { genesisSpellImport } from "./genesisImport/spellImport";
 import { addTicks } from "module/combat/addTicks";
-import { rollMagicFumble } from "module/actor/fumble/handleMagicFumble";
+import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
 import { FoundryDialog } from "module/api/Application.js";
 import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 
@@ -1109,43 +1109,8 @@ export default class SplittermondActor extends Actor {
         return item.roll();
     }
 
-    //Could be merged with magic fumble handler
     async rollAttackFumble() {
-        let roll = await new Roll("2d10").evaluate();
-
-        let result = CONFIG.splittermond.fumbleTable.fight.find((el) => el.min <= roll.total && el.max >= roll.total);
-
-        let data = {};
-        data.roll = roll;
-        data.title = "Kampfpatzer";
-        data.img = "";
-        //data.rollType = "2d10";
-
-        data.degreeOfSuccessDescription = `<div class="fumble-table-result">`;
-        CONFIG.splittermond.fumbleTable.fight.forEach((el) => {
-            if (el === result) {
-                data.degreeOfSuccessDescription += `<div class="fumble-table-result-item fumble-table-result-item-active"><div class="fumble-table-result-item-range">${el.min}&ndash;${el.max}</div>${game.i18n.localize(el.text)}</div>`;
-            } else {
-                data.degreeOfSuccessDescription += `<div class="fumble-table-result-item"><div class="fumble-table-result-item-range">${el.min}&ndash;${el.max}</div>${game.i18n.localize(el.text)}</div>`;
-            }
-        });
-        data.degreeOfSuccessDescription += `</div>`;
-
-        let templateContext = {
-            ...data,
-            tooltip: await data.roll.getTooltip(),
-        };
-
-        let chatData = {
-            user: game.user.id,
-            speaker: ChatMessage.getSpeaker({ actor: this }),
-            rolls: [roll],
-            content: await renderTemplate("systems/splittermond/templates/chat/skill-check.hbs", templateContext),
-            sound: CONFIG.sounds.dice,
-            type: CONST.CHAT_MESSAGE_TYPES.OTHER,
-        };
-
-        ChatMessage.create(chatData);
+        return rollAttackFumble(this);
     }
 
     /**
