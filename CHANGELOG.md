@@ -3,6 +3,10 @@
 ### Other
 
 - Der Dialog zum Löschen von Items wurde auf V2 migriert
+- Der Dialog zum Auswählen möglicher Fertigkeiten von Meisterschaften und Zaubern wurde auf V2 migriert
+- Der Dialog zur Selektion des Typs von Zauberpatzern wurde auf V2 migriert
+- Der Dialog zur Abfrage von Imports wurde auf V2 migriert
+- Der Dialog zur Abfrage ob kanalisierte Zauber aufgehoben werden sollen wurde auf V2 migriert.
 
 ## 13.7.0
 
