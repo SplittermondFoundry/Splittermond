@@ -212,10 +212,6 @@ global.foundry = {
     },
 };
 
-global.Dialog = class {
-    constructor(dialogData, options) {}
-};
-
 global.game = {};
 
 global.CONFIG = {};

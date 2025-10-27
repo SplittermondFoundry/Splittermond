@@ -17,6 +17,7 @@ import { withActor } from "./fixtures";
 
 declare const Actor: any;
 declare var Dialog: any;
+declare const foundry: any;
 
 export function actorTest(context: QuenchBatchContext) {
     const { it, expect, afterEach, beforeEach, describe } = context;
@@ -317,25 +318,18 @@ export function actorTest(context: QuenchBatchContext) {
 
     describe("Import of Items into actor", () => {
         let actor: SplittermondActor;
-        let originalDialog: any;
+        let originalDialogRender: any;
         let originalPrompt: any;
         let items: (SplittermondMasteryItem | SplittermondSpellItem)[] = [];
 
         beforeEach(async () => {
-            originalDialog = Dialog;
+            originalDialogRender = foundry.applications.api.DialogV2.prototype.render;
             originalPrompt = FoundryDialog.prompt;
             actor = await actorCreator.createCharacter({ type: "character", name: "Rest Test", system: {} });
-
-            Dialog = class {
-                constructor(options: any) {
-                    if (options?.buttons?.yes) options.buttons.yes.callback();
-                }
-                render() {}
-            };
         });
 
         afterEach(async () => {
-            Dialog = originalDialog;
+            foundry.applications.api.DialogV2.prototype.render = originalDialogRender;
             FoundryDialog.prompt = originalPrompt;
             if (actor && actor.id) await Actor.deleteDocuments([actor.id]);
             await Item.deleteDocuments(items.map((i) => i.id));
@@ -387,14 +381,12 @@ export function actorTest(context: QuenchBatchContext) {
         });
 
         it("should prompt for skill if available skills are set", async () => {
-            Dialog = class {
-                constructor(options: any) {
-                    if (options?.buttons?.deathmagic) {
-                        options.buttons.deathmagic.callback();
-                    }
-                }
-                render() {}
+            foundry.applications.api.DialogV2.prototype.render = function () {
+                //Apparently, foundryvtt maps the list back into a record.
+                //Beware, this is an implementation detail and subject to change.
+                this.options.buttons.deathmagic.callback();
             };
+
             const spell = await createSpell({
                 type: "spell",
                 name: "Spell with School options",

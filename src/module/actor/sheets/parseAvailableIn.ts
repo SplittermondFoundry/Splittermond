@@ -44,30 +44,35 @@ export async function selectFromParsedSkills(
     dialogTitle: string
 ): Promise<SelectedOption | null> {
     return new Promise((resolve) => {
-        let buttons: Record<string, any> = {};
+        let buttons: ConstructorParameters<typeof FoundryDialog>[0]["buttons"] = [];
         parsed.forEach(({ skill, level }) => {
             const skillLevelLabel = level == null ? "" : `${level}`;
-            buttons[skill] = {
+            buttons.push({
+                action: `${skill}`,
                 label: `${foundryApi.localize(`splittermond.skillLabel.${skill}`)} ${skillLevelLabel}`,
-                callback: () => resolve({ skill, level: level ?? defaultLevel }),
-            };
+                callback: async () => {
+                    resolve({ skill, level: level ?? defaultLevel });
+                    dialog.close();
+                },
+            });
         });
-        buttons["_cancel"] = {
-            label: foundryApi.localize("splittermond.cancel"),
-            callback: () => resolve(null),
-        };
-        //@ts-ignore
-        let dialog = new Dialog(
-            {
-                title: dialogTitle,
-                content: "",
-                buttons: buttons,
+        buttons.push({
+            action: "_cancel",
+            label: "splittermond.cancel",
+            callback: async () => {
+                resolve(null);
+                dialog.close();
             },
-            {
-                classes: ["splittermond", "dialog", "selection"],
-            }
-        );
-        dialog.render(true);
+        });
+        let dialog = new FoundryDialog({
+            window: { title: dialogTitle },
+            position: {
+                width: 200,
+            },
+            buttons: buttons,
+            classes: ["splittermond", "dialog", "selection"],
+        });
+        dialog.render({ force: true });
     });
 }
 
