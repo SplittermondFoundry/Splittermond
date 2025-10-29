@@ -7,6 +7,7 @@ import { DamageRoll } from "../../util/damage/DamageRoll.js";
 import { CostBase } from "../../util/costs/costTypes.js";
 import { parseAvailableIn, selectFromAllSkills, selectFromParsedSkills } from "./parseAvailableIn";
 import { userConfirmsItemDeletion } from "module/actor/sheets/askUserForItemDeletion.js";
+import { autoExpandInputs } from "module/util/autoexpandDummyInjector.js";
 
 export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSheet {
     constructor(...args) {
@@ -159,19 +160,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         return value ? value : defaultValue;
     }
 
+    /** @param {JQuery} html*/
     activateListeners(html) {
-        html.find("input.autoexpand")
-            .on("input", function () {
-                let dummyElement = $('<span id="autoexpanddummy"/>').hide();
-                $(this).after(dummyElement);
-                let text = $(this).val() || $(this).text() || $(this).attr("placeholder");
-                $(dummyElement).text(text);
-                $(this).css({
-                    width: dummyElement.width(),
-                });
-                dummyElement.remove();
-            })
-            .trigger("input");
+        autoExpandInputs(html[0]);
 
         html.find('[data-action="inc-value"]').click((event) => {
             const query = $(event.currentTarget).closestData("input-query");
@@ -195,7 +186,7 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             const itemType = $(event.currentTarget).closestData("item-type");
             const renderSheet = Boolean((event.currentTarget.dataset.renderSheet || "true") === "true");
             let itemData = {
-                name: game.i18n.localize("splittermond." + itemType),
+                name: foundryApi.localize("splittermond." + itemType),
                 type: itemType,
             };
 
@@ -290,7 +281,7 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         html.find('[data-action="add-channeled-focus"]').click((event) => {
             let channeledEntries = duplicate(this.actor.system.focus.channeled.entries);
             channeledEntries.push({
-                description: game.i18n.localize("splittermond.description"),
+                description: foundryApi.localize("splittermond.description"),
                 costs: 1,
             });
             this.actor.update({ "system.focus.channeled.entries": channeledEntries });
@@ -299,7 +290,7 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         html.find('[data-action="add-channeled-health"]').click((event) => {
             let channeledEntries = duplicate(this.actor.system.health.channeled.entries);
             channeledEntries.push({
-                description: game.i18n.localize("splittermond.description"),
+                description: foundryApi.localize("splittermond.description"),
                 costs: 1,
             });
             this.actor.update({ "system.health.channeled.entries": channeledEntries });
@@ -494,7 +485,7 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
                     if (item.type === "spell") {
                         content +=
                             `<p><strong>` +
-                            game.i18n.localize("splittermond.enhancementDescription") +
+                            foundryApi.localize("splittermond.enhancementDescription") +
                             ` (${item.system.enhancementCosts}):</strong> ${item.system.enhancementDescription}</p>`;
                     }
                 }

@@ -8,11 +8,14 @@ export function autoExpandInputs(element: HTMLElement): void {
             dummy.style.position = "absolute";
             dummy.style.whiteSpace = "pre";
             dummy.textContent = input.value || input.placeholder || "";
-            // Match input font styles
-            const inputStyle = element.computedStyleMap();
-            dummy.style.font = inputStyle.get("font")?.toString() ?? "";
-            dummy.style.fontSize = inputStyle.get("fontSize")?.toString() ?? "";
-            dummy.style.fontFamily = inputStyle.get("fontFamily")?.toString() ?? "";
+            // Match input font styles using getComputedStyle
+            const inputStyle = window.getComputedStyle(input);
+            dummy.style.font = inputStyle.font;
+            dummy.style.fontSize = inputStyle.fontSize;
+            dummy.style.fontFamily = inputStyle.fontFamily;
+            dummy.style.fontWeight = inputStyle.fontWeight;
+            dummy.style.fontStyle = inputStyle.fontStyle;
+            dummy.style.letterSpacing = inputStyle.letterSpacing;
             document.body.appendChild(dummy);
             input.style.width = `${dummy.offsetWidth}px`;
             document.body.removeChild(dummy);
