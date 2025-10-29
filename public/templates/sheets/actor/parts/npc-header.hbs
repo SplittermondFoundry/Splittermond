@@ -1,0 +1,45 @@
+{{!-- NPC-specific header section --}}
+<section class="row flex-gap">
+    <div class="character-image">
+        <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="92" width="92"
+             class="profile-img"/>
+    </div>
+<div class="column stretch">
+    <input class="character-name" name="name" type="text" value="{{actor.name}}"
+           placeholder="{{localize 'splittermond.name' }}"/>
+    <div>
+        <input class="autoexpand" name="system.type" type="text" value="{{actor.system.type}}"
+               placeholder="{{localize 'splittermond.opponenttype'}}"/>
+        {{#unless this.limited}}
+            &nbsp;&middot;&nbsp;
+            <input class="autoexpand" name="system.level" type="text" value="{{actor.system.level}}"
+                   placeholder="{{localize 'splittermond.opponentlevel'}}"/>&nbsp;&middot;&nbsp;
+            <input class="autoexpand" name="system.sex" type="text" value="{{actor.system.sex}}"
+                   placeholder="{{localize 'splittermond.sex'}}"/>
+        {{/unless}}
+    </div>
+    {{#unless limited}}
+        <ul class="npcfeatures taglist" data-item-type="npcfeature">
+            {{#each itemsByType.npcfeature}}
+                <li class="taglist-item" data-item-id="{{this._id}}">
+                    <div class="taglist-item-name">
+                        <a data-action="edit-item">{{this.name}}</a>
+                    </div>
+                    <div class="taglist-item-actions">
+                        <button class="button-inline" data-action="delete-item" type="button">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </li>
+            {{/each}}
+            <li class="taglist-actions">
+                <button class="button-inline" type="button" data-action="add-item"
+                        data-render-sheet="true">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                </button>
+            </li>
+        </ul>
+    </div>
+    {{/unless}}
+</section>
+

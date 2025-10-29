@@ -1,0 +1,6 @@
+{{!-- Status tab content (shared by both character and NPC, but with different hasRestActions) --}}
+{{> "systems/splittermond/templates/sheets/actor/parts/status-tab.hbs"
+        channeledHealthEntries=data.system.health.channeled.entries statuseffects=itemsByType.statuseffect
+        spelleffects=itemsByType.spelleffect
+        hasRestActions=hasRestActions}}
+
