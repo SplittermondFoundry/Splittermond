@@ -7,7 +7,7 @@ import { DamageRoll } from "../../util/damage/DamageRoll.js";
 import { CostBase } from "../../util/costs/costTypes.js";
 import { parseAvailableIn, selectFromAllSkills, selectFromParsedSkills } from "./parseAvailableIn";
 import { userConfirmsItemDeletion } from "module/actor/sheets/askUserForItemDeletion.js";
-import { autoExpandInputs } from "module/util/autoexpandDummyInjector.js";
+import { autoExpandInputs } from "module/util/commonHtmlHandlers.ts";
 
 export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSheet {
     constructor(...args) {

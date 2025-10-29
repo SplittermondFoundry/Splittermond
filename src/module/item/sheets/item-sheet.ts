@@ -1,7 +1,7 @@
 import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
 import { ApplicationRenderContext, SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
 import { foundryApi } from "module/api/foundryApi.js";
-import { autoExpandInputs } from "module/util/autoexpandDummyInjector.js";
+import { autoExpandInputs } from "module/util/commonHtmlHandlers.js";
 import { splittermond } from "module/config/index.js";
 import { getSpellAvailabilityParser } from "module/item/availabilityParser";
 
