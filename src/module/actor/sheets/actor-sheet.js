@@ -363,7 +363,7 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
      * @param {HTMLElement} target - The target element
      */
     #handleRollDamage(event, target) {
-        const serializedImplementsParsed = closestData(target, "damageimplements");
+        const serializedImplementsParsed = JSON.parse(closestData(target, "damageimplements"));
         if (!serializedImplementsParsed) return;
 
         const implementsAsArray = [
@@ -515,59 +515,23 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         html.find(".rollable").on("click", (event) => {
             const type = $(event.currentTarget).closestData("roll-type");
             if (type === "skill") {
-                const skill = $(event.currentTarget).closestData("skill");
-                this.actor.rollSkill(skill);
+                this.#handleRollSkill(event, event.currentTarget);
             }
 
             if (type === "attack") {
-                const attackId = $(event.currentTarget).closestData("attack-id");
-                this.actor.rollAttack(attackId);
+                this.#handleRollAttack(event, event.currentTarget);
             }
+
             if (type === "spell") {
-                const itemId = $(event.currentTarget).closestData("item-id");
-                this.actor.rollSpell(itemId);
+                this.#handleRollSpell(event, event.currentTarget);
             }
 
             if (type === "damage") {
-                const serializedImplementsParsed = $(event.currentTarget).closestData("damageimplements");
-                const implementsAsArray = [
-                    serializedImplementsParsed.principalComponent,
-                    ...serializedImplementsParsed.otherComponents,
-                ];
-                const damageImplements = implementsAsArray.map((i) => {
-                    const features = ItemFeaturesModel.from(i.features);
-                    const damageRoll = DamageRoll.from(i.formula, features);
-                    //the modifier we 'reflected' from inside damage roll already accounted for "Wuchtig" so, if we reapply modifiers,
-                    //we have to make sure we don't double damage by accident
-                    const modifier = features.hasFeature("Wuchtig") ? math.floor(i.modifier * 0.5) : i.modifier;
-                    damageRoll.increaseDamage(modifier);
-                    return {
-                        damageRoll,
-                        damageType: i.damageType,
-                        damageSource: i.damageSource,
-                    };
-                });
-
-                const costType = $(event.currentTarget).closestData("costtype") ?? "V";
-                const actorId = $(event.currentTarget).closestData("actorid");
-                const actor = foundryApi.getActor("source") ?? null; //May fail if ID refers to a token
-                /** @type DamageRollOptions */
-                const rollOptions = {
-                    costBase: CostBase.create(costType),
-                    grazingHitPenalty: false,
-                };
-                return DamageInitializer.rollFromDamageRoll(damageImplements, rollOptions, actor).then((message) =>
-                    message.sendToChat()
-                );
+                this.#handleRollDamage(event, event.currentTarget);
             }
 
             if (type === "activeDefense") {
-                const itemId = $(event.currentTarget).closestData("defense-id");
-                const defenseType = $(event.currentTarget).closestData("defense-type");
-                this.actor.rollActiveDefense(
-                    defenseType,
-                    this.actor.activeDefense[defenseType].find((el) => el.id === itemId)
-                );
+                this.#handleRollActiveDefense(event, event.currentTarget);
             }
         });
 
