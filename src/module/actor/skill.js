@@ -113,16 +113,26 @@ export default class Skill extends Modifiable {
     }
 
     /**
-     * @param {{difficulty: unknown, preSelectedModifier:string[], subtitle:?string, title:?string, type:string, modifier:number, checkMessageData: Record<string, any>}} options
+     * @param {{
+     *  difficulty: ?RollDifficultyString,
+     *  preSelectedModifier: string[],
+     *  subtitle: ?string,
+     *  title: ?string,
+     *  type: string,
+     *  modifier: number,
+     *  checkMessageData: Record<string, any>,
+     *  askUser?: boolean,
+     * }} options
      * @return {Promise<*|boolean>}
      */
     async roll(options = {}) {
-        let checkData = await this.prepareRollDialog(
+        let checkData = await this.finalizeCheckInputData(
             options.preSelectedModifier ?? [],
             options.title,
             options.subtitle,
             options.difficulty,
-            options.modifier
+            options.modifier,
+            options.askUser ?? true
         );
         if (!checkData) {
             return false;
@@ -209,22 +219,44 @@ export default class Skill extends Modifiable {
      */
 
     /**
-     * @typedef {{name: string, label:string, value: unknown, active:boolean}} EmphasisData
+     * @param {string[]} selectedModifiers
+     * @param {?string} title
+     * @param {?string} subtitle
+     * @param {?RollDifficultyString} difficulty
+     * @param {?number} modifier
+     * @param {boolean} askUser
+     * @return {Promise<CheckDialogData|null>}
      */
+    async finalizeCheckInputData(selectedModifiers, title, subtitle, difficulty, modifier, askUser = true) {
+        if (!askUser) {
+            /** @type CheckDialogData */
+            return {
+                difficulty: difficulty || 15,
+                manuevers: [],
+                modifier: modifier || 0,
+                modifierElements: modifier
+                    ? [{ value: modifier, description: foundryApi.localize("splittermond.modifier") }]
+                    : [],
+                rollMode: "publicroll",
+                rollType: "standard",
+            };
+        }
+        return this.prepareRollDialog(selectedModifiers, title, subtitle, difficulty, modifier);
+    }
+
     /**
-     * @typedef {{difficulty:RollDifficultyString, modifier:number, emphasis: EmphasisData, rollMode: unknown}} CheckDialogOptions
-     * @param {string[]}selectedModifiers
-     * @param {string} title
-     * @param {string} subtitle
-     * @param {RollDifficultyString} difficulty
+     * @param {string[]} selectedModifiers
+     * @param {?string} title
+     * @param {?string} subtitle
+     * @param {?RollDifficultyString} difficulty
      * @param {number} modifier
-     * @return {Promise<CheckDialogOptions>}
+     * @return {Promise<CheckDialogData|null>}
      */
     async prepareRollDialog(selectedModifiers, title, subtitle, difficulty, modifier) {
         let emphasisData = [];
         let selectableModifier = this.selectableModifier;
-        selectedModifiers = selectedModifiers.map((s) => s.trim().toLowerCase());
         if (selectableModifier) {
+            selectedModifiers = selectedModifiers.map((s) => s.trim().toLowerCase());
             emphasisData = selectableModifier
                 .map((mod) => [mod.attributes.name, asString(mod.value)])
                 .map(([key, value]) => {
@@ -247,6 +279,8 @@ export default class Skill extends Modifiable {
             difficulty: difficulty || 15,
             modifier: modifier || 0,
             emphasis: emphasisData,
+            rollMode: foundryApi.settings.get("core", "rollMode"),
+            rollModes: foundryApi.rollModes,
             title: this.#createRollDialogTitle(title, subtitle),
             skill: this,
             skillTooltip: skillFormula.render(),
@@ -254,8 +288,8 @@ export default class Skill extends Modifiable {
     }
 
     /**
-     * @param {string} title
-     * @param {string} subtitle
+     * @param {?string} title
+     * @param {?string} subtitle
      * @return {string}
      */
     #createRollDialogTitle(title, subtitle) {
