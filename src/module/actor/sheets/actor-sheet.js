@@ -7,7 +7,8 @@ import { DamageRoll } from "../../util/damage/DamageRoll.js";
 import { CostBase } from "../../util/costs/costTypes.js";
 import { parseAvailableIn, selectFromAllSkills, selectFromParsedSkills } from "./parseAvailableIn";
 import { userConfirmsItemDeletion } from "module/actor/sheets/askUserForItemDeletion.js";
-import { autoExpandInputs } from "module/util/commonHtmlHandlers.ts";
+import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.ts";
+import { closestData } from "module/data/ClosestDataMixin.js";
 
 export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSheet {
     constructor(...args) {
@@ -160,148 +161,351 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         return value ? value : defaultValue;
     }
 
+    /**
+     * Increase a numeric value
+     * @param {Event} _event - The event object
+     * @param {HTMLElement} target - The target element
+     */
+    static #increaseValue(_event, target) {
+        changeValue((input) => input + 1).for(target);
+    }
+
+    /**
+     * Decrease a numeric value
+     * @param {Event} _event - The event object
+     * @param {HTMLElement} target - The target element
+     */
+    static #decreaseValue(_event, target) {
+        changeValue((input) => input - 1).for(target);
+    }
+
+    /**
+     * Handle adding a new item
+     * @param {Event} event - The click event
+     */
+    #handleAddItem(event) {
+        const target = event.currentTarget;
+        const itemType = target.closest("[data-item-type]")?.getAttribute("data-item-type") || "";
+        const renderSheet = Boolean((target.dataset.renderSheet || "true") === "true");
+        let itemData = {
+            name: foundryApi.localize("splittermond." + itemType),
+            type: itemType,
+        };
+
+        if (itemType === "mastery") {
+            const skill = target.closest("[data-skill]")?.getAttribute("data-skill");
+            if (skill) {
+                itemData.system = {
+                    skill: skill,
+                };
+            }
+        }
+        this.actor.createEmbeddedDocuments("Item", [itemData], { renderSheet: renderSheet });
+    }
+
+    /**
+     * Handle deleting an item
+     * @param {Event} event - The click event
+     * @returns {Promise<void>}
+     */
+    async #handleDeleteItem(event) {
+        const target = event.currentTarget;
+        const itemId = closestData(target, "item-id");
+        if (!itemId) return;
+
+        const itemName = this.actor.items.get(itemId).name;
+        const userConfirmedDeletion = await userConfirmsItemDeletion(itemName);
+        if (userConfirmedDeletion) {
+            await this.actor.deleteEmbeddedDocuments("Item", [itemId]);
+        }
+    }
+
+    /**
+     * Handle editing an item
+     * @param {Event} event - The click event
+     */
+    #handleEditItem(event) {
+        const target = event.currentTarget;
+        const itemId = closestData(target, "item-id");
+        if (!itemId) return;
+
+        this.actor.items.get(itemId).sheet.render(true);
+    }
+
+    /**
+     * Handle toggling equipped status
+     * @param {Event} event - The click event
+     */
+    #handleToggleEquipped(event) {
+        const target = event.currentTarget;
+        const itemId = closestData(target, "item-id");
+        if (!itemId) return;
+
+        const item = this.actor.items.get(itemId);
+        item.update({ "system.equipped": !item.system.equipped });
+    }
+
+    /**
+     * Handle adding a channeled focus entry
+     * @param {Event} event - The click event
+     */
+    #handleAddChanneledFocus(event) {
+        const channeledEntries = duplicate(this.actor.system.focus.channeled.entries);
+        channeledEntries.push({
+            description: foundryApi.localize("splittermond.description"),
+            costs: 1,
+        });
+        return this.actor.update({ "system.focus.channeled.entries": channeledEntries });
+    }
+
+    /**
+     * Handle adding a channeled health entry
+     * @param {Event} event - The click event
+     */
+    #handleAddChanneledHealth(event) {
+        const channeledEntries = duplicate(this.actor.system.health.channeled.entries);
+        channeledEntries.push({
+            description: foundryApi.localize("splittermond.description"),
+            costs: 1,
+        });
+        return this.actor.update({ "system.health.channeled.entries": channeledEntries });
+    }
+
+    /**
+     * Handle long rest action
+     * @param {Event} event - The click event
+     */
+    #handleLongRest(event) {
+        return this.actor.longRest();
+    }
+
+    /**
+     * Handle short rest action
+     * @param {Event} event - The click event
+     */
+    #handleShortRest(event) {
+        return this.actor.shortRest();
+    }
+
+    /**
+     * Handle deleting an array element (focus/health channeled entries)
+     * @param {Event} event - The click event
+     */
+    #handleDeleteArrayElement(event) {
+        const target = event.currentTarget;
+        const idx = parseInt(closestData(target, "index", "0"));
+        const { value, address } = this.#getArray(target);
+
+        if (!(idx >= 0 && address !== "") || !Array.isArray(value)) return;
+
+        let updateData = {};
+        if (address === "system.focus.channeled.entries") {
+            let tempValue = parseInt(this.actor.system.focus.exhausted.value) + parseInt(value[idx].costs);
+            updateData["system.focus.exhausted.value"] = tempValue;
+        }
+
+        value.splice(idx, 1);
+        updateData[address] = value;
+        return this.actor.update(updateData);
+    }
+
+    /**
+     * Handle showing/hiding skills
+     * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
+     */
+    #handleShowHideSkills(event, target) {
+        this._hideSkills = !this._hideSkills;
+        target.setAttribute("data-action", "hide-skills");
+        return this.render();
+    }
+
+    /**
+     * Handle rolling a skill check
+     * @param {Event} event - The click event
+     */
+    #handleRollSkill(event) {
+        const target = event.currentTarget;
+        const skill = closestData(target, "skill");
+        if (!skill) return;
+        return this.actor.rollSkill(skill);
+    }
+
+    /**
+     * Handle rolling an attack
+     * @param {Event} event - The click event
+     */
+    #handleRollAttack(event) {
+        const target = event.currentTarget;
+        const attackId = closestData(target, "attack-id");
+        if (!attackId) return;
+        return this.actor.rollAttack(attackId);
+    }
+
+    /**
+     * Handle rolling a spell
+     * @param {Event} event - The click event
+     */
+    #handleRollSpell(event) {
+        const target = event.currentTarget;
+        const itemId = closestData(target, "item-id");
+        if (!itemId) return;
+        return this.actor.rollSpell(itemId);
+    }
+
+    /**
+     * Handle rolling damage
+     * @param {Event} event - The click event
+     */
+    #handleRollDamage(event) {
+        const target = event.currentTarget;
+        const serializedImplementsParsed = closestData(target, "damageimplements");
+        if (!serializedImplementsParsed) return;
+
+        const implementsAsArray = [
+            serializedImplementsParsed.principalComponent,
+            ...serializedImplementsParsed.otherComponents,
+        ];
+        const damageImplements = implementsAsArray.map((i) => {
+            const features = ItemFeaturesModel.from(i.features);
+            const damageRoll = DamageRoll.from(i.formula, features);
+            //the modifier we 'reflected' from inside damage roll already accounted for "Wuchtig" so, if we reapply modifiers,
+            //we have to make sure we don't double damage by accident
+            const modifier = features.hasFeature("Wuchtig") ? Math.floor(i.modifier * 0.5) : i.modifier;
+            damageRoll.increaseDamage(modifier);
+            return {
+                damageRoll,
+                damageType: i.damageType,
+                damageSource: i.damageSource,
+            };
+        });
+
+        const costType = closestData(target, "costtype") ?? "V";
+        const actorId = closestData(target, "actorid");
+        const actor = foundryApi.getActor(actorId) ?? null; //May fail if ID refers to a token
+        /** @type DamageRollOptions */
+        const rollOptions = {
+            costBase: CostBase.create(costType),
+            grazingHitPenalty: 0,
+        };
+        return DamageInitializer.rollFromDamageRoll(damageImplements, rollOptions, actor).then((message) =>
+            message.sendToChat()
+        );
+    }
+
+    /**
+     * Handle rolling active defense
+     * @param {Event} event - The click event
+     */
+    #handleRollActiveDefense(event) {
+        const target = event.currentTarget;
+        const itemId = closestData(target, "defense-id");
+        const defenseType = closestData(target, "defense-type");
+        if (!itemId || !defenseType) return;
+
+        const defenseItem = this.actor.activeDefense[defenseType].find((el) => el.id === itemId);
+        if (!defenseItem) return;
+
+        return this.actor.rollActiveDefense(defenseType, defenseItem);
+    }
+
     /** @param {JQuery} html*/
     activateListeners(html) {
         autoExpandInputs(html[0]);
+        const element = html[0];
 
-        html.find('[data-action="inc-value"]').click((event) => {
-            const query = $(event.currentTarget).closestData("input-query");
-            let value = parseInt($(html).find(query).val()) || 0;
-            $(html)
-                .find(query)
-                .val(value + 1)
-                .change();
+        element.querySelectorAll('[data-action="inc-value"]').forEach((el) => {
+            el.addEventListener("click", (event) => {
+                SplittermondActorSheet.#increaseValue(event, event.currentTarget);
+            });
         });
 
-        html.find('[data-action="dec-value"]').click((event) => {
-            const query = $(event.currentTarget).closestData("input-query");
-            let value = parseInt($(html).find(query).val()) || 0;
-            $(html)
-                .find(query)
-                .val(value - 1)
-                .change();
+        element.querySelectorAll('[data-action="dec-value"]').forEach((el) => {
+            el.addEventListener("click", (event) => {
+                SplittermondActorSheet.#decreaseValue(event, event.currentTarget);
+            });
         });
 
-        html.find('[data-action="add-item"]').click((event) => {
-            const itemType = $(event.currentTarget).closestData("item-type");
-            const renderSheet = Boolean((event.currentTarget.dataset.renderSheet || "true") === "true");
-            let itemData = {
-                name: foundryApi.localize("splittermond." + itemType),
-                type: itemType,
-            };
+        // Add item handler
+        element.querySelectorAll('[data-action="add-item"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleAddItem(event));
+        });
 
-            if (itemType === "mastery") {
-                const skill = $(event.currentTarget).closestData("skill");
-                if (skill) {
-                    itemData.system = {
-                        skill: skill,
-                    };
+        // Delete item handler
+        element.querySelectorAll('[data-action="delete-item"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleDeleteItem(event));
+        });
+
+        // Edit item handler
+        element.querySelectorAll('[data-action="edit-item"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleEditItem(event));
+        });
+
+        // Toggle equipped handler
+        element.querySelectorAll('[data-action="toggle-equipped"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleToggleEquipped(event));
+        });
+
+        // Delete array element handler
+        element.querySelectorAll('[data-action="delete-array-element"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleDeleteArrayElement(event));
+        });
+
+        // Add channeled focus handler
+        element.querySelectorAll('[data-action="add-channeled-focus"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleAddChanneledFocus(event));
+        });
+
+        // Add channeled health handler
+        element.querySelectorAll('[data-action="add-channeled-health"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleAddChanneledHealth(event));
+        });
+
+        // Long rest handler
+        element.querySelectorAll('[data-action="long-rest"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleLongRest(event));
+        });
+
+        // Short rest handler
+        element.querySelectorAll('[data-action="short-rest"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleShortRest(event));
+        });
+
+        // Show/hide skills handler
+        element.querySelectorAll('[data-action="show-hide-skills"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleShowHideSkills(event, event.currentTarget));
+        });
+
+        element.querySelectorAll("input[data-field]").forEach((el) => {
+            el.addEventListener("change", (event) => {
+                const element = event.currentTarget;
+                let value = element.value;
+                if (element.type === "checkbox") {
+                    value = element.checked;
                 }
-            }
-            return this.actor.createEmbeddedDocuments("Item", [itemData], { renderSheet: renderSheet });
-        });
 
-        html.find('[data-action="delete-item"]').click(async (event) => {
-            const itemId = $(event.currentTarget).closestData("item-id");
-            const itemName = this.actor.items.get(itemId).name;
-            const userConfirmedDeletion = await userConfirmsItemDeletion(itemName);
-            if (userConfirmedDeletion) {
-                await this.actor.deleteEmbeddedDocuments("Item", [itemId]);
-            }
-        });
-
-        html.find('[data-action="edit-item"]').click((event) => {
-            const itemId = $(event.currentTarget).closestData("item-id");
-            this.actor.items.get(itemId).sheet.render(true);
-        });
-
-        html.find('[data-action="toggle-equipped"]').click((event) => {
-            const itemId = $(event.currentTarget).closestData("item-id");
-            const item = this.actor.items.get(itemId);
-            item.update({ "system.equipped": !item.system.equipped });
-        });
-
-        html.find("[data-field]").change((event) => {
-            const element = event.currentTarget;
-            let value = element.value;
-            if (element.type === "checkbox") {
-                value = element.checked;
-            }
-            const itemId = $(event.currentTarget).closestData("item-id");
-            const field = element.dataset.field;
-            this.actor.items.get(itemId).update({ [field]: value });
-        });
-
-        html.find("[data-array-field]").change((event) => {
-            const element = event.currentTarget;
-            const idx = parseInt($(event.currentTarget).closestData("index", "0"));
-            const array = $(event.currentTarget).closestData("array");
-            const field = $(event.currentTarget).closestData("array-field");
-            let newValue = [];
-            if (!(idx >= 0 && array !== "")) return;
-            if (field) {
-                newValue = duplicate(
-                    array.split(".").reduce(function (prev, curr) {
-                        return prev ? prev[curr] : null;
-                    }, this.actor.toObject())
-                );
-                newValue[idx][field] = element.value;
-            } else {
-                newValue = duplicate(
-                    array.split(".").reduce(function (prev, curr) {
-                        return prev ? prev[curr] : null;
-                    }, this.actor.toObject())
-                );
-                newValue[idx] = element.value;
-            }
-            this.actor.update({ [array]: newValue });
-        });
-
-        html.find('[data-action="delete-array-element"]').click((event) => {
-            const element = event.currentTarget;
-            const idx = parseInt($(event.currentTarget).closestData("index", "0"));
-            const array = $(event.currentTarget).closestData("array");
-            if (!(idx >= 0 && array !== "")) return;
-            let arrayData = duplicate(
-                array.split(".").reduce(function (prev, curr) {
-                    return prev ? prev[curr] : null;
-                }, this.actor.toObject())
-            );
-            let updateData = {};
-            if (array === "system.focus.channeled.entries") {
-                let tempValue = parseInt(this.actor.system.focus.exhausted.value) + parseInt(arrayData[idx].costs);
-                updateData["system.focus.exhausted.value"] = tempValue;
-            }
-
-            arrayData.splice(idx, 1);
-            updateData[array] = arrayData;
-            this.actor.update(updateData);
-        });
-
-        html.find('[data-action="add-channeled-focus"]').click((event) => {
-            let channeledEntries = duplicate(this.actor.system.focus.channeled.entries);
-            channeledEntries.push({
-                description: foundryApi.localize("splittermond.description"),
-                costs: 1,
+                const itemId = closestData(element, "item-id");
+                const field = element.dataset.field;
+                return this.actor.items.get(itemId).update({ [field]: value });
             });
-            this.actor.update({ "system.focus.channeled.entries": channeledEntries });
         });
 
-        html.find('[data-action="add-channeled-health"]').click((event) => {
-            let channeledEntries = duplicate(this.actor.system.health.channeled.entries);
-            channeledEntries.push({
-                description: foundryApi.localize("splittermond.description"),
-                costs: 1,
+        element.querySelectorAll("[data-array-field]").forEach((el) => {
+            el.addEventListener("change", (event) => {
+                const element = event.currentTarget;
+                const idx = parseInt(closestData(element, "index", "0"));
+                /**@type string*/
+                const field = element.dataset.arrayField;
+                const { value, address } = this.#getArray(element);
+                if (!(idx >= 0 && address !== "") || !Array.isArray(value)) return;
+                if (field) {
+                    //single field update in property
+                    value[idx][field] = element.value;
+                } else {
+                    value[idx] = element.value;
+                }
+                this.actor.update({ [address]: value });
             });
-            this.actor.update({ "system.health.channeled.entries": channeledEntries });
-        });
-
-        html.find('[data-action="long-rest"]').click((event) => {
-            this.actor.longRest();
-        });
-
-        html.find('[data-action="short-rest"]').click((event) => {
-            this.actor.shortRest();
         });
 
         html.find(".rollable").on("click", (event) => {
@@ -361,6 +565,31 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
                     this.actor.activeDefense[defenseType].find((el) => el.id === itemId)
                 );
             }
+        });
+
+        // Roll skill handler
+        element.querySelectorAll('[data-action="roll-skill"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleRollSkill(event));
+        });
+
+        // Roll attack handler
+        element.querySelectorAll('[data-action="roll-attack"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleRollAttack(event));
+        });
+
+        // Roll spell handler
+        element.querySelectorAll('[data-action="roll-spell"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleRollSpell(event));
+        });
+
+        // Roll damage handler
+        element.querySelectorAll('[data-action="roll-damage"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleRollDamage(event));
+        });
+
+        // Roll active defense handler
+        element.querySelectorAll('[data-action="roll-active-defense"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleRollActiveDefense(event));
         });
 
         html.find(".add-tick").click((event) => {
@@ -591,12 +820,6 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             }
         );
 
-        html.find('[data-action="show-hide-skills"]').click((event) => {
-            this._hideSkills = !this._hideSkills;
-            $(event.currentTarget).attr("data-action", "hide-skills");
-            this.render();
-        });
-
         if (this._hoverOverlays) {
             let el = html.find(this._hoverOverlays.join(", "));
             if (el.length > 0) {
@@ -608,6 +831,17 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         }
 
         super.activateListeners(html);
+    }
+
+    /**
+     * @param {HTMLElement} element
+     * @return {{value:any[],address:string,?field:string}}
+     */
+    #getArray(element) {
+        /**@type string*/
+        const arrayPropertyAddress = closestData(element, "array");
+        const value = foundryApi.utils.resolveProperty(this.actor.toObject(), arrayPropertyAddress);
+        return { value, address: arrayPropertyAddress };
     }
 
     /**

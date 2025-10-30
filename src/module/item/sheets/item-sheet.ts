@@ -1,7 +1,7 @@
 import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
 import { ApplicationRenderContext, SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
 import { foundryApi } from "module/api/foundryApi.js";
-import { autoExpandInputs } from "module/util/commonHtmlHandlers.js";
+import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.js";
 import { splittermond } from "module/config/index.js";
 import { getSpellAvailabilityParser } from "module/item/availabilityParser";
 
@@ -192,26 +192,11 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     }
 
     static #increaseValue(_event: Event, target: HTMLElement): void {
-        SplittermondItemSheet.#changeValue((input: number) => input + 1).for(target);
+        changeValue((input: number) => input + 1).for(target);
     }
 
     static #decreaseValue(_event: Event, target: HTMLElement): void {
-        SplittermondItemSheet.#changeValue((input: number) => input - 1).for(target);
-    }
-
-    static #changeValue(operation: (a: number) => number): { for: (target: HTMLElement) => void } {
-        return {
-            for(target: HTMLElement): void {
-                const matchingInput = target.parentElement?.querySelector("input");
-                if (!matchingInput) return;
-
-                const newValue = operation(matchingInput.valueAsNumber);
-                if (isNaN(newValue)) return;
-                matchingInput.value = `${newValue}`;
-                matchingInput.dispatchEvent(new Event("input", { bubbles: true }));
-                matchingInput.dispatchEvent(new Event("change", { bubbles: true }));
-            },
-        };
+        changeValue((input: number) => input - 1).for(target);
     }
 
     roll(): void {}

@@ -24,3 +24,18 @@ export function autoExpandInputs(element: HTMLElement): void {
         updateWidth();
     });
 }
+
+export function changeValue(operation: (a: number) => number): { for: (target: HTMLElement) => void } {
+    return {
+        for(target: HTMLElement): void {
+            const matchingInput = target.parentElement?.querySelector("input");
+            if (!matchingInput) return;
+
+            const newValue = operation(parseInt(matchingInput.value));
+            if (isNaN(newValue)) return;
+            matchingInput.value = `${newValue}`;
+            matchingInput.dispatchEvent(new Event("input", { bubbles: true }));
+            matchingInput.dispatchEvent(new Event("change", { bubbles: true }));
+        },
+    };
+}
