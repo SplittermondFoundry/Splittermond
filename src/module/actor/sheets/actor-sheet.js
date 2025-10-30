@@ -182,9 +182,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle adding a new item
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleAddItem(event) {
-        const target = event.currentTarget;
+    #handleAddItem(event, target) {
         const itemType = target.closest("[data-item-type]")?.getAttribute("data-item-type") || "";
         const renderSheet = Boolean((target.dataset.renderSheet || "true") === "true");
         let itemData = {
@@ -206,10 +206,10 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle deleting an item
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      * @returns {Promise<void>}
      */
-    async #handleDeleteItem(event) {
-        const target = event.currentTarget;
+    async #handleDeleteItem(event, target) {
         const itemId = closestData(target, "item-id");
         if (!itemId) return;
 
@@ -223,9 +223,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle editing an item
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleEditItem(event) {
-        const target = event.currentTarget;
+    #handleEditItem(event, target) {
         const itemId = closestData(target, "item-id");
         if (!itemId) return;
 
@@ -235,9 +235,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle toggling equipped status
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleToggleEquipped(event) {
-        const target = event.currentTarget;
+    #handleToggleEquipped(event, target) {
         const itemId = closestData(target, "item-id");
         if (!itemId) return;
 
@@ -248,8 +248,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle adding a channeled focus entry
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleAddChanneledFocus(event) {
+    #handleAddChanneledFocus(event, target) {
         const channeledEntries = duplicate(this.actor.system.focus.channeled.entries);
         channeledEntries.push({
             description: foundryApi.localize("splittermond.description"),
@@ -261,8 +262,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle adding a channeled health entry
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleAddChanneledHealth(event) {
+    #handleAddChanneledHealth(event, target) {
         const channeledEntries = duplicate(this.actor.system.health.channeled.entries);
         channeledEntries.push({
             description: foundryApi.localize("splittermond.description"),
@@ -274,25 +276,27 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle long rest action
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleLongRest(event) {
+    #handleLongRest(event, target) {
         return this.actor.longRest();
     }
 
     /**
      * Handle short rest action
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleShortRest(event) {
+    #handleShortRest(event, target) {
         return this.actor.shortRest();
     }
 
     /**
      * Handle deleting an array element (focus/health channeled entries)
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleDeleteArrayElement(event) {
-        const target = event.currentTarget;
+    #handleDeleteArrayElement(event, target) {
         const idx = parseInt(closestData(target, "index", "0"));
         const { value, address } = this.#getArray(target);
 
@@ -323,9 +327,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle rolling a skill check
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleRollSkill(event) {
-        const target = event.currentTarget;
+    #handleRollSkill(event, target) {
         const skill = closestData(target, "skill");
         if (!skill) return;
         return this.actor.rollSkill(skill);
@@ -334,9 +338,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle rolling an attack
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleRollAttack(event) {
-        const target = event.currentTarget;
+    #handleRollAttack(event, target) {
         const attackId = closestData(target, "attack-id");
         if (!attackId) return;
         return this.actor.rollAttack(attackId);
@@ -345,9 +349,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle rolling a spell
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleRollSpell(event) {
-        const target = event.currentTarget;
+    #handleRollSpell(event, target) {
         const itemId = closestData(target, "item-id");
         if (!itemId) return;
         return this.actor.rollSpell(itemId);
@@ -356,9 +360,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle rolling damage
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleRollDamage(event) {
-        const target = event.currentTarget;
+    #handleRollDamage(event, target) {
         const serializedImplementsParsed = closestData(target, "damageimplements");
         if (!serializedImplementsParsed) return;
 
@@ -396,9 +400,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     /**
      * Handle rolling active defense
      * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
      */
-    #handleRollActiveDefense(event) {
-        const target = event.currentTarget;
+    #handleRollActiveDefense(event, target) {
         const itemId = closestData(target, "defense-id");
         const defenseType = closestData(target, "defense-type");
         if (!itemId || !defenseType) return;
@@ -428,47 +432,47 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
 
         // Add item handler
         element.querySelectorAll('[data-action="add-item"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleAddItem(event));
+            el.addEventListener("click", (event) => this.#handleAddItem(event, event.currentTarget));
         });
 
         // Delete item handler
         element.querySelectorAll('[data-action="delete-item"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleDeleteItem(event));
+            el.addEventListener("click", (event) => this.#handleDeleteItem(event, event.currentTarget));
         });
 
         // Edit item handler
         element.querySelectorAll('[data-action="edit-item"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleEditItem(event));
+            el.addEventListener("click", (event) => this.#handleEditItem(event, event.currentTarget));
         });
 
         // Toggle equipped handler
         element.querySelectorAll('[data-action="toggle-equipped"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleToggleEquipped(event));
+            el.addEventListener("click", (event) => this.#handleToggleEquipped(event, event.currentTarget));
         });
 
         // Delete array element handler
         element.querySelectorAll('[data-action="delete-array-element"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleDeleteArrayElement(event));
+            el.addEventListener("click", (event) => this.#handleDeleteArrayElement(event, event.currentTarget));
         });
 
         // Add channeled focus handler
         element.querySelectorAll('[data-action="add-channeled-focus"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleAddChanneledFocus(event));
+            el.addEventListener("click", (event) => this.#handleAddChanneledFocus(event, event.currentTarget));
         });
 
         // Add channeled health handler
         element.querySelectorAll('[data-action="add-channeled-health"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleAddChanneledHealth(event));
+            el.addEventListener("click", (event) => this.#handleAddChanneledHealth(event, event.currentTarget));
         });
 
         // Long rest handler
         element.querySelectorAll('[data-action="long-rest"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleLongRest(event));
+            el.addEventListener("click", (event) => this.#handleLongRest(event, event.currentTarget));
         });
 
         // Short rest handler
         element.querySelectorAll('[data-action="short-rest"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleShortRest(event));
+            el.addEventListener("click", (event) => this.#handleShortRest(event, event.currentTarget));
         });
 
         // Show/hide skills handler
@@ -569,27 +573,27 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
 
         // Roll skill handler
         element.querySelectorAll('[data-action="roll-skill"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollSkill(event));
+            el.addEventListener("click", (event) => this.#handleRollSkill(event, event.currentTarget));
         });
 
         // Roll attack handler
         element.querySelectorAll('[data-action="roll-attack"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollAttack(event));
+            el.addEventListener("click", (event) => this.#handleRollAttack(event, event.currentTarget));
         });
 
         // Roll spell handler
         element.querySelectorAll('[data-action="roll-spell"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollSpell(event));
+            el.addEventListener("click", (event) => this.#handleRollSpell(event, event.currentTarget));
         });
 
         // Roll damage handler
         element.querySelectorAll('[data-action="roll-damage"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollDamage(event));
+            el.addEventListener("click", (event) => this.#handleRollDamage(event, event.currentTarget));
         });
 
         // Roll active defense handler
         element.querySelectorAll('[data-action="roll-active-defense"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollActiveDefense(event));
+            el.addEventListener("click", (event) => this.#handleRollActiveDefense(event, event.currentTarget));
         });
 
         html.find(".add-tick").click((event) => {
