@@ -271,7 +271,7 @@
                     {{#each generalSkills as |skill skillId|}}
                     <li class="list-item draggable" data-skill="{{skillId}}">
                         <label>
-                            <a class="rollable">
+                            <a class="rollable" data-action="roll-skill">
                                 {{localize skill.label}}
                             </a>
                         </label>
@@ -325,7 +325,7 @@
                     {{#each magicSkills as |skill skillId|}}
                     <li class="list-item draggable" data-skill="{{skillId}}">
                         <label>
-                            <a class="rollable">{{localize skill.label}}</a>
+                            <a class="rollable" data-action="roll-skill">{{localize skill.label}}</a>
                         </label>
                         <div class="points">
                             <input name="system.skills.{{skillId}}.points" type="text" value="{{skill.points}}">
