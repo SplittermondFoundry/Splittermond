@@ -12,6 +12,7 @@ import { foundryRollTest } from "./api/Roll.test";
 import { modifierTest } from "./modifier.test";
 import { foundryKeybindingsTest } from "./api/keybindings.test";
 import { combatTest } from "./combat.test";
+import { apiConstantsTest } from "./apiConstants.test";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}
@@ -23,6 +24,7 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.applications", applicationTests);
     quench.registerBatch("splittermond.item", itemTest);
     quench.registerBatch("splittermond.actor", actorTest);
+    quench.registerBatch("splittermond.apiConstants", apiConstantsTest);
     quench.registerBatch("splittermond.combat", combatTest);
     quench.registerBatch("splittermond.chatSystem", chatActionFeatureTest);
     quench.registerBatch("splittermond.dataModel", dataModelTest);
