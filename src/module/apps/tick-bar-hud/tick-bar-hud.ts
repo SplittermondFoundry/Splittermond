@@ -15,9 +15,10 @@ import { initMaxWidthTransitionForTickBarHud } from "./tickBarResizing";
 import type { FoundryCombat, FoundryCombatant } from "module/api/foundryTypes";
 import type SplittermondItem from "module/item/item";
 import { combatantIsPaused, CombatPauseType } from "module/combat";
+import type SplittermondCombat from "module/combat/combat";
 
 export default class TickBarHud extends SplittermondApplication {
-    viewed: FoundryCombat | null = null;
+    viewed: SplittermondCombat | null = null;
     viewedTick: number = 0;
     currentTick: number = 0;
     lastStatusTick: number = 0;
@@ -54,12 +55,14 @@ export default class TickBarHud extends SplittermondApplication {
         super(options);
     }
 
-    get combats(): FoundryCombat[] {
+    get combats(): SplittermondCombat[] {
         const currentScene = foundryApi.currentScene;
-        return foundryApi.combats.filter((c: FoundryCombat) => c.scene === null || c.scene === currentScene);
+        return foundryApi.combats.filter(
+            (c: FoundryCombat) => c.scene === null || c.scene === currentScene
+        ) as SplittermondCombat[];
     }
 
-    get firstApplicableCombat(): FoundryCombat | null {
+    get firstApplicableCombat(): SplittermondCombat | null {
         const combats = this.combats;
         //Finds the first active combat or the first combat if none is active. Null if no combats exist
         return combats.length ? combats.find((c) => c.isActive) || combats[0] : null;
@@ -90,7 +93,7 @@ export default class TickBarHud extends SplittermondApplication {
             const combat = this.viewed;
             let wasOnCurrentTick = this.currentTick == this.viewedTick;
 
-            this.currentTick = Math.round(combat.turns[combat.turn]?.initiative ?? 0);
+            this.currentTick = Math.round(combat?.currentTick ?? 0);
 
             if (isNaN(this.currentTick)) {
                 this.currentTick = 0;
@@ -224,6 +227,11 @@ export default class TickBarHud extends SplittermondApplication {
                     }
                 });
             });
+
+            //Prevent reissuing of status effects when initializing foundry and rendering the HUD for the first time
+            if (options.isFirstRender) {
+                return data;
+            }
             for (let index = 0; index < activatedStatusTokens.length; index++) {
                 const element = activatedStatusTokens[index];
                 // noinspection ES6MissingAwait Chat message is info for the user, we don't need to await it.
