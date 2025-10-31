@@ -22,7 +22,7 @@ export default class SplittermondCombat extends Combat {
         if (iniA === iniB) {
             iniA = Math.random();
             iniB = Math.random();
-            console.log("SplittermondCombat._sortCombatants: random INI!");
+            console.log(`Splittermond | Random initiative for actors ${a.name}, ${b.name}!`);
         }
 
         return iniA + (a.isDefeated ? 1000 : 0) - (iniB + (b.isDefeated ? 1000 : 0));
@@ -30,7 +30,7 @@ export default class SplittermondCombat extends Combat {
 
     async startCombat() {
         await super.startCombat();
-        this.update({ round: this.calculateCurrentRound() ?? 0 });
+        this.update({ round: this.calculateCurrentRound() });
         return this;
     }
 
@@ -99,13 +99,15 @@ export default class SplittermondCombat extends Combat {
             return null;
         }
     }
+
+    /** @returns {number} */
     calculateCurrentRound() {
         const round = Math.floor(this.currentTick ?? 0);
         if ([CombatPauseType.keepReady, CombatPauseType.wait].includes(round)) {
             /**@type number*/
             return this.round; //reuse the last stored round value if all combatants are paused
         }
-        return round;
+        return Math.max(round, 1); //combat does not like negative round numbers.
     }
 
     async nextRound() {

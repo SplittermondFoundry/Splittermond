@@ -1,3 +1,11 @@
+## 13.7.2
+
+### Fixed
+
+- Ein Fehler wurde behoben bei dem Kämpfe nicht gestartet werden konnten wenn Token mit negativen Initiativen
+  hinzugefügt wurden.
+- Ein Fehler wurde behoben bei dem bereits ausgelöste Statuseffekte bei Kampfbeginn erneut ausgelöst wurden.
+
 ## 13.7.1
 
 ### Other
