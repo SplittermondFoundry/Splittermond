@@ -129,7 +129,7 @@ export default class SplittermondCombat extends Combat {
         });
 
         if (this.started) {
-            for (let [i, id] of ids.entries()) {
+            for (const id of Array.isArray(ids) ? ids : [ids]) {
                 let combatant = this.combatants.get(id);
                 await this.setInitiative(combatant.id, Math.max(combatant.initiative + tick, tick));
             }
