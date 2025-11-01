@@ -26,10 +26,19 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         return sheetData;
     }
     activateListeners(html) {
-        html.find('input[name^="derivedAttributes"]').change(this._onChangeDerivedAttribute.bind(this));
-        html.find('input[name="damageReduction"]').change(this._onChangeDamageReduction.bind(this));
+        const element = html[0];
 
-        html.find('input[name^="system.skills"][name$="value"]').change(this._onChangeSkill.bind(this));
+        element.querySelectorAll('input[name^="derivedAttributes"]').forEach((el) => {
+            el.addEventListener("change", this._onChangeDerivedAttribute.bind(this));
+        });
+
+        element.querySelectorAll('input[name="damageReduction"]').forEach((el) => {
+            el.addEventListener("change", this._onChangeDamageReduction.bind(this));
+        });
+
+        element.querySelectorAll('input[name^="system.skills"][name$="value"]').forEach((el) => {
+            el.addEventListener("change", this._onChangeSkill.bind(this));
+        });
 
         super.activateListeners(html);
     }

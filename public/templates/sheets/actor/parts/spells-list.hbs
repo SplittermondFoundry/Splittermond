@@ -48,13 +48,14 @@
             </label>
             <div class="difficulty">{{this.difficulty}}</div>
             <div class="costs" data-type="focus" data-description="{{this.name}}">
-                <a class="consume" data-value="{{this.costs}}">{{this.costs}}</a>
-                &nbsp;(<a class="consume"
+                <a class="consume" data-action="consume" data-value="{{this.costs}}">{{this.costs}}</a>
+                &nbsp;(<a class="consume" data-action="consume"
                     data-description="{{this.name}} - {{localize 'splittermond.enhancementCosts'}}"
                     data-value="{{this.enhancementCosts}}">{{this.enhancementCosts}}</a>)
             </div>
             <div class="cast-duration">
-                <a class="add-tick" data-ticks="{{this.castDuration.inTicks}}" data-message="{{localize "
+                <a class="add-tick" data-action="add-tick" data-ticks="{{this.castDuration.inTicks}}"
+                   data-message="{{localize "
                     splittermond.castDuration"}}: {{this.name}}">
                     {{this.castDuration}}
                 </a>

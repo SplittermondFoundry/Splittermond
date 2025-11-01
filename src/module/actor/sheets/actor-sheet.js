@@ -413,6 +413,46 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         return this.actor.rollActiveDefense(defenseType, defenseItem);
     }
 
+    /**
+     * Handle adding ticks
+     * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
+     */
+    #handleAddTick(event, target) {
+        const value = closestData(target, "ticks");
+        const message = closestData(target, "message");
+        this.actor.addTicks(value, message);
+    }
+
+    /**
+     * Handle consuming resources (focus/health)
+     * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
+     */
+    #handleConsume(event, target) {
+        const type = closestData(target, "type");
+        const value = closestData(target, "value");
+        if (type === "focus") {
+            const description = closestData(target, "description");
+            this.actor.consumeCost(type, value, description);
+        }
+    }
+
+    /**
+     * Handle opening defense dialog
+     * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
+     */
+    #handleOpenDefenseDialog(event, target) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const defenseType = target.getAttribute("data-defense-type");
+        if (defenseType && ["defense", "bodyresist", "mindresist"].includes(defenseType)) {
+            this.actor.activeDefenseDialog(defenseType);
+        }
+    }
+
     /** @param {JQuery} html*/
     activateListeners(html) {
         autoExpandInputs(html[0]);
@@ -512,29 +552,6 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             });
         });
 
-        html.find(".rollable").on("click", (event) => {
-            const type = $(event.currentTarget).closestData("roll-type");
-            if (type === "skill") {
-                this.#handleRollSkill(event, event.currentTarget);
-            }
-
-            if (type === "attack") {
-                this.#handleRollAttack(event, event.currentTarget);
-            }
-
-            if (type === "spell") {
-                this.#handleRollSpell(event, event.currentTarget);
-            }
-
-            if (type === "damage") {
-                this.#handleRollDamage(event, event.currentTarget);
-            }
-
-            if (type === "activeDefense") {
-                this.#handleRollActiveDefense(event, event.currentTarget);
-            }
-        });
-
         // Roll skill handler
         element.querySelectorAll('[data-action="roll-skill"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleRollSkill(event, event.currentTarget));
@@ -560,41 +577,19 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             el.addEventListener("click", (event) => this.#handleRollActiveDefense(event, event.currentTarget));
         });
 
-        html.find(".add-tick").click((event) => {
-            let value = $(event.currentTarget).closestData("ticks");
-            let message = $(event.currentTarget).closestData("message");
-
-            this.actor.addTicks(value, message);
+        // Add tick handler
+        element.querySelectorAll('[data-action="add-tick"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleAddTick(event, event.currentTarget));
         });
 
-        html.find(".consume").click((event) => {
-            const type = $(event.currentTarget).closestData("type");
-            const value = $(event.currentTarget).closestData("value");
-            if (type === "focus") {
-                const description = $(event.currentTarget).closestData("description");
-                this.actor.consumeCost(type, value, description);
-            }
+        // Consume handler
+        element.querySelectorAll('[data-action="consume"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleConsume(event, event.currentTarget));
         });
 
-        html.find(".derived-attribute#defense label").click((event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            this.actor.activeDefenseDialog("defense");
-        });
-
-        html.find(".derived-attribute#bodyresist label").click((event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            this.actor.activeDefenseDialog("bodyresist");
-        });
-
-        html.find(".derived-attribute#mindresist label").click((event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            this.actor.activeDefenseDialog("mindresist");
+        // Open defense dialog handler
+        element.querySelectorAll('[data-action="open-defense-dialog"]').forEach((el) => {
+            el.addEventListener("click", (event) => this.#handleOpenDefenseDialog(event, event.currentTarget));
         });
 
         html.find(".item-list .item")

@@ -81,17 +81,24 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
     }
 
     activateListeners(html) {
-        html.find('.attribute input[name$="value"]').change(this._onChangeAttribute.bind(this));
-        html.find('.attribute input[name$="start"]').change((event) => {
-            event.preventDefault();
-            const input = event.currentTarget;
-            const value = parseInt(input.value);
-            const attrBaseName = input.name.split(".")[2];
-            const speciesValue = parseInt(
-                getProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.species`)
-            );
-            this.actor.update({
-                [`system.attributes.${attrBaseName}.initial`]: value - speciesValue,
+        const element = html[0];
+
+        element.querySelectorAll('.attribute input[name$="value"]').forEach((el) => {
+            el.addEventListener("change", this._onChangeAttribute.bind(this));
+        });
+
+        element.querySelectorAll('.attribute input[name$="start"]').forEach((el) => {
+            el.addEventListener("change", (event) => {
+                event.preventDefault();
+                const input = event.currentTarget;
+                const value = parseInt(input.value);
+                const attrBaseName = input.name.split(".")[2];
+                const speciesValue = parseInt(
+                    getProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.species`)
+                );
+                this.actor.update({
+                    [`system.attributes.${attrBaseName}.initial`]: value - speciesValue,
+                });
             });
         });
 

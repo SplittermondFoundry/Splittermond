@@ -28,7 +28,8 @@
                 <li class="list-item draggable" data-attack-id="{{this.id}}">
                     <img width="32" height="32" src="{{{this.img}}}">
                     <label>
-                        <a class="rollable">{{localize this.name}} {{#if this.isDamaged}} ({{localize
+                        <a class="rollable" data-action="roll-attack">{{localize this.name}} {{#if this.isDamaged}}
+                            ({{localize
                             "splittermond.damageLevels.tarnished"}}){{/if}}</a>
                     </label>
                     <div class="value">
@@ -40,12 +41,13 @@
                         {{/if}}
                     </div>
                     <div class="damage">
-                        <a class="rollable" data-roll-type="damage" data-damageimplements="{{this.damageImplements}}" data-damage="{{this.damage}}"
+                        <a class="rollable" data-action="roll-damage" data-roll-type="damage"
+                           data-damageimplements="{{this.damageImplements}}" data-damage="{{this.damage}}"
                             data-costtype="{{this.costType}}" data-source="{{this.name}}">{{this.damage}}</a>
                     </div>
                     <div class="range">{{this.range}}</div>
                     <div class="weapon-speed">
-                        <a class="add-tick" data-ticks="{{this.weaponSpeed}}"
+                        <a class="add-tick" data-action="add-tick" data-ticks="{{this.weaponSpeed}}"
                             data-message="{{localize 'splittermond.attack'}}: {{this.name}}">
                             {{this.weaponSpeed}}
                         </a>
