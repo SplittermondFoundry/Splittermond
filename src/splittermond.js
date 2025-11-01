@@ -178,6 +178,7 @@ Hooks.once("init", async function () {
         `${templateBasePath}/sheets/actor/parts/status-tab.hbs`,
     ]);
 
+    Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
     Handlebars.registerHelper("times", function (n, block) {
         var accum = "";
         for (var i = 0; i < n; ++i) accum += block.fn(i);

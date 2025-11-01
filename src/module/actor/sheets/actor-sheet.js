@@ -26,8 +26,6 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
     async getData() {
         const sheetData = super.getData();
 
-        Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
-
         sheetData.hideSkills = this._hideSkills;
         sheetData.generalSkills = {};
         CONFIG.splittermond.skillGroups.general
