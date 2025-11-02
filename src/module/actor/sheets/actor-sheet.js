@@ -12,15 +12,42 @@ import { closestData } from "module/data/ClosestDataMixin.js";
 import { SplittermondBaseActorSheet } from "module/data/SplittermondApplication.js";
 
 export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
-    constructor(...args) {
-        super(...args);
+    static DEFAULT_OPTIONS = {
+        classes: ["splittermond", "sheet", "actor"],
+        actions: {
+            "inc-value": SplittermondActorSheet.#increaseValue,
+            "dec-value": SplittermondActorSheet.#decreaseValue,
+        },
+    };
+
+    constructor(options) {
+        const instanceDefaults = {
+            actions: {
+                "short-rest": (e, t) => this.#handleShortRest(e, t),
+                "long-rest": (e, t) => this.#handleLongRest(e, t),
+                "add-item": (e, t) => this.#handleAddItem(e, t),
+                "delete-item": (e, t) => this.#handleDeleteItem(e, t),
+                "edit-item": (e, t) => this.#handleEditItem(e, t),
+                "toggle-equipped": (e, t) => this.#handleToggleEquipped(e, t),
+                "delete-array-element": (e, t) => this.#handleDeleteArrayElement(e, t),
+                "add-channeled-focus": (e, t) => this.#handleAddChanneledFocus(e, t),
+                "add-channeled-health": (e, t) => this.#handleAddChanneledHealth(e, t),
+                "show-hide-skills": (e, t) => this.#handleShowHideSkills(e, t),
+                "roll-skill": (e, t) => this.#handleRollSkill(e, t),
+                "roll-attack": (e, t) => this.#handleRollAttack(e, t),
+                "roll-spell": (e, t) => this.#handleRollSpell(e, t),
+                "roll-damage": (e, t) => this.#handleRollDamage(e, t),
+                "roll-active-defense": (e, t) => this.#handleRollActiveDefense(e, t),
+                "add-tick": (e, t) => this.#handleAddTick(e, t),
+                consume: (e, t) => this.#handleConsume(e, t),
+                "open-defense-dialog": (e, t) => this.#handleOpenDefenseDialog(e, t),
+            },
+        };
+        const actorOptions = foundryApi.utils.mergeObject(instanceDefaults, options);
+        super(actorOptions);
         this._hoverOverlays = [];
         this._hideSkills = true;
     }
-
-    static DEFAULT_OPTIONS = {
-        classes: ["splittermond", "sheet", "actor"],
-    };
 
     async _prepareContext(options) {
         const sheetData = { ...(await super._prepareContext(options)), ...this.actor.toObject() };
@@ -458,68 +485,6 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         await super._onRender(context, options);
         autoExpandInputs(this.element);
 
-        this.element.querySelectorAll('[data-action="inc-value"]').forEach((el) => {
-            el.addEventListener("click", (event) => {
-                SplittermondActorSheet.#increaseValue(event, event.currentTarget);
-            });
-        });
-
-        this.element.querySelectorAll('[data-action="dec-value"]').forEach((el) => {
-            el.addEventListener("click", (event) => {
-                SplittermondActorSheet.#decreaseValue(event, event.currentTarget);
-            });
-        });
-
-        // Add item handler
-        this.element.querySelectorAll('[data-action="add-item"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleAddItem(event, event.currentTarget));
-        });
-
-        // Delete item handler
-        this.element.querySelectorAll('[data-action="delete-item"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleDeleteItem(event, event.currentTarget));
-        });
-
-        // Edit item handler
-        this.element.querySelectorAll('[data-action="edit-item"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleEditItem(event, event.currentTarget));
-        });
-
-        // Toggle equipped handler
-        this.element.querySelectorAll('[data-action="toggle-equipped"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleToggleEquipped(event, event.currentTarget));
-        });
-
-        // Delete array element handler
-        this.element.querySelectorAll('[data-action="delete-array-element"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleDeleteArrayElement(event, event.currentTarget));
-        });
-
-        // Add channeled focus handler
-        this.element.querySelectorAll('[data-action="add-channeled-focus"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleAddChanneledFocus(event, event.currentTarget));
-        });
-
-        // Add channeled health handler
-        this.element.querySelectorAll('[data-action="add-channeled-health"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleAddChanneledHealth(event, event.currentTarget));
-        });
-
-        // Long rest handler
-        this.element.querySelectorAll('[data-action="long-rest"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleLongRest(event, event.currentTarget));
-        });
-
-        // Short rest handler
-        this.element.querySelectorAll('[data-action="short-rest"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleShortRest(event, event.currentTarget));
-        });
-
-        // Show/hide skills handler
-        this.element.querySelectorAll('[data-action="show-hide-skills"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleShowHideSkills(event, event.currentTarget));
-        });
-
         this.element.querySelectorAll("input[data-field]").forEach((el) => {
             el.addEventListener("change", (event) => {
                 const element = event.currentTarget;
@@ -550,46 +515,6 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 }
                 this.actor.update({ [address]: value });
             });
-        });
-
-        // Roll skill handler
-        this.element.querySelectorAll('[data-action="roll-skill"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollSkill(event, event.currentTarget));
-        });
-
-        // Roll attack handler
-        this.element.querySelectorAll('[data-action="roll-attack"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollAttack(event, event.currentTarget));
-        });
-
-        // Roll spell handler
-        this.element.querySelectorAll('[data-action="roll-spell"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollSpell(event, event.currentTarget));
-        });
-
-        // Roll damage handler
-        this.element.querySelectorAll('[data-action="roll-damage"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollDamage(event, event.currentTarget));
-        });
-
-        // Roll active defense handler
-        this.element.querySelectorAll('[data-action="roll-active-defense"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleRollActiveDefense(event, event.currentTarget));
-        });
-
-        // Add tick handler
-        this.element.querySelectorAll('[data-action="add-tick"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleAddTick(event, event.currentTarget));
-        });
-
-        // Consume handler
-        this.element.querySelectorAll('[data-action="consume"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleConsume(event, event.currentTarget));
-        });
-
-        // Open defense dialog handler
-        this.element.querySelectorAll('[data-action="open-defense-dialog"]').forEach((el) => {
-            el.addEventListener("click", (event) => this.#handleOpenDefenseDialog(event, event.currentTarget));
         });
 
         $(this.element)
@@ -692,7 +617,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                         const skillData = this.actor.skills[skillId];
                         content += skillData.tooltip();
 
-                        let masteryList = html.find(`.list.masteries li[data-skill="${skillId}"]`);
+                        let masteryList = $(this.element).find(`.list.masteries li[data-skill="${skillId}"]`);
 
                         if (masteryList.html()) {
                             let posLeft = masteryList.offset().left;
