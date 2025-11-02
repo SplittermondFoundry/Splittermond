@@ -403,7 +403,7 @@ export async function importNpc(rawData: string) {
                     break;
                 case /Zauber:/.test(tokenizedData[i]):
                     let spells: PartialItemData<SpellDataModelType>[] = [];
-                    let skill = "";
+                    let skill = "arcanelore" as SplittermondSkill;
                     let level = 0;
                     tokenizedData[i + 1]
                         .replace(/\n/g, " ")

@@ -7,6 +7,7 @@ import { SpellDataModelType } from "../../item";
 import { ItemFeatureDataModel } from "../../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DataModelConstructorInput } from "../../api/DataModel";
 import { CastDurationModel } from "module/item/dataModel/propertyModels/CastDurationModel";
+import type { SplittermondSkill } from "module/config/skillGroups";
 
 export async function importSpell(spellName: string, rawData: string, folder: string): Promise<SplittermondSpellItem> {
     let spellData = {
@@ -23,7 +24,7 @@ export async function importSpell(spellName: string, rawData: string, folder: st
             features: {
                 internalFeatureList: [] as ItemFeatureDataModel[],
             },
-            skill: null,
+            skill: "arcanelore" as SplittermondSkill,
             skillLevel: null,
             source: null,
             availableIn: null,
