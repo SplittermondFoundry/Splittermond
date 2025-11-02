@@ -5,6 +5,16 @@ export function apiConstantsTest(context: QuenchBatchContext) {
     const { describe, it, expect } = context;
 
     describe("API Constants", () => {
+        it("delivers the correct chat message types", () => {
+            const types = foundryApi.chatMessageTypes;
+            expect(types, "chatMessageTypes is an object").to.be.an("object");
+            expect(Object.keys(types).length).to.equal(4);
+            expect(types.EMOTE, "chatMessageTypes has an emote").to.be.a("number");
+            expect(types.IC, "chatMessageTypes has an in character").to.be.a("number");
+            expect(types.OOC, "chatMessageTypes has an out of character").to.be.a("number");
+            expect(types.OTHER, "chatMessageTypes has an other").to.be.a("number");
+        });
+
         it("has the correct roll modes", () => {
             const rollModes = foundryApi.rollModes;
             expect(rollModes, "rollModes is an object").to.be.an("object");

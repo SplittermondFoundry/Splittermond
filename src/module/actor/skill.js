@@ -1,7 +1,7 @@
 import Modifiable from "./modifiable";
 import CheckDialog from "../apps/dialog/check-dialog";
-import * as Dice from "../util/dice";
-import * as Chat from "../util/chat";
+import { Dice } from "../util/dice";
+import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty } from "../util/rollDifficultyParser";
 import { asString } from "module/modifiers/expressions/scalar";
@@ -115,19 +115,19 @@ export default class Skill extends Modifiable {
     /**
      * @param {{
      *  difficulty: ?RollDifficultyString,
-     *  preSelectedModifier: string[],
+     *  preSelectedModifier: ?string[],
      *  subtitle: ?string,
      *  title: ?string,
-     *  type: string,
-     *  modifier: number,
-     *  checkMessageData: Record<string, any>,
+     *  type: ?string,
+     *  modifier: ?number,
+     *  checkMessageData: ?Record<string, any>,
      *  askUser?: boolean,
      * }} options
      * @return {Promise<*|boolean>}
      */
     async roll(options = {}) {
         let checkData = await this.finalizeCheckInputData(
-            options.preSelectedModifier ?? [],
+            options.preSelectedModifier,
             options.title,
             options.subtitle,
             options.difficulty,
@@ -137,7 +137,7 @@ export default class Skill extends Modifiable {
         if (!checkData) {
             return false;
         }
-        const principalTarget = Array.from(game.user.targets)[0];
+        const principalTarget = Array.from(foundryApi.currentUser.targets)[0];
         const rollDifficulty = parseRollDifficulty(checkData.difficulty);
         let hideDifficulty = rollDifficulty.isTargetDependentValue();
         if (principalTarget) {
@@ -209,7 +209,7 @@ export default class Skill extends Modifiable {
             ...(options.checkMessageData || {}),
         };
 
-        return ChatMessage.create(
+        return foundryApi.createChatMessage(
             await Chat.prepareCheckMessageData(this.actor, checkData.rollMode, rollResult.roll, checkMessageData)
         );
     }
@@ -219,7 +219,7 @@ export default class Skill extends Modifiable {
      */
 
     /**
-     * @param {string[]} selectedModifiers
+     * @param {?string[]} selectedModifiers
      * @param {?string} title
      * @param {?string} subtitle
      * @param {?RollDifficultyString} difficulty
@@ -241,7 +241,7 @@ export default class Skill extends Modifiable {
                 rollType: "standard",
             };
         }
-        return this.prepareRollDialog(selectedModifiers, title, subtitle, difficulty, modifier);
+        return this.prepareRollDialog(selectedModifiers ?? [], title, subtitle, difficulty, modifier);
     }
 
     /**
