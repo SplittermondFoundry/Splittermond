@@ -10,7 +10,11 @@ export type ApplicationRenderContext = Parameters<SplittermondApplication["_onRe
 
 export class SplittermondApplication extends ClosestDataMixin(FoundryHandlebarsMixin(FoundryApplication)) {}
 
-export class SplittermondBaseActorSheet extends FoundryHandlebarsMixin(FoundryActorSheet) {}
+export class SplittermondBaseActorSheet extends FoundryHandlebarsMixin(FoundryActorSheet) {
+    get actor(): SplittermondActor {
+        return super.actor as SplittermondActor;
+    }
+}
 
 export class SplittermondBaseItemSheet extends FoundryHandlebarsMixin(FoundryItemSheet) {
     get document(): SplittermondItem {

@@ -256,7 +256,9 @@ declare namespace foundry {
                 get actor(): Actor | null;
                 get item(): Item;
             }
-            class ActorSheetV2 extends DocumentSheetV2 {}
+            class ActorSheetV2 extends DocumentSheetV2 {
+                get actor(): Actor;
+            }
         }
     }
 

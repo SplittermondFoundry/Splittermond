@@ -1,12 +1,8 @@
-<div class="subnav" data-group="fight-action-type">
-    <a class="subnav-item active" data-group="fight-action-type" data-tab="attack">{{ localize
-        "splittermond.attack" }}</a>
-    <a class="subnav-item" data-group="fight-action-type" data-tab="defense">{{ localize
-        "splittermond.activeDefense"
-        }}</a>
-</div>
+{{> "templates/generic/tab-navigation.hbs" tabs=combatTabs.tabs}}
+
 <div class="tab-list">
-    <div class="tab" data-tab="attack" data-group="fight-action-type">
+    <section class="tab {{#if (eq combatTabs.initial "attack")}}active{{/if}}" data-tab="attack"
+             data-group="fight-action-type">
         <div class="list attack" data-roll-type="attack">
             <div class="list-header">
                 <h3>{{localize "splittermond.weapons"}}</h3>
@@ -69,8 +65,9 @@
                 {{/each}}
             </ol>
         </div>
-    </div>
-    <div class="tab active" data-tab="defense" data-group="fight-action-type">
+    </section>
+    <section class="tab {{#if (eq combatTabs.initial "defense")}}active{{/if}}" data-tab="defense"
+             data-group="fight-action-type">
         <div class="list active-defense" data-roll-type="activeDefense">
             <div class="list-header">
                 <h3>{{localize "splittermond.derivedAttribute.defense.long"}}</h3>
@@ -128,5 +125,5 @@
                 {{/each}}
             </ol>
         </div>
-    </div>
+    </section>
 </div>

@@ -3,44 +3,83 @@ import SplittermondActorSheet from "./actor-sheet.js";
 import { foundryApi } from "../../api/foundryApi";
 
 export default class SplittermondCharacterSheet extends SplittermondActorSheet {
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            template: "systems/splittermond/templates/sheets/actor/character-sheet.hbs",
-            classes: ["splittermond", "sheet", "actor"],
+    static DEFAULT_OPTIONS = {
+        classes: ["splittermond", "sheet", "actor"],
+        position: { width: 750 },
+        overlays: ["#health", "#focus"],
+        tag: "form",
+        form: {
+            submitOnChange: true,
+        },
+    };
+
+    static TABS = {
+        primary: {
             tabs: [
-                { navSelector: ".sheet-navigation[data-group='primary']", contentSelector: "main", initial: "general" },
-                {
-                    navSelector: ".subnav[data-group='fight-action-type']",
-                    contentSelector: "section div.tab-list",
-                    initial: "attack",
-                },
+                { id: "description", group: "primary", label: "splittermond.biography" },
+                { id: "general", group: "primary", label: "splittermond.general" },
+                { id: "skills", group: "primary", label: "splittermond.skills" },
+                { id: "spells", group: "primary", label: "splittermond.spells" },
+                { id: "fight", group: "primary", label: "splittermond.fight" },
+                { id: "inventory", group: "primary", label: "splittermond.inventory" },
+                { id: "status", group: "primary", label: "splittermond.status" },
             ],
-            scrollY: [
-                ,
-                ".tab[data-tab='general']",
-                ".list.skills",
-                ".list.masteries",
-                ".tab[data-tab='spells']",
-                ".tab[data-tab='inventory']",
-                ".tab[data-tab='status']",
-            ],
-            overlays: ["#health", "#focus"],
-            width: 750,
-        });
-    }
+            initial: "general",
+        },
+    };
 
-    async getData() {
-        const sheetData = await super.getData();
+    static PARTS = {
+        header: {
+            template: "systems/splittermond/templates/sheets/actor/parts/character-header.hbs",
+        },
+        tabs: {
+            template: "templates/generic/tab-navigation.hbs",
+        },
+        description: {
+            template: "systems/splittermond/templates/sheets/description.hbs",
+        },
+        general: {
+            template: "systems/splittermond/templates/sheets/actor/parts/character-general-tab.hbs",
+            classes: ["scrollable"],
+        },
+        skills: {
+            template: "systems/splittermond/templates/sheets/actor/parts/character-skills-tab.hbs",
+            classes: ["scrollable"],
+        },
+        spells: {
+            template: "systems/splittermond/templates/sheets/actor/parts/spells-tab.hbs",
+            classes: ["scrollable"],
+        },
+        fight: {
+            template: "systems/splittermond/templates/sheets/actor/parts/fight-tab.hbs",
+        },
+        inventory: {
+            template: "systems/splittermond/templates/sheets/actor/parts/inventory-tab.hbs",
+            classes: ["scrollable"],
+        },
+        status: {
+            template: "systems/splittermond/templates/sheets/actor/parts/status-tab-wrapper.hbs",
+            classes: ["scrollable"],
+        },
+    };
 
-        sheetData.data.system.experience.heroLevelName = game.i18n.localize(
+    async _prepareContext() {
+        const sheetData = await super._prepareContext();
+
+        sheetData.hasRestActions = true;
+        sheetData.data.system.experience.heroLevelName = foundryApi.localize(
             `splittermond.heroLevels.${sheetData.actor.system.experience.heroLevel}`
         );
 
-        sheetData.items.forEach((i) => {
-            if (i.type === "strength") {
-                i.multiple = i.system.quantity > 1;
-            }
-        });
+        sheetData.items.filter((item) => item.type === "strength").forEach((i) => (i.multiple = i.system.quantity > 1));
+
+        sheetData.combatTabs = {
+            tabs: [
+                { id: "attack", group: "fight-action-type", label: "splittermond.attack" },
+                { id: "defense", group: "fight-action-type", label: "splittermond.activeDefense" },
+            ],
+            initial: "attack",
+        };
 
         return sheetData;
     }
@@ -80,14 +119,14 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         }
     }
 
-    activateListeners(html) {
-        const element = html[0];
+    async _onRender(context, options) {
+        await super._onRender(context, options);
 
-        element.querySelectorAll('.attribute input[name$="value"]').forEach((el) => {
+        this.element.querySelectorAll('.attribute input[name$="value"]').forEach((el) => {
             el.addEventListener("change", this._onChangeAttribute.bind(this));
         });
 
-        element.querySelectorAll('.attribute input[name$="start"]').forEach((el) => {
+        this.element.querySelectorAll('.attribute input[name$="start"]').forEach((el) => {
             el.addEventListener("change", (event) => {
                 event.preventDefault();
                 const input = event.currentTarget;
@@ -101,8 +140,6 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
                 });
             });
         });
-
-        super.activateListeners(html);
     }
 
     _onChangeAttribute(event) {

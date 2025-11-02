@@ -9,23 +9,21 @@ import { parseAvailableIn, selectFromAllSkills, selectFromParsedSkills } from ".
 import { userConfirmsItemDeletion } from "module/actor/sheets/askUserForItemDeletion.js";
 import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.ts";
 import { closestData } from "module/data/ClosestDataMixin.js";
+import { SplittermondBaseActorSheet } from "module/data/SplittermondApplication.js";
 
-export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSheet {
+export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     constructor(...args) {
         super(...args);
         this._hoverOverlays = [];
         this._hideSkills = true;
     }
 
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            classes: ["splittermond", "sheet", "actor"],
-        });
-    }
+    static DEFAULT_OPTIONS = {
+        classes: ["splittermond", "sheet", "actor"],
+    };
 
-    async getData() {
-        const sheetData = super.getData();
-
+    async _prepareContext(options) {
+        const sheetData = { ...(await super._prepareContext(options)), ...this.actor.toObject() };
         sheetData.hideSkills = this._hideSkills;
         sheetData.generalSkills = {};
         CONFIG.splittermond.skillGroups.general
@@ -56,20 +54,22 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             .filter(
                 (s) =>
                     !sheetData.hideSkills ||
-                    (sheetData.data.system.skills[s]?.points || 0) > 0 ||
+                    (this.actor.system.skills[s]?.points || 0) > 0 ||
                     this.actor.items.find((i) => i.type === "mastery" && i.system.skill === s)
             )
             .forEach((skill) => {
-                if (!sheetData.data.system.skills[skill]) {
-                    sheetData.data.system[skill] = {
+                if (!this.actor.system.skills[skill]) {
+                    this.actor.system[skill] = {
                         points: 0,
                     };
                 }
-                sheetData.fightingSkills[skill] = duplicate(sheetData.data.system.skills[skill]);
+                sheetData.fightingSkills[skill] = foundryApi.utils.duplicate(this.actor.system.skills[skill]);
                 sheetData.fightingSkills[skill].label = `splittermond.skillLabel.${skill}`;
             });
 
-        sheetData.data.system.biographyHTML = await TextEditor.enrichHTML(sheetData.data.system.biography, {
+        sheetData.data = this.actor.toObject();
+        sheetData.actor = this.actor.toObject();
+        sheetData.data.system.biographyHTML = await foundryApi.utils.enrichHtml(this.actor.system.biography, {
             relativeTo: this.actor,
             rolls: true,
             links: true,
@@ -78,9 +78,17 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             async: true,
         });
 
+        sheetData.items = foundryApi.utils.duplicate(this.actor.items);
         this._prepareItems(sheetData);
-        sheetData.attacks = mapAttacks(sheetData.actor);
-        sheetData.activeDefense = sheetData.actor.activeDefense;
+        sheetData.attacks = mapAttacks(this.actor);
+        sheetData.activeDefense = this.actor.activeDefense;
+        sheetData.combatTabs = {
+            tabs: [
+                { id: "attack", group: "fight-action-type", label: "splittermond.attack" },
+                { id: "defense", group: "fight-action-type", label: "splittermond.activeDefense" },
+            ],
+            initial: "attack",
+        };
 
         console.debug("Splittermond | got actor data");
 
@@ -152,11 +160,6 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             result[item.skill.id].spells.push(item);
             return result;
         }, {});
-    }
-
-    _getClosestData(jQObject, dataName, defaultValue = "") {
-        let value = jQObject.closest(`[data-${dataName}]`)?.data(dataName);
-        return value ? value : defaultValue;
     }
 
     /**
@@ -451,74 +454,73 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         }
     }
 
-    /** @param {JQuery} html*/
-    activateListeners(html) {
-        autoExpandInputs(html[0]);
-        const element = html[0];
+    async _onRender(context, options) {
+        await super._onRender(context, options);
+        autoExpandInputs(this.element);
 
-        element.querySelectorAll('[data-action="inc-value"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="inc-value"]').forEach((el) => {
             el.addEventListener("click", (event) => {
                 SplittermondActorSheet.#increaseValue(event, event.currentTarget);
             });
         });
 
-        element.querySelectorAll('[data-action="dec-value"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="dec-value"]').forEach((el) => {
             el.addEventListener("click", (event) => {
                 SplittermondActorSheet.#decreaseValue(event, event.currentTarget);
             });
         });
 
         // Add item handler
-        element.querySelectorAll('[data-action="add-item"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="add-item"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleAddItem(event, event.currentTarget));
         });
 
         // Delete item handler
-        element.querySelectorAll('[data-action="delete-item"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="delete-item"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleDeleteItem(event, event.currentTarget));
         });
 
         // Edit item handler
-        element.querySelectorAll('[data-action="edit-item"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="edit-item"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleEditItem(event, event.currentTarget));
         });
 
         // Toggle equipped handler
-        element.querySelectorAll('[data-action="toggle-equipped"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="toggle-equipped"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleToggleEquipped(event, event.currentTarget));
         });
 
         // Delete array element handler
-        element.querySelectorAll('[data-action="delete-array-element"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="delete-array-element"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleDeleteArrayElement(event, event.currentTarget));
         });
 
         // Add channeled focus handler
-        element.querySelectorAll('[data-action="add-channeled-focus"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="add-channeled-focus"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleAddChanneledFocus(event, event.currentTarget));
         });
 
         // Add channeled health handler
-        element.querySelectorAll('[data-action="add-channeled-health"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="add-channeled-health"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleAddChanneledHealth(event, event.currentTarget));
         });
 
         // Long rest handler
-        element.querySelectorAll('[data-action="long-rest"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="long-rest"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleLongRest(event, event.currentTarget));
         });
 
         // Short rest handler
-        element.querySelectorAll('[data-action="short-rest"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="short-rest"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleShortRest(event, event.currentTarget));
         });
 
         // Show/hide skills handler
-        element.querySelectorAll('[data-action="show-hide-skills"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="show-hide-skills"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleShowHideSkills(event, event.currentTarget));
         });
 
-        element.querySelectorAll("input[data-field]").forEach((el) => {
+        this.element.querySelectorAll("input[data-field]").forEach((el) => {
             el.addEventListener("change", (event) => {
                 const element = event.currentTarget;
                 let value = element.value;
@@ -532,7 +534,7 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             });
         });
 
-        element.querySelectorAll("[data-array-field]").forEach((el) => {
+        this.element.querySelectorAll("[data-array-field]").forEach((el) => {
             el.addEventListener("change", (event) => {
                 const element = event.currentTarget;
                 const idx = parseInt(closestData(element, "index", "0"));
@@ -551,46 +553,47 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         });
 
         // Roll skill handler
-        element.querySelectorAll('[data-action="roll-skill"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="roll-skill"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleRollSkill(event, event.currentTarget));
         });
 
         // Roll attack handler
-        element.querySelectorAll('[data-action="roll-attack"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="roll-attack"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleRollAttack(event, event.currentTarget));
         });
 
         // Roll spell handler
-        element.querySelectorAll('[data-action="roll-spell"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="roll-spell"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleRollSpell(event, event.currentTarget));
         });
 
         // Roll damage handler
-        element.querySelectorAll('[data-action="roll-damage"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="roll-damage"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleRollDamage(event, event.currentTarget));
         });
 
         // Roll active defense handler
-        element.querySelectorAll('[data-action="roll-active-defense"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="roll-active-defense"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleRollActiveDefense(event, event.currentTarget));
         });
 
         // Add tick handler
-        element.querySelectorAll('[data-action="add-tick"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="add-tick"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleAddTick(event, event.currentTarget));
         });
 
         // Consume handler
-        element.querySelectorAll('[data-action="consume"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="consume"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleConsume(event, event.currentTarget));
         });
 
         // Open defense dialog handler
-        element.querySelectorAll('[data-action="open-defense-dialog"]').forEach((el) => {
+        this.element.querySelectorAll('[data-action="open-defense-dialog"]').forEach((el) => {
             el.addEventListener("click", (event) => this.#handleOpenDefenseDialog(event, event.currentTarget));
         });
 
-        html.find(".item-list .item")
+        $(this.element)
+            .find(".item-list .item")
             .on("dragstart", (event) => {
                 html.find("#splittermond-tooltip").remove();
             })
@@ -603,7 +606,8 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
                 event.currentTarget.style.borderImage = "";
             });
 
-        html.find(".draggable")
+        $(this.element)
+            .find(".draggable")
             .on("dragstart", (event) => {
                 const attackId = event.currentTarget.dataset.attackId;
                 if (attackId) {
@@ -650,139 +654,147 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             })
             .attr("draggable", true);
 
-        html.find(
-            "[data-item-id], .list.skills [data-skill], .derived-attribute, .damage-reduction, .list.attack .value, .list.active-defense .value"
-        ).hover(
-            async (event) => {
-                const itemId = event.currentTarget.dataset.itemId;
-                let content = "";
-                let css = {
-                    top: $(event.currentTarget).offset().top + $(event.currentTarget).outerHeight(),
-                    left: $(event.currentTarget).offset().left,
-                    display: "none",
-                };
-                if (itemId) {
-                    const item = this.actor.items.find((el) => el.id === itemId);
+        $(this.element)
+            .find(
+                "[data-item-id], .list.skills [data-skill], .derived-attribute, .damage-reduction, .list.attack .value, .list.active-defense .value"
+            )
+            .hover(
+                async (event) => {
+                    const itemId = event.currentTarget.dataset.itemId;
+                    let content = "";
+                    let css = {
+                        top: $(event.currentTarget).offset().top + $(event.currentTarget).outerHeight(),
+                        left: $(event.currentTarget).offset().left,
+                        display: "none",
+                    };
+                    if (itemId) {
+                        const item = this.actor.items.find((el) => el.id === itemId);
 
-                    if (!item) return;
+                        if (!item) return;
 
-                    if (item.system.description) {
-                        content = await TextEditor.enrichHTML(item.system.description, { async: true });
-                        if (!content.startsWith("<p>")) {
-                            content = `<p>${content}</p>`;
+                        if (item.system.description) {
+                            content = await TextEditor.enrichHTML(item.system.description, { async: true });
+                            if (!content.startsWith("<p>")) {
+                                content = `<p>${content}</p>`;
+                            }
+                        }
+                        if (item.type === "spell") {
+                            content +=
+                                `<p><strong>` +
+                                foundryApi.localize("splittermond.enhancementDescription") +
+                                ` (${item.system.enhancementCosts}):</strong> ${item.system.enhancementDescription}</p>`;
                         }
                     }
-                    if (item.type === "spell") {
-                        content +=
-                            `<p><strong>` +
-                            foundryApi.localize("splittermond.enhancementDescription") +
-                            ` (${item.system.enhancementCosts}):</strong> ${item.system.enhancementDescription}</p>`;
-                    }
-                }
 
-                const skillId = event.currentTarget.dataset.skill;
+                    const skillId = event.currentTarget.dataset.skill;
 
-                if (skillId && this.actor.skills[skillId]) {
-                    const skillData = this.actor.skills[skillId];
-                    content += skillData.tooltip();
+                    if (skillId && this.actor.skills[skillId]) {
+                        const skillData = this.actor.skills[skillId];
+                        content += skillData.tooltip();
 
-                    let masteryList = html.find(`.list.masteries li[data-skill="${skillId}"]`);
+                        let masteryList = html.find(`.list.masteries li[data-skill="${skillId}"]`);
 
-                    if (masteryList.html()) {
-                        let posLeft = masteryList.offset().left;
-                        let posTop = $(event.currentTarget).offset().top;
+                        if (masteryList.html()) {
+                            let posLeft = masteryList.offset().left;
+                            let posTop = $(event.currentTarget).offset().top;
 
-                        let width = masteryList.outerWidth();
-                        masteryList = masteryList.clone();
+                            let width = masteryList.outerWidth();
+                            masteryList = masteryList.clone();
 
-                        masteryList.find("button").remove();
-                        masteryList = masteryList
-                            .wrapAll(`<div class="list splittermond-tooltip masteries"/>`)
-                            .wrapAll(`<ol class="list-body"/>`)
-                            .parent()
-                            .parent();
-                        masteryList.css({
-                            position: "fixed",
-                            left: posLeft,
-                            top: posTop,
-                            width: width,
-                        });
-                        content += masteryList.wrapAll("<div/>").parent().html();
-                    }
-                }
-
-                if ($(event.currentTarget).closestData("attack-id")) {
-                    let attackId = $(event.currentTarget).closestData("attack-id");
-                    if (this.actor.attacks.find((a) => a.id === attackId)) {
-                        let attack = this.actor.attacks.find((a) => a.id === attackId);
-                        let skill = attack.skill;
-                        content += skill.tooltip();
-                    }
-                }
-
-                if ($(event.currentTarget).closestData("defense-id")) {
-                    let defenseId = $(event.currentTarget).closestData("defense-id");
-                    let defenseData = {};
-                    if (this.actor.activeDefense.defense.find((a) => a.id === defenseId)) {
-                        defenseData = this.actor.activeDefense.defense.find((a) => a.id === defenseId);
+                            masteryList.find("button").remove();
+                            masteryList = masteryList
+                                .wrapAll(`<div class="list splittermond-tooltip masteries"/>`)
+                                .wrapAll(`<ol class="list-body"/>`)
+                                .parent()
+                                .parent();
+                            masteryList.css({
+                                position: "fixed",
+                                left: posLeft,
+                                top: posTop,
+                                width: width,
+                            });
+                            content += masteryList.wrapAll("<div/>").parent().html();
+                        }
                     }
 
-                    if (this.actor.activeDefense.mindresist.find((a) => a.id === defenseId)) {
-                        defenseData = this.actor.activeDefense.mindresist.find((a) => a.id === defenseId);
+                    if ($(event.currentTarget).closestData("attack-id")) {
+                        let attackId = $(event.currentTarget).closestData("attack-id");
+                        if (this.actor.attacks.find((a) => a.id === attackId)) {
+                            let attack = this.actor.attacks.find((a) => a.id === attackId);
+                            let skill = attack.skill;
+                            content += skill.tooltip();
+                        }
                     }
 
-                    if (this.actor.activeDefense.bodyresist.find((a) => a.id === defenseId)) {
-                        defenseData = this.actor.activeDefense.bodyresist.find((a) => a.id === defenseId);
-                    }
-                    if (defenseData) {
-                        content += defenseData.tooltip();
-                    }
-                }
+                    if ($(event.currentTarget).closestData("defense-id")) {
+                        let defenseId = $(event.currentTarget).closestData("defense-id");
+                        let defenseData = {};
+                        if (this.actor.activeDefense.defense.find((a) => a.id === defenseId)) {
+                            defenseData = this.actor.activeDefense.defense.find((a) => a.id === defenseId);
+                        }
 
-                if (event.currentTarget.classList.contains("derived-attribute")) {
-                    let attribute = event.currentTarget.id;
-                    if (this.actor.derivedValues[attribute]) {
-                        content += this.actor.derivedValues[attribute].tooltip();
+                        if (this.actor.activeDefense.mindresist.find((a) => a.id === defenseId)) {
+                            defenseData = this.actor.activeDefense.mindresist.find((a) => a.id === defenseId);
+                        }
+
+                        if (this.actor.activeDefense.bodyresist.find((a) => a.id === defenseId)) {
+                            defenseData = this.actor.activeDefense.bodyresist.find((a) => a.id === defenseId);
+                        }
+                        if (defenseData) {
+                            content += defenseData.tooltip();
+                        }
                     }
-                }
 
-                if (event.currentTarget.classList.contains("damage-reduction") && this.actor.damageReduction !== 0) {
-                    let formula = new Tooltip.TooltipFormula();
-                    this.actor.modifier.getForId("damagereduction").getModifiers().addTooltipFormulaElements(formula);
-                    content += formula.render();
-                }
-
-                if (content) {
-                    let tooltipElement = $(`<div id="splittermond-tooltip"> ${content}</div>`);
-                    html.append(tooltipElement);
-                    if (skillId) {
-                        css.left += $(event.currentTarget).outerWidth() - tooltipElement.outerWidth();
-                        css.top = $(event.currentTarget).offset().top - $(tooltipElement).outerHeight();
+                    if (event.currentTarget.classList.contains("derived-attribute")) {
+                        let attribute = event.currentTarget.id;
+                        if (this.actor.derivedValues[attribute]) {
+                            content += this.actor.derivedValues[attribute].tooltip();
+                        }
                     }
 
                     if (
-                        event.currentTarget.classList.contains("attribute") ||
-                        $(event.currentTarget).closestData("attack-id") ||
-                        $(event.currentTarget).closestData("defense-id")
+                        event.currentTarget.classList.contains("damage-reduction") &&
+                        this.actor.damageReduction !== 0
                     ) {
-                        css.left -= tooltipElement.outerWidth() / 2 - $(event.currentTarget).outerWidth() / 2;
+                        let formula = new Tooltip.TooltipFormula();
+                        this.actor.modifier
+                            .getForId("damagereduction")
+                            .getModifiers()
+                            .addTooltipFormulaElements(formula);
+                        content += formula.render();
                     }
 
-                    /*
+                    if (content) {
+                        let tooltipElement = $(`<div id="splittermond-tooltip"> ${content}</div>`);
+                        $(this.element).append(tooltipElement);
+                        if (skillId) {
+                            css.left += $(event.currentTarget).outerWidth() - tooltipElement.outerWidth();
+                            css.top = $(event.currentTarget).offset().top - $(tooltipElement).outerHeight();
+                        }
+
+                        if (
+                            event.currentTarget.classList.contains("attribute") ||
+                            $(event.currentTarget).closestData("attack-id") ||
+                            $(event.currentTarget).closestData("defense-id")
+                        ) {
+                            css.left -= tooltipElement.outerWidth() / 2 - $(event.currentTarget).outerWidth() / 2;
+                        }
+
+                        /*
                 if (event.currentTarget.classList.contains("attribute")) {
                     css.left += $(event.currentTarget).outerWidth();
                 }
                 */
-                    tooltipElement.css(css).fadeIn();
+                        tooltipElement.css(css).fadeIn();
+                    }
+                },
+                (event) => {
+                    $(this.element).find("div#splittermond-tooltip").remove();
                 }
-            },
-            (event) => {
-                html.find("div#splittermond-tooltip").remove();
-            }
-        );
+            );
 
         if (this._hoverOverlays) {
-            let el = html.find(this._hoverOverlays.join(", "));
+            let el = $(this.element).find(this._hoverOverlays.join(", "));
             if (el.length > 0) {
                 el.addClass("hover");
                 el.hover(function () {
@@ -790,8 +802,6 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
                 });
             }
         }
-
-        super.activateListeners(html);
     }
 
     /**
@@ -859,18 +869,19 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         await super._onDropItemCreate(itemData);
     }
 
-    render(force = false, options = {}) {
+    async render(options = {}) {
+        await super.render(options);
         if (this.options.overlays) {
             let html = this.element;
             this._hoverOverlays = [];
             for (let sel of this.options.overlays) {
-                let el = html.find(sel + ":hover");
+                let el = html.querySelectorAll(sel + ":hover");
                 if (el.length === 1) {
-                    this._hoverOverlays.push(sel);
+                    this._hoverOverlays.push(sel.get(0));
                 }
             }
         }
-        return super.render(force, options);
+        return this;
     }
 }
 

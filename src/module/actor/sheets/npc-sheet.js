@@ -1,46 +1,77 @@
 import SplittermondActorSheet from "./actor-sheet.js";
-import { foundryApi } from "../../api/foundryApi";
 
 export default class SplittermondNPCSheet extends SplittermondActorSheet {
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            template: "systems/splittermond/templates/sheets/actor/npc-sheet.hbs",
-            classes: ["splittermond", "sheet", "actor", "npc"],
-            tabs: [
-                { navSelector: ".sheet-navigation[data-group='primary']", contentSelector: "main", initial: "general" },
-                {
-                    navSelector: ".subnav[data-group='fight-action-type']",
-                    contentSelector: "section div.tab-list",
-                    initial: "attack",
-                },
-            ],
-            scrollY: [".tab[data-tab='general']", ".tab[data-tab='spells']", ".tab[data-tab='inventory']"],
-            submitOnClose: false,
-            overlays: ["#health", "#focus"],
-        });
-    }
+    static DEFAULT_OPTIONS = {
+        classes: ["splittermond", "sheet", "actor", "npc"],
+        window: { submitOnClose: false },
+        overlays: ["#health", "focus"],
+        form: {
+            submitOnChange: true,
+        },
+    };
 
-    async getData() {
-        const sheetData = await super.getData();
+    static TABS = {
+        primary: {
+            tabs: [
+                { id: "biography", group: "primary", label: "splittermond.biography" },
+                { id: "general", group: "primary", label: "splittermond.general" },
+                { id: "spells", group: "primary", label: "splittermond.spells" },
+                { id: "inventory", group: "primary", label: "splittermond.inventory" },
+                { id: "status", group: "primary", label: "splittermond.status" },
+            ],
+            initial: "general",
+        },
+    };
+
+    static PARTS = {
+        header: {
+            template: "systems/splittermond/templates/sheets/actor/parts/npc-header.hbs",
+        },
+        tabs: {
+            template: "templates/generic/tab-navigation.hbs",
+        },
+        biography: {
+            template: "systems/splittermond/templates/sheets/actor/parts/biography-tab.hbs",
+        },
+        general: {
+            template: "systems/splittermond/templates/sheets/actor/parts/npc-general-tab.hbs",
+            classes: ["scrollable"],
+        },
+        spells: {
+            template: "systems/splittermond/templates/sheets/actor/parts/spells-tab.hbs",
+            classes: ["scrollable"],
+        },
+        inventory: {
+            template: "systems/splittermond/templates/sheets/actor/parts/inventory-tab.hbs",
+            classes: ["scrollable"],
+        },
+        status: {
+            template: "systems/splittermond/templates/sheets/actor/parts/status-tab-wrapper.hbs",
+            classes: ["scrollable"],
+        },
+    };
+    async _prepareContext() {
+        const sheetData = await super._prepareContext();
+
+        sheetData.hasRestActions = false;
 
         return sheetData;
     }
-    activateListeners(html) {
-        const element = html[0];
 
-        element.querySelectorAll('input[name^="derivedAttributes"]').forEach((el) => {
+    async _onRender(context, options) {
+        await super._onRender(context, options);
+
+        this.element.querySelectorAll('input[name^="derivedAttributes"]').forEach((el) => {
             el.addEventListener("change", this._onChangeDerivedAttribute.bind(this));
         });
 
-        element.querySelectorAll('input[name="damageReduction"]').forEach((el) => {
+        this.element.querySelectorAll('input[name="damageReduction"]').forEach((el) => {
             el.addEventListener("change", this._onChangeDamageReduction.bind(this));
         });
 
-        element.querySelectorAll('input[name^="system.skills"][name$="value"]').forEach((el) => {
+        this.element.querySelectorAll('input[name^="system.skills"][name$="value"]').forEach((el) => {
             el.addEventListener("change", this._onChangeSkill.bind(this));
         });
-
-        super.activateListeners(html);
     }
     _onChangeDerivedAttribute(event) {
         event.preventDefault();
