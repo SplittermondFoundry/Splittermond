@@ -8,7 +8,7 @@ export default class SplittermondArmorSheet extends SplittermondItemSheet {
     };
 
     get item(): SplittermondArmorItem {
-        return this.item as SplittermondArmorItem;
+        return super.item as SplittermondArmorItem;
     }
 
     _getStatBlock() {

@@ -1,3 +1,9 @@
+## 13.7.3
+
+### Fixed
+
+- Ein Fehler wurde behoben, bei welchem das Öffnen des Rüstungs-Sheets mit einem Stapelüberlauf endete.
+
 ## 13.7.2
 
 ### Fixed
