@@ -4,8 +4,7 @@ import { FoundryDialog } from "module/api/Application";
 import { RollMode } from "module/api/foundryTypes";
 import { ApplicationRenderContext } from "module/data/SplittermondApplication";
 import { RollType } from "module/config/RollType";
-
-export type RollDifficultyString = number | "VTD" | "KW" | "GW";
+import { RollDifficultyString } from "module/util/rollDifficultyParser";
 
 export interface CheckDialogInput {
     title?: string;
