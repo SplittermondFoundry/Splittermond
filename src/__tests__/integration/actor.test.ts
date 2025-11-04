@@ -356,7 +356,7 @@ export function actorTest(context: QuenchBatchContext) {
             });
             const underTest = new SplittermondActorSheet({ document: actor, editable: true });
 
-            await underTest._onDropItemCreate(spell);
+            await underTest._onDropDocument(new DragEvent("drop"), spell);
 
             const itemOnActor = actor.items.find((i) => i.name === spell.name);
             expect(itemOnActor).to.exist;
@@ -371,7 +371,7 @@ export function actorTest(context: QuenchBatchContext) {
             });
             const underTest = new SplittermondActorSheet({ document: actor, editable: true });
 
-            await underTest._onDropItemCreate(mastery);
+            await underTest._onDropDocument(new DragEvent("drop"), mastery);
 
             const itemOnActor = actor.items.find((i) => i.name === mastery.name);
             expect(itemOnActor).to.exist;
@@ -394,7 +394,7 @@ export function actorTest(context: QuenchBatchContext) {
             });
             const underTest = new SplittermondActorSheet({ document: actor, editable: true });
 
-            await underTest._onDropItemCreate(spell.toObject());
+            await underTest._onDropDocument(new DragEvent("drop"), spell);
 
             const itemOnActor = actor.items.find((i) => i.name === spell.name);
             expect(itemOnActor).to.exist;

@@ -258,6 +258,11 @@ declare namespace foundry {
             }
             class ActorSheetV2 extends DocumentSheetV2 {
                 get actor(): Actor;
+
+                _onDropDocument<T extends FoundryDocument>(
+                    event: DragEvent,
+                    document: FoundryDocument
+                ): Promise<null | T>;
             }
         }
     }

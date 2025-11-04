@@ -88,6 +88,8 @@ const foundryApplicationSheets = {
         get actor() {
             return this.options.document;
         }
+
+        _onDropDocument() {}
     },
 };
 

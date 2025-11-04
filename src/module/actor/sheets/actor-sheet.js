@@ -766,17 +766,18 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     }
 
     /**
-     * @param {SplittermondItem} itemData
-     * @returns {Promise<void>}
+     * @param {DragEvent} _e
+     * @param {FoundryDocument} document
+     * @returns {Promise<null|FoundryDocument>}
      */
-    async _onDropItemCreate(itemData) {
-        if (itemData.type === "spell") {
+    async _onDropDocument(_e, document) {
+        if (document.type === "spell") {
             const allowedSkills = splittermond.skillGroups.magic;
             const dialogTitle = foundryApi.localize("splittermond.chooseMagicSkill");
-            const parsed = parseAvailableIn(itemData.system?.availableIn ?? "", allowedSkills);
+            const parsed = parseAvailableIn(document.system?.availableIn ?? "", allowedSkills);
             let selectedSkill;
-            if (parsed.length === 0 && allowedSkills.includes(itemData.system?.skill)) {
-                selectedSkill = { skill: itemData.system.skill, level: itemData.system.skillLevel ?? 0 };
+            if (parsed.length === 0 && allowedSkills.includes(document.system?.skill)) {
+                selectedSkill = { skill: document.system.skill, level: document.system.skillLevel ?? 0 };
             } else if (parsed.length > 1) {
                 selectedSkill = await selectFromParsedSkills(
                     parsed.filter((s) => s.level !== null),
@@ -790,19 +791,18 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
             if (!selectedSkill) return;
 
-            itemData.system.skill = selectedSkill.skill;
-            itemData.system.skillLevel = selectedSkill.level;
+            document.system.updateSource({ skill: selectedSkill.skill, skillLevel: selectedSkill.level });
         }
-        if (itemData.type === "mastery") {
+        if (document.type === "mastery") {
             const allowedSkills = splittermond.skillGroups.all;
             const dialogTitle = foundryApi.localize("splittermond.chooseSkill");
-            const parsed = parseAvailableIn(itemData.system?.availableIn ?? "", allowedSkills).map((s) => ({
+            const parsed = parseAvailableIn(document.system?.availableIn ?? "", allowedSkills).map((s) => ({
                 ...s,
-                level: itemData.system.level ?? 1,
+                level: document.system.level ?? 1,
             }));
             let selectedSkill;
-            if (parsed.length === 0 && allowedSkills.includes(itemData.system?.skill)) {
-                selectedSkill = { skill: itemData.system.skill, level: itemData.system.skillLevel ?? 0 };
+            if (parsed.length === 0 && allowedSkills.includes(document.system?.skill)) {
+                selectedSkill = { skill: document.system.skill, level: document.system.skillLevel ?? 0 };
             } else if (parsed.length > 1) {
                 selectedSkill = await selectFromParsedSkills(parsed, dialogTitle);
             } else if (parsed.length === 0) {
@@ -812,11 +812,10 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             }
             if (!selectedSkill) return;
 
-            itemData.system.skill = selectedSkill.skill;
-            itemData.system.level = selectedSkill.level;
+            document.system.updateSource({ skill: selectedSkill.skill, level: selectedSkill.level });
         }
 
-        await this.actor.createEmbeddedDocuments("Item", [itemData]);
+        return super._onDropDocument(_e, document);
     }
 
     async render(options = {}) {
