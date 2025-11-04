@@ -21,7 +21,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     };
 
     static STATS_TAB = {
-        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/stats-section.hbs`,
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/stats-section.hbs`,
         templates: [
             `${TEMPLATE_BASE_PATH}/sheets/actor/parts/focus-health.hbs`,
             `${TEMPLATE_BASE_PATH}/sheets/actor/parts/derived-attributes.hbs`,
@@ -34,19 +34,19 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         template: `${TEMPLATE_BASE_PATH}/sheets/editor.hbs`,
     };
     static SPELLS_TAB = {
-        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/spells-tab.hbs`,
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/spells-tab.hbs`,
         classes: ["scrollable"],
     };
     static FIGHT_TAB = {
-        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/fight-tab.hbs`,
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/fight-tab.hbs`,
         templates: [`${TEMPLATE_BASE_PATH}/sheets/actor/parts/combat-actions.hbs`],
     };
     static INVENTORY_TAB = {
-        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/inventory-tab.hbs`,
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/inventory-tab.hbs`,
         classes: ["scrollable"],
     };
     static STATUS_TAB = {
-        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/status-tab.hbs`,
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/status-tab.hbs`,
         classes: ["scrollable"],
     };
 

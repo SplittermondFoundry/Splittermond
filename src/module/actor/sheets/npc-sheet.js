@@ -26,13 +26,13 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
 
     static PARTS = {
         header: {
-            template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/npc-header.hbs`,
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/npc-header.hbs`,
         },
         stats: super.STATS_TAB,
         tabs: super.NAVIGATION,
         editor: super.BIOGRAPHY_TAB,
         general: {
-            template: "${TEMPLATE_BASE_PATH}/sheets/actor/parts/npc-general-tab.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/npc-general-tab.hbs`,
             templates: [
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/attribute-input.hbs`,
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-list.hbs`,

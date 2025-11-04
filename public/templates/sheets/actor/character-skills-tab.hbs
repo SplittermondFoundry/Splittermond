@@ -1,8 +1,7 @@
-<section class="tab {{tabs.general.id}} {{tabs.general.cssClass}}" data-group="primary" data-tab="general">
-{{!-- NPC-specific general tab with attributes and skills (value-based, not points) --}}
-{{> "systems/splittermond/templates/sheets/actor/parts/attribute-input.hbs" attributes=actor.attributes}}
-<div data-roll-type="skill">
-    <div class="list skills">
+<section class="tab {{tabs.skills.id}} {{tabs.skills.cssClass}}" data-group="primary" data-tab="skills">
+    {{!-- Character-specific skills tab with points allocation --}}
+    {{> "systems/splittermond/templates/sheets/actor/parts/attribute-input.hbs" attributes=actor.attributes}}
+    <div class="list skills" data-roll-type="skill">
         <div class="list-header">
             <h3>{{localize "splittermond.generalSkills"}}</h3>
             <div class="list-actions">
@@ -23,15 +22,16 @@
                             {{localize skill.label}}
                         </a>
                     </label>
-                    <div class="value">
-                        <input name="system.skills.{{skillId}}.value" type="text" value="{{skill.value}}"
-                               data-dtype="Number">
+                    <div class="points">
+                        <input class="spinner spinner-horizontal" name="system.skills.{{skillId}}.points" type="text"
+                               value="{{skill.points}}">
                     </div>
+                    <div class="attribute">{{localize skill.attribute1.label.short}}</div>
+                    <div class="attribute">{{localize skill.attribute2.label.short}}</div>
+                    <div class="value">{{skill.value}}</div>
                 </li>
             {{/each}}
         </ol>
-    </div>
-    <div class="list skills">
         <div class="list-header">
             <h3>{{localize "splittermond.fightingSkills"}}</h3>
             <div class="list-actions">
@@ -56,8 +56,6 @@
                 </li>
             {{/each}}
         </ol>
-    </div>
-    <div class="list skills">
         <div class="list-header">
             <h3>{{localize "splittermond.magicSkills"}}</h3>
             <div class="list-actions">
@@ -76,22 +74,17 @@
                     <label>
                         <a class="rollable" data-action="roll-skill">{{localize skill.label}}</a>
                     </label>
-                    <div class="value"><input name="system.skills.{{skillId}}.value" type="text"
-                                              value="{{skill.value}}" data-dtype="Number">
+                    <div class="points">
+                        <input name="system.skills.{{skillId}}.points" type="text" value="{{skill.points}}">
                     </div>
+                    <div class="attribute">{{localize skill.attribute1.label.short}}</div>
+                    <div class="attribute">{{localize skill.attribute2.label.short}}</div>
+                    <div class="value">{{skill.value}}</div>
                 </li>
             {{/each}}
         </ol>
     </div>
-</div>
-
-<div>
-    <div>
-        {{> "systems/splittermond/templates/sheets/actor/parts/combat-actions.hbs"
-                activeDefense=activeDefense attacks=attacks}}
-    </div>
     {{> "systems/splittermond/templates/sheets/actor/parts/mastery-list.hbs"
             masteriesBySkill=masteriesBySkill generalSkills=generalSkills fightingSkills=fightingSkills
             magicSkills=magicSkills}}
-</div>
 </section>

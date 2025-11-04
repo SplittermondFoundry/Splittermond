@@ -31,17 +31,17 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
 
     static PARTS = {
         header: {
-            template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/character-header.hbs`,
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/character-header.hbs`,
         },
         stats: super.STATS_TAB,
         tabs: super.NAVIGATION,
         editor: super.BIOGRAPHY_TAB,
         general: {
-            template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/character-general-tab.hbs`,
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/character-general-tab.hbs`,
             classes: ["scrollable"],
         },
         skills: {
-            template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/character-skills-tab.hbs`,
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/character-skills-tab.hbs`,
             templates: [
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/attribute-input.hbs`,
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-list.hbs`,
