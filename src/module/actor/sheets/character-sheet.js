@@ -2,6 +2,7 @@ import SplittermondSpeciesWizard from "../../apps/wizards/species.ts";
 import SplittermondActorSheet from "./actor-sheet.js";
 import { foundryApi } from "../../api/foundryApi";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { splittermond } from "module/config/index.js";
 
 export default class SplittermondCharacterSheet extends SplittermondActorSheet {
     static DEFAULT_OPTIONS = {
@@ -75,7 +76,10 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         return sheetData;
     }
 
-    async _onDropItemCreate(itemData) {
+    _hasValidItemType(itemType) {
+        return isMember(splittermond.itemTypes.character.droppable, itemType);
+    }
+    async _onDropDocument(_e, itemData) {
         if (itemData.type === "species") {
             let wizard = new SplittermondSpeciesWizard(this.actor, itemData);
             wizard.render(true);
@@ -88,26 +92,7 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
                 const deleted = await this.actor.deleteEmbeddedDocuments("Item", moonsignIds);
             }
         }
-
-        if (
-            [
-                "mastery",
-                "strength",
-                "weakness",
-                "resource",
-                "spell",
-                "weapon",
-                "equipment",
-                "shield",
-                "armor",
-                "moonsign",
-                "culturelore",
-                "statuseffect",
-                "spelleffect",
-            ].includes(itemData.type)
-        ) {
-            return super._onDropItemCreate(itemData);
-        }
+        return super._onDropDocument(_e, itemData);
     }
 
     async _onRender(context, options) {

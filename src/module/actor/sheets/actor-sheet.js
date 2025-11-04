@@ -771,6 +771,11 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
      * @returns {Promise<null|FoundryDocument>}
      */
     async _onDropDocument(_e, document) {
+        if (!this._hasValidItemType(document.type)) {
+            const translatedType = foundryApi.localize(`TYPES.Item.${document.type}`);
+            foundryApi.informUser("splittermond.applications.actorSheet.invalidItemType", { type: translatedType });
+            return null;
+        }
         if (document.type === "spell") {
             const allowedSkills = splittermond.skillGroups.magic;
             const dialogTitle = foundryApi.localize("splittermond.chooseMagicSkill");
@@ -816,6 +821,16 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         }
 
         return super._onDropDocument(_e, document);
+    }
+
+    /**
+     * Overwrite to determine what Items can be dropped on this actor
+     * @param {ItemType} itemType
+     * @return {boolean}
+     * @protected
+     */
+    _hasValidItemType(itemType) {
+        return true;
     }
 
     async render(options = {}) {

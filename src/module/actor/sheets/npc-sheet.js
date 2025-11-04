@@ -1,5 +1,7 @@
 import SplittermondActorSheet from "./actor-sheet.js";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { isMember } from "module/util/util.js";
+import { splittermond } from "module/config/index.js";
 
 export default class SplittermondNPCSheet extends SplittermondActorSheet {
     static DEFAULT_OPTIONS = {
@@ -123,22 +125,7 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         }
     }
 
-    async _onDropItemCreate(itemData) {
-        if (
-            [
-                "mastery",
-                "npcfeature",
-                "spell",
-                "weapon",
-                "equipment",
-                "shield",
-                "armor",
-                "statuseffect",
-                "spelleffect",
-                "npcattack",
-            ].includes(itemData.type)
-        ) {
-            return super._onDropItemCreate(itemData);
-        }
+    _hasValidItemType(itemType) {
+        return isMember(splittermond.itemTypes.npc.droppable, itemType);
     }
 }

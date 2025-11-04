@@ -35,7 +35,7 @@ const damageTypeMapper = initMapper(splittermond.damageTypes)
     .withTranslator((t) => `splittermond.damageTypes.long.${t}`)
     .andOtherMappers((t) => `splittermond.damageTypes.short.${t}`)
     .build();
-const itemTypeMapper = initMapper(splittermond.itemTypes)
+const itemTypeMapper = initMapper(splittermond.itemTypes.all)
     .withTranslator((t) => `TYPES.Item.${t}`)
     .build();
 
@@ -132,7 +132,7 @@ class NoValueAdornmentNormalizer {
         skills: { collection: splittermond.skillGroups.all, mapper: skillMapper },
         modifiers: { collection: modifierKeys, mapper: modifierKeyMapper },
         damageTypes: { collection: splittermond.damageTypes, mapper: damageTypeMapper },
-        itemTypes: { collection: splittermond.itemTypes, mapper: itemTypeMapper },
+        itemTypes: { collection: splittermond.itemTypes.all, mapper: itemTypeMapper },
     } as const;
     constructor(private readonly descriptor: string) {}
 

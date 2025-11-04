@@ -117,7 +117,7 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
         const normalized = this.normalizeAttribute(itemType, "itemTypes");
         if (!normalized) {
             return undefined;
-        } else if (!(splittermond.itemTypes as Readonly<string[]>).includes(normalized)) {
+        } else if (!(splittermond.itemTypes.all as Readonly<string[]>).includes(normalized)) {
             this.reportInvalidDescriptor(path, "itemType", normalized);
             return normalized;
         } else {

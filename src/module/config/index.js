@@ -10,7 +10,7 @@ import { skillGroups } from "./skillGroups";
 import { damageTypeOptions, damageTypes } from "./damageTypes";
 import { attributes, derivedAttributes } from "./attributes";
 import { itemFeatures } from "./itemFeatures";
-import { itemTypes } from "./itemTypes";
+import { droppableCharacterItemTypes, itemTypes } from "./itemTypes";
 import { time } from "module/config/timeUnits";
 import { splinterpoints } from "module/config/splinterpoints.js";
 
@@ -1139,7 +1139,15 @@ splittermond.degreeOfSuccessThresholds = {
 };
 splittermond.splinterpoints = splinterpoints;
 splittermond.damageTypes = damageTypes;
-splittermond.itemTypes = itemTypes;
+splittermond.itemTypes = {
+    all: itemTypes,
+    character: {
+        droppable: droppableCharacterItemTypes,
+    },
+    npc: {
+        droppable: droppableCharacterItemTypes,
+    },
+};
 splittermond.time = time;
 
 splittermond.settings = {
