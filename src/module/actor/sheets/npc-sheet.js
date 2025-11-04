@@ -13,7 +13,7 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
     static TABS = {
         primary: {
             tabs: [
-                { id: "biography", group: "primary", label: "splittermond.biography" },
+                { id: "editor", group: "primary", label: "splittermond.biography" },
                 { id: "general", group: "primary", label: "splittermond.general" },
                 { id: "spells", group: "primary", label: "splittermond.spells" },
                 { id: "inventory", group: "primary", label: "splittermond.inventory" },
@@ -27,11 +27,14 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         header: {
             template: "systems/splittermond/templates/sheets/actor/parts/npc-header.hbs",
         },
+        stats: {
+            template: "systems/splittermond/templates/sheets/actor/parts/stats-section.hbs",
+        },
         tabs: {
             template: "templates/generic/tab-navigation.hbs",
         },
-        biography: {
-            template: "systems/splittermond/templates/sheets/actor/parts/biography-tab.hbs",
+        editor: {
+            template: "systems/splittermond/templates/sheets/editor.hbs",
         },
         general: {
             template: "systems/splittermond/templates/sheets/actor/parts/npc-general-tab.hbs",

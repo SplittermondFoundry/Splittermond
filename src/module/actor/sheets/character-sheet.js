@@ -16,7 +16,7 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
     static TABS = {
         primary: {
             tabs: [
-                { id: "description", group: "primary", label: "splittermond.biography" },
+                { id: "editor", group: "primary", label: "splittermond.biography" },
                 { id: "general", group: "primary", label: "splittermond.general" },
                 { id: "skills", group: "primary", label: "splittermond.skills" },
                 { id: "spells", group: "primary", label: "splittermond.spells" },
@@ -32,11 +32,14 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         header: {
             template: "systems/splittermond/templates/sheets/actor/parts/character-header.hbs",
         },
+        stats: {
+            template: "systems/splittermond/templates/sheets/actor/parts/stats-section.hbs",
+        },
         tabs: {
             template: "templates/generic/tab-navigation.hbs",
         },
-        description: {
-            template: "systems/splittermond/templates/sheets/description.hbs",
+        editor: {
+            template: "systems/splittermond/templates/sheets/editor.hbs",
         },
         general: {
             template: "systems/splittermond/templates/sheets/actor/parts/character-general-tab.hbs",
@@ -67,8 +70,8 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         const sheetData = await super._prepareContext();
 
         sheetData.hasRestActions = true;
-        sheetData.data.system.experience.heroLevelName = foundryApi.localize(
-            `splittermond.heroLevels.${sheetData.actor.system.experience.heroLevel}`
+        sheetData.system.experience.heroLevelName = foundryApi.localize(
+            `splittermond.heroLevels.${sheetData.system.experience.heroLevel}`
         );
 
         sheetData.items.filter((item) => item.type === "strength").forEach((i) => (i.multiple = i.system.quantity > 1));

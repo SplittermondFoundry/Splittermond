@@ -66,10 +66,10 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     static TABS = {
         primary: {
             tabs: [
-                { id: "description", group: "primary", label: "splittermond.description" },
+                { id: "editor", group: "primary", label: "splittermond.description" },
                 { id: "properties", group: "primary", label: "splittermond.properties" },
             ],
-            initial: "description",
+            initial: "editor",
         },
     };
 
@@ -83,8 +83,8 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         tabs: {
             template: "templates/generic/tab-navigation.hbs",
         },
-        description: {
-            template: "systems/splittermond/templates/sheets/description.hbs",
+        editor: {
+            template: "systems/splittermond/templates/sheets/editor.hbs",
         },
         properties: {
             template: "systems/splittermond/templates/sheets/item/properties.hbs",
@@ -164,19 +164,23 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     async _preparePartContext(partId: string, context: any, options: any): Promise<any> {
         const data = await super._preparePartContext(partId, context, options);
         switch (partId) {
-            case "description":
-                return await this.#prepareDescriptionPart(data);
+            case "editor":
+                return await this.#prepareEditorPart(data);
             case "statBlock":
                 return await this.#prepareStatBlockPart(data);
         }
         return data;
     }
 
-    async #prepareDescriptionPart(context: any): Promise<any> {
-        context.description = await this.htmlEnricher(this.document.system.description ?? "", {
-            secrets: this.document.isOwner,
-            relativeTo: this.document,
-        });
+    async #prepareEditorPart(context: any): Promise<any> {
+        context.editor = {
+            value: this.item.system.description ?? "",
+            target: "system.description",
+            content: await this.htmlEnricher(this.document.system.description ?? "", {
+                secrets: this.document.isOwner,
+                relativeTo: this.document,
+            }),
+        };
         context.editable = context.editable ?? false;
         return context;
     }

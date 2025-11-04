@@ -2,8 +2,9 @@
     {{#each attributes as |attribute attributeId|}}
     <div class="attribute" id="{{attributeId}}">
         <label for="system.attributes.{{attributeId}}.value" title="{{localize attribute.label.long}}">{{localize
-            attribute.label.short}}</label>
+                attribute.label.short}}
         <input name="system.attributes.{{attributeId}}.value" type="text" value="{{attribute.value}}" data-dtype="Number">
+        </label>
     </div>
     {{/each}}
 </div>

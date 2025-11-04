@@ -50,10 +50,29 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     }
 
     async _prepareContext(options) {
-        const sheetData = { ...(await super._prepareContext(options)), ...this.actor.toObject() };
+        const sheetData = {
+            ...(await super._prepareContext(options)),
+            img: this.actor.img,
+            name: this.actor.name,
+            system: this.actor.system.toObject(false),
+            attributes: this.actor.attributes,
+            attacks: mapAttacks(this.actor),
+            activeDefense: this.actor.activeDefense,
+            generalSkills: null,
+            magicSkills: null,
+            fightingSkills: null,
+            derivedAttributes: this.actor.derivedValues,
+            damageReduction: this.actor.damageReduction,
+            editor: {
+                target: "system.biography",
+                content: "",
+                value: this.actor.system.biography,
+            },
+        };
+        sheetData.derivedEditable = sheetData.editable && this.actor.type !== "character";
         sheetData.hideSkills = this._hideSkills;
         sheetData.generalSkills = {};
-        CONFIG.splittermond.skillGroups.general
+        splittermond.skillGroups.general
             .filter(
                 (s) =>
                     !sheetData.hideSkills ||
@@ -65,7 +84,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 sheetData.generalSkills[skill] = this.actor.skills[skill];
             });
         sheetData.magicSkills = {};
-        CONFIG.splittermond.skillGroups.magic
+        splittermond.skillGroups.magic
             .filter(
                 (s) =>
                     !sheetData.hideSkills ||
@@ -77,7 +96,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             });
 
         sheetData.fightingSkills = {};
-        CONFIG.splittermond.skillGroups.fighting
+        splittermond.skillGroups.fighting
             .filter(
                 (s) =>
                     !sheetData.hideSkills ||
@@ -94,9 +113,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 sheetData.fightingSkills[skill].label = `splittermond.skillLabel.${skill}`;
             });
 
-        sheetData.data = this.actor.toObject();
-        sheetData.actor = this.actor.toObject();
-        sheetData.data.system.biographyHTML = await foundryApi.utils.enrichHtml(this.actor.system.biography, {
+        sheetData.editor.content = await foundryApi.utils.enrichHtml(this.actor.system.biography, {
             relativeTo: this.actor,
             rolls: true,
             links: true,
@@ -105,10 +122,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             async: true,
         });
 
-        sheetData.items = foundryApi.utils.duplicate(this.actor.items);
+        sheetData.items = this.actor.items.map((i) => i.toObject(false));
         this._prepareItems(sheetData);
-        sheetData.attacks = mapAttacks(this.actor);
-        sheetData.activeDefense = this.actor.activeDefense;
+
         sheetData.combatTabs = {
             tabs: [
                 { id: "attack", group: "fight-action-type", label: "splittermond.attack" },

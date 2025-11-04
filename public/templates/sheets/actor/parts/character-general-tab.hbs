@@ -8,7 +8,7 @@
         <div class="max">{{localize "splittermond.max"}}</div>
     </div>
     <ul class="list-body">
-        {{#each actor.attributes as |attribute attributeId|}}
+        {{#each attributes as |attribute attributeId|}}
             <li class="list-item attribute">
                 <label for="system.attributes.{{attributeId}}.value"
                        title="{{localize attribute.label.long}}">{{localize
