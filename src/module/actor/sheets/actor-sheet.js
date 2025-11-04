@@ -258,7 +258,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
      * @param {HTMLElement} target - The target element
      */
     #handleAddItem(target) {
-        const itemType = target.closest("[data-item-type]")?.getAttribute("data-item-type") || "";
+        const itemType = closestData(target, "item-type") ?? "";
         const renderSheet = Boolean((target.dataset.renderSheet || "true") === "true");
         let itemData = {
             name: foundryApi.localize("splittermond." + itemType),
