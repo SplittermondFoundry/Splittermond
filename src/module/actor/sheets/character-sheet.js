@@ -41,6 +41,10 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         },
         skills: {
             template: "systems/splittermond/templates/sheets/actor/parts/character-skills-tab.hbs",
+            templates: [
+                `systems/splittermond/templates/sheets/actor/parts/attribute-input.hbs`,
+                `systems/splittermond/templates/sheets/actor/parts/mastery-list.hbs`,
+            ],
             classes: ["scrollable"],
         },
         spells: super.SPELLS_TAB,

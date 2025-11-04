@@ -32,10 +32,14 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         editor: super.BIOGRAPHY_TAB,
         general: {
             template: "systems/splittermond/templates/sheets/actor/parts/npc-general-tab.hbs",
+            templates: [
+                `systems/splittermond/templates/sheets/actor/parts/attribute-input.hbs`,
+                `systems/splittermond/templates/sheets/actor/parts/mastery-list.hbs`,
+                `systems/splittermond/templates/sheets/actor/parts/combat-actions.hbs`,
+            ],
             classes: ["scrollable"],
         },
         spells: super.SPELLS_TAB,
-        fight: super.FIGHT_TAB,
         inventory: super.INVENTORY_TAB,
         status: super.STATUS_TAB,
     };

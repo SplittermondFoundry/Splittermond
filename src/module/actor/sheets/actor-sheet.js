@@ -39,6 +39,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     };
     static FIGHT_TAB = {
         template: "systems/splittermond/templates/sheets/actor/parts/fight-tab.hbs",
+        templates: [`systems/splittermond/templates/sheets/actor/parts/combat-actions.hbs`],
     };
     static INVENTORY_TAB = {
         template: "systems/splittermond/templates/sheets/actor/parts/inventory-tab.hbs",

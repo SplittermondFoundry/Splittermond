@@ -166,13 +166,6 @@ Hooks.once("init", async function () {
 
     const templateBasePath = "systems/splittermond/templates";
 
-    loadTemplates([
-        // Actor Partials
-        `${templateBasePath}/sheets/actor/parts/attribute-input.hbs`,
-        `${templateBasePath}/sheets/actor/parts/mastery-list.hbs`,
-        `${templateBasePath}/sheets/actor/parts/combat-actions.hbs`,
-    ]);
-
     Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
     Handlebars.registerHelper("times", function (n, block) {
         var accum = "";
