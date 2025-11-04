@@ -1,6 +1,7 @@
-import { foundryApi } from "../../../../api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 import { UserReport, UserReportRecord } from "./UserReporterImpl";
 import { CostType } from "../../../costs/costTypes";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 export interface DamageRecord {
     baseId: string;
@@ -29,7 +30,7 @@ export class Renderer {
     async getHtml(): Promise<string> {
         const damageRecord = this.mapData();
         const targetHasSplinterpoints = this.getTargetSplinterpoints() > 0;
-        return await foundryApi.renderer("systems/splittermond/templates/apps/dialog/new-damage-report.hbs", {
+        return await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/apps/dialog/new-damage-report.hbs`, {
             ...damageRecord,
             displaySplinterpoints: targetHasSplinterpoints,
         });

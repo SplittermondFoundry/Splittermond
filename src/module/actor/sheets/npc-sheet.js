@@ -1,4 +1,5 @@
 import SplittermondActorSheet from "./actor-sheet.js";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 export default class SplittermondNPCSheet extends SplittermondActorSheet {
     static DEFAULT_OPTIONS = {
@@ -25,17 +26,17 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
 
     static PARTS = {
         header: {
-            template: "systems/splittermond/templates/sheets/actor/parts/npc-header.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/npc-header.hbs`,
         },
         stats: super.STATS_TAB,
         tabs: super.NAVIGATION,
         editor: super.BIOGRAPHY_TAB,
         general: {
-            template: "systems/splittermond/templates/sheets/actor/parts/npc-general-tab.hbs",
+            template: "${TEMPLATE_BASE_PATH}/sheets/actor/parts/npc-general-tab.hbs",
             templates: [
-                `systems/splittermond/templates/sheets/actor/parts/attribute-input.hbs`,
-                `systems/splittermond/templates/sheets/actor/parts/mastery-list.hbs`,
-                `systems/splittermond/templates/sheets/actor/parts/combat-actions.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/attribute-input.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-list.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/combat-actions.hbs`,
             ],
             classes: ["scrollable"],
         },

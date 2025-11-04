@@ -1,6 +1,7 @@
 import * as Tooltip from "./tooltip.js";
 import { foundryApi } from "../api/foundryApi.ts";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel.js";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 export const Chat = {
     canEditMessageOf,
@@ -32,7 +33,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         actions: [],
     };
 
-    let template = "systems/splittermond/templates/chat/skill-check.hbs";
+    let template = `${TEMPLATE_BASE_PATH}/chat/skill-check.hbs`;
 
     let flagsData = data;
 
@@ -290,7 +291,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
  * @return {Promise<{user, speaker: any, content: string, sound: string, type: (0 & CHAT_MESSAGE_STYLES) | (3 & DetectionMode.DETECTION_TYPES) | number}>}
  */
 export async function prepareStatusEffectMessage(actor, data) {
-    let template = "systems/splittermond/templates/chat/status-effect.hbs";
+    let template = `${TEMPLATE_BASE_PATH}/chat/status-effect.hbs`;
     let templateContext = {
         ...data,
         actions: [],

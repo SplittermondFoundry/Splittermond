@@ -8,6 +8,8 @@ export type ApplicationContextOptions = Parameters<SplittermondApplication["_pre
 export type RenderOptions = Parameters<SplittermondApplication["render"]>[0];
 export type ApplicationRenderContext = Parameters<SplittermondApplication["_onRender"]>[0];
 
+export const TEMPLATE_BASE_PATH = `systems/splittermond/templates` as const;
+
 export class SplittermondApplication extends ClosestDataMixin(FoundryHandlebarsMixin(FoundryApplication)) {}
 
 export class SplittermondBaseActorSheet extends FoundryHandlebarsMixin(FoundryActorSheet) {

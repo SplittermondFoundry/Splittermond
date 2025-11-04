@@ -1,11 +1,12 @@
-import { DataModelSchemaType, fields, SplittermondDataModel } from "../../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { DamageMessageData } from "./interfaces";
 import { addToRegistry } from "../chatMessageRegistry";
 import { DamageEvent } from "../../damage/DamageEvent";
-import { foundryApi } from "../../../api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 import { DamageFeature, DamageFeatureSchema } from "../../damage/DamageFeature";
 import { damageHandlers } from "./damageApplicationHandlers";
-import { ChatMessageModel } from "../../../data/SplittermondChatMessage";
+import { ChatMessageModel } from "module/data/SplittermondChatMessage";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 const constructorRegistryKey = "DamageMessage";
 
@@ -34,7 +35,7 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
     }
 
     get template() {
-        return "systems/splittermond/templates/chat/damage-roll.hbs";
+        return `${TEMPLATE_BASE_PATH}/chat/damage-roll.hbs`;
     }
 
     getData(): DamageMessageData {

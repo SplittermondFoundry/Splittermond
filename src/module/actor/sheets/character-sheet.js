@@ -1,6 +1,7 @@
 import SplittermondSpeciesWizard from "../../apps/wizards/species.ts";
 import SplittermondActorSheet from "./actor-sheet.js";
 import { foundryApi } from "../../api/foundryApi";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 export default class SplittermondCharacterSheet extends SplittermondActorSheet {
     static DEFAULT_OPTIONS = {
@@ -30,20 +31,20 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
 
     static PARTS = {
         header: {
-            template: "systems/splittermond/templates/sheets/actor/parts/character-header.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/character-header.hbs`,
         },
         stats: super.STATS_TAB,
         tabs: super.NAVIGATION,
         editor: super.BIOGRAPHY_TAB,
         general: {
-            template: "systems/splittermond/templates/sheets/actor/parts/character-general-tab.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/character-general-tab.hbs`,
             classes: ["scrollable"],
         },
         skills: {
-            template: "systems/splittermond/templates/sheets/actor/parts/character-skills-tab.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/character-skills-tab.hbs`,
             templates: [
-                `systems/splittermond/templates/sheets/actor/parts/attribute-input.hbs`,
-                `systems/splittermond/templates/sheets/actor/parts/mastery-list.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/attribute-input.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-list.hbs`,
             ],
             classes: ["scrollable"],
         },

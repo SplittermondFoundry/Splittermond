@@ -6,7 +6,7 @@ import { itemRetriever } from "../../data/EntityRetriever";
 import SplittermondItem from "../../item/item";
 import { CompendiumPacks } from "../../api/foundryTypes";
 import { closestData } from "../../data/ClosestDataMixin";
-import { SplittermondApplication } from "../../data/SplittermondApplication";
+import { SplittermondApplication, TEMPLATE_BASE_PATH } from "../../data/SplittermondApplication";
 
 type ItemIndexEntity = {
     type: string;
@@ -44,16 +44,16 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     };
     static PARTS = {
         tabs: {
-            template: "systems/splittermond/templates/apps/compendium-browser/parts/tabs.hbs",
+            template: `${TEMPLATE_BASE_PATH}/apps/compendium-browser/parts/tabs.hbs`,
         },
         spell: {
-            template: "systems/splittermond/templates/apps/compendium-browser/parts/spell.hbs",
+            template: `${TEMPLATE_BASE_PATH}/apps/compendium-browser/parts/spell.hbs`,
         },
         mastery: {
-            template: "systems/splittermond/templates/apps/compendium-browser/parts/mastery.hbs",
+            template: `${TEMPLATE_BASE_PATH}/apps/compendium-browser/parts/mastery.hbs`,
         },
         weapon: {
-            template: "systems/splittermond/templates/apps/compendium-browser/parts/weapon.hbs",
+            template: `${TEMPLATE_BASE_PATH}/apps/compendium-browser/parts/weapon.hbs`,
         },
     };
 

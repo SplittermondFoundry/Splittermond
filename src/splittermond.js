@@ -35,6 +35,7 @@ import { initializeCosts } from "module/util/costs/index.js";
 import { addTicks } from "module/combat/addTicks.js";
 import { initializeCombat } from "module/combat/index.js";
 import { closestData } from "module/data/ClosestDataMixin.js";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -164,18 +165,16 @@ Hooks.once("init", async function () {
         label: "splittermond.npcattack",
     });
 
-    const templateBasePath = "systems/splittermond/templates";
-
     Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
     Handlebars.registerHelper("times", function (n, block) {
         var accum = "";
         for (var i = 0; i < n; ++i) accum += block.fn(i);
         return accum;
     });
-    getTemplate(`${templateBasePath}/chat/partials/degree-of-success-display.hbs`).then((template) => {
+    getTemplate(`${TEMPLATE_BASE_PATH}/chat/partials/degree-of-success-display.hbs`).then((template) => {
         Handlebars.registerPartial("degree-of-success-display", template);
     });
-    getTemplate(`${templateBasePath}/chat/partials/roll-result.hbs`).then((template) => {
+    getTemplate(`${TEMPLATE_BASE_PATH}/chat/partials/roll-result.hbs`).then((template) => {
         Handlebars.registerPartial("roll-result", template);
     });
 

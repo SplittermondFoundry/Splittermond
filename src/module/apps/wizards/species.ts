@@ -1,7 +1,11 @@
 import SplittermondWizard from "./wizard";
 import { foundryApi } from "../../api/foundryApi";
 import { splittermond } from "../../config";
-import { ApplicationContextOptions, ApplicationRenderContext } from "../../data/SplittermondApplication";
+import {
+    ApplicationContextOptions,
+    ApplicationRenderContext,
+    TEMPLATE_BASE_PATH,
+} from "../../data/SplittermondApplication";
 import SplittermondActor from "../../actor/actor";
 import SplittermondItem from "../../item/item";
 import { SpeciesDataModel } from "../../item/dataModel/SpeciesDataModel";
@@ -36,7 +40,7 @@ export default class SplittermondSpeciesWizard extends SplittermondWizard {
 
     static PARTS = {
         form: {
-            template: "systems/splittermond/templates/apps/wizards/species.hbs",
+            template: `${TEMPLATE_BASE_PATH}/apps/wizards/species.hbs`,
         },
     };
 

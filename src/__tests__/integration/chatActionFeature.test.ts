@@ -8,6 +8,7 @@ import SplittermondActor from "../../module/actor/actor";
 import SplittermondSpellItem from "module/item/spell";
 import { CheckReport } from "module/actor/CheckReport";
 import { SpellRollMessage } from "module/util/chat/spellChatMessage/SpellRollMessage";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 
 declare const game: any;
@@ -315,7 +316,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
 
         it("should deliver a template renderer", async () => {
             const content = "Rhaaaaagaahh";
-            const renderedHtml = await foundryApi.renderer("systems/splittermond/templates/chat/simpleTemplate.hbs", {
+            const renderedHtml = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/chat/simpleTemplate.hbs`, {
                 title: content,
                 body: "",
             });

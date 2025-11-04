@@ -1,5 +1,6 @@
 import { ChatMessage } from "module/api/ChatMessage";
 import { DataModelSchemaType, fields, SplittermondDataModel } from "./SplittermondDataModel";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 export interface ChatMessageModel {
     template: string;
@@ -29,7 +30,7 @@ export class SimpleMessage
     static defineSchema = SimpleMessageSchema;
 
     get template() {
-        return "systems/splittermond/templates/chat/simpleTemplate.hbs";
+        return `${TEMPLATE_BASE_PATH}/chat/simpleTemplate.hbs`;
     }
 
     getData() {

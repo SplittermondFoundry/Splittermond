@@ -9,7 +9,7 @@ import { parseAvailableIn, selectFromAllSkills, selectFromParsedSkills } from ".
 import { userConfirmsItemDeletion } from "module/actor/sheets/askUserForItemDeletion.js";
 import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.ts";
 import { closestData } from "module/data/ClosestDataMixin.js";
-import { SplittermondBaseActorSheet } from "module/data/SplittermondApplication.js";
+import { SplittermondBaseActorSheet, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     static DEFAULT_OPTIONS = {
@@ -21,32 +21,32 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     };
 
     static STATS_TAB = {
-        template: "systems/splittermond/templates/sheets/actor/parts/stats-section.hbs",
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/stats-section.hbs`,
         templates: [
-            "systems/splittermond/templates/sheets/actor/parts/focus-health.hbs",
-            "systems/splittermond/templates/sheets/actor/parts/derived-attributes.hbs",
+            `${TEMPLATE_BASE_PATH}/sheets/actor/parts/focus-health.hbs`,
+            `${TEMPLATE_BASE_PATH}/sheets/actor/parts/derived-attributes.hbs`,
         ],
     };
     static NAVIGATION = {
         template: "templates/generic/tab-navigation.hbs",
     };
     static BIOGRAPHY_TAB = {
-        template: "systems/splittermond/templates/sheets/editor.hbs",
+        template: `${TEMPLATE_BASE_PATH}/sheets/editor.hbs`,
     };
     static SPELLS_TAB = {
-        template: "systems/splittermond/templates/sheets/actor/parts/spells-tab.hbs",
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/spells-tab.hbs`,
         classes: ["scrollable"],
     };
     static FIGHT_TAB = {
-        template: "systems/splittermond/templates/sheets/actor/parts/fight-tab.hbs",
-        templates: [`systems/splittermond/templates/sheets/actor/parts/combat-actions.hbs`],
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/fight-tab.hbs`,
+        templates: [`${TEMPLATE_BASE_PATH}/sheets/actor/parts/combat-actions.hbs`],
     };
     static INVENTORY_TAB = {
-        template: "systems/splittermond/templates/sheets/actor/parts/inventory-tab.hbs",
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/inventory-tab.hbs`,
         classes: ["scrollable"],
     };
     static STATUS_TAB = {
-        template: "systems/splittermond/templates/sheets/actor/parts/status-tab.hbs",
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/parts/status-tab.hbs`,
         classes: ["scrollable"],
     };
 

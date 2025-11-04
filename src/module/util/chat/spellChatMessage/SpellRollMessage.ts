@@ -1,4 +1,4 @@
-import { DataModelSchemaType, fields, SplittermondDataModel } from "../../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { CheckReport } from "../../../actor/CheckReport";
 import { FocusCostHandler } from "./FocusCostHandler";
 import SplittermondSpellItem from "../../../item/spell";
@@ -16,6 +16,7 @@ import { NoOptionsActionHandler } from "./NoOptionsActionHandler";
 import { RollResultRenderer } from "../RollResultRenderer";
 import { DataModelConstructorInput } from "../../../api/DataModel";
 import { ChatMessageModel } from "../../../data/SplittermondChatMessage";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 const constructorRegistryKey = "SpellRollMessage";
 
@@ -201,7 +202,7 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
     }
 
     get template() {
-        return "systems/splittermond/templates/chat/spell-chat-card.hbs";
+        return `${TEMPLATE_BASE_PATH}/chat/spell-chat-card.hbs`;
     }
 }
 

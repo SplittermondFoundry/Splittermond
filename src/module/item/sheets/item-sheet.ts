@@ -1,5 +1,9 @@
 import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
-import { ApplicationRenderContext, SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
+import {
+    ApplicationRenderContext,
+    SplittermondBaseItemSheet,
+    TEMPLATE_BASE_PATH,
+} from "module/data/SplittermondApplication";
 import { foundryApi } from "module/api/foundryApi.js";
 import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.js";
 import { splittermond } from "module/config/index.js";
@@ -75,19 +79,19 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
 
     static PARTS = {
         header: {
-            template: "systems/splittermond/templates/sheets/item/header.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/item/header.hbs`,
         },
         statBlock: {
-            template: "systems/splittermond/templates/sheets/item/stat-block.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/item/stat-block.hbs`,
         },
         tabs: {
             template: "templates/generic/tab-navigation.hbs",
         },
         editor: {
-            template: "systems/splittermond/templates/sheets/editor.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/editor.hbs`,
         },
         properties: {
-            template: "systems/splittermond/templates/sheets/item/properties.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/item/properties.hbs`,
             classes: ["scrollable", "scrollable-margin-mitigation"],
         },
     };
