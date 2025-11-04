@@ -816,7 +816,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             itemData.system.level = selectedSkill.level;
         }
 
-        await super._onDropItemCreate(itemData);
+        await this.actor.createEmbeddedDocuments("Item", [itemData]);
     }
 
     async render(options = {}) {

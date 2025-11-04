@@ -96,7 +96,11 @@ const foundryApplicationSheets = {
             return this.options.document;
         }
     },
-    ActorSheetV2: class {},
+    ActorSheetV2: class extends foundryApplicationsApi.ApplicationV2 {
+        get actor() {
+            return this.options.document;
+        }
+    },
 };
 
 global.foundry = {

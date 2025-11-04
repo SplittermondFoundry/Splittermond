@@ -13,24 +13,16 @@ declare const global: any;
 describe("SplittermondActorSheet", () => {
     let sandbox: sinon.SinonSandbox;
     let sheet: SplittermondActorSheet;
-    let superFunctionStub: sinon.SinonStub;
+    let itemCreationStub: sinon.SinonStub;
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
-        sheet = new SplittermondActorSheet({}, {});
-        superFunctionStub = sandbox.mock();
-        Object.defineProperty(foundry.appv1.sheets.ActorSheet.prototype, "_onDropItemCreate", {
-            value: superFunctionStub,
-            configurable: true,
-            writable: true,
-        });
-
+        sandbox.stub(foundryApi.utils, "mergeObject").callsFake((a, b) => ({ ...a, ...b }));
+        itemCreationStub = sandbox.mock();
         global.CONFIG = { splittermond: splittermond };
     });
     afterEach(() => {
         sandbox.restore();
-
-        delete foundry.appv1.sheets.ActorSheet.prototype._onDropItemCreate;
     });
 
     describe("Addition of a spell to actor", () => {
@@ -38,8 +30,14 @@ describe("SplittermondActorSheet", () => {
 
         beforeEach(() => {
             // Mock actor and foundryApi
-            actorMock = { name: "Test Actor", spells: [], items: [], id: "actor1" };
-            (sheet as any).actor = actorMock;
+            actorMock = {
+                name: "Test Actor",
+                spells: [],
+                items: [],
+                id: "actor1",
+                createEmbeddedDocuments: itemCreationStub,
+            };
+            sheet = new SplittermondActorSheet({ document: actorMock });
 
             sandbox.stub(foundryApi, "localize").callsFake((s: string) => s);
 
@@ -61,9 +59,9 @@ describe("SplittermondActorSheet", () => {
             };
             await sheet._onDropItemCreate(itemData);
 
-            expect(superFunctionStub.called).to.be.true;
-            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("illusionmagic");
-            expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(2);
+            expect(itemCreationStub.called).to.be.true;
+            expect(itemCreationStub.lastCall.lastArg[0].system.skill).to.equal("illusionmagic");
+            expect(itemCreationStub.lastCall.lastArg[0].system.skillLevel).to.equal(2);
         });
 
         it("should select only valid skill and skillLevel ", async () => {
@@ -73,9 +71,9 @@ describe("SplittermondActorSheet", () => {
             };
             await sheet._onDropItemCreate(itemData);
 
-            expect(superFunctionStub.called).to.be.true;
-            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("illusionmagic");
-            expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(2);
+            expect(itemCreationStub.called).to.be.true;
+            expect(itemCreationStub.lastCall.lastArg[0].system.skill).to.equal("illusionmagic");
+            expect(itemCreationStub.lastCall.lastArg[0].system.skillLevel).to.equal(2);
         });
 
         it("should prompt for skill selection if availableIn has multiple skills", async () => {
@@ -92,9 +90,9 @@ describe("SplittermondActorSheet", () => {
 
             await sheet._onDropItemCreate(itemData);
 
-            expect(superFunctionStub.called).to.be.true;
-            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("deathmagic");
-            expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(1);
+            expect(itemCreationStub.called).to.be.true;
+            expect(itemCreationStub.lastCall.lastArg[0].system.skill).to.equal("deathmagic");
+            expect(itemCreationStub.lastCall.lastArg[0].system.skillLevel).to.equal(1);
         });
 
         it("should not prompt for skill selection if valid skill exists at empty available in", async () => {
@@ -114,9 +112,9 @@ describe("SplittermondActorSheet", () => {
             await sheet._onDropItemCreate(itemData);
 
             expect(invocationCount).to.equal(0);
-            expect(superFunctionStub.called).to.be.true;
-            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("deathmagic");
-            expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(1);
+            expect(itemCreationStub.called).to.be.true;
+            expect(itemCreationStub.lastCall.lastArg[0].system.skill).to.equal("deathmagic");
+            expect(itemCreationStub.lastCall.lastArg[0].system.skillLevel).to.equal(1);
         });
 
         [
@@ -137,9 +135,9 @@ describe("SplittermondActorSheet", () => {
 
                         await sheet._onDropItemCreate(itemData);
 
-                        expect(superFunctionStub.called).to.be.true;
-                        expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal(skill);
-                        expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(skillLevel);
+                        expect(itemCreationStub.called).to.be.true;
+                        expect(itemCreationStub.lastCall.lastArg[0].system.skill).to.equal(skill);
+                        expect(itemCreationStub.lastCall.lastArg[0].system.skillLevel).to.equal(skillLevel);
                     });
                 });
         });
@@ -158,7 +156,7 @@ describe("SplittermondActorSheet", () => {
 
             await sheet._onDropItemCreate(itemData);
 
-            expect(superFunctionStub.called).to.be.false;
+            expect(itemCreationStub.called).to.be.false;
             expect(itemData.system.skill).to.be.undefined;
         });
     });
@@ -167,8 +165,14 @@ describe("SplittermondActorSheet", () => {
         let actorMock: any;
 
         beforeEach(() => {
-            actorMock = { name: "Test Actor", spells: [], items: [], id: "actor1" };
-            (sheet as any).actor = actorMock;
+            actorMock = {
+                name: "Test Actor",
+                spells: [],
+                items: [],
+                id: "actor1",
+                createEmbeddedDocuments: itemCreationStub,
+            };
+            sheet = new SplittermondActorSheet({ document: actorMock });
 
             sandbox.stub(foundryApi, "localize").callsFake((s: string) => s);
 
@@ -190,9 +194,9 @@ describe("SplittermondActorSheet", () => {
             };
             await sheet._onDropItemCreate(itemData);
 
-            expect(superFunctionStub.called).to.be.true;
-            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("athletics");
-            expect(superFunctionStub.lastCall.lastArg.system.level).to.equal(3);
+            expect(itemCreationStub.called).to.be.true;
+            expect(itemCreationStub.lastCall.lastArg[0].system.skill).to.equal("athletics");
+            expect(itemCreationStub.lastCall.lastArg[0].system.level).to.equal(3);
         });
 
         it("should prompt for skill selection if availableIn has multiple skills", async () => {
@@ -209,9 +213,9 @@ describe("SplittermondActorSheet", () => {
 
             await sheet._onDropItemCreate(itemData);
 
-            expect(superFunctionStub.called).to.be.true;
-            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("acrobatics");
-            expect(superFunctionStub.lastCall.lastArg.system.level).to.equal(1);
+            expect(itemCreationStub.called).to.be.true;
+            expect(itemCreationStub.lastCall.lastArg[0].system.skill).to.equal("acrobatics");
+            expect(itemCreationStub.lastCall.lastArg[0].system.level).to.equal(1);
         });
 
         it("should return early if dialog is cancelled", async () => {
@@ -227,7 +231,7 @@ describe("SplittermondActorSheet", () => {
 
             await sheet._onDropItemCreate(itemData);
 
-            expect(superFunctionStub.called).to.be.false;
+            expect(itemCreationStub.called).to.be.false;
             expect(itemData.system.skill).to.be.undefined;
         });
         it("should not prompt for skill selection if valid skill exists at empty available in", async () => {
@@ -247,9 +251,9 @@ describe("SplittermondActorSheet", () => {
             await sheet._onDropItemCreate(itemData);
 
             expect(invocationCount).to.equal(0);
-            expect(superFunctionStub.called).to.be.true;
-            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("melee");
-            expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(2);
+            expect(itemCreationStub.called).to.be.true;
+            expect(itemCreationStub.lastCall.lastArg[0].system.skill).to.equal("melee");
+            expect(itemCreationStub.lastCall.lastArg[0].system.skillLevel).to.equal(2);
         });
         [
             { title: "For no Item", availableIn: null },
@@ -269,9 +273,9 @@ describe("SplittermondActorSheet", () => {
 
                         await sheet._onDropItemCreate(itemData);
 
-                        expect(superFunctionStub.called).to.be.true;
-                        expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal(skill);
-                        expect(superFunctionStub.lastCall.lastArg.system.level).to.equal(skillLevel);
+                        expect(itemCreationStub.called).to.be.true;
+                        expect(itemCreationStub.lastCall.lastArg[0].system.skill).to.equal(skill);
+                        expect(itemCreationStub.lastCall.lastArg[0].system.level).to.equal(skillLevel);
                     });
                 });
         });

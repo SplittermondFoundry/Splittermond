@@ -354,7 +354,7 @@ export function actorTest(context: QuenchBatchContext) {
                 name: "Test Spell",
                 system: { skill: "deathmagic", skillLevel: 1 },
             });
-            const underTest = new SplittermondActorSheet(actor, { editable: true });
+            const underTest = new SplittermondActorSheet({ document: actor, editable: true });
 
             await underTest._onDropItemCreate(spell);
 
@@ -369,7 +369,7 @@ export function actorTest(context: QuenchBatchContext) {
                 name: "Test Mastery",
                 system: { skill: "deathmagic", level: 1 },
             });
-            const underTest = new SplittermondActorSheet(actor, { editable: true });
+            const underTest = new SplittermondActorSheet({ document: actor, editable: true });
 
             await underTest._onDropItemCreate(mastery);
 
@@ -392,7 +392,7 @@ export function actorTest(context: QuenchBatchContext) {
                 name: "Spell with School options",
                 system: { availableIn: "deathmagic 1, lightmagic 2", skill: "arcanelore", skillLevel: 0 },
             });
-            const underTest = new SplittermondActorSheet(actor, { editable: true });
+            const underTest = new SplittermondActorSheet({ document: actor, editable: true });
 
             await underTest._onDropItemCreate(spell.toObject());
 
