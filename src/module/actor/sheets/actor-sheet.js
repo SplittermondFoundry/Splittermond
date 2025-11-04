@@ -53,23 +53,23 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     constructor(options) {
         const instanceDefaults = {
             actions: {
-                "short-rest": (e, t) => this.#handleShortRest(e, t),
-                "long-rest": (e, t) => this.#handleLongRest(e, t),
-                "add-item": (e, t) => this.#handleAddItem(e, t),
-                "delete-item": (e, t) => this.#handleDeleteItem(e, t),
-                "edit-item": (e, t) => this.#handleEditItem(e, t),
-                "toggle-equipped": (e, t) => this.#handleToggleEquipped(e, t),
-                "delete-array-element": (e, t) => this.#handleDeleteArrayElement(e, t),
-                "add-channeled-focus": (e, t) => this.#handleAddChanneledFocus(e, t),
-                "add-channeled-health": (e, t) => this.#handleAddChanneledHealth(e, t),
-                "show-hide-skills": (e, t) => this.#handleShowHideSkills(e, t),
-                "roll-skill": (e, t) => this.#handleRollSkill(e, t),
-                "roll-attack": (e, t) => this.#handleRollAttack(e, t),
-                "roll-spell": (e, t) => this.#handleRollSpell(e, t),
-                "roll-damage": (e, t) => this.#handleRollDamage(e, t),
-                "roll-active-defense": (e, t) => this.#handleRollActiveDefense(e, t),
-                "add-tick": (e, t) => this.#handleAddTick(e, t),
-                consume: (e, t) => this.#handleConsume(e, t),
+                "short-rest": () => this.#handleShortRest(),
+                "long-rest": () => this.#handleLongRest(),
+                "add-item": (_e, t) => this.#handleAddItem(t),
+                "delete-item": (_e, t) => this.#handleDeleteItem(t),
+                "edit-item": (_e, t) => this.#handleEditItem(t),
+                "toggle-equipped": (_e, t) => this.#handleToggleEquipped(t),
+                "delete-array-element": (_e, t) => this.#handleDeleteArrayElement(t),
+                "add-channeled-focus": () => this.#handleAddChanneledFocus(),
+                "add-channeled-health": () => this.#handleAddChanneledHealth(),
+                "show-hide-skills": (_e, t) => this.#handleShowHideSkills(t),
+                "roll-skill": (_e, t) => this.#handleRollSkill(t),
+                "roll-attack": (_e, t) => this.#handleRollAttack(t),
+                "roll-spell": (_e, t) => this.#handleRollSpell(t),
+                "roll-damage": (_e, t) => this.#handleRollDamage(t),
+                "roll-active-defense": (_e, t) => this.#handleRollActiveDefense(t),
+                "add-tick": (_e, t) => this.#handleAddTick(t),
+                consume: (_e, t) => this.#handleConsume(t),
                 "open-defense-dialog": (e, t) => this.#handleOpenDefenseDialog(e, t),
             },
         };
@@ -255,10 +255,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle adding a new item
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleAddItem(event, target) {
+    #handleAddItem(target) {
         const itemType = target.closest("[data-item-type]")?.getAttribute("data-item-type") || "";
         const renderSheet = Boolean((target.dataset.renderSheet || "true") === "true");
         let itemData = {
@@ -279,11 +278,10 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle deleting an item
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      * @returns {Promise<void>}
      */
-    async #handleDeleteItem(event, target) {
+    async #handleDeleteItem(target) {
         const itemId = closestData(target, "item-id");
         if (!itemId) return;
 
@@ -296,10 +294,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle editing an item
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleEditItem(event, target) {
+    #handleEditItem(target) {
         const itemId = closestData(target, "item-id");
         if (!itemId) return;
 
@@ -308,10 +305,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle toggling equipped status
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleToggleEquipped(event, target) {
+    #handleToggleEquipped(target) {
         const itemId = closestData(target, "item-id");
         if (!itemId) return;
 
@@ -321,11 +317,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle adding a channeled focus entry
-     * @param {Event} event - The click event
-     * @param {HTMLElement} target - The target element
      */
-    #handleAddChanneledFocus(event, target) {
-        const channeledEntries = duplicate(this.actor.system.focus.channeled.entries);
+    #handleAddChanneledFocus() {
+        const channeledEntries = foundryApi.utils.deepClone(this.actor.system.focus.channeled.entries);
         channeledEntries.push({
             description: foundryApi.localize("splittermond.description"),
             costs: 1,
@@ -335,11 +329,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle adding a channeled health entry
-     * @param {Event} event - The click event
-     * @param {HTMLElement} target - The target element
      */
-    #handleAddChanneledHealth(event, target) {
-        const channeledEntries = duplicate(this.actor.system.health.channeled.entries);
+    #handleAddChanneledHealth() {
+        const channeledEntries = foundryApi.utils.deepClone(this.actor.system.health.channeled.entries);
         channeledEntries.push({
             description: foundryApi.localize("splittermond.description"),
             costs: 1,
@@ -349,28 +341,23 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle long rest action
-     * @param {Event} event - The click event
-     * @param {HTMLElement} target - The target element
      */
-    #handleLongRest(event, target) {
+    #handleLongRest() {
         return this.actor.longRest();
     }
 
     /**
      * Handle short rest action
-     * @param {Event} event - The click event
-     * @param {HTMLElement} target - The target element
      */
-    #handleShortRest(event, target) {
+    #handleShortRest() {
         return this.actor.shortRest();
     }
 
     /**
      * Handle deleting an array element (focus/health channeled entries)
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleDeleteArrayElement(event, target) {
+    #handleDeleteArrayElement(target) {
         const idx = parseInt(closestData(target, "index", "0"));
         const { value, address } = this.#getArray(target);
 
@@ -389,10 +376,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle showing/hiding skills
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleShowHideSkills(event, target) {
+    #handleShowHideSkills(target) {
         this._hideSkills = !this._hideSkills;
         target.setAttribute("data-action", "hide-skills");
         return this.render();
@@ -400,10 +386,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle rolling a skill check
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleRollSkill(event, target) {
+    #handleRollSkill(target) {
         const skill = closestData(target, "skill");
         if (!skill) return;
         return this.actor.rollSkill(skill);
@@ -411,10 +396,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle rolling an attack
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleRollAttack(event, target) {
+    #handleRollAttack(target) {
         const attackId = closestData(target, "attack-id");
         if (!attackId) return;
         return this.actor.rollAttack(attackId);
@@ -422,10 +406,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle rolling a spell
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleRollSpell(event, target) {
+    #handleRollSpell(target) {
         const itemId = closestData(target, "item-id");
         if (!itemId) return;
         return this.actor.rollSpell(itemId);
@@ -433,10 +416,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle rolling damage
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleRollDamage(event, target) {
+    #handleRollDamage(target) {
         const serializedImplementsParsed = JSON.parse(closestData(target, "damageimplements"));
         if (!serializedImplementsParsed) return;
 
@@ -473,10 +455,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle rolling active defense
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleRollActiveDefense(event, target) {
+    #handleRollActiveDefense(target) {
         const itemId = closestData(target, "defense-id");
         const defenseType = closestData(target, "defense-type");
         if (!itemId || !defenseType) return;
@@ -489,10 +470,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle adding ticks
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleAddTick(event, target) {
+    #handleAddTick(target) {
         const value = closestData(target, "ticks");
         const message = closestData(target, "message");
         this.actor.addTicks(value, message);
@@ -500,10 +480,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
     /**
      * Handle consuming resources (focus/health)
-     * @param {Event} event - The click event
      * @param {HTMLElement} target - The target element
      */
-    #handleConsume(event, target) {
+    #handleConsume(target) {
         const type = closestData(target, "type");
         const value = closestData(target, "value");
         if (type === "focus") {
