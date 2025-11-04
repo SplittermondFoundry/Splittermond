@@ -20,6 +20,35 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         },
     };
 
+    static STATS_TAB = {
+        template: "systems/splittermond/templates/sheets/actor/parts/stats-section.hbs",
+        templates: [
+            "systems/splittermond/templates/sheets/actor/parts/focus-health.hbs",
+            "systems/splittermond/templates/sheets/actor/parts/derived-attributes.hbs",
+        ],
+    };
+    static NAVIGATION = {
+        template: "templates/generic/tab-navigation.hbs",
+    };
+    static BIOGRAPHY_TAB = {
+        template: "systems/splittermond/templates/sheets/editor.hbs",
+    };
+    static SPELLS_TAB = {
+        template: "systems/splittermond/templates/sheets/actor/parts/spells-tab.hbs",
+        classes: ["scrollable"],
+    };
+    static FIGHT_TAB = {
+        template: "systems/splittermond/templates/sheets/actor/parts/fight-tab.hbs",
+    };
+    static INVENTORY_TAB = {
+        template: "systems/splittermond/templates/sheets/actor/parts/inventory-tab.hbs",
+        classes: ["scrollable"],
+    };
+    static STATUS_TAB = {
+        template: "systems/splittermond/templates/sheets/actor/parts/status-tab.hbs",
+        classes: ["scrollable"],
+    };
+
     constructor(options) {
         const instanceDefaults = {
             actions: {

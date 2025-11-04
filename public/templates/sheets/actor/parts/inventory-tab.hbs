@@ -1,5 +1,195 @@
 <section class="tab {{tabs.inventory.id}} {{tabs.inventory.cssClass}}" data-group="primary" data-tab="inventory">
-    {{> "systems/splittermond/templates/sheets/actor/parts/inventory-list.hbs" itemsByType=itemsByType
-            currency=system.currency}}
-</section>
+    <div class="currency">
+        <div class="solars"><input name="system.currency.S" type="text" value="{{system.currency.S}}" placeholder="0"
+                                   data-dtype="Number"/></div>
+        <div class="lunars"><input name="system.currency.L" type="text" value="{{system.currency.L}}" placeholder="0"
+                                   data-dtype="Number"/></div>
+        <div class="telars"><input name="system.currency.T" type="text" value="{{system.currency.T}}" placeholder="0"
+                                   data-dtype="Number"/></div>
+    </div>
 
+    <div class="list inventory" data-item-type="weapon">
+        <div class="list-header">
+            <h3>{{localize "splittermond.weapons"}}</h3>
+            <div class="damage">{{localize "splittermond.damage"}}</div>
+            <div class="range">{{localize "splittermond.rangeAbbrev"}}</div>
+            <div class="weapon-speed">{{localize "splittermond.weaponSpeedAbbrev"}}</div>
+            <div class="features" title="{{localize "splittermond.features"}}">{{localize
+                    "splittermond.features"}}</div>
+            <div class="load">{{localize "splittermond.load"}}</div>
+            <div class="list-actions">
+                <button class="button-inline" type="button" data-action="add-item">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <ol class="list-body item-list">
+            {{#each itemsByType.weapon}}
+                <li class="list-item item" data-item-id="{{this._id}}">
+                    <img width="32" height="32" src="{{{this.img}}}">
+                    <label>{{this.name}}
+                        {{#if (eq this.system.damageLevel 1)}}
+                            ({{localize "splittermond.damageLevels.tarnished"}}){{/if}}
+                        {{#if (eq this.system.damageLevel 2)}}
+                            ({{localize "splittermond.damageLevels.demolished"}}){{/if}}
+                        {{#if (eq this.system.damageLevel 3)}}
+                            ({{localize "splittermond.damageLevels.destroyed"}}){{/if}}
+                        <button class="button-inline" type="button" data-action="toggle-equipped">
+                            <i class="fa {{#if this.system.equipped}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"
+                               aria-hidden="true"></i>
+                        </button>
+                    </label>
+                    <div class="damage">{{this.system.damage}}</div>
+                    <div class="range">{{this.system.range}}</div>
+                    <div class="weapon-speed">{{this.system.weaponSpeed}}</div>
+                    <div class="features" title="{{this.system.features}}">{{this.system.features}}</div>
+                    <div class="load">{{this.system.weight}}</div>
+                    <div class="list-actions">
+                        <button class="button-inline" type="button" data-action="edit-item">
+                            <i class="fa fa-edit" aria-hidden="true"></i>
+                        </button>
+                        <button class="button-inline" type="button" data-action="delete-item">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </li>
+            {{/each}}
+        </ol>
+    </div>
+    <div class="list inventory" data-item-type="armor">
+        <div class="list-header">
+            <h3>{{localize "splittermond.armors"}}</h3>
+            <div class="damage-reduction">{{localize "splittermond.damageReductionAbbrev"}}</div>
+            <div class="defense-bonus">{{localize "splittermond.defenseBonus"}}</div>
+            <div class="tick-malus">{{localize "splittermond.tickMalus"}}</div>
+            <div class="handicap">{{localize "splittermond.handicapAbbrev"}}</div>
+            <div class="features" title="{{localize "splittermond.features"}}">{{localize
+                    "splittermond.features"}}</div>
+            <div class="load">{{localize "splittermond.load"}}</div>
+            <div class="list-actions">
+                <button class="button-inline" type="button" data-action="add-item">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <ol class="list-body item-list">
+            {{#each itemsByType.armor}}
+                <li class="list-item item" data-item-id="{{this._id}}">
+                    <img width="32" height="32" src="{{{this.img}}}">
+                    <label>{{this.name}}
+                        {{#if (eq this.system.damageLevel 1)}}
+                            ({{localize "splittermond.damageLevels.tarnished"}}){{/if}}
+                        {{#if (eq this.system.damageLevel 2)}}
+                            ({{localize "splittermond.damageLevels.demolished"}}){{/if}}
+                        {{#if (eq this.system.damageLevel 3)}}
+                            ({{localize "splittermond.damageLevels.destroyed"}}){{/if}}
+                        <button class="button-inline" type="button" data-action="toggle-equipped">
+                            <i class="fa {{#if this.system.equipped}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"
+                               aria-hidden="true"></i>
+                        </button>
+                    </label>
+                    <div class="damage-reduction">{{this.system.damageReduction}}</div>
+                    <div class="defense-bonus">{{this.system.defenseBonus}}</div>
+                    <div class="tick-malus">{{this.system.tickMalus}}</div>
+                    <div class="handicap">{{this.system.handicap}}</div>
+                    <div class="features" title="{{this.system.features}}">{{this.system.features}}</div>
+                    <div class="load">{{this.system.weight}}</div>
+                    <div class="list-actions">
+
+                        <button class="button-inline" type="button" data-action="edit-item">
+                            <i class="fa fa-edit" aria-hidden="true"></i>
+                        </button>
+                        <button class="button-inline" type="button" data-action="delete-item">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </li>
+            {{/each}}
+        </ol>
+    </div>
+    <div class="list inventory" data-item-type="shield">
+        <div class="list-header">
+            <h3>{{localize "splittermond.shields"}}</h3>
+            <div class="defense-bonus">{{localize "splittermond.defenseBonus"}}</div>
+            <div class="tick-malus">{{localize "splittermond.tickMalus"}}</div>
+            <div class="handicap">{{localize "splittermond.handicapAbbrev"}}</div>
+            <div class="features">{{localize "splittermond.features"}}</div>
+            <div class="load">{{localize "splittermond.load"}}</div>
+            <div class="list-actions">
+
+                <button class="button-inline" type="button" data-action="add-item">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <ol class="list-body item-list">
+            {{#each itemsByType.shield}}
+                <li class="list-item item" data-item-id="{{this._id}}">
+                    <img width="32" height="32" src="{{{this.img}}}">
+                    <label>{{this.name}}
+                        {{#if (eq this.system.damageLevel 1)}}
+                            ({{localize "splittermond.damageLevels.tarnished"}}){{/if}}
+                        {{#if (eq this.system.damageLevel 2)}}
+                            ({{localize "splittermond.damageLevels.demolished"}}){{/if}}
+                        {{#if (eq this.system.damageLevel 3)}}
+                            ({{localize "splittermond.damageLevels.destroyed"}}){{/if}}
+                        <button class="button-inline" type="button" data-action="toggle-equipped">
+                            <i class="fa {{#if this.system.equipped}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"
+                               aria-hidden="true"></i>
+                        </button>
+                    </label>
+                    <div class="defense-bonus">{{this.system.defenseBonus}}</div>
+                    <div class="tick-malus">{{this.system.tickMalus}}</div>
+                    <div class="handicap">{{this.system.handicap}}</div>
+                    <div class="features" title="{{this.system.features}}">{{this.system.features}}</div>
+                    <div class="load">{{this.system.weight}}</div>
+                    <div class="list-actions">
+                        <button class="button-inline" type="button" data-action="edit-item">
+                            <i class="fa fa-edit" aria-hidden="true"></i>
+                        </button>
+                        <button class="button-inline" type="button" data-action="delete-item">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </li>
+            {{/each}}
+        </ol>
+    </div>
+    <div class="list inventory" data-item-type="equipment">
+        <div class="list-header">
+            <h3>{{localize "splittermond.equipment"}}</h3>
+            <div class="qty">{{localize "splittermond.qty"}}</div>
+            <div class="load">{{localize "splittermond.load"}}</div>
+            <div class="list-actions">
+                <button class="button-inline" type="button" data-action="add-item">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <ol class="list-body item-list">
+            {{#each itemsByType.equipment}}
+                <li class="list-item item" data-item-id="{{this._id}}">
+                    <img width="32" height="32" src="{{{this.img}}}">
+                    <label>{{this.name}}
+                        {{#if (eq this.system.damageLevel 1)}}
+                            ({{localize "splittermond.damageLevels.tarnished"}}){{/if}}
+                        {{#if (eq this.system.damageLevel 2)}}
+                            ({{localize "splittermond.damageLevels.demolished"}}){{/if}}
+                        {{#if (eq this.system.damageLevel 3)}}
+                            ({{localize "splittermond.damageLevels.destroyed"}}){{/if}}
+                    </label>
+                    <div class="qty">{{this.system.quantity}}</div>
+                    <div class="load">{{this.system.weight}}</div>
+                    <div class="list-actions">
+                        <button class="button-inline" type="button" data-action="edit-item">
+                            <i class="fa fa-edit" aria-hidden="true"></i>
+                        </button>
+                        <button class="button-inline" type="button" data-action="delete-item">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </li>
+            {{/each}}
+        </ol>
+    </div>
+</section>

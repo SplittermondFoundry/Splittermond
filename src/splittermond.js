@@ -169,13 +169,8 @@ Hooks.once("init", async function () {
     loadTemplates([
         // Actor Partials
         `${templateBasePath}/sheets/actor/parts/attribute-input.hbs`,
-        `${templateBasePath}/sheets/actor/parts/derived-attributes.hbs`,
-        `${templateBasePath}/sheets/actor/parts/focus-health.hbs`,
         `${templateBasePath}/sheets/actor/parts/mastery-list.hbs`,
-        `${templateBasePath}/sheets/actor/parts/spells-list.hbs`,
         `${templateBasePath}/sheets/actor/parts/combat-actions.hbs`,
-        `${templateBasePath}/sheets/actor/parts/inventory-list.hbs`,
-        `${templateBasePath}/sheets/actor/parts/status-tab.hbs`,
     ]);
 
     Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));

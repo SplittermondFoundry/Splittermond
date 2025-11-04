@@ -27,31 +27,17 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         header: {
             template: "systems/splittermond/templates/sheets/actor/parts/npc-header.hbs",
         },
-        stats: {
-            template: "systems/splittermond/templates/sheets/actor/parts/stats-section.hbs",
-        },
-        tabs: {
-            template: "templates/generic/tab-navigation.hbs",
-        },
-        editor: {
-            template: "systems/splittermond/templates/sheets/editor.hbs",
-        },
+        stats: super.STATS_TAB,
+        tabs: super.NAVIGATION,
+        editor: super.BIOGRAPHY_TAB,
         general: {
             template: "systems/splittermond/templates/sheets/actor/parts/npc-general-tab.hbs",
             classes: ["scrollable"],
         },
-        spells: {
-            template: "systems/splittermond/templates/sheets/actor/parts/spells-tab.hbs",
-            classes: ["scrollable"],
-        },
-        inventory: {
-            template: "systems/splittermond/templates/sheets/actor/parts/inventory-tab.hbs",
-            classes: ["scrollable"],
-        },
-        status: {
-            template: "systems/splittermond/templates/sheets/actor/parts/status-tab-wrapper.hbs",
-            classes: ["scrollable"],
-        },
+        spells: super.SPELLS_TAB,
+        fight: super.FIGHT_TAB,
+        inventory: super.INVENTORY_TAB,
+        status: super.STATUS_TAB,
     };
     async _prepareContext() {
         const sheetData = await super._prepareContext();
