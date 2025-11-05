@@ -14,6 +14,11 @@ import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import { FoundryDialog } from "module/api/Application";
 import SplittermondActorSheet from "../../module/actor/sheets/actor-sheet";
 import { withActor } from "./fixtures";
+import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
+import { passesEventually } from "../util";
+import Modifier from "module/actor/modifier";
+import { of } from "module/modifiers/expressions/scalar";
+import type { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
 
 declare const Actor: any;
 declare var Dialog: any;
@@ -429,6 +434,69 @@ export function actorTest(context: QuenchBatchContext) {
                 expect(actor.derivedValues.bodyresist.value, "Bodyresist value").to.equal(23);
                 expect(actor.derivedValues.mindresist.value, "Mindresist value").to.equal(19);
                 expect(actor.splinterpoints.max, "Splinterpoints max value").to.equal(4);
+            })
+        );
+    });
+
+    describe("Actor sheet", () => {
+        it(
+            "should save acrobatics skill points from sheet",
+            withActor(async (actor) => {
+                await actor.update({ system: { skills: { acrobatics: { points: 5 } } } });
+                const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
+
+                const skillInput = sheet.element.querySelector(
+                    "input[name='system.skills.acrobatics.points']"
+                )! as HTMLInputElement;
+
+                skillInput.value = "8";
+                skillInput.dispatchEvent(new Event("input", { bubbles: true }));
+                skillInput.dispatchEvent(new Event("change", { bubbles: true }));
+
+                await passesEventually(() =>
+                    expect((actor.system as CharacterDataModel).skills.acrobatics.points).to.equal(8)
+                );
+            })
+        );
+
+        it(
+            "should post a damage message, on click",
+            withActor(async (actor) => {
+                await actor.createEmbeddedDocuments("Item", [
+                    {
+                        name: "Test Attack",
+                        type: "npcattack",
+                        system: {
+                            damage: { stringInput: "1W6+2" },
+                            damageType: "physical",
+                            costType: "V",
+                            range: 0,
+                            weaponSpeed: 5,
+                        },
+                    },
+                ]);
+                actor.modifier.addModifier(new Modifier("item.damage", of(5), { name: "Test", type: "innate" }));
+                const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
+
+                const assertion = new Promise((resolve, reject) => {
+                    foundryApi.hooks.once("renderChatMessageHTML", (app) => {
+                        try {
+                            expect(app.type).to.equal("damageMessage");
+                            expect((app.system as DamageMessage).damageEvent.formulaToDisplay).to.equal("1W6 + 7");
+                            resolve("passed");
+                        } catch (e) {
+                            reject((e as Error).message);
+                        }
+                    });
+                });
+                const damageLink = sheet.element.querySelector(
+                    'a.rollable[data-action="roll-damage"][data-damageimplements]'
+                );
+                damageLink?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+                sheet.close();
+
+                expect(damageLink, "Sheet has a damage link").to.exist;
+                expect(await assertion, "Chat message was created successfully").to.equal("passed");
             })
         );
     });
