@@ -15,42 +15,46 @@
                 <li class="taglist-item item" data-item-id="{{this._id}}">
                     <div class="taglist-item-name"><a data-action="edit-item">{{this.name}}</a></div>
 
+                    {{#if ../editable}}
                     <div class="taglist-item-actions">
                         <button class="button-inline" type="button" data-action="delete-item">
                             <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
                     </div>
+                    {{/if}}
                 </li>
                 {{/each}}
 
+                {{#if editable}}
                 <li class="taglist-actions">
                     <button class="button-inline" type="button" data-action="add-item" data-render-sheet="true">
                         <i class="fa fa-plus-square" aria-hidden="true"></i>
                     </button>
                 </li>
+                {{/if}}
             </ul>
         </li>
         {{/inline}}
 
         {{#with masteriesBySkill.none}}
-        {{>masteriesBySkill skillId="none" skill=this}}
+            {{>masteriesBySkill skillId="none" skill=this editable=../../editable}}
         {{/with}}
 
         {{#each generalSkills}}
         {{#with (lookup ../masteriesBySkill @key)}}
-        {{>masteriesBySkill skillId=@key skill=this}}
+            {{>masteriesBySkill skillId=@key skill=this editable=../../editable}}
         {{/with}}
         {{/each}}
 
         {{#each fightingSkills}}
         {{#with (lookup ../masteriesBySkill @key)}}
-        {{>masteriesBySkill skillId=@key skill=this}}
+            {{>masteriesBySkill skillId=@key skill=this editable=../../editable}}
         {{/with}}
         {{/each}}
 
         {{#each magicSkills}}
         {{#with (lookup ../masteriesBySkill @key)}}
-        {{>masteriesBySkill skillId=@key skill=this}}
+            {{>masteriesBySkill skillId=@key skill=this editable=../../editable}}
         {{/with}}
         {{/each}}
     </ol>
