@@ -38,6 +38,7 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
             templates: [
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/attribute-input.hbs`,
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-list.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-by-skill.hbs`,
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/combat-actions.hbs`,
             ],
             classes: ["scrollable"],

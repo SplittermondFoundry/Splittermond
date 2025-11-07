@@ -1,0 +1,41 @@
+{{#* inline "spell-tooltip" }}
+    <p>
+        {{{descriptionHtml}}}
+    </p>
+    <p>
+        <strong>{{localize "splittermond.enhancementDescription"}} {{enhancementCosts}}:</strong>
+        &nbsp;{{enhancementDescription}}
+    </p>
+{{/inline}}
+
+{{#* inline "composition-tooltip" }}
+    {{{tooltip}}}
+{{/inline}}
+
+{{#* inline "inventory-tooltip" }}
+    <p>
+        {{{descriptionHtml}}}
+    </p>
+{{/inline}}
+
+{{#* inline "mastery-tooltip" }}
+    {{> "systems/splittermond/templates/sheets/actor/parts/mastery-by-skill.hbs" .}}
+    <p>
+        {{{descriptionHtml}}}
+    </p>
+{{/inline}}
+
+<div id="splittermond-tooltip">
+    {{#if (eq tooltipKind "spell-tooltip")}}
+        {{> spell-tooltip .}}
+    {{/if}}
+    {{#if (eq tooltipKind "composition-tooltip")}}
+        {{> composition-tooltip .}}
+    {{/if}}
+    {{#if (eq tooltipKind "inventory-tooltip")}}
+        {{> inventory-tooltip .}}
+    {{/if}}
+    {{#if (eq tooltipKind "mastery-tooltip")}}
+        {{> mastery-tooltip .}}
+    {{/if}}
+</div>

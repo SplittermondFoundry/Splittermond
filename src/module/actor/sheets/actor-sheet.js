@@ -1,4 +1,3 @@
-import * as Tooltip from "../../util/tooltip.js";
 import { splittermond } from "../../config";
 import { foundryApi } from "../../api/foundryApi";
 import { DamageInitializer } from "../../util/chat/damageChatMessage/initDamage";
@@ -10,6 +9,7 @@ import { userConfirmsItemDeletion } from "module/actor/sheets/askUserForItemDele
 import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.ts";
 import { closestData } from "module/data/ClosestDataMixin.js";
 import { SplittermondBaseActorSheet, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { TooltipConfigurer } from "module/actor/sheets/TooltipConfigurer.js";
 
 export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     static DEFAULT_OPTIONS = {
@@ -77,6 +77,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         super(actorOptions);
         this._hoverOverlays = [];
         this._hideSkills = true;
+        this._tooltipConfigurer = options.tooltipConfigurer ?? TooltipConfigurer;
     }
 
     async _prepareContext(options) {
@@ -509,6 +510,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     async _onRender(context, options) {
         await super._onRender(context, options);
         autoExpandInputs(this.element);
+        new this._tooltipConfigurer(this).configureTooltips();
 
         this.element.querySelectorAll("input[data-field]").forEach((el) => {
             el.addEventListener("change", (event) => {
@@ -604,145 +606,6 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             })
             .attr("draggable", true);
 
-        $(this.element)
-            .find(
-                "[data-item-id], .list.skills [data-skill], .derived-attribute, .damage-reduction, .list.attack .value, .list.active-defense .value"
-            )
-            .hover(
-                async (event) => {
-                    const itemId = event.currentTarget.dataset.itemId;
-                    let content = "";
-                    let css = {
-                        top: $(event.currentTarget).offset().top + $(event.currentTarget).outerHeight(),
-                        left: $(event.currentTarget).offset().left,
-                        display: "none",
-                    };
-                    if (itemId) {
-                        const item = this.actor.items.find((el) => el.id === itemId);
-
-                        if (!item) return;
-
-                        if (item.system.description) {
-                            content = await TextEditor.enrichHTML(item.system.description, { async: true });
-                            if (!content.startsWith("<p>")) {
-                                content = `<p>${content}</p>`;
-                            }
-                        }
-                        if (item.type === "spell") {
-                            content +=
-                                `<p><strong>` +
-                                foundryApi.localize("splittermond.enhancementDescription") +
-                                ` (${item.system.enhancementCosts}):</strong> ${item.system.enhancementDescription}</p>`;
-                        }
-                    }
-
-                    const skillId = event.currentTarget.dataset.skill;
-
-                    if (skillId && this.actor.skills[skillId]) {
-                        const skillData = this.actor.skills[skillId];
-                        content += skillData.tooltip();
-
-                        let masteryList = $(this.element).find(`.list.masteries li[data-skill="${skillId}"]`);
-
-                        if (masteryList.html()) {
-                            let posLeft = masteryList.offset().left;
-                            let posTop = $(event.currentTarget).offset().top;
-
-                            let width = masteryList.outerWidth();
-                            masteryList = masteryList.clone();
-
-                            masteryList.find("button").remove();
-                            masteryList = masteryList
-                                .wrapAll(`<div class="list splittermond-tooltip masteries"/>`)
-                                .wrapAll(`<ol class="list-body"/>`)
-                                .parent()
-                                .parent();
-                            masteryList.css({
-                                position: "fixed",
-                                left: posLeft,
-                                top: posTop,
-                                width: width,
-                            });
-                            content += masteryList.wrapAll("<div/>").parent().html();
-                        }
-                    }
-
-                    if ($(event.currentTarget).closestData("attack-id")) {
-                        let attackId = $(event.currentTarget).closestData("attack-id");
-                        if (this.actor.attacks.find((a) => a.id === attackId)) {
-                            let attack = this.actor.attacks.find((a) => a.id === attackId);
-                            let skill = attack.skill;
-                            content += skill.tooltip();
-                        }
-                    }
-
-                    if ($(event.currentTarget).closestData("defense-id")) {
-                        let defenseId = $(event.currentTarget).closestData("defense-id");
-                        let defenseData = {};
-                        if (this.actor.activeDefense.defense.find((a) => a.id === defenseId)) {
-                            defenseData = this.actor.activeDefense.defense.find((a) => a.id === defenseId);
-                        }
-
-                        if (this.actor.activeDefense.mindresist.find((a) => a.id === defenseId)) {
-                            defenseData = this.actor.activeDefense.mindresist.find((a) => a.id === defenseId);
-                        }
-
-                        if (this.actor.activeDefense.bodyresist.find((a) => a.id === defenseId)) {
-                            defenseData = this.actor.activeDefense.bodyresist.find((a) => a.id === defenseId);
-                        }
-                        if (defenseData) {
-                            content += defenseData.tooltip();
-                        }
-                    }
-
-                    if (event.currentTarget.classList.contains("derived-attribute")) {
-                        let attribute = event.currentTarget.id;
-                        if (this.actor.derivedValues[attribute]) {
-                            content += this.actor.derivedValues[attribute].tooltip();
-                        }
-                    }
-
-                    if (
-                        event.currentTarget.classList.contains("damage-reduction") &&
-                        this.actor.damageReduction !== 0
-                    ) {
-                        let formula = new Tooltip.TooltipFormula();
-                        this.actor.modifier
-                            .getForId("damagereduction")
-                            .getModifiers()
-                            .addTooltipFormulaElements(formula);
-                        content += formula.render();
-                    }
-
-                    if (content) {
-                        let tooltipElement = $(`<div id="splittermond-tooltip"> ${content}</div>`);
-                        $(this.element).append(tooltipElement);
-                        if (skillId) {
-                            css.left += $(event.currentTarget).outerWidth() - tooltipElement.outerWidth();
-                            css.top = $(event.currentTarget).offset().top - $(tooltipElement).outerHeight();
-                        }
-
-                        if (
-                            event.currentTarget.classList.contains("attribute") ||
-                            $(event.currentTarget).closestData("attack-id") ||
-                            $(event.currentTarget).closestData("defense-id")
-                        ) {
-                            css.left -= tooltipElement.outerWidth() / 2 - $(event.currentTarget).outerWidth() / 2;
-                        }
-
-                        /*
-                if (event.currentTarget.classList.contains("attribute")) {
-                    css.left += $(event.currentTarget).outerWidth();
-                }
-                */
-                        tooltipElement.css(css).fadeIn();
-                    }
-                },
-                (event) => {
-                    $(this.element).find("div#splittermond-tooltip").remove();
-                }
-            );
-
         if (this._hoverOverlays) {
             let el = $(this.element).find(this._hoverOverlays.join(", "));
             if (el.length > 0) {
@@ -753,7 +616,6 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             }
         }
     }
-
     /**
      * @param {HTMLElement} element
      * @return {{value:any[],address:string,?field:string}}

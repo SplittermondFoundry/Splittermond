@@ -46,6 +46,7 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
             templates: [
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/attribute-input.hbs`,
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-list.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-by-skill.hbs`,
             ],
             classes: ["scrollable"],
         },
