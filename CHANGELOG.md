@@ -1,9 +1,10 @@
-## 13.7.3
+## 13.7.4
 
 ### New Features:
 
 - Der Würfel Dialog lässt sich jetzt überspringen, indem `skill.roll(options)` mit `askUser: false` aufgerufen wird. Special Thanks to @IceFreez3r
 
+## 13.7.3
 ### Fixed
 
 - Ein Fehler wurde behoben, bei welchem das Öffnen des Rüstungs-Sheets mit einem Stapelüberlauf endete.
