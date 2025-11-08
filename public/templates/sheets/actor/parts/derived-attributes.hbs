@@ -4,9 +4,10 @@
         <label {{#if attributeId}}data-action="open-defense-dialog"
                 data-defense-type="{{attributeId}}"{{/if}}>{{localize attribute.label.short}}
         {{#if ../editable}}
-        <input name="derivedAttributes.{{attributeId}}" type="text" value="{{attribute.value}}" data-dtype="Number">
+            <input class="value" name="derivedAttributes.{{attributeId}}" type="text" value="{{attribute.value}}"
+                   data-dtype="Number">
         {{else}}
-        <span>{{attribute.value}}</span>
+            <span class="value">{{attribute.value}}</span>
         {{/if}}
         </label>
     </div>
@@ -14,9 +15,9 @@
     <div class="damage-reduction">
         <label>{{localize "splittermond.damageReductionAbbrev"}}
         {{#if editable}}
-        <input name="damageReduction" type="text" value="{{damageReduction}}" data-dtype="Number">
+            <input class="value" name="damageReduction" type="text" value="{{damageReduction}}" data-dtype="Number">
         {{else}}
-        <span>{{damageReduction}}</span>
+            <span class="value">{{damageReduction}}</span>
         {{/if}}
         </label>
     </div>

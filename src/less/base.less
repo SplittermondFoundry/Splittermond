@@ -47,54 +47,6 @@ img {
     }
 }
 
-.application:not(.sidebar-popout):not(.journal-entry),
-.window-app:not(.sidebar-popout):not(.journal-entry):not(.dark) {
-    color: var(--color-text-secondary);
-    background: var(--splittermond-background-parchment);
-
-    .window-content:extend(.border-double-corner-1) {
-        color: var(--color-text-secondary);
-
-        background: var(--splittermond-background-parchment);
-
-        margin: 5px;
-        margin-top: 0px;
-        padding: 8px;
-        position: relative;
-    }
-
-    .window-resizable-handle {
-        bottom: -8px;
-        right: -12px;
-        border: none;
-        background: none;
-        color: var(--color-text-secondary);
-
-        .fas.fa-arrows-alt-h:before {
-            content: "\f054";
-        }
-    }
-
-    &.minimized {
-        .window-header {
-            border: none;
-        }
-    }
-}
-
-.application:not(.journal-entry):extend(.border-paper),
-.window-app:not(.journal-entry):extend(.border-paper) {
-    .window-header {
-        border: none;
-
-        .window-title {
-            font-family: @font-secondary;
-            font-weight: normal;
-            max-width: unset;
-        }
-    }
-}
-
 .sheet.journal-entry .journal-entry-content:extend(.border-paper) {
     border-radius: 0;
     color: var(--color-text-secondary);

@@ -1,4 +1,5 @@
 @import "base";
+@import "application-mixins";
 
 //Mixin intended for the lists in the compendium browser
 .scrollbar-on-active-tab() {
@@ -24,6 +25,8 @@
 }
 
 #compendium-browser.compendium-browser {
+    .filled-border();
+    .border-paper();
     .compendium-item-filters {
         //no styling. This class is just for element selection
     }

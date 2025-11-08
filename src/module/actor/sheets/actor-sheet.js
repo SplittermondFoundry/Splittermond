@@ -14,19 +14,18 @@ import { TooltipConfigurer } from "module/actor/sheets/TooltipConfigurer.js";
 export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     static DEFAULT_OPTIONS = {
         classes: ["splittermond", "sheet", "actor"],
+        overlays: ["#health", "#focus"],
+        position: { width: 750, height: 720 },
+        window: {
+            minimizable: true,
+            resizable: true,
+        },
         actions: {
             "inc-value": SplittermondActorSheet.#increaseValue,
             "dec-value": SplittermondActorSheet.#decreaseValue,
         },
     };
 
-    static STATS_TAB = {
-        template: `${TEMPLATE_BASE_PATH}/sheets/actor/stats-section.hbs`,
-        templates: [
-            `${TEMPLATE_BASE_PATH}/sheets/actor/parts/focus-health.hbs`,
-            `${TEMPLATE_BASE_PATH}/sheets/actor/parts/derived-attributes.hbs`,
-        ],
-    };
     static NAVIGATION = {
         template: "templates/generic/tab-navigation.hbs",
     };

@@ -1,6 +1,6 @@
 {{!-- Stats section that appears in both character and NPC sheets --}}
 {{#unless limited}}
-    <section class="column">
+    <section class="actor-stats column">
         {{> "systems/splittermond/templates/sheets/actor/parts/focus-health.hbs" . }}
         {{> "systems/splittermond/templates/sheets/actor/parts/derived-attributes.hbs"
                 derivedAttributes=derivedAttributes damageReduction=damageReduction editable=derivedEditable}}

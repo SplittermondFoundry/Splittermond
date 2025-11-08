@@ -1,70 +1,74 @@
 {{!-- Character-specific header section --}}
-<header class="row flex-gap">
-    <div class="character-image">
-        <img src="{{img}}" data-action="editImage" data-edit="img" title="{{name}}" height="92" width="92"
-             class="profile-img"/>
-    </div>
-    <div class="column stretch">
-        <input class="character-name" name="name" type="text" value="{{name}}"
-               placeholder="{{localize 'splittermond.name' }}"/>
-        <div class="experience">
-            <div class="bar">
-                <div style="width: {{system.experience.percentage}}%"></div>
-            </div>
-            <div class="experience-label">
-                {{localize "splittermond.heroLevel"}} {{system.experience.heroLevel}} -
-                {{system.experience.heroLevelName}}
-            </div>
-            <div class="experience-value">
-                <input class="autoexpand" name="system.experience.free" type="text"
-                       value="{{system.experience.free}}" placeholder="{{localize 'splittermond.xpFree'}}"/> -
-                <input class="autoexpand" name="system.experience.spent" type="text"
-                       value="{{system.experience.spent}}" placeholder="{{localize 'splittermond.xpSpent'}}"/> -
-                {{system.experience.nextLevelValue}}
-            </div>
+<header class="column flex-gap">
+    <section class="row flex-gap">
+        <div class="character-image">
+            <img src="{{img}}" data-action="editImage" data-edit="img" title="{{name}}" height="92" width="92"
+                 class="profile-img"/>
         </div>
-        <div>
-            <input class="autoexpand" name="system.species.value" type="text" value="{{system.species.value}}"
-                   placeholder="{{localize 'splittermond.species'}}"/>
-            &nbsp;&middot;&nbsp;
-            <input class="autoexpand" name="system.sex" type="text" value="{{system.sex}}"
-                   placeholder="{{localize 'splittermond.sex'}}"/>
-            &nbsp;&middot;&nbsp;
-            <input class="autoexpand" name="system.culture" type="text" value="{{system.culture}}"
-                   placeholder="{{localize 'splittermond.culture'}}"/>
-            &nbsp;&middot;&nbsp;
-            <input class="autoexpand" name="system.ancestry" type="text" value="{{system.ancestry}}"
-                   placeholder="{{localize 'splittermond.ancestry'}}"/>
-            &nbsp;&middot;&nbsp;
-            <input class="autoexpand" name="system.education" type="text" value="{{system.education}}"
-                   placeholder="{{localize 'splittermond.education'}}"/>
-        </div>
+        <div class="column stretch">
+            <input class="character-name" name="name" type="text" value="{{name}}"
+                   placeholder="{{localize 'splittermond.name' }}"/>
+            <div class="experience">
+                <div class="bar">
+                    <div style="width: {{system.experience.percentage}}%"></div>
+                </div>
+                <div class="experience-label">
+                    {{localize "splittermond.heroLevel"}} {{system.experience.heroLevel}} -
+                    {{system.experience.heroLevelName}}
+                </div>
+                <div class="experience-value">
+                    <input class="autoexpand" name="system.experience.free" type="text"
+                           value="{{system.experience.free}}" placeholder="{{localize 'splittermond.xpFree'}}"/> -
+                    <input class="autoexpand" name="system.experience.spent" type="text"
+                           value="{{system.experience.spent}}" placeholder="{{localize 'splittermond.xpSpent'}}"/> -
+                    {{system.experience.nextLevelValue}}
+                </div>
+            </div>
+            <div>
+                <input class="autoexpand" name="system.species.value" type="text" value="{{system.species.value}}"
+                       placeholder="{{localize 'splittermond.species'}}"/>
+                &nbsp;&middot;&nbsp;
+                <input class="autoexpand" name="system.sex" type="text" value="{{system.sex}}"
+                       placeholder="{{localize 'splittermond.sex'}}"/>
+                &nbsp;&middot;&nbsp;
+                <input class="autoexpand" name="system.culture" type="text" value="{{system.culture}}"
+                       placeholder="{{localize 'splittermond.culture'}}"/>
+                &nbsp;&middot;&nbsp;
+                <input class="autoexpand" name="system.ancestry" type="text" value="{{system.ancestry}}"
+                       placeholder="{{localize 'splittermond.ancestry'}}"/>
+                &nbsp;&middot;&nbsp;
+                <input class="autoexpand" name="system.education" type="text" value="{{system.education}}"
+                       placeholder="{{localize 'splittermond.education'}}"/>
+            </div>
 
-    </div>
-    <div class="moonsign">
-
-        <div class="moonsign-splinterpoints" title="{{localize 'splittermond.splinterpoints'}}">
-            <button class="button-inline" type="button" data-action="dec-value"
-                    data-input-query="input[name='system.splinterpoints.value']">
-                <i class="fa fa-minus" aria-hidden="true"></i>
-            </button>
-            <input type="text" name="system.splinterpoints.value" value="{{system.splinterpoints.value}}"
-                   data-dtype="Number">
-            <span> / {{system.splinterpoints.max}}</span>
-            <button class="button-inline" type="button" data-action="inc-value"
-                    data-input-query="input[name='system.splinterpoints.value']">
-                <i class="fa fa-plus" aria-hidden="true"></i>
-            </button>
         </div>
-        {{#each itemsByType.moonsign}}
-            <img class="moonsign-image" src="{{this.img}}" title="{{this.name}}" height="64" width="64"/>
-            <label class="moonsign-label"><a data-action="edit-item"
-                                             data-item-id="{{this._id}}">{{this.name}}</a></label>
-        {{/each}}
-        {{#unless itemsByType.moonsign}}
-            <div class="moonsign-image"></div>
-            <label class="moonsign-label"><a data-item-type="moonsign" data-action="add-item"
-                                             class="moonsign-label">{{localize 'splittermond.moonsigns.add.title'}}</a></label>
-        {{/unless}}
-    </div>
+        <div class="moonsign">
+
+            <div class="moonsign-splinterpoints" title="{{localize 'splittermond.splinterpoints'}}">
+                <button class="button-inline" type="button" data-action="dec-value"
+                        data-input-query="input[name='system.splinterpoints.value']">
+                    <i class="fa fa-minus" aria-hidden="true"></i>
+                </button>
+                <input type="text" name="system.splinterpoints.value" value="{{system.splinterpoints.value}}"
+                       data-dtype="Number">
+                <span> / {{system.splinterpoints.max}}</span>
+                <button class="button-inline" type="button" data-action="inc-value"
+                        data-input-query="input[name='system.splinterpoints.value']">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+            {{#each itemsByType.moonsign}}
+                <img class="moonsign-image" src="{{this.img}}" title="{{this.name}}" height="64" width="64"/>
+                <label class="moonsign-label"><a data-action="edit-item"
+                                                 data-item-id="{{this._id}}">{{this.name}}</a></label>
+            {{/each}}
+            {{#unless itemsByType.moonsign}}
+                <div class="moonsign-image"></div>
+                <label class="moonsign-label"><a data-item-type="moonsign" data-action="add-item"
+                                                 class="moonsign-label">{{localize
+                        'splittermond.moonsigns.add.title'}}</a></label>
+            {{/unless}}
+        </div>
+    </section>
+    {{> "systems/splittermond/templates/sheets/actor/parts/stats-section.hbs" . }}
 </header>

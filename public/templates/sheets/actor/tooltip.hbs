@@ -19,7 +19,10 @@
 {{/inline}}
 
 {{#* inline "mastery-tooltip" }}
-    {{> "systems/splittermond/templates/sheets/actor/parts/mastery-by-skill.hbs" .}}
+    <!-- Div exists to style the tooltip like the original list-->
+    <div class="list masteries">
+        {{> "systems/splittermond/templates/sheets/actor/parts/mastery-by-skill.hbs" .}}
+    </div>
     <p>
         {{{descriptionHtml}}}
     </p>

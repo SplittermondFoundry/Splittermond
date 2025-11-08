@@ -123,6 +123,8 @@
         margin-bottom: 0;
         text-align: center;
         font-size: @fontSizeNormal;
+        color: var(--text-color-primary);
+        font-weight: lighter;
     }
 }
 
@@ -143,6 +145,9 @@
     top: -5px;
     z-index: -1;
 
+    h3 {
+        .small-sheet-header();
+    }
     gap: @paddingSmall;
 
     label {

@@ -7,8 +7,6 @@ import { splittermond } from "module/config/index.js";
 export default class SplittermondCharacterSheet extends SplittermondActorSheet {
     static DEFAULT_OPTIONS = {
         classes: ["splittermond", "sheet", "actor"],
-        position: { width: 750 },
-        overlays: ["#health", "#focus"],
         tag: "form",
         form: {
             submitOnChange: true,
@@ -33,8 +31,12 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
     static PARTS = {
         header: {
             template: `${TEMPLATE_BASE_PATH}/sheets/actor/character-header.hbs`,
+            templates: [
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/stats-section.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/focus-health.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/derived-attributes.hbs`,
+            ],
         },
-        stats: super.STATS_TAB,
         tabs: super.NAVIGATION,
         editor: super.BIOGRAPHY_TAB,
         general: {

@@ -1,0 +1,113 @@
+@import "variables.less";
+//should affect all AppV2 Dialogues
+@window-foreground-color: #3a3a3a;
+.window-header-def() {
+    flex: 0 0 30px;
+    overflow: hidden;
+    padding: 0 8px;
+    background: none;
+    border: none;
+    color: @window-foreground-color;
+    .window-title {
+        color: @window-foreground-color;
+        //font-family: @font-primary;
+        font-variant-numeric: lining-nums;
+        //font-family: @font-secondary;
+        font-weight: normal;
+        max-width: unset;
+    }
+    button.header-control:not(.icon) {
+        .button-style();
+        color: @window-foreground-color;
+        width: 22px;
+        height: 22px;
+    }
+    button.header-control.icon {
+        color: @window-foreground-color;
+    }
+}
+.filled-border() {
+    color: var(--color-text-secondary);
+    background: var(--splittermond-background-parchment);
+}
+
+.window-body-def() {
+    .border-double-corner-1();
+    label {
+        color: @window-foreground-color;
+    }
+
+    button:not(.icon) {
+        .button-style();
+
+        label {
+            color: var(--color-text);
+        }
+    }
+    button.button-inline:not(.icon) {
+        .button-inline();
+    }
+
+    color: var(--color-text-secondary);
+
+    background: var(--splittermond-background-parchment);
+
+    margin: 5px;
+    margin-top: 0px;
+    padding: 8px;
+    position: relative;
+}
+
+.description-spans-app() {
+    nav ~ section {
+        flex: 1;
+    }
+
+    .editor {
+        flex: 1;
+        justify-self: stretch;
+        align-self: stretch;
+        height: 100%;
+        min-height: 100px;
+    }
+}
+.nav-tab-spans-sheet() {
+    margin-right: -8px;
+    margin-left: -8px;
+    margin-bottom: 7px;
+}
+
+.inobtrusive-toggles() {
+    background: none;
+    border-image: none;
+    box-shadow: none;
+
+    i {
+        --toggle-color-light: #f0f0e0;
+        --toggle-color-dark: #0f0f10;
+
+        &.fa-toggle-off {
+            color: var(--toggle-color-dark);
+            text-shadow:
+                0px 0px 1px var(--toggle-color-light),
+                0px 1px 0px var(--toggle-color-light),
+                0px 1px 0px var(--toggle-color-dark);
+        }
+
+        &.fa-toggle-on {
+            color: var(--toggle-color-light);
+            text-shadow:
+                0px 0px 1px var(--toggle-color-dark),
+                0px 1px 0px var(--toggle-color-dark),
+                0px 1px 0px var(--toggle-color-light);
+        }
+    }
+}
+.buttons-span-width() {
+    width: 100%;
+    display: flex;
+    gap: 0.5em;
+    button {
+        flex: 1;
+    }
+}
