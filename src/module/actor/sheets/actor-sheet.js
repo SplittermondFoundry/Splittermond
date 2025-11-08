@@ -104,36 +104,20 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         sheetData.hideSkills = this._hideSkills;
         sheetData.generalSkills = {};
         splittermond.skillGroups.general
-            .filter(
-                (s) =>
-                    !sheetData.hideSkills ||
-                    ["acrobatics", "athletics", "determination", "stealth", "perception", "endurance"].includes(s) ||
-                    this.actor.skills[s].points > 0 ||
-                    this.actor.items.find((i) => i.type === "mastery" && i.system.skill === s)
-            )
+            .filter((s) => splittermond.skillGroups.essential.includes(s) || this.shouldDisplaySkill(s))
             .forEach((skill) => {
                 sheetData.generalSkills[skill] = this.actor.skills[skill];
             });
         sheetData.magicSkills = {};
         splittermond.skillGroups.magic
-            .filter(
-                (s) =>
-                    !sheetData.hideSkills ||
-                    this.actor.skills[s].points > 0 ||
-                    this.actor.items.find((i) => i.type === "mastery" && i.system.skill === s)
-            )
+            .filter((s) => this.shouldDisplaySkill(s))
             .forEach((skill) => {
                 sheetData.magicSkills[skill] = this.actor.skills[skill];
             });
 
         sheetData.fightingSkills = {};
         splittermond.skillGroups.fighting
-            .filter(
-                (s) =>
-                    !sheetData.hideSkills ||
-                    (this.actor.system.skills[s]?.points || 0) > 0 ||
-                    this.actor.items.find((i) => i.type === "mastery" && i.system.skill === s)
-            )
+            .filter((s) => this.shouldDisplaySkill(s))
             .forEach((skill) => {
                 if (!this.actor.system.skills[skill]) {
                     this.actor.system[skill] = {
@@ -141,7 +125,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                     };
                 }
                 sheetData.fightingSkills[skill] = foundryApi.utils.duplicate(this.actor.system.skills[skill]);
-                sheetData.fightingSkills[skill].label = `splittermond.skillLabel.${skill}`;
+                sheetData.fightingSkills[skill].label = splittermond.fightingSkillOptions[skill];
             });
 
         sheetData.editor.content = await foundryApi.utils.enrichHtml(this.actor.system.biography, {
@@ -187,8 +171,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
         if (sheetData.itemsByType.weapon) {
             sheetData.itemsByType.weapon.forEach((item) => {
-                item.system.features = this.actor.items.get(item._id).system.features.features;
-                item.system.damage = this.actor.items.get(item._id).system.damage.displayValue;
+                const actorItem = this.actor.items.get(item._id);
+                item.system.features = actorItem.system.features.features;
+                item.system.damage = actorItem.system.damage.displayValue;
             });
         }
         if (sheetData.itemsByType.shield) {
@@ -234,6 +219,16 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             result[item.skill.id].spells.push(item);
             return result;
         }, {});
+    }
+
+    /**
+     * @param {SplittermondSkill} skillId
+     * @return {boolean}
+     */
+    shouldDisplaySkill(skillId) {
+        const hasSkillPoints = this.actor.skills[skillId]?.points > 0;
+        const hasMastery = this.actor.items.some((item) => item.type === "mastery" && item.system.skill === skillId);
+        return !this._hideSkills || hasSkillPoints || hasMastery;
     }
 
     /**

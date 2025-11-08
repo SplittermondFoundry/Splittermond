@@ -50,6 +50,7 @@ const magicSkills = [
     "windmagic",
 ] as const;
 export const skillGroups = {
+    essential: ["acrobatics", "athletics", "determination", "stealth", "perception", "endurance"],
     fighting: fightingSkills,
     general: generalSkills,
     magic: magicSkills,
