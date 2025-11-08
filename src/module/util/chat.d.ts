@@ -17,7 +17,20 @@ export interface StatusEffectMessageResult {
     type: number;
 }
 
+export const Chat: {
+    canEditMessageOf: typeof canEditMessageOf;
+    prepareCheckMessageData: typeof prepareCheckMessageData;
+    prepareStatusEffectMessage: typeof prepareStatusEffectMessage;
+};
+
 export function canEditMessageOf(userId: string): boolean {}
+
+export function prepareCheckMessageData(
+    actor: SplittermondActor,
+    rollMode: string,
+    roll: Roll,
+    data: Record<string, unknown>
+): Promise<Record<string, unknown>> {}
 
 export function prepareStatusEffectMessage(
     actor: SplittermondActor,

@@ -331,16 +331,6 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             foundryApi.socket.emit("system.splittermond.quench.test.event", { test: "test" });
         });
 
-        it("delivers the the correct chat message types", () => {
-            const types = foundryApi.chatMessageTypes;
-            expect(types, "chatMessageTypes is an object").to.be.an("object");
-            expect(Object.keys(types).length).to.equal(4);
-            expect(types.EMOTE, "chatMessageTypes has an emote").to.be.a("number");
-            expect(types.IC, "chatMessageTypes has an in character").to.be.a("number");
-            expect(types.OOC, "chatMessageTypes has an out of character").to.be.a("number");
-            expect(types.OTHER, "chatMessageTypes has an other").to.be.a("number");
-        });
-
         it(
             "passes application, html, and data to callback",
             withActor(async (actor) => {

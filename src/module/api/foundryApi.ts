@@ -105,6 +105,10 @@ export const foundryApi = new (class FoundryApi {
         return CONST.CHAT_MESSAGE_TYPES;
     }
 
+    get rollModes() {
+        return CONFIG.Dice.rollModes;
+    }
+
     get currentUser(): User {
         //@ts-ignore
         return game.user;

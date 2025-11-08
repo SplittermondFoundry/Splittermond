@@ -8,7 +8,7 @@ export const Dice = {
 
 /**
  * @param skill
- * @param {RollDifficultyString} difficulty
+ * @param {number} difficulty
  * @param {RollType} rollType
  * @param {number} skillModifier
  * @return {GenericRollEvaluation}
@@ -32,7 +32,7 @@ export async function check(skill, difficulty, rollType = "standard", skillModif
  *
  * @param {Promise<{dice:{total:number}[], total:number}>} roll
  * @param skillPoints
- * @param {RollDifficultyString} difficulty
+ * @param {number} difficulty
  * @param rollType
  * @return {GenericRollEvaluation}
  */

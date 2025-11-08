@@ -340,9 +340,8 @@ export default class Attack {
 
         const attackRollOptions = {
             type: "attack",
-            title: null,
             subtitle: this.item.name,
-            difficulty: "VTD",
+            difficulty: "VTD" as const,
             preSelectedModifier: [this.item.name],
             modifier: 0,
             checkMessageData: {

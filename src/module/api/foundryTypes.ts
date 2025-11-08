@@ -40,6 +40,11 @@ export enum ChatMessageTypes {
     EMOTE,
 }
 
+export interface RollMode {
+    icon: string;
+    label: string;
+}
+
 export interface User {
     isGM: boolean;
     id: string;
@@ -186,6 +191,7 @@ declare global {
         Actor: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
         ChatMessage: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
         Combat: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
+        Dice: { rollModes: Record<string, RollMode> } & Record<string, unknown>;
     } & Record<string, unknown>;
 }
 

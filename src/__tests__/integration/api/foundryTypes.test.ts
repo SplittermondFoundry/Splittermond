@@ -265,6 +265,10 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(CONFIG, "CONFIG does not have a property called Combat").to.have.property("Combat");
         });
 
+        it("should have a property called Dice", () => {
+            expect(CONFIG, "CONFIG does not have a property called Dice").to.have.property("Dice");
+        });
+
         it("should have required Item properties", () => {
             expect(CONFIG.Item.dataModels, "CONFIG.Item is not initialized").to.deep.contain.keys([
                 "education",

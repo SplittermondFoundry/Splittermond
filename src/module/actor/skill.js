@@ -1,7 +1,7 @@
 import Modifiable from "./modifiable";
 import CheckDialog from "../apps/dialog/check-dialog";
-import * as Dice from "../util/dice";
-import * as Chat from "../util/chat";
+import { Dice } from "../util/dice";
+import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty } from "../util/rollDifficultyParser";
 import { asString } from "module/modifiers/expressions/scalar";
@@ -113,21 +113,31 @@ export default class Skill extends Modifiable {
     }
 
     /**
-     * @param {{difficulty: unknown, preSelectedModifier:string[], subtitle:?string, title:?string, type:string, modifier:number, checkMessageData: Record<string, any>}} options
+     * @param {{
+     *  difficulty?: RollDifficultyString,
+     *  preSelectedModifier?: string[],
+     *  subtitle?: string,
+     *  title?: string,
+     *  type?: string,
+     *  modifier?: number,
+     *  checkMessageData?: Record<string, any>,
+     *  askUser?: boolean,
+     * }} options
      * @return {Promise<*|boolean>}
      */
     async roll(options = {}) {
-        let checkData = await this.prepareRollDialog(
-            options.preSelectedModifier ?? [],
+        let checkData = await this.finalizeCheckInputData(
+            options.preSelectedModifier,
             options.title,
             options.subtitle,
             options.difficulty,
-            options.modifier
+            options.modifier,
+            options.askUser ?? true
         );
         if (!checkData) {
             return false;
         }
-        const principalTarget = Array.from(game.user.targets)[0];
+        const principalTarget = Array.from(foundryApi.currentUser.targets)[0];
         const rollDifficulty = parseRollDifficulty(checkData.difficulty);
         let hideDifficulty = rollDifficulty.isTargetDependentValue();
         if (principalTarget) {
@@ -199,7 +209,7 @@ export default class Skill extends Modifiable {
             ...(options.checkMessageData || {}),
         };
 
-        return ChatMessage.create(
+        return foundryApi.createChatMessage(
             await Chat.prepareCheckMessageData(this.actor, checkData.rollMode, rollResult.roll, checkMessageData)
         );
     }
@@ -209,22 +219,44 @@ export default class Skill extends Modifiable {
      */
 
     /**
-     * @typedef {{name: string, label:string, value: unknown, active:boolean}} EmphasisData
+     * @param {?string[]} selectedModifiers
+     * @param {?string} title
+     * @param {?string} subtitle
+     * @param {?RollDifficultyString} difficulty
+     * @param {?number} modifier
+     * @param {boolean} askUser
+     * @return {Promise<CheckDialogData|null>}
      */
+    async finalizeCheckInputData(selectedModifiers, title, subtitle, difficulty, modifier, askUser = true) {
+        if (!askUser) {
+            /** @type CheckDialogData */
+            return {
+                difficulty: difficulty || 15,
+                manuevers: [],
+                modifier: modifier || 0,
+                modifierElements: modifier
+                    ? [{ value: modifier, description: foundryApi.localize("splittermond.modifier") }]
+                    : [],
+                rollMode: "publicroll",
+                rollType: "standard",
+            };
+        }
+        return this.prepareRollDialog(selectedModifiers ?? [], title, subtitle, difficulty, modifier);
+    }
+
     /**
-     * @typedef {{difficulty:RollDifficultyString, modifier:number, emphasis: EmphasisData, rollMode: unknown}} CheckDialogOptions
-     * @param {string[]}selectedModifiers
-     * @param {string} title
-     * @param {string} subtitle
-     * @param {RollDifficultyString} difficulty
+     * @param {string[]} selectedModifiers
+     * @param {?string} title
+     * @param {?string} subtitle
+     * @param {?RollDifficultyString} difficulty
      * @param {number} modifier
-     * @return {Promise<CheckDialogOptions>}
+     * @return {Promise<CheckDialogData|null>}
      */
     async prepareRollDialog(selectedModifiers, title, subtitle, difficulty, modifier) {
         let emphasisData = [];
         let selectableModifier = this.selectableModifier;
-        selectedModifiers = selectedModifiers.map((s) => s.trim().toLowerCase());
         if (selectableModifier) {
+            selectedModifiers = selectedModifiers.map((s) => s.trim().toLowerCase());
             emphasisData = selectableModifier
                 .map((mod) => [mod.attributes.name, asString(mod.value)])
                 .map(([key, value]) => {
@@ -247,6 +279,8 @@ export default class Skill extends Modifiable {
             difficulty: difficulty || 15,
             modifier: modifier || 0,
             emphasis: emphasisData,
+            rollMode: foundryApi.settings.get("core", "rollMode"),
+            rollModes: foundryApi.rollModes,
             title: this.#createRollDialogTitle(title, subtitle),
             skill: this,
             skillTooltip: skillFormula.render(),
@@ -254,8 +288,8 @@ export default class Skill extends Modifiable {
     }
 
     /**
-     * @param {string} title
-     * @param {string} subtitle
+     * @param {?string} title
+     * @param {?string} subtitle
      * @return {string}
      */
     #createRollDialogTitle(title, subtitle) {

@@ -123,7 +123,7 @@ automatisch neu, wenn Änderungen gespeichert werden, sodass man immer auf einem
 
 Das Projekt benutzt `Typescript` und `prettier` um einen einheitlichen Code-Stil zu gewährleisten. Es wird in GitHub
 sichergestellt, dass nur korrekt typisierter, formatierter und getesteter Code in den Hauptzweig gemerged werden kann.
-Es empfielt sich die IDE anzuweisen die entsprechenden Konfigurationen zu benutzen.
+Es empfiehlt sich die IDE anzuweisen die entsprechenden Konfigurationen zu benutzen.
 
 ### Tests
 
@@ -145,9 +145,13 @@ auch eine Reihe globaler Mocks für die Tests:
 
 #### Integration Tests
 
-Integrationstests werden mithilfe des Moduls `@ethaks/fvtt-quench`. Diese Tests konzentrieren sich auf das Testen der
-Foundry API (so sie von uns benutzt wird), sowie tests die viele Foundry Komponenten, insbesondere GUI Komponenten,
-involvieren. Sie sind so gebaut, dass in einer frischen Splittermond Welt funktionieren.
+Integration Tests konzentrieren sich auf das Testen der Foundry API (so sie von uns benutzt wird), sowie tests die viele
+Foundry Komponenten, insbesondere GUI Komponenten, involvieren. Sie sind so gebaut, dass in einer frischen Splittermond
+Welt funktionieren.
+
+Zum Ausführen muss in einer laufenden Foundry VTT Instanz das Modul [`@ethaks/fvtt-quench`](https://github.com/Ethaks/FVTT-Quench)
+installiert und aktiviert sein. Danach gibt es in der rechten Seitenleiste einen neuen Button "QUENCH", mit
+dem sich ein Menü öffnet, in dem die Tests ausgeführt werden können.
 
 ### Architektur
 

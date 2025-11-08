@@ -2,6 +2,12 @@ import * as Tooltip from "./tooltip.js";
 import { foundryApi } from "../api/foundryApi.ts";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel.js";
 
+export const Chat = {
+    canEditMessageOf,
+    prepareCheckMessageData,
+    prepareStatusEffectMessage,
+};
+
 /**
  * @param {string|null} userId
  * @return {boolean}
