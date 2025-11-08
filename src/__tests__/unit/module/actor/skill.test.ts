@@ -16,30 +16,36 @@ describe("Skill", () => {
     beforeEach(() => {
         sandbox = sinon.createSandbox();
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => key);
+        sandbox.stub(foundryApi, "currentUser").get(() => ({
+            targets: new Set(),
+        }));
         stubRollApi(sandbox);
     });
 
     afterEach(() => sandbox.restore());
 
-    it("should make a skill check with the options from the check dialog", async () => {
+    it("should allow overwriting options with the check dialog", async () => {
         const actor = setUpActor(sandbox);
         const underTest = new Skill(actor, "Testskill");
 
+        const customOptions = {
+            type: "test roll",
+            difficulty: 20,
+            modifier: 1,
+            askUser: true,
+        };
         const checkDialogStub = sandbox.stub(CheckDialog, "create").resolves({
-            difficulty: 25,
+            difficulty: 25, // changed from 20 to 25
             maneuvers: [],
-            modifier: 3,
+            modifier: 3, // changed from 1 to 3
             modifierElements: [{ value: 3, description: "modifier" }],
-            rollMode: "gmroll",
-            rollType: "risk",
+            rollMode: "gmroll", // changed from publicroll to gmroll
+            rollType: "risk", // changed from standard to risk
         });
         sandbox.stub(foundryApi, "settings").get(() => ({
             get: () => "publicroll",
         }));
         sandbox.stub(foundryApi, "rollModes").get(() => ({}));
-        sandbox.stub(foundryApi, "currentUser").get(() => ({
-            targets: new Set(),
-        }));
 
         const roll = {
             dice: [],
@@ -57,17 +63,6 @@ describe("Skill", () => {
         });
         const chatPrepareStub = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
         const createMessageStub = sandbox.stub(foundryApi, "createChatMessage").resolves();
-
-        const customOptions = {
-            type: "test roll",
-            difficulty: null,
-            modifier: 0,
-            preSelectedModifier: [],
-            subtitle: null,
-            title: null,
-            checkMessageData: {},
-            askUser: true,
-        };
 
         await underTest.roll(customOptions);
 
@@ -104,13 +99,71 @@ describe("Skill", () => {
         expect(createMessageStub.calledOnce).to.be.true;
     });
 
-    it("should skip the dialog if askUser is false", async () => {
+    it("should use the passed options if askUser is false", async () => {
         const actor = setUpActor(sandbox);
         const underTest = new Skill(actor, "Testskill");
 
-        sandbox.stub(foundryApi, "currentUser").get(() => ({
-            targets: new Set(),
-        }));
+        const roll = {
+            dice: [],
+            total: 26,
+            getTooltip: () => "",
+        };
+        const diceCheckStub = sandbox.stub(Dice, "check").returns({
+            difficulty: 20,
+            succeeded: true,
+            isFumble: false,
+            isCrit: false,
+            degreeOfSuccess: 3,
+            degreeOfSuccessMessage: "(Gut) gelungen",
+            roll,
+        });
+        const chatPrepareStub = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
+        const createMessageStub = sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+        const customOptions = {
+            type: "test roll",
+            difficulty: 20,
+            modifier: 1,
+            askUser: false,
+        };
+
+        await underTest.roll(customOptions);
+
+        expect(diceCheckStub.calledOnce).to.be.true;
+        expect(chatPrepareStub.calledOnce).to.be.true;
+        expect(chatPrepareStub.firstCall.args[0]).to.equal(actor);
+        expect(chatPrepareStub.firstCall.args[1]).to.equal("publicroll");
+        expect(chatPrepareStub.firstCall.args[2]).to.equal(roll);
+        expect(chatPrepareStub.firstCall.args[3]).to.be.an("object");
+        expect(chatPrepareStub.firstCall.args[3]).to.deep.include({
+            availableSplinterpoints: 0,
+            degreeOfSuccess: 3,
+            difficulty: 20,
+            hideDifficulty: false,
+            isCrit: false,
+            isFumble: false,
+            maneuvers: [],
+            modifierElements: [
+                {
+                    value: "1",
+                    description: "splittermond.modifier",
+                    isMalus: false,
+                },
+            ],
+            rollType: "standard",
+            skill: "testskill",
+            skillAttributes: {},
+            skillPoints: 0,
+            skillValue: 0,
+            succeeded: true,
+            type: "test roll",
+        });
+        expect(createMessageStub.calledOnce).to.be.true;
+    });
+
+    it("should use default options if askUser is false and no options where passed", async () => {
+        const actor = setUpActor(sandbox);
+        const underTest = new Skill(actor, "Testskill");
 
         const roll = {
             dice: [],
@@ -130,13 +183,6 @@ describe("Skill", () => {
         const createMessageStub = sandbox.stub(foundryApi, "createChatMessage").resolves();
 
         const customOptions = {
-            type: "test roll",
-            difficulty: 15,
-            modifier: 0,
-            preSelectedModifier: [],
-            subtitle: null,
-            title: null,
-            checkMessageData: {},
             askUser: false,
         };
 
@@ -163,7 +209,7 @@ describe("Skill", () => {
             skillPoints: 0,
             skillValue: 0,
             succeeded: true,
-            type: "test roll",
+            type: "skill",
         });
         expect(createMessageStub.calledOnce).to.be.true;
     });

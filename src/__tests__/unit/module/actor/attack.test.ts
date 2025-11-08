@@ -301,7 +301,7 @@ describe("Attack", () => {
         const passedOptions = rollSpy.firstCall.firstArg;
         expect(passedOptions).to.exist;
         expect(passedOptions?.type).to.equal("attack");
-        expect(passedOptions?.title).to.equal(null);
+        expect(passedOptions?.title).to.equal(undefined);
         expect(passedOptions?.subtitle).to.equal(attackItem.name);
         expect(passedOptions?.difficulty).to.equal(customOptions.difficulty);
         expect(passedOptions?.preSelectedModifier).to.deep.equal([attackItem.name]);
@@ -329,7 +329,7 @@ describe("Attack", () => {
         const passedOptions = rollSpy.firstCall.firstArg;
         expect(passedOptions).to.exist;
         expect(passedOptions?.type).to.equal("attack");
-        expect(passedOptions?.title).to.equal(null);
+        expect(passedOptions?.title).to.equal(undefined);
         expect(passedOptions?.subtitle).to.equal(attackItem.name);
         expect(passedOptions?.difficulty).to.equal("VTD");
         expect(passedOptions?.preSelectedModifier).to.deep.equal([attackItem.name]);

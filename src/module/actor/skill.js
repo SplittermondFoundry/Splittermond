@@ -114,13 +114,13 @@ export default class Skill extends Modifiable {
 
     /**
      * @param {{
-     *  difficulty: ?RollDifficultyString,
-     *  preSelectedModifier: ?string[],
-     *  subtitle: ?string,
-     *  title: ?string,
-     *  type: ?string,
-     *  modifier: ?number,
-     *  checkMessageData: ?Record<string, any>,
+     *  difficulty?: RollDifficultyString,
+     *  preSelectedModifier?: string[],
+     *  subtitle?: string,
+     *  title?: string,
+     *  type?: string,
+     *  modifier?: number,
+     *  checkMessageData?: Record<string, any>,
      *  askUser?: boolean,
      * }} options
      * @return {Promise<*|boolean>}
