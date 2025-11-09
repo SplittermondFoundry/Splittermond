@@ -2,9 +2,10 @@ import Skill from "module/actor/skill";
 import { foundryApi } from "../../api/foundryApi";
 import { FoundryDialog } from "module/api/Application";
 import { RollMode } from "module/api/foundryTypes";
-import { ApplicationRenderContext } from "module/data/SplittermondApplication";
+import { ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { RollType } from "module/config/RollType";
 import { RollDifficultyString } from "module/util/rollDifficultyParser";
+import { changeValue } from "module/util/commonHtmlHandlers";
 
 export interface CheckDialogInput {
     title?: string;
@@ -53,7 +54,7 @@ export default class CheckDialog extends FoundryDialog {
 
     static async create(checkData: CheckDialogInput): Promise<CheckDialogData | null> {
         const baseId = `${new Date().toISOString()}${Math.random()}`;
-        const html = await foundryApi.renderer("systems/splittermond/templates/apps/dialog/check-dialog.hbs", {
+        const html = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/apps/dialog/check-dialog.hbs`, {
             baseId,
             ...checkData,
         });
@@ -151,33 +152,18 @@ export default class CheckDialog extends FoundryDialog {
     }
 
     static #increaseBy3(_event: Event, target: HTMLElement) {
-        CheckDialog.#changeValue((value) => value + 3).for(target);
+        changeValue((value) => value + 3).for(target);
     }
 
     static #decreaseBy3(_event: Event, target: HTMLElement) {
-        CheckDialog.#changeValue((value) => value - 3).for(target);
+        changeValue((value) => value - 3).for(target);
     }
 
     static #increaseValue(_event: Event, target: HTMLElement) {
-        CheckDialog.#changeValue((value) => value + 1).for(target);
+        changeValue((value) => value + 1).for(target);
     }
 
     static #decreaseValue(_event: Event, target: HTMLElement) {
-        CheckDialog.#changeValue((value) => value - 1).for(target);
-    }
-
-    static #changeValue(operation: (a: number) => number) {
-        return {
-            for(target: HTMLElement) {
-                const matchingInput = target.parentElement?.querySelector("input");
-                if (!matchingInput) return;
-
-                const newValue = operation(parseInt(matchingInput.value));
-                if (isNaN(newValue)) return;
-                matchingInput.value = `${newValue}`;
-                matchingInput.dispatchEvent(new Event("input", { bubbles: true }));
-                matchingInput.dispatchEvent(new Event("change", { bubbles: true }));
-            },
-        };
+        changeValue((value) => value - 1).for(target);
     }
 }
