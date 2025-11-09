@@ -103,6 +103,10 @@ export class TooltipConfigurer {
     }
 
     configureTooltips() {
+        if (!this.element) {
+            console.warn("Splittermond | Attempted to configure tooltips on an unrendered sheet.");
+            return;
+        }
         this.setHover(".list.inventory [data-item-id]", (t) => this.displayInventoryTooltip(t));
         this.setHover(".list.spells [data-item-id]", (t) => this.displaySpellTooltip(t));
         this.setHover(".list.skills [data-skill]", (t) => this.displaySkillTooltip(t));

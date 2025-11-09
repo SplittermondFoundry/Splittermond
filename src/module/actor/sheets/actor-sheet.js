@@ -77,7 +77,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         super(actorOptions);
         this._activeOverlay = null;
         this._hideSkills = true;
-        this._tooltipConfigurer = options.tooltipConfigurer ?? TooltipConfigurer;
+        this._tooltipConfigurer = new (options.tooltipConfigurerConstructor ?? TooltipConfigurer)(this);
         this._hoverStateTracker = options.hoverStateTracker ?? new HoverStateTracker();
     }
 
@@ -506,7 +506,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     async _onRender(context, options) {
         await super._onRender(context, options);
         autoExpandInputs(this.element);
-        new this._tooltipConfigurer(this).configureTooltips();
+        this._tooltipConfigurer.configureTooltips();
         this._hoverStateTracker.trackHoverState(this);
         this._hoverStateTracker.restoreHoverState(this);
 
