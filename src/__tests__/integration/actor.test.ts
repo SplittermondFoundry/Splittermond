@@ -19,6 +19,7 @@ import { passesEventually } from "../util";
 import Modifier from "module/actor/modifier";
 import { of } from "module/modifiers/expressions/scalar";
 import type { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
+import type SplittermondWeaponItem from "module/item/weapon";
 
 declare const Actor: any;
 declare var Dialog: any;
@@ -497,6 +498,64 @@ export function actorTest(context: QuenchBatchContext) {
 
                 expect(damageLink, "Sheet has a damage link").to.exist;
                 expect(await assertion, "Chat message was created successfully").to.equal("passed");
+            })
+        );
+        it(
+            "should drag an attack between actors",
+            withActor(
+                withActor(async (source, target) => {
+                    const item: SplittermondWeaponItem = (
+                        await source.createEmbeddedDocuments("Item", [
+                            { type: "weapon", name: "Drag Test Weapon", system: { equipped: true } },
+                        ])
+                    )[0];
+                    source.prepareBaseData();
+                    source.prepareEmbeddedDocuments();
+                    source.prepareDerivedData();
+                    const sourceSheet = await new SplittermondCharacterSheet({ document: source }).render({
+                        force: true,
+                    });
+                    const targetSheet = await new SplittermondCharacterSheet({ document: target }).render({
+                        force: true,
+                    });
+
+                    const dataTransfer = new DataTransfer();
+                    const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                    const dragStop = new DragEvent("drop", { dataTransfer });
+                    sourceSheet.element.querySelector(`[data-attack-id='${item.id}']`)?.dispatchEvent(dragStart);
+                    targetSheet.element.dispatchEvent(dragStop);
+
+                    await passesEventually(() => {
+                        expect(target.items.find((i) => i.name === item.name)).to.exist;
+                    });
+
+                    //Pure precaution. Foundry should remove them when the actors get deleted.
+                    sourceSheet.close();
+                    targetSheet.close();
+                })
+            )
+        );
+
+        it(
+            "should retain the hover state of healt/focus on rerender",
+            withActor(async (actor) => {
+                const inputSelector = "input[name='system.health.consumed.value']";
+                const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
+                const healthElement = sheet.element.querySelector("#health")!;
+
+                healthElement.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+                const inputButton = healthElement.querySelector<HTMLButtonElement>(
+                    `${inputSelector}~button[data-action='inc-value']`
+                );
+                inputButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+                await passesEventually(() => expect(actor.system.health.consumed.value).to.equal(1));
+                expect(sheet.element.querySelector<HTMLInputElement>(inputSelector)?.value).to.equal("1");
+                expect(
+                    sheet.element
+                        .querySelector("#health .health-focus-data")
+                        ?.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+                ).to.be.true;
             })
         );
     });
