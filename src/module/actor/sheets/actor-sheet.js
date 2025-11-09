@@ -578,7 +578,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
      * @protected
      */
     _onDragStart(event) {
-        this.element.querySelector("#splittermond-tooltip")?.remove();
+        this._tooltipConfigurer.removeTooltips();
         /**@type HTMLElement*/
         const target = event.currentTarget;
         const attackId = target.dataset.attackId;

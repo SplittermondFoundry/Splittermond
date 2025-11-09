@@ -23,12 +23,9 @@
     <div class="list masteries">
         {{> "systems/splittermond/templates/sheets/actor/parts/mastery-by-skill.hbs" .}}
     </div>
-    <p>
-        {{{descriptionHtml}}}
-    </p>
 {{/inline}}
 
-<div id="splittermond-tooltip">
+<div id="{{id}}" class="splittermond actor-tooltip">
     {{#if (eq tooltipKind "spell-tooltip")}}
         {{> spell-tooltip .}}
     {{/if}}

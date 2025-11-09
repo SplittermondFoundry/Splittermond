@@ -7,10 +7,10 @@ import type SplittermondActor from "module/actor/actor";
 import type SplittermondActorSheet from "module/actor/sheets/actor-sheet";
 import type SplittermondSpellItem from "module/item/spell";
 import type SplittermondItem from "module/item/item";
-import type SplittermondMasteryItem from "module/item/mastery";
 import type { MasteryDataModel } from "module/item/dataModel/MasteryDataModel";
 import { splittermond } from "module/config";
 import type { SplittermondSkill } from "module/config/skillGroups";
+import { isMember } from "module/util/util";
 
 enum TooltipPosition {
     // Position the tooltip below and to the left of the target
@@ -30,9 +30,11 @@ enum TemplateKind {
 interface TemplateContext {
     readonly tooltipKind: TemplateKind;
     readonly [x: string]: unknown;
+    readonly id?: string;
 }
 
 export class TooltipConfigurer {
+    private activeTooltips: string[] = [];
     constructor(private sheet: SplittermondActorSheet) {}
     get actor(): SplittermondActor {
         return this.sheet.actor;
@@ -40,15 +42,13 @@ export class TooltipConfigurer {
     get element(): HTMLElement {
         return this.sheet.element;
     }
-    get tooltip() {
-        return this.element.querySelector("#splittermond-tooltip") as HTMLElement | null;
-    }
 
     private async renderTooltip(target: HTMLElement, hbsContent: TemplateContext, position: TooltipPosition) {
-        this.tooltip?.remove();
-        const rendered = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/sheets/actor/tooltip.hbs`, hbsContent);
+        const contextWithId = this.enhanceById(hbsContent);
+        this.activeTooltips.push(contextWithId.id);
+        const rendered = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/sheets/actor/tooltip.hbs`, contextWithId);
         this.element.insertAdjacentHTML("beforeend", rendered);
-        const tooltip = this.tooltip!;
+        const tooltip = this.element.querySelector(`#${contextWithId.id}`) as HTMLElement;
         const css = this.selectPosition(position, target, tooltip);
 
         for (const key in css) {
@@ -56,6 +56,12 @@ export class TooltipConfigurer {
             tooltip.style.setProperty(key, value);
         }
         showElementIn(tooltip, 100);
+    }
+    private enhanceById(hbsContext: TemplateContext) {
+        return {
+            ...hbsContext,
+            id: hbsContext.id ?? "splittermond-tooltip-" + Date.now() + "-" + Math.floor(Math.random() * 10000),
+        };
     }
 
     private selectPosition(strategy: TooltipPosition, target: HTMLElement, tooltipElement: HTMLElement) {
@@ -85,6 +91,7 @@ export class TooltipConfigurer {
                 return {
                     top: targetRect.top + window.scrollY + "px",
                     left: targetRect.left + window.scrollX + "px",
+                    width: targetRect.width + "px",
                     display: "none",
                     "pointer-events": "none",
                 };
@@ -99,7 +106,14 @@ export class TooltipConfigurer {
 
     private onHover(element: Element, enterHandler: (target: HTMLElement) => void) {
         element.addEventListener("mouseenter", (event) => enterHandler(event.currentTarget as HTMLElement));
-        element.addEventListener("mouseleave", () => this.tooltip?.remove());
+        element.addEventListener("mouseleave", () => this.removeTooltips());
+    }
+
+    removeTooltips() {
+        this.activeTooltips.forEach((activeTooltip) => {
+            this.element.querySelector(`#${activeTooltip}`)?.remove();
+        });
+        this.activeTooltips = [];
     }
 
     configureTooltips() {
@@ -114,7 +128,7 @@ export class TooltipConfigurer {
         this.setHover(".damage-reduction", (t) => this.displayDamageReductionTooltip(t));
         this.setHover(".list.attack .value", (t) => this.displayAttackTooltip(t));
         this.setHover(".list.active-defense .value", (t) => this.displayActiveDefenseTooltip(t));
-        this.setHover(".list.masteries [data-item-id] .taglist-item-name", (t) => this.displayMasteryTooltip(t));
+        this.setHover(".list.masteries [data-item-id] .taglist-item-name", (t) => this.displayInventoryTooltip(t));
     }
     private async displayInventoryTooltip(target: HTMLElement) {
         const itemId = target?.dataset.itemId ?? "";
@@ -140,29 +154,13 @@ export class TooltipConfigurer {
         return this.renderTooltip(target, hbsContent, TooltipPosition.BOTTOM_LEFT);
     }
 
-    private async displayMasteryTooltip(target: HTMLElement) {
-        const itemId = target.parentElement?.dataset.itemId ?? "";
-        const item = this.actor.items.get(itemId) as SplittermondMasteryItem | null;
-        if (!item || !item.system.description) return;
-        const dataModel = item.system as MasteryDataModel;
-        const hbsContent = {
-            tooltipKind: TemplateKind.MASTERY_TOOLTIP,
-            descriptionHtml: await foundryApi.utils.enrichHtml(item.system.description),
-            skillId: dataModel.skill,
-            skill: {
-                label: splittermond.masterySkillsOption[dataModel.skill as SplittermondSkill],
-                masteries: [item],
-            },
-        };
-        const anchor: HTMLElement =
-            this.element.querySelector(`.list.masteries [data-skill="${dataModel.skill}"]`) ??
-            target.parentElement?.parentElement?.parentElement ??
-            target;
-        return this.renderTooltip(anchor, hbsContent, TooltipPosition.OVERLAY);
-    }
-
     private async displaySkillTooltip(target: HTMLElement) {
         const skillId = closestData(target, "skill") ?? "";
+        if (!isMember(splittermond.skillGroups.all, skillId)) return;
+        return Promise.all([this.displayFormula(target, skillId), this.displaySkillMasteries(skillId)]);
+    }
+
+    private async displayFormula(target: HTMLElement, skillId: SplittermondSkill) {
         const skillData = skillId in this.actor.skills ? this.actor?.skills[skillId] : null;
         if (!skillData) return;
         const hbsContent = {
@@ -170,6 +168,22 @@ export class TooltipConfigurer {
             tooltip: skillData.tooltip(),
         };
         return this.renderTooltip(target, hbsContent, TooltipPosition.TOP_RIGHT);
+    }
+
+    private async displaySkillMasteries(skillId: SplittermondSkill) {
+        const masteries = this.actor.items
+            .filter((i) => i.type === "mastery")
+            .filter((i) => (i.system as MasteryDataModel).skill === skillId);
+        if (masteries.length === 0) return;
+        const masteryHighlight = {
+            tooltipKind: TemplateKind.MASTERY_TOOLTIP,
+            skill: {
+                label: splittermond.masterySkillsOption[skillId as SplittermondSkill],
+                masteries,
+            },
+        };
+        const anchor: HTMLElement = this.element.querySelector(`.list.masteries [data-skill="${skillId}"]`)!;
+        return this.renderTooltip(anchor, masteryHighlight, TooltipPosition.OVERLAY);
     }
 
     private async displayDerivedAttributeTooltip(target: HTMLElement) {
