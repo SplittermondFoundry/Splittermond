@@ -7,6 +7,7 @@ import type { IModifier, ModifierAttributes, ModifierType } from "../actor/modif
 import { makeConfig, ModifierHandler } from "module/modifiers";
 import { type Expression, isZero, pow, times } from "module/modifiers/expressions/scalar";
 import { type TimeUnit } from "module/config/timeUnits";
+import { isMember } from "module/util/util";
 
 type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
 
@@ -105,7 +106,7 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
         const normalized = this.normalizeAttribute(damageType, "damageTypes");
         if (!normalized) {
             return undefined;
-        } else if (!(splittermond.damageTypes as Readonly<string[]>).includes(normalized)) {
+        } else if (!isMember(splittermond.damageTypes, normalized)) {
             this.reportInvalidDescriptor(path, "damageType", normalized);
             return undefined;
         } else {
@@ -117,7 +118,7 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
         const normalized = this.normalizeAttribute(itemType, "itemTypes");
         if (!normalized) {
             return undefined;
-        } else if (!(splittermond.itemTypes.all as Readonly<string[]>).includes(normalized)) {
+        } else if (!isMember(splittermond.itemTypes.all, normalized)) {
             this.reportInvalidDescriptor(path, "itemType", normalized);
             return normalized;
         } else {
@@ -129,7 +130,7 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
         const normalized = this.normalizeAttribute(skill, "skills");
         if (!normalized) {
             return undefined;
-        } else if (!(splittermond.skillGroups.all as Readonly<string[]>).includes(normalized)) {
+        } else if (!isMember(splittermond.skillGroups.all, normalized)) {
             this.reportInvalidDescriptor(path, "skill", normalized);
             return normalized;
         } else {

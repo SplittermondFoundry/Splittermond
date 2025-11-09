@@ -11,6 +11,7 @@ import SplittermondItem from "../../item/item";
 import { SpeciesDataModel } from "../../item/dataModel/SpeciesDataModel";
 import { initMapper } from "../../util/LanguageMapper";
 import { attributes, SplittermondAttribute } from "../../config/attributes";
+import { isMember } from "module/util/util";
 
 const attributeMapper = initMapper(attributes)
     .withTranslator((t) => `splittermond.attribute.${t}.long`)
@@ -129,7 +130,7 @@ export default class SplittermondSpeciesWizard extends SplittermondWizard {
     }
 
     private isAttribute(attr: string | null | undefined): attr is SplittermondAttribute {
-        return !!attr && (splittermond.attributes as readonly string[]).includes(attr);
+        return !!attr && isMember(splittermond.attributes, attr);
     }
 
     protected _onSaveEvent() {

@@ -2,6 +2,8 @@
  * WARNING: DO NOT CHANGE THIS FILE UNLESS YOU ALSO CHANGE THE HANDLEBARS TEMPLATE
  */
 
+import { isMember } from "module/util/util";
+
 /**
  * Available actions as specified in spell-chat-card.hbs
  */
@@ -16,7 +18,7 @@ const availableActions = [
 export type AvailableActions = (typeof availableActions)[number];
 
 export function isAvailableAction(action: string): action is AvailableActions {
-    return (availableActions as readonly string[]).includes(action);
+    return isMember(availableActions, action);
 }
 
 export interface SpellRollMessageRenderedData {

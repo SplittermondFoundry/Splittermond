@@ -4,6 +4,7 @@ import {
     DegreeOfSuccessOptionInput,
     isDegreeOfSuccessOptionData,
 } from "../interfaces";
+import { isMember } from "module/util/util";
 
 export const noOptionToUse = {
     usedDegreesOfSuccess: 0,
@@ -48,7 +49,7 @@ export function configureUseOption<T extends string = never>(
             return noOptionToUse;
         }
         const action = degreeOfSuccessOptionData.action;
-        if (!inputOnCorrectHandler(action)) {
+        if (!isMember(optionsOnHandler, action)) {
             console.warn("Attempt to perform an action that is not handled by this handler");
             return noOptionToUse;
         }
@@ -61,10 +62,6 @@ export function configureUseOption<T extends string = never>(
             return noOptionToUse;
         }
         return optionConsumer({ ...degreeOfSuccessOptionData, action });
-    }
-
-    function inputOnCorrectHandler(action: string): action is T {
-        return (optionsOnHandler as readonly string[]).includes(action);
     }
 
     return {

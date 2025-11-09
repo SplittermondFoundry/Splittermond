@@ -1,5 +1,6 @@
 import { ActionInput } from "../interfaces";
 import { AvailableActions } from "../SpellRollTemplateInterfaces";
+import { isMember } from "module/util/util";
 
 export function configureUseAction() {
     let usedEvaluator: () => boolean = () => false;
@@ -34,18 +35,11 @@ export function configureUseAction() {
             console.warn(`Attempt to use an action that should not have been offered. Action: ${actionData.action}`);
             return Promise.resolve();
         }
-        if (!inputOnCorrectHandler(handledActions, actionData.action)) {
+        if (!isMember(handledActions, actionData.action)) {
             console.warn(`action ${actionData.action} is not handled by this handler`);
             return Promise.resolve();
         }
         return action(actionData);
     }
     return { withUsed, withIsOptionEvaluator, withHandlesOptions: withHandlesActions };
-}
-
-function inputOnCorrectHandler<T extends AvailableActions>(
-    handledActions: Readonly<AvailableActions[]>,
-    action: string
-): action is T {
-    return (handledActions as readonly string[]).includes(action);
 }

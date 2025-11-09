@@ -8,6 +8,7 @@ import { makeConfig } from "module/modifiers/ModifierConfig";
 import type SplittermondItem from "module/item/item";
 import type { ModifierType } from "module/actor/modifier-manager";
 import { splittermond } from "module/config";
+import { isMember } from "module/util/util";
 
 type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
 
@@ -70,7 +71,7 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
 
     private normalizeSkill(groupId: string, input: Value) {
         const normalized = this.normalizeAttribute(input, "skills");
-        if (normalized && !(splittermond.skillGroups.magic as readonly string[]).includes(normalized)) {
+        if (normalized && !isMember(splittermond.skillGroups.magic, normalized)) {
             this.reportInvalidDescriptor(groupId, "skill", normalized);
             //If the skill is invalid, but the item has a skill, use that one. If not use the invalid one,
             //because we don't want to accidentally make the modifier global.
