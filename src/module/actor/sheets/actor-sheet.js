@@ -538,68 +538,16 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             });
         });
 
-        $(this.element)
-            .find(".item-list .item")
-            .on("dragstart", (event) => {
-                html.find("#splittermond-tooltip").remove();
-            })
-            .on("dragover", (event) => {
+        this.element.querySelectorAll(".item-list .item").forEach((el) => {
+            el.addEventListener("dragover", (event) => {
                 event.currentTarget.style.borderTop = "1px solid black";
                 event.currentTarget.style.borderImage = "none";
-            })
-            .on("dragleave", (event) => {
+            });
+            el.addEventListener("dragleave", (event) => {
                 event.currentTarget.style.borderTop = "";
                 event.currentTarget.style.borderImage = "";
             });
-
-        $(this.element)
-            .find(".draggable")
-            .on("dragstart", (event) => {
-                const attackId = event.currentTarget.dataset.attackId;
-                if (attackId) {
-                    event.originalEvent.dataTransfer.setData(
-                        "text/plain",
-                        JSON.stringify({
-                            type: "attack",
-                            attackId: attackId,
-                            actorId: this.actor.id,
-                        })
-                    );
-                    event.stopPropagation();
-                    return;
-                }
-
-                const skill = event.currentTarget.dataset.skill;
-                if (skill) {
-                    const skill = $(event.currentTarget).closestData("skill");
-                    event.originalEvent.dataTransfer.setData(
-                        "text/plain",
-                        JSON.stringify({
-                            type: "skill",
-                            skill: skill,
-                            actorId: this.actor.id,
-                        })
-                    );
-                    event.stopPropagation();
-                    return;
-                }
-
-                const itemId = event.currentTarget.dataset.itemId;
-                if (itemId) {
-                    const itemData = this.actor.items.find((el) => el.id === itemId)?.system;
-                    event.originalEvent.dataTransfer.setData(
-                        "text/plain",
-                        JSON.stringify({
-                            type: "Item",
-                            system: itemData,
-                            actorId: this.actor._id,
-                        })
-                    );
-                    event.stopPropagation();
-                }
-            })
-            .attr("draggable", true);
-
+        });
         if (this._hoverOverlays) {
             let el = $(this.element).find(this._hoverOverlays.join(", "));
             if (el.length > 0) {
@@ -609,6 +557,45 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 });
             }
         }
+    }
+
+    _canDragStart() {
+        return true;
+    }
+
+    /**
+     * @param {DragEvent} event
+     * @protected
+     */
+    _onDragStart(event) {
+        this.element.querySelector("#splittermond-tooltip")?.remove();
+        /**@type HTMLElement*/
+        const target = event.currentTarget;
+        const attackId = target.dataset.attackId;
+        if (attackId) {
+            event.dataTransfer.setData(
+                "application/json",
+                JSON.stringify({
+                    type: "attack",
+                    attackId: attackId,
+                    actorId: this.actor.id,
+                })
+            );
+            event.stopPropagation();
+        }
+        return super._onDragStart(event);
+    }
+    _onDrop(event) {
+        const droppedData = JSON.parse(event.dataTransfer.getData("application/json"));
+        if (droppedData.type === "attack") {
+            const sourceActor = foundryApi.getActor(droppedData.actorId);
+            const sourceAttack = sourceActor?.attacks.find((a) => a.id === droppedData.attackId);
+            const sourceItem = sourceActor?.items.get(sourceAttack?.item.id);
+            if (!sourceItem) return;
+            return this._onDropDocument(event, sourceItem);
+        }
+
+        if (event.dataTransfer) super._onDrop(event);
     }
     /**
      * @param {HTMLElement} element

@@ -97,7 +97,7 @@ const attributeMapper = initMapper(splittermond.attributes)
 declare function duplicate<T extends object>(obj: T): T;
 
 export default class Attack {
-    private readonly item: AttackItem;
+    public readonly item: AttackItem;
     private readonly isSecondaryAttack: boolean;
     private readonly attackData: AttackItemData;
 

@@ -263,6 +263,11 @@ declare namespace foundry {
                     event: DragEvent,
                     document: FoundryDocument
                 ): Promise<null | T>;
+
+                _onDragStart(event: DragEvent): Promise<void>;
+
+                _canDragStart(selector: string): boolean;
+                _onDrop(event: DragEvent): Promise<void>;
             }
         }
     }
