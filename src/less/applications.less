@@ -34,14 +34,17 @@ dialog.application .window-content {
     .window-body-def();
 }
 
-//ApplicationV2 header
-form.application .window-header {
-    .window-header-def();
-}
+form.application {
+    .border-paper();
+    .filled-border();
 
-//ApplicationV2 body
-form.application .window-content {
-    .window-body-def();
+    .window-header {
+        .window-header-def();
+    }
+
+    .window-content {
+        .window-body-def();
+    }
 }
 
 .splittermond.dialog-check .dialog-content {
