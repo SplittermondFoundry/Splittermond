@@ -10,6 +10,7 @@ import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.ts
 import { closestData } from "module/data/ClosestDataMixin.js";
 import { SplittermondBaseActorSheet, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { TooltipConfigurer } from "module/actor/sheets/TooltipConfigurer.js";
+import { HoverStateTracker } from "module/actor/sheets/HoverStateTracker.ts";
 
 export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     static DEFAULT_OPTIONS = {
@@ -74,9 +75,10 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         };
         const actorOptions = foundryApi.utils.mergeObject(instanceDefaults, options);
         super(actorOptions);
-        this._hoverOverlays = [];
+        this._activeOverlay = null;
         this._hideSkills = true;
         this._tooltipConfigurer = options.tooltipConfigurer ?? TooltipConfigurer;
+        this._hoverStateTracker = options.hoverStateTracker ?? new HoverStateTracker();
     }
 
     async _prepareContext(options) {
@@ -505,6 +507,23 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         await super._onRender(context, options);
         autoExpandInputs(this.element);
         new this._tooltipConfigurer(this).configureTooltips();
+        this._hoverStateTracker.trackHoverState(this);
+        this._hoverStateTracker.restoreHoverState(this);
+
+        // Track overlay state changes
+        const overlayElements = this.element.querySelectorAll("#health, #focus");
+        overlayElements.forEach((overlay) => {
+            overlay.addEventListener("mouseenter", () => {
+                this._activeOverlay = `#${overlay.id}`;
+                // Remove the programmatic hover class when user hovers
+                overlay.classList.remove("hover");
+            });
+            overlay.addEventListener("mouseleave", () => {
+                this._activeOverlay = null;
+                // Remove the programmatic hover class when leaving
+                overlay.classList.remove("hover");
+            });
+        });
 
         this.element.querySelectorAll("input[data-field]").forEach((el) => {
             el.addEventListener("change", (event) => {
@@ -548,15 +567,6 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 event.currentTarget.style.borderImage = "";
             });
         });
-        if (this._hoverOverlays) {
-            let el = $(this.element).find(this._hoverOverlays.join(", "));
-            if (el.length > 0) {
-                el.addClass("hover");
-                el.hover(function () {
-                    $(this).removeClass("hover");
-                });
-            }
-        }
     }
 
     _canDragStart() {
@@ -674,21 +684,6 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
      */
     _hasValidItemType(itemType) {
         return true;
-    }
-
-    async render(options = {}) {
-        await super.render(options);
-        if (this.options.overlays) {
-            let html = this.element;
-            this._hoverOverlays = [];
-            for (let sel of this.options.overlays) {
-                let el = html.querySelectorAll(sel + ":hover");
-                if (el.length === 1) {
-                    this._hoverOverlays.push(sel.get(0));
-                }
-            }
-        }
-        return this;
     }
 }
 
