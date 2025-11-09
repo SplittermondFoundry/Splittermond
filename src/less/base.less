@@ -33,20 +33,6 @@ img {
     border: none;
 }
 
-.application:extend(.app) {
-}
-
-.app {
-    color: var(--color-text);
-
-    background: var(--splittermond-background-denim-blue), var(--splittermond-background-denim);
-    background-blend-mode: var(--background-denim-splittermond-blend-mode);
-
-    > * {
-        z-index: 0; // otherwise button border issue
-    }
-}
-
 .sheet.journal-entry .journal-entry-content:extend(.border-paper) {
     border-radius: 0;
     color: var(--color-text-secondary);

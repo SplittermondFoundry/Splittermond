@@ -1,40 +1,32 @@
 @import "./application-mixins.less";
 
-.splittermond.application:not(.sidebar-popout):not(.journal-entry) {
-    .window-resizable-handle {
-        bottom: -8px;
-        right: -12px;
-        border: none;
-        background: none;
-        color: var(--color-text-secondary);
+.application {
+    color: var(--color-text);
 
-        .fas.fa-arrows-alt-h:before {
-            content: "\f054";
-        }
-    }
+    background: var(--splittermond-background-denim-blue), var(--splittermond-background-denim);
+    background-blend-mode: var(--background-denim-splittermond-blend-mode);
 
-    &.minimized {
-        .window-header {
-            border: none;
-        }
+    > * {
+        z-index: 0; // otherwise button border issue
     }
 }
 
-dialog.application.dialog {
+//Most Freefloating Applications, like sheets
+form.application {
     .border-paper();
     .filled-border();
-}
-//DialogV2 header
-dialog.application.dialog .window-header {
-    .window-header-def();
+
+    .window-header {
+        .window-header-def();
+    }
+
+    .window-content {
+        .window-body-def();
+    }
 }
 
-//DialogV2 body
-dialog.application .window-content {
-    .window-body-def();
-}
-
-form.application {
+//DialogV2
+dialog.application.dialog {
     .border-paper();
     .filled-border();
 
@@ -62,9 +54,6 @@ form.application {
     .resistance-selectors {
         justify-content: center;
     }
-}
-.window-app.sheet.splittermond:not(.dark):not(.journal-entry) .window-content {
-    .application-override-mixin();
 }
 
 .application-override-mixin() {
@@ -178,14 +167,5 @@ form.application {
     //Prevents having space around the <pre> element used for the help text of min-attributes
     &.item .help-text pre {
         margin: 0;
-    }
-}
-.splittermond.sheet.actor {
-    .window-content {
-        section[data-tab="fight"] {
-            nav.sheet-tabs.tabs {
-                max-height: max-content;
-            }
-        }
     }
 }
