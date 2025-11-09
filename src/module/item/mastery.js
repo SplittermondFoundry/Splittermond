@@ -2,6 +2,10 @@ import SplittermondItem from "./item.js";
 import { getMasteryAvailabilityParser } from "./availabilityParser.ts";
 import { produceMasteryTags } from "./tags/masteryTags.js";
 
+/**
+ * @extends SplittermondItem
+ * @property {MasteryDataModel} system
+ */
 export default class SplittermondMasteryItem extends SplittermondItem {
     /**
      *

@@ -1,11 +1,11 @@
-import SplittermondCharacterSheet from "./module/actor/sheets/character-sheet";
-import SplittermondNPCSheet from "./module/actor/sheets/npc-sheet";
-import SplittermondItemSheet from "module/item/sheets/item-sheet.js";
-import SplittermondSpellSheet from "module/item/sheets/spell-sheet.js";
-import SplittermondWeaponSheet from "module/item/sheets/weapon-sheet.js";
-import SplittermondShieldSheet from "module/item/sheets/shield-sheet.js";
-import SplittermondArmorSheet from "module/item/sheets/armor-sheet.js";
-import SplittermondAttackSheet from "module/item/sheets/attack-sheet.js";
+import SplittermondCharacterSheet from "./module/actor/sheets/character-sheet.js";
+import SplittermondNPCSheet from "./module/actor/sheets/npc-sheet.js";
+import SplittermondItemSheet from "module/item/sheets/item-sheet";
+import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
+import SplittermondWeaponSheet from "module/item/sheets/weapon-sheet";
+import SplittermondShieldSheet from "module/item/sheets/shield-sheet";
+import SplittermondArmorSheet from "module/item/sheets/armor-sheet";
+import SplittermondAttackSheet from "module/item/sheets/attack-sheet";
 import { splittermond } from "./module/config";
 import * as Dice from "./module/util/dice";
 import * as Macros from "./module/util/macros";
@@ -35,6 +35,7 @@ import { initializeCosts } from "module/util/costs/index.js";
 import { addTicks } from "module/combat/addTicks.js";
 import { initializeCombat } from "module/combat/index.js";
 import { closestData } from "module/data/ClosestDataMixin.js";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -164,29 +165,16 @@ Hooks.once("init", async function () {
         label: "splittermond.npcattack",
     });
 
-    const templateBasePath = "systems/splittermond/templates";
-
-    loadTemplates([
-        // Actor Partials
-        `${templateBasePath}/sheets/actor/parts/attribute-input.hbs`,
-        `${templateBasePath}/sheets/actor/parts/derived-attributes.hbs`,
-        `${templateBasePath}/sheets/actor/parts/focus-health.hbs`,
-        `${templateBasePath}/sheets/actor/parts/mastery-list.hbs`,
-        `${templateBasePath}/sheets/actor/parts/spells-list.hbs`,
-        `${templateBasePath}/sheets/actor/parts/combat-actions.hbs`,
-        `${templateBasePath}/sheets/actor/parts/inventory-list.hbs`,
-        `${templateBasePath}/sheets/actor/parts/status-tab.hbs`,
-    ]);
-
+    Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
     Handlebars.registerHelper("times", function (n, block) {
         var accum = "";
         for (var i = 0; i < n; ++i) accum += block.fn(i);
         return accum;
     });
-    getTemplate(`${templateBasePath}/chat/partials/degree-of-success-display.hbs`).then((template) => {
+    getTemplate(`${TEMPLATE_BASE_PATH}/chat/partials/degree-of-success-display.hbs`).then((template) => {
         Handlebars.registerPartial("degree-of-success-display", template);
     });
-    getTemplate(`${templateBasePath}/chat/partials/roll-result.hbs`).then((template) => {
+    getTemplate(`${TEMPLATE_BASE_PATH}/chat/partials/roll-result.hbs`).then((template) => {
         Handlebars.registerPartial("roll-result", template);
     });
 

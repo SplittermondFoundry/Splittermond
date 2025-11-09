@@ -1,37 +1,76 @@
 import SplittermondActorSheet from "./actor-sheet.js";
-import { foundryApi } from "../../api/foundryApi";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { isMember } from "module/util/util.js";
+import { splittermond } from "module/config/index.js";
 
 export default class SplittermondNPCSheet extends SplittermondActorSheet {
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            template: "systems/splittermond/templates/sheets/actor/npc-sheet.hbs",
-            classes: ["splittermond", "sheet", "actor", "npc"],
-            tabs: [
-                { navSelector: ".sheet-navigation[data-group='primary']", contentSelector: "main", initial: "general" },
-                {
-                    navSelector: ".subnav[data-group='fight-action-type']",
-                    contentSelector: "section div.tab-list",
-                    initial: "attack",
-                },
-            ],
-            scrollY: [".tab[data-tab='general']", ".tab[data-tab='spells']", ".tab[data-tab='inventory']"],
-            submitOnClose: false,
-            overlays: ["#health", "#focus"],
-        });
-    }
+    static DEFAULT_OPTIONS = {
+        classes: ["splittermond", "sheet", "actor", "npc"],
+        form: {
+            submitOnChange: true,
+        },
+    };
 
-    async getData() {
-        const sheetData = await super.getData();
+    static TABS = {
+        primary: {
+            tabs: [
+                { id: "editor", group: "primary", label: "splittermond.biography" },
+                { id: "general", group: "primary", label: "splittermond.general" },
+                { id: "spells", group: "primary", label: "splittermond.spells" },
+                { id: "inventory", group: "primary", label: "splittermond.inventory" },
+                { id: "status", group: "primary", label: "splittermond.status" },
+            ],
+            initial: "general",
+        },
+    };
+
+    static PARTS = {
+        header: {
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/npc-header.hbs`,
+            templates: [
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/stats-section.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/focus-health.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/derived-attributes.hbs`,
+            ],
+        },
+        tabs: super.NAVIGATION,
+        editor: super.BIOGRAPHY_TAB,
+        general: {
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/npc-general-tab.hbs`,
+            templates: [
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/attribute-input.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-list.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-by-skill.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/combat-actions.hbs`,
+            ],
+            classes: ["scrollable"],
+        },
+        spells: super.SPELLS_TAB,
+        inventory: super.INVENTORY_TAB,
+        status: super.STATUS_TAB,
+    };
+    async _prepareContext() {
+        const sheetData = await super._prepareContext();
+
+        sheetData.hasRestActions = false;
 
         return sheetData;
     }
-    activateListeners(html) {
-        html.find('input[name^="derivedAttributes"]').change(this._onChangeDerivedAttribute.bind(this));
-        html.find('input[name="damageReduction"]').change(this._onChangeDamageReduction.bind(this));
 
-        html.find('input[name^="system.skills"][name$="value"]').change(this._onChangeSkill.bind(this));
+    async _onRender(context, options) {
+        await super._onRender(context, options);
 
-        super.activateListeners(html);
+        this.element.querySelectorAll('input[name^="derivedAttributes"]').forEach((el) => {
+            el.addEventListener("change", this._onChangeDerivedAttribute.bind(this));
+        });
+
+        this.element.querySelectorAll('input[name="damageReduction"]').forEach((el) => {
+            el.addEventListener("change", this._onChangeDamageReduction.bind(this));
+        });
+
+        this.element.querySelectorAll('input[name^="system.skills"][name$="value"]').forEach((el) => {
+            el.addEventListener("change", this._onChangeSkill.bind(this));
+        });
     }
     _onChangeDerivedAttribute(event) {
         event.preventDefault();
@@ -89,22 +128,7 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         }
     }
 
-    async _onDropItemCreate(itemData) {
-        if (
-            [
-                "mastery",
-                "npcfeature",
-                "spell",
-                "weapon",
-                "equipment",
-                "shield",
-                "armor",
-                "statuseffect",
-                "spelleffect",
-                "npcattack",
-            ].includes(itemData.type)
-        ) {
-            return super._onDropItemCreate(itemData);
-        }
+    _hasValidItemType(itemType) {
+        return isMember(splittermond.itemTypes.npc.droppable, itemType);
     }
 }

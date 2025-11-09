@@ -1,7 +1,11 @@
 import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
-import { ApplicationRenderContext, SplittermondBaseItemSheet } from "module/data/SplittermondApplication.js";
+import {
+    ApplicationRenderContext,
+    SplittermondBaseItemSheet,
+    TEMPLATE_BASE_PATH,
+} from "module/data/SplittermondApplication";
 import { foundryApi } from "module/api/foundryApi.js";
-import { autoExpandInputs } from "module/util/autoexpandDummyInjector.js";
+import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.js";
 import { splittermond } from "module/config/index.js";
 import { getSpellAvailabilityParser } from "module/item/availabilityParser";
 
@@ -66,28 +70,28 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     static TABS = {
         primary: {
             tabs: [
-                { id: "description", group: "primary", label: "splittermond.description" },
+                { id: "editor", group: "primary", label: "splittermond.description" },
                 { id: "properties", group: "primary", label: "splittermond.properties" },
             ],
-            initial: "description",
+            initial: "editor",
         },
     };
 
     static PARTS = {
         header: {
-            template: "systems/splittermond/templates/sheets/item/header.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/item/header.hbs`,
         },
         statBlock: {
-            template: "systems/splittermond/templates/sheets/item/stat-block.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/item/stat-block.hbs`,
         },
         tabs: {
             template: "templates/generic/tab-navigation.hbs",
         },
-        description: {
-            template: "systems/splittermond/templates/sheets/description.hbs",
+        editor: {
+            template: `${TEMPLATE_BASE_PATH}/sheets/editor.hbs`,
         },
         properties: {
-            template: "systems/splittermond/templates/sheets/item/properties.hbs",
+            template: `${TEMPLATE_BASE_PATH}/sheets/item/properties.hbs`,
             classes: ["scrollable", "scrollable-margin-mitigation"],
         },
     };
@@ -164,19 +168,23 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     async _preparePartContext(partId: string, context: any, options: any): Promise<any> {
         const data = await super._preparePartContext(partId, context, options);
         switch (partId) {
-            case "description":
-                return await this.#prepareDescriptionPart(data);
+            case "editor":
+                return await this.#prepareEditorPart(data);
             case "statBlock":
                 return await this.#prepareStatBlockPart(data);
         }
         return data;
     }
 
-    async #prepareDescriptionPart(context: any): Promise<any> {
-        context.description = await this.htmlEnricher(this.document.system.description ?? "", {
-            secrets: this.document.isOwner,
-            relativeTo: this.document,
-        });
+    async #prepareEditorPart(context: any): Promise<any> {
+        context.editor = {
+            value: this.item.system.description ?? "",
+            target: "system.description",
+            content: await this.htmlEnricher(this.document.system.description ?? "", {
+                secrets: this.document.isOwner,
+                relativeTo: this.document,
+            }),
+        };
         context.editable = context.editable ?? false;
         return context;
     }
@@ -192,26 +200,11 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     }
 
     static #increaseValue(_event: Event, target: HTMLElement): void {
-        SplittermondItemSheet.#changeValue((input: number) => input + 1).for(target);
+        changeValue((input: number) => input + 1).for(target);
     }
 
     static #decreaseValue(_event: Event, target: HTMLElement): void {
-        SplittermondItemSheet.#changeValue((input: number) => input - 1).for(target);
-    }
-
-    static #changeValue(operation: (a: number) => number): { for: (target: HTMLElement) => void } {
-        return {
-            for(target: HTMLElement): void {
-                const matchingInput = target.parentElement?.querySelector("input");
-                if (!matchingInput) return;
-
-                const newValue = operation(matchingInput.valueAsNumber);
-                if (isNaN(newValue)) return;
-                matchingInput.value = `${newValue}`;
-                matchingInput.dispatchEvent(new Event("input", { bubbles: true }));
-                matchingInput.dispatchEvent(new Event("change", { bubbles: true }));
-            },
-        };
+        changeValue((input: number) => input - 1).for(target);
     }
 
     roll(): void {}

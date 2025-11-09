@@ -5,15 +5,15 @@
         </div>
         <div class="bar-with-value">
             <div class="bar bar-focus">
-                <div class="available" style="width: {{focus.available.percentage}}%"></div>
-                <div class="channeled" style="width: {{focus.channeled.percentage}}%"></div>
-                <div class="exhausted" style="width: {{focus.exhausted.percentage}}%"></div>
-                <div class="value" style="left: {{focus.available.percentage}}%">
-                    {{focus.available.value}}
+                <div class="available" style="width: {{system.focus.available.percentage}}%"></div>
+                <div class="channeled" style="width: {{system.focus.channeled.percentage}}%"></div>
+                <div class="exhausted" style="width: {{system.focus.exhausted.percentage}}%"></div>
+                <div class="value" style="left: {{system.focus.available.percentage}}%">
+                    {{system.focus.available.value}}
                 </div>
             </div>
             <div class="value-max">
-                {{focus.max}}
+                {{system.focus.max}}
             </div>
         </div>
         <div class="health-focus-data">
@@ -23,7 +23,7 @@
                     <button class="button-inline" type="button" data-action="dec-value" data-input-query="input[name='system.focus.exhausted.value']">
                         <i class="fa fa-minus" aria-hidden="true"></i></button>
                     <input name="system.focus.exhausted.value" type="text"
-                        value="{{focus.exhausted.value}}" data-dtype="Number">
+                           value="{{system.focus.exhausted.value}}" data-dtype="Number">
                     <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='system.focus.exhausted.value']">
                         <i class="fa fa-plus" aria-hidden="true"></i></button>
                 </div>
@@ -34,7 +34,7 @@
                     <button class="button-inline" type="button" data-action="dec-value" data-input-query="input[name='system.focus.consumed.value']">
                         <i class="fa fa-minus" aria-hidden="true"></i></button>
                     <input name="system.focus.consumed.value" type="text"
-                        value="{{focus.consumed.value}}" data-dtype="Number">
+                           value="{{system.focus.consumed.value}}" data-dtype="Number">
                     <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='system.focus.consumed.value']">
                         <i class="fa fa-plus" aria-hidden="true"></i></button>
                 </div>
@@ -42,7 +42,7 @@
             <div class="list health-channeled-list">
                 <div class="list-header">
                     <h3>{{localize "splittermond.channeledSpells"}}</h3>
-                    <div class="value"><span>{{focus.channeled.value}}</span></div>
+                    <div class="value"><span>{{system.focus.channeled.value}}</span></div>
                     <div class="list-actions">
                         <button class="button-inline" type="button" data-action="add-channeled-focus"
                             data-render-sheet="0">
@@ -51,7 +51,7 @@
                     </div>
                 </div>
                 <ol class="list-body" data-array="system.focus.channeled.entries">
-                    {{#each focus.channeled.entries}}
+                    {{#each system.focus.channeled.entries}}
                     <li class="list-item" data-index="{{@index}}">
                         <div>
                             <input data-array-field="description" type="text" value="{{this.description}}">
@@ -75,50 +75,54 @@
         </div>
         <div class="bar-with-value bar-with-value-health">
             <div class="bar bar-health">
-                <div class="available" style="width: {{health.available.percentage}}%"></div>
-                <div class="channeled" style="width: {{health.channeled.percentage}}%"></div>
-                <div class="exhausted" style="width: {{health.exhausted.percentage}}%"></div>
-                <div class="value" style="left: {{health.total.percentage}}%">
-                    {{health.total.value}}
+                <div class="available" style="width: {{system.health.available.percentage}}%"></div>
+                <div class="channeled" style="width: {{system.health.channeled.percentage}}%"></div>
+                <div class="exhausted" style="width: {{system.health.exhausted.percentage}}%"></div>
+                <div class="value" style="left: {{system.health.total.percentage}}%">
+                    {{system.health.total.value}}
                 </div>
             </div>
             <div class="value-max">
-                {{health.max}}
+                {{system.health.max}}
             </div>
         </div>
         <div class="wound-malus">
-            {{#each health.woundMalus.levels}}
-            <div class="wound-malus-level{{#if (eq ../health.woundMalus.value this.value)}} wound-malus-level-active{{/if}}" title="{{localize this.label}}">{{this.value}}</div>
+            {{#each system.health.woundMalus.levels}}
+                <div class="wound-malus-level{{#if
+                        (eq ../system.health.woundMalus.value this.value)}} wound-malus-level-active{{/if}}"
+                     title="{{localize this.label}}">{{this.value}}</div>
             {{/each}}
             <label>{{localize "splittermond.woundMalus"}}</label>
         </div>
          <div class="health-focus-data">
             <div class="health-focus-data-part consumed">
-                <label>{{localize 'splittermond.normalDamage'}}</label>
+                <label>{{localize 'splittermond.normalDamage'}}
                 <div class="value">
                     <button class="button-inline" type="button" data-action="dec-value" data-input-query="input[name='system.health.consumed.value']">
                         <i class="fa fa-minus" aria-hidden="true"></i></button>
                     <input name="system.health.consumed.value" type="text"
-                        value="{{health.consumed.value}}" data-dtype="Number">
+                           value="{{system.health.consumed.value}}" data-dtype="Number">
                     <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='system.health.consumed.value']">
                         <i class="fa fa-plus" aria-hidden="true"></i></button>
                 </div>
+                </label>
             </div>
             <div class="health-focus-data-part exhausted">
-                <label>{{localize 'splittermond.stunDamage'}}</label>
+                <label for="system.health.exhausted.value">{{localize 'splittermond.stunDamage'}}
                 <div class="value">
                     <button class="button-inline" type="button" data-action="dec-value" data-input-query="input[name='system.health.exhausted.value']">
                         <i class="fa fa-minus" aria-hidden="true"></i></button>
                     <input name="system.health.exhausted.value" type="text"
-                        value="{{health.exhausted.value}}" data-dtype="Number">
+                           value="{{system.health.exhausted.value}}" data-dtype="Number">
                     <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='system.health.exhausted.value']">
                         <i class="fa fa-plus" aria-hidden="true"></i></button>
                 </div>
+                </label>
             </div>
             <div class="list health-channeled-list">
                 <div class="list-header">
                     <h3>{{localize "splittermond.channeledDamage"}}</h3>
-                    <div class="value"><span>{{health.channeled.value}}</span></div>
+                    <div class="value"><span>{{system.health.channeled.value}}</span></div>
                     <div class="list-actions">
                         <button class="button-inline" type="button" data-action="add-channeled-health"
                             data-render-sheet="0">
@@ -127,7 +131,7 @@
                     </div>
                 </div>
                 <ol class="list-body" data-array="system.health.channeled.entries">
-                    {{#each health.channeled.entries}}
+                    {{#each system.health.channeled.entries}}
                     <li class="list-item" data-index="{{@index}}">
                         <div>
                             <input data-array-field="description" type="text" value="{{this.description}}">
@@ -144,7 +148,7 @@
                 </ol>
             </div>
             {{#if hasRestActions}}
-            <div class="row">
+                <div class="rest-action row">
                 <button type="button" data-action="short-rest">
                     {{localize "splittermond.shortRest"}}
                 </button>

@@ -3,9 +3,10 @@ import { foundryApi } from "module/api/foundryApi";
 import type SplittermondActor from "module/actor/actor";
 import type ActiveDefense from "module/actor/active-defense";
 import { IllegalStateException } from "module/data/exceptions";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 export async function showActiveDefenseDialog(actor: SplittermondActor) {
-    let content = await foundryApi.renderer("systems/splittermond/templates/apps/dialog/active-defense.hbs", {
+    let content = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/apps/dialog/active-defense.hbs`, {
         activeDefense: actor.activeDefense.defense,
     });
     const dialog = new ActiveDefenseDialog(actor, content);

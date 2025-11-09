@@ -11,6 +11,7 @@ import type {
 } from "../../item";
 import { PartialItemData } from "./types";
 import { mapNameToSystemFeature } from "./mapNameToSystemFeature";
+import { isMember } from "module/util/util";
 
 type NpcCreationData = (typeof actorCreator)["createNpc"]["arguments"][0];
 
@@ -403,7 +404,7 @@ export async function importNpc(rawData: string) {
                     break;
                 case /Zauber:/.test(tokenizedData[i]):
                     let spells: PartialItemData<SpellDataModelType>[] = [];
-                    let skill = "";
+                    let skill = "arcanelore" as SplittermondSkill;
                     let level = 0;
                     tokenizedData[i + 1]
                         .replace(/\n/g, " ")
@@ -535,7 +536,7 @@ export async function importNpc(rawData: string) {
 }
 
 function isNoFightingSkill(skill: SplittermondSkill): skill is Exclude<SplittermondSkill, SplittermondFightingSkill> {
-    return !(splittermond.skillGroups.fighting as readonly string[]).includes(skill);
+    return !isMember(splittermond.skillGroups.fighting, skill);
 }
 
 const attributeKeys = ["AUS", "BEW", "INT", "KON", "MYS", "STÄ", "VER", "WIL"] as const;

@@ -1,7 +1,13 @@
-.vscode/
 node_modules/
-public/images/source/
 *.lock
 dist/
+
+# IDE Configurations
 .idea/
+.vscode/
+
+# AI Instruction files
+.github/copilot-instructions.md
+
+public/images/source/
 

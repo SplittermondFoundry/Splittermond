@@ -1,3 +1,5 @@
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+
 export default class RequestCheckDialog extends Dialog {
     constructor(dialogData = {}, options = {}) {
         super(dialogData, options);
@@ -13,10 +15,7 @@ export default class RequestCheckDialog extends Dialog {
                 };
             }
         );
-        const html = await renderTemplate(
-            "systems/splittermond/templates/apps/dialog/request-check-dialog.hbs",
-            formData
-        );
+        const html = await renderTemplate(`${TEMPLATE_BASE_PATH}/apps/dialog/request-check-dialog.hbs`, formData);
 
         const dlg = new this({
             title: game.i18n.localize(`splittermond.requestSkillCheck`),

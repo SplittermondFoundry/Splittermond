@@ -22,15 +22,13 @@
         justify-self: start;
         align-self: start;
         h3:extend(.border-wobbly-line-double) {
+            .small-sheet-header();
             grid-column-start: 1;
             grid-column-end: 3;
-            font-weight: unset;
-            font-size: large;
             text-align: center;
             padding: 5px;
             width: 100%;
             margin-top: 7px;
-            color: var(--color-text-secondary);
         }
 
         > label {
@@ -41,4 +39,10 @@
             margin-top: 7px;
         }
     }
+}
+
+.small-sheet-header() {
+    font-weight: unset;
+    font-size: large;
+    color: var(--color-text-secondary);
 }

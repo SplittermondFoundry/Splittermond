@@ -4,6 +4,7 @@ import { IllegalStateException } from "module/data/exceptions";
 import { foundryApi } from "module/api/foundryApi";
 import { parseCostString } from "module/util/costs/costParser";
 import type { ConfirmedFumbledCheckData } from "module/actor/fumble/DataTypes";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 interface RollTableEntry {
     min: number;
@@ -62,7 +63,7 @@ export abstract class FumbleHandler {
             user: foundryApi.currentUser.id,
             speaker: foundryApi.getSpeaker({ actor }),
             rolls: [roll],
-            content: await foundryApi.renderer("systems/splittermond/templates/chat/skill-check.hbs", templateContext),
+            content: await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/chat/skill-check.hbs`, templateContext),
             type: foundryApi.chatMessageTypes.OTHER,
         };
 

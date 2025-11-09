@@ -5,7 +5,7 @@ import { DocumentAccessMixin } from "module/data/AncestorDocumentMixin";
 import { asString, condense, evaluate, isGreaterZero, of, plus, times } from "module/modifiers/expressions/scalar";
 import type { TimeUnit } from "module/config/timeUnits";
 import { splittermond } from "module/config";
-import { getTimeUnitConversion } from "module/util/timeUnitConversion";
+import { getTimeUnitConversion } from "module/util/util";
 import ModifierManager from "module/actor/modifier-manager";
 import type { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 

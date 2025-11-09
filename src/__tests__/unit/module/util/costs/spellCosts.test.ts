@@ -4,6 +4,7 @@ import { calculateReducedEnhancementCosts, calculateReducedSpellCosts } from "mo
 import { Cost } from "module/util/costs/Cost.js";
 import { initializeSpellCostManagement, SpellCostReductionManager } from "module/util/costs/spellCostManagement.js";
 import { of } from "../../../../../module/modifiers/expressions/cost";
+import type { SplittermondSkill } from "module/config/skillGroups";
 
 function mockReductionManager<T>(...cost: T[]) {
     //This is a mock and therefore incomplete. For the purpose of the test this is a SpellCostReductionManager.
@@ -12,7 +13,7 @@ function mockReductionManager<T>(...cost: T[]) {
 describe("Spell cost calculation basics", () => {
     const noReductionSpellCostManager = mockReductionManager();
     const baseSpellData = {
-        skill: "deathmagic",
+        skill: "deathmagic" as SplittermondSkill,
         spellType: "conjuration",
         costs: "K2V2",
         enhancementCosts: "K2V2",
@@ -76,7 +77,7 @@ describe("Spell cost calculation basics", () => {
 
 describe("Spell cost calculation with reductions", () => {
     const baseSpellData = {
-        skill: "deathmagic",
+        skill: "deathmagic" as SplittermondSkill,
         spellType: "conjuration",
         costs: "K2V2",
         enhancementCosts: "K2V2",
@@ -135,7 +136,7 @@ describe("Spell cost calculation with reductions", () => {
 describe("Spell cost calculation reduction selection", () => {
     const reductionManagement = initializeSpellCostManagement({});
     const spellData = {
-        skill: "",
+        skill: "arcanelore" as SplittermondSkill,
         spellType: "conjuration, corporal",
         costs: "K20V5",
         enhancementCosts: "5EG/+K20V5",

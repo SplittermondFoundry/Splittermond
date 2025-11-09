@@ -48,23 +48,15 @@
     }
 
     .window-content {
-        overflow-y: hidden;
-        form {
-            height: 100%;
-            //overflow: hidden;
-            display: flex;
-            flex-direction: column;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
 
-            main {
-                overflow: hidden;
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-            }
-        }
+        overflow: hidden;
+        flex: 1;
+        position: relative;
     }
-    main > section {
+    .window-content > section {
         min-height: 100px;
         &.tab.active[data-tab] {
             display: flex;
@@ -74,7 +66,7 @@
         }
     }
 
-    &.sheet main > section {
+    &.sheet .window-content > section {
         &.tab.active[data-tab] {
             display: grid;
             grid-gap: @paddingMedium;
@@ -88,6 +80,11 @@
         align-items: start;
         align-content: start;
         grid-gap: @paddingMedium;
+    }
+    section[data-tab="fight"],
+    section[data-tab="spells"] {
+        align-items: start;
+        align-content: start;
     }
 
     &.npc section[data-tab="general"] {

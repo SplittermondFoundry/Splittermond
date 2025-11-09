@@ -1,12 +1,8 @@
-<div class="subnav" data-group="fight-action-type">
-    <a class="subnav-item active" data-group="fight-action-type" data-tab="attack">{{ localize
-        "splittermond.attack" }}</a>
-    <a class="subnav-item" data-group="fight-action-type" data-tab="defense">{{ localize
-        "splittermond.activeDefense"
-        }}</a>
-</div>
+{{> "templates/generic/tab-navigation.hbs" tabs=combatTabs.tabs}}
+
 <div class="tab-list">
-    <div class="tab" data-tab="attack" data-group="fight-action-type">
+    <section class="tab {{#if (eq combatTabs.initial "attack")}}active{{/if}}" data-tab="attack"
+             data-group="fight-action-type">
         <div class="list attack" data-roll-type="attack">
             <div class="list-header">
                 <h3>{{localize "splittermond.weapons"}}</h3>
@@ -28,7 +24,8 @@
                 <li class="list-item draggable" data-attack-id="{{this.id}}">
                     <img width="32" height="32" src="{{{this.img}}}">
                     <label>
-                        <a class="rollable">{{localize this.name}} {{#if this.isDamaged}} ({{localize
+                        <a class="rollable" data-action="roll-attack">{{localize this.name}} {{#if this.isDamaged}}
+                            ({{localize
                             "splittermond.damageLevels.tarnished"}}){{/if}}</a>
                     </label>
                     <div class="value">
@@ -40,12 +37,13 @@
                         {{/if}}
                     </div>
                     <div class="damage">
-                        <a class="rollable" data-roll-type="damage" data-damageimplements="{{this.damageImplements}}" data-damage="{{this.damage}}"
+                        <a class="rollable" data-action="roll-damage" data-roll-type="damage"
+                           data-damageimplements="{{this.damageImplements}}" data-damage="{{this.damage}}"
                             data-costtype="{{this.costType}}" data-source="{{this.name}}">{{this.damage}}</a>
                     </div>
                     <div class="range">{{this.range}}</div>
                     <div class="weapon-speed">
-                        <a class="add-tick" data-ticks="{{this.weaponSpeed}}"
+                        <a class="add-tick" data-action="add-tick" data-ticks="{{this.weaponSpeed}}"
                             data-message="{{localize 'splittermond.attack'}}: {{this.name}}">
                             {{this.weaponSpeed}}
                         </a>
@@ -67,8 +65,9 @@
                 {{/each}}
             </ol>
         </div>
-    </div>
-    <div class="tab active" data-tab="defense" data-group="fight-action-type">
+    </section>
+    <section class="tab {{#if (eq combatTabs.initial "defense")}}active{{/if}}" data-tab="defense"
+             data-group="fight-action-type">
         <div class="list active-defense" data-roll-type="activeDefense">
             <div class="list-header">
                 <h3>{{localize "splittermond.derivedAttribute.defense.long"}}</h3>
@@ -84,7 +83,7 @@
                     <img width="32" height="32" src="{{{this.img}}}">
                     {{/if}}
                     <label>
-                        <a class="rollable">{{localize this.name}}</a>
+                        <a class="rollable" data-action="roll-active-defense">{{localize this.name}}</a>
                     </label>
                     <div class="value">{{this.skill.value}}</div>
                     <div class="features" title="{{this.features}}">{{this.features}}</div>
@@ -102,7 +101,7 @@
                     <img width="32" height="32" src="{{{this.img}}}">
                     {{/if}}
                     <label>
-                        <a class="rollable">{{localize this.name}}</a>
+                        <a class="rollable" data-action="roll-active-defense">{{localize this.name}}</a>
                     </label>
                     <div class="value">{{this.skill.value}}</div>
                 </li>
@@ -119,12 +118,12 @@
                     <img width="32" height="32" src="{{{this.img}}}">
                     {{/if}}
                     <label>
-                        <a class="rollable">{{localize this.name}}</a>
+                        <a class="rollable" data-action="roll-active-defense">{{localize this.name}}</a>
                     </label>
                     <div class="value">{{this.skill.value}}</div>
                 </li>
                 {{/each}}
             </ol>
         </div>
-    </div>
+    </section>
 </div>

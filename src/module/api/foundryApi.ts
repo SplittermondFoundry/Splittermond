@@ -256,9 +256,13 @@ export const foundryApi = new (class FoundryApi {
             // @ts-ignore
             return fromUuid(uuid);
         },
+        /**@deprecated will fail for classes*/
         deepClone<T extends object>(object: T): T {
             // @ts-ignore
-            return foundry.utils.deepClone(object);
+            return foundry.utils.deepClone(object, { strict: true });
+        },
+        duplicate<T extends object>(object: T): T {
+            return JSON.parse(JSON.stringify(object)); //clone of foundry's duplicate method.
         },
         mergeObject<T extends object, U extends object>(
             original: T,

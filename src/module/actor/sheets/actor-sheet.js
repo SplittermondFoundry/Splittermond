@@ -1,4 +1,3 @@
-import * as Tooltip from "../../util/tooltip.js";
 import { splittermond } from "../../config";
 import { foundryApi } from "../../api/foundryApi";
 import { DamageInitializer } from "../../util/chat/damageChatMessage/initDamage";
@@ -7,69 +6,130 @@ import { DamageRoll } from "../../util/damage/DamageRoll.js";
 import { CostBase } from "../../util/costs/costTypes.js";
 import { parseAvailableIn, selectFromAllSkills, selectFromParsedSkills } from "./parseAvailableIn";
 import { userConfirmsItemDeletion } from "module/actor/sheets/askUserForItemDeletion.js";
+import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.ts";
+import { closestData } from "module/data/ClosestDataMixin.js";
+import { SplittermondBaseActorSheet, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { TooltipConfigurer } from "module/actor/sheets/TooltipConfigurer.js";
+import { HoverStateTracker } from "module/actor/sheets/HoverStateTracker.ts";
 
-export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSheet {
-    constructor(...args) {
-        super(...args);
-        this._hoverOverlays = [];
+export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
+    static DEFAULT_OPTIONS = {
+        classes: ["splittermond", "sheet", "actor"],
+        overlays: ["#health", "#focus"],
+        position: { width: 750, height: 720 },
+        window: {
+            minimizable: true,
+            resizable: true,
+        },
+        actions: {
+            "inc-value": SplittermondActorSheet.#increaseValue,
+            "dec-value": SplittermondActorSheet.#decreaseValue,
+        },
+    };
+
+    static NAVIGATION = {
+        template: "templates/generic/tab-navigation.hbs",
+    };
+    static BIOGRAPHY_TAB = {
+        template: `${TEMPLATE_BASE_PATH}/sheets/editor.hbs`,
+    };
+    static SPELLS_TAB = {
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/spells-tab.hbs`,
+        classes: ["scrollable"],
+    };
+    static FIGHT_TAB = {
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/fight-tab.hbs`,
+        templates: [`${TEMPLATE_BASE_PATH}/sheets/actor/parts/combat-actions.hbs`],
+    };
+    static INVENTORY_TAB = {
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/inventory-tab.hbs`,
+        classes: ["scrollable"],
+    };
+    static STATUS_TAB = {
+        template: `${TEMPLATE_BASE_PATH}/sheets/actor/status-tab.hbs`,
+        classes: ["scrollable"],
+    };
+
+    constructor(options) {
+        const instanceDefaults = {
+            actions: {
+                "short-rest": () => this.#handleShortRest(),
+                "long-rest": () => this.#handleLongRest(),
+                "add-item": (_e, t) => this.#handleAddItem(t),
+                "delete-item": (_e, t) => this.#handleDeleteItem(t),
+                "edit-item": (_e, t) => this.#handleEditItem(t),
+                "toggle-equipped": (_e, t) => this.#handleToggleEquipped(t),
+                "delete-array-element": (_e, t) => this.#handleDeleteArrayElement(t),
+                "add-channeled-focus": () => this.#handleAddChanneledFocus(),
+                "add-channeled-health": () => this.#handleAddChanneledHealth(),
+                "show-hide-skills": (_e, t) => this.#handleShowHideSkills(t),
+                "roll-skill": (_e, t) => this.#handleRollSkill(t),
+                "roll-attack": (_e, t) => this.#handleRollAttack(t),
+                "roll-spell": (_e, t) => this.#handleRollSpell(t),
+                "roll-damage": (_e, t) => this.#handleRollDamage(t),
+                "roll-active-defense": (_e, t) => this.#handleRollActiveDefense(t),
+                "add-tick": (_e, t) => this.#handleAddTick(t),
+                consume: (_e, t) => this.#handleConsume(t),
+                "open-defense-dialog": (e, t) => this.#handleOpenDefenseDialog(e, t),
+            },
+        };
+        const actorOptions = foundryApi.utils.mergeObject(instanceDefaults, options);
+        super(actorOptions);
+        this._activeOverlay = null;
         this._hideSkills = true;
+        this._tooltipConfigurer = new (options.tooltipConfigurerConstructor ?? TooltipConfigurer)(this);
+        this._hoverStateTracker = options.hoverStateTracker ?? new HoverStateTracker();
     }
 
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            classes: ["splittermond", "sheet", "actor"],
-        });
-    }
-
-    async getData() {
-        const sheetData = super.getData();
-
-        Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
-
+    async _prepareContext(options) {
+        const sheetData = {
+            ...(await super._prepareContext(options)),
+            img: this.actor.img,
+            name: this.actor.name,
+            system: this.actor.system.toObject(false),
+            attributes: this.actor.attributes,
+            attacks: mapAttacks(this.actor),
+            activeDefense: this.actor.activeDefense,
+            generalSkills: null,
+            magicSkills: null,
+            fightingSkills: null,
+            derivedAttributes: this.actor.derivedValues,
+            damageReduction: this.actor.damageReduction,
+            editor: {
+                target: "system.biography",
+                content: "",
+                value: this.actor.system.biography,
+            },
+        };
+        sheetData.derivedEditable = sheetData.editable && this.actor.type !== "character";
         sheetData.hideSkills = this._hideSkills;
         sheetData.generalSkills = {};
-        CONFIG.splittermond.skillGroups.general
-            .filter(
-                (s) =>
-                    !sheetData.hideSkills ||
-                    ["acrobatics", "athletics", "determination", "stealth", "perception", "endurance"].includes(s) ||
-                    this.actor.skills[s].points > 0 ||
-                    this.actor.items.find((i) => i.type === "mastery" && i.system.skill === s)
-            )
+        splittermond.skillGroups.general
+            .filter((s) => splittermond.skillGroups.essential.includes(s) || this.shouldDisplaySkill(s))
             .forEach((skill) => {
                 sheetData.generalSkills[skill] = this.actor.skills[skill];
             });
         sheetData.magicSkills = {};
-        CONFIG.splittermond.skillGroups.magic
-            .filter(
-                (s) =>
-                    !sheetData.hideSkills ||
-                    this.actor.skills[s].points > 0 ||
-                    this.actor.items.find((i) => i.type === "mastery" && i.system.skill === s)
-            )
+        splittermond.skillGroups.magic
+            .filter((s) => this.shouldDisplaySkill(s))
             .forEach((skill) => {
                 sheetData.magicSkills[skill] = this.actor.skills[skill];
             });
 
         sheetData.fightingSkills = {};
-        CONFIG.splittermond.skillGroups.fighting
-            .filter(
-                (s) =>
-                    !sheetData.hideSkills ||
-                    (sheetData.data.system.skills[s]?.points || 0) > 0 ||
-                    this.actor.items.find((i) => i.type === "mastery" && i.system.skill === s)
-            )
+        splittermond.skillGroups.fighting
+            .filter((s) => this.shouldDisplaySkill(s))
             .forEach((skill) => {
-                if (!sheetData.data.system.skills[skill]) {
-                    sheetData.data.system[skill] = {
+                if (!this.actor.system.skills[skill]) {
+                    this.actor.system[skill] = {
                         points: 0,
                     };
                 }
-                sheetData.fightingSkills[skill] = duplicate(sheetData.data.system.skills[skill]);
-                sheetData.fightingSkills[skill].label = `splittermond.skillLabel.${skill}`;
+                sheetData.fightingSkills[skill] = foundryApi.utils.duplicate(this.actor.system.skills[skill]);
+                sheetData.fightingSkills[skill].label = splittermond.fightingSkillOptions[skill];
             });
 
-        sheetData.data.system.biographyHTML = await TextEditor.enrichHTML(sheetData.data.system.biography, {
+        sheetData.editor.content = await foundryApi.utils.enrichHtml(this.actor.system.biography, {
             relativeTo: this.actor,
             rolls: true,
             links: true,
@@ -78,9 +138,16 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             async: true,
         });
 
+        sheetData.items = this.actor.items.map((i) => i.toObject(false));
         this._prepareItems(sheetData);
-        sheetData.attacks = mapAttacks(sheetData.actor);
-        sheetData.activeDefense = sheetData.actor.activeDefense;
+
+        sheetData.combatTabs = {
+            tabs: [
+                { id: "attack", group: "fight-action-type", label: "splittermond.attack" },
+                { id: "defense", group: "fight-action-type", label: "splittermond.activeDefense" },
+            ],
+            initial: "attack",
+        };
 
         console.debug("Splittermond | got actor data");
 
@@ -105,8 +172,9 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
 
         if (sheetData.itemsByType.weapon) {
             sheetData.itemsByType.weapon.forEach((item) => {
-                item.system.features = this.actor.items.get(item._id).system.features.features;
-                item.system.damage = this.actor.items.get(item._id).system.damage.displayValue;
+                const actorItem = this.actor.items.get(item._id);
+                item.system.features = actorItem.system.features.features;
+                item.system.damage = actorItem.system.damage.displayValue;
             });
         }
         if (sheetData.itemsByType.shield) {
@@ -154,483 +222,420 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
         }, {});
     }
 
-    _getClosestData(jQObject, dataName, defaultValue = "") {
-        let value = jQObject.closest(`[data-${dataName}]`)?.data(dataName);
-        return value ? value : defaultValue;
-    }
-
-    activateListeners(html) {
-        html.find("input.autoexpand")
-            .on("input", function () {
-                let dummyElement = $('<span id="autoexpanddummy"/>').hide();
-                $(this).after(dummyElement);
-                let text = $(this).val() || $(this).text() || $(this).attr("placeholder");
-                $(dummyElement).text(text);
-                $(this).css({
-                    width: dummyElement.width(),
-                });
-                dummyElement.remove();
-            })
-            .trigger("input");
-
-        html.find('[data-action="inc-value"]').click((event) => {
-            const query = $(event.currentTarget).closestData("input-query");
-            let value = parseInt($(html).find(query).val()) || 0;
-            $(html)
-                .find(query)
-                .val(value + 1)
-                .change();
-        });
-
-        html.find('[data-action="dec-value"]').click((event) => {
-            const query = $(event.currentTarget).closestData("input-query");
-            let value = parseInt($(html).find(query).val()) || 0;
-            $(html)
-                .find(query)
-                .val(value - 1)
-                .change();
-        });
-
-        html.find('[data-action="add-item"]').click((event) => {
-            const itemType = $(event.currentTarget).closestData("item-type");
-            const renderSheet = Boolean((event.currentTarget.dataset.renderSheet || "true") === "true");
-            let itemData = {
-                name: game.i18n.localize("splittermond." + itemType),
-                type: itemType,
-            };
-
-            if (itemType === "mastery") {
-                const skill = $(event.currentTarget).closestData("skill");
-                if (skill) {
-                    itemData.system = {
-                        skill: skill,
-                    };
-                }
-            }
-            return this.actor.createEmbeddedDocuments("Item", [itemData], { renderSheet: renderSheet });
-        });
-
-        html.find('[data-action="delete-item"]').click(async (event) => {
-            const itemId = $(event.currentTarget).closestData("item-id");
-            const itemName = this.actor.items.get(itemId).name;
-            const userConfirmedDeletion = await userConfirmsItemDeletion(itemName);
-            if (userConfirmedDeletion) {
-                await this.actor.deleteEmbeddedDocuments("Item", [itemId]);
-            }
-        });
-
-        html.find('[data-action="edit-item"]').click((event) => {
-            const itemId = $(event.currentTarget).closestData("item-id");
-            this.actor.items.get(itemId).sheet.render(true);
-        });
-
-        html.find('[data-action="toggle-equipped"]').click((event) => {
-            const itemId = $(event.currentTarget).closestData("item-id");
-            const item = this.actor.items.get(itemId);
-            item.update({ "system.equipped": !item.system.equipped });
-        });
-
-        html.find("[data-field]").change((event) => {
-            const element = event.currentTarget;
-            let value = element.value;
-            if (element.type === "checkbox") {
-                value = element.checked;
-            }
-            const itemId = $(event.currentTarget).closestData("item-id");
-            const field = element.dataset.field;
-            this.actor.items.get(itemId).update({ [field]: value });
-        });
-
-        html.find("[data-array-field]").change((event) => {
-            const element = event.currentTarget;
-            const idx = parseInt($(event.currentTarget).closestData("index", "0"));
-            const array = $(event.currentTarget).closestData("array");
-            const field = $(event.currentTarget).closestData("array-field");
-            let newValue = [];
-            if (!(idx >= 0 && array !== "")) return;
-            if (field) {
-                newValue = duplicate(
-                    array.split(".").reduce(function (prev, curr) {
-                        return prev ? prev[curr] : null;
-                    }, this.actor.toObject())
-                );
-                newValue[idx][field] = element.value;
-            } else {
-                newValue = duplicate(
-                    array.split(".").reduce(function (prev, curr) {
-                        return prev ? prev[curr] : null;
-                    }, this.actor.toObject())
-                );
-                newValue[idx] = element.value;
-            }
-            this.actor.update({ [array]: newValue });
-        });
-
-        html.find('[data-action="delete-array-element"]').click((event) => {
-            const element = event.currentTarget;
-            const idx = parseInt($(event.currentTarget).closestData("index", "0"));
-            const array = $(event.currentTarget).closestData("array");
-            if (!(idx >= 0 && array !== "")) return;
-            let arrayData = duplicate(
-                array.split(".").reduce(function (prev, curr) {
-                    return prev ? prev[curr] : null;
-                }, this.actor.toObject())
-            );
-            let updateData = {};
-            if (array === "system.focus.channeled.entries") {
-                let tempValue = parseInt(this.actor.system.focus.exhausted.value) + parseInt(arrayData[idx].costs);
-                updateData["system.focus.exhausted.value"] = tempValue;
-            }
-
-            arrayData.splice(idx, 1);
-            updateData[array] = arrayData;
-            this.actor.update(updateData);
-        });
-
-        html.find('[data-action="add-channeled-focus"]').click((event) => {
-            let channeledEntries = duplicate(this.actor.system.focus.channeled.entries);
-            channeledEntries.push({
-                description: game.i18n.localize("splittermond.description"),
-                costs: 1,
-            });
-            this.actor.update({ "system.focus.channeled.entries": channeledEntries });
-        });
-
-        html.find('[data-action="add-channeled-health"]').click((event) => {
-            let channeledEntries = duplicate(this.actor.system.health.channeled.entries);
-            channeledEntries.push({
-                description: game.i18n.localize("splittermond.description"),
-                costs: 1,
-            });
-            this.actor.update({ "system.health.channeled.entries": channeledEntries });
-        });
-
-        html.find('[data-action="long-rest"]').click((event) => {
-            this.actor.longRest();
-        });
-
-        html.find('[data-action="short-rest"]').click((event) => {
-            this.actor.shortRest();
-        });
-
-        html.find(".rollable").on("click", (event) => {
-            const type = $(event.currentTarget).closestData("roll-type");
-            if (type === "skill") {
-                const skill = $(event.currentTarget).closestData("skill");
-                this.actor.rollSkill(skill);
-            }
-
-            if (type === "attack") {
-                const attackId = $(event.currentTarget).closestData("attack-id");
-                this.actor.rollAttack(attackId);
-            }
-            if (type === "spell") {
-                const itemId = $(event.currentTarget).closestData("item-id");
-                this.actor.rollSpell(itemId);
-            }
-
-            if (type === "damage") {
-                const serializedImplementsParsed = $(event.currentTarget).closestData("damageimplements");
-                const implementsAsArray = [
-                    serializedImplementsParsed.principalComponent,
-                    ...serializedImplementsParsed.otherComponents,
-                ];
-                const damageImplements = implementsAsArray.map((i) => {
-                    const features = ItemFeaturesModel.from(i.features);
-                    const damageRoll = DamageRoll.from(i.formula, features);
-                    //the modifier we 'reflected' from inside damage roll already accounted for "Wuchtig" so, if we reapply modifiers,
-                    //we have to make sure we don't double damage by accident
-                    const modifier = features.hasFeature("Wuchtig") ? math.floor(i.modifier * 0.5) : i.modifier;
-                    damageRoll.increaseDamage(modifier);
-                    return {
-                        damageRoll,
-                        damageType: i.damageType,
-                        damageSource: i.damageSource,
-                    };
-                });
-
-                const costType = $(event.currentTarget).closestData("costtype") ?? "V";
-                const actorId = $(event.currentTarget).closestData("actorid");
-                const actor = foundryApi.getActor("source") ?? null; //May fail if ID refers to a token
-                /** @type DamageRollOptions */
-                const rollOptions = {
-                    costBase: CostBase.create(costType),
-                    grazingHitPenalty: false,
-                };
-                return DamageInitializer.rollFromDamageRoll(damageImplements, rollOptions, actor).then((message) =>
-                    message.sendToChat()
-                );
-            }
-
-            if (type === "activeDefense") {
-                const itemId = $(event.currentTarget).closestData("defense-id");
-                const defenseType = $(event.currentTarget).closestData("defense-type");
-                this.actor.rollActiveDefense(
-                    defenseType,
-                    this.actor.activeDefense[defenseType].find((el) => el.id === itemId)
-                );
-            }
-        });
-
-        html.find(".add-tick").click((event) => {
-            let value = $(event.currentTarget).closestData("ticks");
-            let message = $(event.currentTarget).closestData("message");
-
-            this.actor.addTicks(value, message);
-        });
-
-        html.find(".consume").click((event) => {
-            const type = $(event.currentTarget).closestData("type");
-            const value = $(event.currentTarget).closestData("value");
-            if (type === "focus") {
-                const description = $(event.currentTarget).closestData("description");
-                this.actor.consumeCost(type, value, description);
-            }
-        });
-
-        html.find(".derived-attribute#defense label").click((event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            this.actor.activeDefenseDialog("defense");
-        });
-
-        html.find(".derived-attribute#bodyresist label").click((event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            this.actor.activeDefenseDialog("bodyresist");
-        });
-
-        html.find(".derived-attribute#mindresist label").click((event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            this.actor.activeDefenseDialog("mindresist");
-        });
-
-        html.find(".item-list .item")
-            .on("dragstart", (event) => {
-                html.find("#splittermond-tooltip").remove();
-            })
-            .on("dragover", (event) => {
-                event.currentTarget.style.borderTop = "1px solid black";
-                event.currentTarget.style.borderImage = "none";
-            })
-            .on("dragleave", (event) => {
-                event.currentTarget.style.borderTop = "";
-                event.currentTarget.style.borderImage = "";
-            });
-
-        html.find(".draggable")
-            .on("dragstart", (event) => {
-                const attackId = event.currentTarget.dataset.attackId;
-                if (attackId) {
-                    event.originalEvent.dataTransfer.setData(
-                        "text/plain",
-                        JSON.stringify({
-                            type: "attack",
-                            attackId: attackId,
-                            actorId: this.actor.id,
-                        })
-                    );
-                    event.stopPropagation();
-                    return;
-                }
-
-                const skill = event.currentTarget.dataset.skill;
-                if (skill) {
-                    const skill = $(event.currentTarget).closestData("skill");
-                    event.originalEvent.dataTransfer.setData(
-                        "text/plain",
-                        JSON.stringify({
-                            type: "skill",
-                            skill: skill,
-                            actorId: this.actor.id,
-                        })
-                    );
-                    event.stopPropagation();
-                    return;
-                }
-
-                const itemId = event.currentTarget.dataset.itemId;
-                if (itemId) {
-                    const itemData = this.actor.items.find((el) => el.id === itemId)?.system;
-                    event.originalEvent.dataTransfer.setData(
-                        "text/plain",
-                        JSON.stringify({
-                            type: "Item",
-                            system: itemData,
-                            actorId: this.actor._id,
-                        })
-                    );
-                    event.stopPropagation();
-                }
-            })
-            .attr("draggable", true);
-
-        html.find(
-            "[data-item-id], .list.skills [data-skill], .derived-attribute, .damage-reduction, .list.attack .value, .list.active-defense .value"
-        ).hover(
-            async (event) => {
-                const itemId = event.currentTarget.dataset.itemId;
-                let content = "";
-                let css = {
-                    top: $(event.currentTarget).offset().top + $(event.currentTarget).outerHeight(),
-                    left: $(event.currentTarget).offset().left,
-                    display: "none",
-                };
-                if (itemId) {
-                    const item = this.actor.items.find((el) => el.id === itemId);
-
-                    if (!item) return;
-
-                    if (item.system.description) {
-                        content = await TextEditor.enrichHTML(item.system.description, { async: true });
-                        if (!content.startsWith("<p>")) {
-                            content = `<p>${content}</p>`;
-                        }
-                    }
-                    if (item.type === "spell") {
-                        content +=
-                            `<p><strong>` +
-                            game.i18n.localize("splittermond.enhancementDescription") +
-                            ` (${item.system.enhancementCosts}):</strong> ${item.system.enhancementDescription}</p>`;
-                    }
-                }
-
-                const skillId = event.currentTarget.dataset.skill;
-
-                if (skillId && this.actor.skills[skillId]) {
-                    const skillData = this.actor.skills[skillId];
-                    content += skillData.tooltip();
-
-                    let masteryList = html.find(`.list.masteries li[data-skill="${skillId}"]`);
-
-                    if (masteryList.html()) {
-                        let posLeft = masteryList.offset().left;
-                        let posTop = $(event.currentTarget).offset().top;
-
-                        let width = masteryList.outerWidth();
-                        masteryList = masteryList.clone();
-
-                        masteryList.find("button").remove();
-                        masteryList = masteryList
-                            .wrapAll(`<div class="list splittermond-tooltip masteries"/>`)
-                            .wrapAll(`<ol class="list-body"/>`)
-                            .parent()
-                            .parent();
-                        masteryList.css({
-                            position: "fixed",
-                            left: posLeft,
-                            top: posTop,
-                            width: width,
-                        });
-                        content += masteryList.wrapAll("<div/>").parent().html();
-                    }
-                }
-
-                if ($(event.currentTarget).closestData("attack-id")) {
-                    let attackId = $(event.currentTarget).closestData("attack-id");
-                    if (this.actor.attacks.find((a) => a.id === attackId)) {
-                        let attack = this.actor.attacks.find((a) => a.id === attackId);
-                        let skill = attack.skill;
-                        content += skill.tooltip();
-                    }
-                }
-
-                if ($(event.currentTarget).closestData("defense-id")) {
-                    let defenseId = $(event.currentTarget).closestData("defense-id");
-                    let defenseData = {};
-                    if (this.actor.activeDefense.defense.find((a) => a.id === defenseId)) {
-                        defenseData = this.actor.activeDefense.defense.find((a) => a.id === defenseId);
-                    }
-
-                    if (this.actor.activeDefense.mindresist.find((a) => a.id === defenseId)) {
-                        defenseData = this.actor.activeDefense.mindresist.find((a) => a.id === defenseId);
-                    }
-
-                    if (this.actor.activeDefense.bodyresist.find((a) => a.id === defenseId)) {
-                        defenseData = this.actor.activeDefense.bodyresist.find((a) => a.id === defenseId);
-                    }
-                    if (defenseData) {
-                        content += defenseData.tooltip();
-                    }
-                }
-
-                if (event.currentTarget.classList.contains("derived-attribute")) {
-                    let attribute = event.currentTarget.id;
-                    if (this.actor.derivedValues[attribute]) {
-                        content += this.actor.derivedValues[attribute].tooltip();
-                    }
-                }
-
-                if (event.currentTarget.classList.contains("damage-reduction") && this.actor.damageReduction !== 0) {
-                    let formula = new Tooltip.TooltipFormula();
-                    this.actor.modifier.getForId("damagereduction").getModifiers().addTooltipFormulaElements(formula);
-                    content += formula.render();
-                }
-
-                if (content) {
-                    let tooltipElement = $(`<div id="splittermond-tooltip"> ${content}</div>`);
-                    html.append(tooltipElement);
-                    if (skillId) {
-                        css.left += $(event.currentTarget).outerWidth() - tooltipElement.outerWidth();
-                        css.top = $(event.currentTarget).offset().top - $(tooltipElement).outerHeight();
-                    }
-
-                    if (
-                        event.currentTarget.classList.contains("attribute") ||
-                        $(event.currentTarget).closestData("attack-id") ||
-                        $(event.currentTarget).closestData("defense-id")
-                    ) {
-                        css.left -= tooltipElement.outerWidth() / 2 - $(event.currentTarget).outerWidth() / 2;
-                    }
-
-                    /*
-                if (event.currentTarget.classList.contains("attribute")) {
-                    css.left += $(event.currentTarget).outerWidth();
-                }
-                */
-                    tooltipElement.css(css).fadeIn();
-                }
-            },
-            (event) => {
-                html.find("div#splittermond-tooltip").remove();
-            }
-        );
-
-        html.find('[data-action="show-hide-skills"]').click((event) => {
-            this._hideSkills = !this._hideSkills;
-            $(event.currentTarget).attr("data-action", "hide-skills");
-            this.render();
-        });
-
-        if (this._hoverOverlays) {
-            let el = html.find(this._hoverOverlays.join(", "));
-            if (el.length > 0) {
-                el.addClass("hover");
-                el.hover(function () {
-                    $(this).removeClass("hover");
-                });
-            }
-        }
-
-        super.activateListeners(html);
+    /**
+     * @param {SplittermondSkill} skillId
+     * @return {boolean}
+     */
+    shouldDisplaySkill(skillId) {
+        const hasSkillPoints = this.actor.skills[skillId]?.points > 0;
+        const hasMastery = this.actor.items.some((item) => item.type === "mastery" && item.system.skill === skillId);
+        return !this._hideSkills || hasSkillPoints || hasMastery;
     }
 
     /**
-     * @param {SplittermondItem} itemData
+     * Increase a numeric value
+     * @param {Event} _event - The event object
+     * @param {HTMLElement} target - The target element
+     */
+    static #increaseValue(_event, target) {
+        changeValue((input) => input + 1).for(target);
+    }
+
+    /**
+     * Decrease a numeric value
+     * @param {Event} _event - The event object
+     * @param {HTMLElement} target - The target element
+     */
+    static #decreaseValue(_event, target) {
+        changeValue((input) => input - 1).for(target);
+    }
+
+    /**
+     * Handle adding a new item
+     * @param {HTMLElement} target - The target element
+     */
+    #handleAddItem(target) {
+        const itemType = closestData(target, "item-type") ?? "";
+        const renderSheet = Boolean((target.dataset.renderSheet || "true") === "true");
+        let itemData = {
+            name: foundryApi.localize("splittermond." + itemType),
+            type: itemType,
+        };
+
+        if (itemType === "mastery") {
+            const skill = target.closest("[data-skill]")?.getAttribute("data-skill");
+            if (skill) {
+                itemData.system = {
+                    skill: skill,
+                };
+            }
+        }
+        this.actor.createEmbeddedDocuments("Item", [itemData], { renderSheet: renderSheet });
+    }
+
+    /**
+     * Handle deleting an item
+     * @param {HTMLElement} target - The target element
      * @returns {Promise<void>}
      */
-    async _onDropItemCreate(itemData) {
-        if (itemData.type === "spell") {
+    async #handleDeleteItem(target) {
+        const itemId = closestData(target, "item-id");
+        if (!itemId) return;
+
+        const itemName = this.actor.items.get(itemId).name;
+        const userConfirmedDeletion = await userConfirmsItemDeletion(itemName);
+        if (userConfirmedDeletion) {
+            await this.actor.deleteEmbeddedDocuments("Item", [itemId]);
+        }
+    }
+
+    /**
+     * Handle editing an item
+     * @param {HTMLElement} target - The target element
+     */
+    #handleEditItem(target) {
+        const itemId = closestData(target, "item-id");
+        if (!itemId) return;
+
+        this.actor.items.get(itemId).sheet.render(true);
+    }
+
+    /**
+     * Handle toggling equipped status
+     * @param {HTMLElement} target - The target element
+     */
+    #handleToggleEquipped(target) {
+        const itemId = closestData(target, "item-id");
+        if (!itemId) return;
+
+        const item = this.actor.items.get(itemId);
+        item.update({ "system.equipped": !item.system.equipped });
+    }
+
+    /**
+     * Handle adding a channeled focus entry
+     */
+    #handleAddChanneledFocus() {
+        const channeledEntries = foundryApi.utils.deepClone(this.actor.system.focus.channeled.entries);
+        channeledEntries.push({
+            description: foundryApi.localize("splittermond.description"),
+            costs: 1,
+        });
+        return this.actor.update({ "system.focus.channeled.entries": channeledEntries });
+    }
+
+    /**
+     * Handle adding a channeled health entry
+     */
+    #handleAddChanneledHealth() {
+        const channeledEntries = foundryApi.utils.deepClone(this.actor.system.health.channeled.entries);
+        channeledEntries.push({
+            description: foundryApi.localize("splittermond.description"),
+            costs: 1,
+        });
+        return this.actor.update({ "system.health.channeled.entries": channeledEntries });
+    }
+
+    /**
+     * Handle long rest action
+     */
+    #handleLongRest() {
+        return this.actor.longRest();
+    }
+
+    /**
+     * Handle short rest action
+     */
+    #handleShortRest() {
+        return this.actor.shortRest();
+    }
+
+    /**
+     * Handle deleting an array element (focus/health channeled entries)
+     * @param {HTMLElement} target - The target element
+     */
+    #handleDeleteArrayElement(target) {
+        const idx = parseInt(closestData(target, "index", "0"));
+        const { value, address } = this.#getArray(target);
+
+        if (!(idx >= 0 && address !== "") || !Array.isArray(value)) return;
+
+        let updateData = {};
+        if (address === "system.focus.channeled.entries") {
+            let tempValue = parseInt(this.actor.system.focus.exhausted.value) + parseInt(value[idx].costs);
+            updateData["system.focus.exhausted.value"] = tempValue;
+        }
+
+        value.splice(idx, 1);
+        updateData[address] = value;
+        return this.actor.update(updateData);
+    }
+
+    /**
+     * Handle showing/hiding skills
+     * @param {HTMLElement} target - The target element
+     */
+    #handleShowHideSkills(target) {
+        this._hideSkills = !this._hideSkills;
+        target.setAttribute("data-action", "hide-skills");
+        return this.render();
+    }
+
+    /**
+     * Handle rolling a skill check
+     * @param {HTMLElement} target - The target element
+     */
+    #handleRollSkill(target) {
+        const skill = closestData(target, "skill");
+        if (!skill) return;
+        return this.actor.rollSkill(skill);
+    }
+
+    /**
+     * Handle rolling an attack
+     * @param {HTMLElement} target - The target element
+     */
+    #handleRollAttack(target) {
+        const attackId = closestData(target, "attack-id");
+        if (!attackId) return;
+        return this.actor.rollAttack(attackId);
+    }
+
+    /**
+     * Handle rolling a spell
+     * @param {HTMLElement} target - The target element
+     */
+    #handleRollSpell(target) {
+        const itemId = closestData(target, "item-id");
+        if (!itemId) return;
+        return this.actor.rollSpell(itemId);
+    }
+
+    /**
+     * Handle rolling damage
+     * @param {HTMLElement} target - The target element
+     */
+    #handleRollDamage(target) {
+        const serializedImplementsParsed = JSON.parse(closestData(target, "damageimplements"));
+        if (!serializedImplementsParsed) return;
+
+        const implementsAsArray = [
+            serializedImplementsParsed.principalComponent,
+            ...serializedImplementsParsed.otherComponents,
+        ];
+        const damageImplements = implementsAsArray.map((i) => {
+            const features = ItemFeaturesModel.from(i.features);
+            const damageRoll = DamageRoll.from(i.formula, features);
+            //the modifier we 'reflected' from inside damage roll already accounted for "Wuchtig" so, if we reapply modifiers,
+            //we have to make sure we don't double damage by accident
+            const modifier = features.hasFeature("Wuchtig") ? Math.floor(i.modifier * 0.5) : i.modifier;
+            damageRoll.increaseDamage(modifier);
+            return {
+                damageRoll,
+                damageType: i.damageType,
+                damageSource: i.damageSource,
+            };
+        });
+
+        const costType = closestData(target, "costtype") ?? "V";
+        const actorId = closestData(target, "actorid");
+        const actor = foundryApi.getActor(actorId) ?? null; //May fail if ID refers to a token
+        /** @type DamageRollOptions */
+        const rollOptions = {
+            costBase: CostBase.create(costType),
+            grazingHitPenalty: 0,
+        };
+        return DamageInitializer.rollFromDamageRoll(damageImplements, rollOptions, actor).then((message) =>
+            message.sendToChat()
+        );
+    }
+
+    /**
+     * Handle rolling active defense
+     * @param {HTMLElement} target - The target element
+     */
+    #handleRollActiveDefense(target) {
+        const itemId = closestData(target, "defense-id");
+        const defenseType = closestData(target, "defense-type");
+        if (!itemId || !defenseType) return;
+
+        const defenseItem = this.actor.activeDefense[defenseType].find((el) => el.id === itemId);
+        if (!defenseItem) return;
+
+        return this.actor.rollActiveDefense(defenseType, defenseItem);
+    }
+
+    /**
+     * Handle adding ticks
+     * @param {HTMLElement} target - The target element
+     */
+    #handleAddTick(target) {
+        const value = closestData(target, "ticks");
+        const message = closestData(target, "message");
+        this.actor.addTicks(value, message);
+    }
+
+    /**
+     * Handle consuming resources (focus/health)
+     * @param {HTMLElement} target - The target element
+     */
+    #handleConsume(target) {
+        const type = closestData(target, "type");
+        const value = closestData(target, "value");
+        if (type === "focus") {
+            const description = closestData(target, "description");
+            this.actor.consumeCost(type, value, description);
+        }
+    }
+
+    /**
+     * Handle opening defense dialog
+     * @param {Event} event - The click event
+     * @param {HTMLElement} target - The target element
+     */
+    #handleOpenDefenseDialog(event, target) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const defenseType = target.getAttribute("data-defense-type");
+        if (defenseType && ["defense", "bodyresist", "mindresist"].includes(defenseType)) {
+            this.actor.activeDefenseDialog(defenseType);
+        }
+    }
+
+    async _onRender(context, options) {
+        await super._onRender(context, options);
+        autoExpandInputs(this.element);
+        this._tooltipConfigurer.configureTooltips();
+        this._hoverStateTracker.trackHoverState(this);
+        this._hoverStateTracker.restoreHoverState(this);
+
+        // Track overlay state changes
+        const overlayElements = this.element.querySelectorAll("#health, #focus");
+        overlayElements.forEach((overlay) => {
+            overlay.addEventListener("mouseenter", () => {
+                this._activeOverlay = `#${overlay.id}`;
+                // Remove the programmatic hover class when user hovers
+                overlay.classList.remove("hover");
+            });
+            overlay.addEventListener("mouseleave", () => {
+                this._activeOverlay = null;
+                // Remove the programmatic hover class when leaving
+                overlay.classList.remove("hover");
+            });
+        });
+
+        this.element.querySelectorAll("input[data-field]").forEach((el) => {
+            el.addEventListener("change", (event) => {
+                const element = event.currentTarget;
+                let value = element.value;
+                if (element.type === "checkbox") {
+                    value = element.checked;
+                }
+
+                const itemId = closestData(element, "item-id");
+                const field = element.dataset.field;
+                return this.actor.items.get(itemId).update({ [field]: value });
+            });
+        });
+
+        this.element.querySelectorAll("[data-array-field]").forEach((el) => {
+            el.addEventListener("change", (event) => {
+                const element = event.currentTarget;
+                const idx = parseInt(closestData(element, "index", "0"));
+                /**@type string*/
+                const field = element.dataset.arrayField;
+                const { value, address } = this.#getArray(element);
+                if (!(idx >= 0 && address !== "") || !Array.isArray(value)) return;
+                if (field) {
+                    //single field update in property
+                    value[idx][field] = element.value;
+                } else {
+                    value[idx] = element.value;
+                }
+                this.actor.update({ [address]: value });
+            });
+        });
+
+        this.element.querySelectorAll(".item-list .item").forEach((el) => {
+            el.addEventListener("dragover", (event) => {
+                event.currentTarget.style.borderTop = "1px solid black";
+                event.currentTarget.style.borderImage = "none";
+            });
+            el.addEventListener("dragleave", (event) => {
+                event.currentTarget.style.borderTop = "";
+                event.currentTarget.style.borderImage = "";
+            });
+        });
+    }
+
+    _canDragStart() {
+        return true;
+    }
+
+    /**
+     * @param {DragEvent} event
+     * @protected
+     */
+    _onDragStart(event) {
+        this._tooltipConfigurer.removeTooltips();
+        /**@type HTMLElement*/
+        const target = event.currentTarget;
+        const attackId = target.dataset.attackId;
+        if (attackId) {
+            event.dataTransfer.setData(
+                "application/json",
+                JSON.stringify({
+                    type: "attack",
+                    attackId: attackId,
+                    actorId: this.actor.id,
+                })
+            );
+            event.stopPropagation();
+        }
+        return super._onDragStart(event);
+    }
+    _onDrop(event) {
+        const droppedData = JSON.parse(event.dataTransfer.getData("application/json"));
+        if (droppedData.type === "attack") {
+            const sourceActor = foundryApi.getActor(droppedData.actorId);
+            const sourceAttack = sourceActor?.attacks.find((a) => a.id === droppedData.attackId);
+            const sourceItem = sourceActor?.items.get(sourceAttack?.item.id);
+            if (!sourceItem) return;
+            return this._onDropDocument(event, sourceItem);
+        }
+
+        if (event.dataTransfer) super._onDrop(event);
+    }
+    /**
+     * @param {HTMLElement} element
+     * @return {{value:any[],address:string,?field:string}}
+     */
+    #getArray(element) {
+        /**@type string*/
+        const arrayPropertyAddress = closestData(element, "array");
+        const value = foundryApi.utils.resolveProperty(this.actor.toObject(), arrayPropertyAddress);
+        return { value, address: arrayPropertyAddress };
+    }
+
+    /**
+     * @param {DragEvent} _e
+     * @param {FoundryDocument} document
+     * @returns {Promise<null|FoundryDocument>}
+     */
+    async _onDropDocument(_e, document) {
+        if (!this._hasValidItemType(document.type)) {
+            const translatedType = foundryApi.localize(`TYPES.Item.${document.type}`);
+            foundryApi.informUser("splittermond.applications.actorSheet.invalidItemType", { type: translatedType });
+            return null;
+        }
+        if (document.type === "spell") {
             const allowedSkills = splittermond.skillGroups.magic;
             const dialogTitle = foundryApi.localize("splittermond.chooseMagicSkill");
-            const parsed = parseAvailableIn(itemData.system?.availableIn ?? "", allowedSkills);
+            const parsed = parseAvailableIn(document.system?.availableIn ?? "", allowedSkills);
             let selectedSkill;
-            if (parsed.length === 0 && allowedSkills.includes(itemData.system?.skill)) {
-                selectedSkill = { skill: itemData.system.skill, level: itemData.system.skillLevel ?? 0 };
+            if (parsed.length === 0 && allowedSkills.includes(document.system?.skill)) {
+                selectedSkill = { skill: document.system.skill, level: document.system.skillLevel ?? 0 };
             } else if (parsed.length > 1) {
                 selectedSkill = await selectFromParsedSkills(
                     parsed.filter((s) => s.level !== null),
@@ -644,19 +649,18 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
 
             if (!selectedSkill) return;
 
-            itemData.system.skill = selectedSkill.skill;
-            itemData.system.skillLevel = selectedSkill.level;
+            document.system.updateSource({ skill: selectedSkill.skill, skillLevel: selectedSkill.level });
         }
-        if (itemData.type === "mastery") {
+        if (document.type === "mastery") {
             const allowedSkills = splittermond.skillGroups.all;
             const dialogTitle = foundryApi.localize("splittermond.chooseSkill");
-            const parsed = parseAvailableIn(itemData.system?.availableIn ?? "", allowedSkills).map((s) => ({
+            const parsed = parseAvailableIn(document.system?.availableIn ?? "", allowedSkills).map((s) => ({
                 ...s,
-                level: itemData.system.level ?? 1,
+                level: document.system.level ?? 1,
             }));
             let selectedSkill;
-            if (parsed.length === 0 && allowedSkills.includes(itemData.system?.skill)) {
-                selectedSkill = { skill: itemData.system.skill, level: itemData.system.skillLevel ?? 0 };
+            if (parsed.length === 0 && allowedSkills.includes(document.system?.skill)) {
+                selectedSkill = { skill: document.system.skill, level: document.system.skillLevel ?? 0 };
             } else if (parsed.length > 1) {
                 selectedSkill = await selectFromParsedSkills(parsed, dialogTitle);
             } else if (parsed.length === 0) {
@@ -666,25 +670,20 @@ export default class SplittermondActorSheet extends foundry.appv1.sheets.ActorSh
             }
             if (!selectedSkill) return;
 
-            itemData.system.skill = selectedSkill.skill;
-            itemData.system.level = selectedSkill.level;
+            document.system.updateSource({ skill: selectedSkill.skill, level: selectedSkill.level });
         }
 
-        await super._onDropItemCreate(itemData);
+        return super._onDropDocument(_e, document);
     }
 
-    render(force = false, options = {}) {
-        if (this.options.overlays) {
-            let html = this.element;
-            this._hoverOverlays = [];
-            for (let sel of this.options.overlays) {
-                let el = html.find(sel + ":hover");
-                if (el.length === 1) {
-                    this._hoverOverlays.push(sel);
-                }
-            }
-        }
-        return super.render(force, options);
+    /**
+     * Overwrite to determine what Items can be dropped on this actor
+     * @param {ItemType} itemType
+     * @return {boolean}
+     * @protected
+     */
+    _hasValidItemType(itemType) {
+        return true;
     }
 }
 

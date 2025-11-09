@@ -1,12 +1,17 @@
 import SplittermondWizard from "./wizard";
 import { foundryApi } from "../../api/foundryApi";
 import { splittermond } from "../../config";
-import { ApplicationContextOptions, ApplicationRenderContext } from "../../data/SplittermondApplication";
+import {
+    ApplicationContextOptions,
+    ApplicationRenderContext,
+    TEMPLATE_BASE_PATH,
+} from "../../data/SplittermondApplication";
 import SplittermondActor from "../../actor/actor";
 import SplittermondItem from "../../item/item";
 import { SpeciesDataModel } from "../../item/dataModel/SpeciesDataModel";
 import { initMapper } from "../../util/LanguageMapper";
 import { attributes, SplittermondAttribute } from "../../config/attributes";
+import { isMember } from "module/util/util";
 
 const attributeMapper = initMapper(attributes)
     .withTranslator((t) => `splittermond.attribute.${t}.long`)
@@ -36,7 +41,7 @@ export default class SplittermondSpeciesWizard extends SplittermondWizard {
 
     static PARTS = {
         form: {
-            template: "systems/splittermond/templates/apps/wizards/species.hbs",
+            template: `${TEMPLATE_BASE_PATH}/apps/wizards/species.hbs`,
         },
     };
 
@@ -125,7 +130,7 @@ export default class SplittermondSpeciesWizard extends SplittermondWizard {
     }
 
     private isAttribute(attr: string | null | undefined): attr is SplittermondAttribute {
-        return !!attr && (splittermond.attributes as readonly string[]).includes(attr);
+        return !!attr && isMember(splittermond.attributes, attr);
     }
 
     protected _onSaveEvent() {

@@ -52,7 +52,7 @@ export const expected = {
         features: {
             internalFeatureList: [],
         },
-        skill: null,
+        skill: "arcanelore",
         skillLevel: null,
         source: null,
         degreeOfSuccessOptions: {

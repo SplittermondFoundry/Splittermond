@@ -14,6 +14,12 @@ import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import { FoundryDialog } from "module/api/Application";
 import SplittermondActorSheet from "../../module/actor/sheets/actor-sheet";
 import { withActor } from "./fixtures";
+import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
+import { passesEventually } from "../util";
+import Modifier from "module/actor/modifier";
+import { of } from "module/modifiers/expressions/scalar";
+import type { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
+import type SplittermondWeaponItem from "module/item/weapon";
 
 declare const Actor: any;
 declare var Dialog: any;
@@ -354,9 +360,9 @@ export function actorTest(context: QuenchBatchContext) {
                 name: "Test Spell",
                 system: { skill: "deathmagic", skillLevel: 1 },
             });
-            const underTest = new SplittermondActorSheet(actor, { editable: true });
+            const underTest = new SplittermondActorSheet({ document: actor, editable: true });
 
-            await underTest._onDropItemCreate(spell);
+            await underTest._onDropDocument(new DragEvent("drop"), spell);
 
             const itemOnActor = actor.items.find((i) => i.name === spell.name);
             expect(itemOnActor).to.exist;
@@ -369,9 +375,9 @@ export function actorTest(context: QuenchBatchContext) {
                 name: "Test Mastery",
                 system: { skill: "deathmagic", level: 1 },
             });
-            const underTest = new SplittermondActorSheet(actor, { editable: true });
+            const underTest = new SplittermondActorSheet({ document: actor, editable: true });
 
-            await underTest._onDropItemCreate(mastery);
+            await underTest._onDropDocument(new DragEvent("drop"), mastery);
 
             const itemOnActor = actor.items.find((i) => i.name === mastery.name);
             expect(itemOnActor).to.exist;
@@ -392,9 +398,9 @@ export function actorTest(context: QuenchBatchContext) {
                 name: "Spell with School options",
                 system: { availableIn: "deathmagic 1, lightmagic 2", skill: "arcanelore", skillLevel: 0 },
             });
-            const underTest = new SplittermondActorSheet(actor, { editable: true });
+            const underTest = new SplittermondActorSheet({ document: actor, editable: true });
 
-            await underTest._onDropItemCreate(spell.toObject());
+            await underTest._onDropDocument(new DragEvent("drop"), spell);
 
             const itemOnActor = actor.items.find((i) => i.name === spell.name);
             expect(itemOnActor).to.exist;
@@ -429,6 +435,127 @@ export function actorTest(context: QuenchBatchContext) {
                 expect(actor.derivedValues.bodyresist.value, "Bodyresist value").to.equal(23);
                 expect(actor.derivedValues.mindresist.value, "Mindresist value").to.equal(19);
                 expect(actor.splinterpoints.max, "Splinterpoints max value").to.equal(4);
+            })
+        );
+    });
+
+    describe("Actor sheet", () => {
+        it(
+            "should save acrobatics skill points from sheet",
+            withActor(async (actor) => {
+                await actor.update({ system: { skills: { acrobatics: { points: 5 } } } });
+                const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
+
+                const skillInput = sheet.element.querySelector(
+                    "input[name='system.skills.acrobatics.points']"
+                )! as HTMLInputElement;
+
+                skillInput.value = "8";
+                skillInput.dispatchEvent(new Event("input", { bubbles: true }));
+                skillInput.dispatchEvent(new Event("change", { bubbles: true }));
+
+                await passesEventually(() =>
+                    expect((actor.system as CharacterDataModel).skills.acrobatics.points).to.equal(8)
+                );
+            })
+        );
+
+        it(
+            "should post a damage message, on click",
+            withActor(async (actor) => {
+                await actor.createEmbeddedDocuments("Item", [
+                    {
+                        name: "Test Attack",
+                        type: "npcattack",
+                        system: {
+                            damage: { stringInput: "1W6+2" },
+                            damageType: "physical",
+                            costType: "V",
+                            range: 0,
+                            weaponSpeed: 5,
+                        },
+                    },
+                ]);
+                actor.modifier.addModifier(new Modifier("item.damage", of(5), { name: "Test", type: "innate" }));
+                const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
+
+                const assertion = new Promise((resolve, reject) => {
+                    foundryApi.hooks.once("renderChatMessageHTML", (app) => {
+                        try {
+                            expect(app.type).to.equal("damageMessage");
+                            expect((app.system as DamageMessage).damageEvent.formulaToDisplay).to.equal("1W6 + 7");
+                            resolve("passed");
+                        } catch (e) {
+                            reject((e as Error).message);
+                        }
+                    });
+                });
+                const damageLink = sheet.element.querySelector(
+                    'a.rollable[data-action="roll-damage"][data-damageimplements]'
+                );
+                damageLink?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+                sheet.close();
+
+                expect(damageLink, "Sheet has a damage link").to.exist;
+                expect(await assertion, "Chat message was created successfully").to.equal("passed");
+            })
+        );
+        it(
+            "should drag an attack between actors",
+            withActor(
+                withActor(async (source, target) => {
+                    const item: SplittermondWeaponItem = (
+                        await source.createEmbeddedDocuments("Item", [
+                            { type: "weapon", name: "Drag Test Weapon", system: { equipped: true } },
+                        ])
+                    )[0];
+                    source.prepareBaseData();
+                    source.prepareEmbeddedDocuments();
+                    source.prepareDerivedData();
+                    const sourceSheet = await new SplittermondCharacterSheet({ document: source }).render({
+                        force: true,
+                    });
+                    const targetSheet = await new SplittermondCharacterSheet({ document: target }).render({
+                        force: true,
+                    });
+
+                    const dataTransfer = new DataTransfer();
+                    const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                    const dragStop = new DragEvent("drop", { dataTransfer });
+                    sourceSheet.element.querySelector(`[data-attack-id='${item.id}']`)?.dispatchEvent(dragStart);
+                    targetSheet.element.dispatchEvent(dragStop);
+
+                    await passesEventually(() => {
+                        expect(target.items.find((i) => i.name === item.name)).to.exist;
+                    });
+
+                    //Pure precaution. Foundry should remove them when the actors get deleted.
+                    sourceSheet.close();
+                    targetSheet.close();
+                })
+            )
+        );
+
+        it(
+            "should retain the hover state of healt/focus on rerender",
+            withActor(async (actor) => {
+                const inputSelector = "input[name='system.health.consumed.value']";
+                const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
+                const healthElement = sheet.element.querySelector("#health")!;
+
+                healthElement.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+                const inputButton = healthElement.querySelector<HTMLButtonElement>(
+                    `${inputSelector}~button[data-action='inc-value']`
+                );
+                inputButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+                await passesEventually(() => expect(actor.system.health.consumed.value).to.equal(1));
+                expect(sheet.element.querySelector<HTMLInputElement>(inputSelector)?.value).to.equal("1");
+                expect(
+                    sheet.element
+                        .querySelector("#health .health-focus-data")
+                        ?.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+                ).to.be.true;
             })
         );
     });

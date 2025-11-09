@@ -4,6 +4,7 @@ import type { itemCreator } from "../../data/EntityCreator";
 import { DamageModel } from "../../item/dataModel/propertyModels/DamageModel";
 import { foundryApi } from "../../api/foundryApi";
 import { CastDurationModel } from "module/item/dataModel/propertyModels/CastDurationModel";
+import type { SplittermondSkill } from "module/config/skillGroups";
 
 const skillMapper = initMapper(splittermond.skillGroups.magic)
     .withTranslator((t) => `splittermond.skillLabel.${t}`)
@@ -35,7 +36,7 @@ export interface GenesisSpell {
 
 export function genesisSpellImport(genesisSpell: GenesisSpell) {
     const damage: string | null = findDamageInDescription(genesisSpell.longDescription);
-    const skill = findSkill(genesisSpell);
+    const skill: SplittermondSkill = findSkill(genesisSpell) ?? "arcanelore";
     const mappedSkill = {
         type: "spell" as const,
         name: genesisSpell.name,

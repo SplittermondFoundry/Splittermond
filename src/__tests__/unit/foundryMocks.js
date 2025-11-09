@@ -1,11 +1,3 @@
-global.Application = class {
-    constructor(app) {}
-
-    activateListeners(html) {}
-
-    getData() {}
-};
-
 global.Hooks = {
     once() {},
     on() {},
@@ -88,15 +80,17 @@ const foundryApplicationsApi = {
 };
 const foundryApplicationSheets = {
     ItemSheetV2: class extends foundryApplicationsApi.ApplicationV2 {
-        constructor(props) {
-            super(props);
-        }
-
         get item() {
             return this.options.document;
         }
     },
-    ActorSheetV2: class {},
+    ActorSheetV2: class extends foundryApplicationsApi.ApplicationV2 {
+        get actor() {
+            return this.options.document;
+        }
+
+        _onDropDocument() {}
+    },
 };
 
 global.foundry = {
@@ -183,22 +177,6 @@ global.foundry = {
             toObject() {
                 return JSON.parse(JSON.stringify(this));
             }
-        },
-    },
-    appv1: {
-        sheets: {
-            ActorSheet: class {
-                constructor(...args) {
-                    this.actor = null;
-                    this.system = {};
-                }
-            },
-            ItemSheet: class {
-                constructor(item) {
-                    this.item = item;
-                    this.system = {};
-                }
-            },
         },
     },
     applications: {

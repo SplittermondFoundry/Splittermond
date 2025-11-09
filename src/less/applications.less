@@ -1,122 +1,41 @@
-@import "./variables.less";
-//should affect all AppV2 Dialogues
-@window-foreground-color: #3a3a3a;
-.window-header-def() {
-    flex: 0 0 30px;
-    overflow: hidden;
-    padding: 0 8px;
-    background: none;
-    color: @window-foreground-color;
-    .window-title {
-        color: @window-foreground-color;
-        font-family: @font-primary;
-        font-variant-numeric: lining-nums;
-    }
-    button.header-control:not(.icon) {
-        .button-style();
-        color: @window-foreground-color;
-        width: 22px;
-        height: 22px;
-    }
-    button.header-control.icon {
-        color: @window-foreground-color;
+@import "./application-mixins.less";
+
+.application {
+    color: var(--color-text);
+
+    background: var(--splittermond-background-denim-blue), var(--splittermond-background-denim);
+    background-blend-mode: var(--background-denim-splittermond-blend-mode);
+
+    > * {
+        z-index: 0; // otherwise button border issue
     }
 }
 
-.window-body-def() {
-    label {
-        color: @window-foreground-color;
+//Most Freefloating Applications, like sheets
+form.application {
+    .border-paper();
+    .filled-border();
+
+    .window-header {
+        .window-header-def();
     }
 
-    button:not(.icon) {
-        .button-style();
-
-        label {
-            color: var(--color-text);
-        }
-    }
-    button.button-inline:not(.icon) {
-        .button-inline();
+    .window-content {
+        .window-body-def();
     }
 }
 
-.description-spans-app() {
-    section {
-        flex: 1;
+//DialogV2
+dialog.application.dialog {
+    .border-paper();
+    .filled-border();
+
+    .window-header {
+        .window-header-def();
     }
 
-    .editor {
-        flex: 1;
-        justify-self: stretch;
-        align-self: stretch;
-        height: 100%;
-        min-height: 100px;
-    }
-}
-
-//DialogV2 header
-dialog.application.dialog .window-header {
-    .window-header-def();
-}
-
-//DialogV2 body
-dialog.application .window-content {
-    .window-body-def();
-}
-
-//ApplicationV2 header
-form.application .window-header {
-    .window-header-def();
-}
-
-//ApplicationV2 body
-form.application .window-content {
-    .window-body-def();
-}
-
-//Application V1
-.app.window-app {
-    .window-body-def();
-
-    //Style th short and long rest buttons on the actor sheet
-    button[data-action="short-rest"] {
-        .button-style();
-    }
-
-    button[data-action="long-rest"] {
-        .button-style();
-    }
-
-    button[data-action="toggle-equipped"] {
-        background: none;
-        border-image: none;
-        box-shadow: none;
-
-        i {
-            --toggle-color-light: #f0f0e0;
-            --toggle-color-dark: #0f0f10;
-
-            &.fa-toggle-off {
-                color: var(--toggle-color-dark);
-                text-shadow:
-                    0px 0px 1px var(--toggle-color-light),
-                    0px 1px 0px var(--toggle-color-light),
-                    0px 1px 0px var(--toggle-color-dark);
-            }
-
-            &.fa-toggle-on {
-                color: var(--toggle-color-light);
-                text-shadow:
-                    0px 0px 1px var(--toggle-color-dark),
-                    0px 1px 0px var(--toggle-color-dark),
-                    0px 1px 0px var(--toggle-color-light);
-            }
-        }
-    }
-
-    //Prevents having space around the <pre> element used for the help text of min-attributes
-    .help-text pre {
-        margin: 0;
+    .window-content {
+        .window-body-def();
     }
 }
 
@@ -135,9 +54,6 @@ form.application .window-content {
     .resistance-selectors {
         justify-content: center;
     }
-}
-.window-app.sheet.splittermond:not(.dark):not(.journal-entry) .window-content {
-    .application-override-mixin();
 }
 
 .application-override-mixin() {
@@ -164,19 +80,6 @@ form.application .window-content {
             border: 1px;
             border-style: solid;
             color: var(--color-text-secondary);
-        }
-        nav.tabs {
-            background-image: none;
-            border: none;
-
-            button {
-                color: var(--color-text-secondary);
-                font-family: var(--font-primary);
-                border: none;
-                background: none;
-                box-shadow: none;
-                text-shadow: none;
-            }
         }
     }
 }
@@ -228,17 +131,41 @@ form.application .window-content {
     }
 }
 
-.splittermond.item.sheet {
+.splittermond.sheet {
+    .filled-border();
+    .border-paper();
     img {
         cursor: pointer;
     }
+    &.actor .window-content > nav {
+        .nav-tab-spans-sheet();
+    }
+
+    &.actor {
+        .rest-action {
+            .buttons-span-width();
+        }
+    }
 
     .window-content {
+        --input-height: 0;
         .application-override-mixin();
         .description-spans-app();
 
         .editor {
             margin-top: 5px;
         }
+        nav ~ section h3 {
+            .small-sheet-header();
+        }
+    }
+
+    section button[data-action="toggle-equipped"] {
+        .inobtrusive-toggles;
+    }
+
+    //Prevents having space around the <pre> element used for the help text of min-attributes
+    &.item .help-text pre {
+        margin: 0;
     }
 }

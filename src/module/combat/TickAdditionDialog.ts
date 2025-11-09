@@ -1,7 +1,7 @@
 import { FoundryDialog } from "module/api/Application";
 import { type TimeUnit } from "module/config/timeUnits";
 import { splittermond } from "module/config";
-import { getTimeUnitConversion } from "module/util/timeUnitConversion";
+import { getTimeUnitConversion } from "module/util/util";
 import { foundryApi } from "module/api/foundryApi";
 import { IllegalStateException } from "module/data/exceptions";
 

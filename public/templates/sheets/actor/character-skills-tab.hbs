@@ -1,0 +1,90 @@
+<section class="tab {{tabs.skills.id}} {{tabs.skills.cssClass}}" data-group="primary" data-tab="skills">
+    {{!-- Character-specific skills tab with points allocation --}}
+    {{> "systems/splittermond/templates/sheets/actor/parts/attribute-input.hbs" attributes=attributes}}
+    <div class="list skills" data-roll-type="skill">
+        <div class="list-header">
+            <h3>{{localize "splittermond.generalSkills"}}</h3>
+            <div class="list-actions">
+                <button class="button-inline" data-action="show-hide-skills" type="button">
+                    {{#if hideSkills}}
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                    {{else}}
+                        <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    {{/if}}
+                </button>
+            </div>
+        </div>
+        <ol class="list-body skill-list">
+            {{#each generalSkills as |skill skillId|}}
+                <li class="list-item draggable" data-skill="{{skillId}}">
+                    <label>
+                        <a class="rollable" data-action="roll-skill">
+                            {{localize skill.label}}
+                        </a>
+                    </label>
+                    <div class="points">
+                        <input class="spinner spinner-horizontal" name="system.skills.{{skillId}}.points" type="text"
+                               value="{{skill.points}}">
+                    </div>
+                    <div class="attribute">{{localize skill.attribute1.label.short}}</div>
+                    <div class="attribute">{{localize skill.attribute2.label.short}}</div>
+                    <div class="value">{{skill.value}}</div>
+                </li>
+            {{/each}}
+        </ol>
+        <div class="list-header">
+            <h3>{{localize "splittermond.fightingSkills"}}</h3>
+            <div class="list-actions">
+                <button class="button-inline" data-action="show-hide-skills" type="button">
+                    {{#if hideSkills}}
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                    {{else}}
+                        <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    {{/if}}
+                </button>
+            </div>
+        </div>
+        <ol class="list-body skill-list">
+            {{#each fightingSkills as |skill skillId|}}
+                <li class="list-item" data-skill="{{skillId}}">
+                    <label>
+                        {{localize skill.label}}
+                    </label>
+                    <div class="points">
+                        <input name="system.skills.{{skillId}}.points" type="text" value="{{skill.points}}">
+                    </div>
+                </li>
+            {{/each}}
+        </ol>
+        <div class="list-header">
+            <h3>{{localize "splittermond.magicSkills"}}</h3>
+            <div class="list-actions">
+                <button class="button-inline" data-action="show-hide-skills" type="button">
+                    {{#if hideSkills}}
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                    {{else}}
+                        <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    {{/if}}
+                </button>
+            </div>
+        </div>
+        <ol class="list-body skill-list">
+            {{#each magicSkills as |skill skillId|}}
+                <li class="list-item" data-skill="{{skillId}}">
+                    <label>
+                        <a class="rollable" data-action="roll-skill">{{localize skill.label}}</a>
+                    </label>
+                    <div class="points">
+                        <input name="system.skills.{{skillId}}.points" type="text" value="{{skill.points}}">
+                    </div>
+                    <div class="attribute">{{localize skill.attribute1.label.short}}</div>
+                    <div class="attribute">{{localize skill.attribute2.label.short}}</div>
+                    <div class="value">{{skill.value}}</div>
+                </li>
+            {{/each}}
+        </ol>
+    </div>
+    {{> "systems/splittermond/templates/sheets/actor/parts/mastery-list.hbs"
+            masteriesBySkill=masteriesBySkill generalSkills=generalSkills fightingSkills=fightingSkills
+            magicSkills=magicSkills editable=editable}}
+</section>

@@ -1,3 +1,14 @@
+## 13.8.0
+
+### Breaking Changes
+
+- Fertigkeiten können nicht mehr von einem Akteur gezogen werden
+
+### New Features
+
+- Das NPC und Charakter Sheet wurde auf V2 migriert.
+- Welche Objekte auf Akteure gezogen werden können, ist nun konfigurierbar.
+
 ## 13.7.4
 
 ### New Features:

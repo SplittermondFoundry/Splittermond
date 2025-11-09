@@ -184,6 +184,67 @@ Das Projekt benutzt Github Actions um bei jedem Pull-Request die Unit-Tests ausz
 brechen, dürfen nicht in den Hauptzweig gemerged werden. Integrationstests werden aktuell noch nicht automatisch
 ausgeführt. Und sollten bei jedem Pull-Request manuell ausgeführt werden.
 
+### Standards
+
+Das Projekt benutzt `Typescript` und `prettier` um einen einheitlichen Code-Stil zu gewährleisten. Es wird in GitHub
+sichergestellt, dass nur korrekt typisierter, formatierter und getesteter Code in den Hauptzweig gemerged werden kann.
+Es empfielt sich die IDE anzuweisen die entsprechenden Konfigurationen zu benutzen.
+
+### Tests
+
+Es gibt im Repo zwei Arten von Tests: "Unit-Tests" und "Integration-Tests".
+
+#### Unit-Tests
+
+Unit-Tests kommen ohne FoundryVTT Programm aus und können lokal, und in Github ausgeführt werden. Sie sollten eingesetzt
+werden um einzelne Programmbestandteile (eine Funktion, eine Klasse) automatisiert zu überprüfen.
+
+Sie verlassen sich dabei auf eine umfangreiche Liste an Mocks, die verwendeten Foundry-Klassen und Funktionen durch
+minimale Definitionen ersetzen. Meistens sollten Mocks lokal mit dem `sinon` Framework erstellt werden. Es gibt aber
+auch eine Reihe globaler Mocks für die Tests:
+
+- `foundryMocks.mjs`: Definiert Klassen und einige Methoden der Foundry API die
+- `RollMock.ts`: Eine Klasse zum Ersetzen der Foundry `Roll` Klasse und ihrer Terme. Kann mit einfachen Würfelwürfen der
+  Sorte `1W6 +3` arbeiten.
+- `settingsMock.ts`: Erlaubt das Arbeiten mit Nutzerkonfigurationen in Tests.
+
+#### Integrationstests
+
+Integrationstests werden mithilfe des Moduls `@ethaks/fvtt-quench`. Diese Tests konzentrieren sich auf das Testen der
+Foundry API (so sie von uns benutzt wird), sowie tests die viele Foundry Komponenten, insbesondere GUI Komponenten,
+involvieren. Sie sind so gebaut, dass in einer frischen Splittermond Welt funktionieren.
+
+### Architektur
+
+#### Isolation
+
+Um das Testen mit Unit-Tests als auch die Detektion von Änderungen an der Foundry API zu erleichtern, dürfen Aufrufe von
+Foundry ausschließlich im `api` Modul erfolgen. Dabei sollen keine Vorkehrungen oder Typisierungen erfolgen, die Klassen
+in anderen Modulen des Splittermondsystems benutzen. Zum Beispiel sollte ein Aufruf zum Finden eines Items so definiert
+sein.
+
+```ts
+// api Package
+function getItem(name: string): foundry.documents.Item {
+    return game.items.getName(name);
+}
+```
+
+Des Weiteren sollte die Funktion, oder zumindest die Existenz der so gekapselten Funktion mittels eines
+Integration-Tests überprüft werden.
+
+#### Modularisierung
+
+Das System sollte in einzelne Module gegliedert sein, die jeweils eine klar umrissene Aufgabe erfüllen. Insbesondere
+vermieden werden sollte die Registrierung oder Konfiguration von Komponenten an zentralen Stellen, die dann alle Module
+kennen muss. Stattdessen sollten Module sich selbst registrieren, wenn sie geladen werden.
+
+#### Kontinuierliche Integration
+
+Das Projekt benutzt Github Actions um bei jedem Pull-Request die Unit-Tests auszuführen. Änderungen die die Tests
+brechen, dürfen nicht in den Hauptzweig gemerged werden. Integrationstests werden aktuell noch nicht automatisch
+ausgeführt. Und sollten bei jedem Pull-Request manuell ausgeführt werden.
+
 ### Editieren von Kompendien
 
 siehe auch [Foundry Wiki - Kompendium (engl.)](https://foundryvtt.wiki/en/development/api/CompendiumCollection)

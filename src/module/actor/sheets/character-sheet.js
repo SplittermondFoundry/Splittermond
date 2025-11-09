@@ -1,51 +1,88 @@
 import SplittermondSpeciesWizard from "../../apps/wizards/species.ts";
 import SplittermondActorSheet from "./actor-sheet.js";
 import { foundryApi } from "../../api/foundryApi";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { splittermond } from "module/config/index.js";
 
 export default class SplittermondCharacterSheet extends SplittermondActorSheet {
-    static get defaultOptions() {
-        return foundryApi.utils.mergeObject(super.defaultOptions, {
-            template: "systems/splittermond/templates/sheets/actor/character-sheet.hbs",
-            classes: ["splittermond", "sheet", "actor"],
+    static DEFAULT_OPTIONS = {
+        classes: ["splittermond", "sheet", "actor"],
+        tag: "form",
+        form: {
+            submitOnChange: true,
+        },
+    };
+
+    static TABS = {
+        primary: {
             tabs: [
-                { navSelector: ".sheet-navigation[data-group='primary']", contentSelector: "main", initial: "general" },
-                {
-                    navSelector: ".subnav[data-group='fight-action-type']",
-                    contentSelector: "section div.tab-list",
-                    initial: "attack",
-                },
+                { id: "editor", group: "primary", label: "splittermond.biography" },
+                { id: "general", group: "primary", label: "splittermond.general" },
+                { id: "skills", group: "primary", label: "splittermond.skills" },
+                { id: "spells", group: "primary", label: "splittermond.spells" },
+                { id: "fight", group: "primary", label: "splittermond.fight" },
+                { id: "inventory", group: "primary", label: "splittermond.inventory" },
+                { id: "status", group: "primary", label: "splittermond.status" },
             ],
-            scrollY: [
-                ,
-                ".tab[data-tab='general']",
-                ".list.skills",
-                ".list.masteries",
-                ".tab[data-tab='spells']",
-                ".tab[data-tab='inventory']",
-                ".tab[data-tab='status']",
+            initial: "general",
+        },
+    };
+
+    static PARTS = {
+        header: {
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/character-header.hbs`,
+            templates: [
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/stats-section.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/focus-health.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/derived-attributes.hbs`,
             ],
-            overlays: ["#health", "#focus"],
-            width: 750,
-        });
-    }
+        },
+        tabs: super.NAVIGATION,
+        editor: super.BIOGRAPHY_TAB,
+        general: {
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/character-general-tab.hbs`,
+            classes: ["scrollable"],
+        },
+        skills: {
+            template: `${TEMPLATE_BASE_PATH}/sheets/actor/character-skills-tab.hbs`,
+            templates: [
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/attribute-input.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-list.hbs`,
+                `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-by-skill.hbs`,
+            ],
+            classes: ["scrollable"],
+        },
+        spells: super.SPELLS_TAB,
+        fight: super.FIGHT_TAB,
+        inventory: super.INVENTORY_TAB,
+        status: super.STATUS_TAB,
+    };
 
-    async getData() {
-        const sheetData = await super.getData();
+    async _prepareContext() {
+        const sheetData = await super._prepareContext();
 
-        sheetData.data.system.experience.heroLevelName = game.i18n.localize(
-            `splittermond.heroLevels.${sheetData.actor.system.experience.heroLevel}`
+        sheetData.hasRestActions = true;
+        sheetData.system.experience.heroLevelName = foundryApi.localize(
+            `splittermond.heroLevels.${sheetData.system.experience.heroLevel}`
         );
 
-        sheetData.items.forEach((i) => {
-            if (i.type === "strength") {
-                i.multiple = i.system.quantity > 1;
-            }
-        });
+        sheetData.items.filter((item) => item.type === "strength").forEach((i) => (i.multiple = i.system.quantity > 1));
+
+        sheetData.combatTabs = {
+            tabs: [
+                { id: "attack", group: "fight-action-type", label: "splittermond.attack" },
+                { id: "defense", group: "fight-action-type", label: "splittermond.activeDefense" },
+            ],
+            initial: "attack",
+        };
 
         return sheetData;
     }
 
-    async _onDropItemCreate(itemData) {
+    _hasValidItemType(itemType) {
+        return isMember(splittermond.itemTypes.character.droppable, itemType);
+    }
+    async _onDropDocument(_e, itemData) {
         if (itemData.type === "species") {
             let wizard = new SplittermondSpeciesWizard(this.actor, itemData);
             wizard.render(true);
@@ -58,44 +95,30 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
                 const deleted = await this.actor.deleteEmbeddedDocuments("Item", moonsignIds);
             }
         }
-
-        if (
-            [
-                "mastery",
-                "strength",
-                "weakness",
-                "resource",
-                "spell",
-                "weapon",
-                "equipment",
-                "shield",
-                "armor",
-                "moonsign",
-                "culturelore",
-                "statuseffect",
-                "spelleffect",
-            ].includes(itemData.type)
-        ) {
-            return super._onDropItemCreate(itemData);
-        }
+        return super._onDropDocument(_e, itemData);
     }
 
-    activateListeners(html) {
-        html.find('.attribute input[name$="value"]').change(this._onChangeAttribute.bind(this));
-        html.find('.attribute input[name$="start"]').change((event) => {
-            event.preventDefault();
-            const input = event.currentTarget;
-            const value = parseInt(input.value);
-            const attrBaseName = input.name.split(".")[2];
-            const speciesValue = parseInt(
-                getProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.species`)
-            );
-            this.actor.update({
-                [`system.attributes.${attrBaseName}.initial`]: value - speciesValue,
-            });
+    async _onRender(context, options) {
+        await super._onRender(context, options);
+
+        this.element.querySelectorAll('.attribute input[name$="value"]').forEach((el) => {
+            el.addEventListener("change", this._onChangeAttribute.bind(this));
         });
 
-        super.activateListeners(html);
+        this.element.querySelectorAll('.attribute input[name$="start"]').forEach((el) => {
+            el.addEventListener("change", (event) => {
+                event.preventDefault();
+                const input = event.currentTarget;
+                const value = parseInt(input.value);
+                const attrBaseName = input.name.split(".")[2];
+                const speciesValue = parseInt(
+                    getProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.species`)
+                );
+                this.actor.update({
+                    [`system.attributes.${attrBaseName}.initial`]: value - speciesValue,
+                });
+            });
+        });
     }
 
     _onChangeAttribute(event) {

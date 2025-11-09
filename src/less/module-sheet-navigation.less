@@ -6,7 +6,7 @@
     line-height: 26px;
 }
 
-.splittermond {
+.splittermond.sheet {
     //Style the nav bar from foundry
     .sheet-tabs.tabs {
         .sheet-navigation-style();
@@ -21,23 +21,7 @@
         .sheet-navigation-style();
     }
 
-    &.sheet.actor .sheet-navigation {
-        margin-left: -8px;
-        margin-right: -8px;
-        margin-bottom: 7px;
-    }
-
     .sheet-navigation-item:extend(.tabs-style .item all) {
-        flex: 1;
-        text-align: center;
-    }
-
-    .subnav:extend(.tabs-style all) {
-        display: flex;
-        line-height: 26px;
-    }
-
-    .subnav-item:extend(.tabs-style .item all) {
         flex: 1;
         text-align: center;
     }

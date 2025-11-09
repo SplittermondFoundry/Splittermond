@@ -9,6 +9,7 @@ import {
     ApplicationOptions,
     type ApplicationRenderContext,
     SplittermondApplication,
+    TEMPLATE_BASE_PATH,
 } from "../../data/SplittermondApplication";
 import type { VirtualToken } from "../../combat/VirtualToken";
 import { initMaxWidthTransitionForTickBarHud } from "./tickBarResizing";
@@ -30,7 +31,7 @@ export default class TickBarHud extends SplittermondApplication {
 
     static PARTS = {
         app: {
-            template: "systems/splittermond/templates/apps/tick-bar-hud.hbs",
+            template: `${TEMPLATE_BASE_PATH}/apps/tick-bar-hud.hbs`,
         },
     };
     static DEFAULT_OPTIONS = {

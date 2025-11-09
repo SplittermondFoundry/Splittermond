@@ -4,6 +4,7 @@ import {
     ApplicationContextOptions,
     ApplicationRenderContext,
     SplittermondApplication,
+    TEMPLATE_BASE_PATH,
 } from "module/data/SplittermondApplication";
 import SplittermondActor, { type DefenseType } from "module/actor/actor";
 import { splittermond } from "module/config";
@@ -52,7 +53,7 @@ export default class TokenActionBar extends SplittermondApplication {
     private _currentActor: SplittermondActor | null;
     static PARTS = {
         app: {
-            template: "systems/splittermond/templates/apps/action-bar.hbs",
+            template: `${TEMPLATE_BASE_PATH}/apps/action-bar.hbs`,
         },
     };
 
