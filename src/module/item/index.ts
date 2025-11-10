@@ -29,6 +29,7 @@ import { WeaknessDataModel, type WeaknessDataModelType } from "./dataModel/Weakn
 import { WeaponDataModel, type WeaponDataModelType } from "./dataModel/WeaponDataModel";
 import { type ScalarRegistry } from "module/modifiers";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
+import { registerSheets } from "module/item/sheets/registration";
 
 type SplittermondItemDataModel =
     | AncestryDataModel
@@ -146,4 +147,5 @@ export function initializeItem(config: typeof CONFIG, modifierRegistry: ScalarRe
     };
 
     modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);
+    registerSheets();
 }
