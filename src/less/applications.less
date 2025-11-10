@@ -1,14 +1,7 @@
 @import "./application-mixins.less";
 
 .application {
-    color: var(--color-text);
-
-    background: var(--splittermond-background-denim-blue), var(--splittermond-background-denim);
-    background-blend-mode: var(--background-denim-splittermond-blend-mode);
-
-    > * {
-        z-index: 0; // otherwise button border issue
-    }
+    z-index: 0; // makes application backgrounds appear transparent by default
 }
 
 //Most Freefloating Applications, like sheets
