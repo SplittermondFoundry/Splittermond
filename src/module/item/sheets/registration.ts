@@ -36,7 +36,7 @@ export function registerSheets() {
 
 function registerSheet(itemClass: typeof SplittermondItemSheet, type?: string) {
     foundryApi.sheets.items.register("splittermond", itemClass, {
-        types: [type],
+        types: type ? [type] : undefined,
         label: type ? `splittermond.${type}` : undefined,
         makeDefault: true,
     });

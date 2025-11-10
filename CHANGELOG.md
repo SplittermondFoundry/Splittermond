@@ -1,3 +1,9 @@
+## 13.8.2
+
+### Fixed
+
+- Ein Fehler wurde behoben, bei dem das Standarddatenblatt für Ojbekte benutzt wurde.
+
 ## 13.8.1
 
 ### Fixed
