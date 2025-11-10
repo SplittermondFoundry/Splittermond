@@ -17,7 +17,7 @@ function setInitialTick(item: SplittermondItem) {
     if (!activeCombat || activeCombat.currentTick === null) return;
     if (!activeCombat.combatants.some((c) => c.actor?.id === item.actor?.id)) return;
     if (!item.system.interval) {
-        foundryApi.warnUser("splittermond.message.statusEffectNoInterval", { name: item.name });
+        foundryApi.warnUser("splittermond.message.invalidStatusEffectInterval", { name: item.name });
         return;
     }
 
