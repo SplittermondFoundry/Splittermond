@@ -1,3 +1,16 @@
+## 13.8.1
+
+### Fixed
+
+- Zustände, Zaubereffekte und kanalisierte Zauber werden wieder auf Akteuren angezeigt.
+- Objekte können wieder auf Akteure gezogen werden.
+- Foundry Standardanwendungen ohne besonderes Styling können wieder geschlossen werden.
+- Ein Fehler wurde behoben, bei dem nur Standardwerte für Proben genutzt wurden.
+
+### New Features
+
+- Viele Standardwerte für Proben wurden in `CONFIG.splittermond.checks` überführt
+
 ## 13.8.0
 
 ### Breaking Changes
