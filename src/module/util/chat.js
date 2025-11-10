@@ -2,6 +2,7 @@ import * as Tooltip from "./tooltip.js";
 import { foundryApi } from "../api/foundryApi.ts";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel.js";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { splittermond } from "module/config/index.js";
 
 export const Chat = {
     canEditMessageOf,
@@ -64,18 +65,18 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         .parent()
         .html();
 
-    templateContext.degreeOfSuccessMessage = game.i18n.localize(
+    templateContext.degreeOfSuccessMessage = foundryApi.localize(
         `splittermond.${data.succeeded ? "success" : "fail"}Message.${Math.min(Math.abs(data.degreeOfSuccess), 5)}`
     );
     if (data.isCrit) {
-        templateContext.degreeOfSuccessMessage = game.i18n.localize(`splittermond.critical`);
+        templateContext.degreeOfSuccessMessage = foundryApi.localize(`splittermond.critical`);
     }
     if (data.isFumble) {
-        templateContext.degreeOfSuccessMessage = game.i18n.localize(`splittermond.fumble`);
+        templateContext.degreeOfSuccessMessage = foundryApi.localize(`splittermond.fumble`);
     }
 
-    templateContext.title = game.i18n.localize(`splittermond.skillLabel.${data.skill}`);
-    templateContext.rollType = game.i18n.localize(`splittermond.rollType.${data.rollType}`);
+    templateContext.title = foundryApi.localize(`splittermond.skillLabel.${data.skill}`);
+    templateContext.rollType = foundryApi.localize(`splittermond.rollType.${data.rollType}`);
 
     switch (data.type) {
         case "attack":
@@ -90,7 +91,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
 
                 if (data.maneuvers.length > 0) {
                     templateContext.degreeOfSuccessDescription =
-                        "<h3>" + game.i18n.localize(`splittermond.maneuver`) + "</h3>";
+                        "<h3>" + foundryApi.localize(`splittermond.maneuver`) + "</h3>";
                     templateContext.degreeOfSuccessDescription += "<ol>";
                     for (let i = 0; i < data.maneuvers.length; i++) {
                         templateContext.degreeOfSuccessDescription += `<li class="maneuver">
@@ -100,12 +101,12 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                     }
                     templateContext.degreeOfSuccessDescription += "</ol>";
                 }
-                if (data.degreeOfSuccess >= 5) {
+                if (data.degreeOfSuccess >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold) {
                     ticks = ticks - 1;
                 }
 
                 templateContext.actions.push({
-                    name: `${game.i18n.localize("splittermond.activeDefense")} (${game.i18n.localize("splittermond.derivedAttribute.defense.short")})`,
+                    name: `${foundryApi.localize("splittermond.activeDefense")} (${foundryApi.localize("splittermond.derivedAttribute.defense.short")})`,
                     icon: "fa-shield-alt",
                     classes: "active-defense",
                     data: {
@@ -149,7 +150,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                 });
             }
 
-            if (data.isFumble || data.degreeOfSuccess <= -5) {
+            if (data.isFumble || data.degreeOfSuccess <= splittermond.check.degreeOfSuccess.criticalFailureThreshold) {
                 templateContext.actions.push({
                     name: game.i18n.localize("splittermond.fumbleTableLabel"),
                     icon: "fa-dice",

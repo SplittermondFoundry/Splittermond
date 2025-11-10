@@ -535,7 +535,38 @@ export function actorTest(context: QuenchBatchContext) {
                 })
             )
         );
+        it(
+            "should drag an item between actors",
+            withActor(
+                withActor(async (source, target) => {
+                    const item: SplittermondWeaponItem = (
+                        await source.createEmbeddedDocuments("Item", [
+                            { type: "weapon", name: "Drag Test Weapon", system: {} },
+                        ])
+                    )[0];
+                    const sourceSheet = await new SplittermondCharacterSheet({ document: source }).render({
+                        force: true,
+                    });
+                    const targetSheet = await new SplittermondCharacterSheet({ document: target }).render({
+                        force: true,
+                    });
 
+                    const dataTransfer = new DataTransfer();
+                    const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                    const dragStop = new DragEvent("drop", { dataTransfer });
+                    sourceSheet.element.querySelector(`[data-item-id='${item.id}']`)?.dispatchEvent(dragStart);
+                    targetSheet.element.dispatchEvent(dragStop);
+
+                    await passesEventually(() => {
+                        expect(target.items.find((i) => i.name === item.name)).to.exist;
+                    });
+
+                    //Pure precaution. Foundry should remove them when the actors get deleted.
+                    sourceSheet.close();
+                    targetSheet.close();
+                })
+            )
+        );
         it(
             "should retain the hover state of healt/focus on rerender",
             withActor(async (actor) => {

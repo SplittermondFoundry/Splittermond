@@ -2,6 +2,7 @@ import SplittermondActor from "module/actor/actor";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { NpcDataModel } from "module/actor/dataModel/NpcDataModel";
 import { actualAddModifierFunction, type IAddModifier } from "module/actor/addModifierAdapter";
+import { registerSheets } from "module/actor/sheets/registration";
 
 const trackableResources = {
     bar: ["healthBar", "focusBar"],
@@ -22,4 +23,5 @@ export function initializeActor(actorConfig: (typeof CONFIG)["Actor"], addModifi
     };
 
     actualAddModifierFunction.self = addModifier;
+    registerSheets();
 }

@@ -22,7 +22,7 @@
                     </div>
                 </div>
                 <ol class="list-body" data-array="system.health.channeled.entries">
-                    {{#each system.health.channeledHealthEntries}}
+                    {{#each system.health.channeled.entries}}
                         <li class="list-item" data-index="{{@index}}">
                             <input data-array-field="description" type="text" value="{{this.description}}">
 
@@ -50,7 +50,7 @@
                     </div>
                 </div>
                 <ol class="list-body item-list">
-                    {{#each itemsByType.statuseffects}}
+                    {{#each itemsByType.statuseffect}}
                         <li class="list-item item" data-item-id="{{this._id}}">
                             <input class="name" type="text" data-field="name" value="{{this.name}}">
                             <div class="value">
@@ -81,7 +81,7 @@
                     </div>
                 </div>
                 <ol class="list-body item-list">
-                    {{#each itemsByType.spelleffects}}
+                    {{#each itemsByType.spelleffect}}
                         <li class="list-item item" data-item-id="{{this._id}}">
                             <div>
                                 <input data-field="system.active" type="checkbox" value="true" {{#if

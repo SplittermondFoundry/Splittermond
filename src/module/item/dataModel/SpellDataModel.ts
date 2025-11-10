@@ -62,10 +62,13 @@ export class SpellDataModel extends SplittermondDataModel<SpellDataModelType, Sp
 }
 
 function from13_40_0_migrateCastDuration(source: any): any {
+    if (source && !source.castDuration) {
+        source.castDuration = { value: 1, unit: "T" };
+    }
     if (source && typeof source.castDuration === "string") {
         source.castDuration = parseCastDuration(source.castDuration);
     }
-    if (source && typeof source.castDuration === "object" && !source.castDuration.value) {
+    if (source && typeof source.castDuration === "object" && !source.castDuration?.value) {
         source.castDuration.value = 1;
     }
     if (source && typeof source.castDuration === "object" && typeof source.castDuration.value === "string") {

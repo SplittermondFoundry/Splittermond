@@ -298,6 +298,29 @@ export const foundryApi = new (class FoundryApi {
         },
     };
 
+    sheets = {
+        items: {
+            register(...args: any[]): void {
+                // @ts-ignore
+                return Items.registerSheet(...args);
+            },
+            unregister(...args: any[]): void {
+                // @ts-ignore
+                return Items.unregisterSheet(...args);
+            },
+        },
+        actors: {
+            register(...args: any[]): void {
+                // @ts-ignore
+                return Actors.registerSheet(...args);
+            },
+            unregister(...args: any[]): void {
+                // @ts-ignore
+                return Actors.unregisterSheet(...args);
+            },
+        },
+    };
+
     canvas = {
         animatePan(view: unknown): Promise<boolean> {
             // @ts-ignore

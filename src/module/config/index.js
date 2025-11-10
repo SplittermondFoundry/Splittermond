@@ -3,7 +3,7 @@
  * The need for a typed subset of the splittermond configuration arises. See the other files in this folder for already
  * separated parts.
  */
-import { rollType } from "./RollType";
+import { check, rollType } from "./check.ts";
 import { splittermondSpellEnhancement } from "./SplittermondSpellEnhancements";
 import { modifiers } from "./modifiers";
 import { skillGroups } from "./skillGroups";
@@ -133,6 +133,7 @@ splittermond.skillAttributes = {
     windmagic: ["mystic", "mind"],
 };
 splittermond.rollType = rollType;
+splittermond.check = check;
 
 splittermond.complexityOptions = {
     U: "splittermond.complexityOptions.untrained",

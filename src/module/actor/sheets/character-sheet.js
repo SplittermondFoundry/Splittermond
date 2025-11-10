@@ -3,6 +3,7 @@ import SplittermondActorSheet from "./actor-sheet.js";
 import { foundryApi } from "../../api/foundryApi";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { splittermond } from "module/config/index.js";
+import { isMember } from "module/util/util.js";
 
 export default class SplittermondCharacterSheet extends SplittermondActorSheet {
     static DEFAULT_OPTIONS = {

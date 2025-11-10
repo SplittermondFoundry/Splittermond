@@ -25,3 +25,15 @@ export const rollType = {
     },
 } as const;
 export type RollType = keyof typeof rollType;
+
+export const check = {
+    rollType,
+    defaultDifficulty: 15,
+    activeDefenseDifficulty: 15,
+    degreeOfSuccess: {
+        triumphBonus: 3,
+        fumblePenalty: -3,
+        criticalSuccessThreshold: 5,
+        criticalFailureThreshold: -5,
+    },
+} as const;

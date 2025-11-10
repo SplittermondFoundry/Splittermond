@@ -1,11 +1,3 @@
-import SplittermondCharacterSheet from "./module/actor/sheets/character-sheet.js";
-import SplittermondNPCSheet from "./module/actor/sheets/npc-sheet.js";
-import SplittermondItemSheet from "module/item/sheets/item-sheet";
-import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
-import SplittermondWeaponSheet from "module/item/sheets/weapon-sheet";
-import SplittermondShieldSheet from "module/item/sheets/shield-sheet";
-import SplittermondArmorSheet from "module/item/sheets/armor-sheet";
-import SplittermondAttackSheet from "module/item/sheets/attack-sheet";
 import { splittermond } from "./module/config";
 import * as Dice from "./module/util/dice";
 import * as Macros from "./module/util/macros";
@@ -121,49 +113,6 @@ Hooks.once("init", async function () {
     game.splittermond.attackFumble = Macros.attackFumble;
     game.splittermond.compendiumBrowser = new SplittermondCompendiumBrowser();
     Die.MODIFIERS.ri = Dice.riskModifier;
-
-    Actors.unregisterSheet("core", ActorSheet);
-    Actors.registerSheet("splittermond", SplittermondCharacterSheet, {
-        types: ["character"],
-        makeDefault: true,
-        label: "splittermond.character",
-    });
-
-    Actors.registerSheet("splittermond", SplittermondNPCSheet, {
-        types: ["npc"],
-        makeDefault: true,
-        label: "splittermond.npc",
-    });
-
-    Items.unregisterSheet("core", ItemSheet);
-    Items.registerSheet("splittermond", SplittermondItemSheet, {
-        makeDefault: true,
-    });
-    Items.registerSheet("splittermond", SplittermondSpellSheet, {
-        types: ["spell"],
-        makeDefault: true,
-        label: "splittermond.spell",
-    });
-    Items.registerSheet("splittermond", SplittermondWeaponSheet, {
-        types: ["weapon"],
-        makeDefault: true,
-        label: "splittermond.weapon",
-    });
-    Items.registerSheet("splittermond", SplittermondShieldSheet, {
-        types: ["shield"],
-        makeDefault: true,
-        label: "splittermond.shield",
-    });
-    Items.registerSheet("splittermond", SplittermondArmorSheet, {
-        types: ["armor"],
-        makeDefault: true,
-        label: "splittermond.armor",
-    });
-    Items.registerSheet("splittermond", SplittermondAttackSheet, {
-        types: ["npcattack"],
-        makeDefault: true,
-        label: "splittermond.npcattack",
-    });
 
     Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
     Handlebars.registerHelper("times", function (n, block) {
