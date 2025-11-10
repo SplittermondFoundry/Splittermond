@@ -35,7 +35,7 @@ describe("Skill", () => {
             askUser: true,
         };
         const checkDialogStub = sandbox.stub(CheckDialog, "create").resolves({
-            difficulty: 25, // changed from 20 to 25
+            difficulty: "25", // changed from 20 to 25
             maneuvers: [],
             modifier: 3, // changed from 1 to 3
             modifierElements: [{ value: 3, description: "modifier" }],

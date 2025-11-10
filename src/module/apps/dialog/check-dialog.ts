@@ -98,6 +98,7 @@ export default class CheckDialog extends FoundryDialog {
 
         const checkDialogData: CheckDialogData = {
             modifier: modifierInput.valueAsNumber,
+            /*assuming this is OK; we'll validate in the parser*/
             difficulty: difficultyInput.value as RollDifficultyString,
             rollMode: rollModeInput.value,
             modifierElements: [],
