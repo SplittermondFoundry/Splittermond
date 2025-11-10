@@ -596,17 +596,19 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         return super._onDragStart(event);
     }
     _onDrop(event) {
-        const droppedData = JSON.parse(event.dataTransfer.getData("application/json"));
-        if (droppedData.type === "attack") {
-            const sourceActor = foundryApi.getActor(droppedData.actorId);
-            const sourceAttack = sourceActor?.attacks.find((a) => a.id === droppedData.attackId);
+        const droppedData = event.dataTransfer.getData("application/json");
+        const droppedDataParsed = !!droppedData ? JSON.parse(droppedData) : null;
+        if (droppedDataParsed && droppedDataParsed.type === "attack") {
+            const sourceActor = foundryApi.getActor(droppedDataParsed.actorId);
+            const sourceAttack = sourceActor?.attacks.find((a) => a.id === droppedDataParsed.attackId);
             const sourceItem = sourceActor?.items.get(sourceAttack?.item.id);
             if (!sourceItem) return;
             return this._onDropDocument(event, sourceItem);
         }
 
-        if (event.dataTransfer) super._onDrop(event);
+        if (event.dataTransfer) return super._onDrop(event);
     }
+
     /**
      * @param {HTMLElement} element
      * @return {{value:any[],address:string,?field:string}}
