@@ -1,3 +1,6 @@
+import { foundryApi } from "module/api/foundryApi.js";
+import { splittermond } from "module/config/index.js";
+
 export default class ActiveDefense {
     /**
      * @param {string}id
@@ -27,8 +30,8 @@ export default class ActiveDefense {
         options = duplicate(options);
         options.type = "defense";
         options.preSelectedModifier = [];
-        options.difficulty = 15;
-        options.title = `${game.i18n.localize(`splittermond.activeDefense`)}: ${game.i18n.localize(this.actor.derivedValues[this.type].label.long)} - ${this.name}`;
+        options.difficulty = splittermond.check.activeDefenseDifficulty;
+        options.title = `${foundryApi.localize(`splittermond.activeDefense`)}: ${game.i18n.localize(this.actor.derivedValues[this.type].label.long)} - ${this.name}`;
         options.checkMessageData = {
             defenseType: this.type,
             baseDefense: this.actor.derivedValues[this.type].value,

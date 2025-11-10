@@ -1,3 +1,5 @@
+import { splittermond } from "module/config";
+
 type RollDifficultyDefense = "VTD" | "KW" | "GW";
 type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 /**Represents integer values from 0 to 999 as string literal types, Difficulties in the hundreds are already ludicrous */
@@ -14,7 +16,6 @@ export function parseRollDifficulty(input: unknown) {
 }
 
 class RollDifficulty {
-    defaultDifficulty = 15;
     _difficulty: RollDifficultyType;
     evaluatedDifficulty: number;
 
@@ -30,7 +31,7 @@ class RollDifficulty {
             return value;
         } else {
             const parsedValue = parseInt(`${value}`);
-            return isNaN(parsedValue) ? this.defaultDifficulty : parsedValue;
+            return isNaN(parsedValue) ? splittermond.check.defaultDifficulty : parsedValue;
         }
     }
 
@@ -68,7 +69,7 @@ class RollDifficulty {
         } else if (Number.isInteger(this._difficulty)) {
             return this._difficulty as number;
         } else {
-            return this.defaultDifficulty;
+            return splittermond.check.defaultDifficulty;
         }
     }
 }

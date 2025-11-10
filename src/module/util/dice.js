@@ -1,4 +1,5 @@
 import { foundryApi } from "../api/foundryApi";
+import { splittermond } from "module/config/index.js";
 
 export const Dice = {
     check,
@@ -14,7 +15,7 @@ export const Dice = {
  * @return {GenericRollEvaluation}
  */
 export async function check(skill, difficulty, rollType = "standard", skillModifier = 0) {
-    let rollFormula = `${CONFIG.splittermond.rollType[rollType].rollFormula} + @skillValue`;
+    let rollFormula = `${CONFIG.splittermond.check.rollType[rollType].rollFormula} + @skillValue`;
 
     if (skillModifier) {
         rollFormula += " + @modifier";
@@ -45,8 +46,10 @@ export async function evaluateCheck(roll, skillPoints, difficulty, rollType) {
     const isFumble = rollType !== "safety" && roll.dice[0].total <= 3;
     const isCrit = roll.dice[0].total >= 19;
     const succeeded = difference >= 0 && !isFumble;
-    degreeOfSuccess = isFumble ? Math.min(degreeOfSuccess - 3, -1) : degreeOfSuccess;
-    degreeOfSuccess = degreeOfSuccess + (isCrit && succeeded ? 3 : 0);
+    degreeOfSuccess = isFumble
+        ? Math.min(degreeOfSuccess - splittermond.check.degreeOfSuccess.fumblePenalty, -1)
+        : degreeOfSuccess;
+    degreeOfSuccess = degreeOfSuccess + (isCrit && succeeded ? splittermond.check.degreeOfSuccess.triumphBonus : 0);
 
     const degreeOfSuccessMessageModifier = Math.min(Math.abs(degreeOfSuccess), 5);
     let degreeOfSuccessMessage;

@@ -231,7 +231,7 @@ export default class Skill extends Modifiable {
         if (!askUser) {
             /** @type CheckDialogData */
             return {
-                difficulty: difficulty || 15,
+                difficulty: difficulty || splittermond.check.defaultDifficulty,
                 manuevers: [],
                 modifier: modifier || 0,
                 modifierElements: modifier
@@ -276,7 +276,7 @@ export default class Skill extends Modifiable {
         skillFormula.addPart(this.value, game.i18n.localize("splittermond.skillValueAbbrev"));
 
         return CheckDialog.create({
-            difficulty: difficulty || 15,
+            difficulty: difficulty || splittermond.check.defaultDifficulty,
             modifier: modifier || 0,
             emphasis: emphasisData,
             rollMode: foundryApi.settings.get("core", "rollMode"),

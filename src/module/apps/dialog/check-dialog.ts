@@ -3,7 +3,7 @@ import { foundryApi } from "../../api/foundryApi";
 import { FoundryDialog } from "module/api/Application";
 import { RollMode } from "module/api/foundryTypes";
 import { ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
-import { RollType } from "module/config/RollType";
+import { RollType } from "module/config/check";
 import { RollDifficultyString } from "module/util/rollDifficultyParser";
 import { changeValue } from "module/util/commonHtmlHandlers";
 
