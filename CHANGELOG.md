@@ -1,3 +1,14 @@
+## 13.8.3
+
+### Fixed
+
+- Ein Fehler wurde behoben, bei dem Attribute bei NPCs nicht angzeigt wurden
+- Ein Fehler wurde behoben, bei dem man bei NPC Widerstände nicht gut eingeben konnte
+
+### New Features
+
+- Bonusgrenzen werden in Tooltips angezeigt
+
 ## 13.8.2
 
 ### Fixed

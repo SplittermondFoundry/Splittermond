@@ -60,6 +60,13 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
     async _onRender(context, options) {
         await super._onRender(context, options);
 
+        //Prevent opening defense dialog when clicking on input fields inside defense entries
+        this.element.querySelectorAll("[data-action='open-defense-dialog'] input").forEach((el) => {
+            el.addEventListener("click", (event) => {
+                event.stopPropagation();
+            });
+        });
+
         this.element.querySelectorAll('input[name^="derivedAttributes"]').forEach((el) => {
             el.addEventListener("change", this._onChangeDerivedAttribute.bind(this));
         });
