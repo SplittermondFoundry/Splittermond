@@ -1,3 +1,9 @@
+## 13.8.4
+
+### Fixed
+
+- Die negative Strafe für Patzer wird jetzt addiert, nicht abgezogen.
+
 ## 13.8.3
 
 ### Fixed

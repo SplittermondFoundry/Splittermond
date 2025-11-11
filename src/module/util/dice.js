@@ -47,7 +47,7 @@ export async function evaluateCheck(roll, skillPoints, difficulty, rollType) {
     const isCrit = roll.dice[0].total >= 19;
     const succeeded = difference >= 0 && !isFumble;
     degreeOfSuccess = isFumble
-        ? Math.min(degreeOfSuccess - splittermond.check.degreeOfSuccess.fumblePenalty, -1)
+        ? Math.min(degreeOfSuccess + splittermond.check.degreeOfSuccess.fumblePenalty, -1)
         : degreeOfSuccess;
     degreeOfSuccess = degreeOfSuccess + (isCrit && succeeded ? splittermond.check.degreeOfSuccess.triumphBonus : 0);
 
