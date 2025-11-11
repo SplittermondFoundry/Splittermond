@@ -10,6 +10,7 @@ import { splittermond } from "../config";
 
 /**
  * @property {string} id
+ * @property {string} label
  */
 export default class Skill extends Modifiable {
     /**
