@@ -89,6 +89,7 @@
             }
         }
     },
+    "bonusCap": "Bonus Limit",
     "message": {
         "itemImported": "The item \"{name}\" was imported as \"{type}\"!",
         "mangledTableData": "table data is corrupted. Please check attributes and derived values.",

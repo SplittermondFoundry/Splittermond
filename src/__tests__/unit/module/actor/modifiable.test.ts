@@ -7,6 +7,7 @@ import { isLessThanZero, of } from "module/modifiers/expressions/scalar";
 import { expect } from "chai";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { splittermond } from "module/config";
+import { foundryApi } from "module/api/foundryApi";
 
 describe("Modifiable", () => {
     const sandbox = sinon.createSandbox();
@@ -253,7 +254,204 @@ describe("Modifiable", () => {
             expect(underTest.mod).to.equal(5);
         });
     });
-    describe("Bonus cap presentation", () => {});
+    describe("Bonus cap presentation", () => {
+        beforeEach(() => {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+        });
+        it("should add a BonusCap malus to tooltip when equipment bonus exceeds cap", () => {
+            const testActor = setUpActor(1);
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(5),
+                    attributes: { name: "Equipment Bonus", type: "equipment" },
+                })
+            );
+            const underTest = new Modifiable(testActor, "endurance");
+
+            const tooltip = new TooltipFormula();
+            underTest.addModifierTooltipFormulaElements(tooltip);
+            const data = tooltip.getData();
+
+            // Should have a malus entry for the overflow (5 - 3 = 2)
+            const malusEntries = data.filter((p) => p.classes.includes("malus"));
+            expect(malusEntries).to.have.lengthOf(1);
+            expect(malusEntries[0].value).to.equal("2");
+            expect(malusEntries[0].description).to.equal("splittermond.bonusCap");
+        });
+
+        it("should add a BonusCap malus when magic bonus exceeds cap", () => {
+            const testActor = setUpActor(1);
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(6),
+                    attributes: { name: "Magic Bonus", type: "magic" },
+                })
+            );
+            const underTest = new Modifiable(testActor, "endurance");
+
+            const tooltip = new TooltipFormula();
+            underTest.addModifierTooltipFormulaElements(tooltip);
+            const data = tooltip.getData();
+
+            // Should have a malus entry for the overflow (6 - 3 = 3)
+            const malusEntries = data.filter((p) => p.classes.includes("malus"));
+            expect(malusEntries).to.have.lengthOf(1);
+            expect(malusEntries[0].value).to.equal("3");
+            expect(malusEntries[0].description).to.equal("splittermond.bonusCap");
+        });
+
+        it("should add a BonusCap malus for both equipment and magic overflow", () => {
+            const testActor = setUpActor(1);
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(5),
+                    attributes: { name: "Equipment Bonus", type: "equipment" },
+                })
+            );
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(4),
+                    attributes: { name: "Magic Bonus", type: "magic" },
+                })
+            );
+            const underTest = new Modifiable(testActor, "endurance");
+
+            const tooltip = new TooltipFormula();
+            underTest.addModifierTooltipFormulaElements(tooltip);
+            const data = tooltip.getData();
+
+            // Should have a malus entry for combined overflow: equipment (5-3=2) + magic (4-3=1) = 3
+            const malusEntries = data.filter((p) => p.classes.includes("malus"));
+            expect(malusEntries).to.have.lengthOf(1);
+            expect(malusEntries[0].value).to.equal("3");
+            expect(malusEntries[0].description).to.equal("splittermond.bonusCap");
+        });
+
+        it("should not add a BonusCap malus when equipment bonus is below cap", () => {
+            const testActor = setUpActor(1);
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(2),
+                    attributes: { name: "Equipment Bonus", type: "equipment" },
+                })
+            );
+            const underTest = new Modifiable(testActor, "endurance");
+
+            const tooltip = new TooltipFormula();
+            underTest.addModifierTooltipFormulaElements(tooltip);
+            const data = tooltip.getData();
+
+            // Should have no malus entries
+            const malusEntries = data.filter((p) => p.classes.includes("malus"));
+            expect(malusEntries).to.have.lengthOf(0);
+        });
+
+        it("should not add a BonusCap malus when equipment bonus equals cap", () => {
+            const testActor = setUpActor(1);
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(3),
+                    attributes: { name: "Equipment Bonus", type: "equipment" },
+                })
+            );
+            const underTest = new Modifiable(testActor, "endurance");
+
+            const tooltip = new TooltipFormula();
+            underTest.addModifierTooltipFormulaElements(tooltip);
+            const data = tooltip.getData();
+
+            // Should have no malus entries when exactly at cap
+            const malusEntries = data.filter((p) => p.classes.includes("malus"));
+            expect(malusEntries).to.have.lengthOf(0);
+        });
+
+        it("should not add a BonusCap malus for innate bonuses", () => {
+            const testActor = setUpActor(1);
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(10),
+                    attributes: { name: "Innate Bonus", type: "innate" },
+                })
+            );
+            const underTest = new Modifiable(testActor, "endurance");
+
+            const tooltip = new TooltipFormula();
+            underTest.addModifierTooltipFormulaElements(tooltip);
+            const data = tooltip.getData();
+
+            // Innate bonuses should not trigger cap malus
+            const malusEntries = data.filter((p) => p.classes.includes("malus"));
+            expect(malusEntries).to.have.lengthOf(0);
+        });
+
+        it("should correctly calculate malus for multiple equipment bonuses exceeding cap", () => {
+            const testActor = setUpActor(2);
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(3),
+                    attributes: { name: "Equipment Bonus 1", type: "equipment" },
+                })
+            );
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(4),
+                    attributes: { name: "Equipment Bonus 2", type: "equipment" },
+                })
+            );
+            const underTest = new Modifiable(testActor, "endurance");
+
+            const tooltip = new TooltipFormula();
+            underTest.addModifierTooltipFormulaElements(tooltip);
+            const data = tooltip.getData();
+
+            // Hero level 2 → cap = 4, equipment total = 7, overflow = 3
+            const malusEntries = data.filter((p) => p.classes.includes("malus"));
+            expect(malusEntries).to.have.lengthOf(1);
+            expect(malusEntries[0].value).to.equal("3");
+            expect(malusEntries[0].description).to.equal("splittermond.bonusCap");
+        });
+
+        it("should show correct malus with equipment over cap and magic at cap", () => {
+            const testActor = setUpActor(2);
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(6),
+                    attributes: { name: "Equipment Bonus", type: "equipment" },
+                })
+            );
+            testActor.modifier.addModifier(
+                modifierWith({
+                    groupId: "endurance",
+                    value: of(4),
+                    attributes: { name: "Magic Bonus", type: "magic" },
+                })
+            );
+            const underTest = new Modifiable(testActor, "endurance");
+
+            const tooltip = new TooltipFormula();
+            underTest.addModifierTooltipFormulaElements(tooltip);
+            const data = tooltip.getData();
+
+            // Hero level 2 → cap = 4
+            // Equipment: 6 - 4 = 2 overflow
+            // Magic: 4 - 4 = 0 overflow
+            // Total overflow = 2
+            const malusEntries = data.filter((p) => p.classes.includes("malus"));
+            expect(malusEntries).to.have.lengthOf(1);
+            expect(malusEntries[0].value).to.equal("2");
+            expect(malusEntries[0].description).to.equal("splittermond.bonusCap");
+        });
+    });
     function setUpActor(heroLevel: 1 | 2 | 3 | 4 = 1) {
         const actor = sandbox.createStubInstance(SplittermondActor);
         const dataModel = sandbox.createStubInstance(CharacterDataModel);

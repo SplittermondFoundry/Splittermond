@@ -45,11 +45,21 @@ export default class Modifiable {
         this._modifierPath.push(path);
     }
 
+    //Bonus calculation is best done with evaluated modfiers, but we don't want to evaluate for the presentation
+    //So we calculate the bonus cap again here.
     addModifierTooltipFormulaElements(formula) {
-        this.actor.modifier
-            .getForIds(...this._modifierPath)
-            .notSelectable()
-            .getModifiers()
-            .addTooltipFormulaElements(formula);
+        this.collectModifiers().addTooltipFormulaElements(formula);
+        const bonusCap = of(this.actor.bonusCap);
+        const grandTotal = this.#equipmentModifiers().sumExpressions();
+        const equipment = minus(this.#equipmentModifiers().sumExpressions(), bonusCap);
+        const magic = minus(this.#magicModifiers().sumExpressions(), bonusCap);
+        const adjustedBonus = minus(
+            minus(grandTotal, isGreaterZero(equipment) ? equipment : of(0)),
+            isGreaterZero(magic) ? magic : of(0)
+        );
+        if (isGreaterThan(grandTotal, adjustedBonus)) {
+            const overflow = minus(grandTotal, adjustedBonus);
+            formula.addMalus(asString(condense(overflow)), "splittermond.bonusCap");
+        }
     }
 }
