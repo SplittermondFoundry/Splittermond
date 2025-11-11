@@ -114,10 +114,17 @@ export class Modifiers extends Array<IModifier> {
     }
 
     get sum() {
-        return evaluate(this.map((mod) => mod.value).reduce((acc, value) => plus(acc, value), of(0)));
+        return evaluate(this.sumExpressions());
     }
 
     get product() {
+        return evaluate(this.multiplyExpressions());
+    }
+
+    sumExpressions() {
+        return this.map((mod) => mod.value).reduce((acc, value) => plus(acc, value), of(0));
+    }
+    multiplyExpressions() {
         return this.map((mod) => mod.value).reduce((acc, value) => times(acc, value), of(1));
     }
 

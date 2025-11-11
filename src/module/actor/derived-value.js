@@ -153,7 +153,11 @@ export default class DerivedValue extends Modifiable {
     }
 
     multiplierAsExpression() {
-        return this.actor.modifier.getForId(`actor.${this.id}.multiplier`).notSelectable().getModifiers().product;
+        return this.actor.modifier
+            .getForId(`actor.${this.id}.multiplier`)
+            .notSelectable()
+            .getModifiers()
+            .multiplyExpressions();
     }
 
     enableCaching() {
