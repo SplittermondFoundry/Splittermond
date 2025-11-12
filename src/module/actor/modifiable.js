@@ -1,4 +1,5 @@
 import { asString, condense, isGreaterThan, isGreaterZero, minus, of } from "module/modifiers/expressions/scalar/index";
+import { Modifiers } from "module/actor/modifier.js";
 
 export default class Modifiable {
     /**
@@ -25,15 +26,26 @@ export default class Modifiable {
     }
 
     /**
-     * Override this if you want more specific modifier collection
      * @returns {Modifiers}
+     * @final
      */
     collectModifiers() {
-        return this.actor.modifier
+        const baseModifiers = this.actor.modifier
             .getForIds(...this._modifierPath)
             .notSelectable()
             .getModifiers();
+        baseModifiers.push(...this.additionalModifiers());
+        return baseModifiers;
     }
+
+    /**
+     * Override this if you want more specific modifier collection
+     * @return {IModifier[]}
+     */
+    additionalModifiers() {
+        return [];
+    }
+
     #equipmentModifiers() {
         return this.collectModifiers().filter((mod) => mod.attributes.type === "equipment" && mod.isBonus);
     }
@@ -45,7 +57,7 @@ export default class Modifiable {
         this._modifierPath.push(path);
     }
 
-    //Bonus calculation is best done with evaluated modfiers, but we don't want to evaluate for the presentation
+    //Bonus calculation is best done with evaluated modifiers, but we don't want to evaluate for the presentation
     //So we calculate the bonus cap again here.
     addModifierTooltipFormulaElements(formula) {
         this.collectModifiers().addTooltipFormulaElements(formula);
