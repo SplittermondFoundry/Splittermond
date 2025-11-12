@@ -92,6 +92,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         },
         properties: {
             template: `${TEMPLATE_BASE_PATH}/sheets/item/properties.hbs`,
+            scrollable: [""],
             classes: ["scrollable", "scrollable-margin-mitigation"],
         },
     };
