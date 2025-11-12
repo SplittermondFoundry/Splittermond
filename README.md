@@ -245,6 +245,20 @@ Das Projekt benutzt Github Actions um bei jedem Pull-Request die Unit-Tests ausz
 brechen, dürfen nicht in den Hauptzweig gemerged werden. Integrationstests werden aktuell noch nicht automatisch
 ausgeführt. Und sollten bei jedem Pull-Request manuell ausgeführt werden.
 
+#### Typisierung
+
+Das Projekt setzt auf strikte Typisierung mittels Typescript. `Any` Typen sind zu vermeiden. Wenn Foundry Objekte
+benutzt
+werden wird eine Kopie der Foundry Typdefinition (kann man in
+der [Foundry API Dokumentation](https://foundryvtt.com/api/) nachschlagen) im api Ordner erstellt. Auf Foundry Objekte
+sollte nur im API Ordner zugegriffen werden.
+Die Entscheidung für eigene Typdefinitionen ist historisch bedingt; Sie wurde getroffen als die Foundry Typdefinitionen
+der 'League-of-Foundry-Developers' nicht auf Stand waren. Dies war auf Grund eines Bugs in Typescript der Fall.
+Mittlerweile wird
+an dem Typsystem wieder entwickelt. Allerdings gilt, dass die Typen auch weiterhin falsch sein werden, wenn man sie am
+dringensten braucht, nämlich bei Release einer neuen Version. Dennoch kann angedacht werden zukünftig die Foundry
+Typdefinitionen zu benutzen, eventuell durch Verwenden von Aliasen in unserem System.
+
 ### Editieren von Kompendien
 
 siehe auch [Foundry Wiki - Kompendium (engl.)](https://foundryvtt.wiki/en/development/api/CompendiumCollection)

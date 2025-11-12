@@ -14,8 +14,8 @@
         "test": "npm run typecheck && mocha --config config/mocharc.json src/__tests__/unit",
         "build": "npm run test && vite build --config config/vite.config.mts --mode PROD",
         "ci-build": "vite build --config config/vite.config.mts --mode CI",
-        "format": "prettier --write . --config config/prettierrc.ts --ignore-path config/prettierignore",
-        "format:check": "prettier --check . --config config/prettierrc.ts --ignore-path config/prettierignore"
+        "format": "prettier --write . --config config/prettierrc.ts --ignore-path config/prettierignore --log-level warn",
+        "format:check": "prettier --check . --config config/prettierrc.ts --ignore-path config/prettierignore --log-level warn"
     },
     "repository": {
         "type": "git",

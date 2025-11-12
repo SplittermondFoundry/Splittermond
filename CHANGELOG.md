@@ -1,3 +1,10 @@
+## 13.8.5
+
+### Fixed
+
+- Ein Fehler wurde behoben, bei dem die Scrollleiste von Objektdatenblätter sich zurückgesetzt hat, wenn das Blatt neu
+  gerendert wurde.
+
 ## 13.8.4
 
 ### Fixed
