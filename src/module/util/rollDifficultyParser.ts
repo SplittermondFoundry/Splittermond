@@ -27,7 +27,7 @@ class RollDifficulty {
     toRollDifficultyString(value: unknown): RollDifficultyType {
         if (typeof value === "number" && Number.isInteger(value)) {
             return value;
-        } else if (typeof value == "string" && this.isTargetDependentValue(value)) {
+        } else if (typeof value == "string" && this._isTargetDependentValue(value)) {
             return value;
         } else {
             const parsedValue = parseInt(`${value}`);
@@ -35,7 +35,11 @@ class RollDifficulty {
         }
     }
 
-    isTargetDependentValue(candidate: string): candidate is RollDifficultyDefense {
+    isTargetDependentValue() {
+        return this._isTargetDependentValue(this._difficulty as string);
+    }
+
+    private _isTargetDependentValue(candidate: string): candidate is RollDifficultyDefense {
         return ["VTD", "KW", "GW"].includes(candidate);
     }
 
