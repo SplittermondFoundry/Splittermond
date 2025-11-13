@@ -1,3 +1,9 @@
+## 13.8.7
+
+### Fixed
+
+- Ein Fehler wurde behoben, bei dem Widerstände von NPCs angezeigt wurden.
+
 ## 13.8.6
 
 ### Fixed
