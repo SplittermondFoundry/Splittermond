@@ -2,7 +2,7 @@ import { parseModifiers } from "./parser";
 import { FoundryRoll } from "module/api/Roll";
 import { CostExpression } from "../expressions/cost";
 import { Expression as ScalarExpression } from "../expressions/scalar";
-import { processValues } from "./valueProcessor";
+import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 
 export type ErrorMessage = string;
 
@@ -22,4 +22,4 @@ export interface ParsedExpression {
 export type ScalarModifier = ParsedModifier & { value: ScalarExpression };
 export type FocusModifier = ParsedModifier & { value: CostExpression };
 
-export { parseModifiers, processValues };
+export { parseModifiers, withErrorLogger };

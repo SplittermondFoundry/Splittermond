@@ -2,7 +2,7 @@ import SplittermondItem from "../item/item";
 import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
-import { type FocusModifier, parseModifiers, processValues, type ScalarModifier, Value } from "./parsing";
+import { type FocusModifier, parseModifiers, type ScalarModifier, Value } from "./parsing";
 import { condense, Expression as ScalarExpression, of, pow, times } from "./expressions/scalar";
 import Modifier from "../actor/modifier";
 import { validateDescriptors } from "./parsing/validators";
@@ -11,6 +11,8 @@ import { InverseModifier } from "../actor/InverseModifier";
 import { MultiplicativeModifier } from "../actor/MultiplicativeModifier";
 import type { IModifier, ModifierType } from "../actor/modifier-manager";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
+import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
+import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
 
 export interface AddModifierResult {
     modifiers: IModifier[];
@@ -33,25 +35,35 @@ export function initAddModifier(
         if (str == "") {
             return { modifiers, costModifiers };
         }
-
+        const allErrors = new ParseErrors(str, item.name);
+        const { processCostValue, processScalarValue } = withErrorLogger(allErrors);
         const parsedResult = parseModifiers(str);
-        const normalizedModifiers = processValues(parsedResult.modifiers, item.actor);
+        allErrors.push(...parsedResult.errors);
+        const handlerCache = registry.getCache(allErrors.consumer, item, type, of(multiplier));
+        const costHandlerCache = costRegistry.getCache(allErrors.consumer, item, type, of(multiplier));
 
-        const allErrors = [...parsedResult.errors, ...normalizedModifiers.errors];
-        const errorLogger = (...msg: string[]) => allErrors.push(...msg);
-        const handlerCache = registry.getCache(errorLogger, item, type, of(multiplier));
-        const costHandlerCache = costRegistry.getCache(errorLogger, item, type, of(multiplier));
-
-        normalizedModifiers.vectorModifiers.forEach((mod) => {
-            const costModifierHandler = costHandlerCache.getHandler(mod.path);
-            const costModifier = costModifierHandler.processModifier(mod);
-            if (costModifier) {
-                costModifiers.push(costModifier);
+        const unprocessedModifiers: ScalarModifier[] = [];
+        for (const parsedModifier of parsedResult.modifiers) {
+            if (costHandlerCache.handles(parsedModifier.path)) {
+                const normalized = processCostValue(parsedModifier, item.actor);
+                if (!normalized) continue;
+                const modifier = costHandlerCache.getHandler(normalized.path).processModifier(normalized);
+                if (!modifier) continue;
+                costModifiers.push(modifier);
+            } else if (handlerCache.handles(parsedModifier.path)) {
+                const normalized = processScalarValue(parsedModifier, item.actor);
+                if (!normalized) continue;
+                const modifier = handlerCache.getHandler(normalized.path).processModifier(normalized);
+                if (!modifier) continue;
+                modifiers.push(modifier);
+            } else {
+                const normalized = processScalarValue(parsedModifier, item.actor);
+                if (!normalized) continue;
+                unprocessedModifiers.push(normalized);
             }
-            return;
-        });
+        }
 
-        normalizedModifiers.scalarModifiers.forEach((modifier) => {
+        unprocessedModifiers.forEach((modifier) => {
             if (["damage", "weaponspeed"].includes(modifier.path.toLowerCase().split(".")[0])) {
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
                     old: modifier.path,
@@ -75,7 +87,6 @@ export function initAddModifier(
             if (!validateAllDescriptors(modifier.attributes, allErrors)) {
                 return;
             }
-
             switch (modifierLabel) {
                 case "bonuscap":
                     modifiers.push(
@@ -421,14 +432,7 @@ export function initAddModifier(
                     break;
             }
         });
-        if (allErrors.length > 0) {
-            const introMessage = foundryApi.format("splittermond.modifiers.parseMessages.allErrorMessage", {
-                str,
-                objectName: item.name,
-            });
-            foundryApi.reportError(`${introMessage}\n${allErrors.join("\n")}`);
-        }
-
+        allErrors.printAll();
         return { modifiers, costModifiers };
     };
 }
@@ -465,7 +469,7 @@ function createModifier(
  */
 function validateAllDescriptors(
     attributes: Record<string, Value>,
-    allErrors: string[]
+    allErrors: { push(...args: string[]): number }
 ): attributes is Record<string, string> {
     const validationErrors = Object.values(attributes).flatMap((v) => validateDescriptors(v));
     if (validationErrors.length > 0) {
