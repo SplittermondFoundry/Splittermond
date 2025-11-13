@@ -227,7 +227,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
      * @return {boolean}
      */
     shouldDisplaySkill(skillId) {
-        const hasSkillPoints = this.actor.skills[skillId]?.points > 0;
+        const hasSkillPoints = this.actor.system.skills[skillId].points > 0;
         const hasMastery = this.actor.items.some((item) => item.type === "mastery" && item.system.skill === skillId);
         return !this._hideSkills || hasSkillPoints || hasMastery;
     }
@@ -270,7 +270,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 };
             }
         }
-        this.actor.createEmbeddedDocuments("Item", [itemData], { renderSheet: renderSheet });
+        return this.actor.createEmbeddedDocuments("Item", [itemData], { renderSheet: renderSheet });
     }
 
     /**
