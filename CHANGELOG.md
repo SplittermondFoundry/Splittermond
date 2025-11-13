@@ -1,3 +1,10 @@
+## 13.8.6
+
+### Fixed
+
+- Ein Fehler wurde behoben, bei dem Aktive Abwehr nicht immer ausgelöst werden konnte.
+- Ein Fehler wurde behoben, bei dem Kampffertigkeiten nicht angezeigt wurden.
+
 ## 13.8.5
 
 ### Fixed
