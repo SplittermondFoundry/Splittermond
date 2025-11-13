@@ -194,7 +194,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                     game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
                     `: ${defenseValue}</strong></p>`;
 
-                if (data.degreeOfSuccess >= 5) {
+                if (data.degreeOfSuccess >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold) {
                     templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.outstanding")}</p>`;
                     tickCost = 2;
                 }

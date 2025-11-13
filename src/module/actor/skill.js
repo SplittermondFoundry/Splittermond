@@ -186,7 +186,7 @@ export default class Skill extends Modifiable {
                     isCrit: rollResult.isCrit,
                     degreeOfSuccess: rollResult.degreeOfSuccess,
                     degreeOfSuccessMessage: rollResult.degreeOfSuccessMessage,
-                    hideDifficulty: hideDifficulty,
+                    hideDifficulty,
                 },
             };
         }
@@ -205,7 +205,7 @@ export default class Skill extends Modifiable {
             isCrit: rollResult.isCrit,
             degreeOfSuccess: rollResult.degreeOfSuccess,
             availableSplinterpoints: this.actor.type === "character" ? this.actor.system.splinterpoints.value : 0,
-            hideDifficulty: hideDifficulty,
+            hideDifficulty,
             maneuvers: checkData.maneuvers || [],
             ...(options.checkMessageData || {}),
         };
