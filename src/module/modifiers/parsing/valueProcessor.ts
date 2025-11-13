@@ -1,109 +1,92 @@
-import { ErrorMessage, FocusModifier, ParsedModifier, ScalarModifier, Value } from "./index";
+import { FocusModifier, ParsedModifier, ScalarModifier, Value } from "./index";
 import { Expression, ref as scalarRef, roll, times } from "module/modifiers/expressions/scalar/definitions";
 import { normalizeValue } from "./normalizer";
 import { isRoll } from "module/api/Roll";
 import { validateReference } from "./validators";
-import { foundryApi } from "module/api/foundryApi";
 import { parseCostString } from "module/util/costs/costParser";
 import { of } from "../expressions/scalar";
 import { CostExpression, of as ofCost, ref as costRef, times as timesCost } from "../expressions/cost";
 import { Cost } from "module/util/costs/Cost";
+import type { IErrorConsumer } from "module/modifiers/parsing/ParseErrors";
 
-export function processValues(modifiers: ParsedModifier[], refSource: object) {
-    const result = {
-        scalarModifiers: [] as ScalarModifier[],
-        vectorModifiers: [] as FocusModifier[],
-        errors: [] as string[],
+export function withErrorLogger(errorLogger: IErrorConsumer) {
+    return {
+        processCostValue,
+        processScalarValue,
     };
-    for (const modifier of [...modifiers]) {
+    function processCostValue(modifier: ParsedModifier, refSource: object): FocusModifier | null {
         const value = modifier.attributes.value;
         if (value === null || value === undefined) {
-            result.errors.push(
-                foundryApi.format("splittermond.modifiers.parseMessages.noValue", { modifier: modifier.path })
-            );
-            continue;
+            errorLogger.pushKey("splittermond.modifiers.parseMessages.noValue", { modifier: modifier.path });
+            return null;
         }
-        if (modifiesFocus(modifier.path)) {
-            const processedValue = processCost(value, refSource);
-            if (Array.isArray(processedValue)) {
-                result.errors.push(...processedValue);
-                continue;
+        const normalized = normalizeValue(value);
+        const processedValue = setUpCostExpression(normalized, refSource);
+        if (!processedValue) return null;
+        const valueProcessedModifier: FocusModifier = {
+            path: modifier.path,
+            attributes: { ...modifier.attributes },
+            value: processedValue,
+        };
+        delete valueProcessedModifier.attributes.value;
+        return valueProcessedModifier;
+    }
+
+    function processScalarValue(modifier: ParsedModifier, refSource: object): ScalarModifier | null {
+        const value = modifier.attributes.value;
+        if (value === null || value === undefined) {
+            if (value === null || value === undefined) {
+                errorLogger.pushKey("splittermond.modifiers.parseMessages.noValue", { modifier: modifier.path });
+                return null;
             }
-            const valueProcessedModifier: FocusModifier = {
-                path: modifier.path,
-                attributes: { ...modifier.attributes },
-                value: processedValue,
-            };
-            delete valueProcessedModifier.attributes.value;
-            result.vectorModifiers.push(valueProcessedModifier);
+        }
+        const normalized = normalizeValue(value);
+        const processedValue = setUpExpression(normalized, refSource);
+        if (!processedValue) return null;
+        const valueProcessedModifier: ScalarModifier = {
+            path: modifier.path,
+            attributes: { ...modifier.attributes },
+            value: processedValue,
+        };
+        delete valueProcessedModifier.attributes.value;
+        return valueProcessedModifier;
+    }
+
+    function setUpExpression(expression: Value, source: object): Expression | null {
+        if (typeof expression === "number") {
+            return of(expression);
+        } else if (isRoll(expression)) {
+            return roll(expression);
+        } else if (typeof expression === "object") {
+            const validationFailures = validateReference(expression.propertyPath, source);
+            if (validationFailures.length > 0) {
+                errorLogger.push(...validationFailures);
+                return null;
+            }
+            const reference = scalarRef(expression.propertyPath, source, expression.original);
+            return times(of(expression.sign), reference);
         } else {
-            const processedValue = processValue(value, refSource);
-            if (Array.isArray(processedValue)) {
-                result.errors.push(...processedValue);
-                continue;
+            errorLogger.pushKey("splittermond.modifiers.parseMessages.notANumber", { expression });
+            return null;
+        }
+    }
+
+    function setUpCostExpression(expression: Value, source: object): CostExpression | null {
+        if (typeof expression === "number") {
+            return ofCost(new Cost(expression, 0, false).asModifier());
+        } else if (isRoll(expression)) {
+            errorLogger.pushKey("splittermond.modifiers.parseMessages.foNoCost", { expression: expression.formula });
+            return null;
+        } else if (typeof expression === "object") {
+            const validationFailures = validateReference(expression.propertyPath, source);
+            if (validationFailures.length > 0) {
+                errorLogger.push(...validationFailures);
+                return null;
             }
-            const valueProcessedModifier: ScalarModifier = {
-                path: modifier.path,
-                attributes: { ...modifier.attributes },
-                value: processedValue,
-            };
-            delete valueProcessedModifier.attributes.value;
-            result.scalarModifiers.push(valueProcessedModifier);
+            const reference = costRef(expression.propertyPath, source, expression.original);
+            return timesCost(of(expression.sign), reference);
+        } else {
+            return ofCost(parseCostString(expression).asModifier());
         }
     }
-    return result;
-}
-
-function processValue(value: Value, refSource: object): Expression | ErrorMessage[] {
-    const normalized = normalizeValue(value);
-    return setUpExpression(normalized, refSource);
-}
-
-function processCost(value: Value, refSource: object): CostExpression | ErrorMessage[] {
-    const normalized = normalizeValue(value);
-    return setUpCostExpression(normalized, refSource);
-}
-
-function setUpExpression(expression: Value, source: object): Expression | ErrorMessage[] {
-    if (typeof expression === "number") {
-        return of(expression);
-    } else if (isRoll(expression)) {
-        return roll(expression);
-    } else if (typeof expression === "object") {
-        const validationFailures = validateReference(expression.propertyPath, source);
-        if (validationFailures.length > 0) {
-            return validationFailures;
-        }
-        const reference = scalarRef(expression.propertyPath, source, expression.original);
-        return times(of(expression.sign), reference);
-    } else {
-        return [foundryApi.format("splittermond.modifiers.parseMessages.notANumber", { expression })];
-    }
-}
-
-function setUpCostExpression(expression: Value, source: object): CostExpression | ErrorMessage[] {
-    if (typeof expression === "number") {
-        return ofCost(new Cost(expression, 0, false).asModifier());
-    } else if (isRoll(expression)) {
-        return [foundryApi.format("splittermond.modifiers.parseMessages.foNoCost", { expression: expression.formula })];
-    } else if (typeof expression === "object") {
-        const validationFailures = validateReference(expression.propertyPath, source);
-        if (validationFailures.length > 0) {
-            return validationFailures;
-        }
-        const reference = costRef(expression.propertyPath, source, expression.original);
-        return timesCost(of(expression.sign), reference);
-    } else {
-        return ofCost(parseCostString(expression).asModifier());
-    }
-}
-
-/**
- * This is a bit of a hack. Unfortunately, the only way of distinguishing focus modifiers from others is by path
- * because focus modifiers overlap with scalar modifiers for reductions that only cover exhausted focus.
- * A generally better way of handling this would be to check the registries if they handle the given path
- * and then validate the attributes accordingly.
- */
-function modifiesFocus(groupId: string): boolean {
-    return groupId.toLowerCase().includes("focus") && !groupId.toLowerCase().includes("regeneration");
 }

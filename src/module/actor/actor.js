@@ -477,7 +477,7 @@ export default class SplittermondActor extends Actor {
                 new Attack(this, {
                     id: "weaponless",
                     type: "not-an-item",
-                    name: game.i18n.localize("splittermond.weaponless"),
+                    name: foundryApi.localize("splittermond.weaponless"),
                     img: "icons/equipment/hand/gauntlet-simple-leather-brown.webp",
                     system: {
                         skill: "melee",

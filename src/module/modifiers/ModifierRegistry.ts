@@ -86,6 +86,10 @@ class ModifierCache<TYPE extends AnyModifier> {
         private readonly handlerArgs: HandlerArgs
     ) {}
 
+    handles(groupId: string): boolean {
+        return firstMatchingSuperSegment(groupId.toLowerCase(), this.registry) !== null;
+    }
+
     getHandler(groupId: string): ModifierHandler<TYPE> {
         const lowerGroupId = groupId.toLowerCase();
         const cachedKey = firstMatchingSuperSegment(lowerGroupId, this.cachedHandlers);
