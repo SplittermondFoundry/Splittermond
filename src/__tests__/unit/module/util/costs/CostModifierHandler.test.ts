@@ -34,7 +34,7 @@ describe("CostModifierHandler", () => {
             attributes: {},
         });
 
-        expect(result).to.be.null;
+        expect(result).to.be.empty;
         expect(allErrors).to.have.length(1);
     });
 
@@ -46,7 +46,7 @@ describe("CostModifierHandler", () => {
             path: "focus.addition",
             value: asCost("2V1"),
             attributes: {},
-        });
+        })![0];
 
         expect(result).to.not.be.null;
         expect(result?.label).to.equal("focus.reduction");
@@ -62,7 +62,7 @@ describe("CostModifierHandler", () => {
             path: "focus.enhancedAddition",
             value: asCost("2V1"),
             attributes: {},
-        });
+        })![0];
 
         expect(result).to.not.be.null;
         expect(result?.label).to.equal("focus.enhancedreduction");
@@ -78,7 +78,7 @@ describe("CostModifierHandler", () => {
             path: "focus.reduction",
             value: asCost("2V1"),
             attributes: { skill: "invalid" },
-        });
+        })![0];
 
         expect(result).to.not.be.null;
         expect(result?.skill).to.equal("deathmagic");
@@ -93,7 +93,7 @@ describe("CostModifierHandler", () => {
             path: "focus.reduction",
             value: asCost("2V1"),
             attributes: {},
-        });
+        })![0];
 
         expect(result).to.not.be.null;
         expect(result?.skill).to.equal("deathmagic");
@@ -108,7 +108,7 @@ describe("CostModifierHandler", () => {
             path: "focus.addition",
             value: asCost("3V1"),
             attributes: {},
-        });
+        })![0];
 
         expect(result).to.not.be.null;
         expect(result?.label).to.equal("focus.reduction");
@@ -124,7 +124,7 @@ describe("CostModifierHandler", () => {
             path: "focus.reduction",
             value: asCost("2V1"),
             attributes: {},
-        });
+        })![0];
 
         expect(result).to.not.be.null;
         expect(result?.skill).to.be.null;
@@ -139,7 +139,7 @@ describe("CostModifierHandler", () => {
             path: "focus.reduction",
             value: asCost("2V1"),
             attributes: { type: "valid-type" },
-        });
+        })![0];
 
         expect(result).to.not.be.null;
         expect(result?.attributes.type).to.equal("valid-type");
@@ -154,7 +154,7 @@ describe("CostModifierHandler", () => {
             path: "focus.reduction",
             value: asCost("2V1"),
             attributes: { skill: "invalid" },
-        });
+        })![0];
 
         expect(result).to.not.be.null;
         expect(result?.attributes.skill).to.equal("invalid");

@@ -25,8 +25,8 @@ describe("ModifierRegistry", () => {
             return false;
         }
 
-        protected buildModifier(): null {
-            return null;
+        protected buildModifier() {
+            return [];
         }
     }
 
@@ -39,8 +39,8 @@ describe("ModifierRegistry", () => {
             return false;
         }
 
-        protected buildModifier(): null {
-            return null;
+        protected buildModifier() {
+            return [];
         }
     }
 
@@ -443,7 +443,7 @@ describe("ModifierRegistry", () => {
 
                 const result = handler.processModifier(mockModifier, mockConfig);
 
-                expect(result).to.be.null;
+                expect(result).to.be.empty;
             });
 
             it("should create new NoActionModifierHandler instances for each unknown path", () => {

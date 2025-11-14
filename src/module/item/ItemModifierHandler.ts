@@ -59,12 +59,12 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
         return isZero(value);
     }
 
-    protected buildModifier(modifier: ScalarModifier): IModifier | null {
+    protected buildModifier(modifier: ScalarModifier): IModifier[] {
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
         const operator = modifier.path.endsWith("multiplier") ? pow : times;
         const adjustedValue = operator(modifier.value, this.multiplier);
 
-        return new Modifier(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false);
+        return [new Modifier(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false)];
     }
 
     buildAttributes(path: string, attributes: Record<string, Value>): ModifierAttributes {

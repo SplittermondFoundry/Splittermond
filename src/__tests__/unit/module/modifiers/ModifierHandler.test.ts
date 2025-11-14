@@ -23,8 +23,8 @@ class TestModifierHandler extends ModifierHandler<ScalarModifier> {
         });
     }
 
-    buildModifier(_: ScalarModifier, __: ConfigSegment): IModifier | null {
-        return null;
+    buildModifier(_: ScalarModifier, __: ConfigSegment): IModifier[] {
+        return [];
     }
 
     omitForValue(_: Expression): boolean {
@@ -83,7 +83,7 @@ describe("Modifier handler", () => {
 
         const result = probe.processModifier({ path: "invalid.path", value: of(1), attributes: {} });
 
-        expect(result).to.be.null;
+        expect(result).to.be.empty;
         expect(buildSpy.callCount).to.equal(0);
     });
 
@@ -151,7 +151,7 @@ describe("Modifier handler", () => {
             },
         });
 
-        expect(result).to.be.null;
+        expect(result).to.be.empty;
         expect(errors).to.have.length(1);
         expect(errors).to.include("splittermond.modifiers.parseMessages.missingDescriptor");
         expect(buildSpy.callCount).to.equal(0);

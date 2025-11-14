@@ -48,14 +48,12 @@ export function initAddModifier(
                 const normalized = processCostValue(parsedModifier, item.actor);
                 if (!normalized) continue;
                 const modifier = costHandlerCache.getHandler(normalized.path).processModifier(normalized);
-                if (!modifier) continue;
-                costModifiers.push(modifier);
+                costModifiers.push(...modifier);
             } else if (handlerCache.handles(parsedModifier.path)) {
                 const normalized = processScalarValue(parsedModifier, item.actor);
                 if (!normalized) continue;
                 const modifier = handlerCache.getHandler(normalized.path).processModifier(normalized);
-                if (!modifier) continue;
-                modifiers.push(modifier);
+                modifiers.push(...modifier);
             } else {
                 const normalized = processScalarValue(parsedModifier, item.actor);
                 if (!normalized) continue;
@@ -78,7 +76,7 @@ export function initAddModifier(
             if (handler.constructor.name !== "NoActionModifierHandler") {
                 const createdModifier = handler.processModifier(modifier);
                 if (createdModifier) {
-                    modifiers.push(createdModifier);
+                    modifiers.push(...createdModifier);
                     return;
                 }
             }

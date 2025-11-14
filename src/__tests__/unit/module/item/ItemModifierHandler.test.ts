@@ -62,7 +62,7 @@ describe("ItemModifierHandler", () => {
                 },
             };
 
-            const result = (handler as any).buildModifier(scalarModifier);
+            const result = (handler as any).buildModifier(scalarModifier)[0];
 
             expect(result).to.not.be.null;
             expect(result.path).to.equal("item.damage");
@@ -175,11 +175,11 @@ describe("ItemModifierHandler", () => {
                 },
             };
 
-            const result = handler.processModifier(scalarModifier);
+            const result = handler.processModifier(scalarModifier)![0];
 
             expect(result).to.not.be.null;
-            expect(result!.groupId).to.equal("item.damage");
-            expect(result!.attributes.damageType).to.equal("fire");
+            expect(result.groupId).to.equal("item.damage");
+            expect(result.attributes.damageType).to.equal("fire");
         });
 
         it("should multiply modifier values", () => {
@@ -192,9 +192,9 @@ describe("ItemModifierHandler", () => {
             };
 
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
-            const result = underTest.processModifier(scalarModifier);
+            const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(evaluate(result!.value)).to.deep.equal(10);
+            expect(evaluate(result.value)).to.deep.equal(10);
         });
 
         it("should take cast duration multiplier to the modifier multipliers power", () => {
@@ -207,9 +207,9 @@ describe("ItemModifierHandler", () => {
             };
 
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
-            const result = underTest.processModifier(scalarModifier);
+            const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(evaluate(result!.value)).to.deep.equal(0.25);
+            expect(evaluate(result.value)).to.deep.equal(0.25);
         });
 
         it("should omit modifier with zero value", () => {
@@ -221,7 +221,7 @@ describe("ItemModifierHandler", () => {
 
             const result = handler.processModifier(scalarModifier);
 
-            expect(result).to.be.null;
+            expect(result).to.be.empty;
         });
 
         it("should reject modifier with invalid path", () => {
@@ -233,7 +233,7 @@ describe("ItemModifierHandler", () => {
 
             const result = handler.processModifier(scalarModifier);
 
-            expect(result).to.be.null;
+            expect(result).to.be.empty;
             expect(allErrors).to.have.length.greaterThan(0);
         });
 
@@ -246,7 +246,7 @@ describe("ItemModifierHandler", () => {
 
             const result = handler.processModifier(scalarModifier);
 
-            expect(result).to.be.null;
+            expect(result).to.be.empty;
             expect(allErrors).to.have.length.greaterThan(0);
         });
     });

@@ -119,8 +119,8 @@ class NoActionModifierHandler<T extends AnyModifier> extends ModifierHandler<T> 
         super(logErrors, makeConfig({ topLevelPath: "" }));
     }
 
-    protected buildModifier(): null {
-        return null;
+    protected buildModifier() {
+        return [];
     }
 
     protected omitForValue(): boolean {
