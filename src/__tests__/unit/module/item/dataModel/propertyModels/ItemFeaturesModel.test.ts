@@ -6,13 +6,13 @@ import {
 } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import { afterEach, beforeEach, describe, it } from "mocha";
 import { expect } from "chai";
-import { foundryApi } from "../../../../../../module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 import sinon from "sinon";
-import { WeaponDataModel } from "../../../../../../module/item/dataModel/WeaponDataModel";
+import { WeaponDataModel } from "module/item/dataModel/WeaponDataModel";
 import SplittermondWeaponItem from "../../../../../../module/item/weapon";
 import SplittermondActor from "../../../../../../module/actor/actor";
-import ModifierManager from "../../../../../../module/actor/modifier-manager";
-import { of } from "../../../../../../module/modifiers/expressions/scalar";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
+import { of } from "module/modifiers/expressions/scalar";
 
 describe("ItemFeaturesModel", () => {
     let sandbox: sinon.SinonSandbox;

@@ -2,7 +2,7 @@ import { describe } from "mocha";
 import { expect } from "chai";
 import { ModifierHandler } from "module/modifiers/ModiferHandler";
 import type { ScalarModifier } from "module/modifiers/parsing";
-import type { IModifier } from "module/actor/modifier-manager";
+import type { IModifier } from "module/modifiers";
 import sinon from "sinon";
 import { type Expression, of } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "module/api/foundryApi";

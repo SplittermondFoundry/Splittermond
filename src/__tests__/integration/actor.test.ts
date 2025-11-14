@@ -16,7 +16,7 @@ import SplittermondActorSheet from "../../module/actor/sheets/actor-sheet";
 import { withActor } from "./fixtures";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import { passesEventually } from "../util";
-import Modifier from "module/actor/modifier";
+import Modifier from "module/modifiers/impl/modifier";
 import { of } from "module/modifiers/expressions/scalar";
 import type { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
 import type SplittermondWeaponItem from "module/item/weapon";

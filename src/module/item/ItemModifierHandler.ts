@@ -1,10 +1,15 @@
 import type { ScalarModifier, Value } from "../modifiers/parsing";
-import Modifier from "../actor/modifier";
+import Modifier from "module/modifiers/impl/modifier";
 import { normalizeDescriptor } from "../modifiers/parsing/normalizer";
 import { splittermond } from "../config";
 import type SplittermondItem from "./item";
-import type { IModifier, ModifierAttributes, ModifierType } from "../actor/modifier-manager";
-import { makeConfig, ModifierHandler } from "module/modifiers";
+import {
+    type IModifier,
+    makeConfig,
+    type ModifierAttributes,
+    ModifierHandler,
+    type ModifierType,
+} from "module/modifiers";
 import { type Expression, isZero, pow, times } from "module/modifiers/expressions/scalar";
 import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";

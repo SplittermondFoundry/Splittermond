@@ -1,8 +1,15 @@
-import { TooltipFormula } from "../util/tooltip";
-import { abs, asString, condense, Expression, isGreaterThan, isLessThan, of } from "../modifiers/expressions/scalar";
-import type { IModifier, ModifierAttributes } from "./modifier-manager";
+import { TooltipFormula } from "module/util/tooltip";
+import {
+    abs,
+    asString,
+    condense,
+    Expression,
+    isGreaterZero,
+    isLessThanZero,
+} from "module/modifiers/expressions/scalar";
+import type { IModifier, ModifierAttributes } from "module/modifiers";
 
-export class MultiplicativeModifier implements IModifier {
+export class InverseModifier implements IModifier {
     readonly attributes: ModifierAttributes;
     readonly groupId: string;
     readonly origin: object | null;
@@ -23,8 +30,8 @@ export class MultiplicativeModifier implements IModifier {
         this.origin = origin;
         this.selectable = selectable;
         this.groupId = groupId;
-        this._isBonus = isGreaterThan(value, of(1)) ?? true; //Assume a bonus if result is unknown
-        this._isMalus = isLessThan(value, of(1)) ?? false;
+        this._isBonus = isLessThanZero(value) ?? true; //Assume a bonus if result is unknown
+        this._isMalus = isGreaterZero(value) ?? false;
     }
 
     get isMalus() {
@@ -37,7 +44,9 @@ export class MultiplicativeModifier implements IModifier {
 
     addTooltipFormulaElements(formula: TooltipFormula): void {
         const partClass = this.isBonus ? "bonus" : "malus";
-        formula.addOperator("*");
+        const operator = this.isBonus ? "-" : "+";
+        //formula default to a + operator for bonuses, so we have to use the low level API to get a decent display
+        formula.addOperator(operator);
         formula.addPart(asString(abs(condense(this.value))), this.attributes.name, partClass);
     }
 }

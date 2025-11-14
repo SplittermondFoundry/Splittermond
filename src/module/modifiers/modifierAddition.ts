@@ -4,15 +4,15 @@ import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
 import { type FocusModifier, parseModifiers, type ScalarModifier, Value } from "./parsing";
 import { condense, Expression as ScalarExpression, of, pow, times } from "./expressions/scalar";
-import Modifier from "../actor/modifier";
+import Modifier from "module/modifiers/impl/modifier";
 import { validateDescriptors } from "./parsing/validators";
 import { normalizeDescriptor } from "./parsing/normalizer";
-import { InverseModifier } from "../actor/InverseModifier";
-import { MultiplicativeModifier } from "../actor/MultiplicativeModifier";
-import type { IModifier, ModifierType } from "../actor/modifier-manager";
+import { InverseModifier } from "module/modifiers/impl/InverseModifier";
+import { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
+import type { IModifier, ModifierType } from "module/modifiers/index";
 
 export interface AddModifierResult {
     modifiers: IModifier[];

@@ -1,6 +1,6 @@
 import { describe, it } from "mocha";
 import { expect } from "chai";
-import ModifierManager from "module/actor/modifier-manager";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
 import SplittermondItem from "module/item/item";
 import { of } from "module/modifiers/expressions/scalar";
 

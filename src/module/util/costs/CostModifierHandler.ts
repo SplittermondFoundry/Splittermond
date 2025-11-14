@@ -3,10 +3,9 @@ import { ICostModifier } from "module/util/costs/spellCostManagement";
 import { times as timesCost } from "module/modifiers/expressions/cost";
 import { type Expression, of, times } from "module/modifiers/expressions/scalar";
 import type { FocusModifier, Value } from "module/modifiers/parsing";
-import { ModifierHandler } from "module/modifiers";
+import { ModifierHandler, type ModifierType } from "module/modifiers";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import type SplittermondItem from "module/item/item";
-import type { ModifierType } from "module/actor/modifier-manager";
 import { splittermond } from "module/config";
 import { isMember } from "module/util/util";
 

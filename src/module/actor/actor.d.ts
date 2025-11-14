@@ -5,7 +5,7 @@ import { DamageType } from "../config/damageTypes";
 import { CharacterDataModel } from "./dataModel/CharacterDataModel";
 import { NpcDataModel } from "./dataModel/NpcDataModel";
 import { Susceptibilities } from "./Susceptibilities";
-import ModifierManager from "./modifier-manager";
+import ModifierManager from "./modifiers/modifier-manager";
 import type { VirtualToken } from "../combat/VirtualToken";
 import type { ItemType } from "module/config/itemTypes";
 

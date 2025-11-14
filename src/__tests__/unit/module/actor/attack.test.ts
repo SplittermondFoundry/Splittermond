@@ -3,7 +3,7 @@ import { beforeEach, describe } from "mocha";
 import Attack from "module/actor/attack";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import SplittermondActor from "module/actor/actor";
-import ModifierManager from "module/actor/modifier-manager";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
 import { evaluate, of } from "module/modifiers/expressions/scalar";
 import { expect } from "chai";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";

@@ -5,7 +5,7 @@ import { splittermond } from "module/config";
 import { DataModelConstructorInput } from "module/api/DataModel";
 import { foundryApi } from "module/api/foundryApi";
 import { SplittermondItemDataModel } from "../../index";
-import ModifierManager from "module/actor/modifier-manager";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
 import { evaluate } from "module/modifiers/expressions/scalar";
 import { DocumentAccessMixin } from "module/data/AncestorDocumentMixin";
 

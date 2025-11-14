@@ -6,7 +6,7 @@ import { asString, condense, evaluate, isGreaterZero, of, plus, times } from "mo
 import type { TimeUnit } from "module/config/timeUnits";
 import { splittermond } from "module/config";
 import { getTimeUnitConversion } from "module/util/util";
-import ModifierManager from "module/actor/modifier-manager";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
 import type { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 
 function CastDurationSchema() {

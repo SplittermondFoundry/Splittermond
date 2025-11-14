@@ -1,4 +1,3 @@
-import type { IModifier } from "module/actor/modifier-manager";
 import { foundryApi } from "module/api/foundryApi";
 import type { FocusModifier, ScalarModifier, Value } from "module/modifiers/parsing";
 import { validateDescriptors } from "module/modifiers/parsing/validators";
@@ -6,6 +5,7 @@ import type { Config, ConfigSegment } from "module/modifiers/ModifierConfig";
 import type { CostExpression } from "module/modifiers/expressions/cost";
 import type { Expression } from "module/modifiers/expressions/scalar";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import type { IModifier } from "module/modifiers/index";
 
 export type AnyModifier = ScalarModifier | FocusModifier;
 

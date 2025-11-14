@@ -13,7 +13,7 @@ import { clearMappers } from "module/modifiers/parsing/normalizer";
 import { evaluate, of, pow } from "module/modifiers/expressions/scalar";
 import { of as ofCost, times } from "module/modifiers/expressions/cost";
 import { stubRollApi } from "../../RollMock";
-import { InverseModifier } from "module/actor/InverseModifier";
+import { InverseModifier } from "module/modifiers/impl/InverseModifier";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { CostModifierHandler } from "module/util/costs/CostModifierHandler";

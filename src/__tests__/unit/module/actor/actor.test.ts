@@ -14,7 +14,7 @@ import { asMock } from "../../settingsMock";
 import { settings } from "module/settings";
 import { JSDOM } from "jsdom";
 import { StrengthDataModel } from "module/item/dataModel/StrengthDataModel";
-import Modifier from "../../../../module/actor/modifier";
+import Modifier from "module/modifiers/impl/modifier";
 import { of } from "module/modifiers/expressions/scalar";
 import { actualAddModifierFunction } from "module/actor/addModifierAdapter";
 import { initializeModifiers } from "module/modifiers";
