@@ -131,7 +131,7 @@ export class TooltipConfigurer {
         this.setHover(".list.masteries [data-item-id] .taglist-item-name", (t) => this.displayInventoryTooltip(t));
     }
     private async displayInventoryTooltip(target: HTMLElement) {
-        const itemId = target?.dataset.itemId ?? "";
+        const itemId = closestData(target, "item-id") ?? "";
         const item = this.actor.items.get(itemId) as SplittermondItem | null;
         if (!item || !item.system.description) return;
         const hbsContent = {
