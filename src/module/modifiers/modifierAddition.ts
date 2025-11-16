@@ -13,6 +13,7 @@ import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
 import type { IModifier, ModifierType } from "module/modifiers/index";
+import { isMember } from "module/util/util";
 
 export interface AddModifierResult {
     modifiers: IModifier[];
@@ -423,6 +424,8 @@ export function initAddModifier(
                             !!modifier.attributes.emphasis
                         );
                         modifiers.push(initiativeModifier);
+                    } else if (isMember(splittermond.skillGroups.all, element)) {
+                        break; //We have dedicated handlers.
                     } else {
                         modifiers.push(createModifier(element, adjustedValue, modifier.attributes, item, type));
                     }
