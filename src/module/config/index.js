@@ -10,7 +10,7 @@ import { skillGroups } from "./skillGroups";
 import { damageTypeOptions, damageTypes } from "./damageTypes";
 import { attributes, derivedAttributes } from "./attributes";
 import { itemFeatures } from "./itemFeatures";
-import { droppableCharacterItemTypes, itemTypes } from "./itemTypes";
+import { droppableCharacterItemTypes, droppableNpcItemTypes, itemTypes } from "./itemTypes";
 import { time } from "module/config/timeUnits";
 import { splinterpoints } from "module/config/splinterpoints.js";
 
@@ -1146,7 +1146,7 @@ splittermond.itemTypes = {
         droppable: droppableCharacterItemTypes,
     },
     npc: {
-        droppable: droppableCharacterItemTypes,
+        droppable: droppableNpcItemTypes,
     },
 };
 splittermond.time = time;
