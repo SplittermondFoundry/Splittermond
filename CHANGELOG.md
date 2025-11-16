@@ -1,3 +1,10 @@
+## 13.8.8
+
+### Fixed
+
+- Tooltips für Meisterschaften werden wieder angezeigt.
+- NPC Items können wieder auf NPCs gezogen werden.
+
 ## 13.8.7
 
 ### Fixed
