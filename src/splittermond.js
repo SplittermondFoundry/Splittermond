@@ -88,7 +88,7 @@ Hooks.once("init", async function () {
         modifierRegistry: modifierModule.modifierRegistry,
         addTicks,
     };
-    initializeActor(CONFIG.Actor, modifierModule.addModifier);
+    initializeActor(CONFIG.Actor, modifierModule);
     initializeItem(CONFIG, modifierModule.modifierRegistry);
     initializeCosts(modifierModule.costModifierRegistry);
     chatActionFeature(CONFIG.ChatMessage);

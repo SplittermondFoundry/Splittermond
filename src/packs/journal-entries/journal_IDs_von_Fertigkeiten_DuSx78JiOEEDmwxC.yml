@@ -14,11 +14,11 @@ pages:
           format: 1
           content: >-
               <p>Alle allgemeinen Fertigkeiten können über
-              <strong><code>generalskills</code></strong> referenziert
+            <strong><code>actor.skills.general</code></strong> referenziert
               werden.</p><p>Alle Kampffertigkeiten können über
-              <strong><code>fightingskills</code></strong> referenziert
+            <strong><code>actor.skills.fighting</code></strong> referenziert
               werden.</p><p>Alle Magieschulen können über
-              <strong><code>magicskills</code></strong> referenziert werden.</p><table
+            <strong><code>actor.skills.magic</code></strong> referenziert werden.</p><table
               style="width:44.2322%;height:448px" border="1"><thead><tr
               style="height:16px"><td style="width:60.9259%;height:16px">Allgemeine
               Fertigkeiten</td><td

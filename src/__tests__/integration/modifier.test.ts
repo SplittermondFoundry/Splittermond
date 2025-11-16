@@ -866,89 +866,83 @@ export function modifierTest(context: QuenchBatchContext) {
     });
 
     describe("Skill modifiers", () => {
-        splittermond.skillGroups.all.forEach((skill) => {
-            it(
-                `should modify skill ${skill} directly`,
-                withActor(async (actor) => {
-                    const originalValue = actor.skills[skill].value;
-                    actor.createEmbeddedDocuments("Item", [
-                        {
-                            type: "strength",
-                            name: "Skill Booster",
-                            system: { modifier: `${skill} +2` },
-                        },
-                    ]);
-                    actor.prepareBaseData();
-                    await actor.prepareEmbeddedDocuments();
-                    actor.prepareDerivedData();
+        const nonFightingSkills = [...splittermond.skillGroups.magic, ...splittermond.skillGroups.general];
+        describe("Direct skill modifications", () => {
+            nonFightingSkills.forEach((skill) => {
+                it(
+                    `should modify skill ${skill}`,
+                    withActor(async (actor) => {
+                        const originalValue = actor.skills[skill].value;
+                        await actor.createEmbeddedDocuments("Item", [
+                            {
+                                type: "strength",
+                                name: "Skill Booster",
+                                system: { modifier: `${skill} +2` },
+                            },
+                        ]);
+                        actor.prepareBaseData();
+                        await actor.prepareEmbeddedDocuments();
+                        actor.prepareDerivedData();
 
-                    expect(actor.skills[skill].value).to.equal(originalValue + 2);
-                })
-            );
-            it(
-                `should modify skill ${skill} via attribute`,
-                withActor(async (actor) => {
-                    const originalValue = actor.skills[skill].value;
-                    const localizedSkill = foundryApi.localize(`splittermond.skillLabel.${skill}`);
-                    actor.createEmbeddedDocuments("Item", [
-                        {
-                            type: "strength",
-                            name: "Skill Booster",
-                            system: { modifier: `skills Fertigkeit="${localizedSkill}" +2` },
-                        },
-                    ]);
-                    actor.prepareBaseData();
-                    await actor.prepareEmbeddedDocuments();
-                    actor.prepareDerivedData();
+                        expect(actor.skills[skill].value).to.equal(originalValue + 2);
+                    })
+                );
+            });
+        });
+        describe("Skill modification via attribute", () => {
+            nonFightingSkills.forEach((skill) => {
+                it(
+                    `should modify skill ${skill}`,
+                    withActor(async (actor) => {
+                        const originalValue = actor.skills[skill].value;
+                        const localizedSkill = foundryApi.localize(`splittermond.skillLabel.${skill}`);
+                        await actor.createEmbeddedDocuments("Item", [
+                            {
+                                type: "strength",
+                                name: "Skill Booster",
+                                system: { modifier: `skills Fertigkeit="${localizedSkill}" +2` },
+                            },
+                        ]);
+                        actor.prepareBaseData();
+                        await actor.prepareEmbeddedDocuments();
+                        actor.prepareDerivedData();
 
-                    expect(actor.skills[skill].value).to.equal(originalValue + 2);
-                })
-            );
+                        expect(actor.skills[skill].value).to.equal(originalValue + 2);
+                    })
+                );
+            });
         });
         it(
             "should modify all skills with via Attribute1",
             withActor(async (actor) => {
-                actor.createEmbeddedDocuments("Item", [
-                    {
-                        type: "strength",
-                        name: "Skill Booster",
-                        system: { modifier: `skills Attribut1="Mystik" +2` },
-                    },
-                ]);
-                actor.prepareBaseData();
-                await actor.prepareEmbeddedDocuments();
-                actor.prepareDerivedData();
-
-                Object.entries(splittermond.skillAttributes)
-                    .filter(([_, value]) => value.includes("mystic"))
-                    .map(([skill, _]) => skill)
-                    .forEach((skill) => {
-                        expect(actor.skills[skill].value, `Skill ${skill} is modified`).to.be.at.least(6);
-                    });
+                return attributeTest(actor, `skills Attribut1="Mystik" +2`);
             })
         );
         it(
             "should modify all skills via Attribute2",
             withActor(async (actor) => {
-                actor.createEmbeddedDocuments("Item", [
-                    {
-                        type: "strength",
-                        name: "Skill Booster",
-                        system: { modifier: `skills Attribut2="Mystik" +2` },
-                    },
-                ]);
-                actor.prepareBaseData();
-                await actor.prepareEmbeddedDocuments();
-                actor.prepareDerivedData();
-
-                Object.entries(splittermond.skillAttributes)
-                    .filter(([_, value]) => value.includes("mystic"))
-                    .map(([skill, _]) => skill)
-                    .forEach((skill) => {
-                        expect(actor.skills[skill].value, `Skill ${skill} is modified`).to.be.at.least(6);
-                    });
+                return attributeTest(actor, 'skills Attribut2="Mystik" +2');
             })
         );
+        async function attributeTest(actor: SplittermondActor, modifierInput: string) {
+            await actor.createEmbeddedDocuments("Item", [
+                {
+                    type: "strength",
+                    name: "Skill Booster",
+                    system: { modifier: modifierInput },
+                },
+            ]);
+            actor.prepareBaseData();
+            await actor.prepareEmbeddedDocuments();
+            actor.prepareDerivedData();
+
+            Object.entries(splittermond.skillAttributes)
+                .filter(([_, value]) => value.includes("mystic"))
+                .map(([skill, _]) => skill)
+                .forEach((skill) => {
+                    expect(actor.skills[skill].value, `Skill ${skill} is modified`).to.be.at.least(6);
+                });
+        }
     });
 
     describe("Item modifiers", () => {

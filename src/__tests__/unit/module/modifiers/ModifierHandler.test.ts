@@ -156,6 +156,22 @@ describe("Modifier handler", () => {
         expect(errors).to.include("splittermond.modifiers.parseMessages.missingDescriptor");
         expect(buildSpy.callCount).to.equal(0);
     });
+
+    it("should support top-level paths with more than one segment", () => {
+        const customConfig = makeConfig({
+            topLevelPath: "multi.segment.path",
+            subSegments: {
+                sub1: {},
+            },
+        });
+        const errors: string[] = [];
+        const probe = new TestModifierHandler(toLog(errors), customConfig);
+        const buildSpy = sandbox.spy(probe, "buildModifier");
+
+        probe.processModifier({ path: "multi.segment.path.sub1", value: of(1), attributes: {} });
+
+        expect(buildSpy.callCount).to.equal(1);
+    });
 });
 function toLog(collector: string[] = []) {
     return (...msgs: string[]) => collector.push(...msgs);

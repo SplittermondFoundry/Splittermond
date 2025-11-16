@@ -40,12 +40,13 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     protected abstract buildModifier(modifier: TYPE, pathConfig: ConfigSegment): ResultType<TYPE>[];
 
     private getPathConfig(path: string): ConfigSegment | null {
-        const pathElements = path.split(".").map((e) => e.toLowerCase());
-        if (pathElements[0] !== this.config.topLevelPath) {
+        const pathElements = path.toLowerCase().split(".");
+        const configTopLevel = this.config.topLevelPath.toLowerCase().split(".");
+        if (pathElements.slice(0, configTopLevel.length).some((e, i) => e !== configTopLevel[i])) {
             return null;
         }
         let currentSegment: ConfigSegment = this.config;
-        for (const pathElement of pathElements.slice(1)) {
+        for (const pathElement of pathElements.slice(configTopLevel.length)) {
             const nextSegmentKey = Object.keys(currentSegment.subSegments ?? {}).find(
                 (key) => key.toLowerCase() === pathElement
             );

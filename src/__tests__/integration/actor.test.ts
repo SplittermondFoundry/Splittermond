@@ -568,7 +568,7 @@ export function actorTest(context: QuenchBatchContext) {
             )
         );
         it(
-            "should retain the hover state of healt/focus on rerender",
+            "should retain the hover state of health/focus on rerender",
             withActor(async (actor) => {
                 const inputSelector = "input[name='system.health.consumed.value']";
                 const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });

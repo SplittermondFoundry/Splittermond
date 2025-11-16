@@ -216,10 +216,6 @@ export default class Skill extends Modifiable {
     }
 
     /**
-     * @typedef {number|'VTD'|'KW'|'GW'} RollDifficultyString
-     */
-
-    /**
      * @param {?string[]} selectedModifiers
      * @param {?string} title
      * @param {?string} subtitle
@@ -300,15 +296,20 @@ export default class Skill extends Modifiable {
     }
 
     #getStaticModifiersForReport() {
+        return this.collectModifiers().map((mod) => ({
+            isMalus: mod.isMalus,
+            value: asString(mod.value),
+            description: mod.attributes.name,
+        }));
+    }
+    additionalModifiers() {
         return this.actor.modifier
-            .getForIds(...this._modifierPath)
+            .getForId("actor.skills")
+            .withAttributeValuesOrAbsent("attribute1", this.attribute1?.id, this.attribute2?.id)
+            .withAttributeValuesOrAbsent("attribute2", this.attribute2?.id, this.attribute1?.id)
+            .withAttributeValuesOrAbsent("skill", this.id)
             .notSelectable()
-            .getModifiers()
-            .map((mod) => ({
-                isMalus: mod.isMalus,
-                value: asString(mod.value),
-                description: mod.attributes.name,
-            }));
+            .getModifiers();
     }
 
     getFormula() {

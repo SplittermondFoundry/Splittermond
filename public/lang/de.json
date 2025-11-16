@@ -134,7 +134,9 @@
                 "skill": "Fertigkeit",
                 "type": "Typus",
                 "unit": "Einheit",
-                "value": "Wert"
+                "value": "Wert",
+                "attribute1": "Attribut1",
+                "attribute2": "Attribut2"
             },
             "parseMessages": {
                 "notAModifier": "Modifikator '{modifier}' hat kein korrektes Format.",
