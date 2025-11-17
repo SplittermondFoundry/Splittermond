@@ -1,7 +1,7 @@
 import { ActorSkillHandler, SkillHandler } from "module/actor/modifiers/SkillHandler";
 import sinon from "sinon";
 import SplittermondItem from "module/item/item";
-import { of } from "module/modifiers/expressions/scalar";
+import { condense, of } from "module/modifiers/expressions/scalar";
 import { expect } from "chai";
 import { splittermond } from "module/config";
 import { foundryApi } from "module/api/foundryApi";
@@ -61,6 +61,22 @@ describe("SkillHandler", () => {
         expect(result[0].attributes.skill).to.equal("athletics");
         expect(result[0].attributes.name).to.equal("Test Item");
         expect(result[0].attributes.type).to.equal("innate");
+        expect(result[0].selectable).to.equal(false);
+        expect(errorLogger.called).to.be.false;
+    });
+
+    it("should correct value by multiplier", () => {
+        const item = sandbox.createStubInstance(SplittermondItem);
+        item.name = "Test Item";
+        const underTest = new SkillHandler(errorLogger, item, "innate", of(2));
+
+        const result = underTest.processModifier({
+            path: "skills",
+            attributes: { skill: "athletics" },
+            value: of(3),
+        });
+
+        expect(condense(result[0].value)).to.deep.equal(of(6));
         expect(errorLogger.called).to.be.false;
     });
 
@@ -85,6 +101,26 @@ describe("SkillHandler", () => {
             expect(result[0].attributes[attr]).to.equal("strength");
             expect(errorLogger.called).to.be.false;
         });
+    });
+
+    it("should accept an emphasis attribute", () => {
+        const item = sandbox.createStubInstance(SplittermondItem);
+        item.name = "Test Item";
+        const underTest = new SkillHandler(errorLogger, item, "innate", of(1));
+
+        const result = underTest.processModifier({
+            path: "skills",
+            attributes: { skill: "athletics", emphasis: "Kletteraffe" },
+            value: of(3),
+        })[0];
+
+        expect(result.groupId).to.equal("actor.skills");
+        expect(result.value).to.deep.equal(of(3));
+        expect(result.attributes.skill).to.equal("athletics");
+        expect(result.attributes.name).to.equal("Kletteraffe");
+        expect(result.attributes.type).to.equal("innate");
+        expect(result.selectable).to.equal(true);
+        expect(errorLogger.called).to.be.false;
     });
 
     it("should log an error for unknown skill", () => {

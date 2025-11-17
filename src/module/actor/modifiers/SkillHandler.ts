@@ -76,7 +76,7 @@ class CommonSkillHandler extends CommonHandlerMethods(ModifierHandler<ScalarModi
             case "attribute2":
                 return this.normalizeActorAttribute(path, attribute, value);
             default:
-                return this.validatedAttribute(attribute);
+                return this.validatedAttribute(value);
         }
     }
 

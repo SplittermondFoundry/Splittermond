@@ -24,6 +24,7 @@ import {
 import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 import type SplittermondSpellItem from "module/item/spell";
 import { withActor } from "./fixtures";
+import Attack from "module/actor/attack";
 
 export function modifierTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
@@ -193,6 +194,40 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(subject.damageReduction).to.equal(1);
             expect(subject.attacks.find((a) => a.name === "waffenlos")?.weaponSpeed).to.equal(6);
         });
+
+        it(
+            "should account for skill modifications to weapons",
+            withActor(async (actor) => {
+                actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 2, advances: 0 },
+                            agility: { initial: 2, advances: 0 },
+                        },
+                    },
+                });
+                const weapon = (
+                    await actor.createEmbeddedDocuments("Item", [
+                        {
+                            type: "weapon",
+                            name: "Skill Booster",
+                            system: {
+                                equipped: true,
+                                skillMod: 2,
+                                skill: "blades",
+                                attribute1: "strength",
+                                attribute2: "agility",
+                            },
+                        },
+                    ])
+                )[0];
+                actor.prepareBaseData();
+                await actor.prepareEmbeddedDocuments();
+                actor.prepareDerivedData();
+
+                expect(actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value).to.equal(6);
+            })
+        );
 
         it("should account for modifications from npc features", async () => {
             const subject = await createNpc("NpcWithFeature");
@@ -866,7 +901,60 @@ export function modifierTest(context: QuenchBatchContext) {
     });
 
     describe("Skill modifiers", () => {
-        const nonFightingSkills = [...splittermond.skillGroups.magic, ...splittermond.skillGroups.general];
+        describe("Skill group modifications", () => {
+            (["magic", "general"] as const).forEach((skillGroup) => {
+                it(
+                    `should modify skill group ${skillGroup}`,
+                    withActor(async (actor) => {
+                        await actor.createEmbeddedDocuments("Item", [
+                            {
+                                type: "strength",
+                                name: "Skill Booster",
+                                system: { modifier: `skills.${skillGroup} +2` },
+                            },
+                        ]);
+                        actor.prepareBaseData();
+                        await actor.prepareEmbeddedDocuments();
+                        actor.prepareDerivedData();
+
+                        splittermond.skillGroups[skillGroup].forEach((skill) => {
+                            expect(actor.skills[skill].value, `Modified ${skill}`).to.equal(6);
+                        });
+                    })
+                );
+            });
+
+            it(
+                `should modify skill group fighting`,
+                withActor(async (actor) => {
+                    const weapon = (
+                        await actor.createEmbeddedDocuments("Item", [
+                            {
+                                type: "weapon",
+                                name: "Skill Booster",
+                                system: {
+                                    equipped: true,
+                                    modifier: `skills.fighting +2`,
+                                    skill: "blades",
+                                    attribute1: "strength",
+                                    attribute2: "agility",
+                                },
+                            },
+                        ])
+                    )[0];
+                    actor.prepareBaseData();
+                    await actor.prepareEmbeddedDocuments();
+                    actor.prepareDerivedData();
+
+                    expect(actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value).to.equal(6);
+                })
+            );
+        });
+        //sample some skills, we'don't want a hundred identical tests here.
+        const nonFightingSkills = [
+            ...splittermond.skillGroups.magic.slice(0, 5),
+            ...splittermond.skillGroups.general.slice(0, 5),
+        ];
         describe("Direct skill modifications", () => {
             nonFightingSkills.forEach((skill) => {
                 it(
