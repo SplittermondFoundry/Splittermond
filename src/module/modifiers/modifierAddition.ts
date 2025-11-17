@@ -335,50 +335,6 @@ export function initAddModifier(
                         )
                     );
                     break;
-                case "generalskills":
-                    //Within the foreach function the compiler cannot figure out that the type guard happens first and complains
-                    //Therefore, we assign attributes to a new variable so that the order of operations is obvious.
-                    const generalSkillAttributes = modifier.attributes;
-                    splittermond.skillGroups.general.forEach((skill) => {
-                        modifiers.push(
-                            createModifier(
-                                skill,
-                                times(of(multiplier), modifier.value),
-                                generalSkillAttributes,
-                                item,
-                                type
-                            )
-                        );
-                    });
-                    break;
-                case "magicskills":
-                    const magicSkillAttributes = modifier.attributes;
-                    splittermond.skillGroups.magic.forEach((skill) => {
-                        modifiers.push(
-                            createModifier(
-                                skill,
-                                times(of(multiplier), modifier.value),
-                                magicSkillAttributes,
-                                item,
-                                type
-                            )
-                        );
-                    });
-                    break;
-                case "fightingskills":
-                    const fightingSkillAttributes = modifier.attributes;
-                    splittermond.skillGroups.fighting.forEach((skill) => {
-                        modifiers.push(
-                            createModifier(
-                                skill,
-                                times(of(multiplier), modifier.value),
-                                fightingSkillAttributes,
-                                item,
-                                type
-                            )
-                        );
-                    });
-                    break;
                 //This setup is a bit of a hack, it uses the (private) knowledge that Attack objects add the item id as listener to skill modifiers
                 //And also sneaks in actor knowledge via item.actor
                 case "npcattacks":

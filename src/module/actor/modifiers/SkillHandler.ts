@@ -9,11 +9,17 @@ import { isMember } from "module/util/util";
 import { CommonHandlerMethods } from "module/modifiers/impl/CommonHandlerMethods";
 
 const commonConfig = {
-    optionalAttributes: ["skill", "attribute1", "attribute2"],
+    optionalAttributes: ["skill", "attribute1", "attribute2", "emphasis"],
     subSegments: {
-        general: {},
-        magic: {},
-        fighting: {},
+        general: {
+            optionalAttributes: ["emphasis"],
+        },
+        magic: {
+            optionalAttributes: ["emphasis"],
+        },
+        fighting: {
+            optionalAttributes: ["emphasis"],
+        },
     },
 } as const;
 class CommonSkillHandler extends CommonHandlerMethods(ModifierHandler<ScalarModifier>) {
@@ -37,8 +43,15 @@ class CommonSkillHandler extends CommonHandlerMethods(ModifierHandler<ScalarModi
                 return this.unwrapModifiers(splittermond.skillGroups.fighting, modifier);
         }
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
+        normalizedAttributes.name = normalizedAttributes.emphasis ?? normalizedAttributes.name;
         return [
-            new Modifier(groupId, times(this.multiplier, modifier.value), normalizedAttributes, this.sourceItem, false),
+            new Modifier(
+                groupId,
+                times(this.multiplier, modifier.value),
+                normalizedAttributes,
+                this.sourceItem,
+                !!normalizedAttributes.emphasis
+            ),
         ];
     }
 
@@ -49,8 +62,9 @@ class CommonSkillHandler extends CommonHandlerMethods(ModifierHandler<ScalarModi
     private unwrapModifiers(skillGroup: readonly SplittermondSkill[], modifier: ScalarModifier) {
         return skillGroup.map((skill) => {
             const value = times(this.multiplier, modifier.value);
-            const attributes = { name: this.sourceItem.name, type: this.modifierType };
-            return new Modifier(skill, value, attributes, this.sourceItem, false);
+            const emphasis = this.validatedAttribute(modifier.attributes.emphasis);
+            const attributes = { name: emphasis ?? this.sourceItem.name, type: this.modifierType, emphasis };
+            return new Modifier(skill, value, attributes, this.sourceItem, !!emphasis);
         });
     }
 

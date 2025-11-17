@@ -1,5 +1,5 @@
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
-import type { ScalarModifier } from "module/modifiers/parsing";
+import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import { type Expression, isZero, times } from "module/modifiers/expressions/scalar";
 import type SplittermondItem from "module/item/item";
 import type { SplittermondSkill } from "module/config/skillGroups";
@@ -13,19 +13,28 @@ export function IndividualSkillHandler(skill: SplittermondSkill) {
             private readonly modifierType: ModifierType,
             private readonly multiplier: Expression
         ) {
-            super(logErrors, makeConfig({ topLevelPath: skill }));
+            super(logErrors, makeConfig({ topLevelPath: skill, optionalAttributes: ["emphasis"] }));
         }
         protected buildModifier(modifier: ScalarModifier): IModifier[] {
+            const emphasis = this.validatedAttribute(modifier.attributes.emphasis);
             const attributes = {
-                name: this.sourceItem.name,
+                name: emphasis ?? this.sourceItem.name,
                 type: this.modifierType,
+                emphasis,
             };
             const value = times(this.multiplier, modifier.value);
-            return [new Modifier(modifier.path, value, attributes)];
+            return [new Modifier(modifier.path, value, attributes, this.sourceItem, !!emphasis)];
         }
 
         protected omitForValue(value: Expression): boolean {
             return isZero(value);
+        }
+
+        private validatedAttribute(value: Value | undefined): string | undefined {
+            if (value === null || value === undefined || !this.validateDescriptor(value)) {
+                return undefined;
+            }
+            return value;
         }
     };
 }
