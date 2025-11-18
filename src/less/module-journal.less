@@ -1,5 +1,48 @@
 @import "./variables.less";
 
+.journal-code-block() {
+    background: unset;
+    color: @color-text-secondary;
+}
+.small-code-padding() {
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+}
+.journal-headings() {
+    font-family: @font-secondary;
+    font-weight: 400;
+    line-height: normal;
+    color: var(--color-active-text);
+}
+
+.application.sheet.journal-sheet.journal-entry-page.text {
+    .border-paper();
+    .filled-border();
+
+    .window-header {
+        .window-header-def();
+    }
+
+    .window-content {
+        .window-body-def();
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            .journal-headings();
+        }
+    }
+    code {
+        .journal-code-block();
+    }
+    table {
+        code {
+            .small-code-padding();
+        }
+    }
+}
 .sheet.journal-entry {
     //White text in journal header
     .window-header {
@@ -24,6 +67,15 @@
         background-position: top right;
         background-blend-mode: var(--background-parchment-splittermond-blend-mode);
         background-clip: padding-box;
+
+        code {
+            .journal-code-block();
+        }
+        table {
+            code {
+                .small-code-padding();
+            }
+        }
 
         .journal-header {
             .title {
@@ -88,7 +140,6 @@
             h5,
             h6 {
                 margin-top: var(--line-height);
-                color: var(--color-active-text);
             }
         }
 
@@ -98,10 +149,7 @@
         h4,
         h5,
         h6 {
-            font-family: @font-secondary;
-            font-weight: 400;
-            line-height: normal;
-            color: var(--color-active-text);
+            .journal-headings();
         }
 
         h1,
@@ -117,16 +165,6 @@
             justify-content: center;
             align-items: center;
             gap: 12px;
-
-            /*
-&::before {
-    content: url(../../systems/splittermond/images/tribal-1-left.svg);
-}
-
-&::after {
-    content: url(../../systems/splittermond/images/tribal-1-right.svg);
-}
-*/
         }
 
         .level1 .subtitle {
@@ -142,16 +180,6 @@
             justify-content: center;
             align-items: center;
             gap: 12px;
-
-            /*
-&::before {
-    content: url(../../systems/splittermond/images/tribal-2-left.svg);
-}
-
-&::after {
-    content: url(../../systems/splittermond/images/tribal-2-right.svg);
-}
-*/
         }
 
         .level2 .subtitle {
@@ -356,6 +384,9 @@
                 margin-left: calc(2 * var(--level-indent) + var(--sidebar-width-collapsed));
             }
         }
+    }
+    button:not(.icon) {
+        .button-style();
     }
 
     .sheet.journal-sheet {
