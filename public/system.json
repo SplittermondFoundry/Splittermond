@@ -2,7 +2,7 @@
   "id": "splittermond",
   "title": "Splittermond",
   "description": "A system for playing the german pen and paper RPG Splittermond.",
-  "version": "13.8.8",
+  "version": "13.9.0",
   "authors": [
     {
       "name": "Simon"
@@ -260,5 +260,5 @@
   "background": "systems/splittermond/images/Splittermond-Foundry-Hintergrund-weit.webp",
   "url": "https://github.com/SplittermondFoundry/splittermond",
   "manifest": "https://raw.githubusercontent.com/SplittermondFoundry/Splittermond/main/public/system.json",
-  "download": "https://github.com/SplittermondFoundry/Splittermond/releases/download/v13.8.8/splittermond-13.8.8.zip"
+  "download": "https://github.com/SplittermondFoundry/Splittermond/releases/download/v13.9.0/splittermond-13.9.0.zip"
 }
