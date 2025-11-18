@@ -198,6 +198,23 @@ describe("Attack", () => {
             expect(damageItems.otherComponents).to.be.empty;
         });
 
+        it("should ignore modifiers if attack has no skill", () => {
+            const actor = setUpActor(sandbox);
+            const attackItem = setUpAttackItem({ skill: undefined });
+            attackItem.name = "Langschwert";
+            const modifierAttributes = {
+                type: "magic" as const,
+                skill: "staffs",
+                name: "Klinge des Lichts",
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            const underTest = new Attack(actor, attackItem);
+
+            const damageItems = underTest.getForDamageRoll();
+
+            expect(damageItems.otherComponents).to.be.empty;
+        });
+
         it("should account for Improvisation feature", () => {
             const actor = setUpActor(sandbox);
             sandbox.stub(actor, "items").value([{ name: "Improvisation", type: "mastery" }]);
@@ -385,6 +402,20 @@ describe("Attack", () => {
         expect(underTest.weaponSpeed).to.equal(7);
     });
 
+    it("should filter out weapon speed modifiers if attack has no skill", () => {
+        const actor = setUpActor(sandbox);
+        const attackItem = setUpAttackItem({ weaponSpeed: 7, skill: undefined });
+        actor.modifier.add(
+            "item.weaponspeed",
+            { type: "magic", name: attackItem?.name, skill: "blades" },
+            of(3),
+            null,
+            false
+        );
+        const underTest = new Attack(actor, attackItem);
+
+        expect(underTest.weaponSpeed).to.equal(7);
+    });
     it("should account for improvisation in weapon speed", () => {
         const actor = setUpActor(sandbox);
         sandbox.stub(actor, "items").value([{ name: "Improvisation", type: "mastery" }]);
