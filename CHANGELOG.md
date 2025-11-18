@@ -1,3 +1,20 @@
+## 13.9.0
+
+### Breaking Changes
+
+- Die Modifikatoren `generalskills`,`fightingskills` und `magicskills` sind veraltet. Sie werden durch `actor.skill`
+  ersetzt.
+    - Existierende Modifikatoren werden migriert.
+
+### New Features
+
+- Es gibt einen neuen Modifikator `actor.skills`
+    - Mit den Unterpfaden `general`, `fighting` und `magic` können Fertigkeitenwerte für alle Fertigkeiten eines Typs
+      modifiziert werden.
+    - Mit den Attributen `skill`, `attribute1` und `attribute2` kann der Modifikator auf bestimmte Fertigkeiten
+      beschränkt werden.
+- Die Dokumentation für Modifikatoren wurde erweitert.
+
 ## 13.8.8
 
 ### Fixed
