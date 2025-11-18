@@ -25,7 +25,7 @@ system:
         Punkt erh&ouml;ht. Es kann durch eine <em>Verschnaufpause </em>der Zustand
         um eine Stufe verringert werden.</p>
     source: ""
-    modifier: fightingSkills -1, generalSkills -1, GSW -1, INI +1, npcattacks -1
+    modifier: skills.fighting -1, skills.general -1, GSW -1, INI +1, npcattacks -1
     level: "1"
     startTick: 0
     interval: 0

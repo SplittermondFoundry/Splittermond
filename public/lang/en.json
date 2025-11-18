@@ -62,7 +62,9 @@
                 "skill": "skill",
                 "type": "type",
                 "unit": "unit",
-                "value": "value"
+                "value": "value",
+                "attribute1": "attribute1",
+                "attribute2": "attribute2"
             },
             "parseMessages": {
                 "notAModifier": "Modifier '{modifier}' is not of a modifier format.",

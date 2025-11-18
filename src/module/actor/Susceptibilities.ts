@@ -1,5 +1,5 @@
 import { DamageType, damageTypes } from "../config/damageTypes";
-import ModifierManager from "./modifier-manager";
+import ModifierManager from "./modifiers/modifier-manager";
 
 export class Susceptibilities {
     private susceptibilities: Record<DamageType, number> = {

@@ -6,13 +6,13 @@ import {
 } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import { afterEach, beforeEach, describe, it } from "mocha";
 import { expect } from "chai";
-import { foundryApi } from "../../../../../../module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 import sinon from "sinon";
-import { WeaponDataModel } from "../../../../../../module/item/dataModel/WeaponDataModel";
+import { WeaponDataModel } from "module/item/dataModel/WeaponDataModel";
 import SplittermondWeaponItem from "../../../../../../module/item/weapon";
 import SplittermondActor from "../../../../../../module/actor/actor";
-import ModifierManager from "../../../../../../module/actor/modifier-manager";
-import { of } from "../../../../../../module/modifiers/expressions/scalar";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
+import { of } from "module/modifiers/expressions/scalar";
 
 describe("ItemFeaturesModel", () => {
     let sandbox: sinon.SinonSandbox;
@@ -222,6 +222,30 @@ describe("ItemFeaturesModel", () => {
         const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
 
         expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 3"]);
+    });
+
+    it("should filter out modifier features if skill", () => {
+        const internal1 = new ItemFeatureDataModel({ name: "Ablenkend", value: 1 });
+        const internal2 = new ItemFeatureDataModel({ name: "Scharf", value: 2 });
+        const parent = setupParent();
+        parent.updateSource({ skill: undefined });
+        parent.parent!.actor.modifier.add(
+            "item.add",
+            { name: "Test", feature: "Scharf", skill: "blades", type: "magic" },
+            of(4),
+            null,
+            false
+        );
+        parent.parent!.actor.modifier.add(
+            "item.mergeFeature",
+            { name: "Test", feature: "Scharf", skill: "staffs", type: "magic" },
+            of(5),
+            null,
+            false
+        );
+        const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
+
+        expect(features.featuresAsStringList()).to.deep.equal(["Ablenkend", "Scharf 2"]);
     });
 
     it("should merge features", () => {

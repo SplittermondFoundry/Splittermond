@@ -2,7 +2,7 @@ import { describe } from "mocha";
 import { expect } from "chai";
 import { ModifierHandler } from "module/modifiers/ModiferHandler";
 import type { ScalarModifier } from "module/modifiers/parsing";
-import type { IModifier } from "module/actor/modifier-manager";
+import type { IModifier } from "module/modifiers";
 import sinon from "sinon";
 import { type Expression, of } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "module/api/foundryApi";
@@ -23,8 +23,8 @@ class TestModifierHandler extends ModifierHandler<ScalarModifier> {
         });
     }
 
-    buildModifier(_: ScalarModifier, __: ConfigSegment): IModifier | null {
-        return null;
+    buildModifier(_: ScalarModifier, __: ConfigSegment): IModifier[] {
+        return [];
     }
 
     omitForValue(_: Expression): boolean {
@@ -83,7 +83,7 @@ describe("Modifier handler", () => {
 
         const result = probe.processModifier({ path: "invalid.path", value: of(1), attributes: {} });
 
-        expect(result).to.be.null;
+        expect(result).to.be.empty;
         expect(buildSpy.callCount).to.equal(0);
     });
 
@@ -151,10 +151,26 @@ describe("Modifier handler", () => {
             },
         });
 
-        expect(result).to.be.null;
+        expect(result).to.be.empty;
         expect(errors).to.have.length(1);
         expect(errors).to.include("splittermond.modifiers.parseMessages.missingDescriptor");
         expect(buildSpy.callCount).to.equal(0);
+    });
+
+    it("should support top-level paths with more than one segment", () => {
+        const customConfig = makeConfig({
+            topLevelPath: "multi.segment.path",
+            subSegments: {
+                sub1: {},
+            },
+        });
+        const errors: string[] = [];
+        const probe = new TestModifierHandler(toLog(errors), customConfig);
+        const buildSpy = sandbox.spy(probe, "buildModifier");
+
+        probe.processModifier({ path: "multi.segment.path.sub1", value: of(1), attributes: {} });
+
+        expect(buildSpy.callCount).to.equal(1);
     });
 });
 function toLog(collector: string[] = []) {

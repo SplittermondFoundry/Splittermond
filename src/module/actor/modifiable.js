@@ -1,5 +1,5 @@
 import { asString, condense, isGreaterThan, isGreaterZero, minus, of } from "module/modifiers/expressions/scalar/index";
-import { Modifiers } from "module/actor/modifier.js";
+import { Modifiers } from "module/actor/modifiers/Modifiers";
 
 export default class Modifiable {
     /**

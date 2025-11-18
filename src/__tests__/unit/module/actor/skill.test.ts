@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { describe } from "mocha";
 import SplittermondActor from "module/actor/actor";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
-import ModifierManager from "module/actor/modifier-manager";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
 import Skill from "module/actor/skill";
 import { foundryApi } from "module/api/foundryApi";
 import { Dice } from "module/util/dice";

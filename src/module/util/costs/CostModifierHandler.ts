@@ -3,10 +3,9 @@ import { ICostModifier } from "module/util/costs/spellCostManagement";
 import { times as timesCost } from "module/modifiers/expressions/cost";
 import { type Expression, of, times } from "module/modifiers/expressions/scalar";
 import type { FocusModifier, Value } from "module/modifiers/parsing";
-import { ModifierHandler } from "module/modifiers";
+import { ModifierHandler, type ModifierType } from "module/modifiers";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import type SplittermondItem from "module/item/item";
-import type { ModifierType } from "module/actor/modifier-manager";
 import { splittermond } from "module/config";
 import { isMember } from "module/util/util";
 
@@ -39,18 +38,20 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
         },
     });
 
-    protected buildModifier(modifier: FocusModifier): ICostModifier | null {
+    protected buildModifier(modifier: FocusModifier): ICostModifier[] {
         const group = this.normalizeSkill(modifier.path, modifier.attributes.skill);
         const type = this.validatedAttribute(modifier.attributes.type);
-        return {
-            label: this.normalizePath(modifier.path),
-            value: timesCost(this.getMultiplier(modifier.path), modifier.value),
-            skill: "skill" in this.sourceItem.system ? this.sourceItem.system.skill : null,
-            attributes: {
-                skill: group ?? undefined,
-                type: type ?? undefined,
+        return [
+            {
+                label: this.normalizePath(modifier.path),
+                value: timesCost(this.getMultiplier(modifier.path), modifier.value),
+                skill: "skill" in this.sourceItem.system ? this.sourceItem.system.skill : null,
+                attributes: {
+                    skill: group ?? undefined,
+                    type: type ?? undefined,
+                },
             },
-        };
+        ];
     }
 
     protected omitForValue(): boolean {

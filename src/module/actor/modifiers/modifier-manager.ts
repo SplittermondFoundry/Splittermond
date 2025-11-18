@@ -1,40 +1,12 @@
-import Modifier, { Modifiers } from "./modifier";
-import { Expression } from "../modifiers/expressions/scalar";
-import { TooltipFormula } from "../util/tooltip";
+import Modifier from "module/modifiers/impl/modifier";
+import { Expression } from "module/modifiers/expressions/scalar";
+import type { IModifier, ModifierAttributes } from "module/modifiers";
+import { Modifiers } from "module/actor/modifiers/Modifiers";
 
 interface AttributeSelector {
     key: string;
     values: string[];
     allowAbsent?: boolean;
-}
-
-export interface ModifierAttributes {
-    name: string;
-    type: ModifierType;
-
-    [x: string]: string | undefined | null;
-}
-
-/**
- * The type of item from which the modifier stems. Use
- * <ul>
- *     <li><code>magic</code> for spells, their effects and temporary enchantments</li>
- *     <li><code>equipment</code> for arms, armor and any personal effects</li>
- *     <li><code>innate</code> for strengths, masteries and other permanent effects</li>
- * </ul>
- */
-export type ModifierType = "magic" | "equipment" | "innate" | null;
-
-export interface IModifier {
-    readonly value: Expression;
-
-    addTooltipFormulaElements(formula: TooltipFormula): void;
-
-    readonly isBonus: boolean;
-    readonly groupId: string;
-    readonly selectable: boolean;
-    readonly attributes: ModifierAttributes;
-    readonly origin: object | null;
 }
 
 export default class ModifierManager {

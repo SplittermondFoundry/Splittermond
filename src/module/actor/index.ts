@@ -3,13 +3,23 @@ import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { NpcDataModel } from "module/actor/dataModel/NpcDataModel";
 import { actualAddModifierFunction, type IAddModifier } from "module/actor/addModifierAdapter";
 import { registerSheets } from "module/actor/sheets/registration";
+import { ModifierRegistry } from "module/modifiers";
+import type { ScalarModifier } from "module/modifiers/parsing";
+import { ActorSkillHandler, SkillHandler } from "module/actor/modifiers/SkillHandler";
+import { splittermond } from "module/config";
+import { IndividualSkillHandler } from "module/actor/modifiers/IndividualSkillHandler";
 
 const trackableResources = {
     bar: ["healthBar", "focusBar"],
     value: ["health.available.value", "focus.available.value"],
 };
 
-export function initializeActor(actorConfig: (typeof CONFIG)["Actor"], addModifier: IAddModifier) {
+type ModifierModule = {
+    modifierRegistry: ModifierRegistry<ScalarModifier>;
+    addModifier: IAddModifier;
+};
+
+export function initializeActor(actorConfig: (typeof CONFIG)["Actor"], modifierModule: ModifierModule) {
     console.log("Splittermond | Initializing Actor feature");
     actorConfig.documentClass = SplittermondActor;
     actorConfig.dataModels.character = CharacterDataModel;
@@ -22,6 +32,11 @@ export function initializeActor(actorConfig: (typeof CONFIG)["Actor"], addModifi
         npc: trackableResources,
     };
 
-    actualAddModifierFunction.self = addModifier;
+    actualAddModifierFunction.self = modifierModule.addModifier;
+    modifierModule.modifierRegistry.addHandler(SkillHandler.config.topLevelPath, SkillHandler);
+    modifierModule.modifierRegistry.addHandler(ActorSkillHandler.config.topLevelPath, ActorSkillHandler);
+    splittermond.skillGroups.all.forEach((skill) => {
+        modifierModule.modifierRegistry.addHandler(skill, IndividualSkillHandler(skill));
+    });
     registerSheets();
 }

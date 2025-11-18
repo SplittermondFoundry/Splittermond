@@ -4,7 +4,7 @@ import sinon, { SinonSandbox, type SinonSpy } from "sinon";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ModifierHandler } from "module/modifiers/ModiferHandler";
 import SplittermondItem from "module/item/item";
-import { ModifierType } from "module/actor/modifier-manager";
+import { ModifierType } from "module/modifiers";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import { foundryApi } from "module/api/foundryApi";
 import { of } from "module/modifiers/expressions/scalar";
@@ -25,8 +25,8 @@ describe("ModifierRegistry", () => {
             return false;
         }
 
-        protected buildModifier(): null {
-            return null;
+        protected buildModifier() {
+            return [];
         }
     }
 
@@ -39,8 +39,8 @@ describe("ModifierRegistry", () => {
             return false;
         }
 
-        protected buildModifier(): null {
-            return null;
+        protected buildModifier() {
+            return [];
         }
     }
 
@@ -443,7 +443,7 @@ describe("ModifierRegistry", () => {
 
                 const result = handler.processModifier(mockModifier, mockConfig);
 
-                expect(result).to.be.null;
+                expect(result).to.be.empty;
             });
 
             it("should create new NoActionModifierHandler instances for each unknown path", () => {
@@ -475,6 +475,20 @@ describe("ModifierRegistry", () => {
                 expect(itemHandler2).to.be.instanceOf(TestHandler);
                 expect(actorHandler1).to.be.instanceOf(AnotherTestHandler);
                 expect(actorHandler2).to.be.instanceOf(AnotherTestHandler);
+            });
+
+            it("should handle multiple cache instances with overlapping paths", () => {
+                registry.addHandler("skills", TestHandler);
+                registry.addHandler("actor.skills", AnotherTestHandler);
+
+                const cache = registry.getCache(mockLogErrors, mockItem, "equipment", of(1));
+
+                const path1Handler = cache.getHandler("skills.sample");
+                const path2Handler = cache.getHandler("actor.skills.sample");
+
+                // Same handler classes but different instances between caches
+                expect(path1Handler).to.be.instanceOf(TestHandler);
+                expect(path2Handler).to.be.instanceOf(AnotherTestHandler);
             });
 
             it("should properly handle registration order independence", () => {

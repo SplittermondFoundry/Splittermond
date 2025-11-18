@@ -5,16 +5,16 @@ import { afterEach, beforeEach, describe, it } from "mocha";
 import { initializeSpellCostManagement } from "module/util/costs/spellCostManagement";
 import { Cost } from "module/util/costs/Cost";
 import sinon, { SinonSandbox } from "sinon";
-import { SpellDataModel } from "../../../../module/item/dataModel/SpellDataModel";
+import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import SplittermondActor from "../../../../module/actor/actor";
-import ModifierManager from "../../../../module/actor/modifier-manager";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
 import { createTestRoll, stubRollApi } from "../../RollMock";
-import { evaluate, of } from "../../../../module/modifiers/expressions/scalar";
+import { evaluate, of } from "module/modifiers/expressions/scalar";
 import { of as ofCost } from "../../../../module/modifiers/expressions/cost";
-import { ItemFeaturesModel } from "../../../../module/item/dataModel/propertyModels/ItemFeaturesModel";
-import { DamageRoll } from "../../../../module/util/damage/DamageRoll";
-import { foundryApi } from "../../../../module/api/foundryApi";
-import { DamageModel } from "../../../../module/item/dataModel/propertyModels/DamageModel";
+import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
+import { DamageRoll } from "module/util/damage/DamageRoll";
+import { foundryApi } from "module/api/foundryApi";
+import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 
 describe("Spell item availability display", () => {
     const sampleSpell = new SplittermondSpellItem(

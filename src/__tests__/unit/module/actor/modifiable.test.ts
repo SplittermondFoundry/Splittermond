@@ -1,7 +1,8 @@
 import Modifiable from "module/actor/modifiable";
 import sinon from "sinon";
 import SplittermondActor from "module/actor/actor";
-import ModifierManager, { type IModifier } from "module/actor/modifier-manager";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
+import type { IModifier } from "module/modifiers";
 import { TooltipFormula } from "module/util/tooltip";
 import { isLessThanZero, of } from "module/modifiers/expressions/scalar";
 import { expect } from "chai";

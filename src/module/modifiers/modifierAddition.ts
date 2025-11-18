@@ -4,15 +4,15 @@ import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
 import { type FocusModifier, parseModifiers, type ScalarModifier, Value } from "./parsing";
 import { condense, Expression as ScalarExpression, of, pow, times } from "./expressions/scalar";
-import Modifier from "../actor/modifier";
+import Modifier from "module/modifiers/impl/modifier";
 import { validateDescriptors } from "./parsing/validators";
 import { normalizeDescriptor } from "./parsing/normalizer";
-import { InverseModifier } from "../actor/InverseModifier";
-import { MultiplicativeModifier } from "../actor/MultiplicativeModifier";
-import type { IModifier, ModifierType } from "../actor/modifier-manager";
+import { InverseModifier } from "module/modifiers/impl/InverseModifier";
+import { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
+import type { IModifier, ModifierType } from "module/modifiers/index";
 
 export interface AddModifierResult {
     modifiers: IModifier[];
@@ -48,14 +48,12 @@ export function initAddModifier(
                 const normalized = processCostValue(parsedModifier, item.actor);
                 if (!normalized) continue;
                 const modifier = costHandlerCache.getHandler(normalized.path).processModifier(normalized);
-                if (!modifier) continue;
-                costModifiers.push(modifier);
+                costModifiers.push(...modifier);
             } else if (handlerCache.handles(parsedModifier.path)) {
                 const normalized = processScalarValue(parsedModifier, item.actor);
                 if (!normalized) continue;
                 const modifier = handlerCache.getHandler(normalized.path).processModifier(normalized);
-                if (!modifier) continue;
-                modifiers.push(modifier);
+                modifiers.push(...modifier);
             } else {
                 const normalized = processScalarValue(parsedModifier, item.actor);
                 if (!normalized) continue;
@@ -78,7 +76,7 @@ export function initAddModifier(
             if (handler.constructor.name !== "NoActionModifierHandler") {
                 const createdModifier = handler.processModifier(modifier);
                 if (createdModifier) {
-                    modifiers.push(createdModifier);
+                    modifiers.push(...createdModifier);
                     return;
                 }
             }
@@ -335,50 +333,6 @@ export function initAddModifier(
                             ""
                         )
                     );
-                    break;
-                case "generalskills":
-                    //Within the foreach function the compiler cannot figure out that the type guard happens first and complains
-                    //Therefore, we assign attributes to a new variable so that the order of operations is obvious.
-                    const generalSkillAttributes = modifier.attributes;
-                    splittermond.skillGroups.general.forEach((skill) => {
-                        modifiers.push(
-                            createModifier(
-                                skill,
-                                times(of(multiplier), modifier.value),
-                                generalSkillAttributes,
-                                item,
-                                type
-                            )
-                        );
-                    });
-                    break;
-                case "magicskills":
-                    const magicSkillAttributes = modifier.attributes;
-                    splittermond.skillGroups.magic.forEach((skill) => {
-                        modifiers.push(
-                            createModifier(
-                                skill,
-                                times(of(multiplier), modifier.value),
-                                magicSkillAttributes,
-                                item,
-                                type
-                            )
-                        );
-                    });
-                    break;
-                case "fightingskills":
-                    const fightingSkillAttributes = modifier.attributes;
-                    splittermond.skillGroups.fighting.forEach((skill) => {
-                        modifiers.push(
-                            createModifier(
-                                skill,
-                                times(of(multiplier), modifier.value),
-                                fightingSkillAttributes,
-                                item,
-                                type
-                            )
-                        );
-                    });
                     break;
                 //This setup is a bit of a hack, it uses the (private) knowledge that Attack objects add the item id as listener to skill modifiers
                 //And also sneaks in actor knowledge via item.actor

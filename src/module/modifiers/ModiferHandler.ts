@@ -1,4 +1,3 @@
-import type { IModifier } from "module/actor/modifier-manager";
 import { foundryApi } from "module/api/foundryApi";
 import type { FocusModifier, ScalarModifier, Value } from "module/modifiers/parsing";
 import { validateDescriptors } from "module/modifiers/parsing/validators";
@@ -6,6 +5,7 @@ import type { Config, ConfigSegment } from "module/modifiers/ModifierConfig";
 import type { CostExpression } from "module/modifiers/expressions/cost";
 import type { Expression } from "module/modifiers/expressions/scalar";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import type { IModifier } from "module/modifiers/index";
 
 export type AnyModifier = ScalarModifier | FocusModifier;
 
@@ -17,18 +17,18 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
         private readonly config: Config
     ) {}
 
-    processModifier(modifier: TYPE): ResultType<TYPE> | null {
+    processModifier(modifier: TYPE): ResultType<TYPE>[] {
         if (this.omitForValue(modifier.value)) {
             console.debug(`Splittermond | Omitting modifier ${modifier.path} because of its value:`, modifier.value);
-            return null;
+            return [];
         }
         const pathConfig = this.getPathConfig(modifier.path);
         if (!pathConfig) {
             this.reportPathError(modifier.path);
-            return null;
+            return [];
         } else if (!this.noMissingAttributes(modifier, pathConfig)) {
             this.reportMissingAttributeError(modifier, pathConfig);
-            return null;
+            return [];
         }
         this.reportUnknownAttributes(modifier, pathConfig);
 
@@ -37,15 +37,16 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
 
     protected abstract omitForValue(value: ExpressionType<TYPE>): boolean;
 
-    protected abstract buildModifier(modifier: TYPE, pathConfig: ConfigSegment): ResultType<TYPE> | null;
+    protected abstract buildModifier(modifier: TYPE, pathConfig: ConfigSegment): ResultType<TYPE>[];
 
     private getPathConfig(path: string): ConfigSegment | null {
-        const pathElements = path.split(".").map((e) => e.toLowerCase());
-        if (pathElements[0] !== this.config.topLevelPath) {
+        const pathElements = path.toLowerCase().split(".");
+        const configTopLevel = this.config.topLevelPath.toLowerCase().split(".");
+        if (pathElements.slice(0, configTopLevel.length).some((e, i) => e !== configTopLevel[i])) {
             return null;
         }
         let currentSegment: ConfigSegment = this.config;
-        for (const pathElement of pathElements.slice(1)) {
+        for (const pathElement of pathElements.slice(configTopLevel.length)) {
             const nextSegmentKey = Object.keys(currentSegment.subSegments ?? {}).find(
                 (key) => key.toLowerCase() === pathElement
             );

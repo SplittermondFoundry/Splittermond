@@ -1,24 +1,21 @@
 import type { ScalarModifier, Value } from "../modifiers/parsing";
-import Modifier from "../actor/modifier";
-import { normalizeDescriptor } from "../modifiers/parsing/normalizer";
+import Modifier from "module/modifiers/impl/modifier";
 import { splittermond } from "../config";
 import type SplittermondItem from "./item";
-import type { IModifier, ModifierAttributes, ModifierType } from "../actor/modifier-manager";
-import { makeConfig, ModifierHandler } from "module/modifiers";
+import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import { type Expression, isZero, pow, times } from "module/modifiers/expressions/scalar";
 import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";
+import { CommonHandlerMethods } from "module/modifiers/impl/CommonHandlerMethods";
 
-type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
-
-export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
+export class ItemModifierHandler extends CommonHandlerMethods(ModifierHandler<ScalarModifier>) {
     constructor(
         logErrors: (...message: string[]) => void,
-        private readonly sourceItem: SplittermondItem,
-        private readonly modifierType: ModifierType,
+        sourceItem: SplittermondItem,
+        modifierType: ModifierType,
         private readonly multiplier: Expression
     ) {
-        super(logErrors, ItemModifierHandler.config);
+        super(logErrors, ItemModifierHandler.config, sourceItem, modifierType);
     }
 
     static config = makeConfig({
@@ -54,23 +51,12 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
         return isZero(value);
     }
 
-    protected buildModifier(modifier: ScalarModifier): IModifier | null {
+    protected buildModifier(modifier: ScalarModifier): IModifier[] {
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
         const operator = modifier.path.endsWith("multiplier") ? pow : times;
         const adjustedValue = operator(modifier.value, this.multiplier);
 
-        return new Modifier(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false);
-    }
-
-    buildAttributes(path: string, attributes: Record<string, Value>): ModifierAttributes {
-        const normalizedAttributes: ModifierAttributes = {
-            name: this.sourceItem.name,
-            type: this.modifierType,
-        };
-        for (const attribute in attributes) {
-            normalizedAttributes[attribute] = this.mapAttribute(path, attribute, attributes[attribute]);
-        }
-        return normalizedAttributes;
+        return [new Modifier(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false)];
     }
 
     mapAttribute(path: string, attribute: string, value: Value): string | undefined {
@@ -88,18 +74,6 @@ export class ItemModifierHandler extends ModifierHandler<ScalarModifier> {
             default:
                 return this.validatedAttribute(value);
         }
-    }
-
-    validatedAttribute(value: Value | undefined): string | undefined {
-        if (value === null || value === undefined || !this.validateDescriptor(value)) {
-            return undefined;
-        }
-        return value;
-    }
-
-    normalizeAttribute(value: Value | undefined, mapper: ValidMapper): string | undefined {
-        const validated = this.validatedAttribute(value);
-        return validated ? normalizeDescriptor(validated).usingMappers(mapper).do() : validated;
     }
 
     normalizeDamageType(path: string, damageType: Value | undefined): string | undefined {

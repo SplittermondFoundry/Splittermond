@@ -1,5 +1,5 @@
 import type SplittermondItem from "module/item/item";
-import type { IModifier, ModifierType } from "module/actor/modifier-manager";
+import type { IModifier, ModifierType } from "module/modifiers";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
 
 export type IAddModifierResult = { modifiers: IModifier[]; costModifiers: ICostModifier[] };

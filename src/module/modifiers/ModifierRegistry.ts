@@ -1,9 +1,9 @@
 import { type AnyModifier, ModifierHandler } from "module/modifiers/ModiferHandler";
-import type { ModifierType } from "module/actor/modifier-manager";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import { IllegalStateException } from "module/data/exceptions";
 import type SplittermondItem from "module/item/item";
 import type { Expression } from "module/modifiers/expressions/scalar";
+import type { ModifierType } from "module/modifiers/index";
 
 type ErrorLogger = (...messages: string[]) => void;
 type HandlerConstructorArgs = [
@@ -119,8 +119,8 @@ class NoActionModifierHandler<T extends AnyModifier> extends ModifierHandler<T> 
         super(logErrors, makeConfig({ topLevelPath: "" }));
     }
 
-    protected buildModifier(): null {
-        return null;
+    protected buildModifier() {
+        return [];
     }
 
     protected omitForValue(): boolean {

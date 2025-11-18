@@ -1,6 +1,6 @@
-import { Susceptibilities } from "../../../../module/actor/Susceptibilities";
-import ModifierManager from "../../../../module/actor/modifier-manager";
-import { damageTypes } from "../../../../module/config/damageTypes";
+import { Susceptibilities } from "module/actor/Susceptibilities";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
+import { damageTypes } from "module/config/damageTypes";
 import { expect } from "chai";
 import { of } from "module/modifiers/expressions/scalar";
 

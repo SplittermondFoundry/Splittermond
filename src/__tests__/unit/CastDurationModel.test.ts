@@ -3,7 +3,7 @@ import { foundryApi } from "module/api/foundryApi";
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import sinon, { type SinonSandbox } from "sinon";
-import ModifierManager from "module/actor/modifier-manager";
+import ModifierManager from "module/actor/modifiers/modifier-manager";
 import SplittermondActor from "module/actor/actor";
 import SplittermondItem from "module/item/item";
 import { of } from "module/modifiers/expressions/scalar";

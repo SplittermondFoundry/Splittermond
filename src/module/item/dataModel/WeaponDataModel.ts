@@ -5,6 +5,7 @@ import {
     from0_12_20_migrateDamage,
     from0_12_20_migrateFeatures,
     from13_5_2_migrate_fo_modifiers,
+    from13_8_8_migrateSkillModifiers,
     migrateFrom0_12_13,
     migrateFrom0_12_20,
 } from "./migrations";
@@ -54,6 +55,7 @@ export class WeaponDataModel extends SplittermondDataModel<WeaponDataModelType, 
         source = from0_12_20_migrateFeatures(source);
         source = from0_12_20_migrateDamage(source);
         source = from13_5_2_migrate_fo_modifiers(source);
+        source = from13_8_8_migrateSkillModifiers(source);
         return super.migrateData(source);
     }
 }
