@@ -220,6 +220,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             result[item.skill.id].spells.push(item);
             return result;
         }, {});
+        for (const key in sheetData.itemsByType) {
+            sheetData.itemsByType[key].sort((a, b) => a.sort - b.sort);
+        }
     }
 
     /**
@@ -677,7 +680,6 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
         return super._onDropDocument(_e, document);
     }
-
     /**
      * Overwrite to determine what Items can be dropped on this actor
      * @param {ItemType} itemType
