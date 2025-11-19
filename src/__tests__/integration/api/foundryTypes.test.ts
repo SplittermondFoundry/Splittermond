@@ -98,6 +98,13 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             }
         );
 
+        ([["sort", fields.NumberField]] as const).forEach(([name, type]) => {
+            it("should have a schema property ${name}", () => {
+                expect(Item.defineSchema(), `Item schema contains ${name}`).to.have.property(name);
+                expect((Item.defineSchema() as any)[name], `${name} is of correct type`).to.be.instanceOf(type);
+            });
+        });
+
         describe("Item Sheet Registration", () => {
             class TestItemSheet extends SplittermondBaseItemSheet {}
             it("can register a sheet for item", () => {

@@ -589,5 +589,53 @@ export function actorTest(context: QuenchBatchContext) {
                 ).to.be.true;
             })
         );
+
+        it(
+            "should sort items correctly in prepareContext",
+            withActor(async (actor) => {
+                // Create items with explicit sort values out of order
+                const item1 = (
+                    await actor.createEmbeddedDocuments("Item", [
+                        { type: "equipment", name: "C Equipment", system: {}, sort: 300000 },
+                    ])
+                )[0];
+                const item2 = (
+                    await actor.createEmbeddedDocuments("Item", [
+                        { type: "equipment", name: "A Equipment", system: {}, sort: 100000 },
+                    ])
+                )[0];
+                const item3 = (
+                    await actor.createEmbeddedDocuments("Item", [
+                        { type: "equipment", name: "B Equipment", system: {}, sort: 200000 },
+                    ])
+                )[0];
+
+                // Verify items were created with the expected sort values (out of order by name)
+                expect(item1.sort, "Item1 sort").to.equal(300000);
+                expect(item2.sort, "Item2 sort").to.equal(100000);
+                expect(item3.sort, "Item3 sort").to.equal(200000);
+
+                const sheet = new SplittermondCharacterSheet({ document: actor });
+                const context = await sheet._prepareContext();
+                if (!("itemsByType" in context)) {
+                    throw new Error("itemsByType not in context");
+                }
+
+                // Check that itemsByType.equipment is sorted by the sort property
+                expect(context.itemsByType, "Context should have itemsByType").to.exist;
+                const equipmentItems = (context.itemsByType as any).equipment;
+                expect(equipmentItems, "Should have equipment items").to.exist;
+                expect(equipmentItems).to.have.lengthOf(3);
+
+                // Items should be in sort order: item2 (100k), item3 (200k), item1 (300k)
+                expect(equipmentItems[0]._id, "First item should be item2").to.equal(item2.id);
+                expect(equipmentItems[1]._id, "Second item should be item3").to.equal(item3.id);
+                expect(equipmentItems[2]._id, "Third item should be item1").to.equal(item1.id);
+
+                // Verify the sort values are in ascending order
+                expect(equipmentItems[0].sort, "First item sort").to.be.lessThan(equipmentItems[1].sort);
+                expect(equipmentItems[1].sort, "Second item sort").to.be.lessThan(equipmentItems[2].sort);
+            })
+        );
     });
 }

@@ -183,7 +183,25 @@ export class TooltipConfigurer {
             },
         };
         const anchor: HTMLElement = this.element.querySelector(`.list.masteries [data-skill="${skillId}"]`)!;
+        const visibleByItsself = anchor.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+        const visibleInScroll = this.masteryVisibleInScroll(anchor);
+        if (!visibleByItsself || !visibleInScroll) return;
         return this.renderTooltip(anchor, masteryHighlight, TooltipPosition.OVERLAY);
+    }
+
+    // Check if the mastery element is fully visible within its scrollable container
+    private masteryVisibleInScroll(element: HTMLElement): boolean {
+        const rect = element.getBoundingClientRect();
+        const container = element.closest(".list.masteries") as HTMLElement;
+        if (!container) return false;
+
+        const containerRect = container.getBoundingClientRect();
+        return (
+            rect.top >= containerRect.top &&
+            rect.bottom <= containerRect.bottom &&
+            rect.left >= containerRect.left &&
+            rect.right <= containerRect.right
+        );
     }
 
     private async displayDerivedAttributeTooltip(target: HTMLElement) {

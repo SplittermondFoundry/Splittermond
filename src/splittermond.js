@@ -28,6 +28,8 @@ import { addTicks } from "module/combat/addTicks.js";
 import { initializeCombat } from "module/combat/index.js";
 import { closestData } from "module/data/ClosestDataMixin.js";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel.js";
+import { getTimeUnitConversion } from "module/util/util.js";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -288,8 +290,10 @@ Hooks.on("init", function () {
             pattern: /@Ticks\[([^\]]+)\](?:\{([^}]*)\})?/g,
             enricher: (match, options) => {
                 let parsedString = match[1].split(",");
-                let ticks = parsedString[0];
-                let label = ticks;
+                let label = parsedString[0];
+                const timeDuration = parseCastDuration(parsedString[0]);
+                const ticks = timeDuration.value * getTimeUnitConversion(timeDuration.unit, "T");
+
                 let message = "";
 
                 if (match.length > 2 && match[2]) {
@@ -301,7 +305,7 @@ Hooks.on("init", function () {
                 }
 
                 return $(
-                    `<a class="add-tick" data-ticks="${ticks}" data-message="${message}"><i class="fas fa-stopwatch"></i> ${label}</a>`
+                    `<a class="add-tick" data-ticks="${ticks.value}" data-message="${message}"><i class="fas fa-stopwatch"></i> ${label}</a>`
                 )[0];
             },
         },
@@ -388,7 +392,7 @@ function commonEventHandlerHTMLEdition(app, html, data) {
             console.debug("Splittermond | Invoked Tick addition handler");
             /**@type {HTMLElement}*/
             const element = event.currentTarget;
-            let value = element.dataset.ticks;
+            let value = parseInt(element.dataset.ticks);
             let message = element.dataset.message;
             let chatMessageId = closestData(element, "message-id");
 

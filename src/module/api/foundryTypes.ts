@@ -129,6 +129,7 @@ declare global {
         type: string;
         readonly folder: string;
         system: Record<string, any>;
+        sort: number; //Yes they are really defined on the Item.
     }
 
     class Token {
