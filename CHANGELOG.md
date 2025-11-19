@@ -1,3 +1,11 @@
+## 13.9.1
+
+### Fixed
+
+- Meisterschaften zu Fertigkeiten werden beim Schweben nur angezeigt, wenn sie ohnehin sichtbar sind.
+- Items auf Akteuren sortieren funktioniert wieder.
+- Ein Fehler, der zu unschönen Darstellungen im Actor Sheet führte, wurde behoben.
+
 ## 13.9.0
 
 ### Breaking Changes
