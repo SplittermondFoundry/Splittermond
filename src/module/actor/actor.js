@@ -1,4 +1,4 @@
-import * as Dice from "../util/dice";
+import * as Dice from "../check/dice";
 import * as Chat from "../util/chat";
 
 import Attribute from "./attribute";

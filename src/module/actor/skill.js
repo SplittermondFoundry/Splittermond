@@ -1,6 +1,6 @@
 import Modifiable from "./modifiable";
 import CheckDialog from "../apps/dialog/check-dialog";
-import { Dice } from "../util/dice";
+import { Dice } from "../check/dice";
 import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty } from "../util/rollDifficultyParser";

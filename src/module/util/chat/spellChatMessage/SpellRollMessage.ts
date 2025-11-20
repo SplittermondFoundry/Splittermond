@@ -9,7 +9,7 @@ import { ActionHandler } from "./interfaces";
 import { foundryApi } from "../../../api/foundryApi";
 import { TickCostActionHandler } from "./TickCostActionHandler";
 import { DamageActionHandler } from "./DamageActionHandler";
-import { evaluateCheck } from "../../dice";
+import { evaluateCheck } from "module/check/dice";
 import { NoActionOptionsHandler } from "./NoActionOptionsHandler";
 import { isAvailableAction, SpellRollMessageRenderedData } from "./SpellRollTemplateInterfaces";
 import { NoOptionsActionHandler } from "./NoOptionsActionHandler";

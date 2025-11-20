@@ -1,5 +1,5 @@
 import { splittermond } from "./module/config";
-import * as Dice from "./module/util/dice";
+import * as Dice from "./module/check/dice";
 import * as Macros from "./module/util/macros";
 import SplittermondCombatTracker from "./module/apps/sidebar/combat-tracker";
 import ItemImporter from "./module/util/item-importer";

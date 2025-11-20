@@ -7,7 +7,7 @@ import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
 import Skill from "module/actor/skill";
 import { foundryApi } from "module/api/foundryApi";
-import { Dice } from "module/util/dice";
+import { Dice } from "module/check/dice";
 import { Chat } from "module/util/chat";
 import CheckDialog from "module/apps/dialog/check-dialog";
 
