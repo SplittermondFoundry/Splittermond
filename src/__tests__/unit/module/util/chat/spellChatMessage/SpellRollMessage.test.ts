@@ -190,7 +190,7 @@ describe("SpellRollMessage", () => {
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.equal(3);
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 3, modification: 0 });
         });
 
         it("should only be usable once", async () => {
@@ -206,7 +206,7 @@ describe("SpellRollMessage", () => {
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.equal(3);
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 3, modification: 0 });
         });
 
         it("should convert a failure into a success", async () => {
@@ -219,12 +219,12 @@ describe("SpellRollMessage", () => {
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
             underTest.checkReport.roll.total = underTest.checkReport.difficulty - 1;
-            underTest.checkReport.degreeOfSuccess = 0;
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 0, modification: 0 };
             underTest.checkReport.succeeded = false;
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.equal(0);
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 0, modification: 0 });
             expect(underTest.checkReport.succeeded).to.be.true;
         });
         it("should be rendered if not a fumble", () => {
@@ -243,7 +243,7 @@ describe("SpellRollMessage", () => {
         function fullCheckReport(): CheckReport {
             return {
                 succeeded: false,
-                degreeOfSuccess: 2,
+                degreeOfSuccess: { fromRoll: 2, modification: 0 },
                 degreeOfSuccessMessage: "",
                 difficulty: 9,
                 hideDifficulty: false,
@@ -265,7 +265,10 @@ function createSpellRollMessage(sandbox: SinonSandbox) {
     linkSpellAndActor(mockSpell, mockActor);
     const spellRollMessage = withToObjectReturnsSelf(() => {
         return SpellRollMessage.initialize(mockSpell, {
-            degreeOfSuccess: 0,
+            degreeOfSuccess: {
+                fromRoll: 0,
+                modification: 0,
+            },
             degreeOfSuccessMessage: "Uma mensagem muito importante",
             difficulty: 0,
             hideDifficulty: false,

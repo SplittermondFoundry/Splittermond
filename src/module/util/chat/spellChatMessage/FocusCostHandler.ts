@@ -109,9 +109,10 @@ export class FocusCostHandler extends SplittermondDataModel<FocusCostHandlerType
 
     get cost() {
         const checkReport = this.checkReportReference.get();
+        const dos = checkReport.degreeOfSuccess;
         let cost: PrimaryCost = this.spellReference
             .getItem()
-            .getCostsForFinishedRoll(checkReport.degreeOfSuccess, checkReport.succeeded)
+            .getCostsForFinishedRoll(dos.fromRoll + dos.modification, checkReport.succeeded)
             .add(this.adjusted);
         if (cost.isZero()) {
             cost = cost.add(new Cost(1, 0, false).asModifier());

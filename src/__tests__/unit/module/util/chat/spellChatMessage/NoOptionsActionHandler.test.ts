@@ -51,18 +51,18 @@ describe("Roll Fumble", () => {
         const eg = 3;
         const costs = "8V2";
         const skill = "deathmagic";
-        underTest.checkReportReference.get().degreeOfSuccess = eg;
+        underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: eg, modification: 0 };
         sandbox.stub(underTest.spellReference.getItem(), "costs").get(() => costs);
         underTest.checkReportReference.get().skill = { id: skill, points: 1, attributes: { mystic: 1, mind: 2 } };
 
         await underTest.useAction({ action: "rollMagicFumble" });
 
-        expect(underTest.casterReference.getAgent().rollMagicFumble.calledWith(-eg, costs, skill)).to.be.true;
+        expect(underTest.casterReference.getAgent().rollMagicFumble.lastCall.args).to.deep.equal([-eg, costs, skill]);
     });
     it("should allow using the action if it has already been used, as it is local", async () => {
         const underTest = setUpNoOptionsActionHandler(sandbox);
         underTest.checkReportReference.get().isFumble = true;
-        underTest.checkReportReference.get().degreeOfSuccess = 3;
+        underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 3, modification: 0 };
         sandbox.stub(underTest.spellReference.getItem(), "costs").get(() => "8V2");
         underTest.checkReportReference.get().skill = {
             id: "deathmagic",

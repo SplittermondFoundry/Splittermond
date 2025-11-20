@@ -67,7 +67,10 @@ export async function evaluateCheck(roll, skillPoints, difficulty, rollType) {
         succeeded: succeeded,
         isFumble: isFumble,
         isCrit: isCrit,
-        degreeOfSuccess: degreeOfSuccess,
+        degreeOfSuccess: {
+            fromRoll: degreeOfSuccess,
+            modification: 0,
+        },
         degreeOfSuccessMessage: degreeOfSuccessMessage,
         roll: roll,
     };

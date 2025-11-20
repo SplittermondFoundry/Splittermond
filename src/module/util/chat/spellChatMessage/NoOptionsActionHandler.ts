@@ -81,12 +81,13 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
     }
 
     rollFumble(actionData: ActionInput) {
+        const degreeOfSuccess = this.checkReportReference.get().degreeOfSuccess;
         return configureUseAction()
             .withUsed(() => false)
             .withHandlesActions(["rollMagicFumble"])
             .withIsOptionEvaluator(() => this.checkReportReference.get().isFumble)
             .whenAllChecksPassed(() => {
-                const eg = -this.checkReportReference.get().degreeOfSuccess;
+                const eg = -Math.abs(degreeOfSuccess.fromRoll + degreeOfSuccess.modification);
                 const costs = this.spellReference.getItem().costs;
                 const skill = this.checkReportReference.get().skill.id;
                 this.casterReference.getAgent().rollMagicFumble(eg, costs, skill);

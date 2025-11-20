@@ -163,7 +163,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 hideDifficulty: false,
                 rollType: "standard",
                 succeeded: true,
-                degreeOfSuccess: 5,
+                degreeOfSuccess: { fromRoll: 5, modification: 0 },
                 difficulty: 20,
                 isFumble: false,
                 isCrit: true,

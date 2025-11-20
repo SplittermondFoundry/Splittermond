@@ -1,12 +1,12 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
-import { CheckReport } from "../../../actor/CheckReport";
+import { CheckReport } from "module/actor/CheckReport";
 import { FocusCostHandler } from "./FocusCostHandler";
 import SplittermondSpellItem from "../../../item/spell";
-import { OnAncestorReference } from "../../../data/references/OnAncestorReference";
-import { ItemReference } from "../../../data/references/ItemReference";
-import { AgentReference } from "../../../data/references/AgentReference";
+import { OnAncestorReference } from "module/data/references/OnAncestorReference";
+import { ItemReference } from "module/data/references/ItemReference";
+import { AgentReference } from "module/data/references/AgentReference";
 import { ActionHandler } from "./interfaces";
-import { foundryApi } from "../../../api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 import { TickCostActionHandler } from "./TickCostActionHandler";
 import { DamageActionHandler } from "./DamageActionHandler";
 import { evaluateCheck } from "module/check/dice";
@@ -14,8 +14,8 @@ import { NoActionOptionsHandler } from "./NoActionOptionsHandler";
 import { isAvailableAction, SpellRollMessageRenderedData } from "./SpellRollTemplateInterfaces";
 import { NoOptionsActionHandler } from "./NoOptionsActionHandler";
 import { RollResultRenderer } from "../RollResultRenderer";
-import { DataModelConstructorInput } from "../../../api/DataModel";
-import { ChatMessageModel } from "../../../data/SplittermondChatMessage";
+import { DataModelConstructorInput } from "module/api/DataModel";
+import { ChatMessageModel } from "module/data/SplittermondChatMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 const constructorRegistryKey = "SpellRollMessage";
@@ -73,7 +73,7 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
                 spellReference,
                 actorReference
             ).toObject(),
-            openDegreesOfSuccess: checkReport.degreeOfSuccess,
+            openDegreesOfSuccess: checkReport.degreeOfSuccess.fromRoll + checkReport.degreeOfSuccess.modification,
         });
     }
 
@@ -116,6 +116,8 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
 
     getData(): SpellRollMessageRenderedData {
         const renderedActions: SpellRollMessageRenderedData["actions"] = {};
+        const totalDegreesOfSuccess =
+            this.checkReport.degreeOfSuccess.fromRoll + this.checkReport.degreeOfSuccess.modification;
         Array.from(this.actionsHandlerMap.values())
             .flatMap((handler) => handler.renderActions())
             .forEach((action) => (renderedActions[action.type] = action));
@@ -130,8 +132,8 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
             degreeOfSuccessDisplay: {
                 degreeOfSuccessMessage: this.checkReport.degreeOfSuccessMessage,
                 openDegreesOfSuccess: this.openDegreesOfSuccess,
-                totalDegreesOfSuccess: this.checkReport.degreeOfSuccess,
-                usedDegreesOfSuccess: this.checkReport.degreeOfSuccess - this.openDegreesOfSuccess,
+                totalDegreesOfSuccess: totalDegreesOfSuccess,
+                usedDegreesOfSuccess: totalDegreesOfSuccess - this.openDegreesOfSuccess,
             },
             rollResult: new RollResultRenderer(this.spellReference.getItem().description, this.checkReport).render(),
             rollResultClass: getRollResultClass(this.checkReport),
@@ -188,6 +190,10 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
             ...checkReport,
             ...updatedReport,
             roll: { ...updatedReport.roll, tooltip: checkReport.roll.tooltip },
+            degreeOfSuccess: {
+                fromRoll: updatedReport.degreeOfSuccess.fromRoll,
+                modification: checkReport.degreeOfSuccess.modification,
+            },
         };
         this.updateSource({ checkReport: newCheckReport, splinterPointUsed: true });
     }
