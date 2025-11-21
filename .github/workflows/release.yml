@@ -23,7 +23,7 @@ jobs:
                   echo ${outputName}
                     echo ${outputFile}
             - name: Checkout code
-              uses: actions/checkout@v5
+              uses: actions/checkout@v6
               with:
                   fetch-depth: 0 # fetch all history so we actually commit on top of main
                   #ref: main
