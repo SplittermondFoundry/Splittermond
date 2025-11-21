@@ -110,10 +110,11 @@ export class TooltipConfigurer {
     }
 
     removeTooltips() {
-        this.activeTooltips.forEach((activeTooltip) => {
-            this.element.querySelector(`#${activeTooltip}`)?.remove();
+        this.activeTooltips = this.activeTooltips.filter((activeTooltip) => {
+            const foundTooltip = this.element.querySelector(`#${activeTooltip}`);
+            foundTooltip?.remove();
+            return !foundTooltip; // Keep those that were not found and thus not removed
         });
-        this.activeTooltips = [];
     }
 
     configureTooltips() {
