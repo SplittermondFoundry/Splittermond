@@ -1,3 +1,7 @@
+## 13.9.2
+
+### Fixed
+- Der Zustand 'Ringend' verwendet jetzt den korrekten Modifikator' 
 ## 13.9.1
 
 ### Fixed
