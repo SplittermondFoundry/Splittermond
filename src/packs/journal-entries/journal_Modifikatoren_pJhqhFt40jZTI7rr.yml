@@ -260,7 +260,7 @@ pages:
       image: {}
       text:
           format: 1
-          content: "<p>Gegenstandsmodifikatoren beinflussen die Eigenschaften anderer Gegenstände eines Trägers.</p><h2>Allgemeingültige Attribute</h2><p></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>item</p></td><td><p>Objekt</p></td><td><p>Begrenzt die Wirkung des Modifikators auf den Namen eines Gegenstandes.</p></td></tr><tr><td><p>itemType</p></td><td><p>Objekttyp</p></td><td><p>Begrenzt die Wirkung des Modifikators auf den Typ (z.B. Waffe, Schild) eines Gegenstandes</p></td></tr><tr><td><p>skill</p></td><td><p>Fertigkeit</p></td><td><p>Begrenzt die Wirkung des Modifikators auf Gegenstände, die die gewählte Fertigkeit besitzen. Gegenstände ohne Fertigkeit werden ausgeschlossen.</p></td></tr></tbody></table><h2>Unterpfade</h2><h3>damage</h3><p>Beeinflusst den Schaden einer Waffe, Zaubers oder Angriffs. Beispiel:<code>item.damage damageType=\"physical\" +1W6</code></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>damageType</p></td><td><p>Schadensart</p></td><td><p>Setzt die @UUID[Compendium.splittermond.journal-entries.JournalEntry.r6hVjsY5HymINsfp]{Schadensart } des Modifikators. Wird keiner angegeben, wird \"physikalischer Schaden\" angenommen.</p></td></tr><tr><td><p>features</p></td><td><p>Merkmale</p></td><td><p>Fügt dem Schadensmodifikator, und nur diesem, nicht dem Gesamtschaden, Merkmale hinzu. Die Merkmale können als Kommaseparierte Liste eingegeben werden.</p></td></tr></tbody></table><h3>addFeature</h3><p>Fügt dem Gegenstand ein Merkmal hinzu. Sollte Das Merkmal schon auf dem Gegenstand vorhanden sein, werden die beiden Merkmalsstufen addiert. Beispiel:<code>item.addFeature Merkmal=\"Ablenkend\" 1</code></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>feature</p></td><td><p>Merkmal</p></td><td><p>Der Name eines einzelnen Merkmals. Verpflichtend.</p></td></tr><tr><td><p>value</p></td><td><p>Wert</p></td><td><p>Die Stufe eines Merkmals. Verplichtend. Man Beachte @UUID[Compendium.splittermond.journal-entries.JournalEntry.pJhqhFt40jZTI7rr.JournalEntryPage.z1Xh1mRbjrGMieoq#werte]{Werte}</p></td></tr></tbody></table><h3>mergeFeature</h3><p>Fügt dem Gegenstand ein Merkmal hinzu. Sollte Das Merkmal schon auf dem Gegenstand vorhanden sein, wird nur das Merkmal mit der höheren Ausprägungsstufe gewertet. Beispiel:<code>item.mergeFeature Merkmal=\"Scharf\" 5</code></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>feature</p></td><td><p>Merkmal</p></td><td><p>Der Name eines einzelnen Merkmals. Verpflichtend.</p></td></tr><tr><td><p>value</p></td><td><p>Wert</p></td><td><p>Die Stufe eines Merkmals. Verplichtend. Man Beachte @UUID[Compendium.splittermond.journal-entries.JournalEntry.pJhqhFt40jZTI7rr.JournalEntryPage.z1Xh1mRbjrGMieoq#werte]{Werte}</p></td></tr></tbody></table><h3>castDuration</h3><p>Addiert den Wert des Modifikators zur <em>Zauberdauer</em> hinzu. Beispiel: <code>item.castDuration unit=\"T\" 5</code>\_</p><p></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>unit</p></td><td><p>Einheit</p></td><td><p>Die Zeiteinheit mit der der Wert des Modifikators zur Zauberdauer addiert Wird. Zur Auswahl stehen 'T', und 'min' für 'Ticks' und 'Minuten' respektive. Verplichtend.</p></td></tr></tbody></table><h3>castDuration.multiplier</h3><p>Multipliziert die <em>Zauberdauer</em> mit dem Modifikatorwert. Beispiel: <code>item.castDuration.multiplier 1.2</code>\_</p><h3>weaponspeed</h3><p>Modifiziert die <em>Waffengeschwindigkeit</em> um den angegebenen Wert in Ticks. Entgegen der ursprünglichen Bedeutung verringert ein positvier Wert die Dauer zwischen zwei Aktionen. Beispiel:</p><p><code>item.weaponspeed skill=\"Handgemenge\" +5</code></p>"
+          content: "<p>Gegenstandsmodifikatoren beinflussen die Eigenschaften anderer Gegenstände eines Trägers. Alle Gegenstandsmodifikatoren beginnen mit <em>item</em>.</p><h2>Allgemeingültige Attribute</h2><p></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>item</p></td><td><p>Objekt</p></td><td><p>Begrenzt die Wirkung des Modifikators auf den Namen eines Gegenstandes.</p></td></tr><tr><td><p>itemType</p></td><td><p>Objekttyp</p></td><td><p>Begrenzt die Wirkung des Modifikators auf den Typ (z.B. Waffe, Schild) eines Gegenstandes</p></td></tr><tr><td><p>skill</p></td><td><p>Fertigkeit</p></td><td><p>Begrenzt die Wirkung des Modifikators auf Gegenstände, die die gewählte Fertigkeit besitzen. Gegenstände ohne Fertigkeit werden ausgeschlossen.</p></td></tr></tbody></table><h2>Unterpfade</h2><h3>damage</h3><p>Beeinflusst den Schaden einer Waffe, Zaubers oder Angriffs. Beispiel:<code>item.damage damageType=\"physical\" +1W6</code></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>damageType</p></td><td><p>Schadensart</p></td><td><p>Setzt die @UUID[Compendium.splittermond.journal-entries.JournalEntry.r6hVjsY5HymINsfp]{Schadensart } des Modifikators. Wird keiner angegeben, wird \"physikalischer Schaden\" angenommen.</p></td></tr><tr><td><p>features</p></td><td><p>Merkmale</p></td><td><p>Fügt dem Schadensmodifikator, und nur diesem, nicht dem Gesamtschaden, Merkmale hinzu. Die Merkmale können als Kommaseparierte Liste eingegeben werden.</p></td></tr></tbody></table><h3>addFeature</h3><p>Fügt dem Gegenstand ein Merkmal hinzu. Sollte Das Merkmal schon auf dem Gegenstand vorhanden sein, werden die beiden Merkmalsstufen addiert. Beispiel:<code>item.addFeature Merkmal=\"Ablenkend\" 1</code></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>feature</p></td><td><p>Merkmal</p></td><td><p>Der Name eines einzelnen Merkmals. Verpflichtend.</p></td></tr><tr><td><p>value</p></td><td><p>Wert</p></td><td><p>Die Stufe eines Merkmals. Verplichtend. Man Beachte @UUID[Compendium.splittermond.journal-entries.JournalEntry.pJhqhFt40jZTI7rr.JournalEntryPage.z1Xh1mRbjrGMieoq#werte]{Werte}</p></td></tr></tbody></table><h3>mergeFeature</h3><p>Fügt dem Gegenstand ein Merkmal hinzu. Sollte Das Merkmal schon auf dem Gegenstand vorhanden sein, wird nur das Merkmal mit der höheren Ausprägungsstufe gewertet. Beispiel:<code>item.mergeFeature Merkmal=\"Scharf\" 5</code></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>feature</p></td><td><p>Merkmal</p></td><td><p>Der Name eines einzelnen Merkmals. Verpflichtend.</p></td></tr><tr><td><p>value</p></td><td><p>Wert</p></td><td><p>Die Stufe eines Merkmals. Verplichtend. Man Beachte @UUID[Compendium.splittermond.journal-entries.JournalEntry.pJhqhFt40jZTI7rr.JournalEntryPage.z1Xh1mRbjrGMieoq#werte]{Werte}</p></td></tr></tbody></table><h3>castDuration</h3><p>Addiert den Wert des Modifikators zur <em>Zauberdauer</em> hinzu. Beispiel: <code>item.castDuration unit=\"T\" 5</code>\_</p><p></p><table><thead><tr><td style=\"width:20%\">Attribut</td><td style=\"width:20%\">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>unit</p></td><td><p>Einheit</p></td><td><p>Die Zeiteinheit mit der der Wert des Modifikators zur Zauberdauer addiert Wird. Zur Auswahl stehen 'T', und 'min' für 'Ticks' und 'Minuten' respektive. Verplichtend.</p></td></tr></tbody></table><h3>castDuration.multiplier</h3><p>Multipliziert die <em>Zauberdauer</em> mit dem Modifikatorwert. Beispiel: <code>item.castDuration.multiplier 1.2</code>\_</p><h3>weaponspeed</h3><p>Modifiziert die <em>Waffengeschwindigkeit</em> um den angegebenen Wert in Ticks. Entgegen der ursprünglichen Bedeutung verringert ein positvier Wert die Dauer zwischen zwei Aktionen. Beispiel:</p><p><code>item.weaponspeed skill=\"Handgemenge\" +5</code></p>"
       video:
           controls: true
           volume: 0.5
@@ -278,9 +278,65 @@ pages:
           systemId: splittermond
           systemVersion: 13.8.7
           createdTime: 1763456052489
-          modifiedTime: 1763739396063
+          modifiedTime: 1763798025288
           lastModifiedBy: XEyWQoNP8LHDdOvz
       _key: "!journal.pages!pJhqhFt40jZTI7rr.HN36hmkeH2jYZ7UT"
+    - sort: 75000
+      name: Probenmodifikatoren
+      type: text
+      _id: ZyoVmT1BVnWgeomd
+      system: {}
+      title:
+          show: true
+          level: 2
+      image: {}
+      text:
+          format: 1
+          content: >-
+              <p>Probenmodifikatoren beeinflussen die Anzahl an Erfolgsgraden einer
+              Probe, nachdem die Probe ausgewertet wurde. Angenommen sei eine
+              Probenergebnis von 24 gegen 15. Dies ergibt rechnerisch 3 EG. Hat man
+              diesen Modifikator mit einem Wert von 2 gesetzt, erhält man stattdessen
+              5 EG. Probenmodifikatoren beginnen mit
+              <em>check.result</em>.</p><h3>Attribute</h3><table><thead><tr><td
+              style="width:20%">Attribut</td><td
+              style="width:20%">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>category</p></td><td><p>Kategorie</p></td><td><p>Begrenzt
+              die Wirkung des Modifikators eine Bestimmte Ergebniskategorie (siehe
+              unten). <br
+              />Verplichtend.</p></td></tr></tbody></table><h3>Ausprägungen von
+              Kategorien</h3><table><thead><tr><td
+              style="width:20%">Ausprägung</td><td
+              style="width:20%">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>devastating</p></td><td><p>Verheerend</p></td><td><p>Betrifft
+              Proben die <em>verheerend</em> fehlgeschlagen sind und
+              Patzer.</p></td></tr><tr><td><p>failure</p></td><td><p>Misslungen</p></td><td><p>Betrifft
+              Proben die fehlgeschlagen
+              sind.</p></td></tr><tr><td><p>nearmiss</p></td><td><p>Knapp
+              Misslungen</p></td><td><p>Betrifft Proben die mit 0 EG fehlgeschlagen
+              sind.</p></td></tr><tr><td><p>successful</p></td><td><p>Gelungen</p></td><td><p>Betrifft
+              Proben die <em> gelungen</em>
+              sind.</p></td></tr><tr><td><p>outstanding</p></td><td><p>Herausragend</p></td><td><p>Betrifft
+              Proben die  <em> herausragend </em> <em>gelungen</em>
+              sind.</p></td></tr></tbody></table>
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      category: null
+      ownership:
+          default: -1
+          XEyWQoNP8LHDdOvz: 3
+      flags: {}
+      _stats:
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+          coreVersion: "13.350"
+          systemId: splittermond
+          systemVersion: 13.9.2
+          createdTime: 1763797526839
+          modifiedTime: 1763798646483
+          lastModifiedBy: XEyWQoNP8LHDdOvz
+      _key: "!journal.pages!pJhqhFt40jZTI7rr.ZyoVmT1BVnWgeomd"
 _stats:
     coreVersion: "13.342"
     systemId: null

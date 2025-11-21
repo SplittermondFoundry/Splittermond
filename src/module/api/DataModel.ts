@@ -20,7 +20,7 @@ export declare class DataModel<T extends object, PARENT> extends _InternalDataMo
 
     getFlag(scope: string, key: string): unknown;
 
-    updateSource(data: Partial<T> | Partial<DataModelConstructorInput<T>>): void;
+    updateSource(data: DeepPartial<T> | DeepPartial<DataModelConstructorInput<T>>): void;
 
     constructor(data: DataModelConstructorInput<T>, options?: any);
 
@@ -34,4 +34,8 @@ export type DataModelConstructorInput<T> = {
         : T[K] extends object
           ? DataModelConstructorInput<T[K]>
           : T[K];
+};
+
+export type DeepPartial<T> = {
+    [P in keyof T]?: T[P] extends Array<any> ? T[P] : T[P] extends object ? DeepPartial<T[P]> : T[P];
 };

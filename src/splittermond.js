@@ -30,6 +30,7 @@ import { closestData } from "module/data/ClosestDataMixin.js";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel.js";
 import { getTimeUnitConversion } from "module/util/util.js";
+import { initializeChecks } from "module/check/index.js";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -93,6 +94,7 @@ Hooks.once("init", async function () {
     initializeActor(CONFIG.Actor, modifierModule);
     initializeItem(CONFIG, modifierModule.modifierRegistry);
     initializeCosts(modifierModule.costModifierRegistry);
+    initializeChecks(modifierModule.modifierRegistry);
     chatActionFeature(CONFIG.ChatMessage);
 
     initializeCombat(CONFIG.Combat);

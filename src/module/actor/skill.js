@@ -7,6 +7,7 @@ import { parseRollDifficulty } from "../util/rollDifficultyParser";
 import { asString } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
+import { modifyEvaluation } from "module/check/modifyEvaluation.ts";
 
 /**
  * @property {string} id
@@ -119,9 +120,10 @@ export default class Skill extends Modifiable {
      *  preSelectedModifier?: string[],
      *  subtitle?: string,
      *  title?: string,
-     *  type?: string,
+     *  type?: string|"attack"|"spell"|"defense",
      *  modifier?: number,
      *  checkMessageData?: Record<string, any>,
+     *  rollType?: RollType,
      *  askUser?: boolean,
      * }} options
      * @return {Promise<*|boolean>}
@@ -133,6 +135,7 @@ export default class Skill extends Modifiable {
             options.subtitle,
             options.difficulty,
             options.modifier,
+            options.rollType,
             options.askUser ?? true
         );
         if (!checkData) {
@@ -149,7 +152,13 @@ export default class Skill extends Modifiable {
             checkData.rollType = checkData.rollType + "Grandmaster";
         }
 
-        let rollResult = await Dice.check(this, checkData.difficulty, checkData.rollType, checkData.modifier);
+        const immediateRollResult = await Dice.check(
+            this,
+            checkData.difficulty,
+            checkData.rollType,
+            checkData.modifier
+        );
+        let rollResult = modifyEvaluation(immediateRollResult, this.actor);
         let skillAttributes = this.attributeValues;
 
         const mappedModifiers = checkData.modifierElements.map((mod) => ({
@@ -221,10 +230,11 @@ export default class Skill extends Modifiable {
      * @param {?string} subtitle
      * @param {?RollDifficultyString} difficulty
      * @param {?number} modifier
+     * @param {?RollType} rollType
      * @param {boolean} askUser
      * @return {Promise<CheckDialogData|null>}
      */
-    async finalizeCheckInputData(selectedModifiers, title, subtitle, difficulty, modifier, askUser = true) {
+    async finalizeCheckInputData(selectedModifiers, title, subtitle, difficulty, modifier, rollType, askUser = true) {
         if (!askUser) {
             /** @type CheckDialogData */
             return {
@@ -235,7 +245,7 @@ export default class Skill extends Modifiable {
                     ? [{ value: modifier, description: foundryApi.localize("splittermond.modifier") }]
                     : [],
                 rollMode: "publicroll",
-                rollType: "standard",
+                rollType: rollType ?? "standard",
             };
         }
         return this.prepareRollDialog(selectedModifiers ?? [], title, subtitle, difficulty, modifier);
@@ -270,7 +280,7 @@ export default class Skill extends Modifiable {
 
         let skillFormula = this.getFormula();
         skillFormula.addOperator("=");
-        skillFormula.addPart(this.value, game.i18n.localize("splittermond.skillValueAbbrev"));
+        skillFormula.addPart(this.value, foundryApi.localize("splittermond.skillValueAbbrev"));
 
         return CheckDialog.create({
             difficulty: difficulty || splittermond.check.defaultDifficulty,
@@ -290,7 +300,7 @@ export default class Skill extends Modifiable {
      * @return {string}
      */
     #createRollDialogTitle(title, subtitle) {
-        const displayTitle = title || game.i18n.localize(this.label);
+        const displayTitle = title || foundryApi.localize(this.label);
         const displaySubtitle = subtitle || "";
         return displaySubtitle ? displayTitle : `${displayTitle} - ${displaySubtitle}`;
     }
@@ -325,7 +335,7 @@ export default class Skill extends Modifiable {
         if (this.attribute1 || this.attribute2) {
             formula.addOperator(this.points < 0 ? "-" : "+");
         }
-        formula.addPart(Math.abs(this.points), game.i18n.localize("splittermond.skillPointsAbbrev"));
+        formula.addPart(Math.abs(this.points), foundryApi.localize("splittermond.skillPointsAbbrev"));
 
         this.addModifierTooltipFormulaElements(formula);
         return formula;

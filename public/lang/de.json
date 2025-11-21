@@ -136,7 +136,8 @@
                 "unit": "Einheit",
                 "value": "Wert",
                 "attribute1": "Attribut1",
-                "attribute2": "Attribut2"
+                "attribute2": "Attribut2",
+                "category": "Kategorie"
             },
             "parseMessages": {
                 "notAModifier": "Modifikator '{modifier}' hat kein korrektes Format.",
@@ -272,6 +273,13 @@
         "degreeOfSuccessOptionsHeader": "Erfolgsgradoptionen",
         "degreeOfSuccess": "Erfolgsgrad",
         "degreeOfSuccessAbbrev": "EG",
+        "degreeOfSuccessClassification": {
+            "devastating": "Verheerend",
+            "failed": "Misslungen",
+            "nearmiss": "Knapp misslungen",
+            "successful": "Gelungen",
+            "outstanding": "Herausragend"
+        },
         "degreeOfSuccessOptions": {
             "castDuration": "Auslösezeit verkürzen",
             "consumedFocus": "Verzehrten Fokus verringern",

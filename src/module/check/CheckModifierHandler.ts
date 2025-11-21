@@ -3,8 +3,7 @@ import { Expression, isZero, times } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import Modifier from "module/modifiers/impl/modifier";
 import type SplittermondItem from "module/item/item";
-import { ItemModifierHandler } from "module/item/ItemModifierHandler";
-import { type CheckSuccessState, successStates } from "module/check/modifyCheckReport";
+import { type CheckSuccessState, successStates } from "module/check/modifyEvaluation";
 import { isMember } from "module/util/util";
 import { initMapper } from "module/util/LanguageMapper";
 
@@ -15,6 +14,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
             result: {
                 requiredAttributes: ["category"],
                 optionalAttributes: [
+                    /*"skill",*/
                     /*"type",*/
                     //later
                     /*"emphasis"*/
@@ -30,7 +30,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
         private readonly modifierType: ModifierType,
         private readonly multiplier: Expression
     ) {
-        super(logErrors, ItemModifierHandler.config);
+        super(logErrors, CheckModifierHandler.config);
     }
     protected omitForValue(value: Expression): boolean {
         return isZero(value);
@@ -40,7 +40,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
         const emphasis = this.validatedEmphasis(modifier.attributes.emphasis);
         const attributes = {
             name: emphasis ?? this.sourceItem.name,
-            outcomeType: this.validateOutcomeCategory(modifier.attributes.type),
+            category: this.validateOutcomeCategory(modifier.attributes.category),
             type: this.modifierType,
             emphasis,
         };
@@ -58,10 +58,11 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
             return undefined;
         }
         const normalized = successStateMapper().toCode(resultDescriptor);
-        if (!normalized || isMember(successStates, normalized)) {
-            this.reportInvalidDescriptor(CheckModifierHandler.config.topLevelPath, "category", resultDescriptor);
+        if (isMember(successStates, normalized ?? resultDescriptor)) {
+            return normalized ?? resultDescriptor;
         }
-        return normalized;
+        this.reportInvalidDescriptor(CheckModifierHandler.config.topLevelPath, "category", resultDescriptor);
+        return resultDescriptor;
     }
 }
 const successStateMapper = initMapper(successStates)
