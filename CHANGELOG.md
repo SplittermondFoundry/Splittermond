@@ -1,3 +1,10 @@
+## 13.9.2
+
+### Fixed
+
+- Der Zustand 'Ringend' verwendet jetzt den korrekten Modifikator'
+- Das Entfernen von Tooltips aus der Anzeige wird jetzt so lange versucht, bis es erfolgreich ist.
+
 ## 13.9.1
 
 ### Fixed

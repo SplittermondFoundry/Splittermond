@@ -26,7 +26,7 @@ system:
         durch die Aktion "<em>Aus Umklammerung befreien</em>" beendet werden (siehe
         S. 164).</p>
     source: ""
-    modifier: magicSkills -5, fightingSkills -5, generalSkills -5, VTD -3, GSW.mult 0
+    modifier: actor.skills -5, VTD -3, GSW.mult 0
     level: "1"
     startTick: 0
     interval: 0
