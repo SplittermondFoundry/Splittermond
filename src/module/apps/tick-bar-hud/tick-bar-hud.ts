@@ -279,6 +279,7 @@ export default class TickBarHud extends SplittermondApplication {
         await super._onRender(context, options);
         this.dragDrop = this.dragDrop.length > 0 ? this.dragDrop : this.createDragDropHandlers(); //lazy init
         this.dragDrop.forEach((d) => d.bind(this.element));
+        console.debug("Splittermond | Bound DragDrop handlers for Tick Bar HUD");
         // Listeners and UI logic
         const html = this.element;
         html.querySelectorAll(".tick-bar-hud-combatant-list").forEach((list) => {
@@ -300,6 +301,7 @@ export default class TickBarHud extends SplittermondApplication {
                 ]);
             });
         });
+        console.debug("Splittermond | Bound hover animations for Tick Bar HUD combatant lists");
         html.querySelectorAll(".tick-bar-hud-nav-btn").forEach((btn) => {
             btn.addEventListener("click", (event) => {
                 let action = closestData(event.currentTarget as HTMLElement, "action");
@@ -322,12 +324,14 @@ export default class TickBarHud extends SplittermondApplication {
                 this.moveScrollbar(offset);
             });
         });
+        console.debug("Splittermond | Bound click handlers for Tick Bar HUD navigation buttons");
         let offset = (this.viewedTick - this.currentTick) * 72;
         html.querySelectorAll(".tick-bar-hud-ticks:not(.tick-bar-hud-ticks-special)").forEach((ticks) => {
             Array.from(ticks.children).forEach((child) => {
                 (child as HTMLElement).style.left = -offset + "px";
             });
         });
+        console.debug("Splittermond | Set initial position for Tick Bar HUD ticks");
         html.querySelectorAll(".tick-bar-hud-combatant-list-item").forEach((item) => {
             item.addEventListener("mouseenter", (event) => {
                 const combatant = this.viewed?.combatants.get(
@@ -344,6 +348,7 @@ export default class TickBarHud extends SplittermondApplication {
                 if (token) token._onHoverOut(event);
             });
         });
+        console.debug("Splittermond | Bound hover handlers for Tick Bar HUD combatant list items");
         html.querySelectorAll(".tick-bar-hud-combatant-list-item").forEach((item) => {
             item.addEventListener("click", (event) => {
                 const combatant = this.viewed?.combatants.get(
@@ -368,6 +373,7 @@ export default class TickBarHud extends SplittermondApplication {
                 }
             });
         });
+        console.debug("Splittermond | Bound click handlers for Tick Bar HUD combatant list items");
         html.querySelectorAll(".tick-bar-hud-combatant-list-item").forEach((item) => {
             item.addEventListener("dragstart", () => {
                 html.querySelectorAll(".tick-bar-hud-tick-special-no-data").forEach((el) => {
@@ -397,12 +403,14 @@ export default class TickBarHud extends SplittermondApplication {
                 });
             });
         });
+        console.debug("Splittermond | Bound drag handlers for Tick Bar HUD combatant list items");
         if (this.currentTick === this.viewedTick) {
             this.withPresentPreviousTickButton((button) => {
                 button.style.width = "0px";
                 button.style.marginLeft = "-10px";
                 button.style.opacity = "0";
             });
+            console.debug("Splittermond | Hid previous tick button on Tick Bar HUD");
         }
         foundryApi.hooks.call("splittermond.tickBarHudRendered", this);
     }
