@@ -302,7 +302,7 @@ export default class Attack {
             .withAttributeValuesOrAbsent("item", this.item.id, this.item.name)
             .withAttributeValuesOrAbsent("itemType", this.item.type)
             .withAttributeValuesOrAbsent("skill", this.skill.id)
-            .getModifiers().value;
+            .getModifiers().sum;
 
         this.getImproviationBonus().forEach((bonus) => (weaponSpeed -= evaluate(bonus.damageExpression)));
         if (["melee", "slashing", "chains", "blades", "staffs"].includes(this.skill.id))
