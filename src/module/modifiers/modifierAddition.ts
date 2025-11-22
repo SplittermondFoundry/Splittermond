@@ -235,40 +235,6 @@ export function initAddModifier(
                         )
                     );
                     break;
-                case "splinterpoints.bonus":
-                    if (!("skill" in modifier.attributes)) {
-                        console.warn(
-                            "Encountered a splinterpoint bonus modifier without a skill. This may be uninteded by the user."
-                        );
-                    } else {
-                        modifier.attributes.skill = normalizeDescriptor(modifier.attributes.skill)
-                            .usingMappers("skills")
-                            .do();
-                    }
-                    const splinterpointModifier = new Modifier(
-                        "splinterpoints.bonus",
-                        times(of(multiplier), modifier.value),
-                        {
-                            name: item.name,
-                            type,
-                        },
-                        item,
-                        false
-                    );
-                    modifiers.push(splinterpointModifier);
-                    break;
-                case "splinterpoints":
-                case "actor.splinterpoints":
-                    modifiers.push(
-                        createModifier(
-                            "actor.splinterpoints",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type
-                        )
-                    );
-                    break;
                 case "healthregeneration.multiplier":
                 case "actor.healthregeneration.multiplier":
                     const healthRegenModifier = new MultiplicativeModifier(
@@ -290,30 +256,6 @@ export function initAddModifier(
                         false
                     );
                     modifiers.push(focusRegenModifier);
-                    break;
-                case "healthregeneration.bonus":
-                case "actor.healthregeneration.bonus":
-                    modifiers.push(
-                        createModifier(
-                            "actor.healthregeneration.bonus",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type
-                        )
-                    );
-                    break;
-                case "focusregeneration.bonus":
-                case "actor.focusregeneration.bonus":
-                    modifiers.push(
-                        createModifier(
-                            "actor.focusregeneration.bonus",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type
-                        )
-                    );
                     break;
                 case "lowerfumbleresult":
                     if (!("skill" in modifier.attributes) && "skill" in item.system && item.system.skill) {

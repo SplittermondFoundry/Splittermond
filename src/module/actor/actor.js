@@ -1007,7 +1007,7 @@ export default class SplittermondActor extends Actor {
         const baseBonus =
             skillName === "health" ? splittermond.splinterpoints.healthBonus : splittermond.splinterpoints.skillBonus;
         const bonusFromModifiers = this.modifier
-            .getForId("splinterpoints.bonus")
+            .getForId("actor.splinterpoints.bonus")
             .withAttributeValuesOrAbsent("skill", skillName)
             .notSelectable()
             .getModifiers()

@@ -3,6 +3,8 @@ import type { Value } from "module/modifiers/parsing";
 import type { AnyModifier } from "module/modifiers/ModiferHandler";
 import type SplittermondItem from "module/item/item";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
+import { isExpression, isZero } from "module/modifiers/expressions/scalar";
+import { isZero as isCostZero } from "module/modifiers/expressions/cost";
 
 export function ByAttributeHandler<T extends AnyModifier>(base: typeof ModifierHandler<T>) {
     abstract class CommonHandler extends base {
@@ -19,6 +21,10 @@ export function ByAttributeHandler<T extends AnyModifier>(base: typeof ModifierH
                 this.reportInvalidDescriptor.bind(this)
             );
         }
+        protected omitForValue(value: T["value"]): boolean {
+            return isExpression(value) ? isZero(value) : isCostZero(value);
+        }
+
         buildAttributes(groupId: string, attributes: Record<string, Value>): ModifierAttributes {
             const normalizedAttributes: ModifierAttributes = {
                 name: this.sourceItem.name,

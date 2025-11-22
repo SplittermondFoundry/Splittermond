@@ -3,7 +3,7 @@ import Modifier from "module/modifiers/impl/modifier";
 import { splittermond } from "../config";
 import type SplittermondItem from "./item";
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
-import { type Expression, isZero, pow, times } from "module/modifiers/expressions/scalar";
+import { type Expression, pow, times } from "module/modifiers/expressions/scalar";
 import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
@@ -46,10 +46,6 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
             },
         },
     });
-
-    protected omitForValue(value: Expression): boolean {
-        return isZero(value);
-    }
 
     protected buildModifier(modifier: ScalarModifier): IModifier[] {
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);

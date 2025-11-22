@@ -17,14 +17,14 @@ import { InverseModifier } from "module/modifiers/impl/InverseModifier";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
-import { SkillHandler } from "module/actor/modifiers/SkillHandler";
+import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
 
 function setupAddModifierFunction() {
     const modifierRegistry = new ModifierRegistry();
     const costModifierRegistry = new ModifierRegistry();
     costModifierRegistry.addHandler(CostModifierHandler.config.topLevelPath, CostModifierHandler);
     modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);
-    modifierRegistry.addHandler(SkillHandler.config.topLevelPath, SkillHandler);
+    registerActorModifiers(modifierRegistry);
     return initAddModifier(modifierRegistry, costModifierRegistry);
 }
 
