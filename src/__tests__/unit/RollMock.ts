@@ -16,6 +16,9 @@ class MockDie implements Die {
     get formula() {
         return `${this.number}d${this.faces}${this.modifiers.join("")}`;
     }
+    get total() {
+        return this.results.filter((r) => r.active).reduce((a, b) => a + b.result, 0);
+    }
 }
 
 class MockOperatorTerm implements OperatorTerm {

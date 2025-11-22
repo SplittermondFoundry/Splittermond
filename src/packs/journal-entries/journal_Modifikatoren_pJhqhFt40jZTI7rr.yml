@@ -297,16 +297,18 @@ pages:
               Probe, nachdem die Probe ausgewertet wurde. Angenommen sei eine
               Probenergebnis von 24 gegen 15. Dies ergibt rechnerisch 3 EG. Hat man
               diesen Modifikator mit einem Wert von 2 gesetzt, erhält man stattdessen
-              5 EG. Probenmodifikatoren beginnen mit
-              <em>check.result</em>.</p><h3>Attribute</h3><table><thead><tr><td
+              5 EG. Probenmodifikatoren beginnen mit <em>check.result</em>. Beispiel:
+              <code>check.result Kategorie=Gelungen Typus=Angriff
+              3</code></p><h3>Attribute</h3><table><thead><tr><td
               style="width:20%">Attribut</td><td
               style="width:20%">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>category</p></td><td><p>Kategorie</p></td><td><p>Begrenzt
               die Wirkung des Modifikators auf eine bestimmte Ergebniskategorie (siehe
               unten). <br
-              />Verpflichtend.</p></td></tr><tr><td><p>skill</p></td><td><p>
-              Fertigkeit</p></td><td><p>Begrenzt die Wirkung des Modifikators auf eine
-              bestimmte
-              <em>Fertigkeit</em></p></td></tr></tbody></table><h3>Ausprägungen von
+              />Verpflichtend.</p></td></tr><tr><td><p>skill</p></td><td><p>Fertigkeit</p></td><td><p>Begrenzt
+              die Wirkung des Modifikators auf eine bestimmte
+              <em>Fertigkeit</em></p></td></tr><tr><td><p>type</p></td><td><p>Typus</p></td><td><p>Begrenzt
+              die Wirkung des Modifikators auf bestimmte Probenarten (siehe
+              unten).</p></td></tr></tbody></table><h3>Ausprägungen von
               Kategorien</h3><table><thead><tr><td
               style="width:20%">Ausprägung</td><td
               style="width:20%">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>devastating</p></td><td><p>Verheerend</p></td><td><p>Betrifft
@@ -319,7 +321,16 @@ pages:
               Proben die <em>gelungen</em>
               sind.</p></td></tr><tr><td><p>outstanding</p></td><td><p>Herausragend</p></td><td><p>Betrifft
               Proben die <em>herausragend gelungen</em>
-              sind.</p></td></tr></tbody></table>
+              sind.</p></td></tr></tbody></table><h3>Ausprägungen von
+              Wurftypen</h3><table><thead><tr><td style="width:20%">Ausprägung</td><td
+              style="width:20%">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>attack</p></td><td><p>Angriff</p></td><td><p>Klassifiziert
+              Proben für
+              <em>Angriffe</em></p></td></tr><tr><td><p>defense</p></td><td><p>Aktive
+              Abwehr</p></td><td><p>Klassiziert Proben für <em>Aktive
+              Abwehr</em></p></td></tr><tr><td><p>spell</p></td><td><p>Zauber</p></td><td><p>Klassifiziert
+              <em>Zauberproben</em></p></td></tr><tr><td><p>skill</p></td><td><p>Fertigkeit</p></td><td><p>Klassifiziert
+              <em>Fertigkeitsproben</em>. Proben deren Typus nicht bekannt ist werden
+              als <em>Fertigkeitsproben</em> angenommen</p></td></tr></tbody></table>
       video:
           controls: true
           volume: 0.5
@@ -337,7 +348,7 @@ pages:
           systemId: splittermond
           systemVersion: 13.9.2
           createdTime: 1763797526839
-          modifiedTime: 1763809692253
+          modifiedTime: 1763817458270
           lastModifiedBy: XEyWQoNP8LHDdOvz
       _key: "!journal.pages!pJhqhFt40jZTI7rr.ZyoVmT1BVnWgeomd"
 _stats:

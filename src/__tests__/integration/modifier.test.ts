@@ -1053,7 +1053,9 @@ export function modifierTest(context: QuenchBatchContext) {
                     {
                         type: "strength",
                         name: "Check Booster",
-                        system: { modifier: `check.result Kategorie='Gelungen' Fertigkeit='Akrobatik' +2` },
+                        system: {
+                            modifier: `check.result Kategorie='Gelungen' Fertigkeit='Akrobatik' Typus='Fertigkeit' +2`,
+                        },
                     },
                 ]);
                 actor.prepareBaseData();

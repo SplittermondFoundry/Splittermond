@@ -189,4 +189,36 @@ describe("CheckModifierHandler", () => {
         expect(errorLogger.calledOnce).to.be.true;
         expect(errorLogger.firstCall.args[0]).to.equal("splittermond.modifiers.parseMessages.missingDescriptor");
     });
+
+    it("should accept a type attribute", () => {
+        const item = sandbox.createStubInstance(SplittermondItem);
+        item.name = "Test Item";
+        const underTest = new CheckModifierHandler(errorLogger, item, "innate", of(1));
+
+        const result = underTest.processModifier({
+            path: "check.result",
+            attributes: { category: "success", type: "attack" },
+            value: of(3),
+        });
+
+        expect(result).to.have.length(1);
+        expect(result[0].attributes.checkType).to.equal("attack");
+        expect(errorLogger.called).to.be.false;
+    });
+
+    it("should report a wrong type attribute", () => {
+        const item = sandbox.createStubInstance(SplittermondItem);
+        item.name = "Test Item";
+        const underTest = new CheckModifierHandler(errorLogger, item, "innate", of(1));
+
+        const result = underTest.processModifier({
+            path: "check.result",
+            attributes: { category: "success", type: "reverence" },
+            value: of(3),
+        });
+
+        expect(result).to.have.length(1);
+        expect(result[0].attributes.checkType).to.equal("reverence");
+        expect(errorLogger.called).to.be.true;
+    });
 });

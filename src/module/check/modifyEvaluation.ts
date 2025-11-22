@@ -2,17 +2,19 @@ import type SplittermondActor from "module/actor/actor";
 import { splittermond } from "module/config";
 import type { GenericRollEvaluation } from "./GenericRollEvaluation";
 import type { SplittermondSkill } from "module/config/skillGroups";
+import type { CheckType } from "module/check/CheckModifierHandler";
 
 export const successStates = ["devastating", "failure", "nearmiss", "success", "outstanding"] as const;
 export type CheckSuccessState = (typeof successStates)[number];
-type ModifyEvaluationInput = GenericRollEvaluation & { skill: SplittermondSkill; type: string };
+type ModifyEvaluationInput = GenericRollEvaluation & { skill: SplittermondSkill; type: CheckType };
 export function modifyEvaluation(checkReport: ModifyEvaluationInput, actor: SplittermondActor): GenericRollEvaluation {
     const successState = getSuccessAttributes(checkReport);
     const checkModifiers = actor.modifier
         .getForId("check.result")
         .notSelectable()
-        .withAttributeValues("category", successState)
+        .withAttributeValues("category", ...successState)
         .withAttributeValuesOrAbsent("skill", checkReport.skill)
+        .withAttributeValuesOrAbsent("checkType", checkReport.type)
         .getModifiers();
     return {
         ...checkReport,
@@ -23,19 +25,19 @@ export function modifyEvaluation(checkReport: ModifyEvaluationInput, actor: Spli
     };
 }
 
-function getSuccessAttributes(checkReport: GenericRollEvaluation): CheckSuccessState {
+function getSuccessAttributes(checkReport: GenericRollEvaluation): CheckSuccessState[] {
     if (checkReport.degreeOfSuccess.fromRoll >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold) {
-        return successStates[4];
+        return [successStates[4], successStates[3]];
     } else if (checkReport.succeeded) {
-        return successStates[3];
+        return [successStates[3]];
     } else if (checkReport.degreeOfSuccess.fromRoll === 0 && !checkReport.succeeded) {
-        return successStates[2];
+        return [successStates[2]];
     } else if (
         checkReport.degreeOfSuccess.fromRoll <= splittermond.check.degreeOfSuccess.criticalFailureThreshold ||
         checkReport.isFumble
     ) {
-        return successStates[0];
+        return [successStates[0], successStates[1]];
     } else {
-        return successStates[1];
+        return [successStates[1]];
     }
 }

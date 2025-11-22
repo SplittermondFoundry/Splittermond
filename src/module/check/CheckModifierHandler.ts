@@ -5,7 +5,7 @@ import Modifier from "module/modifiers/impl/modifier";
 import type SplittermondItem from "module/item/item";
 import { type CheckSuccessState, successStates } from "module/check/modifyEvaluation";
 import { isMember } from "module/util/util";
-import { initMapper } from "module/util/LanguageMapper";
+import { initMapper, LanguageMapper } from "module/util/LanguageMapper";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 
 export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
@@ -16,8 +16,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
                 requiredAttributes: ["category"],
                 optionalAttributes: [
                     "skill",
-                    /*"type",*/
-                    //later
+                    "type",
                     /*"emphasis"*/
                     //This,later
                 ],
@@ -48,6 +47,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
             name: emphasis ?? this.sourceItem.name,
             category: this.validateOutcomeCategory(modifier.attributes.category),
             skill: this.commonNormalizers.normalizeSkill(modifier.path, modifier.attributes.skill),
+            checkType: this.validateCheckType(modifier.attributes.type),
             type: this.modifierType,
             emphasis,
         };
@@ -55,16 +55,27 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
         return [new Modifier(modifier.path, totalValue, attributes, this.sourceItem, !!attributes.emphasis)];
     }
 
-    validateOutcomeCategory(type: Value): string | undefined {
-        const resultDescriptor = this.commonNormalizers.validatedAttribute(type);
+    validateOutcomeCategory(category: Value): string | undefined {
+        return this.validateMembered("category", category, successStates, successStateMapper);
+    }
+    validateCheckType(type: Value): string | undefined {
+        return this.validateMembered("type", type, checkTypes, checkTypeMapper);
+    }
+    private validateMembered<T extends string>(
+        descriptorName: string,
+        value: Value,
+        collective: Readonly<T[]>,
+        mapper: () => LanguageMapper<T>
+    ) {
+        const resultDescriptor = this.commonNormalizers.validatedAttribute(value);
         if (!resultDescriptor) {
             return undefined;
         }
-        const normalized = successStateMapper().toCode(resultDescriptor);
-        if (isMember(successStates, normalized ?? resultDescriptor)) {
+        const normalized = mapper().toCode(resultDescriptor);
+        if (isMember(collective, normalized ?? resultDescriptor)) {
             return normalized ?? resultDescriptor;
         }
-        this.reportInvalidDescriptor(CheckModifierHandler.config.topLevelPath, "category", resultDescriptor);
+        this.reportInvalidDescriptor(CheckModifierHandler.config.topLevelPath, descriptorName, resultDescriptor);
         return resultDescriptor;
     }
 }
@@ -85,5 +96,24 @@ function mapSuccessMessage(successState: CheckSuccessState): string {
             return "splittermond.failMessage.1";
         case "devastating":
             return "splittermond.failMessage.5";
+    }
+}
+
+const checkTypes = ["attack", "spell", "defense", "skill"] as const;
+export type CheckType = (typeof checkTypes)[number];
+
+const checkTypeMapper = initMapper(checkTypes)
+    .withTranslator(mapCheckTypes)
+    .andDirectMap("activeDefense", "defense")
+    .build();
+
+function mapCheckTypes(checkType: CheckType): string {
+    switch (checkType) {
+        case "attack":
+        case "spell":
+        case "skill":
+            return `splittermond.${checkType}`;
+        case "defense":
+            return "splittermond.activeDefense";
     }
 }
