@@ -1,6 +1,6 @@
 import type SplittermondActor from "module/actor/actor";
 import { splittermond } from "module/config";
-import type { GenericRollEvaluation } from "module/util/GenericRollEvaluation";
+import type { GenericRollEvaluation } from "./GenericRollEvaluation";
 import type { SplittermondSkill } from "module/config/skillGroups";
 
 export const successStates = ["devastating", "failure", "nearmiss", "success", "outstanding"] as const;

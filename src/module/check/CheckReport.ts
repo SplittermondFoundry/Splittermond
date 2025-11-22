@@ -1,4 +1,4 @@
-import { GenericRollEvaluation } from "../util/GenericRollEvaluation";
+import { GenericRollEvaluation } from "./GenericRollEvaluation";
 import { SplittermondSkill } from "../config/skillGroups";
 
 export interface CheckReport extends Omit<GenericRollEvaluation, "roll"> {
