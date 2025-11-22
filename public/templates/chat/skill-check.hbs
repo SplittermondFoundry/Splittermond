@@ -19,14 +19,7 @@
         {{{tooltip}}}
     </div>
     {{#if difficulty}}
-    <div class="degree-of-success">
-        <div class="stars">
-            {{#times degreeOfSuccess}}
-            <i class="fas fa-star"></i>
-            {{/times}}
-        </div>
-        <strong>{{degreeOfSuccess}}&nbsp;EG</strong> {{degreeOfSuccessMessage}}
-    </div>
+        {{> degree-of-success-display degreeOfSuccessDisplay}}
     {{/if}}
     {{#if degreeOfSuccessDescription}}
     <div class="degree-of-success-description">

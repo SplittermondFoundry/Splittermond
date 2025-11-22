@@ -17,6 +17,7 @@ import { RollResultRenderer } from "../RollResultRenderer";
 import { DataModelConstructorInput } from "module/api/DataModel";
 import { ChatMessageModel } from "module/data/SplittermondChatMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess";
 
 const constructorRegistryKey = "SpellRollMessage";
 
@@ -116,8 +117,6 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
 
     getData(): SpellRollMessageRenderedData {
         const renderedActions: SpellRollMessageRenderedData["actions"] = {};
-        const totalDegreesOfSuccess =
-            this.checkReport.degreeOfSuccess.fromRoll + this.checkReport.degreeOfSuccess.modification;
         Array.from(this.actionsHandlerMap.values())
             .flatMap((handler) => handler.renderActions())
             .forEach((action) => (renderedActions[action.type] = action));
@@ -129,12 +128,7 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
                 rollTypeMessage: foundryApi.localize(`splittermond.rollType.${this.checkReport.rollType}`),
                 title: this.spellReference.getItem().name,
             },
-            degreeOfSuccessDisplay: {
-                degreeOfSuccessMessage: this.checkReport.degreeOfSuccessMessage,
-                openDegreesOfSuccess: this.openDegreesOfSuccess,
-                totalDegreesOfSuccess: totalDegreesOfSuccess,
-                usedDegreesOfSuccess: totalDegreesOfSuccess - this.openDegreesOfSuccess,
-            },
+            degreeOfSuccessDisplay: renderDegreesOfSuccess(this.checkReport, this.openDegreesOfSuccess),
             rollResult: new RollResultRenderer(this.spellReference.getItem().description, this.checkReport).render(),
             rollResultClass: getRollResultClass(this.checkReport),
             degreeOfSuccessOptions: this.handlers

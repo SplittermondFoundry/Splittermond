@@ -3,6 +3,7 @@ import { foundryApi } from "../api/foundryApi.ts";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel.js";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { splittermond } from "module/config/index.js";
+import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess.js";
 
 export const Chat = {
     canEditMessageOf,
@@ -29,7 +30,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
     const totalDegreeOfSuccess = data.degreeOfSuccess.fromRoll + data.degreeOfSuccess.modification;
     let templateContext = {
         ...data,
-        degreeOfSuccess: totalDegreeOfSuccess,
+        degreeOfSuccessDisplay: renderDegreesOfSuccess(data, totalDegreeOfSuccess),
         roll: roll,
         rollMode: rollMode,
         tooltip: await roll.getTooltip(),
@@ -67,14 +68,14 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         .parent()
         .html();
 
-    templateContext.degreeOfSuccessMessage = foundryApi.localize(
+    templateContext.degreeOfSuccessDisplay.degreeOfSuccessMessage = foundryApi.localize(
         `splittermond.${data.succeeded ? "success" : "fail"}Message.${Math.min(Math.abs(totalDegreeOfSuccess), 5)}`
     );
     if (data.isCrit) {
-        templateContext.degreeOfSuccessMessage = foundryApi.localize(`splittermond.critical`);
+        templateContext.degreeOfSuccessDisplay.degreeOfSuccessMessage = foundryApi.localize(`splittermond.critical`);
     }
     if (data.isFumble) {
-        templateContext.degreeOfSuccessMessage = foundryApi.localize(`splittermond.fumble`);
+        templateContext.degreeOfSuccessDisplay.degreeOfSuccessMessage = foundryApi.localize(`splittermond.fumble`);
     }
 
     templateContext.title = foundryApi.localize(`splittermond.skillLabel.${data.skill}`);
@@ -87,7 +88,8 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
             let ticks = ["longrange", "throwing"].includes(data.weapon.skill.id) ? 3 : data.weapon.weaponSpeed;
             if (data.succeeded) {
                 if (data.maneuvers.length > totalDegreeOfSuccess) {
-                    templateContext.degreeOfSuccessMessage = game.i18n.localize(`splittermond.grazingHit`);
+                    templateContext.degreeOfSuccessDisplay.degreeOfSuccessMessage =
+                        foundryApi.localize(`splittermond.grazingHit`);
                     templateContext.isGrazingHit = true;
                 }
 
@@ -154,7 +156,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
 
             if (data.isFumble || totalDegreeOfSuccess <= splittermond.check.degreeOfSuccess.criticalFailureThreshold) {
                 templateContext.actions.push({
-                    name: game.i18n.localize("splittermond.fumbleTableLabel"),
+                    name: foundryApi.localize("splittermond.fumbleTableLabel"),
                     icon: "fa-dice",
                     classes: "rollable",
                     data: {
@@ -164,7 +166,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
             }
 
             templateContext.actions.push({
-                name: `${ticks} ` + game.i18n.localize(`splittermond.ticks`),
+                name: `${ticks} ` + foundryApi.localize(`splittermond.ticks`),
                 icon: "fa-stopwatch",
                 classes: "add-tick",
                 data: {
@@ -258,16 +260,16 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
 
     if (data.availableSplinterpoints > 0 && !data.isFumble) {
         templateContext.actions.push({
-            name: game.i18n.localize(`splittermond.splinterpoint`),
+            name: foundryApi.localize(`splittermond.splinterpoint`),
             icon: "fa-moon",
             classes: "use-splinterpoint",
         });
     }
     let checkMessageData = {
-        user: game.user.id,
+        user: foundryApi.currentUser.id,
         speaker: ChatMessage.getSpeaker({ actor: actor }),
         rolls: [roll],
-        content: await renderTemplate(template, templateContext),
+        content: await foundryApi.renderer(template, templateContext),
         sound: CONFIG.sounds.dice,
         type: CONST.CHAT_MESSAGE_TYPES.OTHER,
         flags: {
