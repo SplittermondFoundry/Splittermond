@@ -86,17 +86,6 @@ export function initAddModifier(
                 return;
             }
             switch (modifierLabel) {
-                case "bonuscap":
-                    modifiers.push(
-                        createModifier(
-                            "bonuscap",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type
-                        )
-                    );
-                    break;
                 case "speed.multiplier":
                 case "gsw.mult":
                 case "actor.speed.multiplier":
@@ -120,106 +109,6 @@ export function initAddModifier(
                             ""
                         )
                     );
-                    break;
-                case "handicap.shield.mod":
-                case "handicap.shield":
-                    modifiers.push(
-                        createModifier(
-                            "handicap.shield",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type,
-                            ""
-                        )
-                    );
-                    break;
-                case "handicap.mod":
-                case "handicap":
-                    modifiers.push(
-                        createModifier(
-                            "handicap",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type,
-                            ""
-                        )
-                    );
-                    break;
-                case "handicap.armor.mod":
-                case "handicap.armor":
-                    modifiers.push(
-                        createModifier(
-                            "handicap.armor",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type,
-                            ""
-                        )
-                    );
-                    break;
-                case "tickmalus.shield.mod":
-                case "tickmalus.shield":
-                    modifiers.push(
-                        createModifier(
-                            "tickmalus.shield",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type,
-                            ""
-                        )
-                    );
-                    break;
-                case "tickmalus.armor.mod":
-                case "tickmalus.armor":
-                    modifiers.push(
-                        createModifier(
-                            "tickmalus.armor",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type,
-                            ""
-                        )
-                    );
-                    break;
-                case "tickmalus.mod":
-                case "tickmalus":
-                    modifiers.push(
-                        createModifier(
-                            "tickmalus",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type,
-                            ""
-                        )
-                    );
-                    break;
-                case "healthregeneration.multiplier":
-                case "actor.healthregeneration.multiplier":
-                    const healthRegenModifier = new MultiplicativeModifier(
-                        "actor.healthregeneration.multiplier",
-                        times(of(multiplier), modifier.value),
-                        { ...modifier.attributes, name: item.name, type },
-                        item,
-                        false
-                    );
-                    modifiers.push(healthRegenModifier);
-                    break;
-                case "focusregeneration.multiplier":
-                case "actor.focusregeneration.multiplier":
-                    const focusRegenModifier = new MultiplicativeModifier(
-                        "actor.focusregeneration.multiplier",
-                        times(of(multiplier), modifier.value),
-                        { ...modifier.attributes, name: item.name, type },
-                        item,
-                        false
-                    );
-                    modifiers.push(focusRegenModifier);
                     break;
                 case "lowerfumbleresult":
                     if (!("skill" in modifier.attributes) && "skill" in item.system && item.system.skill) {

@@ -99,7 +99,7 @@ describe("addModifier", () => {
         const result = addModifier(item, "BonusCap +2");
         expect(result.modifiers).to.have.length(1);
         expect(result.modifiers[0]).to.deep.contain({
-            path: "bonuscap",
+            path: "BonusCap",
             attributes: {
                 name: "Test Item",
                 type: null,

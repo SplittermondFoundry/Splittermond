@@ -27,7 +27,6 @@ import { withActor } from "./fixtures";
 import Attack from "module/actor/attack";
 import { passesEventually } from "../util";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
-import type { SplittermondChatMessage } from "module/data/SplittermondChatMessage";
 
 export function modifierTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
@@ -1066,10 +1065,7 @@ export function modifierTest(context: QuenchBatchContext) {
 
                 await passesEventually(() => {
                     const messages = foundryApi.messages as unknown as Collection<FoundryChatMessage>;
-                    const lastMessage = Array.from(messages.contents)
-                        .sort((a, b) => a.timestamp - b.timestamp)
-                        .map((m) => m as SplittermondChatMessage)
-                        .pop();
+                    const lastMessage = Array.from(messages.contents).find((m) => m.speaker?.actor === actor.id);
                     const messageContent = lastMessage?.content ?? "";
                     const total = messageContent.match(/(?<=<div class="roll-total">)\d+(?=<\/div>)/)?.[0];
                     const degreeOfSuccess = messageContent.match(/(?<=<strong>)\d+(?=\s+EG<\/strong>)/)?.[0];
