@@ -14,9 +14,11 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
     });
     registry.addHandler(SplinterpointsHandler.config.topLevelPath, SplinterpointsHandler);
     registry.addHandler(ActorSplinterpointsHandler.config.topLevelPath, ActorSplinterpointsHandler);
-    ["focusregeneration.bonus", "healthregeneration.bonus"].forEach((segment) => {
-        const fullId = `actor.${segment}`;
-        registry.addHandler(`${segment}`, BasicModifierHandler(`${segment}`, fullId));
-        registry.addHandler(fullId, BasicModifierHandler(`${segment}`, fullId));
-    });
+    ["woundmalus.levelmod", "woundmalus.mod", "focusregeneration.bonus", "healthregeneration.bonus"].forEach(
+        (segment) => {
+            const fullId = `actor.${segment}`;
+            registry.addHandler(`${segment}`, BasicModifierHandler(`${segment}`, fullId));
+            registry.addHandler(fullId, BasicModifierHandler(`${segment}`, fullId));
+        }
+    );
 }

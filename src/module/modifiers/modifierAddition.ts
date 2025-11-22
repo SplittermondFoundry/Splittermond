@@ -199,42 +199,6 @@ export function initAddModifier(
                         )
                     );
                     break;
-                case "woundmalus.nbrlevels":
-                case "actor.woundmalus.nbrlevels":
-                    modifiers.push(
-                        createModifier(
-                            "actor.woundmalus.nbrLevels",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type
-                        )
-                    );
-                    break;
-                case "woundmalus.mod":
-                case "actor.woundmalus.mod":
-                    modifiers.push(
-                        createModifier(
-                            "actor.woundMalus.mod",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type
-                        )
-                    );
-                    break;
-                case "woundmalus.levelmod":
-                case "actor.woundmalus.levelmod":
-                    modifiers.push(
-                        createModifier(
-                            "actor.woundMalus.levelMod",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type
-                        )
-                    );
-                    break;
                 case "healthregeneration.multiplier":
                 case "actor.healthregeneration.multiplier":
                     const healthRegenModifier = new MultiplicativeModifier(
