@@ -6,9 +6,9 @@ import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "
 import { type Expression, isZero, pow, times } from "module/modifiers/expressions/scalar";
 import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";
-import { CommonHandlerMethods } from "module/modifiers/impl/CommonHandlerMethods";
+import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
-export class ItemModifierHandler extends CommonHandlerMethods(ModifierHandler<ScalarModifier>) {
+export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
     constructor(
         logErrors: (...message: string[]) => void,
         sourceItem: SplittermondItem,
@@ -62,7 +62,7 @@ export class ItemModifierHandler extends CommonHandlerMethods(ModifierHandler<Sc
     mapAttribute(path: string, attribute: string, value: Value): string | undefined {
         switch (attribute) {
             case "name":
-                return this.validatedAttribute(value);
+                return this.commonNormalizers.validatedAttribute(value);
             case "damageType":
                 return this.normalizeDamageType(path, value);
             case "itemType":
@@ -70,14 +70,14 @@ export class ItemModifierHandler extends CommonHandlerMethods(ModifierHandler<Sc
             case "unit":
                 return this.normalizeUnit(path, value);
             case "skill":
-                return this.normalizeSkill(path, value);
+                return this.commonNormalizers.normalizeSkill(path, value);
             default:
-                return this.validatedAttribute(value);
+                return this.commonNormalizers.validatedAttribute(value);
         }
     }
 
     normalizeDamageType(path: string, damageType: Value | undefined): string | undefined {
-        const normalized = this.normalizeAttribute(damageType, "damageTypes");
+        const normalized = this.commonNormalizers.normalizeAttribute(damageType, "damageTypes");
         if (!normalized) {
             return undefined;
         } else if (!isMember(splittermond.damageTypes, normalized)) {
@@ -89,7 +89,7 @@ export class ItemModifierHandler extends CommonHandlerMethods(ModifierHandler<Sc
     }
 
     normalizeItemType(path: string, itemType: Value | undefined): string | undefined {
-        const normalized = this.normalizeAttribute(itemType, "itemTypes");
+        const normalized = this.commonNormalizers.normalizeAttribute(itemType, "itemTypes");
         if (!normalized) {
             return undefined;
         } else if (!isMember(splittermond.itemTypes.all, normalized)) {
@@ -100,20 +100,8 @@ export class ItemModifierHandler extends CommonHandlerMethods(ModifierHandler<Sc
         }
     }
 
-    normalizeSkill(path: string, skill: Value | undefined): string | undefined {
-        const normalized = this.normalizeAttribute(skill, "skills");
-        if (!normalized) {
-            return undefined;
-        } else if (!isMember(splittermond.skillGroups.all, normalized)) {
-            this.reportInvalidDescriptor(path, "skill", normalized);
-            return normalized;
-        } else {
-            return normalized;
-        }
-    }
-
     normalizeUnit(path: string, unit: Value | undefined): TimeUnit | undefined {
-        const validated = this.validatedAttribute(unit);
+        const validated = this.commonNormalizers.validatedAttribute(unit);
         if (!validated) {
             return undefined;
         } else if (validated.toLowerCase().startsWith("t")) {

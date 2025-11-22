@@ -158,7 +158,14 @@ export default class Skill extends Modifiable {
             checkData.rollType,
             checkData.modifier
         );
-        let rollResult = modifyEvaluation(immediateRollResult, this.actor);
+        let rollResult = modifyEvaluation(
+            {
+                ...immediateRollResult,
+                skill: this.id,
+                type: options.type ?? "skill",
+            },
+            this.actor
+        );
         let skillAttributes = this.attributeValues;
 
         const mappedModifiers = checkData.modifierElements.map((mod) => ({

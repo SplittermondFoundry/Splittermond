@@ -15,15 +15,15 @@ import SplittermondItem from "module/item/item";
 import { Cost } from "module/util/costs/Cost";
 import { splittermond } from "module/config";
 import { foundryApi } from "module/api/foundryApi";
-import { CheckReport } from "../../../../../../module/actor/CheckReport";
-import { referencesUtils } from "../../../../../../module/data/references/referencesUtils";
-import { AgentReference } from "../../../../../../module/data/references/AgentReference";
+import { CheckReport } from "module/check";
+import { referencesUtils } from "module/data/references/referencesUtils";
+import { AgentReference } from "module/data/references/AgentReference";
 import { injectParent } from "../../../../testUtils";
-import { DamageRoll } from "../../../../../../module/util/damage/DamageRoll";
+import { DamageRoll } from "module/util/damage/DamageRoll";
 import { createTestRoll } from "../../../../RollMock";
-import { ItemFeaturesModel } from "../../../../../../module/item/dataModel/propertyModels/ItemFeaturesModel";
-import { DamageInitializer } from "../../../../../../module/util/chat/damageChatMessage/initDamage";
-import { SplittermondChatCard } from "../../../../../../module/util/chat/SplittermondChatCard";
+import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
+import { DamageInitializer } from "module/util/chat/damageChatMessage/initDamage";
+import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 
 describe("SpellRollMessage", () => {
     let sandbox: sinon.SinonSandbox;

@@ -73,6 +73,38 @@ describe("CheckModifierHandler", () => {
         });
     });
 
+    it("should accept a skill attribute", () => {
+        const item = sandbox.createStubInstance(SplittermondItem);
+        item.name = "Test Item";
+        const underTest = new CheckModifierHandler(errorLogger, item, "innate", of(1));
+
+        const result = underTest.processModifier({
+            path: "check.result",
+            attributes: { category: "success", skill: "endurance" },
+            value: of(3),
+        });
+
+        expect(result).to.have.length(1);
+        expect(result[0].attributes.skill).to.equal("endurance");
+        expect(errorLogger.called).to.be.false;
+    });
+
+    it("should pass an invalid skill attribute", () => {
+        const item = sandbox.createStubInstance(SplittermondItem);
+        item.name = "Test Item";
+        const underTest = new CheckModifierHandler(errorLogger, item, "innate", of(1));
+
+        const result = underTest.processModifier({
+            path: "check.result",
+            attributes: { category: "success", skill: "perturbance" },
+            value: of(3),
+        });
+
+        expect(result).to.have.length(1);
+        expect(result[0].attributes.skill).to.equal("perturbance");
+        expect(errorLogger.called).to.be.true;
+    });
+
     it.skip("should accept an emphasis attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";

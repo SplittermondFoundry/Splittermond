@@ -6,6 +6,7 @@ import type SplittermondItem from "module/item/item";
 import { type CheckSuccessState, successStates } from "module/check/modifyEvaluation";
 import { isMember } from "module/util/util";
 import { initMapper } from "module/util/LanguageMapper";
+import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 
 export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
     static config: Config = makeConfig({
@@ -14,7 +15,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
             result: {
                 requiredAttributes: ["category"],
                 optionalAttributes: [
-                    /*"skill",*/
+                    "skill",
                     /*"type",*/
                     //later
                     /*"emphasis"*/
@@ -23,6 +24,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
             },
         },
     });
+    private readonly commonNormalizers: CommonNormalizers;
 
     constructor(
         logErrors: (...message: string[]) => void,
@@ -31,16 +33,21 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
         private readonly multiplier: Expression
     ) {
         super(logErrors, CheckModifierHandler.config);
+        this.commonNormalizers = new CommonNormalizers(
+            this.validateDescriptor.bind(this),
+            this.reportInvalidDescriptor.bind(this)
+        );
     }
     protected omitForValue(value: Expression): boolean {
         return isZero(value);
     }
 
     protected buildModifier(modifier: ScalarModifier): IModifier[] {
-        const emphasis = this.validatedEmphasis(modifier.attributes.emphasis);
+        const emphasis = this.commonNormalizers.validatedAttribute(modifier.attributes.emphasis);
         const attributes = {
             name: emphasis ?? this.sourceItem.name,
             category: this.validateOutcomeCategory(modifier.attributes.category),
+            skill: this.commonNormalizers.normalizeSkill(modifier.path, modifier.attributes.skill),
             type: this.modifierType,
             emphasis,
         };
@@ -48,12 +55,8 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
         return [new Modifier(modifier.path, totalValue, attributes, this.sourceItem, !!attributes.emphasis)];
     }
 
-    validatedEmphasis(emphasis: Value | undefined): string | undefined {
-        return emphasis && this.validateDescriptor(emphasis) ? emphasis : undefined;
-    }
-
     validateOutcomeCategory(type: Value): string | undefined {
-        const resultDescriptor = this.validateDescriptor(type) ? type : undefined;
+        const resultDescriptor = this.commonNormalizers.validatedAttribute(type);
         if (!resultDescriptor) {
             return undefined;
         }

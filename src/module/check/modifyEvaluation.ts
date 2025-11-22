@@ -1,15 +1,18 @@
 import type SplittermondActor from "module/actor/actor";
 import { splittermond } from "module/config";
 import type { GenericRollEvaluation } from "module/util/GenericRollEvaluation";
+import type { SplittermondSkill } from "module/config/skillGroups";
 
 export const successStates = ["devastating", "failure", "nearmiss", "success", "outstanding"] as const;
 export type CheckSuccessState = (typeof successStates)[number];
-export function modifyEvaluation(checkReport: GenericRollEvaluation, actor: SplittermondActor): GenericRollEvaluation {
+type ModifyEvaluationInput = GenericRollEvaluation & { skill: SplittermondSkill; type: string };
+export function modifyEvaluation(checkReport: ModifyEvaluationInput, actor: SplittermondActor): GenericRollEvaluation {
     const successState = getSuccessAttributes(checkReport);
     const checkModifiers = actor.modifier
         .getForId("check.result")
         .notSelectable()
         .withAttributeValues("category", successState)
+        .withAttributeValuesOrAbsent("skill", checkReport.skill)
         .getModifiers();
     return {
         ...checkReport,

@@ -5,13 +5,13 @@ import { foundryApi } from "module/api/foundryApi";
 import SplittermondActor from "module/actor/actor.js";
 import { SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { ItemReference } from "module/data/references/ItemReference";
-import { CheckReport } from "module/actor/CheckReport";
+import { CheckReport } from "module/check";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
-import { AgentReference } from "../../../../../../module/data/references/AgentReference";
-import SplittermondItem from "../../../../../../module/item/item";
-import { SpellDataModel } from "../../../../../../module/item/dataModel/SpellDataModel";
-import { CharacterDataModel } from "../../../../../../module/actor/dataModel/CharacterDataModel";
-import { ItemFeaturesModel } from "../../../../../../module/item/dataModel/propertyModels/ItemFeaturesModel";
+import { AgentReference } from "module/data/references/AgentReference";
+import SplittermondItem from "module/item/item";
+import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
+import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
+import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 
 export function setUpMockActor(sandbox: SinonSandbox): SinonStubbedInstance<SplittermondActor> {
     const actorMock = sandbox.createStubInstance(SplittermondActor);

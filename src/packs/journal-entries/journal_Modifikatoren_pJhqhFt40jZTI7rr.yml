@@ -301,9 +301,12 @@ pages:
               <em>check.result</em>.</p><h3>Attribute</h3><table><thead><tr><td
               style="width:20%">Attribut</td><td
               style="width:20%">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>category</p></td><td><p>Kategorie</p></td><td><p>Begrenzt
-              die Wirkung des Modifikators eine Bestimmte Ergebniskategorie (siehe
+              die Wirkung des Modifikators auf eine bestimmte Ergebniskategorie (siehe
               unten). <br
-              />Verplichtend.</p></td></tr></tbody></table><h3>Ausprägungen von
+              />Verpflichtend.</p></td></tr><tr><td><p>skill</p></td><td><p>
+              Fertigkeit</p></td><td><p>Begrenzt die Wirkung des Modifikators auf eine
+              bestimmte
+              <em>Fertigkeit</em></p></td></tr></tbody></table><h3>Ausprägungen von
               Kategorien</h3><table><thead><tr><td
               style="width:20%">Ausprägung</td><td
               style="width:20%">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>devastating</p></td><td><p>Verheerend</p></td><td><p>Betrifft
@@ -313,9 +316,9 @@ pages:
               sind.</p></td></tr><tr><td><p>nearmiss</p></td><td><p>Knapp
               Misslungen</p></td><td><p>Betrifft Proben die mit 0 EG fehlgeschlagen
               sind.</p></td></tr><tr><td><p>successful</p></td><td><p>Gelungen</p></td><td><p>Betrifft
-              Proben die <em> gelungen</em>
+              Proben die <em>gelungen</em>
               sind.</p></td></tr><tr><td><p>outstanding</p></td><td><p>Herausragend</p></td><td><p>Betrifft
-              Proben die  <em> herausragend </em> <em>gelungen</em>
+              Proben die <em>herausragend gelungen</em>
               sind.</p></td></tr></tbody></table>
       video:
           controls: true
@@ -334,7 +337,7 @@ pages:
           systemId: splittermond
           systemVersion: 13.9.2
           createdTime: 1763797526839
-          modifiedTime: 1763798646483
+          modifiedTime: 1763809692253
           lastModifiedBy: XEyWQoNP8LHDdOvz
       _key: "!journal.pages!pJhqhFt40jZTI7rr.ZyoVmT1BVnWgeomd"
 _stats:

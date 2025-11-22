@@ -6,7 +6,7 @@ import { type Expression, isZero, times } from "module/modifiers/expressions/sca
 import { splittermond } from "module/config";
 import Modifier from "module/modifiers/impl/modifier";
 import { isMember } from "module/util/util";
-import { CommonHandlerMethods } from "module/modifiers/impl/CommonHandlerMethods";
+import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
 const commonConfig = {
     optionalAttributes: ["skill", "attribute1", "attribute2", "emphasis"],
@@ -22,7 +22,7 @@ const commonConfig = {
         },
     },
 } as const;
-class CommonSkillHandler extends CommonHandlerMethods(ModifierHandler<ScalarModifier>) {
+class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
     constructor(
         logErrors: (...message: string[]) => void,
         config: Config,
@@ -62,7 +62,7 @@ class CommonSkillHandler extends CommonHandlerMethods(ModifierHandler<ScalarModi
     private unwrapModifiers(skillGroup: readonly SplittermondSkill[], modifier: ScalarModifier) {
         return skillGroup.map((skill) => {
             const value = times(this.multiplier, modifier.value);
-            const emphasis = this.validatedAttribute(modifier.attributes.emphasis);
+            const emphasis = this.commonNormalizers.validatedAttribute(modifier.attributes.emphasis);
             const attributes = { name: emphasis ?? this.sourceItem.name, type: this.modifierType, emphasis };
             return new Modifier(skill, value, attributes, this.sourceItem, !!emphasis);
         });
@@ -71,22 +71,17 @@ class CommonSkillHandler extends CommonHandlerMethods(ModifierHandler<ScalarModi
     protected mapAttribute(path: string, attribute: string, value: Value) {
         switch (attribute) {
             case "skill":
-                return this.normalizeSkill(path, value);
+                return this.commonNormalizers.normalizeSkill(path, value);
             case "attribute1":
             case "attribute2":
                 return this.normalizeActorAttribute(path, attribute, value);
             default:
-                return this.validatedAttribute(value);
+                return this.commonNormalizers.validatedAttribute(value);
         }
     }
 
-    normalizeSkill(groupId: string, skill: Value | undefined): string | undefined {
-        const normalized = this.normalizeAttribute(skill, "skills");
-        return this.passGroupMemberValidation(groupId, normalized, splittermond.skillGroups.all, "skill");
-    }
-
     normalizeActorAttribute(groupId: string, attribute: string, value: Value | undefined): string | undefined {
-        const normalized = this.normalizeAttribute(value, "attributes");
+        const normalized = this.commonNormalizers.normalizeAttribute(value, "attributes");
         return this.passGroupMemberValidation(groupId, normalized, splittermond.attributes, attribute);
     }
 

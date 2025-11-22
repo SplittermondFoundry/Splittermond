@@ -1,4 +1,4 @@
-import type { CheckReport } from "module/actor/CheckReport";
+import type { CheckReport } from "module/check";
 
 type RenderCheckDegreesInput = Pick<CheckReport, "degreeOfSuccessMessage" | "degreeOfSuccess">;
 export interface DegreeOfSuccessDisplay {

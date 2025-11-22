@@ -1,5 +1,5 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
-import { CheckReport } from "module/actor/CheckReport";
+import { CheckReport } from "module/check";
 import { FocusCostHandler } from "./FocusCostHandler";
 import SplittermondSpellItem from "../../../item/spell";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";

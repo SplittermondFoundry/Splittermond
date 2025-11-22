@@ -7,18 +7,18 @@ import {
     ValuedAction,
 } from "./interfaces";
 import { Cost, CostModifier } from "../../costs/Cost";
-import { AgentReference } from "../../../data/references/AgentReference";
-import { OnAncestorReference } from "../../../data/references/OnAncestorReference";
-import { CheckReport } from "../../../actor/CheckReport";
-import { ItemReference } from "../../../data/references/ItemReference";
+import { AgentReference } from "module/data/references/AgentReference";
+import { OnAncestorReference } from "module/data/references/OnAncestorReference";
+import { CheckReport } from "module/check";
+import { ItemReference } from "module/data/references/ItemReference";
 import SplittermondSpellItem from "../../../item/spell";
-import { splittermond } from "../../../config";
+import { splittermond } from "module/config";
 import { FocusDegreeOfSuccessOptionField } from "./optionFields/FocusDegreeOfSuccessOptionField";
 import { parseCostString, parseSpellEnhancementDegreesOfSuccess } from "../../costs/costParser";
 import { configureUseOption } from "./commonAlgorithms/defaultUseOptionAlgorithm";
 import { configureUseAction } from "./commonAlgorithms/defaultUseActionAlgorithm";
 import { PrimaryCost } from "../../costs/PrimaryCost";
-import { settings } from "../../../settings";
+import { settings } from "module/settings";
 
 let hasReducibleEnhancementCosts: () => boolean = () => false;
 settings
