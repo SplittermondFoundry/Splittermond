@@ -1,12 +1,9 @@
 import SplittermondItem from "../item/item";
-import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
-import { type FocusModifier, parseModifiers, type ScalarModifier, Value } from "./parsing";
-import { condense, Expression as ScalarExpression, of, times } from "./expressions/scalar";
+import { type FocusModifier, parseModifiers, type ScalarModifier } from "./parsing";
+import { Expression as ScalarExpression, of, times } from "./expressions/scalar";
 import Modifier from "module/modifiers/impl/modifier";
-import { validateDescriptors } from "./parsing/validators";
-import { InverseModifier } from "module/modifiers/impl/InverseModifier";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
@@ -59,6 +56,8 @@ export function initAddModifier(
             }
         }
 
+        //Backup processor for modifiers that have no dedicated handler
+        //deprecated paths are also handled here
         unprocessedModifiers.forEach((modifier) => {
             if (["damage", "weaponspeed"].includes(modifier.path.toLowerCase().split(".")[0])) {
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
@@ -85,59 +84,20 @@ export function initAddModifier(
             }
 
             const modifierLabel = modifier.path.toLowerCase();
-            if (!validateAllDescriptors(modifier.attributes, allErrors)) {
-                return;
-            }
             switch (modifierLabel) {
                 //This setup is a bit of a hack, it uses the (private) knowledge that Attack objects add the item id as listener to skill modifiers
                 //And also sneaks in actor knowledge via item.actor
                 case "npcattacks":
-                    const npcAttackAttributes = modifier.attributes;
                     item.actor?.items
                         .filter((item) => item.type === "npcattack")
                         .map((item) => `skill.${item.id}`) //name would be better thematically (skill name for npc attacks is the item name) but id is more reliable
                         .forEach((skill) => {
-                            modifiers.push(
-                                createModifier(
-                                    skill,
-                                    times(of(multiplier), modifier.value),
-                                    npcAttackAttributes,
-                                    item,
-                                    type
-                                )
-                            );
+                            modifiers.push(createModifier(skill, times(of(multiplier), modifier.value), item, type));
                         });
                     break;
                 default:
-                    let element: string | undefined = splittermond.derivedAttributes.find((attr) => {
-                        return (
-                            modifierLabel ===
-                                foundryApi.localize(`splittermond.derivedAttribute.${attr}.short`).toLowerCase() ||
-                            modifierLabel.toLowerCase() ===
-                                foundryApi.localize(`splittermond.derivedAttribute.${attr}.long`).toLowerCase()
-                        );
-                    });
-                    if (!element) {
-                        element = modifier.path;
-                    }
-                    let adjustedValue = times(of(multiplier), modifier.value);
-                    if (element === "initiative") {
-                        const initiativeModifier = new InverseModifier(
-                            "initiative",
-                            condense(adjustedValue),
-                            {
-                                ...modifier.attributes,
-                                name: modifier.attributes.emphasis ?? item.name,
-                                type,
-                            },
-                            item,
-                            !!modifier.attributes.emphasis
-                        );
-                        modifiers.push(initiativeModifier);
-                    } else {
-                        modifiers.push(createModifier(element, adjustedValue, modifier.attributes, item, type));
-                    }
-
+                    //mainly for internal modifiers.
+                    modifiers.push(createModifier(modifierLabel, times(of(multiplier), modifier.value), item, type));
                     break;
             }
         });
@@ -146,44 +106,14 @@ export function initAddModifier(
     };
 }
 
-function createModifier(
-    path: string,
-    value: ScalarExpression,
-    attributes: Record<string, string>,
-    item: SplittermondItem,
-    type: ModifierType,
-    emphasisOverride?: string
-): IModifier {
-    const emphasis = emphasisOverride ?? (attributes.emphasis as string) ?? "";
+function createModifier(path: string, value: ScalarExpression, item: SplittermondItem, type: ModifierType): IModifier {
     return new Modifier(
         path,
-        condense(value),
+        value,
         {
-            ...attributes,
-            name: emphasis || item.name,
+            name: item.name,
             type,
         },
-        item,
-        !!emphasis
+        item
     );
-}
-
-/**
- * Runs the {@link validateDescriptors} function on all values of the given object. Fails if a single does not comply.
- *
- * This function is indeed a bit sketchy, as it does three things at once: a) validate, b) write an error array c) tell the compiler
- * that attributes is a-ok (or not). But it is also so incredibly concise.
- * @param attributes The attributes to validate
- * @param allErrors The array to which report validation failures
- */
-function validateAllDescriptors(
-    attributes: Record<string, Value>,
-    allErrors: { push(...args: string[]): number }
-): attributes is Record<string, string> {
-    const validationErrors = Object.values(attributes).flatMap((v) => validateDescriptors(v));
-    if (validationErrors.length > 0) {
-        allErrors.push(...validationErrors);
-        return false;
-    }
-    return true;
 }

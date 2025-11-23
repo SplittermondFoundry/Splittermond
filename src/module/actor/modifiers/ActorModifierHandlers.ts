@@ -5,6 +5,7 @@ import type { IModifier } from "module/modifiers";
 import Modifier from "module/modifiers/impl/modifier";
 import { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
 import type { Expression } from "module/modifiers/expressions/scalar";
+import { InverseModifier } from "module/modifiers/impl/InverseModifier";
 
 export function IndividualSkillHandlers(skill: SplittermondSkill) {
     return class extends BarebonesModifierHandler({ topLevelPath: skill, optionalAttributes: ["emphasis"] }) {
@@ -29,6 +30,22 @@ export function BasicModifierHandler(inputPath: string, groupId?: string) {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
                 return new Modifier(
+                    mod.groupId,
+                    mod.value,
+                    { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
+                    mod.origin,
+                    mod.selectable
+                );
+            });
+        }
+    };
+}
+export function InverseModifierHandler(inputPath: string, groupId?: Lowercase<string>) {
+    return class extends BarebonesModifierHandler({ topLevelPath: inputPath }, groupId) {
+        buildModifier(modifier: ScalarModifier): IModifier[] {
+            const preprocessed = super.buildModifier(modifier);
+            return preprocessed.map((mod) => {
+                return new InverseModifier(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },

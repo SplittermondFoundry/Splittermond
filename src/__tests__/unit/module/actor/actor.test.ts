@@ -21,6 +21,7 @@ import { initializeModifiers } from "module/modifiers";
 import { createTestRoll, stubFoundryRoll } from "../../RollMock";
 import type { User } from "module/api/foundryTypes";
 import { createHtml } from "../../../handlebarHarness";
+import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
 
 declare const global: any;
 
@@ -178,8 +179,8 @@ describe("SplittermondActor", () => {
             sandbox.stub(foundryApi, "reportError").callsFake(() => {});
             const item = sandbox.createStubInstance(SplittermondItem);
             actor.prepareBaseData();
-            actor.addModifier(item, "test-modifier +2", "innate");
-            const modifiers = actor.modifier.getForId("test-modifier").getModifiers();
+            actor.addModifier(item, "bonuscap +2", "innate");
+            const modifiers = actor.modifier.getForId("bonuscap").getModifiers();
             expect(modifiers).to.not.be.empty;
         });
     });
@@ -524,6 +525,7 @@ function asCharacter(actor: SplittermondActor) {
 function enableModifiers() {
     before(() => {
         const modifiers = initializeModifiers();
+        registerActorModifiers(modifiers.modifierRegistry);
         actualAddModifierFunction.self = modifiers.addModifier;
     });
     after(() => {
