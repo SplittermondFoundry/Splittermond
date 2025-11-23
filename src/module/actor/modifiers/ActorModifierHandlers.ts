@@ -4,6 +4,7 @@ import type { ScalarModifier } from "module/modifiers/parsing";
 import type { IModifier } from "module/modifiers";
 import Modifier from "module/modifiers/impl/modifier";
 import { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
+import type { Expression } from "module/modifiers/expressions/scalar";
 
 export function IndividualSkillHandlers(skill: SplittermondSkill) {
     return class extends BarebonesModifierHandler({ topLevelPath: skill, optionalAttributes: ["emphasis"] }) {
@@ -39,8 +40,15 @@ export function BasicModifierHandler(inputPath: string, groupId?: string) {
     };
 }
 
-export function MultipleModifierHandler(inputPath: string, groupId?: string) {
-    return class extends BarebonesModifierHandler({ topLevelPath: inputPath }, groupId) {
+export function ProductModifierHandler(
+    inputPath: string,
+    groupId?: string,
+    operator?: (a: Expression, b: Expression) => Expression
+) {
+    return class extends BarebonesModifierHandler({ topLevelPath: inputPath }, groupId, operator) {
+        protected omitForValue(): boolean {
+            return false;
+        }
         protected buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {

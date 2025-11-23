@@ -6,7 +6,8 @@ import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 
 export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }>(
     inputConfig: CONFIG,
-    groupId?: string
+    groupId?: string,
+    operator: (a: Expression, b: Expression) => Expression = times
 ) {
     const config = makeConfig(inputConfig);
     return class extends ModifierHandler<ScalarModifier> {
@@ -31,7 +32,7 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
                 name: this.sourceItem.name,
                 type: this.modifierType,
             };
-            const value = times(this.multiplier, modifier.value);
+            const value = operator(modifier.value, this.multiplier);
             return [
                 {
                     groupId: groupId

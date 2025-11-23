@@ -3,11 +3,10 @@ import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
 import { type FocusModifier, parseModifiers, type ScalarModifier, Value } from "./parsing";
-import { condense, Expression as ScalarExpression, of, pow, times } from "./expressions/scalar";
+import { condense, Expression as ScalarExpression, of, times } from "./expressions/scalar";
 import Modifier from "module/modifiers/impl/modifier";
 import { validateDescriptors } from "./parsing/validators";
 import { InverseModifier } from "module/modifiers/impl/InverseModifier";
-import { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
@@ -69,15 +68,20 @@ export function initAddModifier(
                 });
                 modifier.path = `item.${modifier.path}`;
             }
+            if ("gsw.mult" === modifier.path.toLowerCase()) {
+                const newGroupId = "actor.speed.multiplier";
+                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
+                    old: modifier.path,
+                    new: newGroupId,
+                });
+                modifier.path = newGroupId;
+            }
 
-            const handler = handlerCache.getHandler(modifier.path);
-            //Workaround as long as we have no handler for most modifiers. Once that is the case, we can remove both if statements.
-            if (handler.constructor.name !== "NoActionModifierHandler") {
+            if (handlerCache.handles(modifier.path)) {
+                const handler = handlerCache.getHandler(modifier.path);
                 const createdModifier = handler.processModifier(modifier);
-                if (createdModifier) {
-                    modifiers.push(...createdModifier);
-                    return;
-                }
+                modifiers.push(...createdModifier);
+                return;
             }
 
             const modifierLabel = modifier.path.toLowerCase();
@@ -85,30 +89,6 @@ export function initAddModifier(
                 return;
             }
             switch (modifierLabel) {
-                case "speed.multiplier":
-                case "gsw.mult":
-                case "actor.speed.multiplier":
-                    const speedModifier = new MultiplicativeModifier(
-                        "actor.speed.multiplier",
-                        pow(modifier.value, of(multiplier)),
-                        { ...modifier.attributes, name: item.name, type },
-                        item,
-                        false
-                    );
-                    modifiers.push(speedModifier);
-                    break;
-                case "sr":
-                    modifiers.push(
-                        createModifier(
-                            "damagereduction",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type,
-                            ""
-                        )
-                    );
-                    break;
                 //This setup is a bit of a hack, it uses the (private) knowledge that Attack objects add the item id as listener to skill modifiers
                 //And also sneaks in actor knowledge via item.actor
                 case "npcattacks":
