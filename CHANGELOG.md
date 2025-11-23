@@ -1,3 +1,13 @@
+## 13.10.0
+
+### New Features
+
+- Es gibt einen neuen Modifikator `check.result`, der die Erfolgsgrade nach einer Probe modifiziert.
+
+## Changes
+
+- Die Interne Handhabung von Modifikatoren wurde überarbeitet.
+
 ## 13.9.2
 
 ### Fixed
