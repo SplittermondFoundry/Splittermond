@@ -245,7 +245,7 @@ describe("addModifier", () => {
             const result = addModifier(item, `${fumbleResultPath} +3`);
             expect(result.modifiers).to.have.length(1);
             expect(result.modifiers[0]).to.deep.contain({
-                path: "lowerfumbleresult",
+                path: fumbleResultPath,
                 attributes: { name: "Test Item", type: null },
                 value: of(3),
                 origin: item,

@@ -5,12 +5,14 @@ import {
     BasicModifierHandler,
     IndividualSkillHandlers,
     MultipleModifierHandler,
+    SkillFilterHandler,
     TickHandicapHandler,
 } from "module/actor/modifiers/ActorModifierHandlers";
 import type { ScalarModifier } from "module/modifiers/parsing";
 import { ActorSplinterpointsHandler, SplinterpointsHandler } from "module/actor/modifiers/SplinterpointsHandler";
 
 export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier>) {
+    const lowerFumbleResultHandler = SkillFilterHandler({ topLevelPath: "lowerfumbleresult" });
     registry.addHandler(SkillHandler.config.topLevelPath, SkillHandler);
     registry.addHandler(ActorSkillHandler.config.topLevelPath, ActorSkillHandler);
     splittermond.skillGroups.all.forEach((skill) => {
@@ -18,6 +20,7 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
     });
     registry.addHandler(SplinterpointsHandler.config.topLevelPath, SplinterpointsHandler);
     registry.addHandler(ActorSplinterpointsHandler.config.topLevelPath, ActorSplinterpointsHandler);
+    registry.addHandler(lowerFumbleResultHandler.config.topLevelPath, lowerFumbleResultHandler);
     ["woundmalus.levelmod", "woundmalus.mod", "focusregeneration.bonus", "healthregeneration.bonus"].forEach(
         (segment) => {
             const fullId = `actor.${segment}`;

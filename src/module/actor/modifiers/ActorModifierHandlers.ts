@@ -75,3 +75,17 @@ export function TickHandicapHandler(inputPath: string) {
         }
     };
 }
+
+export function SkillFilterHandler<CONFIG extends { topLevelPath: string }>(config: CONFIG, groupId?: string) {
+    return class extends BarebonesModifierHandler(config, groupId) {
+        buildModifier(modifier: ScalarModifier): IModifier[] {
+            const preprocessed = super.buildModifier(modifier);
+            return preprocessed.map((mod) => {
+                if (mod.attributes.skill) {
+                    mod.attributes.skill = this.commonNormalizers.normalizeSkill(mod.groupId, mod.attributes.skill);
+                }
+                return new Modifier(mod.groupId, mod.value, mod.attributes, mod.origin, mod.selectable);
+            });
+        }
+    };
+}

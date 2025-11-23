@@ -6,7 +6,6 @@ import { type FocusModifier, parseModifiers, type ScalarModifier, Value } from "
 import { condense, Expression as ScalarExpression, of, pow, times } from "./expressions/scalar";
 import Modifier from "module/modifiers/impl/modifier";
 import { validateDescriptors } from "./parsing/validators";
-import { normalizeDescriptor } from "./parsing/normalizer";
 import { InverseModifier } from "module/modifiers/impl/InverseModifier";
 import { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
@@ -102,25 +101,6 @@ export function initAddModifier(
                     modifiers.push(
                         createModifier(
                             "damagereduction",
-                            times(of(multiplier), modifier.value),
-                            modifier.attributes,
-                            item,
-                            type,
-                            ""
-                        )
-                    );
-                    break;
-                case "lowerfumbleresult":
-                    if (!("skill" in modifier.attributes) && "skill" in item.system && item.system.skill) {
-                        modifier.attributes.skill = item.system.skill;
-                    } else if ("skill" in modifier.attributes) {
-                        modifier.attributes.skill = normalizeDescriptor(modifier.attributes.skill)
-                            .usingMappers("skills")
-                            .do();
-                    }
-                    modifiers.push(
-                        createModifier(
-                            "lowerfumbleresult",
                             times(of(multiplier), modifier.value),
                             modifier.attributes,
                             item,
