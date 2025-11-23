@@ -64,7 +64,23 @@
             .stars {
                 color: #ffb800;
                 //filter: drop-shadow(0px 0px 10px #FFEFC7);
-                text-shadow: 0px 0px 10px #ffefc7;
+                text-shadow: 1px 1px 10px #ffefc7;
+            }
+
+            .bonus-star-wrapper {
+                position: relative;
+                display: inline-block;
+            }
+
+            .bonus-indicator {
+                //Move plus sign to overlap with star without taking space
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(25%, -30%);
+                //coloring
+                color: #eeeeee;
+                text-shadow: 1px 1px 5px #1c1b17;
             }
         }
 

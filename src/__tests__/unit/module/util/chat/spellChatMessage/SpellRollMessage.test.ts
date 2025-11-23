@@ -15,15 +15,15 @@ import SplittermondItem from "module/item/item";
 import { Cost } from "module/util/costs/Cost";
 import { splittermond } from "module/config";
 import { foundryApi } from "module/api/foundryApi";
-import { CheckReport } from "../../../../../../module/actor/CheckReport";
-import { referencesUtils } from "../../../../../../module/data/references/referencesUtils";
-import { AgentReference } from "../../../../../../module/data/references/AgentReference";
+import { CheckReport } from "module/check";
+import { referencesUtils } from "module/data/references/referencesUtils";
+import { AgentReference } from "module/data/references/AgentReference";
 import { injectParent } from "../../../../testUtils";
-import { DamageRoll } from "../../../../../../module/util/damage/DamageRoll";
+import { DamageRoll } from "module/util/damage/DamageRoll";
 import { createTestRoll } from "../../../../RollMock";
-import { ItemFeaturesModel } from "../../../../../../module/item/dataModel/propertyModels/ItemFeaturesModel";
-import { DamageInitializer } from "../../../../../../module/util/chat/damageChatMessage/initDamage";
-import { SplittermondChatCard } from "../../../../../../module/util/chat/SplittermondChatCard";
+import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
+import { DamageInitializer } from "module/util/chat/damageChatMessage/initDamage";
+import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 
 describe("SpellRollMessage", () => {
     let sandbox: sinon.SinonSandbox;
@@ -190,7 +190,7 @@ describe("SpellRollMessage", () => {
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.equal(3);
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 3, modification: 0 });
         });
 
         it("should only be usable once", async () => {
@@ -206,7 +206,7 @@ describe("SpellRollMessage", () => {
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.equal(3);
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 3, modification: 0 });
         });
 
         it("should convert a failure into a success", async () => {
@@ -219,12 +219,12 @@ describe("SpellRollMessage", () => {
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
             underTest.checkReport.roll.total = underTest.checkReport.difficulty - 1;
-            underTest.checkReport.degreeOfSuccess = 0;
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 0, modification: 0 };
             underTest.checkReport.succeeded = false;
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.equal(0);
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 0, modification: 0 });
             expect(underTest.checkReport.succeeded).to.be.true;
         });
         it("should be rendered if not a fumble", () => {
@@ -243,7 +243,7 @@ describe("SpellRollMessage", () => {
         function fullCheckReport(): CheckReport {
             return {
                 succeeded: false,
-                degreeOfSuccess: 2,
+                degreeOfSuccess: { fromRoll: 2, modification: 0 },
                 degreeOfSuccessMessage: "",
                 difficulty: 9,
                 hideDifficulty: false,
@@ -265,7 +265,10 @@ function createSpellRollMessage(sandbox: SinonSandbox) {
     linkSpellAndActor(mockSpell, mockActor);
     const spellRollMessage = withToObjectReturnsSelf(() => {
         return SpellRollMessage.initialize(mockSpell, {
-            degreeOfSuccess: 0,
+            degreeOfSuccess: {
+                fromRoll: 0,
+                modification: 0,
+            },
             degreeOfSuccessMessage: "Uma mensagem muito importante",
             difficulty: 0,
             hideDifficulty: false,

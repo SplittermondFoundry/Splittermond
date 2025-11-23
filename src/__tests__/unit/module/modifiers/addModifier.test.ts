@@ -17,14 +17,24 @@ import { InverseModifier } from "module/modifiers/impl/InverseModifier";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
-import { SkillHandler } from "module/actor/modifiers/SkillHandler";
+import { addDerivedValueHandlers, registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
 
 function setupAddModifierFunction() {
     const modifierRegistry = new ModifierRegistry();
     const costModifierRegistry = new ModifierRegistry();
     costModifierRegistry.addHandler(CostModifierHandler.config.topLevelPath, CostModifierHandler);
     modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);
-    modifierRegistry.addHandler(SkillHandler.config.topLevelPath, SkillHandler);
+    registerActorModifiers(modifierRegistry);
+    const localize = sinon.stub(foundryApi, "localize").callsFake((key: string) => {
+        switch (key) {
+            case "splittermond.derivedAttribute.initiative.short":
+                return "INI";
+            default:
+                return key;
+        }
+    });
+    addDerivedValueHandlers(modifierRegistry);
+    localize.restore();
     return initAddModifier(modifierRegistry, costModifierRegistry);
 }
 
@@ -99,7 +109,7 @@ describe("addModifier", () => {
         const result = addModifier(item, "BonusCap +2");
         expect(result.modifiers).to.have.length(1);
         expect(result.modifiers[0]).to.deep.contain({
-            path: "bonuscap",
+            path: "BonusCap",
             attributes: {
                 name: "Test Item",
                 type: null,
@@ -217,10 +227,10 @@ describe("addModifier", () => {
     });
 
     it("should replace attribute placeholders", () => {
-        const result = addModifier(item, "AUS +1");
+        const result = addModifier(item, "INI +1");
         expect(result.modifiers).to.have.length(1);
         expect(result.modifiers[0]).to.deep.contain({
-            path: "AUS",
+            groupId: "initiative",
             attributes: { name: "Test Item", type: null },
             value: of(1),
             origin: item,
@@ -229,10 +239,10 @@ describe("addModifier", () => {
     });
 
     it("should handle selectable modifiers with emphasis", () => {
-        const result = addModifier(item, "resistance.fire/emphasis +3");
+        const result = addModifier(item, "diplomacy/emphasis +3");
         expect(result.modifiers).to.have.length(1);
         expect(result.modifiers[0]).to.deep.contain({
-            path: "resistance.fire",
+            path: "diplomacy",
             attributes: { emphasis: "emphasis", name: "emphasis", type: null },
             value: of(3),
             origin: item,
@@ -245,7 +255,7 @@ describe("addModifier", () => {
             const result = addModifier(item, `${fumbleResultPath} +3`);
             expect(result.modifiers).to.have.length(1);
             expect(result.modifiers[0]).to.deep.contain({
-                path: "lowerfumbleresult",
+                path: fumbleResultPath,
                 attributes: { name: "Test Item", type: null },
                 value: of(3),
                 origin: item,
@@ -591,7 +601,7 @@ describe("addModifier", () => {
 
             const createdModifier = result.modifiers[0];
             expect(createdModifier).to.be.instanceof(InverseModifier);
-            expect(createdModifier.groupId).to.equal("initiative");
+            expect(createdModifier.groupId.toLowerCase()).to.equal("initiative");
             expect(createdModifier.attributes.name).to.equal("Test Item");
             expect(createdModifier.attributes.type).to.be.null;
             expect(createdModifier.value).to.deep.equal(of(2));
@@ -621,10 +631,10 @@ describe("addModifier", () => {
                 spellEnhancedCostReduction: { addCostModifier: sandbox.stub() },
             } as any);
 
-            const result = addModifier(item, `generalSkills.stealth ${placeholder}`);
+            const result = addModifier(item, `stealth ${placeholder}`);
             expect(result.modifiers).to.have.length(1);
             expect(result.modifiers[0]).to.deep.contain({
-                path: "generalSkills.stealth",
+                path: "stealth",
                 attributes: { name: "Test Item", type: null },
                 origin: item,
                 selectable: false,

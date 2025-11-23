@@ -1,5 +1,5 @@
 import { splittermond } from "./module/config";
-import * as Dice from "./module/util/dice";
+import * as Dice from "./module/check/dice";
 import * as Macros from "./module/util/macros";
 import SplittermondCombatTracker from "./module/apps/sidebar/combat-tracker";
 import ItemImporter from "./module/util/item-importer";
@@ -28,8 +28,10 @@ import { addTicks } from "module/combat/addTicks.js";
 import { initializeCombat } from "module/combat/index.js";
 import { closestData } from "module/data/ClosestDataMixin.js";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
-import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel.js";
+import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel";
 import { getTimeUnitConversion } from "module/util/util.js";
+import { initializeChecks } from "module/check/index.js";
+import { addDerivedValueHandlers } from "module/actor/modifiers/actorModifierRegistration";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -38,7 +40,7 @@ $.fn.closestData = function (dataName, defaultValue = "") {
 
 function handlePdf(links) {
     if (!ui.PDFoundry) {
-        ui.notifications.warn(game.i18n.localize("splittermond.pdfoundry.notinstalled"));
+        foundryApi.warnUser("splittermond.pdfoundry.notinstalled");
         return;
     }
 
@@ -66,6 +68,7 @@ function handlePdf(links) {
 }
 
 Hooks.once("ready", async function () {
+    addDerivedValueHandlers(game.splittermond.API.modifiers.modifierRegistry);
     return Promise.all([initTickBarHud(game.splittermond), initTokenActionBar(game.splittermond)]).then(() => {
         console.log("Splittermond | Ready");
         foundryApi.hooks.call("splittermond.ready");
@@ -87,12 +90,16 @@ Hooks.once("init", async function () {
     game.splittermond = {};
     const modifierModule = initializeModifiers();
     game.splittermond.API = {
-        modifierRegistry: modifierModule.modifierRegistry,
+        modifiers: {
+            modifierRegistry: modifierModule.modifierRegistry,
+            costModifierRegistry: modifierModule.costModifierRegistry,
+        },
         addTicks,
     };
     initializeActor(CONFIG.Actor, modifierModule);
     initializeItem(CONFIG, modifierModule.modifierRegistry);
     initializeCosts(modifierModule.costModifierRegistry);
+    initializeChecks(modifierModule.modifierRegistry);
     chatActionFeature(CONFIG.ChatMessage);
 
     initializeCombat(CONFIG.Combat);

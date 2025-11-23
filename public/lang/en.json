@@ -64,7 +64,8 @@
                 "unit": "unit",
                 "value": "value",
                 "attribute1": "attribute1",
-                "attribute2": "attribute2"
+                "attribute2": "attribute2",
+                "category": "category"
             },
             "parseMessages": {
                 "notAModifier": "Modifier '{modifier}' is not of a modifier format.",
@@ -213,6 +214,13 @@
         "actorSheet": {
             "invalidItemType": "Items of type {type} cannot be added here."
         }
+    },
+    "degreeOfSuccessClassification": {
+        "devastating": "devastating",
+        "failed": "failed",
+        "nearmiss": "near miss",
+        "successful": "successful",
+        "outstanding": "outstanding"
     },
     "COMBAT": {
         "Round": "Tick {round}"

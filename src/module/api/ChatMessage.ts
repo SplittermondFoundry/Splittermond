@@ -6,6 +6,7 @@ declare class ChatMessage extends FoundryDocument {
     whisper: string[];
     /** the message content, an HTML string*/
     content: string;
+    timestamp: number;
 
     rolls: Roll[];
 

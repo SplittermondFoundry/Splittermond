@@ -5,9 +5,7 @@ import { actualAddModifierFunction, type IAddModifier } from "module/actor/addMo
 import { registerSheets } from "module/actor/sheets/registration";
 import { ModifierRegistry } from "module/modifiers";
 import type { ScalarModifier } from "module/modifiers/parsing";
-import { ActorSkillHandler, SkillHandler } from "module/actor/modifiers/SkillHandler";
-import { splittermond } from "module/config";
-import { IndividualSkillHandler } from "module/actor/modifiers/IndividualSkillHandler";
+import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
 
 const trackableResources = {
     bar: ["healthBar", "focusBar"],
@@ -33,10 +31,6 @@ export function initializeActor(actorConfig: (typeof CONFIG)["Actor"], modifierM
     };
 
     actualAddModifierFunction.self = modifierModule.addModifier;
-    modifierModule.modifierRegistry.addHandler(SkillHandler.config.topLevelPath, SkillHandler);
-    modifierModule.modifierRegistry.addHandler(ActorSkillHandler.config.topLevelPath, ActorSkillHandler);
-    splittermond.skillGroups.all.forEach((skill) => {
-        modifierModule.modifierRegistry.addHandler(skill, IndividualSkillHandler(skill));
-    });
+    registerActorModifiers(modifierModule.modifierRegistry);
     registerSheets();
 }

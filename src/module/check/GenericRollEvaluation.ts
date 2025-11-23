@@ -12,7 +12,10 @@ export interface GenericRollEvaluation {
     succeeded: boolean;
     isFumble: boolean;
     isCrit: boolean;
-    degreeOfSuccess: number;
+    degreeOfSuccess: {
+        fromRoll: number;
+        modification: number;
+    };
     degreeOfSuccessMessage: string;
     roll: RollResultForSplittermond;
 }

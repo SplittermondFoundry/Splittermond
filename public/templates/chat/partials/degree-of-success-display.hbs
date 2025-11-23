@@ -3,8 +3,24 @@
         {{#times usedDegreesOfSuccess}}
             <i class="fas fa-star"></i>
         {{/times}}
+        {{#times usedBonusDegreesOfSuccess}}
+            <span class="bonus-star-wrapper">
+                <i class="fas fa-star"></i>
+                <sub class="bonus-indicator">
+                    <i class="fas fa-plus fa-2xs"></i>
+                </sub>
+            </span>
+        {{/times}}
         {{#times openDegreesOfSuccess}}
             <i class="stars fas fa-star"></i>
+        {{/times}}
+        {{#times openBonusDegreesOfSuccess}}
+            <span class="bonus-star-wrapper">
+                <i class="stars fas fa-star"></i>
+                <sub class="bonus-indicator">
+                    <i class="fas fa-plus fa-2xs"></i>
+                </sub>
+            </span>
         {{/times}}
     </div>
     <strong>{{totalDegreesOfSuccess}}&nbsp;{{localize

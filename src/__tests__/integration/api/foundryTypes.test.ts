@@ -58,6 +58,12 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 ).to.equal("function");
             });
         });
+        ([["timestamp", fields.NumberField]] as const).forEach(([name, type]) => {
+            it("should have a schema property ${name}", () => {
+                expect(ChatMessage.defineSchema(), `Item schema contains ${name}`).to.have.property(name);
+                expect((ChatMessage.defineSchema() as any)[name], `${name} is of correct type`).to.be.instanceOf(type);
+            });
+        });
     });
     describe("Item", () => {
         it("should be a class", () => {

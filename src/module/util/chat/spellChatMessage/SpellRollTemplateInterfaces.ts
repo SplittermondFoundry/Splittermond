@@ -3,6 +3,7 @@
  */
 
 import { isMember } from "module/util/util";
+import type { DegreeOfSuccessDisplay } from "module/util/chat/renderDegreesOfSuccess";
 
 /**
  * Available actions as specified in spell-chat-card.hbs
@@ -36,12 +37,7 @@ export interface SpellRollMessageRenderedData {
         rollTooltip: string;
         actionDescription: string;
     };
-    degreeOfSuccessDisplay: {
-        degreeOfSuccessMessage: string;
-        totalDegreesOfSuccess: number;
-        usedDegreesOfSuccess: number;
-        openDegreesOfSuccess: number;
-    };
+    degreeOfSuccessDisplay: DegreeOfSuccessDisplay;
     degreeOfSuccessOptions: SpellDegreesOfSuccessRenderedData[];
     actions: Partial<Record<AvailableActions, object>>;
 }

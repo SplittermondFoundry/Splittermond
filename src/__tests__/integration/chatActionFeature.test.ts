@@ -6,7 +6,7 @@ import { SimpleMessage } from "module/data/SplittermondChatMessage";
 import type { Hooks } from "module/api/foundryTypes";
 import SplittermondActor from "../../module/actor/actor";
 import SplittermondSpellItem from "module/item/spell";
-import { CheckReport } from "module/actor/CheckReport";
+import { CheckReport } from "module/check";
 import { SpellRollMessage } from "module/util/chat/spellChatMessage/SpellRollMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
@@ -163,7 +163,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 hideDifficulty: false,
                 rollType: "standard",
                 succeeded: true,
-                degreeOfSuccess: 5,
+                degreeOfSuccess: { fromRoll: 5, modification: 0 },
                 difficulty: 20,
                 isFumble: false,
                 isCrit: true,

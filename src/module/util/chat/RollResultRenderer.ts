@@ -1,6 +1,6 @@
 import { TooltipFormula } from "../tooltip";
 import { foundryApi } from "../../api/foundryApi";
-import { CheckReport } from "../../actor/CheckReport";
+import { CheckReport } from "module/check";
 
 export class RollResultRenderer {
     private actionDescription: string;

@@ -17,6 +17,7 @@ const modifierKeys = [
     "unit",
     "attribute1",
     "attribute2",
+    "category",
 ] as const;
 const attributeMapper = initMapper(attributes)
     .withTranslator((t) => `splittermond.attribute.${t}.long`)

@@ -7,18 +7,18 @@ import {
     ValuedAction,
 } from "./interfaces";
 import { NumberDegreeOfSuccessOptionField } from "./optionFields/NumberDegreeOfSuccessOptionField";
-import { AgentReference } from "../../../data/references/AgentReference";
-import { splittermond } from "../../../config";
-import { ItemReference } from "../../../data/references/ItemReference";
+import { AgentReference } from "module/data/references/AgentReference";
+import { splittermond } from "module/config";
+import { ItemReference } from "module/data/references/ItemReference";
 import SplittermondSpellItem from "../../../item/spell";
-import { OnAncestorReference } from "../../../data/references/OnAncestorReference";
-import { CheckReport } from "../../../actor/CheckReport";
+import { OnAncestorReference } from "module/data/references/OnAncestorReference";
+import { CheckReport } from "module/check";
 import { configureUseOption } from "./commonAlgorithms/defaultUseOptionAlgorithm";
 import { configureUseAction } from "./commonAlgorithms/defaultUseActionAlgorithm";
 import { DamageInitializer } from "../damageChatMessage/initDamage";
 import { CostBase } from "../../costs/costTypes";
-import { foundryApi } from "../../../api/foundryApi";
-import { asString, condense, mapRoll } from "../../../modifiers/expressions/scalar";
+import { foundryApi } from "module/api/foundryApi";
+import { asString, condense, mapRoll } from "module/modifiers/expressions/scalar";
 import { toDisplayFormula, toRollFormula } from "../../damage/util";
 
 function DamageActionHandlerSchema() {

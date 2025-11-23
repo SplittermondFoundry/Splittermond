@@ -1,4 +1,4 @@
-import * as Dice from "../util/dice";
+import * as Dice from "../check/dice";
 import * as Chat from "../util/chat";
 
 import Attribute from "./attribute";
@@ -621,22 +621,22 @@ export default class SplittermondActor extends Actor {
 
     get tickMalus() {
         return (
-            Math.max(this.modifier.getForId("tickmalus.shield").getModifiers().value, 0) +
-            Math.max(this.modifier.getForId("tickmalus.armor").getModifiers().value, 0) +
-            Math.max(this.modifier.getForId("tickmalus").getModifiers().value, 0)
+            Math.max(this.modifier.getForId("tickmalus.shield").getModifiers().sum, 0) +
+            Math.max(this.modifier.getForId("tickmalus.armor").getModifiers().sum, 0) +
+            Math.max(this.modifier.getForId("tickmalus").getModifiers().sum, 0)
         );
     }
 
     get handicap() {
         return (
-            Math.max(this.modifier.getForId("handicap.shield").getModifiers().value, 0) +
-            Math.max(this.modifier.getForId("handicap.armor").getModifiers().value, 0) +
-            Math.max(this.modifier.getForId("handicap").getModifiers().value, 0)
+            Math.max(this.modifier.getForId("handicap.shield").getModifiers().sum, 0) +
+            Math.max(this.modifier.getForId("handicap.armor").getModifiers().sum, 0) +
+            Math.max(this.modifier.getForId("handicap").getModifiers().sum, 0)
         );
     }
 
     get damageReduction() {
-        return this.modifier.getForId("damagereduction").getModifiers().value;
+        return this.modifier.getForId("damagereduction").getModifiers().sum;
     }
 
     /**
@@ -1007,7 +1007,7 @@ export default class SplittermondActor extends Actor {
         const baseBonus =
             skillName === "health" ? splittermond.splinterpoints.healthBonus : splittermond.splinterpoints.skillBonus;
         const bonusFromModifiers = this.modifier
-            .getForId("splinterpoints.bonus")
+            .getForId("actor.splinterpoints.bonus")
             .withAttributeValuesOrAbsent("skill", skillName)
             .notSelectable()
             .getModifiers()

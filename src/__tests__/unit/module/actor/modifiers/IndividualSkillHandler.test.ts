@@ -1,11 +1,11 @@
 import SplittermondItem from "module/item/item";
-import { IndividualSkillHandler } from "module/actor/modifiers/IndividualSkillHandler";
+import { IndividualSkillHandlers } from "module/actor/modifiers/ActorModifierHandlers";
 import { condense, of } from "module/modifiers/expressions/scalar";
 import { expect } from "chai";
 import sinon from "sinon";
 import { foundryApi } from "module/api/foundryApi";
 
-describe("IndividualSkillHandler", () => {
+describe("ActorModifierHandlers", () => {
     const sandbox = sinon.createSandbox();
     const errorLogger = sandbox.stub();
 
@@ -21,7 +21,7 @@ describe("IndividualSkillHandler", () => {
     it("should create a handler for a specific skill", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
-        const IndividualSkillHandlerClass = IndividualSkillHandler(skill);
+        const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
         const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate", of(1));
         item.name = "Test Item";
 
@@ -36,7 +36,7 @@ describe("IndividualSkillHandler", () => {
     it("should log an error for invalid emphasis attribute", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
-        const IndividualSkillHandlerClass = IndividualSkillHandler(skill);
+        const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
         const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate", of(1));
         item.name = "Test Item";
 
@@ -53,7 +53,7 @@ describe("IndividualSkillHandler", () => {
     it("should omit modifier for zero value", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
-        const IndividualSkillHandlerClass = IndividualSkillHandler(skill);
+        const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
         const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate", of(1));
         item.name = "Test Item";
 
@@ -65,7 +65,7 @@ describe("IndividualSkillHandler", () => {
     it("should account for multiplier in value", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
-        const IndividualSkillHandlerClass = IndividualSkillHandler(skill);
+        const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
         const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate", of(2));
         item.name = "Test Item";
 
@@ -80,7 +80,7 @@ describe("IndividualSkillHandler", () => {
     it("should account for emphasis attribute", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
-        const IndividualSkillHandlerClass = IndividualSkillHandler(skill);
+        const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
         const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate", of(1));
         item.name = "Test Item";
 

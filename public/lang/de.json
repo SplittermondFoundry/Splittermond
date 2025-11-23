@@ -136,7 +136,8 @@
                 "unit": "Einheit",
                 "value": "Wert",
                 "attribute1": "Attribut1",
-                "attribute2": "Attribut2"
+                "attribute2": "Attribut2",
+                "category": "Kategorie"
             },
             "parseMessages": {
                 "notAModifier": "Modifikator '{modifier}' hat kein korrektes Format.",
@@ -272,6 +273,13 @@
         "degreeOfSuccessOptionsHeader": "Erfolgsgradoptionen",
         "degreeOfSuccess": "Erfolgsgrad",
         "degreeOfSuccessAbbrev": "EG",
+        "degreeOfSuccessClassification": {
+            "devastating": "Verheerend",
+            "failed": "Misslungen",
+            "nearmiss": "Knapp misslungen",
+            "successful": "Gelungen",
+            "outstanding": "Herausragend"
+        },
         "degreeOfSuccessOptions": {
             "castDuration": "Auslösezeit verkürzen",
             "consumedFocus": "Verzehrten Fokus verringern",
@@ -607,7 +615,7 @@
         "fumbleTable": {
             "fight": {
                 "result1_1": "<h3>Nichts passiert.</h3>",
-                "result2_3": "<h3>Benommen</h3><p>Der Kämpfer stürzt und schlägt unglücklich mit dem Kopf auf. Er wird sofort auf dem Zeitstrahl 10 Ticks nach vorne gesetzt, gilt als liegend und erhält für 30 weitere Ticks den Zustand @Compendium[splittermond.statuseffects.Benommen]{Benommen 2} (für 30 Ticks).</p>",
+                "result2_3": "<h3>Benommen</h3><p>Der Kämpfer stürzt und schlägt unglücklich mit dem Kopf auf. Er wird sofort auf dem Zeitstrahl @Ticks[10 Ticks, Patzer - Benommen] nach vorne gesetzt, gilt als liegend und erhält für 30 weitere Ticks den Zustand @Compendium[splittermond.statuseffects.Benommen]{Benommen 2} (für 30 Ticks).</p>",
                 "result4_6": "<h3>Beschädigte Waffe</h3><p>Unbeschädigte Waffe angeschlagen (-3 auf alle Proben); angeschlagene Waffe demoliert (nicht mehr verwendbar)</p>",
                 "result7_8": "<h3>Desorientiertheit</h3><p>Der Kämpfer ist kurz desorientiert. Er wird sofort auf dem Zeitstrahl @Ticks[3 Ticks, Patzer - Desorientiertheit] nach vorne gesetzt.</p>",
                 "result10_12": "<h3>Straucheln</h3><p>Der Kämpfer gerät aus dem Gleichgewicht. Er wird sofort auf dem Zeitstrahl @Ticks[6 Ticks, Patzer - Straucheln] nach vorne gesetzt.</p>",

@@ -8,14 +8,14 @@ export const Dice = {
 };
 
 /**
- * @param skill
+ * @param {Skill} skill
  * @param {number} difficulty
  * @param {RollType} rollType
  * @param {number} skillModifier
  * @return {GenericRollEvaluation}
  */
 export async function check(skill, difficulty, rollType = "standard", skillModifier = 0) {
-    let rollFormula = `${CONFIG.splittermond.check.rollType[rollType].rollFormula} + @skillValue`;
+    let rollFormula = `${splittermond.check.rollType[rollType].rollFormula} + @skillValue`;
 
     if (skillModifier) {
         rollFormula += " + @modifier";
@@ -24,7 +24,7 @@ export async function check(skill, difficulty, rollType = "standard", skillModif
         skillValue: skill.value,
         modifier: skillModifier,
     };
-    const roll = new Roll(rollFormula, rollData).evaluate();
+    const roll = foundryApi.roll(rollFormula, rollData).evaluate();
 
     return await evaluateCheck(roll, skill.points, difficulty, rollType);
 }
@@ -67,7 +67,10 @@ export async function evaluateCheck(roll, skillPoints, difficulty, rollType) {
         succeeded: succeeded,
         isFumble: isFumble,
         isCrit: isCrit,
-        degreeOfSuccess: degreeOfSuccess,
+        degreeOfSuccess: {
+            fromRoll: degreeOfSuccess,
+            modification: 0,
+        },
         degreeOfSuccessMessage: degreeOfSuccessMessage,
         roll: roll,
     };

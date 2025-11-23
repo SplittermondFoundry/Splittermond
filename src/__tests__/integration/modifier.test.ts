@@ -25,6 +25,8 @@ import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 import type SplittermondSpellItem from "module/item/spell";
 import { withActor } from "./fixtures";
 import Attack from "module/actor/attack";
+import { passesEventually } from "../util";
+import type { FoundryChatMessage } from "module/api/ChatMessage";
 
 export function modifierTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
@@ -1031,6 +1033,48 @@ export function modifierTest(context: QuenchBatchContext) {
                     expect(actor.skills[skill].value, `Skill ${skill} is modified`).to.be.at.least(6);
                 });
         }
+    });
+
+    describe("Check modifiers", () => {
+        it(
+            "should modify check results",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 4, advances: 0 },
+                            agility: { initial: 4, advances: 0 },
+                        },
+                        skills: { acrobatics: { points: 6 } },
+                    },
+                });
+                await actor.createEmbeddedDocuments("Item", [
+                    {
+                        type: "strength",
+                        name: "Check Booster",
+                        system: {
+                            modifier: `check.result Kategorie='Gelungen' Fertigkeit='Akrobatik' Typus='Fertigkeit' +2`,
+                        },
+                    },
+                ]);
+                actor.prepareBaseData();
+                await actor.prepareEmbeddedDocuments();
+                actor.prepareDerivedData();
+
+                await actor.skills.acrobatics.roll({ rollType: "safety", askUser: false });
+
+                await passesEventually(() => {
+                    const messages = foundryApi.messages as unknown as Collection<FoundryChatMessage>;
+                    const lastMessage = Array.from(messages.contents).find((m) => m.speaker?.actor === actor.id);
+                    const messageContent = lastMessage?.content ?? "";
+                    const total = messageContent.match(/(?<=<div class="roll-total">)\d+(?=<\/div>)/)?.[0];
+                    const degreeOfSuccess = messageContent.match(/(?<=<strong>)\d+(?=\s+EG<\/strong>)/)?.[0];
+                    const rollTotal = parseInt(total ?? "") - actor.skills.acrobatics.value;
+                    const rollDegreeOfSuccess = Math.floor(rollTotal / 3);
+                    expect(parseInt(degreeOfSuccess ?? "0")).to.equal(rollDegreeOfSuccess + 2);
+                });
+            })
+        );
     });
 
     describe("Item modifiers", () => {
