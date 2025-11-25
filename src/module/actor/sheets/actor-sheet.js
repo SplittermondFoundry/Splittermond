@@ -604,7 +604,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         if (droppedDataParsed && droppedDataParsed.type === "attack") {
             const sourceActor = foundryApi.getActor(droppedDataParsed.actorId);
             const sourceAttack = sourceActor?.attacks.find((a) => a.id === droppedDataParsed.attackId);
-            const sourceItem = sourceActor?.items.get(sourceAttack?.item.id);
+            const sourceItem = sourceActor?.items.get(sourceAttack?.item._id); //We're accessing a serialized Object here, so we have to access the internal data, not the getter.
             if (!sourceItem) return;
             return this._onDropDocument(event, sourceItem);
         }
@@ -696,7 +696,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
  */
 function mapAttacks(actor) {
     return actor.attacks.map((attack) => ({
-        ...attack.toObject(),
+        ...attack.toObjectData(),
         damageImplements: mapDamageImplements(attack),
     }));
 }

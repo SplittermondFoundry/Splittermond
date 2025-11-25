@@ -474,7 +474,7 @@ export default class SplittermondActor extends Actor {
         const isInjuring = this.items.find((i) => i.name === "Natürliche Waffe");
         if (this.type === "character") {
             attacks.push(
-                new Attack(this, {
+                Attack.initialize(this, {
                     id: "weaponless",
                     type: "not-an-item",
                     name: foundryApi.localize("splittermond.weaponless"),

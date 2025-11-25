@@ -295,7 +295,7 @@ export function actorTest(context: QuenchBatchContext) {
             })
         );
 
-        it("longRest persits replenishment of consumed stats", async () => {
+        it("longRest persists replenishment of consumed stats", async () => {
             const systemCopy = new CharacterDataModel((actor.system as CharacterDataModel).toObject());
             systemCopy.focus.updateSource({ exhausted: { value: 10 } });
             systemCopy.health.updateSource({ exhausted: { value: 8 } });
@@ -526,7 +526,7 @@ export function actorTest(context: QuenchBatchContext) {
                     targetSheet.element.dispatchEvent(dragStop);
 
                     await passesEventually(() => {
-                        expect(target.items.find((i) => i.name === item.name)).to.exist;
+                        expect(target.items.map((i) => i.name)).to.include(item.name);
                     });
 
                     //Pure precaution. Foundry should remove them when the actors get deleted.

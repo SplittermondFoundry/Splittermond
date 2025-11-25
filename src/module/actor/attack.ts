@@ -97,11 +97,7 @@ const attributeMapper = initMapper(splittermond.attributes)
 
 function AttackSchema() {
     return {
-        actor: new fieldExtensions.TypedObjectField<SplittermondActor, true, false>({
-            required: true,
-            nullable: false,
-            validate: (x): x is SplittermondActor => x !== null && x !== undefined,
-        }),
+        actorUuid: new fields.StringField({ required: true, nullable: false }),
         item: new fieldExtensions.TypedObjectField<AttackItem, true, false>({
             required: true,
             nullable: false,
@@ -130,6 +126,9 @@ type AttackType = DataModelSchemaType<typeof AttackSchema>;
 
 export default class Attack extends SplittermondDataModel<AttackType> {
     static defineSchema = AttackSchema;
+
+    private _actor: SplittermondActor | null = null;
+    private _skill: Skill | null = null; //Fix
 
     /**
      * Initializer function that replaces the constructor logic
@@ -221,8 +220,8 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             );
         }
 
-        return new Attack({
-            actor,
+        const attack = new Attack({
+            actorUuid: actor.uuid,
             item,
             isSecondaryAttack,
             attackData,
@@ -233,6 +232,9 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             editable,
             deletable,
         });
+        attack._actor = actor; // Cache the actor reference, we don't need to retrieve immediately
+        attack._skill = skill;
+        return attack;
     }
 
     get range() {
@@ -250,9 +252,6 @@ export default class Attack extends SplittermondDataModel<AttackType> {
         return this.attackData.features;
     }
 
-    /**
-     * @return {principalComponent: ProtoDamageImplement, otherComponents: ProtoDamageImplement[]}
-     */
     getForDamageRoll() {
         const fromModifiers = this.collectModifiers().map((m) => {
             return {
@@ -347,12 +346,23 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             : true;
     }
 
+    get actor(): SplittermondActor {
+        if (this._actor === null) {
+            const actor = foundryApi.utils.fromUUIDSync(this.actorUuid);
+            if (!actor) {
+                throw new Error(`Failed to retrieve actor with UUID: ${this.actorUuid}`);
+            }
+            this._actor = actor as SplittermondActor;
+        }
+        return this._actor;
+    }
+
     toObjectData() {
         return {
             id: this.id,
             img: this.img,
             name: this.name,
-            skill: this.skill.toObject(),
+            skill: this._skill ? this._skill.toObject() : this.skill, //Revert this
             range: this.range,
             features: this.features,
             damage: this.damage,
@@ -383,6 +393,6 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             },
             ...structuredClone(options),
         };
-        return this.skill.roll(attackRollOptions);
+        return this._skill!.roll(attackRollOptions);
     }
 }
