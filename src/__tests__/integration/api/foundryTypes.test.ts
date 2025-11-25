@@ -149,6 +149,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 ["uuid", "string"],
                 ["folder", "object"],
                 ["inCombat", "boolean"],
+                ["isToken", "boolean"],
             ] as const
         ).forEach(([property, type]) => {
             it(`should have a property ${property} of type ${type}`, () => {
