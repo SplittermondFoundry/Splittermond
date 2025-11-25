@@ -252,9 +252,13 @@ export const foundryApi = new (class FoundryApi {
     }
 
     utils = {
-        fromUUID(uuid: string): Promise<FoundryDocument> {
+        fromUUID(uuid: string): Promise<FoundryDocument | null> {
             // @ts-ignore
             return fromUuid(uuid);
+        },
+        fromUUIDSync(uuid: string): FoundryDocument | null {
+            // @ts-ignore
+            return fromUuidSync(uuid);
         },
         /**@deprecated will fail for classes*/
         deepClone<T extends object>(object: T): T {
