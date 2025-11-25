@@ -181,6 +181,9 @@
             },
             "actorSheet": {
                 "invalidItemType": "Objekte vom Typ {type} können hier nicht abgelegt werden."
+            },
+            "compendiumBrowser": {
+                "noItem": "Das gesuchte Objekt konnte nicht gefunden werden."
             }
         },
         "modifier": "Modifikator",

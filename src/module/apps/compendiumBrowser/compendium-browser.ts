@@ -245,8 +245,12 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
             return;
         }
         const item = await foundryApi.utils.fromUUID(itemId);
+        if (!item) {
+            foundryApi.warnUser("splittermond.application.compendiumBrowser.noItem");
+            return;
+        }
         let sheet = item.sheet;
-        sheet.render(true);
+        sheet?.render(true);
     }
 
     _canDragStart(selector: string) {
