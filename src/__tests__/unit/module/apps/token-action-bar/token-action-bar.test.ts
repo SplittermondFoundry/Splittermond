@@ -92,7 +92,7 @@ describe("TokenActionBar", () => {
         attackLi.dataset.attackId = attackId;
         attackLi.dataset.prepared = "false";
         const attackStub = sandbox.createStubInstance(Attack);
-        attackStub.toObject.returns({ ...getMockAttackObject(), id: attackId });
+        attackStub.toObjectData.returns({ ...getMockAttackObject(), id: attackId });
         sandbox.stub(attackStub, "weaponSpeed").get(() => 3);
         actorStub.attacks.push(attackStub);
         await bar.rollAttack(null as any, attackLi);

@@ -16,6 +16,7 @@ import { ItemFeaturesModel, mergeFeatures } from "../item/dataModel/propertyMode
 import { DamageRoll } from "../util/damage/DamageRoll";
 import { toDisplayFormula } from "../util/damage/util";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
+import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "../data/SplittermondDataModel";
 
 type Options<T extends object> = { [K in keyof T]+?: T[K] | null | undefined };
 
@@ -94,61 +95,78 @@ const attributeMapper = initMapper(splittermond.attributes)
     .andOtherMappers((a) => `splittermond.attribute.${a}.short`)
     .build();
 
-declare function duplicate<T extends object>(obj: T): T;
+function AttackSchema() {
+    return {
+        actor: new fieldExtensions.TypedObjectField<SplittermondActor, true, false>({
+            required: true,
+            nullable: false,
+            validate: (x): x is SplittermondActor => x !== null && x !== undefined,
+        }),
+        item: new fieldExtensions.TypedObjectField<AttackItem, true, false>({
+            required: true,
+            nullable: false,
+            validate: (x): x is AttackItem => x !== null && x !== undefined,
+        }),
+        isSecondaryAttack: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+        attackData: new fieldExtensions.TypedObjectField<AttackItemData, true, false>({
+            required: true,
+            nullable: false,
+            validate: (x): x is AttackItemData => x !== null && x !== undefined,
+        }),
+        id: new fields.StringField({ required: true, nullable: false }),
+        img: new fields.StringField({ required: true, nullable: false }),
+        name: new fields.StringField({ required: true, nullable: false }),
+        skill: new fieldExtensions.TypedObjectField<Skill, true, false>({
+            required: true,
+            nullable: false,
+            validate: (x): x is Skill => x !== null && x !== undefined,
+        }),
+        editable: new fields.BooleanField({ required: true, nullable: false }),
+        deletable: new fields.BooleanField({ required: true, nullable: false }),
+    };
+}
 
-export default class Attack {
-    public readonly item: AttackItem;
-    private readonly isSecondaryAttack: boolean;
-    private readonly attackData: AttackItemData;
+type AttackType = DataModelSchemaType<typeof AttackSchema>;
 
-    private readonly id: string;
-    public readonly img: string;
-    public readonly name: string;
-    public readonly skill: Skill;
-    public readonly editable: boolean;
-    public readonly deletable: boolean;
+export default class Attack extends SplittermondDataModel<AttackType> {
+    static defineSchema = AttackSchema;
 
     /**
-     *
+     * Initializer function that replaces the constructor logic
      * @param  actor Actor-Object of attack
      * @param  item Corresponding item for attack
      * @param  secondaryAttack Generate secondary attack of item
      */
-    constructor(
-        private readonly actor: SplittermondActor,
-        item: AttackItem,
-        secondaryAttack = false
-    ) {
-        this.isSecondaryAttack = secondaryAttack;
-        this.attackData = withDefaults(
+    static initialize(actor: SplittermondActor, item: AttackItem, secondaryAttack = false): Attack {
+        const isSecondaryAttack = secondaryAttack;
+        const attackData = withDefaults(
             secondaryAttack && item.system.secondaryAttack ? item.system.secondaryAttack : item.system
         );
 
-        this.editable = ["weapon", "shield", "npcattack"].includes(item.type);
-        this.deletable = ["npcattack"].includes(item.type);
-        this.id = !this.isSecondaryAttack ? item.id : `${item.id}_secondary`;
-        this.img = item.img;
-        this.name = !this.isSecondaryAttack
+        const editable = ["weapon", "shield", "npcattack"].includes(item.type);
+        const deletable = ["npcattack"].includes(item.type);
+        const id = !isSecondaryAttack ? item.id : `${item.id}_secondary`;
+        const img = item.img;
+        const name = !isSecondaryAttack
             ? item.name
-            : `${item.name} (${foundryApi.localize(`splittermond.skillLabel.${this.attackData.skill}`)})`;
-        this.skill = new Skill(
-            this.actor,
-            this.attackData.skill || this.name,
-            this.attackData.attribute1,
-            this.attackData.attribute2,
-            this.attackData.skillValue
+            : `${item.name} (${foundryApi.localize(`splittermond.skillLabel.${attackData.skill}`)})`;
+        const skill = new Skill(
+            actor,
+            attackData.skill || name,
+            attackData.attribute1,
+            attackData.attribute2,
+            attackData.skillValue
         );
-        this.skill.addModifierPath(`skill.${this.id}`);
-        this.item = item;
+        skill.addModifierPath(`skill.${id}`);
 
         let minAttributeMalus = 0;
-        this.attackData.minAttributes.split(",").forEach((aStr) => {
+        attackData.minAttributes.split(",").forEach((aStr) => {
             const attribute = aStr.match(/^\S+(?=\s)/)?.[0];
             const minAttributeValue = parseInt(aStr.match(/([0-9]+)$/)?.[0] ?? "0");
             if (attribute) {
                 let attr = attributeMapper().toCode(attribute);
                 if (attr) {
-                    let diff = parseInt(this.actor.attributes[attr].value) - minAttributeValue;
+                    let diff = parseInt(actor.attributes[attr].value) - minAttributeValue;
                     if (diff < 0) {
                         minAttributeMalus += diff;
                     }
@@ -157,51 +175,64 @@ export default class Attack {
         });
 
         if (minAttributeMalus) {
-            this.actor.modifier.add(
-                `skill.${this.id}`,
+            actor.modifier.add(
+                `skill.${id}`,
                 {
                     name: foundryApi.localize("splittermond.minAttributes"),
                     type: "innate",
                 },
                 of(minAttributeMalus),
-                this
+                item
             );
-            this.actor.modifier.add(
+            actor.modifier.add(
                 "weaponspeed",
                 {
-                    item: this.id,
+                    item: id,
                     name: foundryApi.localize("splittermond.minAttributes"),
                     type: "innate",
                 },
                 of(minAttributeMalus),
-                this
+                item
             );
         }
 
         //add skill modifier if present AND greater than 0!
-        if (this.attackData.skillMod) {
-            this.actor.modifier.add(
-                `skill.${this.id}`,
+        if (attackData.skillMod) {
+            actor.modifier.add(
+                `skill.${id}`,
                 {
                     name: foundryApi.localize("splittermond.skillMod"),
                     type: "innate",
                 },
-                of(this.attackData.skillMod),
-                this
+                of(attackData.skillMod),
+                item
             );
         }
 
-        if (this.attackData.damageLevel > 2) {
-            this.actor.modifier.add(
-                `skill.${this.id}`,
+        if (attackData.damageLevel > 2) {
+            actor.modifier.add(
+                `skill.${id}`,
                 {
                     name: foundryApi.localize("splittermond.damageLevel"),
                     type: "innate",
                 },
                 of(-3),
-                this
+                item
             );
         }
+
+        return new Attack({
+            actor,
+            item,
+            isSecondaryAttack,
+            attackData,
+            id,
+            img,
+            name,
+            skill,
+            editable,
+            deletable,
+        });
     }
 
     get range() {
@@ -316,7 +347,7 @@ export default class Attack {
             : true;
     }
 
-    toObject() {
+    toObjectData() {
         return {
             id: this.id,
             img: this.img,
@@ -346,7 +377,7 @@ export default class Attack {
             modifier: 0,
             checkMessageData: {
                 weapon: {
-                    ...this.toObject(),
+                    ...this.toObjectData(),
                     damageImplements: this.getForDamageRoll(),
                 },
             },

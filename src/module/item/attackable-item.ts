@@ -32,10 +32,10 @@ function AttackableItem<TBase extends Constructor<SplittermondItem>>(Base: TBase
                 return;
             }
 
-            this.attacks.push(new Attack(this.actor, this));
+            this.attacks.push(Attack.initialize(this.actor, this));
 
             if (this.hasSecondaryAttack) {
-                this.attacks.push(new Attack(this.actor, this, true));
+                this.attacks.push(Attack.initialize(this.actor, this, true));
             }
 
             this.attacks.forEach((attack) => this.actor.attacks.push(attack));
