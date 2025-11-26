@@ -17,7 +17,7 @@ import { InverseModifier } from "module/modifiers/impl/InverseModifier";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
-import { addDerivedValueHandlers, registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
+import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
 
 function setupAddModifierFunction() {
     const modifierRegistry = new ModifierRegistry();
@@ -25,16 +25,6 @@ function setupAddModifierFunction() {
     costModifierRegistry.addHandler(CostModifierHandler.config.topLevelPath, CostModifierHandler);
     modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);
     registerActorModifiers(modifierRegistry);
-    const localize = sinon.stub(foundryApi, "localize").callsFake((key: string) => {
-        switch (key) {
-            case "splittermond.derivedAttribute.initiative.short":
-                return "INI";
-            default:
-                return key;
-        }
-    });
-    addDerivedValueHandlers(modifierRegistry);
-    localize.restore();
     return initAddModifier(modifierRegistry, costModifierRegistry);
 }
 

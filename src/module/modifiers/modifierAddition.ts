@@ -8,6 +8,7 @@ import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
 import type { IModifier, ModifierType } from "module/modifiers/index";
+import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
 
 export interface AddModifierResult {
     modifiers: IModifier[];
@@ -66,14 +67,22 @@ export function initAddModifier(
                     itemName: item.name,
                 });
                 modifier.path = `item.${modifier.path}`;
-            }
-            if ("gsw.mult" === modifier.path.toLowerCase()) {
+            } else if ("gsw.mult" === modifier.path.toLowerCase()) {
                 const newGroupId = "actor.speed.multiplier";
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
                     old: modifier.path,
                     new: newGroupId,
                 });
                 modifier.path = newGroupId;
+            } else {
+                /*handles path translations for derived values and skills. Cannot be done in registry, because the language file loads too late for
+                 * adding initializers in 'init'. You cannot place handlers in the "ready" hook however, because Actors are initialized before the
+                 * 'ready' hook is initialized after Actors.
+                 */
+                const newGroupId = normalizeDescriptor(modifier.path).usingMappers("derivedAttributes", "skills").do();
+                if (handlerCache.handles(newGroupId)) {
+                    modifier.path = newGroupId;
+                }
             }
 
             if (handlerCache.handles(modifier.path)) {
@@ -83,6 +92,7 @@ export function initAddModifier(
                 return;
             }
 
+            /**Deprecated*/
             const modifierLabel = modifier.path.toLowerCase();
             switch (modifierLabel) {
                 //This setup is a bit of a hack, it uses the (private) knowledge that Attack objects add the item id as listener to skill modifiers

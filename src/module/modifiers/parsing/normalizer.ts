@@ -131,7 +131,7 @@ class NoValueAdornmentNormalizer {
     private selectedMappers: MapperSelection[] = [];
     static mappers = {
         attributes: { collection: splittermond.attributes, mapper: attributeMapper },
-        derivedAttributes: { collection: splittermond.attributes, mapper: derivedAttributeMapper },
+        derivedAttributes: { collection: splittermond.derivedAttributes, mapper: derivedAttributeMapper },
         skills: { collection: splittermond.skillGroups.all, mapper: skillMapper },
         modifiers: { collection: modifierKeys, mapper: modifierKeyMapper },
         damageTypes: { collection: splittermond.damageTypes, mapper: damageTypeMapper },

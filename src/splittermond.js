@@ -31,7 +31,6 @@ import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel";
 import { getTimeUnitConversion } from "module/util/util.js";
 import { initializeChecks } from "module/check/index.js";
-import { addDerivedValueHandlers } from "module/actor/modifiers/actorModifierRegistration";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -68,7 +67,6 @@ function handlePdf(links) {
 }
 
 Hooks.once("ready", async function () {
-    addDerivedValueHandlers(game.splittermond.API.modifiers.modifierRegistry);
     return Promise.all([initTickBarHud(game.splittermond), initTokenActionBar(game.splittermond)]).then(() => {
         console.log("Splittermond | Ready");
         foundryApi.hooks.call("splittermond.ready");
