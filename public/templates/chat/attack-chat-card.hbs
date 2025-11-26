@@ -1,0 +1,109 @@
+<!--DO NOT CHANGE THIS TEMPLATE UNLESS YOU ALSO CHANGE THE AttackRollTemplateInterfaces.ts FILE-->
+<div class="splittermond check {{rollResultClass}}">
+    <header class="chat-message-header">
+        {{#with header}}
+            {{#if img}}
+                <img alt="Icon attached to the weapon" src="{{img}}" width="36" height="36" />
+            {{/if}}
+            <div>
+                <h2>{{title}}</h2>
+                <span class="roll-type">{{rollTypeMessage}}</span>
+                {{#if difficulty}}
+                    <span class="{{#if hideDifficulty}}gm-only{{/if}}">
+                &nbsp;      {{localize "splittermond.versus"}}&nbsp;<span class="difficulty">{{difficulty}}</span>
+                    </span>
+                {{/if}}
+            </div>
+        {{/with}}
+    </header>
+    {{> roll-result rollResult}}
+    {{> degree-of-success-display degreeOfSuccessDisplay}}
+    {{#if maneuvers}}
+        <div class="splittermond-chat-action-container">
+            <strong>{{localize "splittermond.maneuver"}}</strong>
+            <div class="degree-of-success-description">
+                <ol>
+                    {{#each maneuvers}}
+                        <li class="maneuver">
+                            {{name}}
+                            <div class="description">{{system.description}}</div>
+                        </li>
+                    {{/each}}
+                </ol>
+            </div>
+        </div>
+    {{/if}}
+    <div class="splittermond-chat-action-container">
+        {{#if this.degreeOfSuccessOptions}}
+            <strong>{{localize "splittermond.degreeOfSuccessOptionsHeader"}}</strong>
+            <div class="degree-of-success-description">
+                {{#each this.degreeOfSuccessOptions}}
+                    <div class="splittermond-inline-label-input">
+                        <input
+                                id="{{id}}"
+                                type="checkbox"
+                                class="splittermond-chat-action inline-label-input"
+                            {{#if checked}}checked{{/if}}
+                            {{#if disabled}}disabled{{/if}}
+                                data-action="{{action}}"
+                                data-multiplicity="{{multiplicity}}"
+                        />
+                        <label class="inline-label" for="{{id}}">{{text}}</label>
+                    </div>
+                {{/each}}
+            </div>
+        {{/if}}
+    </div>
+    <div class="actions splittermond-chat-action-container">
+        <h3>{{localize "splittermond.furtherActions"}}</h3>
+        {{#with actions}}
+            {{#if activeDefense }}
+                {{> "activeDefenseButton" activeDefense}}
+            {{/if}}
+            {{#if applyDamage}}
+                {{> "applyDamageButton" applyDamage}}
+            {{/if}}
+            {{#if advanceToken}}
+                {{> "advanceTokenButton" advanceToken}}
+            {{/if}}
+            {{#if useSplinterpoint}}
+                {{> "useSplinterpointButton" useSplinterpoint}}
+            {{/if}}
+            {{#if rollFumble}}
+                {{> "rollFumbleButton" rollFumble}}
+            {{/if}}
+        {{/with}}
+
+        {{#* inline "applyDamageButton"}}
+            <button class="splittermond-chat-action" data-action="applyDamage" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-heart-broken"></i>
+                {{value}} {{localize "splittermond.damage"}}
+            </button>
+        {{/inline}}
+        {{#* inline "advanceTokenButton"}}
+            <button class="splittermond-chat-action" data-action="advanceToken" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-stopwatch"></i>
+                {{value}} {{localize "splittermond.ticks"}}
+            </button>
+        {{/inline}}
+        {{#* inline "useSplinterpointButton"}}
+            <button class="splittermond-chat-action" data-action="useSplinterpoint" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-moon"></i>
+                {{localize "splittermond.splinterpoint"}}
+            </button>
+        {{/inline}}
+        {{#* inline "rollFumbleButton"}}
+            <button class="splittermond-chat-action" data-localAction="rollFumble" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-dice"></i>
+                {{localize "splittermond.fumbleTableLabel"}}
+            </button>
+        {{/inline}}
+        {{#* inline "activeDefenseButton"}}
+            <button class="splittermond-chat-action" data-localAction="activeDefense">
+                <i class="fas fa-shield-alt"></i>
+                {{localize "splittermond.activeDefense"}} ({{difficulty}})
+            </button>
+        {{/inline}}
+    </div>
+</div>
+
