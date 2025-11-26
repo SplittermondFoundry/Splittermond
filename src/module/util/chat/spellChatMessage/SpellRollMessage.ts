@@ -9,7 +9,6 @@ import { ActionHandler } from "./interfaces";
 import { foundryApi } from "module/api/foundryApi";
 import { TickCostActionHandler } from "./TickCostActionHandler";
 import { DamageActionHandler } from "./DamageActionHandler";
-import { evaluateCheck } from "module/check/dice";
 import { NoActionOptionsHandler } from "./NoActionOptionsHandler";
 import { isAvailableAction, SpellRollMessageRenderedData } from "./SpellRollTemplateInterfaces";
 import { NoOptionsActionHandler } from "./NoOptionsActionHandler";
@@ -18,6 +17,7 @@ import { DataModelConstructorInput } from "module/api/DataModel";
 import { ChatMessageModel } from "module/data/SplittermondChatMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess";
+import { addSplinterpointBonus } from "module/check/addSplinterpoint";
 
 const constructorRegistryKey = "SpellRollMessage";
 
@@ -173,22 +173,7 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
             .spendSplinterpoint()
             .getBonus(this.checkReport.skill.id);
         const checkReport = this.checkReport;
-        checkReport.roll.total += splinterPointBonus;
-        const updatedReport = await evaluateCheck(
-            Promise.resolve(checkReport.roll),
-            checkReport.skill.points,
-            checkReport.difficulty,
-            checkReport.rollType
-        );
-        const newCheckReport: CheckReport = {
-            ...checkReport,
-            ...updatedReport,
-            roll: { ...updatedReport.roll, tooltip: checkReport.roll.tooltip },
-            degreeOfSuccess: {
-                fromRoll: updatedReport.degreeOfSuccess.fromRoll,
-                modification: checkReport.degreeOfSuccess.modification,
-            },
-        };
+        const newCheckReport = await addSplinterpointBonus(checkReport, splinterPointBonus);
         this.updateSource({ checkReport: newCheckReport, splinterPointUsed: true });
     }
 
