@@ -14,9 +14,8 @@ export default class DerivedValue extends Modifiable(Object) {
         super();
         this._modifierPath = [id];
         this.actor = actor;
-        let path = [id];
-        if ("speed" === id) path.push("woundmalus");
-        if ("initiative" === id) path.push("initiativewoundmalus");
+        if ("speed" === id) this._modifierPath.push("woundmalus");
+        if ("initiative" === id) this._modifierPath.push("initiativewoundmalus");
         this.id = id;
         this.multiplier = 1;
         this.label = {

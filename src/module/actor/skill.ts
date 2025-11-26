@@ -209,6 +209,15 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         });
         return skillAttributes;
     }
+    additionalModifiers() {
+        return this.actor.modifier
+            .getForId("actor.skills")
+            .withAttributeValuesOrAbsent("attribute1", this.attribute1?.id ?? "", this.attribute2?.id ?? "")
+            .withAttributeValuesOrAbsent("attribute2", this.attribute2?.id ?? "", this.attribute1?.id ?? "")
+            .withAttributeValuesOrAbsent("skill", this.id)
+            .notSelectable()
+            .getModifiers();
+    }
 
     /**
      * @param {{
