@@ -22,7 +22,7 @@ describe("Modifiable", () => {
                 values.forEach((value) => {
                     testActor.modifier.addModifier(modifierWith({ groupId: "endurance", value: of(value) }));
                 });
-                const underTest = new Modifiable(testActor, "endurance");
+                const underTest = new TestModifiable(testActor, "endurance");
 
                 expect(underTest.mod).to.equal(values.reduce((a, b) => a + b, 0));
             });
@@ -35,7 +35,7 @@ describe("Modifiable", () => {
                         modifierWith({ groupId: "endurance", value: of(value), addTooltipFormulaElements: tooltipStub })
                     );
                 });
-                const underTest = new Modifiable(testActor, "endurance");
+                const underTest = new TestModifiable(testActor, "endurance");
 
                 const tooltip = new TooltipFormula();
                 underTest.addModifierTooltipFormulaElements(tooltip);
@@ -55,7 +55,7 @@ describe("Modifiable", () => {
                     attributes: { type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // Hero level 1 → bonusCap = 1 + 2 = 3
             // Equipment bonus = 5, capped to 3
@@ -71,7 +71,7 @@ describe("Modifiable", () => {
                     attributes: { type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // Hero level 2 → bonusCap = 2 + 2 = 4
             // Equipment bonus = 6, capped to 4
@@ -87,7 +87,7 @@ describe("Modifiable", () => {
                     attributes: { type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // Hero level 3 → bonusCap = 3 + 2 = 5
             // Equipment bonus = 7, capped to 5
@@ -103,7 +103,7 @@ describe("Modifiable", () => {
                     attributes: { type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // Hero level 4 → bonusCap = 4 + 2 = 6
             // Equipment bonus = 8, capped to 6
@@ -119,7 +119,7 @@ describe("Modifiable", () => {
                     attributes: { type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // Hero level 1 → bonusCap = 3
             // Equipment bonus = 2, not capped
@@ -142,7 +142,7 @@ describe("Modifiable", () => {
                     attributes: { type: "magic" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // Hero level 1 → bonusCap = 3
             // Equipment bonus = 5, capped to 3
@@ -167,7 +167,7 @@ describe("Modifiable", () => {
                     attributes: { type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // Hero level 1 → bonusCap = 3
             // Equipment bonus = 5, capped to 3
@@ -192,7 +192,7 @@ describe("Modifiable", () => {
                     attributes: { type: "innate" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // Hero level 1 → bonusCap = 3
             // Equipment bonus = 5, capped to 3
@@ -231,7 +231,7 @@ describe("Modifiable", () => {
                     attributes: { type: "magic" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // Hero level 2 → bonusCap = 4
             // Equipment bonuses = 2 + 3 = 5, capped to 4
@@ -249,7 +249,7 @@ describe("Modifiable", () => {
                     attributes: { type: "innate" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             // No equipment/magic bonuses, so cap doesn't apply
             expect(underTest.mod).to.equal(5);
@@ -268,7 +268,7 @@ describe("Modifiable", () => {
                     attributes: { name: "Equipment Bonus", type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             const tooltip = new TooltipFormula();
             underTest.addModifierTooltipFormulaElements(tooltip);
@@ -290,7 +290,7 @@ describe("Modifiable", () => {
                     attributes: { name: "Magic Bonus", type: "magic" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             const tooltip = new TooltipFormula();
             underTest.addModifierTooltipFormulaElements(tooltip);
@@ -319,7 +319,7 @@ describe("Modifiable", () => {
                     attributes: { name: "Magic Bonus", type: "magic" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             const tooltip = new TooltipFormula();
             underTest.addModifierTooltipFormulaElements(tooltip);
@@ -341,7 +341,7 @@ describe("Modifiable", () => {
                     attributes: { name: "Equipment Bonus", type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             const tooltip = new TooltipFormula();
             underTest.addModifierTooltipFormulaElements(tooltip);
@@ -361,7 +361,7 @@ describe("Modifiable", () => {
                     attributes: { name: "Equipment Bonus", type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             const tooltip = new TooltipFormula();
             underTest.addModifierTooltipFormulaElements(tooltip);
@@ -381,7 +381,7 @@ describe("Modifiable", () => {
                     attributes: { name: "Innate Bonus", type: "innate" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             const tooltip = new TooltipFormula();
             underTest.addModifierTooltipFormulaElements(tooltip);
@@ -408,7 +408,7 @@ describe("Modifiable", () => {
                     attributes: { name: "Equipment Bonus 2", type: "equipment" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             const tooltip = new TooltipFormula();
             underTest.addModifierTooltipFormulaElements(tooltip);
@@ -437,7 +437,7 @@ describe("Modifiable", () => {
                     attributes: { name: "Magic Bonus", type: "magic" },
                 })
             );
-            const underTest = new Modifiable(testActor, "endurance");
+            const underTest = new TestModifiable(testActor, "endurance");
 
             const tooltip = new TooltipFormula();
             underTest.addModifierTooltipFormulaElements(tooltip);
@@ -488,3 +488,14 @@ describe("Modifiable", () => {
         };
     }
 });
+
+class TestModifiable extends Modifiable(Object) {
+    _modifierPath: string[] = [];
+    constructor(
+        public readonly actor: SplittermondActor,
+        modifierPath: string
+    ) {
+        super();
+        this._modifierPath.push(modifierPath);
+    }
+}

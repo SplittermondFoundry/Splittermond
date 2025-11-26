@@ -3,7 +3,7 @@ import { Dice } from "../check/dice";
 import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty } from "../util/rollDifficultyParser";
-import { asString, condense, isGreaterThan, isGreaterZero, minus, of } from "module/modifiers/expressions/scalar";
+import { asString } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
 import { modifyEvaluation } from "module/check/modifyEvaluation";
@@ -14,6 +14,7 @@ import type Attribute from "module/actor/attribute";
 import type { IModifier } from "module/modifiers";
 import type { SplittermondAttribute } from "module/config/attributes";
 import { isMember } from "module/util/util";
+import Modifiable from "module/actor/modifiable";
 
 function newSkillAttribute() {
     const id = new fieldExtensions.StringEnumField({
@@ -52,7 +53,7 @@ type SkillType = DataModelSchemaType<typeof SkillSchema>;
  * @property {string} id
  * @property {string} label
  */
-export default class Skill extends SplittermondDataModel<SkillType> {
+export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) {
     static defineSchema = SkillSchema;
 
     private _actor: SplittermondActor | null = null;
@@ -167,21 +168,10 @@ export default class Skill extends SplittermondDataModel<SkillType> {
         return value;
     }
 
-    get mod(): number {
-        const equipmentModifiers = this.#equipmentModifiers();
-        const magicModifiers = this.#magicModifiers();
-        const others = this.collectModifiers()
-            .filter((m: any) => !equipmentModifiers.includes(m))
-            .filter((m: any) => !magicModifiers.includes(m));
-        const cappedEquipment = Math.min(equipmentModifiers.sum, this.actor.bonusCap);
-        const cappedMagic = Math.min(magicModifiers.sum, this.actor.bonusCap);
-        return others.sum + cappedEquipment + cappedMagic;
-    }
-
     /**
      * @returns {IModifier[]}
      */
-    get selectableModifier() {
+    get selectableModifier(): IModifier[] {
         return this.actor.modifier
             .getForIds(...(this._modifierPath as any))
             .selectable()
@@ -439,59 +429,6 @@ export default class Skill extends SplittermondDataModel<SkillType> {
             value: asString(mod.value),
             description: mod.attributes.name,
         }));
-    }
-
-    additionalModifiers() {
-        return this.actor.modifier
-            .getForId("actor.skills")
-            .withAttributeValuesOrAbsent("attribute1", this.attribute1?.id ?? "", this.attribute2?.id ?? "")
-            .withAttributeValuesOrAbsent("attribute2", this.attribute2?.id ?? "", this.attribute1?.id ?? "")
-            .withAttributeValuesOrAbsent("skill", this.id)
-            .notSelectable()
-            .getModifiers();
-    }
-
-    /**
-     * @returns {Modifiers}
-     * @final
-     */
-    collectModifiers() {
-        const baseModifiers = this.actor.modifier
-            .getForIds(...(this._modifierPath as any))
-            .notSelectable()
-            .getModifiers();
-        baseModifiers.push(...this.additionalModifiers());
-        return baseModifiers;
-    }
-
-    #equipmentModifiers() {
-        return this.collectModifiers().filter((mod: any) => mod.attributes.type === "equipment" && mod.isBonus);
-    }
-
-    #magicModifiers() {
-        return this.collectModifiers().filter((mod: any) => mod.attributes.type === "magic" && mod.isBonus);
-    }
-
-    addModifierPath(path: string) {
-        (this._modifierPath as any).push(path);
-    }
-
-    //Bonus calculation is best done with evaluated modifiers, but we don't want to evaluate for the presentation
-    //So we calculate the bonus cap again here.
-    addModifierTooltipFormulaElements(formula: any) {
-        this.collectModifiers().addTooltipFormulaElements(formula);
-        const bonusCap = of(this.actor.bonusCap);
-        const grandTotal = this.#equipmentModifiers().sumExpressions();
-        const equipment = minus(this.#equipmentModifiers().sumExpressions(), bonusCap);
-        const magic = minus(this.#magicModifiers().sumExpressions(), bonusCap);
-        const adjustedBonus = minus(
-            minus(grandTotal, isGreaterZero(equipment) ? equipment : of(0)),
-            isGreaterZero(magic) ? magic : of(0)
-        );
-        if (isGreaterThan(grandTotal, adjustedBonus)) {
-            const overflow = minus(grandTotal, adjustedBonus);
-            formula.addMalus(asString(condense(overflow)), "splittermond.bonusCap");
-        }
     }
 
     getFormula() {
