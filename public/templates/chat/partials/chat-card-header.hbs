@@ -1,0 +1,15 @@
+<header class="chat-message-header">
+    {{#if img}}
+        <img alt="{{alt}}" src="{{img}}" width="36" height="36" />
+    {{/if}}
+    <div>
+        <h2>{{title}}</h2>
+        <span class="roll-type">{{rollTypeMessage}}</span>
+        {{#if difficulty}}
+            <span class="{{#if hideDifficulty}}gm-only{{/if}}">
+                &nbsp;{{localize "splittermond.versus"}}&nbsp;<span class="difficulty">{{difficulty}}</span>
+            </span>
+        {{/if}}
+    </div>
+</header>
+

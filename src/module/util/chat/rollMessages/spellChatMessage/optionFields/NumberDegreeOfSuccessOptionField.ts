@@ -1,13 +1,11 @@
-import { DataModelSchemaType, fields, SplittermondDataModel } from "../../../../data/SplittermondDataModel";
-import { CostModifier } from "../../../costs/Cost";
-import { foundryApi } from "../../../../api/foundryApi";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
+import { foundryApi } from "module/api/foundryApi";
 
-function FocusDegreeOfSuccessOptionFieldSchema() {
+function NumberDegreeOfSuccessOptionFieldSchema() {
     return {
-        isOption: new fields.BooleanField({ required: true, nullable: false, initial: false }),
         /**the amount of degrees of success one has to spend to get the effect */
         cost: new fields.NumberField({ required: true, nullable: false }),
-        effect: new fields.EmbeddedDataField(CostModifier, { required: true, blank: false, nullable: false }),
+        effect: new fields.NumberField({ required: true, blank: false, nullable: false }),
         textTemplate: new fields.StringField({ required: true, blank: false, nullable: false }),
         /**Poor man's map of multiplicities, because we need it to be serializable */
         multiplicities: new fields.ArrayField(
@@ -23,21 +21,15 @@ function FocusDegreeOfSuccessOptionFieldSchema() {
     };
 }
 
-type FocusDegreeOfSuccessOptionFieldType = DataModelSchemaType<typeof FocusDegreeOfSuccessOptionFieldSchema>;
+type DegreeOfSuccessOptionFieldType = DataModelSchemaType<typeof NumberDegreeOfSuccessOptionFieldSchema>;
 
-export class FocusDegreeOfSuccessOptionField extends SplittermondDataModel<FocusDegreeOfSuccessOptionFieldType> {
-    static defineSchema = FocusDegreeOfSuccessOptionFieldSchema;
+export class NumberDegreeOfSuccessOptionField extends SplittermondDataModel<DegreeOfSuccessOptionFieldType> {
+    static defineSchema = NumberDegreeOfSuccessOptionFieldSchema;
 
-    static initialize(
-        isOption: boolean,
-        cost: number,
-        effect: CostModifier,
-        text: string
-    ): FocusDegreeOfSuccessOptionField {
-        return new FocusDegreeOfSuccessOptionField({
-            isOption,
+    static initialize(cost: number, effect: number, text: string): NumberDegreeOfSuccessOptionField {
+        return new NumberDegreeOfSuccessOptionField({
             cost,
-            effect: effect.toObject(),
+            effect,
             textTemplate: text,
             multiplicities: [
                 { multiplicity: 1, checked: false },
@@ -55,7 +47,7 @@ export class FocusDegreeOfSuccessOptionField extends SplittermondDataModel<Focus
         return {
             multiplicity: multiplicity,
             cost: this.getCost(multiplicity),
-            effect: this.effect.multiply(multiplicity),
+            effect: this.effect * multiplicity,
             check: () => this.check(multiplicity),
             isChecked: () => this.isChecked(multiplicity),
             render: () => this.renderMultiplicities([multiplicity])[0],

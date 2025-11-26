@@ -7,7 +7,7 @@ import type { Hooks } from "module/api/foundryTypes";
 import SplittermondActor from "../../module/actor/actor";
 import SplittermondSpellItem from "module/item/spell";
 import { CheckReport } from "module/check";
-import { SpellRollMessage } from "module/util/chat/spellChatMessage/SpellRollMessage";
+import { SpellRollMessage } from "module/util/chat/rollMessages/spellChatMessage/SpellRollMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 

@@ -1,7 +1,7 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { CheckReport } from "module/check";
 import { FocusCostHandler } from "./FocusCostHandler";
-import SplittermondSpellItem from "../../../item/spell";
+import SplittermondSpellItem from "../../../../item/spell";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { ItemReference } from "module/data/references/ItemReference";
 import { AgentReference } from "module/data/references/AgentReference";
@@ -12,7 +12,7 @@ import { DamageActionHandler } from "./DamageActionHandler";
 import { NoActionOptionsHandler } from "./NoActionOptionsHandler";
 import { isAvailableAction, SpellRollMessageRenderedData } from "./SpellRollTemplateInterfaces";
 import { NoOptionsActionHandler } from "./NoOptionsActionHandler";
-import { RollResultRenderer } from "../RollResultRenderer";
+import { RollResultRenderer } from "../../RollResultRenderer";
 import { DataModelConstructorInput } from "module/api/DataModel";
 import { ChatMessageModel } from "module/data/SplittermondChatMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";

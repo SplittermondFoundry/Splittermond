@@ -7,7 +7,7 @@ import {
     WithMockedRefs,
     withToObjectReturnsSelf,
 } from "./spellRollMessageTestHelper";
-import { TickCostActionHandler } from "module/util/chat/spellChatMessage/TickCostActionHandler";
+import { TickCostActionHandler } from "module/util/chat/rollMessages/spellChatMessage/TickCostActionHandler";
 import { AgentReference } from "module/data/references/AgentReference";
 import { expect } from "chai";
 import { splittermond } from "module/config";

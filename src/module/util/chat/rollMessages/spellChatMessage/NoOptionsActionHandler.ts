@@ -3,7 +3,7 @@ import { ActionHandler, ActionInput, UnvaluedAction, ValuedAction } from "./inte
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { CheckReport } from "module/check";
 import { ItemReference } from "module/data/references/ItemReference";
-import SplittermondSpellItem from "../../../item/spell";
+import SplittermondSpellItem from "../../../../item/spell";
 import { AgentReference } from "module/data/references/AgentReference";
 import { referencesUtils } from "module/data/references/referencesUtils";
 import { foundryApi } from "module/api/foundryApi";

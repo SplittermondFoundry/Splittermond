@@ -1,6 +1,6 @@
 import "../../../../foundryMocks";
 import { afterEach, beforeEach, describe } from "mocha";
-import { SpellRollMessage } from "module/util/chat/spellChatMessage/SpellRollMessage";
+import { SpellRollMessage } from "module/util/chat/rollMessages/spellChatMessage/SpellRollMessage";
 import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
 import {
     setUpMockActor,

@@ -13,13 +13,13 @@ import { expect } from "chai";
 import { splittermond } from "module/config";
 import SplittermondSpellItem from "module/item/spell";
 import { foundryApi } from "module/api/foundryApi";
-import { DamageActionHandler } from "module/util/chat/spellChatMessage/DamageActionHandler";
+import { DamageActionHandler } from "module/util/chat/rollMessages/spellChatMessage/DamageActionHandler";
 import { DamageInitializer } from "module/util/chat/damageChatMessage/initDamage";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { createTestRoll, MockRoll, stubFoundryRoll, stubRollApi } from "__tests__/unit/RollMock";
 import { DamageRoll } from "module/util/damage/DamageRoll";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
-import { CostBase } from "../../../../../../module/util/costs/costTypes";
+import { CostBase } from "module/util/costs/costTypes";
 
 describe("DamageActionHandler", () => {
     let sandbox: sinon.SinonSandbox;

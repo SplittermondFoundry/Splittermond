@@ -133,6 +133,9 @@ Hooks.once("init", async function () {
     getTemplate(`${TEMPLATE_BASE_PATH}/chat/partials/roll-result.hbs`).then((template) => {
         Handlebars.registerPartial("roll-result", template);
     });
+    getTemplate(`${TEMPLATE_BASE_PATH}/chat/partials/chat-card-header.hbs`).then((template) => {
+        Handlebars.registerPartial("chat-card-header", template);
+    });
 
     foundryApi.keybindings.register("splittermond", "paste", {
         name: foundryApi.localize("splittermond.keybindings.paste.name"),

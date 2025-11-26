@@ -1,4 +1,4 @@
-import { DataModelSchemaType, fields, SplittermondDataModel } from "../../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import {
     ActionHandler,
     DegreeOfSuccessAction,
@@ -6,9 +6,9 @@ import {
     DegreeOfSuccessOptionSuggestion,
 } from "./interfaces";
 import { NumberDegreeOfSuccessOptionField } from "./optionFields/NumberDegreeOfSuccessOptionField";
-import { ItemReference } from "../../../data/references/ItemReference";
-import SplittermondSpellItem from "../../../item/spell";
-import { splittermondSpellEnhancement } from "../../../config/SplittermondSpellEnhancements";
+import { ItemReference } from "module/data/references/ItemReference";
+import SplittermondSpellItem from "../../../../item/spell";
+import { splittermondSpellEnhancement } from "module/config/SplittermondSpellEnhancements";
 import { configureUseOption } from "./commonAlgorithms/defaultUseOptionAlgorithm";
 
 function NoActionOptionsHandlerSchema() {

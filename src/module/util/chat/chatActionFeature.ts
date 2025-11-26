@@ -3,7 +3,7 @@ import { foundryApi } from "../../api/foundryApi";
 import { canEditMessageOf } from "../chat.js";
 import { FoundryChatMessage } from "../../api/ChatMessage";
 import { ChatMessageModel, SimpleMessage, SplittermondChatMessage } from "../../data/SplittermondChatMessage";
-import { SpellRollMessage } from "./spellChatMessage/SpellRollMessage";
+import { SpellRollMessage } from "./rollMessages/spellChatMessage/SpellRollMessage";
 import { DamageMessage } from "./damageChatMessage/DamageMessage";
 
 const socketEvent = "system.splittermond";

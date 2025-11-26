@@ -1,4 +1,4 @@
-import { DataModelSchemaType, fields, SplittermondDataModel } from "../../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import {
     ActionHandler,
     ActionInput,
@@ -6,18 +6,18 @@ import {
     DegreeOfSuccessOptionSuggestion,
     ValuedAction,
 } from "./interfaces";
-import { Cost, CostModifier } from "../../costs/Cost";
+import { Cost, CostModifier } from "../../../costs/Cost";
 import { AgentReference } from "module/data/references/AgentReference";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { CheckReport } from "module/check";
 import { ItemReference } from "module/data/references/ItemReference";
-import SplittermondSpellItem from "../../../item/spell";
+import SplittermondSpellItem from "../../../../item/spell";
 import { splittermond } from "module/config";
 import { FocusDegreeOfSuccessOptionField } from "./optionFields/FocusDegreeOfSuccessOptionField";
-import { parseCostString, parseSpellEnhancementDegreesOfSuccess } from "../../costs/costParser";
+import { parseCostString, parseSpellEnhancementDegreesOfSuccess } from "../../../costs/costParser";
 import { configureUseOption } from "./commonAlgorithms/defaultUseOptionAlgorithm";
 import { configureUseAction } from "./commonAlgorithms/defaultUseActionAlgorithm";
-import { PrimaryCost } from "../../costs/PrimaryCost";
+import { PrimaryCost } from "../../../costs/PrimaryCost";
 import { settings } from "module/settings";
 
 let hasReducibleEnhancementCosts: () => boolean = () => false;

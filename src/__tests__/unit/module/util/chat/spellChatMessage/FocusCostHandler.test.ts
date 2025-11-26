@@ -3,7 +3,7 @@ import { expect } from "chai";
 import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
 import { afterEach } from "mocha";
 import { Cost, CostModifier } from "module/util/costs/Cost";
-import { FocusDegreeOfSuccessOptionField } from "module/util/chat/spellChatMessage/optionFields/FocusDegreeOfSuccessOptionField";
+import { FocusDegreeOfSuccessOptionField } from "module/util/chat/rollMessages/spellChatMessage/optionFields/FocusDegreeOfSuccessOptionField";
 import {
     linkSpellAndActor,
     setUpCheckReportSelfReference,
@@ -12,13 +12,13 @@ import {
     WithMockedRefs,
     withToObjectReturnsSelf,
 } from "./spellRollMessageTestHelper";
-import { FocusCostHandler } from "../../../../../../module/util/chat/spellChatMessage/FocusCostHandler";
-import { AgentReference } from "../../../../../../module/data/references/AgentReference";
-import SplittermondSpellItem from "../../../../../../module/item/spell";
-import { splittermond } from "../../../../../../module/config";
-import { foundryApi } from "../../../../../../module/api/foundryApi";
-import { parseCostString } from "../../../../../../module/util/costs/costParser";
-import { settings } from "../../../../../../module/settings";
+import { FocusCostHandler } from "module/util/chat/rollMessages/spellChatMessage/FocusCostHandler";
+import { AgentReference } from "module/data/references/AgentReference";
+import SplittermondSpellItem from "module/item/spell";
+import { splittermond } from "module/config";
+import { foundryApi } from "module/api/foundryApi";
+import { parseCostString } from "module/util/costs/costParser";
+import { settings } from "module/settings";
 import { asMock } from "../../../../settingsMock";
 import { injectParent } from "../../../../testUtils";
 

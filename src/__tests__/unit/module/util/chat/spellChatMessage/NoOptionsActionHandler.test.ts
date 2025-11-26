@@ -7,7 +7,7 @@ import {
     WithMockedRefs,
     withToObjectReturnsSelf,
 } from "./spellRollMessageTestHelper";
-import { NoOptionsActionHandler } from "module/util/chat/spellChatMessage/NoOptionsActionHandler";
+import { NoOptionsActionHandler } from "module/util/chat/rollMessages/spellChatMessage/NoOptionsActionHandler";
 import SplittermondActor from "module/actor/actor";
 import { AgentReference } from "module/data/references/AgentReference";
 import { expect } from "chai";
