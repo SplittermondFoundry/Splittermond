@@ -162,6 +162,7 @@ export default class TokenActionBar extends SplittermondApplication {
                 .map((a) => a.toObjectData())
                 .map((a) => ({
                     ...a,
+                    skill: { label: a.skill.label, value: `${a.skill.value}` },
                     weaponSpeed: `${a.weaponSpeed}`,
                     range: `${a.range}`,
                 }));

@@ -1,4 +1,4 @@
-import Skill from "./skill.js";
+import Skill from "./skill";
 import {
     asString,
     condense,
@@ -17,6 +17,7 @@ import { DamageRoll } from "../util/damage/DamageRoll";
 import { toDisplayFormula } from "../util/damage/util";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
 import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "../data/SplittermondDataModel";
+import type { SplittermondAttribute } from "module/config/attributes";
 
 type Options<T extends object> = { [K in keyof T]+?: T[K] | null | undefined };
 
@@ -30,8 +31,8 @@ interface AttackItem {
 
 interface AttackItemData {
     skill: string;
-    attribute1: string;
-    attribute2: string;
+    attribute1: SplittermondAttribute | "";
+    attribute2: SplittermondAttribute | "";
     skillValue: number;
     minAttributes: string;
     skillMod: number;
@@ -149,7 +150,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
         const name = !isSecondaryAttack
             ? item.name
             : `${item.name} (${foundryApi.localize(`splittermond.skillLabel.${attackData.skill}`)})`;
-        const skill = new Skill(
+        const skill = Skill.initialize(
             actor,
             attackData.skill || name,
             attackData.attribute1,

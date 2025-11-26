@@ -26,4 +26,12 @@ export class NpcAttackDataModel extends SplittermondDataModel<NpcAttackDataModel
         source = from0_12_20_migrateFeatures(source);
         return super.migrateData(source);
     }
+
+    get attribute1() {
+        return null;
+    }
+
+    get attribute2() {
+        return null;
+    }
 }

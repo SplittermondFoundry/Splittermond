@@ -28,7 +28,7 @@ describe("Skill", () => {
 
     it("should allow overwriting options with the check dialog", async () => {
         const actor = setUpActor(sandbox);
-        const underTest = new Skill(actor, "Testskill");
+        const underTest = Skill.initialize(actor, "Testskill");
 
         const customOptions = {
             type: "test roll",
@@ -103,7 +103,7 @@ describe("Skill", () => {
 
     it("should use the passed options if askUser is false", async () => {
         const actor = setUpActor(sandbox);
-        const underTest = new Skill(actor, "Testskill");
+        const underTest = Skill.initialize(actor, "Testskill");
 
         const roll = {
             dice: [],
@@ -165,7 +165,7 @@ describe("Skill", () => {
 
     it("should use default options if askUser is false and no options where passed", async () => {
         const actor = setUpActor(sandbox);
-        const underTest = new Skill(actor, "Testskill");
+        const underTest = Skill.initialize(actor, "Testskill");
 
         const roll = {
             dice: [],
@@ -229,7 +229,7 @@ describe("Skill", () => {
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
             const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
@@ -250,7 +250,7 @@ describe("Skill", () => {
             stubFoundryRoll(createTestRoll("2d10", [10, 10], actor.system.skills.acrobatics.value));
             const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
@@ -271,7 +271,7 @@ describe("Skill", () => {
             stubFoundryRoll(createTestRoll("2d10", [1, 1], actor.system.skills.acrobatics.value));
             const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 30,
@@ -292,7 +292,7 @@ describe("Skill", () => {
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
             const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
@@ -316,7 +316,7 @@ describe("Skill", () => {
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
             const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
@@ -340,7 +340,7 @@ describe("Skill", () => {
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
             const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
@@ -364,7 +364,7 @@ describe("Skill", () => {
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
             const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
@@ -388,7 +388,7 @@ describe("Skill", () => {
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
             const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
@@ -412,6 +412,7 @@ function setUpActor(sandbox: SinonSandbox) {
     Object.defineProperty(actor, "modifier", { value: new ModifierManager(), enumerable: true, writable: false });
     Object.defineProperty(actor, "system", { value: dataModel, enumerable: true, writable: true });
     Object.defineProperty(actor, "attributes", { value: {}, enumerable: true, writable: true });
+    Object.defineProperty(actor, "uuid", { value: "Actor.test-actor-uuid", enumerable: true, writable: false });
     Object.defineProperty(actor.system, "skills", { value: {}, enumerable: true, writable: true });
     Object.defineProperty(actor, "items", { value: [], enumerable: true, writable: true });
     actor.findItem.callThrough();

@@ -3,6 +3,8 @@ import { DamageType } from "../../config/damageTypes";
 import { splittermond } from "../../config";
 import { CostType, costTypes } from "../../util/costs/costTypes";
 import { DamageModel } from "./propertyModels/DamageModel";
+import type { SplittermondAttribute } from "module/config/attributes";
+import { isMember } from "module/util/util";
 
 export function getPhysicalProperties() {
     return {
@@ -67,5 +69,14 @@ export function validatedBoolean() {
         initial: false,
         //Not pointless, I literally want to check that we only get literal 'true' of 'false' here, no other truthy of falsy value
         validate: (x) => x === true || x === false,
+    });
+}
+export function attributeName() {
+    return new fieldExtensions.StringEnumField({
+        required: true,
+        nullable: false,
+        validate(x: SplittermondAttribute) {
+            return isMember(splittermond.attributes, x);
+        },
     });
 }

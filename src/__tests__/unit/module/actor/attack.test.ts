@@ -486,8 +486,8 @@ function setUpAttackItem(props: AttackItemData = {}): Parameters<typeof Attack.i
         type: "weapon",
         system: {
             skill: "melee",
-            attribute1: "STA",
-            attribute2: "BEW",
+            attribute1: "strength",
+            attribute2: "agility",
             skillValue: 15,
             minAttributes: "BEW 1, STA 1",
             skillMod: 0,

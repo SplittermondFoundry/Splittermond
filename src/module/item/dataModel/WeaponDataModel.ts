@@ -1,6 +1,6 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "../../data/SplittermondDataModel";
 import SplittermondWeaponItem from "../weapon";
-import { damage, getDescriptorFields, getPhysicalProperties, validatedBoolean } from "./commonFields";
+import { attributeName, damage, getDescriptorFields, getPhysicalProperties, validatedBoolean } from "./commonFields";
 import {
     from0_12_20_migrateDamage,
     from0_12_20_migrateFeatures,
@@ -22,8 +22,8 @@ function ItemWeaponDataModelSchema() {
         skill: new fields.StringField({ required: true, nullable: false }),
         skillMod: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
         features: new fields.EmbeddedDataField(ItemFeaturesModel, { required: true, nullable: false }),
-        attribute1: new fields.StringField({ required: true, nullable: false }),
-        attribute2: new fields.StringField({ required: true, nullable: false }),
+        attribute1: attributeName(),
+        attribute2: attributeName(),
         minAttributes: new fields.StringField({ required: true, nullable: false }),
         prepared: validatedBoolean(),
         equipped: validatedBoolean(),
@@ -31,8 +31,8 @@ function ItemWeaponDataModelSchema() {
             {
                 skill: new fields.StringField({ required: true, nullable: true, initial: "none" }),
                 skillMod: new fields.NumberField({ required: true, nullable: true, initial: 0 }),
-                attribute1: new fields.StringField({ required: true, nullable: true }),
-                attribute2: new fields.StringField({ required: true, nullable: true }),
+                attribute1: attributeName(),
+                attribute2: attributeName(),
                 ...damage(),
                 range: new fields.NumberField({ required: true, nullable: true, initial: 0 }),
                 weaponSpeed: new fields.NumberField({ required: true, nullable: true, initial: 0 }),
