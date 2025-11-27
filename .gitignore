@@ -7,7 +7,7 @@ dist/
 .vscode/
 
 # AI Instruction files
-.github/copilot-instructions.md
+.github/instructions/
 
 public/images/source/
 
