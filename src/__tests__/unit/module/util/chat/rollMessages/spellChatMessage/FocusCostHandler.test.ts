@@ -19,8 +19,8 @@ import { splittermond } from "module/config";
 import { foundryApi } from "module/api/foundryApi";
 import { parseCostString } from "module/util/costs/costParser";
 import { settings } from "module/settings";
-import { asMock } from "../../../../settingsMock";
-import { injectParent } from "../../../../testUtils";
+import { asMock } from "../../../../../settingsMock";
+import { injectParent } from "../../../../../testUtils";
 
 describe("FocusCostActionHandler", () => {
     let sandbox: SinonSandbox;

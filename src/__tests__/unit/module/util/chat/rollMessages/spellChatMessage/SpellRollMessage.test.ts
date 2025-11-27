@@ -1,4 +1,4 @@
-import "../../../../foundryMocks";
+import "../../../../../foundryMocks";
 import { afterEach, beforeEach, describe } from "mocha";
 import { SpellRollMessage } from "module/util/chat/rollMessages/spellChatMessage/SpellRollMessage";
 import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
@@ -18,9 +18,9 @@ import { foundryApi } from "module/api/foundryApi";
 import { CheckReport } from "module/check";
 import { referencesUtils } from "module/data/references/referencesUtils";
 import { AgentReference } from "module/data/references/AgentReference";
-import { injectParent } from "../../../../testUtils";
+import { injectParent } from "../../../../../testUtils";
 import { DamageRoll } from "module/util/damage/DamageRoll";
-import { createTestRoll } from "../../../../RollMock";
+import { createTestRoll } from "../../../../../RollMock";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageInitializer } from "module/util/chat/damageChatMessage/initDamage";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
