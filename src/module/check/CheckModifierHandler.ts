@@ -14,12 +14,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
         subSegments: {
             result: {
                 requiredAttributes: ["category"],
-                optionalAttributes: [
-                    "skill",
-                    "type",
-                    /*"emphasis"*/
-                    //This,later
-                ],
+                optionalAttributes: ["skill", "type"],
             },
         },
     });

@@ -105,27 +105,6 @@ describe("CheckModifierHandler", () => {
         expect(errorLogger.called).to.be.true;
     });
 
-    it.skip("should accept an emphasis attribute", () => {
-        const item = sandbox.createStubInstance(SplittermondItem);
-        item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate", of(1));
-
-        const result = underTest.processModifier({
-            path: "check.result",
-            attributes: { category: "success", emphasis: "Critical Hit" },
-            value: of(3),
-        })[0];
-
-        expect(result.groupId).to.equal("check.result");
-        expect(result.value).to.deep.equal(of(3));
-        expect(result.attributes.category).to.equal("success");
-        expect(result.attributes.name).to.equal("Critical Hit");
-        expect(result.attributes.type).to.equal("innate");
-        expect(result.attributes.emphasis).to.equal("Critical Hit");
-        expect(result.selectable).to.equal(true);
-        expect(errorLogger.called).to.be.false;
-    });
-
     it("should use item name when emphasis is not provided", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
