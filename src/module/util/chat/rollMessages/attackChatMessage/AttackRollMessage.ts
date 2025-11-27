@@ -1,16 +1,12 @@
-import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
+import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { CheckReport } from "module/check";
-import { FocusCostHandler } from "./FocusCostHandler";
-import SplittermondSpellItem from "../../../../item/spell";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
-import { ItemReference } from "module/data/references/ItemReference";
 import { AgentReference } from "module/data/references/AgentReference";
 import { ActionHandler } from "./interfaces";
 import { foundryApi } from "module/api/foundryApi";
-import { TickCostActionHandler } from "./TickCostActionHandler";
 import { DamageActionHandler } from "./DamageActionHandler";
 import { NoActionOptionsHandler } from "./NoActionOptionsHandler";
-import { isAvailableAction, SpellRollMessageRenderedData } from "./SpellRollTemplateInterfaces";
+import { AttackRollMessageRenderedData, isAvailableAction } from "./AttackRollTemplateInterfaces";
 import { NoOptionsActionHandler } from "./NoOptionsActionHandler";
 import { RollResultRenderer } from "../RollResultRenderer";
 import { DataModelConstructorInput } from "module/api/DataModel";
@@ -18,22 +14,25 @@ import { ChatMessageModel } from "module/data/SplittermondChatMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess";
 import { addSplinterpointBonus } from "module/check/addSplinterpoint";
+import Attack from "module/actor/attack";
 
-const constructorRegistryKey = "SpellRollMessage";
+const constructorRegistryKey = "attackRollMessage";
 
-function SpellRollMessageSchema() {
+function AttackRollMessageSchema() {
     return {
-        checkReport: new fields.ObjectField({ required: true, nullable: false }),
+        checkReport: new fieldExtensions.TypedObjectField({
+            required: true,
+            nullable: false,
+            validate: (x: CheckReport) => x != null && typeof x === "object" && "hideDifficulty" in x,
+        }),
         actorReference: new fields.EmbeddedDataField(AgentReference, { required: true, nullable: false }),
-        spellReference: new fields.EmbeddedDataField(ItemReference<SplittermondSpellItem>, {
+        attack: new fields.EmbeddedDataField(Attack, {
             required: true,
             nullable: false,
         }),
         splinterPointUsed: new fields.BooleanField({ required: true, nullable: false }),
         openDegreesOfSuccess: new fields.NumberField({ required: true, nullable: false }),
         constructorKey: new fields.StringField({ required: true, trim: true, blank: false, nullable: false }),
-        focusCostHandler: new fields.EmbeddedDataField(FocusCostHandler, { required: true, nullable: false }),
-        tickCostHandler: new fields.EmbeddedDataField(TickCostActionHandler, { required: true, nullable: false }),
         damageHandler: new fields.EmbeddedDataField(DamageActionHandler, { required: true, nullable: false }),
         noActionOptionsHandler: new fields.EmbeddedDataField(NoActionOptionsHandler, {
             required: true,
@@ -46,35 +45,37 @@ function SpellRollMessageSchema() {
     };
 }
 
-type SpellRollMessageType = Omit<DataModelSchemaType<typeof SpellRollMessageSchema>, "checkReport"> & {
-    checkReport: CheckReport;
-};
+type AttackRollMessageType = DataModelSchemaType<typeof AttackRollMessageSchema>;
 
-export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType> implements ChatMessageModel {
-    static defineSchema = SpellRollMessageSchema;
+export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageType> implements ChatMessageModel {
+    static defineSchema = AttackRollMessageSchema;
 
-    static initialize(spell: SplittermondSpellItem, checkReport: CheckReport) {
-        const reportReference = OnAncestorReference.for(SpellRollMessage)
+    static initialize(attack: Attack, checkReport: CheckReport) {
+        const reportReference = OnAncestorReference.for(AttackRollMessage)
             .identifiedBy("constructorKey", constructorRegistryKey)
             .references("checkReport");
-        const spellReference = ItemReference.initialize(spell);
-        const actorReference = AgentReference.initialize(spell.actor);
-        return new SpellRollMessage({
+        const attackReference = OnAncestorReference.for(AttackRollMessage)
+            .identifiedBy("constructorKey", constructorRegistryKey)
+            .references("attack") as OnAncestorReference<Attack>;
+
+        const actorReference = AgentReference.initialize(attack.actor);
+        return new AttackRollMessage({
             checkReport: checkReport,
             actorReference,
-            spellReference: spellReference,
+            attack,
             constructorKey: constructorRegistryKey,
             splinterPointUsed: false,
-            focusCostHandler: FocusCostHandler.initialize(actorReference, reportReference, spellReference).toObject(),
-            tickCostHandler: TickCostActionHandler.initialize(actorReference, spellReference, 3).toObject(),
-            damageHandler: DamageActionHandler.initialize(actorReference, spellReference, reportReference).toObject(),
-            noActionOptionsHandler: NoActionOptionsHandler.initialize(spellReference).toObject(),
+            damageHandler: DamageActionHandler.initialize(actorReference, attackReference, reportReference).toObject(),
+            noActionOptionsHandler: NoActionOptionsHandler.initialize(attack).toObject(),
             noOptionsActionHandler: NoOptionsActionHandler.initialize(
                 reportReference,
-                spellReference,
+                attackReference,
                 actorReference
             ).toObject(),
-            openDegreesOfSuccess: checkReport.degreeOfSuccess.fromRoll + checkReport.degreeOfSuccess.modification,
+            openDegreesOfSuccess:
+                checkReport.degreeOfSuccess.fromRoll +
+                checkReport.degreeOfSuccess.modification -
+                checkReport.maneuvers.length,
         });
     }
 
@@ -82,10 +83,8 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
     private readonly actionsHandlerMap = new Map<string, ActionHandler>();
     private readonly handlers: ActionHandler[] = [];
 
-    constructor(data: DataModelConstructorInput<SpellRollMessageType>, ...args: any[]) {
+    constructor(data: DataModelConstructorInput<AttackRollMessageType>, ...args: any[]) {
         super(data, ...args);
-        this.handlers.push(this.focusCostHandler);
-        this.handlers.push(this.tickCostHandler);
         this.handlers.push(this.damageHandler);
         this.handlers.push(this.noActionOptionsHandler);
         this.handlers.push(this.noOptionsActionHandler);
@@ -115,21 +114,21 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
         handler.handlesActions.forEach((value) => this.actionsHandlerMap.set(value, handler));
     }
 
-    getData(): SpellRollMessageRenderedData {
-        const renderedActions: SpellRollMessageRenderedData["actions"] = {};
+    getData(): AttackRollMessageRenderedData {
+        const renderedActions: AttackRollMessageRenderedData["actions"] = {};
         Array.from(this.actionsHandlerMap.values())
             .flatMap((handler) => handler.renderActions())
             .forEach((action) => (renderedActions[action.type] = action));
         return {
             header: {
-                img: this.spellReference.getItem().img,
+                img: this.attack.img,
                 difficulty: `${this.checkReport.difficulty}`,
                 hideDifficulty: this.checkReport.hideDifficulty,
                 rollTypeMessage: foundryApi.localize(`splittermond.rollType.${this.checkReport.rollType}`),
-                title: this.spellReference.getItem().name,
+                title: this.attack.name,
             },
             degreeOfSuccessDisplay: renderDegreesOfSuccess(this.checkReport, this.openDegreesOfSuccess),
-            rollResult: new RollResultRenderer(this.spellReference.getItem().description, this.checkReport).render(),
+            rollResult: new RollResultRenderer(null, this.checkReport).render(),
             rollResultClass: getRollResultClass(this.checkReport),
             degreeOfSuccessOptions: this.handlers
                 .flatMap((handler) => handler.renderDegreeOfSuccessOptions())
@@ -140,6 +139,7 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
                     id: `${option.action}-${option.multiplicity}-${new Date().getTime()}`,
                 })),
             actions: renderedActions,
+            maneuvers: this.checkReport.maneuvers,
         };
     }
 
@@ -187,7 +187,7 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
     }
 
     get template() {
-        return `${TEMPLATE_BASE_PATH}/chat/spell-chat-card.hbs`;
+        return `${TEMPLATE_BASE_PATH}/chat/attack-chat-card.hbs`;
     }
 }
 

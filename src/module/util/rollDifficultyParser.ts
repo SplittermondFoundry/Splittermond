@@ -1,4 +1,5 @@
 import { splittermond } from "module/config";
+import type { DefenseType } from "module/actor/actor";
 
 type RollDifficultyDefense = "VTD" | "KW" | "GW";
 type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
@@ -16,12 +17,18 @@ export function parseRollDifficulty(input: unknown) {
 }
 
 class RollDifficulty {
-    _difficulty: RollDifficultyType;
+    private _difficulty: RollDifficultyType;
     evaluatedDifficulty: number;
 
     constructor(difficulty: unknown) {
         this._difficulty = this.toRollDifficultyString(difficulty);
         this.evaluatedDifficulty = 0;
+    }
+
+    get defenseType(): DefenseType | null {
+        return typeof this._difficulty === "number"
+            ? null
+            : (this._difficulty.toLowerCase() as Lowercase<RollDifficultyDefense>);
     }
 
     toRollDifficultyString(value: unknown): RollDifficultyType {

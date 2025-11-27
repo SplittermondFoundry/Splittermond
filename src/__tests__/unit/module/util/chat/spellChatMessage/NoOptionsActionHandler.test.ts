@@ -107,6 +107,7 @@ describe("Active Defense", () => {
     it("should be offered if an actor is the target", () => {
         const underTest = setUpNoOptionsActionHandler(sandbox);
         sandbox.stub(underTest.spellReference.getItem(), "difficulty").get(() => "VTD");
+        underTest.checkReportReference.get().succeeded = true;
 
         const actions = underTest.renderActions();
 

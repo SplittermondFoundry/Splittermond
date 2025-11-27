@@ -1,22 +1,18 @@
-import { TooltipFormula } from "../tooltip";
-import { foundryApi } from "../../api/foundryApi";
+import { TooltipFormula } from "../../tooltip";
+import { foundryApi } from "module/api/foundryApi";
 import { CheckReport } from "module/check";
+import type { ChatCardRollResult } from "module/util/chat/rollMessages/ChatCardCommonInterfaces";
 
 export class RollResultRenderer {
-    private actionDescription: string;
+    private actionDescription: string | null;
     private checkReport: CheckReport;
 
-    constructor(actionDescription: string, checkReport: CheckReport) {
+    constructor(actionDescription: string | null, checkReport: CheckReport) {
         this.actionDescription = actionDescription;
         this.checkReport = checkReport;
     }
 
-    render(): {
-        rollTotal: number;
-        skillAndModifierTooltip: any;
-        rollTooltip: string;
-        actionDescription: string;
-    } {
+    render(): ChatCardRollResult {
         return {
             rollTotal: this.checkReport.roll.total,
             skillAndModifierTooltip: renderSkillAndModifiers(this.checkReport),

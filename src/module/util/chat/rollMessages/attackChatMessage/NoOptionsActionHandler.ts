@@ -2,12 +2,11 @@ import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/
 import { ActionHandler, ActionInput, UnvaluedAction, ValuedAction } from "./interfaces";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { CheckReport } from "module/check";
-import { ItemReference } from "module/data/references/ItemReference";
-import SplittermondSpellItem from "../../../../item/spell";
 import { AgentReference } from "module/data/references/AgentReference";
 import { referencesUtils } from "module/data/references/referencesUtils";
 import { foundryApi } from "module/api/foundryApi";
 import { configureUseAction } from "./commonAlgorithms/defaultUseActionAlgorithm";
+import type Attack from "module/actor/attack";
 
 function NoOptionsActionHandlerSchema() {
     return {
@@ -15,7 +14,7 @@ function NoOptionsActionHandlerSchema() {
             required: true,
             nullable: false,
         }),
-        spellReference: new fields.EmbeddedDataField(ItemReference<SplittermondSpellItem>, {
+        attackReference: new fields.EmbeddedDataField(OnAncestorReference<Attack>, {
             required: true,
             nullable: false,
         }),
@@ -30,24 +29,24 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
 
     static initialize(
         checkReportReference: OnAncestorReference<CheckReport>,
-        spellReference: ItemReference<SplittermondSpellItem>,
+        attackReference: OnAncestorReference<Attack>,
         casterReference: AgentReference
     ): NoOptionsActionHandler {
         return new NoOptionsActionHandler({
             checkReportReference,
-            spellReference,
+            attackReference,
             casterReference,
         });
     }
 
-    handlesActions = ["rollMagicFumble", "activeDefense"] as const;
+    handlesActions = ["rollFumble", "activeDefense"] as const;
 
     renderActions(): (ValuedAction | UnvaluedAction)[] {
         const actions: (ValuedAction | UnvaluedAction)[] = [];
         if (this.checkReportReference.get().isFumble) {
             actions.push({
                 disabled: false, //Local actions cannot have their state managed because they don't allow updates.
-                type: "rollMagicFumble",
+                type: "rollFumble",
                 isLocal: false,
             });
         }
@@ -57,24 +56,34 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
                 get value() {
                     return this.difficulty ?? "";
                 },
-                difficulty: this.spellReference.getItem().difficulty,
+                difficulty: foundryApi.localize(this.getTranslatedDefenseType()),
                 disabled: false, //Local actions cannot have their state managed because they don't allow updates.
                 isLocal: true,
             });
         return actions;
     }
+    private getTranslatedDefenseType() {
+        switch (this.checkReportReference.get().defenseType) {
+            case "defense":
+            case "vtd":
+                return "splittermond.derivedAttribute.defense.short";
+            case "mindresist":
+            case "gw":
+                return "splittermond.derivedAttribute.mindresist.short";
+            case "bodyresist":
+            case "kw":
+                return "splittermond.derivedAttribute.bodyresist.short";
+            default:
+                return "";
+        }
+    }
 
-    //will fail if the difficulty is not a number, which should only happen if the difficulty is a target property
-    //and for an active defense to be available, that must be the case, for the user needs to know how to defend.
     private activeDefenseAvailable() {
-        return (
-            this.checkReportReference.get().succeeded &&
-            Number.isNaN(Number.parseFloat(this.spellReference.getItem().difficulty))
-        );
+        return this.checkReportReference.get().succeeded;
     }
 
     useAction(actionData: ActionInput): Promise<void> {
-        if (actionData.action === "rollMagicFumble") {
+        if (actionData.action === "rollFumble") {
             return this.rollFumble(actionData);
         } else if (actionData.action === "activeDefense") {
             return this.defendActively();
@@ -84,16 +93,12 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
     }
 
     rollFumble(actionData: ActionInput) {
-        const degreeOfSuccess = this.checkReportReference.get().degreeOfSuccess;
         return configureUseAction()
             .withUsed(() => false)
-            .withHandlesActions(["rollMagicFumble"])
+            .withHandlesActions(["rollFumble"])
             .withIsOptionEvaluator(() => this.checkReportReference.get().isFumble)
             .whenAllChecksPassed(() => {
-                const eg = -Math.abs(degreeOfSuccess.fromRoll + degreeOfSuccess.modification);
-                const costs = this.spellReference.getItem().costs;
-                const skill = this.checkReportReference.get().skill.id;
-                this.casterReference.getAgent().rollMagicFumble(eg, costs, skill);
+                this.casterReference.getAgent().rollAttackFumble();
                 return Promise.resolve();
             })
             .useAction(actionData);
@@ -102,7 +107,9 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
     defendActively() {
         try {
             const actorReference = referencesUtils.findBestUserActor();
-            return actorReference.getAgent().activeDefenseDialog(this.spellReference.getItem().difficulty);
+            return actorReference
+                .getAgent()
+                .activeDefenseDialog(this.checkReportReference.get().defenseType ?? undefined);
         } catch (e) {
             foundryApi.informUser("splittermond.pleaseSelectAToken");
         }

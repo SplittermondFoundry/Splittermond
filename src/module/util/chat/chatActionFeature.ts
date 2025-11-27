@@ -5,6 +5,7 @@ import { FoundryChatMessage } from "../../api/ChatMessage";
 import { ChatMessageModel, SimpleMessage, SplittermondChatMessage } from "../../data/SplittermondChatMessage";
 import { SpellRollMessage } from "./rollMessages/spellChatMessage/SpellRollMessage";
 import { DamageMessage } from "./damageChatMessage/DamageMessage";
+import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
 
 const socketEvent = "system.splittermond";
 
@@ -64,6 +65,7 @@ export function chatActionFeature(config: ChatMessageConfig) {
     config.documentClass = SplittermondChatMessage;
     config.dataModels.simple = SimpleMessage;
     config.dataModels.spellRollMessage = SpellRollMessage;
+    config.dataModels.attackRollMessage = AttackRollMessage;
     config.dataModels.damageMessage = DamageMessage;
 }
 

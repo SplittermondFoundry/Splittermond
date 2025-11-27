@@ -165,9 +165,11 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 succeeded: true,
                 degreeOfSuccess: { fromRoll: 5, modification: 0 },
                 difficulty: 20,
+                defenseType: null,
                 isFumble: false,
                 isCrit: true,
                 degreeOfSuccessMessage: "mega success",
+                maneuvers: [],
             };
             return SplittermondChatCard.create(
                 actor,

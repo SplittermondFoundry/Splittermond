@@ -18,6 +18,11 @@ import { toDisplayFormula } from "../util/damage/util";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
 import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "../data/SplittermondDataModel";
 import type { SplittermondAttribute } from "module/config/attributes";
+import { type CostType, isCostType } from "module/util/costs/costTypes";
+import { type DamageType, damageTypes } from "module/config/damageTypes";
+import { isMember } from "module/util/util";
+import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
+import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
 
 type Options<T extends object> = { [K in keyof T]+?: T[K] | null | undefined };
 
@@ -41,8 +46,8 @@ interface AttackItemData {
     features: ItemFeaturesModel;
     damage: DamageModel;
     weaponSpeed: number;
-    damageType: string;
-    costType: string;
+    damageType: DamageType;
+    costType: CostType;
 }
 
 function withDefaults(data: Options<AttackItemData>): AttackItemData {
@@ -51,42 +56,55 @@ function withDefaults(data: Options<AttackItemData>): AttackItemData {
         get skill() {
             return data.skill ?? "";
         },
+        set skill(_: string) {},
         get attribute1() {
             return data.attribute1 ?? "";
         },
+        set attribute1(_: SplittermondAttribute | "") {},
         get attribute2() {
             return data.attribute2 ?? "";
         },
+        set attribute2(_: SplittermondAttribute | "") {},
         get skillValue() {
             return data.skillValue ?? 0;
         },
+        set skillValue(_: number) {},
         get minAttributes() {
             return data.minAttributes ?? "";
         },
+        set minAttributes(_: string) {},
         get skillMod() {
             return data.skillMod ?? 0;
         },
+        set skillMod(_: number) {},
         get damageLevel() {
             return data.damageLevel ?? 0;
         },
+        set damageLevel(_: number) {},
         get range() {
             return data.range ?? 0;
         },
+        set range(_: number) {},
         get features() {
             return data.features ?? new ItemFeaturesModel({ internalFeatureList: [] });
         },
+        set features(_: ItemFeaturesModel) {},
         get damage() {
             return data.damage ?? new DamageModel({ stringInput: "1W6" });
         }, //assume that an attack does do some damage
+        set damage(_: DamageModel) {},
         get weaponSpeed() {
             return data.weaponSpeed ?? 6;
         }, //Splittermond balances damage at 1/tick so with 6 we achieve that average
+        set weaponSpeed(_: number) {},
         get damageType() {
             return data.damageType ?? "physical";
         },
+        set damageType(_: DamageType) {},
         get costType() {
             return data.costType ?? "V";
         },
+        set costType(_: CostType) {},
         //@formatter:on
     };
 }
@@ -105,31 +123,55 @@ function AttackSchema() {
             validate: (x): x is AttackItem => x !== null && x !== undefined,
         }),
         isSecondaryAttack: new fields.BooleanField({ required: true, nullable: false, initial: false }),
-        attackData: new fieldExtensions.TypedObjectField<AttackItemData, true, false>({
-            required: true,
-            nullable: false,
-            validate: (x): x is AttackItemData => x !== null && x !== undefined,
-        }),
+        attackData: new fields.SchemaField(
+            {
+                skill: new fields.StringField({ required: true, nullable: false }),
+                attribute1: new fieldExtensions.StringEnumField({
+                    required: true,
+                    nullable: false,
+                    validate: (x: SplittermondAttribute | "") => isMember([...splittermond.attributes, ""], x),
+                }),
+                attribute2: new fieldExtensions.StringEnumField({
+                    required: true,
+                    nullable: false,
+                    validate: (x: SplittermondAttribute | "") => isMember([...splittermond.attributes, ""], x),
+                }),
+                skillValue: new fields.NumberField({ required: true, nullable: false }),
+                minAttributes: new fields.StringField({ required: true, nullable: false }),
+                skillMod: new fields.NumberField({ required: true, nullable: false }),
+                damageLevel: new fields.NumberField({ required: true, nullable: false }),
+                range: new fields.NumberField({ required: true, nullable: false }),
+                features: new fields.EmbeddedDataField(ItemFeaturesModel, { required: true, nullable: false }),
+                damage: new fields.EmbeddedDataField(DamageModel, { required: true, nullable: false }),
+                weaponSpeed: new fields.NumberField({ required: true, nullable: false }),
+                damageType: new fieldExtensions.StringEnumField({
+                    required: true,
+                    nullable: false,
+                    validate: (x: DamageType) => isMember(damageTypes, x),
+                }),
+                costType: new fieldExtensions.StringEnumField({
+                    required: true,
+                    nullable: false,
+                    validate: isCostType,
+                }),
+            },
+            { required: true, nullable: false }
+        ),
         id: new fields.StringField({ required: true, nullable: false }),
         img: new fields.StringField({ required: true, nullable: false }),
         name: new fields.StringField({ required: true, nullable: false }),
-        skill: new fieldExtensions.TypedObjectField<Skill, true, false>({
-            required: true,
-            nullable: false,
-            validate: (x): x is Skill => x !== null && x !== undefined,
-        }),
+        skill: new fields.EmbeddedDataField(Skill, { required: true, nullable: false }),
         editable: new fields.BooleanField({ required: true, nullable: false }),
         deletable: new fields.BooleanField({ required: true, nullable: false }),
     };
 }
 
-type AttackType = DataModelSchemaType<typeof AttackSchema>;
+export type AttackType = DataModelSchemaType<typeof AttackSchema>;
 
 export default class Attack extends SplittermondDataModel<AttackType> {
     static defineSchema = AttackSchema;
 
     private _actor: SplittermondActor | null = null;
-    private _skill: Skill | null = null; //Fix
 
     /**
      * Initializer function that replaces the constructor logic
@@ -234,7 +276,6 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             deletable,
         });
         attack._actor = actor; // Cache the actor reference, we don't need to retrieve immediately
-        attack._skill = skill;
         return attack;
     }
 
@@ -257,7 +298,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
         const fromModifiers = this.collectModifiers().map((m) => {
             return {
                 damageRoll: DamageRoll.fromExpression(m.damageExpression, m.features),
-                damageType: m.damageType,
+                damageType: m.damageType as DamageType,
                 damageSource: m.damageSource,
             };
         });
@@ -297,7 +338,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
                 return {
                     damageExpression: m.value,
                     features: features,
-                    damageType: m.attributes.damageType ?? this.attackData.damageType,
+                    damageType: m.attributes.damageType ?? (this.attackData.damageType as DamageType),
                     damageSource: m.attributes.name ?? null,
                 };
             });
@@ -342,7 +383,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
     }
 
     get isPrepared() {
-        return ["longrange", "throwing"].includes(this.skill.id)
+        return isMember(splittermond.skillGroups.ranged, this.skill.id)
             ? this.actor.getFlag("splittermond", "preparedAttack") == this.id
             : true;
     }
@@ -358,12 +399,13 @@ export default class Attack extends SplittermondDataModel<AttackType> {
         return this._actor;
     }
 
+    //Can potentially be merged with `toObject` but I was too lazy to try
     toObjectData() {
         return {
             id: this.id,
             img: this.img,
             name: this.name,
-            skill: this._skill ? this._skill.toObject() : this.skill, //Revert this
+            skill: this.skill.toObject(),
             range: this.range,
             features: this.features,
             damage: this.damage,
@@ -394,6 +436,13 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             },
             ...structuredClone(options),
         };
-        return this._skill!.roll(attackRollOptions);
+        const result = await this.skill.roll(attackRollOptions);
+        if (!result) {
+            return;
+        }
+        return SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, result.report), {
+            ...result.rollOptions,
+            type: "attackRollMessage",
+        }).sendToChat();
     }
 }

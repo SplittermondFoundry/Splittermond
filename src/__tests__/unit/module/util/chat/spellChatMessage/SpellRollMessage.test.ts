@@ -246,6 +246,7 @@ describe("SpellRollMessage", () => {
                 degreeOfSuccess: { fromRoll: 2, modification: 0 },
                 degreeOfSuccessMessage: "",
                 difficulty: 9,
+                defenseType: null,
                 hideDifficulty: false,
                 isCrit: false,
                 isFumble: false,
@@ -253,6 +254,7 @@ describe("SpellRollMessage", () => {
                 roll: { dice: [{ total: 5 }], tooltip: "", total: 15 },
                 rollType: "standard",
                 skill: { attributes: { mystic: 1, mind: 2 }, id: "windmagic", points: 7 },
+                maneuvers: [],
             };
         }
     });
@@ -271,6 +273,7 @@ function createSpellRollMessage(sandbox: SinonSandbox) {
             },
             degreeOfSuccessMessage: "Uma mensagem muito importante",
             difficulty: 0,
+            defenseType: null,
             hideDifficulty: false,
             isCrit: false,
             isFumble: false,
@@ -279,6 +282,7 @@ function createSpellRollMessage(sandbox: SinonSandbox) {
             rollType: "standard",
             skill: { attributes: {}, id: "deathmagic", points: 0 },
             succeeded: true,
+            maneuvers: [],
         });
     });
     injectParent(spellRollMessage);

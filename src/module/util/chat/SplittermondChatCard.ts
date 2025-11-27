@@ -92,7 +92,7 @@ export class SplittermondChatCard extends SplittermondDataModel<SplittermondChat
             rolls: this.chatOptions.rolls,
             whisper: this.chatOptions.whisper,
             type: this.chatOptions.type,
-            content: content,
+            content,
             system: this.system,
             flags: {
                 splittermond: {

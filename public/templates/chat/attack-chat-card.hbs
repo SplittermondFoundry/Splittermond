@@ -1,28 +1,26 @@
 <!--DO NOT CHANGE THIS TEMPLATE UNLESS YOU ALSO CHANGE THE AttackRollTemplateInterfaces.ts FILE-->
-<div class="splittermond check {{rollResultClass}}">
+<div class="splittermond attack check {{rollResultClass}}">
     {{#with header}}
         {{> chat-card-header alt="Icon attached to the weapon"}}
     {{/with}}
     {{> roll-result rollResult}}
     {{> degree-of-success-display degreeOfSuccessDisplay}}
-    {{#if maneuvers}}
-        <div class="splittermond-chat-action-container">
-            <strong>{{localize "splittermond.maneuver"}}</strong>
-            <div class="degree-of-success-description">
-                <ol>
-                    {{#each maneuvers}}
-                        <li class="maneuver">
-                            {{name}}
-                            <div class="description">{{system.description}}</div>
-                        </li>
-                    {{/each}}
-                </ol>
-            </div>
+    <div class="splittermond-chat-action-container chat-card-segment">
+        <h3>{{localize "splittermond.maneuver"}}</h3>
+        <div class="degree-of-success-description">
+            <ol>
+                {{#each maneuvers}}
+                    <li class="maneuver splittermond-chat-action">
+                        {{name}}
+                        <div class="description">{{{description}}}</div>
+                    </li>
+                {{/each}}
+            </ol>
         </div>
-    {{/if}}
-    <div class="splittermond-chat-action-container">
+    </div>
+    <div class="splittermond-chat-action-container chat-card-segment">
         {{#if this.degreeOfSuccessOptions}}
-            <strong>{{localize "splittermond.degreeOfSuccessOptionsHeader"}}</strong>
+            <h3>{{localize "splittermond.degreeOfSuccessOptionsHeader"}}</h3>
             <div class="degree-of-success-description">
                 {{#each this.degreeOfSuccessOptions}}
                     <div class="splittermond-inline-label-input">
@@ -41,7 +39,7 @@
             </div>
         {{/if}}
     </div>
-    <div class="actions splittermond-chat-action-container">
+    <div class="actions splittermond-chat-action-container chat-card-segment">
         <h3>{{localize "splittermond.furtherActions"}}</h3>
         {{#with actions}}
             {{#if activeDefense }}

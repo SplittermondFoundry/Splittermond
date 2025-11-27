@@ -20,11 +20,9 @@ export function isAvailableAction(action: string): action is AvailableActions {
 }
 
 export interface AttackRollMessageRenderedData extends BaseChatCardRenderedData {
-    maneuvers?: Array<{
+    maneuvers: Array<{
         name: string;
-        system: {
-            description: string;
-        };
+        description: string;
     }>;
     degreeOfSuccessOptions: AttackDegreesOfSuccessRenderedData[];
     actions: Partial<Record<AvailableActions, object>>;

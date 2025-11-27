@@ -15,6 +15,7 @@ import type { IModifier } from "module/modifiers";
 import type { SplittermondAttribute } from "module/config/attributes";
 import { isMember } from "module/util/util";
 import Modifiable from "module/actor/modifiable";
+import type SplittermondMasteryItem from "module/item/mastery";
 
 function newSkillAttribute() {
     const id = new fieldExtensions.StringEnumField({
@@ -278,9 +279,9 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             value: `${Math.abs(mod.value)}`,
             description: mod.description,
         }));
-        if (options.type === "spell") {
+        if (options.type === "spell" || options.type === "attack") {
             return {
-                rollOptions: (ChatMessage as any).applyRollMode(
+                rollOptions: ChatMessage.applyRollMode(
                     {
                         rolls: [rollResult.roll],
                         type: foundryApi.chatMessageTypes.OTHER,
@@ -295,6 +296,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
                         points: this.points,
                     },
                     difficulty: rollResult.difficulty,
+                    defenseType: rollDifficulty.defenseType,
                     rollType: checkData.rollType,
                     roll: {
                         total: rollResult.roll.total,
@@ -308,6 +310,11 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
                     degreeOfSuccess: rollResult.degreeOfSuccess,
                     degreeOfSuccessMessage: rollResult.degreeOfSuccessMessage,
                     hideDifficulty,
+                    maneuvers: checkData.maneuvers.map((item: SplittermondMasteryItem) => ({
+                        uuid: item.uuid,
+                        name: item.name,
+                        description: item.system.description,
+                    })),
                 },
             };
         }
@@ -360,7 +367,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             /** @type CheckDialogData */
             return {
                 difficulty: difficulty || splittermond.check.defaultDifficulty,
-                manuevers: [],
+                maneuvers: [],
                 modifier: modifier || 0,
                 modifierElements: modifier
                     ? [{ value: modifier, description: foundryApi.localize("splittermond.modifier") }]

@@ -22,7 +22,7 @@ export interface ChatCardRollResult {
     rollTotal: number;
     skillAndModifierTooltip: { type: string; classes: string; value: string; description: string }[];
     rollTooltip: string;
-    actionDescription: string;
+    actionDescription: string | null;
 }
 
 /**
