@@ -2,7 +2,7 @@ import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } f
 import { CheckReport } from "module/check";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { AgentReference } from "module/data/references/AgentReference";
-import { ActionHandler } from "./interfaces";
+import { ActionHandler, type AttackCheckReport } from "./interfaces";
 import { foundryApi } from "module/api/foundryApi";
 import { DamageActionHandler } from "./DamageActionHandler";
 import { NoActionOptionsHandler } from "./NoActionOptionsHandler";
@@ -23,7 +23,7 @@ function AttackRollMessageSchema() {
         checkReport: new fieldExtensions.TypedObjectField({
             required: true,
             nullable: false,
-            validate: (x: CheckReport) => x != null && typeof x === "object" && "hideDifficulty" in x,
+            validate: (x: AttackCheckReport) => x != null && typeof x === "object" && "hideDifficulty" in x,
         }),
         actorReference: new fields.EmbeddedDataField(AgentReference, { required: true, nullable: false }),
         attack: new fields.EmbeddedDataField(Attack, {
@@ -50,7 +50,7 @@ type AttackRollMessageType = DataModelSchemaType<typeof AttackRollMessageSchema>
 export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageType> implements ChatMessageModel {
     static defineSchema = AttackRollMessageSchema;
 
-    static initialize(attack: Attack, checkReport: CheckReport) {
+    static initialize(attack: Attack, checkReport: AttackCheckReport) {
         const reportReference = OnAncestorReference.for(AttackRollMessage)
             .identifiedBy("constructorKey", constructorRegistryKey)
             .references("checkReport");
@@ -142,7 +142,6 @@ export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageTy
             maneuvers: this.checkReport.maneuvers,
         };
     }
-
     async handleGenericAction(optionData: Record<string, unknown> & { action: string }) {
         const degreeOfSuccessOption = this.optionsHandlerMap.get(optionData.action);
         const action = this.actionsHandlerMap.get(optionData.action);

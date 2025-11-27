@@ -1150,6 +1150,7 @@ splittermond.itemTypes = {
     },
 };
 splittermond.time = time;
+splittermond.grazingHitBasePenalty = 2;
 
 splittermond.settings = {
     gameReadyWaitingDelayInMs: 250,

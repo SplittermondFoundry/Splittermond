@@ -23,6 +23,7 @@ import { type DamageType, damageTypes } from "module/config/damageTypes";
 import { isMember } from "module/util/util";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
+import type { CheckReport } from "module/check";
 
 type Options<T extends object> = { [K in keyof T]+?: T[K] | null | undefined };
 
@@ -440,9 +441,23 @@ export default class Attack extends SplittermondDataModel<AttackType> {
         if (!result) {
             return;
         }
-        return SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, result.report), {
+        const checkReport = this.adaptForGrazingHit(result.report);
+        return SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, checkReport), {
             ...result.rollOptions,
             type: "attackRollMessage",
         }).sendToChat();
+    }
+
+    private adaptForGrazingHit(checkReport: CheckReport) {
+        const totalDegreesOfSuccess = checkReport.degreeOfSuccess.fromRoll + checkReport.degreeOfSuccess.modification;
+        const isGrazingHit = totalDegreesOfSuccess < checkReport.maneuvers.length;
+        const message = isGrazingHit
+            ? checkReport.degreeOfSuccessMessage
+            : foundryApi.localize(`splittermond.grazingHit`);
+        return {
+            ...checkReport,
+            degreeOfSuccessMessage: message,
+            grazingHitPenalty: isGrazingHit ? 0 : splittermond.grazingHitBasePenalty * checkReport.maneuvers.length,
+        };
     }
 }

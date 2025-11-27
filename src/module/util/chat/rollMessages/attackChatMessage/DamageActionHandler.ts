@@ -2,6 +2,7 @@ import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/
 import {
     ActionHandler,
     ActionInput,
+    type AttackCheckReport,
     DegreeOfSuccessAction,
     DegreeOfSuccessOptionSuggestion,
     ValuedAction,
@@ -10,7 +11,6 @@ import { NumberDegreeOfSuccessOptionField } from "./optionFields/NumberDegreeOfS
 import { AgentReference } from "module/data/references/AgentReference";
 import { splittermond } from "module/config";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
-import { CheckReport } from "module/check";
 import { configureUseOption } from "./commonAlgorithms/defaultUseOptionAlgorithm";
 import { configureUseAction } from "./commonAlgorithms/defaultUseActionAlgorithm";
 import { DamageInitializer } from "../../damageChatMessage/initDamage";
@@ -29,7 +29,7 @@ function DamageActionHandlerSchema() {
             required: true,
             nullable: false,
         }),
-        checkReportReference: new fields.EmbeddedDataField(OnAncestorReference<CheckReport>, {
+        checkReportReference: new fields.EmbeddedDataField(OnAncestorReference<AttackCheckReport>, {
             required: true,
             nullable: false,
         }),
@@ -45,7 +45,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
     static initialize(
         actorReference: AgentReference,
         attackReference: OnAncestorReference<Attack>,
-        checkReportReference: OnAncestorReference<CheckReport>
+        checkReportReference: OnAncestorReference<AttackCheckReport>
     ): DamageActionHandler {
         const damageAdditionConfig = splittermond.spellEnhancement.damage;
         return new DamageActionHandler({
@@ -114,7 +114,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
                 const costType = attack.costType ?? "V";
                 const rollOptions = {
                     costBase: CostBase.create(costType as CostType),
-                    grazingHitPenalty: 0 /*spells cannot be grazing hits*/,
+                    grazingHitPenalty: this.checkReportReference.get().grazingHitPenalty,
                 };
                 return DamageInitializer.rollFromDamageRoll(
                     [damages.principalComponent, ...damages.otherComponents],

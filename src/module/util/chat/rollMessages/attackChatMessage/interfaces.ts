@@ -1,4 +1,7 @@
 import { AvailableActions, DegreeOfSuccessOption } from "./AttackRollTemplateInterfaces";
+import { CheckReport } from "module/check";
+
+export type AttackCheckReport = CheckReport & { grazingHitPenalty: number };
 
 export interface Action {
     type: AvailableActions;
