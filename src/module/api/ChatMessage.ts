@@ -15,6 +15,11 @@ declare class ChatMessage extends FoundryDocument {
     getFlag(scope: string, key: string): object;
 
     deleteDocuments(documentId: string[]): Promise<void>;
+
+    static applyRollMode(
+        chatData: object,
+        rollMode: "publicroll" | "gmroll" | "blindroll" | "selfroll" | "roll"
+    ): object;
 }
 
 const foundryChatMessage: typeof ChatMessage = ChatMessage;

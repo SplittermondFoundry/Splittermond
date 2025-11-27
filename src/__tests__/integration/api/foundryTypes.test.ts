@@ -47,17 +47,19 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 });
             });
         });
-        ["prepareBaseData", "prepareDerivedData", "toObject", "getFlag", "updateSource"].forEach((property) => {
-            it(`should have a method ${property}`, () => {
-                expect(ChatMessage.prototype, `Chat message prototype does not have ${property}`).to.have.property(
-                    property
-                );
-                expect(
-                    typeof ChatMessage.prototype[property as keyof typeof ChatMessage.prototype],
-                    `chat message property ${property} is not a function`
-                ).to.equal("function");
-            });
-        });
+        ["prepareBaseData", "prepareDerivedData", "toObject", "getFlag", "updateSource", "applyRollMode"].forEach(
+            (property) => {
+                it(`should have a method ${property}`, () => {
+                    expect(ChatMessage.prototype, `Chat message prototype does not have ${property}`).to.have.property(
+                        property
+                    );
+                    expect(
+                        typeof ChatMessage.prototype[property as keyof typeof ChatMessage.prototype],
+                        `chat message property ${property} is not a function`
+                    ).to.equal("function");
+                });
+            }
+        );
         ([["timestamp", fields.NumberField]] as const).forEach(([name, type]) => {
             it("should have a schema property ${name}", () => {
                 expect(ChatMessage.defineSchema(), `Item schema contains ${name}`).to.have.property(name);
