@@ -49,6 +49,12 @@ export interface ChatCardDegreeOfSuccessOption {
 }
 
 /**
+ * Structure for degree of success options partial
+ * This is used in the degree-of-success-options.hbs partial
+ */
+export type DegreeOfSuccessOptionsPartialData = ChatCardDegreeOfSuccessRenderedData[];
+
+/**
  * Base interface for chat card rendered data
  */
 export interface BaseChatCardRenderedData {

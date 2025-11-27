@@ -6,7 +6,7 @@ import { isMember } from "module/util/util";
 import type {
     BaseChatCardRenderedData,
     ChatCardDegreeOfSuccessOption,
-    ChatCardDegreeOfSuccessRenderedData,
+    DegreeOfSuccessOptionsPartialData,
 } from "module/util/chat/rollMessages/ChatCardCommonInterfaces";
 
 /**
@@ -27,10 +27,8 @@ export function isAvailableAction(action: string): action is AvailableActions {
 }
 
 export interface SpellRollMessageRenderedData extends BaseChatCardRenderedData {
-    degreeOfSuccessOptions: SpellDegreesOfSuccessRenderedData[];
+    degreeOfSuccessOptions: DegreeOfSuccessOptionsPartialData;
     actions: Partial<Record<AvailableActions, object>>;
 }
-
-interface SpellDegreesOfSuccessRenderedData extends ChatCardDegreeOfSuccessRenderedData {}
 
 export interface DegreeOfSuccessOption extends ChatCardDegreeOfSuccessOption {}

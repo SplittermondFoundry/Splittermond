@@ -19,25 +19,7 @@
         </div>
     </div>
     <div class="splittermond-chat-action-container chat-card-segment">
-        {{#if this.degreeOfSuccessOptions}}
-            <h3>{{localize "splittermond.degreeOfSuccessOptionsHeader"}}</h3>
-            <div class="degree-of-success-description">
-                {{#each this.degreeOfSuccessOptions}}
-                    <div class="splittermond-inline-label-input">
-                        <input
-                                id="{{id}}"
-                                type="checkbox"
-                                class="splittermond-chat-action inline-label-input"
-                            {{#if checked}}checked{{/if}}
-                            {{#if disabled}}disabled{{/if}}
-                                data-action="{{action}}"
-                                data-multiplicity="{{multiplicity}}"
-                        />
-                        <label class="inline-label" for="{{id}}">{{text}}</label>
-                    </div>
-                {{/each}}
-            </div>
-        {{/if}}
+        {{> degree-of-success-options degreeOfSuccessOptions}}
     </div>
     <div class="actions splittermond-chat-action-container chat-card-segment">
         <h3>{{localize "splittermond.furtherActions"}}</h3>

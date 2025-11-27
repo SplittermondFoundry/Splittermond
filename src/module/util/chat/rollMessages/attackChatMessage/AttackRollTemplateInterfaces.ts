@@ -6,7 +6,7 @@ import { isMember } from "module/util/util";
 import type {
     BaseChatCardRenderedData,
     ChatCardDegreeOfSuccessOption,
-    ChatCardDegreeOfSuccessRenderedData,
+    DegreeOfSuccessOptionsPartialData,
 } from "module/util/chat/rollMessages/ChatCardCommonInterfaces";
 
 /**
@@ -24,10 +24,8 @@ export interface AttackRollMessageRenderedData extends BaseChatCardRenderedData 
         name: string;
         description: string;
     }>;
-    degreeOfSuccessOptions: AttackDegreesOfSuccessRenderedData[];
+    degreeOfSuccessOptions: DegreeOfSuccessOptionsPartialData;
     actions: Partial<Record<AvailableActions, object>>;
 }
-
-interface AttackDegreesOfSuccessRenderedData extends ChatCardDegreeOfSuccessRenderedData {}
 
 export interface DegreeOfSuccessOption extends ChatCardDegreeOfSuccessOption {}

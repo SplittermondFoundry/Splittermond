@@ -136,6 +136,9 @@ Hooks.once("init", async function () {
     getTemplate(`${TEMPLATE_BASE_PATH}/chat/partials/chat-card-header.hbs`).then((template) => {
         Handlebars.registerPartial("chat-card-header", template);
     });
+    getTemplate(`${TEMPLATE_BASE_PATH}/chat/partials/degree-of-success-options.hbs`).then((template) => {
+        Handlebars.registerPartial("degree-of-success-options", template);
+    });
 
     foundryApi.keybindings.register("splittermond", "paste", {
         name: foundryApi.localize("splittermond.keybindings.paste.name"),
