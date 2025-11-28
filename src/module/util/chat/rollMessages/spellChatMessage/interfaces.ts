@@ -1,4 +1,8 @@
 import { AvailableActions, DegreeOfSuccessOption } from "./SpellRollTemplateInterfaces";
+import { DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../defaultUseOptionAlgorithm";
+
+// Re-export shared types for local usage
+export { DegreeOfSuccessAction, DegreeOfSuccessOptionInput };
 
 export interface Action {
     type: AvailableActions;
@@ -16,21 +20,6 @@ export interface ValuedAction extends Action {
 export interface UnvaluedAction extends Action {
     type: "useSplinterpoint" | "rollMagicFumble";
 }
-
-export interface DegreeOfSuccessOptionData {
-    action: string;
-    multiplicity: string;
-}
-
-export function isDegreeOfSuccessOptionData(data: unknown): data is DegreeOfSuccessOptionData {
-    return !!data && typeof data === "object" && "action" in data && "multiplicity" in data;
-}
-
-export interface DegreeOfSuccessAction {
-    usedDegreesOfSuccess: number;
-    action: () => void;
-}
-export type DegreeOfSuccessOptionInput = Record<string, unknown> & { action: string };
 
 export interface DegreeOfSuccessOptionSuggestion {
     render: DegreeOfSuccessOption;
