@@ -7,7 +7,7 @@ import SplittermondSpellItem from "../../../../item/spell";
 import { AgentReference } from "module/data/references/AgentReference";
 import { referencesUtils } from "module/data/references/referencesUtils";
 import { foundryApi } from "module/api/foundryApi";
-import { configureUseAction } from "./commonAlgorithms/defaultUseActionAlgorithm";
+import { configureUseAction } from "../defaultUseActionAlgorithm";
 
 function NoOptionsActionHandlerSchema() {
     return {

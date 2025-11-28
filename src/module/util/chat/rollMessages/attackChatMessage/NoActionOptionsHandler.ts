@@ -1,9 +1,8 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { ActionHandler, DegreeOfSuccessOptionSuggestion } from "./interfaces";
-import { DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../defaultUseOptionAlgorithm";
+import { configureUseOption, DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../defaultUseOptionAlgorithm";
 import { NumberDegreeOfSuccessOptionField } from "../NumberDegreeOfSuccessOptionField";
 import { splittermondSpellEnhancement } from "module/config/SplittermondSpellEnhancements";
-import { configureUseOption } from "./commonAlgorithms/defaultUseOptionAlgorithm";
 import type Attack from "module/actor/attack";
 import { isMember } from "module/util/util";
 import { splittermond } from "module/config";

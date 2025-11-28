@@ -1,13 +1,12 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { ActionHandler, DegreeOfSuccessOptionSuggestion, ValuedAction } from "./interfaces";
-import { DegreeOfSuccessAction } from "../defaultUseOptionAlgorithm";
+import { configureUseOption, DegreeOfSuccessAction } from "../defaultUseOptionAlgorithm";
 import { NumberDegreeOfSuccessOptionField } from "../NumberDegreeOfSuccessOptionField";
 import { AgentReference } from "module/data/references/AgentReference";
 import { splittermond } from "module/config";
 import { ItemReference } from "module/data/references/ItemReference";
 import SplittermondSpellItem from "../../../../item/spell";
-import { configureUseOption } from "./commonAlgorithms/defaultUseOptionAlgorithm";
-import { configureUseAction } from "./commonAlgorithms/defaultUseActionAlgorithm";
+import { configureUseAction } from "../defaultUseActionAlgorithm";
 
 function TickCostActionHandlerSchema() {
     return {
