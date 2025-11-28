@@ -2,12 +2,7 @@ import "../../../../../foundryMocks";
 import { afterEach, beforeEach, describe } from "mocha";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
 import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
-import {
-    setUpMockActor,
-    setUpMockAttackSelfReference,
-    WithMockedRefs,
-    withToObjectReturnsSelf,
-} from "./attackRollMessageTestHelper";
+import { setUpMockActor, setUpMockAttackSelfReference, WithMockedRefs } from "./attackRollMessageTestHelper";
 import { expect } from "chai";
 import SplittermondActor from "module/actor/actor";
 import { foundryApi } from "module/api/foundryApi";
@@ -21,6 +16,7 @@ import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeat
 import { DamageInitializer } from "module/util/chat/damageChatMessage/initDamage";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import Attack from "module/actor/attack";
+import { withToObjectReturnsSelf } from "../util";
 
 describe("AttackRollMessage", () => {
     let sandbox: sinon.SinonSandbox;

@@ -1,9 +1,10 @@
-import { setUpMockSpellSelfReference, WithMockedRefs, withToObjectReturnsSelf } from "./spellRollMessageTestHelper";
+import { setUpMockSpellSelfReference, WithMockedRefs } from "./spellRollMessageTestHelper";
 import { NoActionOptionsHandler } from "module/util/chat/rollMessages/spellChatMessage/NoActionOptionsHandler";
 import sinon, { SinonSandbox } from "sinon";
 import { foundryApi } from "module/api/foundryApi";
 import { expect } from "chai";
 import { injectParent } from "../../../../../testUtils";
+import { withToObjectReturnsSelf } from "../util";
 
 describe("NoActionOptionsHandler", () => {
     let sandbox: SinonSandbox;

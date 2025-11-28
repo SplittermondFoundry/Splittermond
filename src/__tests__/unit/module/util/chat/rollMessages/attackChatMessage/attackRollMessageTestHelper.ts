@@ -1,13 +1,12 @@
 import "__tests__/unit/foundryMocks.js";
-import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
 import { foundryApi } from "module/api/foundryApi";
 import SplittermondActor from "module/actor/actor.js";
-import { SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { AgentReference } from "module/data/references/AgentReference";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import Attack from "module/actor/attack";
 import type { AttackCheckReport } from "module/util/chat/rollMessages/attackChatMessage/interfaces";
+import type { SinonSandbox, SinonStubbedInstance } from "sinon";
 
 export function setUpMockActor(sandbox: SinonSandbox): SinonStubbedInstance<SplittermondActor> {
     const actorMock = sandbox.createStubInstance(SplittermondActor);
@@ -60,16 +59,6 @@ export function setUpCheckReportSelfReference(): AttackCheckReport & OnAncestorR
         },
     });
     return checkReportReference as AttackCheckReport & OnAncestorReference<AttackCheckReport>;
-}
-
-export function withToObjectReturnsSelf<T>(wrappedFunction: () => T): T {
-    const toObjectMock = sinon.stub(SplittermondDataModel.prototype, "toObject").callsFake(function () {
-        //@ts-expect-error we accept an "any" this here, because we cannot know the actual type for this mock
-        return this;
-    });
-    const returnValue = wrappedFunction();
-    toObjectMock.restore();
-    return returnValue;
 }
 
 export type WithMockedRefs<T> = {

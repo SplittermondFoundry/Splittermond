@@ -6,7 +6,6 @@ import {
     setUpMockActor,
     setUpMockSpellSelfReference,
     WithMockedRefs,
-    withToObjectReturnsSelf,
 } from "./spellRollMessageTestHelper";
 import { AgentReference } from "module/data/references/AgentReference";
 import { expect } from "chai";
@@ -20,6 +19,7 @@ import { createTestRoll, MockRoll, stubFoundryRoll, stubRollApi } from "__tests_
 import { DamageRoll } from "module/util/damage/DamageRoll";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import { CostBase } from "module/util/costs/costTypes";
+import { withToObjectReturnsSelf } from "../util";
 
 describe("DamageActionHandler", () => {
     let sandbox: sinon.SinonSandbox;

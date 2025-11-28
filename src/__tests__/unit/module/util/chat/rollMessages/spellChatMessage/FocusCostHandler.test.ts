@@ -10,7 +10,6 @@ import {
     setUpMockActor,
     setUpMockSpellSelfReference,
     WithMockedRefs,
-    withToObjectReturnsSelf,
 } from "./spellRollMessageTestHelper";
 import { FocusCostHandler } from "module/util/chat/rollMessages/spellChatMessage/FocusCostHandler";
 import { AgentReference } from "module/data/references/AgentReference";
@@ -21,6 +20,7 @@ import { parseCostString } from "module/util/costs/costParser";
 import { settings } from "module/settings";
 import { asMock } from "../../../../../settingsMock";
 import { injectParent } from "../../../../../testUtils";
+import { withToObjectReturnsSelf } from "../util";
 
 describe("FocusCostActionHandler", () => {
     let sandbox: SinonSandbox;

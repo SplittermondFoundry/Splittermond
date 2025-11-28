@@ -1,9 +1,8 @@
 import "__tests__/unit/foundryMocks.js";
 import SplittermondSpellItem from "module/item/spell.js";
-import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
+import { SinonSandbox, SinonStubbedInstance } from "sinon";
 import { foundryApi } from "module/api/foundryApi";
 import SplittermondActor from "module/actor/actor.js";
-import { SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { ItemReference } from "module/data/references/ItemReference";
 import { CheckReport } from "module/check";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
@@ -68,16 +67,6 @@ export function setUpCheckReportSelfReference(): CheckReport & OnAncestorReferen
         },
     });
     return checkReportReference as CheckReport & OnAncestorReference<CheckReport>;
-}
-
-export function withToObjectReturnsSelf<T>(wrappedFunction: () => T): T {
-    const toObjectMock = sinon.stub(SplittermondDataModel.prototype, "toObject").callsFake(function () {
-        //@ts-expect-error we accept an "any" this here, because we cannot know the actual type for this mock
-        return this;
-    });
-    const returnValue = wrappedFunction();
-    toObjectMock.restore();
-    return returnValue;
 }
 
 export type WithMockedRefs<T> = {

@@ -5,7 +5,6 @@ import {
     setUpMockActor,
     setUpMockAttackSelfReference,
     WithMockedRefs,
-    withToObjectReturnsSelf,
 } from "./attackRollMessageTestHelper";
 import { AgentReference } from "module/data/references/AgentReference";
 import { expect } from "chai";
@@ -18,6 +17,7 @@ import { DamageRoll } from "module/util/damage/DamageRoll";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import Attack from "module/actor/attack";
 import { CostBase } from "module/util/costs/costTypes";
+import { withToObjectReturnsSelf } from "../util";
 
 describe("DamageActionHandler", () => {
     let sandbox: sinon.SinonSandbox;

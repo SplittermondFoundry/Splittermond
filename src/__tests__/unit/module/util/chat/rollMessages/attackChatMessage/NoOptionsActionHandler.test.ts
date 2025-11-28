@@ -4,7 +4,6 @@ import {
     setUpMockActor,
     setUpMockAttackSelfReference,
     WithMockedRefs,
-    withToObjectReturnsSelf,
 } from "./attackRollMessageTestHelper";
 import { NoOptionsActionHandler } from "module/util/chat/rollMessages/attackChatMessage/NoOptionsActionHandler";
 import SplittermondActor from "module/actor/actor";
@@ -12,6 +11,7 @@ import { AgentReference } from "module/data/references/AgentReference";
 import { expect } from "chai";
 import { referencesUtils } from "module/data/references/referencesUtils";
 import { injectParent } from "../../../../../testUtils";
+import { withToObjectReturnsSelf } from "../util";
 
 describe("Roll Fumble", () => {
     let sandbox: SinonSandbox;

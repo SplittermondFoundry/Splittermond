@@ -2,12 +2,7 @@ import "../../../../../foundryMocks";
 import { afterEach, beforeEach, describe } from "mocha";
 import { SpellRollMessage } from "module/util/chat/rollMessages/spellChatMessage/SpellRollMessage";
 import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
-import {
-    setUpMockActor,
-    setUpMockSpellSelfReference,
-    WithMockedRefs,
-    withToObjectReturnsSelf,
-} from "./spellRollMessageTestHelper";
+import { setUpMockActor, setUpMockSpellSelfReference, WithMockedRefs } from "./spellRollMessageTestHelper";
 import { expect } from "chai";
 import SplittermondSpellItem from "module/item/spell";
 import SplittermondActor from "module/actor/actor";
@@ -24,6 +19,7 @@ import { createTestRoll } from "../../../../../RollMock";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageInitializer } from "module/util/chat/damageChatMessage/initDamage";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
+import { withToObjectReturnsSelf } from "../util";
 
 describe("SpellRollMessage", () => {
     let sandbox: sinon.SinonSandbox;
