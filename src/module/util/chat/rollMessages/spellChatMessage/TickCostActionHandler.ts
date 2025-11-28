@@ -1,7 +1,7 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { ActionHandler, DegreeOfSuccessOptionSuggestion, ValuedAction } from "./interfaces";
 import { DegreeOfSuccessAction } from "../defaultUseOptionAlgorithm";
-import { NumberDegreeOfSuccessOptionField } from "./optionFields/NumberDegreeOfSuccessOptionField";
+import { NumberDegreeOfSuccessOptionField } from "../NumberDegreeOfSuccessOptionField";
 import { AgentReference } from "module/data/references/AgentReference";
 import { splittermond } from "module/config";
 import { ItemReference } from "module/data/references/ItemReference";

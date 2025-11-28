@@ -1,1 +1,0 @@
-export { NumberDegreeOfSuccessOptionField } from "../../NumberDegreeOfSuccessOptionField";

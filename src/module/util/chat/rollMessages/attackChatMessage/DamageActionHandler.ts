@@ -7,7 +7,7 @@ import {
     ValuedAction,
 } from "./interfaces";
 import { DegreeOfSuccessAction } from "../defaultUseOptionAlgorithm";
-import { NumberDegreeOfSuccessOptionField } from "./optionFields/NumberDegreeOfSuccessOptionField";
+import { NumberDegreeOfSuccessOptionField } from "../NumberDegreeOfSuccessOptionField";
 import { AgentReference } from "module/data/references/AgentReference";
 import { splittermond } from "module/config";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
