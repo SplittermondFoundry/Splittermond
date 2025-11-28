@@ -6,12 +6,11 @@ import {
     DegreeOfSuccessOptionSuggestion,
     ValuedAction,
 } from "./interfaces";
-import { configureUseOption, DegreeOfSuccessAction } from "../defaultUseOptionAlgorithm";
+import { configureUseAction, configureUseOption, DegreeOfSuccessAction } from "../ChatMessageUtils";
 import { NumberDegreeOfSuccessOptionField } from "../NumberDegreeOfSuccessOptionField";
 import { AgentReference } from "module/data/references/AgentReference";
 import { splittermond } from "module/config";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
-import { configureUseAction } from "../defaultUseActionAlgorithm";
 import { DamageInitializer } from "../../damageChatMessage/initDamage";
 import { CostBase, type CostType } from "../../../costs/costTypes";
 import { foundryApi } from "module/api/foundryApi";

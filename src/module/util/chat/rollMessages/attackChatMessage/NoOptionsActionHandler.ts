@@ -5,7 +5,7 @@ import { CheckReport } from "module/check";
 import { AgentReference } from "module/data/references/AgentReference";
 import { referencesUtils } from "module/data/references/referencesUtils";
 import { foundryApi } from "module/api/foundryApi";
-import { configureUseAction } from "../defaultUseActionAlgorithm";
+import { configureUseAction } from "../ChatMessageUtils";
 import type Attack from "module/actor/attack";
 
 function NoOptionsActionHandlerSchema() {

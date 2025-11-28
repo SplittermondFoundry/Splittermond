@@ -15,8 +15,7 @@ import SplittermondSpellItem from "../../../../item/spell";
 import { splittermond } from "module/config";
 import { FocusDegreeOfSuccessOptionField } from "./optionFields/FocusDegreeOfSuccessOptionField";
 import { parseCostString, parseSpellEnhancementDegreesOfSuccess } from "../../../costs/costParser";
-import { configureUseOption } from "../defaultUseOptionAlgorithm";
-import { configureUseAction } from "../defaultUseActionAlgorithm";
+import { configureUseAction, configureUseOption } from "../ChatMessageUtils";
 import { PrimaryCost } from "../../../costs/PrimaryCost";
 import { settings } from "module/settings";
 

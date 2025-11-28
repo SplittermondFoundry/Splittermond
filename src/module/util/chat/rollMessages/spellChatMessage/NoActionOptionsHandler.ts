@@ -1,6 +1,6 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { ActionHandler, DegreeOfSuccessOptionSuggestion } from "./interfaces";
-import { configureUseOption, DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../defaultUseOptionAlgorithm";
+import { configureUseOption, DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../ChatMessageUtils";
 import { NumberDegreeOfSuccessOptionField } from "../NumberDegreeOfSuccessOptionField";
 import { ItemReference } from "module/data/references/ItemReference";
 import SplittermondSpellItem from "../../../../item/spell";

@@ -1,6 +1,6 @@
 import { AvailableActions, DegreeOfSuccessOption } from "./AttackRollTemplateInterfaces";
 import { CheckReport } from "module/check";
-import { DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../defaultUseOptionAlgorithm";
+import { DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../ChatMessageUtils";
 import type {
     ActionHandler as CommonActionHandler,
     ActionInput as CommonActionInput,

@@ -1,5 +1,5 @@
 import { AvailableActions, DegreeOfSuccessOption } from "./SpellRollTemplateInterfaces";
-import { DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../defaultUseOptionAlgorithm";
+import { DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../ChatMessageUtils";
 import type {
     ActionHandler as CommonActionHandler,
     ActionInput as CommonActionInput,

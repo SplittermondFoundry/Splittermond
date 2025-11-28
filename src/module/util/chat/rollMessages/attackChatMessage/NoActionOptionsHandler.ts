@@ -1,6 +1,6 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { ActionHandler, DegreeOfSuccessOptionSuggestion } from "./interfaces";
-import { configureUseOption, DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../defaultUseOptionAlgorithm";
+import { configureUseOption, DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../ChatMessageUtils";
 import { NumberDegreeOfSuccessOptionField } from "../NumberDegreeOfSuccessOptionField";
 import { splittermondSpellEnhancement } from "module/config/SplittermondSpellEnhancements";
 import type Attack from "module/actor/attack";
