@@ -118,7 +118,7 @@ export async function handleChatAction(data: unknown, messageId: string): Promis
     if (isObjectWithAction && canBeKey(data.action)) {
         await chatCard.system
             .handleGenericAction({ ...data, action: data.action })
-            .catch(() => throwNoActionError(chatCard, data, messageId));
+            .catch((e) => throwNoActionError(chatCard, data, messageId, e));
         await updateMessage(chatCard);
     } else {
         throwNoActionError(chatCard, data, messageId);
@@ -140,7 +140,7 @@ export async function handleLocalChatAction(data: unknown, messageId: string) {
     if (isObjectWithAction && canBeKey(data.localaction)) {
         return chatCard.system
             .handleGenericAction({ ...data, action: data.localaction })
-            .catch(() => throwNoActionError(chatCard, data, messageId));
+            .catch((e) => throwNoActionError(chatCard, data, messageId, e));
     } else {
         throwNoActionError(chatCard, data, messageId);
     }
@@ -171,7 +171,10 @@ function isSplittermondChatMessage(chatMessage: FoundryChatMessage): chatMessage
     );
 }
 
-function throwNoActionError(chatCard: SplittermondChatMessage, data: any, messageId: string) {
+function throwNoActionError(chatCard: SplittermondChatMessage, data: any, messageId: string, cause?: Error) {
     foundryApi.warnUser("splittermond.chatCard.actionNotFound");
-    throw new Error(`Action ${data.action} not found on chat card for message ${chatCard.type} with ${messageId}`);
+    if (cause) {
+        console.error(`Action ${data.action} failed on chat card for message ${chatCard.type}. Cause:${cause.message}`);
+    }
+    throw new Error(`Action ${data.action} not found on chat card for message ${chatCard.type} with id ${messageId}`);
 }
