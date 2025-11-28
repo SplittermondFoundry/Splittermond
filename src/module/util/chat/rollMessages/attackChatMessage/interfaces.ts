@@ -1,6 +1,10 @@
 import { AvailableActions, DegreeOfSuccessOption } from "./AttackRollTemplateInterfaces";
 import { CheckReport } from "module/check";
 import { DegreeOfSuccessAction, DegreeOfSuccessOptionInput } from "../defaultUseOptionAlgorithm";
+import type {
+    ActionHandler as CommonActionHandler,
+    ActionInput as CommonActionInput,
+} from "module/util/chat/rollMessages/ChatCardCommonInterfaces";
 
 // Re-export shared types for local usage
 export { DegreeOfSuccessAction, DegreeOfSuccessOptionInput };
@@ -32,13 +36,6 @@ export interface DegreeOfSuccessOptionSuggestion {
      */
     cost: number;
 }
-export type ActionInput = Record<string, unknown> & { action: AvailableActions };
-export interface ActionHandler {
-    renderDegreeOfSuccessOptions(): DegreeOfSuccessOptionSuggestion[];
-    renderActions(): (ValuedAction | UnvaluedAction)[];
-    readonly handlesActions: readonly string[];
-    readonly handlesDegreeOfSuccessOptions: readonly string[];
 
-    useAction(actionData: ActionInput): Promise<void>;
-    useDegreeOfSuccessOption(degreeOfSucccessOptionData: DegreeOfSuccessOptionInput): DegreeOfSuccessAction;
-}
+export type ActionHandler = CommonActionHandler<ValuedAction | UnvaluedAction, AvailableActions>;
+export type ActionInput = CommonActionInput<AvailableActions>;

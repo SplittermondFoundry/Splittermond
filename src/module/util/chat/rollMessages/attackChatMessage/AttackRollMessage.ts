@@ -1,20 +1,25 @@
-import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
+import { DataModelSchemaType, fieldExtensions, fields } from "module/data/SplittermondDataModel";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { AgentReference } from "module/data/references/AgentReference";
-import { ActionHandler, type AttackCheckReport } from "./interfaces";
+import { type AttackCheckReport, type UnvaluedAction, type ValuedAction } from "./interfaces";
 import { foundryApi } from "module/api/foundryApi";
 import { DamageActionHandler } from "./DamageActionHandler";
 import { NoActionOptionsHandler } from "./NoActionOptionsHandler";
-import { AttackRollMessageRenderedData, isAvailableAction } from "./AttackRollTemplateInterfaces";
+import {
+    AttackRollMessageRenderedData,
+    type AvailableActions,
+    isAvailableAction,
+} from "./AttackRollTemplateInterfaces";
 import { NoOptionsActionHandler } from "./NoOptionsActionHandler";
 import { RollResultRenderer } from "../RollResultRenderer";
 import { DataModelConstructorInput } from "module/api/DataModel";
-import { ChatMessageModel } from "module/data/SplittermondChatMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess";
 import { addSplinterpointBonus } from "module/check/addSplinterpoint";
 import Attack from "module/actor/attack";
 import { getRollResultClass } from "../ChatMessageUtils";
+import { RollMessage } from "module/util/chat/rollMessages/RollMessage";
+import type { ActionHandler } from "module/util/chat/rollMessages/ChatCardCommonInterfaces";
 
 const constructorRegistryKey = "attackRollMessage";
 
@@ -47,7 +52,11 @@ function AttackRollMessageSchema() {
 
 type AttackRollMessageType = DataModelSchemaType<typeof AttackRollMessageSchema>;
 
-export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageType> implements ChatMessageModel {
+export class AttackRollMessage extends RollMessage<
+    AttackRollMessageType,
+    ValuedAction | UnvaluedAction,
+    AvailableActions
+> {
     static defineSchema = AttackRollMessageSchema;
 
     static initialize(attack: Attack, checkReport: AttackCheckReport) {
@@ -79,16 +88,13 @@ export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageTy
         });
     }
 
-    private readonly optionsHandlerMap = new Map<string, ActionHandler>();
-    private readonly actionsHandlerMap = new Map<string, ActionHandler>();
-    private readonly handlers: ActionHandler[] = [];
-
     constructor(data: DataModelConstructorInput<AttackRollMessageType>, ...args: any[]) {
         super(data, ...args);
-        this.handlers.push(this.damageHandler);
-        this.handlers.push(this.noActionOptionsHandler);
-        this.handlers.push(this.noOptionsActionHandler);
-        this.handlers.forEach((handler) => this.registerHandler(handler));
+        const handlers: ActionHandler<ValuedAction | UnvaluedAction, AvailableActions>[] = [];
+        handlers.push(this.damageHandler);
+        handlers.push(this.noActionOptionsHandler);
+        handlers.push(this.noOptionsActionHandler);
+        handlers.forEach((handler) => this.registerHandler(handler));
         //we handle splinterpoint usage in this class, because we house the check report.
         this.registerHandler({
             handlesActions: ["useSplinterpoint"],
@@ -109,16 +115,9 @@ export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageTy
         });
     }
 
-    private registerHandler(handler: ActionHandler) {
-        handler.handlesDegreeOfSuccessOptions.forEach((value) => this.optionsHandlerMap.set(value, handler));
-        handler.handlesActions.forEach((value) => this.actionsHandlerMap.set(value, handler));
-    }
-
     getData(): AttackRollMessageRenderedData {
         const renderedActions: AttackRollMessageRenderedData["actions"] = {};
-        Array.from(this.actionsHandlerMap.values())
-            .flatMap((handler) => handler.renderActions())
-            .forEach((action) => (renderedActions[action.type] = action));
+        this.renderActions().forEach((action) => (renderedActions[action.type] = action));
         return {
             header: {
                 img: this.attack.img,
@@ -130,8 +129,7 @@ export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageTy
             degreeOfSuccessDisplay: renderDegreesOfSuccess(this.checkReport, this.openDegreesOfSuccess),
             rollResult: new RollResultRenderer(null, this.checkReport).render(),
             rollResultClass: getRollResultClass(this.checkReport),
-            degreeOfSuccessOptions: this.handlers
-                .flatMap((handler) => handler.renderDegreeOfSuccessOptions())
+            degreeOfSuccessOptions: this.renderOptions()
                 .filter((option) => option.cost <= this.openDegreesOfSuccess)
                 .map((option) => option.render)
                 .map((option) => ({
@@ -141,29 +139,6 @@ export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageTy
             actions: renderedActions,
             maneuvers: this.checkReport.maneuvers,
         };
-    }
-    async handleGenericAction(optionData: Record<string, unknown> & { action: string }) {
-        const degreeOfSuccessOption = this.optionsHandlerMap.get(optionData.action);
-        const action = this.actionsHandlerMap.get(optionData.action);
-        if (!action && !degreeOfSuccessOption) {
-            foundryApi.warnUser("splittermond.chatCard.spellMessage.noHandler", { action: optionData.action });
-        } else if (!!action && !!degreeOfSuccessOption) {
-            foundryApi.warnUser("splittermond.chatCard.spellMessage.tooManyHandlers", { action: optionData.action });
-        } else if (action) {
-            return this.handleActions(action, optionData);
-        } else if (degreeOfSuccessOption) {
-            const preparedOption = degreeOfSuccessOption.useDegreeOfSuccessOption(optionData);
-            if (preparedOption.usedDegreesOfSuccess <= this.openDegreesOfSuccess) {
-                try {
-                    preparedOption.action();
-                    this.updateSource({
-                        openDegreesOfSuccess: this.openDegreesOfSuccess - preparedOption.usedDegreesOfSuccess,
-                    });
-                } catch (e) {
-                    return Promise.reject(e);
-                }
-            }
-        }
     }
 
     private async useSplinterpoint() {
@@ -176,16 +151,9 @@ export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageTy
         this.updateSource({ checkReport: newCheckReport, splinterPointUsed: true });
     }
 
-    private async handleActions(action: ActionHandler, actionData: Record<string, unknown> & { action: string }) {
-        const actionKeyword = actionData.action;
-        if (isAvailableAction(actionKeyword)) {
-            return action.useAction({ ...actionData, action: actionKeyword });
-        } else {
-            throw new Error("Somehow action is not a keyword that is in AvailableActions. This should never happen.");
-        }
-    }
-
     get template() {
         return `${TEMPLATE_BASE_PATH}/chat/attack-chat-card.hbs`;
     }
+
+    protected isAvailableAction = isAvailableAction;
 }

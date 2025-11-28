@@ -3,6 +3,11 @@
  */
 
 import type { DegreeOfSuccessDisplay } from "module/util/chat/renderDegreesOfSuccess";
+import type {
+    DegreeOfSuccessAction,
+    DegreeOfSuccessOptionInput,
+    DegreeOfSuccessOptionSuggestion,
+} from "module/util/chat/rollMessages/attackChatMessage/interfaces";
 
 /**
  * Common header structure for chat cards
@@ -62,4 +67,20 @@ export interface BaseChatCardRenderedData {
     rollResultClass: string;
     rollResult: ChatCardRollResult;
     degreeOfSuccessDisplay: DegreeOfSuccessDisplay;
+}
+export interface Action<T> {
+    type: T;
+    disabled: boolean;
+    isLocal: boolean;
+}
+
+export type ActionInput<T> = Record<string, unknown> & { action: T };
+export interface ActionHandler<AVAILABLE_ACTIONS extends Action<T>, T> {
+    renderDegreeOfSuccessOptions(): DegreeOfSuccessOptionSuggestion[];
+    renderActions(): AVAILABLE_ACTIONS[];
+    readonly handlesActions: readonly string[];
+    readonly handlesDegreeOfSuccessOptions: readonly string[];
+
+    useAction(actionData: ActionInput<T>): Promise<void>;
+    useDegreeOfSuccessOption(degreeOfSucccessOptionData: DegreeOfSuccessOptionInput): DegreeOfSuccessAction;
 }

@@ -1,24 +1,24 @@
-import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
+import { DataModelSchemaType, fields } from "module/data/SplittermondDataModel";
 import { CheckReport } from "module/check";
 import { FocusCostHandler } from "./FocusCostHandler";
 import SplittermondSpellItem from "../../../../item/spell";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { ItemReference } from "module/data/references/ItemReference";
 import { AgentReference } from "module/data/references/AgentReference";
-import { ActionHandler } from "./interfaces";
+import { ActionHandler, type UnvaluedAction, type ValuedAction } from "./interfaces";
 import { foundryApi } from "module/api/foundryApi";
 import { TickCostActionHandler } from "./TickCostActionHandler";
 import { DamageActionHandler } from "./DamageActionHandler";
 import { NoActionOptionsHandler } from "./NoActionOptionsHandler";
-import { isAvailableAction, SpellRollMessageRenderedData } from "./SpellRollTemplateInterfaces";
+import { type AvailableActions, isAvailableAction, SpellRollMessageRenderedData } from "./SpellRollTemplateInterfaces";
 import { NoOptionsActionHandler } from "./NoOptionsActionHandler";
 import { RollResultRenderer } from "../RollResultRenderer";
 import { DataModelConstructorInput } from "module/api/DataModel";
-import { ChatMessageModel } from "module/data/SplittermondChatMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess";
 import { addSplinterpointBonus } from "module/check/addSplinterpoint";
 import { getRollResultClass } from "../ChatMessageUtils";
+import { RollMessage } from "module/util/chat/rollMessages/RollMessage";
 
 const constructorRegistryKey = "SpellRollMessage";
 
@@ -51,7 +51,11 @@ type SpellRollMessageType = Omit<DataModelSchemaType<typeof SpellRollMessageSche
     checkReport: CheckReport;
 };
 
-export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType> implements ChatMessageModel {
+export class SpellRollMessage extends RollMessage<
+    SpellRollMessageType,
+    ValuedAction | UnvaluedAction,
+    AvailableActions
+> {
     static defineSchema = SpellRollMessageSchema;
 
     static initialize(spell: SplittermondSpellItem, checkReport: CheckReport) {
@@ -79,18 +83,15 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
         });
     }
 
-    private readonly optionsHandlerMap = new Map<string, ActionHandler>();
-    private readonly actionsHandlerMap = new Map<string, ActionHandler>();
-    private readonly handlers: ActionHandler[] = [];
-
     constructor(data: DataModelConstructorInput<SpellRollMessageType>, ...args: any[]) {
         super(data, ...args);
-        this.handlers.push(this.focusCostHandler);
-        this.handlers.push(this.tickCostHandler);
-        this.handlers.push(this.damageHandler);
-        this.handlers.push(this.noActionOptionsHandler);
-        this.handlers.push(this.noOptionsActionHandler);
-        this.handlers.forEach((handler) => this.registerHandler(handler));
+        const handlers: ActionHandler[] = [];
+        handlers.push(this.focusCostHandler);
+        handlers.push(this.tickCostHandler);
+        handlers.push(this.damageHandler);
+        handlers.push(this.noActionOptionsHandler);
+        handlers.push(this.noOptionsActionHandler);
+        handlers.forEach((handler) => this.registerHandler(handler));
         //we handle splinterpoint usage in this class, because we house the check report.
         this.registerHandler({
             handlesActions: ["useSplinterpoint"],
@@ -111,16 +112,9 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
         });
     }
 
-    private registerHandler(handler: ActionHandler) {
-        handler.handlesDegreeOfSuccessOptions.forEach((value) => this.optionsHandlerMap.set(value, handler));
-        handler.handlesActions.forEach((value) => this.actionsHandlerMap.set(value, handler));
-    }
-
     getData(): SpellRollMessageRenderedData {
         const renderedActions: SpellRollMessageRenderedData["actions"] = {};
-        Array.from(this.actionsHandlerMap.values())
-            .flatMap((handler) => handler.renderActions())
-            .forEach((action) => (renderedActions[action.type] = action));
+        this.renderActions().forEach((action) => (renderedActions[action.type] = action));
         return {
             header: {
                 img: this.spellReference.getItem().img,
@@ -132,8 +126,7 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
             degreeOfSuccessDisplay: renderDegreesOfSuccess(this.checkReport, this.openDegreesOfSuccess),
             rollResult: new RollResultRenderer(this.spellReference.getItem().description, this.checkReport).render(),
             rollResultClass: getRollResultClass(this.checkReport),
-            degreeOfSuccessOptions: this.handlers
-                .flatMap((handler) => handler.renderDegreeOfSuccessOptions())
+            degreeOfSuccessOptions: this.renderOptions()
                 .filter((option) => option.cost <= this.openDegreesOfSuccess)
                 .map((option) => option.render)
                 .map((option) => ({
@@ -142,30 +135,6 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
                 })),
             actions: renderedActions,
         };
-    }
-
-    async handleGenericAction(optionData: Record<string, unknown> & { action: string }) {
-        const degreeOfSuccessOption = this.optionsHandlerMap.get(optionData.action);
-        const action = this.actionsHandlerMap.get(optionData.action);
-        if (!action && !degreeOfSuccessOption) {
-            foundryApi.warnUser("splittermond.chatCard.spellMessage.noHandler", { action: optionData.action });
-        } else if (!!action && !!degreeOfSuccessOption) {
-            foundryApi.warnUser("splittermond.chatCard.spellMessage.tooManyHandlers", { action: optionData.action });
-        } else if (action) {
-            return this.handleActions(action, optionData);
-        } else if (degreeOfSuccessOption) {
-            const preparedOption = degreeOfSuccessOption.useDegreeOfSuccessOption(optionData);
-            if (preparedOption.usedDegreesOfSuccess <= this.openDegreesOfSuccess) {
-                try {
-                    preparedOption.action();
-                    this.updateSource({
-                        openDegreesOfSuccess: this.openDegreesOfSuccess - preparedOption.usedDegreesOfSuccess,
-                    });
-                } catch (e) {
-                    return Promise.reject(e);
-                }
-            }
-        }
     }
 
     private async useSplinterpoint() {
@@ -178,16 +147,9 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
         this.updateSource({ checkReport: newCheckReport, splinterPointUsed: true });
     }
 
-    private async handleActions(action: ActionHandler, actionData: Record<string, unknown> & { action: string }) {
-        const actionKeyword = actionData.action;
-        if (isAvailableAction(actionKeyword)) {
-            return action.useAction({ ...actionData, action: actionKeyword });
-        } else {
-            throw new Error("Somehow action is not a keyword that is in AvailableActions. This should never happen.");
-        }
-    }
-
     get template() {
         return `${TEMPLATE_BASE_PATH}/chat/spell-chat-card.hbs`;
     }
+
+    protected isAvailableAction = isAvailableAction;
 }
