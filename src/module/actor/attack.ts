@@ -173,6 +173,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
     static defineSchema = AttackSchema;
 
     private _actor: SplittermondActor | null = null;
+    private _attackData: AttackItemData | null = null;
 
     /**
      * Initializer function that replaces the constructor logic
@@ -277,22 +278,25 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             deletable,
         });
         attack._actor = actor; // Cache the actor reference, we don't need to retrieve immediately
+        // For most cases, we want to keep the attack data that is nicely linked to our sources, because the state of the source may change after
+        // we recorded its value into our schema. This does not matter that much for Chat Cards, but is quite relevant for attacks.
+        attack._attackData = attackData;
         return attack;
     }
 
     get range() {
-        return this.attackData.range;
+        return this._attackData?.range ?? this.attackData.range;
     }
 
     /**
      * Returns the features of the attack as a string, suitable for display.
      */
     get features() {
-        return this.attackData.features.features;
+        return this._attackData?.features.features ?? this.attackData.features.features;
     }
 
     get featuresAsRef() {
-        return this.attackData.features;
+        return this._attackData?.features ?? this.attackData.features;
     }
 
     getForDamageRoll() {
@@ -361,15 +365,15 @@ export default class Attack extends SplittermondDataModel<AttackType> {
     }
 
     get damageType() {
-        return this.attackData.damageType;
+        return this._attackData?.damageType ?? this.attackData.damageType;
     }
 
     get costType() {
-        return this.attackData.costType;
+        return this._attackData?.costType ?? this.attackData.costType;
     }
 
     get weaponSpeed() {
-        let weaponSpeed = this.attackData.weaponSpeed;
+        let weaponSpeed = this._attackData?.weaponSpeed ?? this.attackData.weaponSpeed;
         weaponSpeed -= this.actor.modifier
             .getForId("item.weaponspeed")
             .withAttributeValuesOrAbsent("item", this.item.id, this.item.name)
@@ -416,7 +420,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             editable: this.editable,
             deletable: this.deletable,
             isPrepared: this.isPrepared,
-            featureList: this.attackData.features.featuresAsStringList(),
+            featureList: this.featuresAsRef.featuresAsStringList(),
         };
     }
 

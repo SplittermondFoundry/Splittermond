@@ -139,7 +139,9 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             attribute2: this.attribute2,
         };
     }
-
+    addModifierPath(...path: string[]) {
+        this.updateSource({ _modifierPath: [...this._modifierPath, ...path] });
+    }
     get attribute1(): SkillAttribute {
         return this._attribute1Cache?.toObject() ?? this._attribute1;
     }
