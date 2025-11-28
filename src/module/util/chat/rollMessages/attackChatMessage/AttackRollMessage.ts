@@ -1,5 +1,4 @@
 import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
-import { CheckReport } from "module/check";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { AgentReference } from "module/data/references/AgentReference";
 import { ActionHandler, type AttackCheckReport } from "./interfaces";
@@ -15,6 +14,7 @@ import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess";
 import { addSplinterpointBonus } from "module/check/addSplinterpoint";
 import Attack from "module/actor/attack";
+import { getRollResultClass } from "../ChatMessageUtils";
 
 const constructorRegistryKey = "attackRollMessage";
 
@@ -188,18 +188,4 @@ export class AttackRollMessage extends SplittermondDataModel<AttackRollMessageTy
     get template() {
         return `${TEMPLATE_BASE_PATH}/chat/attack-chat-card.hbs`;
     }
-}
-
-function getRollResultClass(checkReport: CheckReport): string {
-    const resultClasses = [];
-    if (checkReport.isCrit) {
-        resultClasses.push("critical");
-    }
-    if (checkReport.isFumble) {
-        resultClasses.push("fumble");
-    }
-    if (checkReport.succeeded) {
-        resultClasses.push("success");
-    }
-    return resultClasses.join(" ");
 }

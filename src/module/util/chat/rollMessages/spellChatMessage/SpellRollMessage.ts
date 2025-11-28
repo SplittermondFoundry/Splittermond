@@ -18,6 +18,7 @@ import { ChatMessageModel } from "module/data/SplittermondChatMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess";
 import { addSplinterpointBonus } from "module/check/addSplinterpoint";
+import { getRollResultClass } from "../ChatMessageUtils";
 
 const constructorRegistryKey = "SpellRollMessage";
 
@@ -189,18 +190,4 @@ export class SpellRollMessage extends SplittermondDataModel<SpellRollMessageType
     get template() {
         return `${TEMPLATE_BASE_PATH}/chat/spell-chat-card.hbs`;
     }
-}
-
-function getRollResultClass(checkReport: CheckReport): string {
-    const resultClasses = [];
-    if (checkReport.isCrit) {
-        resultClasses.push("critical");
-    }
-    if (checkReport.isFumble) {
-        resultClasses.push("fumble");
-    }
-    if (checkReport.succeeded) {
-        resultClasses.push("success");
-    }
-    return resultClasses.join(" ");
 }
