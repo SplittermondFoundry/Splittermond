@@ -1,199 +1,265 @@
 {
-    "id": "splittermond",
-    "title": "Splittermond",
-    "description": "A system for playing the german pen and paper RPG Splittermond.",
-    "version": "13.10.0",
-    "authors": [
-        {
-            "name": "Simon"
-        },
-        {
-            "name": "m-2 squared"
-        }
-    ],
-    "scripts": [],
-    "esmodules": ["splittermond.js"],
-    "styles": ["splittermond.css"],
-    "documentTypes": {
-        "ChatMessage": {
-            "simple": {},
-            "spellRollMessage": {},
-            "attackRollMessage": {},
-            "damageMessage": {}
-        },
-        "Actor": {
-            "character": {
-                "htmlFields": ["biography"],
-                "filePathFields": {}
-            },
-            "npc": {
-                "htmlFields": ["biography"],
-                "filePathFields": {}
-            }
-        },
-        "Item": {
-            "ancestry": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "armor": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "culture": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "culturelore": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "education": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "equipment": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "language": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "mastery": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "moonsign": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "npcattack": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "npcfeature": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "projectile": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "resource": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "shield": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "species": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "spell": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "spelleffect": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "statuseffect": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "strength": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "weakness": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            },
-            "weapon": {
-                "htmlFields": ["description"],
-                "filePathFields": {}
-            }
-        }
+  "id": "splittermond",
+  "title": "Splittermond",
+  "description": "A system for playing the german pen and paper RPG Splittermond.",
+  "version": "13.11.0",
+  "authors": [
+    {
+      "name": "Simon"
     },
-    "packs": [
-        {
-            "name": "species",
-            "label": "Spezies",
-            "system": "splittermond",
-            "path": "packs/species.db",
-            "entity": "Item",
-            "type": "Item",
-            "tags": ["species"],
-            "langs": ["de"]
-        },
-        {
-            "name": "macros",
-            "label": "Macros",
-            "system": "splittermond",
-            "path": "packs/macros.db",
-            "entity": "Macro",
-            "type": "Macro",
-            "tags": ["macros"],
-            "langs": ["de"]
-        },
-        {
-            "name": "journal-entries",
-            "label": "Journal",
-            "system": "splittermond",
-            "path": "packs/journal-entries.db",
-            "entity": "JournalEntry",
-            "type": "JournalEntry",
-            "tags": ["journal-entry"],
-            "langs": ["de"]
-        },
-        {
-            "name": "statuseffects",
-            "label": "Zustände",
-            "system": "splittermond",
-            "path": "packs/status-effects.db",
-            "entity": "Item",
-            "type": "Item",
-            "tags": ["statuseffect"],
-            "langs": ["de"]
-        }
-    ],
-    "languages": [
-        {
-            "lang": "en",
-            "name": "English",
-            "path": "lang/de.json"
-        },
-        {
-            "lang": "de",
-            "name": "Deutsch",
-            "path": "lang/de.json"
-        }
-    ],
-    "socket": true,
-    "grid": {
-        "distance": 1,
-        "units": "m"
+    {
+      "name": "m-2 squared"
+    }
+  ],
+  "scripts": [],
+  "esmodules": [
+    "splittermond.js"
+  ],
+  "styles": [
+    "splittermond.css"
+  ],
+  "documentTypes": {
+    "ChatMessage": {
+      "simple": {},
+      "spellRollMessage": {},
+      "attackRollMessage": {},
+      "damageMessage": {}
     },
-    "initiative": "@initiative - 1d6",
-    "primaryTokenAttribute": "healthBar",
-    "secondaryTokenAttribute": "focusBar",
-    "compatibility": {
-        "minimum": "13.345",
-        "verified": "13.350",
-        "maximum": "13"
+    "Actor": {
+      "character": {
+        "htmlFields": [
+          "biography"
+        ],
+        "filePathFields": {}
+      },
+      "npc": {
+        "htmlFields": [
+          "biography"
+        ],
+        "filePathFields": {}
+      }
     },
-    "media": [
-        {
-            "type": "setup",
-            "url": "systems/splittermond/images/Splittermond-Foundry-Hintergrund.webp",
-            "thumbnail": "systems/splittermond/images/Splittermond-Foundry-Hintergrund-thumb.webp"
-        }
-    ],
-    "background": "systems/splittermond/images/Splittermond-Foundry-Hintergrund-weit.webp",
-    "url": "https://github.com/SplittermondFoundry/splittermond",
-    "manifest": "https://raw.githubusercontent.com/SplittermondFoundry/Splittermond/main/public/system.json",
-    "download": "https://github.com/SplittermondFoundry/Splittermond/releases/download/v13.10.0/splittermond-13.10.0.zip"
+    "Item": {
+      "ancestry": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "armor": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "culture": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "culturelore": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "education": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "equipment": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "language": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "mastery": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "moonsign": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "npcattack": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "npcfeature": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "projectile": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "resource": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "shield": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "species": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "spell": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "spelleffect": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "statuseffect": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "strength": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "weakness": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      },
+      "weapon": {
+        "htmlFields": [
+          "description"
+        ],
+        "filePathFields": {}
+      }
+    }
+  },
+  "packs": [
+    {
+      "name": "species",
+      "label": "Spezies",
+      "system": "splittermond",
+      "path": "packs/species.db",
+      "entity": "Item",
+      "type": "Item",
+      "tags": [
+        "species"
+      ],
+      "langs": [
+        "de"
+      ]
+    },
+    {
+      "name": "macros",
+      "label": "Macros",
+      "system": "splittermond",
+      "path": "packs/macros.db",
+      "entity": "Macro",
+      "type": "Macro",
+      "tags": [
+        "macros"
+      ],
+      "langs": [
+        "de"
+      ]
+    },
+    {
+      "name": "journal-entries",
+      "label": "Journal",
+      "system": "splittermond",
+      "path": "packs/journal-entries.db",
+      "entity": "JournalEntry",
+      "type": "JournalEntry",
+      "tags": [
+        "journal-entry"
+      ],
+      "langs": [
+        "de"
+      ]
+    },
+    {
+      "name": "statuseffects",
+      "label": "Zustände",
+      "system": "splittermond",
+      "path": "packs/status-effects.db",
+      "entity": "Item",
+      "type": "Item",
+      "tags": [
+        "statuseffect"
+      ],
+      "langs": [
+        "de"
+      ]
+    }
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/de.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    }
+  ],
+  "socket": true,
+  "grid": {
+    "distance": 1,
+    "units": "m"
+  },
+  "initiative": "@initiative - 1d6",
+  "primaryTokenAttribute": "healthBar",
+  "secondaryTokenAttribute": "focusBar",
+  "compatibility": {
+    "minimum": "13.345",
+    "verified": "13.350",
+    "maximum": "13"
+  },
+  "media": [
+    {
+      "type": "setup",
+      "url": "systems/splittermond/images/Splittermond-Foundry-Hintergrund.webp",
+      "thumbnail": "systems/splittermond/images/Splittermond-Foundry-Hintergrund-thumb.webp"
+    }
+  ],
+  "background": "systems/splittermond/images/Splittermond-Foundry-Hintergrund-weit.webp",
+  "url": "https://github.com/SplittermondFoundry/splittermond",
+  "manifest": "https://raw.githubusercontent.com/SplittermondFoundry/Splittermond/main/public/system.json",
+  "download": "https://github.com/SplittermondFoundry/Splittermond/releases/download/v13.11.0/splittermond-13.11.0.zip"
 }
