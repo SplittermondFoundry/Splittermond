@@ -1,6 +1,13 @@
 ## 13.11.0
+
+### New Features
+
+- Erfolgsgrade auf Angriffswürfe können jetzt abgerechnet werden.
+
 ### Changes
+
 - Attribute von Waffen und Fertigkeiten werden validiert. Ungültige Attribute führen zu Fehlern.
+
 ## 13.10.0
 
 ### New Features
