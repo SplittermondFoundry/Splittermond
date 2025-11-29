@@ -1,7 +1,7 @@
 import "../../../../../foundryMocks";
 import { afterEach, beforeEach, describe } from "mocha";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
-import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
+import sinon, { SinonSandbox, type SinonStub, SinonStubbedInstance } from "sinon";
 import { setUpMockActor, setUpMockAttackSelfReference, WithMockedRefs } from "./attackRollMessageTestHelper";
 import { expect } from "chai";
 import SplittermondActor from "module/actor/actor";
@@ -17,6 +17,7 @@ import { DamageInitializer } from "module/util/chat/damageChatMessage/initDamage
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import Attack from "module/actor/attack";
 import { withToObjectReturnsSelf } from "../util";
+import { Dice } from "module/check/dice";
 
 describe("AttackRollMessage", () => {
     let sandbox: sinon.SinonSandbox;
@@ -132,6 +133,7 @@ describe("AttackRollMessage", () => {
     describe("Splinterpoint usage", () => {
         it("should increase degrees of success by three", async () => {
             const underTest = createAttackRollMessage(sandbox);
+            (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
@@ -147,6 +149,7 @@ describe("AttackRollMessage", () => {
 
         it("should only be usable once", async () => {
             const underTest = createAttackRollMessage(sandbox);
+            (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
@@ -163,6 +166,7 @@ describe("AttackRollMessage", () => {
 
         it("should convert a failure into a success", async () => {
             const underTest = createAttackRollMessage(sandbox);
+            (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
@@ -192,6 +196,94 @@ describe("AttackRollMessage", () => {
             expect(underTest.getData().actions.useSplinterpoint).to.be.undefined;
         });
 
+        it("should convert a grazing hit into a normal hit when increasing degrees of success", async () => {
+            const underTest = createAttackRollMessage(sandbox);
+            const attackStub = underTest.attack as SinonStubbedInstance<Attack>;
+
+            // Mock evaluateCheck to return 4 degrees of success after splinterpoint
+            const evaluateCheckStub = sandbox.stub(Dice, "evaluateCheck");
+            evaluateCheckStub.resolves({
+                succeeded: true,
+                degreeOfSuccess: { fromRoll: 4, modification: 0 },
+                isCrit: false,
+                isFumble: false,
+                degreeOfSuccessMessage: "",
+            });
+
+            underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                pointSpent: true,
+                getBonus() {
+                    return 3;
+                },
+            });
+            underTest.updateSource({ checkReport: fullCheckReport() });
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0 }; // 1 degree, but 2 maneuvers = grazing hit
+            underTest.checkReport.maneuvers = [{ id: "maneuver1" }, { id: "maneuver2" }] as any;
+            underTest.checkReport.grazingHitPenalty = 4; // 2 maneuvers * 2 base penalty
+            underTest.checkReport.succeeded = true;
+            attackStub.adaptForGrazingHit.callsFake((report) => {
+                const totalDegreesOfSuccess = report.degreeOfSuccess.fromRoll + report.degreeOfSuccess.modification;
+                const isGrazingHit = totalDegreesOfSuccess < report.maneuvers.length && report.succeeded;
+                return {
+                    ...report,
+                    grazingHitPenalty: isGrazingHit ? 4 : 0,
+                };
+            });
+
+            await underTest.handleGenericAction({ action: "useSplinterpoint" });
+
+            // With +3 degrees of success, we now have 4 degrees vs 2 maneuvers = no longer grazing hit
+            expect(underTest.checkReport.degreeOfSuccess.fromRoll).to.equal(4);
+            expect(underTest.checkReport.grazingHitPenalty).to.equal(0);
+        });
+
+        it("should still be a grazing hit after splinterpoint if degrees remain insufficient", async () => {
+            const underTest = createAttackRollMessage(sandbox);
+            const attackStub = underTest.attack as SinonStubbedInstance<Attack>;
+
+            // Mock evaluateCheck to return 4 degrees of success after splinterpoint
+            const evaluateCheckStub = sandbox.stub(Dice, "evaluateCheck");
+            evaluateCheckStub.resolves({
+                succeeded: true,
+                degreeOfSuccess: { fromRoll: 4, modification: 0 },
+                isCrit: false,
+                isFumble: false,
+                degreeOfSuccessMessage: "",
+            });
+
+            underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                pointSpent: true,
+                getBonus() {
+                    return 3;
+                },
+            });
+            underTest.updateSource({ checkReport: fullCheckReport() });
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0 };
+            underTest.checkReport.maneuvers = [
+                { id: "maneuver1" },
+                { id: "maneuver2" },
+                { id: "maneuver3" },
+                { id: "maneuver4" },
+                { id: "maneuver5" },
+            ] as any; // 5 maneuvers
+            underTest.checkReport.grazingHitPenalty = 10; // 5 maneuvers * 2 base penalty
+            underTest.checkReport.succeeded = true;
+            attackStub.adaptForGrazingHit.callsFake((report) => {
+                const totalDegreesOfSuccess = report.degreeOfSuccess.fromRoll + report.degreeOfSuccess.modification;
+                const isGrazingHit = totalDegreesOfSuccess < report.maneuvers.length && report.succeeded;
+                return {
+                    ...report,
+                    grazingHitPenalty: isGrazingHit ? 10 : 0,
+                };
+            });
+
+            await underTest.handleGenericAction({ action: "useSplinterpoint" });
+
+            // With +3 degrees, we have 4 degrees vs 5 maneuvers = still grazing hit
+            expect(underTest.checkReport.degreeOfSuccess.fromRoll).to.equal(4);
+            expect(underTest.checkReport.grazingHitPenalty).to.equal(10);
+        });
+
         function fullCheckReport(): CheckReport {
             return {
                 succeeded: false,
@@ -209,6 +301,43 @@ describe("AttackRollMessage", () => {
                 maneuvers: [],
             };
         }
+    });
+
+    describe("Grazing Hit Integration", () => {
+        it("should render grazing hit option in degree of success options when present", () => {
+            const underTest = createAttackRollMessage(sandbox);
+            underTest.checkReport.succeeded = true;
+            underTest.checkReport.grazingHitPenalty = 4;
+            underTest.updateSource({ openDegreesOfSuccess: 100 });
+
+            const data = underTest.getData();
+
+            const grazingHitOption = data.degreeOfSuccessOptions.find((o) => o.action === "grazingHitUpdate");
+            expect(grazingHitOption).to.not.be.undefined;
+        });
+
+        it("should render consumeCost action when grazing hit cost is consumed", () => {
+            const underTest = createAttackRollMessage(sandbox);
+            underTest.checkReport.succeeded = true;
+            underTest.checkReport.grazingHitPenalty = 4;
+            underTest.updateSource({ openDegreesOfSuccess: 100 });
+
+            underTest.handleGenericAction({ action: "grazingHitUpdate", multiplicity: "1" });
+
+            const data = underTest.getData();
+            expect(data.actions.consumeCost).to.not.be.undefined;
+            expect((data.actions.consumeCost as any).value).to.equal("4");
+        });
+
+        it("should not render consumeCost action when grazing hit cost is not consumed", () => {
+            const underTest = createAttackRollMessage(sandbox);
+            underTest.checkReport.succeeded = true;
+            underTest.checkReport.grazingHitPenalty = 4;
+            underTest.updateSource({ openDegreesOfSuccess: 100 });
+
+            const data = underTest.getData();
+            expect(data.actions.consumeCost).to.be.undefined;
+        });
     });
 });
 

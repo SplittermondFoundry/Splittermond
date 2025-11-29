@@ -60,7 +60,7 @@ export function applicationTests(context: QuenchBatchContext) {
         it("i18n contains a format function that translates the given string, inserting templateArgs", async () => {
             expect(game.i18n).to.have.property("format");
             expect(
-                game.i18n.format("splittermond.chatCard.spellMessage.tooManyHandlers", { action: "Handlung" })
+                game.i18n.format("splittermond.chatCard.rollMessage.tooManyHandlers", { action: "Handlung" })
             ).to.equal(
                 "Es gibt mehr als einen eingetragenen Bearbeiter für die Aktion 'Handlung'. Bitte wenden Sie sich an den Entwickler."
             );

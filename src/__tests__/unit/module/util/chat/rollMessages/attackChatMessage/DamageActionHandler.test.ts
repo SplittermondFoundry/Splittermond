@@ -255,6 +255,169 @@ describe("DamageActionHandler", () => {
             expect(initMock.lastCall.args[1]).to.deep.equal({ costBase: CostBase.create("V"), grazingHitPenalty: 0 });
         });
     });
+
+    describe("Grazing Hit", () => {
+        it("should render grazing hit option when grazing hit penalty > 0", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+
+            const options = underTest.renderDegreeOfSuccessOptions();
+
+            const grazingHitOption = options.find((o) => o.render.action === "grazingHitUpdate");
+            expect(grazingHitOption).to.not.be.undefined;
+            expect(grazingHitOption?.render.text).to.equal("splittermond.chatCard.attackMessage.selectConsumeCost");
+            expect(grazingHitOption?.cost).to.equal(0);
+        });
+
+        it("should not render grazing hit option when grazing hit penalty is 0", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 0;
+
+            const options = underTest.renderDegreeOfSuccessOptions();
+
+            const grazingHitOption = options.find((o) => o.render.action === "grazingHitUpdate");
+            expect(grazingHitOption).to.be.undefined;
+        });
+
+        it("should render consumeCost action when grazing hit is consumed", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+
+            underTest.useDegreeOfSuccessOption({ action: "grazingHitUpdate", multiplicity: "1" }).action();
+
+            const actions = underTest.renderActions();
+            const consumeCostAction = actions.find((a) => a.type === "consumeCost");
+            expect(consumeCostAction).to.not.be.undefined;
+            expect(consumeCostAction?.value).to.equal("4");
+            expect(consumeCostAction?.disabled).to.be.false;
+        });
+
+        it("should not render consumeCost action when grazing hit is not consumed", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+
+            const actions = underTest.renderActions();
+            const consumeCostAction = actions.find((a) => a.type === "consumeCost");
+            expect(consumeCostAction).to.be.undefined;
+        });
+
+        it("should toggle grazing hit consumption when grazingHitUpdate is called", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+
+            underTest.useDegreeOfSuccessOption({ action: "grazingHitUpdate", multiplicity: "1" }).action();
+            expect(underTest.consumedGrazingHitCost).to.be.true;
+
+            underTest.useDegreeOfSuccessOption({ action: "grazingHitUpdate", multiplicity: "1" }).action();
+            expect(underTest.consumedGrazingHitCost).to.be.false;
+        });
+
+        it("should disable grazing hit option when damage is used", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            sandbox.stub(DamageInitializer, "rollFromDamageRoll").returns(Promise.resolve(chatCardMock));
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+            sandbox.stub(underTest.attackReference.get(), "costType").get(() => "V");
+            sandbox.stub(underTest.attackReference.get(), "damage").get(() => "0d0 + 10");
+
+            underTest.useAction({ action: "applyDamage" });
+
+            const options = underTest.renderDegreeOfSuccessOptions();
+            const grazingHitOption = options.find((o) => o.render.action === "grazingHitUpdate");
+            expect(grazingHitOption?.render.disabled).to.be.true;
+        });
+
+        it("should reduce damage by grazing hit penalty when not consumed", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            const initMock = sandbox.stub(DamageInitializer, "rollFromDamageRoll").resolves(chatCardMock);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+            sandbox.stub(underTest.attackReference.get(), "costType").get(() => "V");
+            underTest.attackReference.get().getForDamageRoll.returns({
+                principalComponent: {
+                    damageRoll: new DamageRoll(new MockRoll("1d6 + 10"), ItemFeaturesModel.emptyFeatures()),
+                    damageType: "physical",
+                    damageSource: underTest.attackReference.get().name,
+                },
+                otherComponents: [],
+            });
+
+            underTest.useAction({ action: "applyDamage" });
+
+            // Verify the damage was reduced by 4
+            const damageRoll = initMock.lastCall.args[0][0].damageRoll;
+            expect(damageRoll.getDamageFormula()).to.equal("1W6 + 6");
+        });
+
+        it("should not reduce damage by grazing hit penalty when consumed", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            const initMock = sandbox.stub(DamageInitializer, "rollFromDamageRoll").resolves(chatCardMock);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+            sandbox.stub(underTest.attackReference.get(), "costType").get(() => "V");
+            underTest.attackReference.get().getForDamageRoll.returns({
+                principalComponent: {
+                    damageRoll: new DamageRoll(new MockRoll("1d6 + 10"), ItemFeaturesModel.emptyFeatures()),
+                    damageType: "physical",
+                    damageSource: underTest.attackReference.get().name,
+                },
+                otherComponents: [],
+            });
+
+            underTest.useDegreeOfSuccessOption({ action: "grazingHitUpdate", multiplicity: "1" }).action();
+            underTest.useAction({ action: "applyDamage" });
+
+            // Verify the damage was not reduced
+            const damageRoll = initMock.lastCall.args[0][0].damageRoll;
+            expect(damageRoll.getDamageFormula()).to.equal("1W6 + 10");
+        });
+
+        it("should consume cost from actor health when consumeCost action is used", async () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const actor = underTest.actorReference.getAgent();
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+
+            underTest.useDegreeOfSuccessOption({ action: "grazingHitUpdate", multiplicity: "1" }).action();
+            await underTest.useAction({ action: "consumeCost" });
+
+            expect(actor.consumeCost.calledOnceWith("health", "4", "")).to.be.true;
+        });
+
+        it("should mark consumeCost as used after execution", async () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+
+            underTest.useDegreeOfSuccessOption({ action: "grazingHitUpdate", multiplicity: "1" }).action();
+            await underTest.useAction({ action: "consumeCost" });
+
+            const actions = underTest.renderActions();
+            const consumeCostAction = actions.find((a) => a.type === "consumeCost");
+            expect(consumeCostAction?.disabled).to.be.true;
+        });
+
+        it("should not allow consumeCost to be used multiple times", async () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const actor = underTest.actorReference.getAgent();
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.checkReportReference.get().grazingHitPenalty = 4;
+
+            underTest.useDegreeOfSuccessOption({ action: "grazingHitUpdate", multiplicity: "1" }).action();
+            await underTest.useAction({ action: "consumeCost" });
+            await underTest.useAction({ action: "consumeCost" });
+
+            expect(actor.consumeCost.calledOnce).to.be.true;
+        });
+    });
 });
 
 function setUpDamageActionHandler(sandbox: SinonSandbox): WithMockedRefs<DamageActionHandler> {

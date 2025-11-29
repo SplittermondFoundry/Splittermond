@@ -67,8 +67,12 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
     public readonly handlesDegreeOfSuccessOptions = ["damageUpdate", "grazingHitUpdate"];
 
     useDegreeOfSuccessOption(degreeOfSuccessOptionData: any): DegreeOfSuccessAction {
+        // Determine which guard to use based on the action type
+        const isGrazingHitAction = degreeOfSuccessOptionData.action === "grazingHitUpdate";
+        const usedEvaluator = () => (isGrazingHitAction ? this.damageUsed || this.penaltyUsed : this.damageUsed);
+
         return configureUseOption()
-            .withUsed(() => this.damageUsed)
+            .withUsed(usedEvaluator)
             .withHandlesOptions(this.handlesDegreeOfSuccessOptions)
             .whenAllChecksPassed((degreeOfSuccessOptionData) => {
                 switch (degreeOfSuccessOptionData.action) {
@@ -157,6 +161,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
     }
 
     private consumeGrazingHitDamage() {
+        this.updateSource({ penaltyUsed: true });
         return this.actorReference
             .getAgent()
             .consumeCost("health", `${this.checkReportReference.get().grazingHitPenalty}`, "");
