@@ -8,6 +8,7 @@ import { Susceptibilities } from "./Susceptibilities";
 import ModifierManager from "./modifiers/modifier-manager";
 import type { VirtualToken } from "../combat/VirtualToken";
 import type { ItemType } from "module/config/itemTypes";
+import type { FoundryChatMessage } from "module/api/ChatMessage";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 declare class SplittermondActor extends Actor {
@@ -35,6 +36,7 @@ declare class SplittermondActor extends Actor {
     spendSplinterpoint(): { pointSpent: boolean; getBonus(skillName: SplittermondSkill | "health"): number };
 
     async rollMagicFumble(eg: number, costs?: string, skill?: SplittermondSkill, askUser = true): Promise<void>;
+    async rollAttackFumble(): Promise<FoundryChatMessage>;
 
     async addTicks(value: number, message?: string, askPlayer?: boolean): Promise<void>;
 

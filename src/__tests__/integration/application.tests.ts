@@ -60,7 +60,7 @@ export function applicationTests(context: QuenchBatchContext) {
         it("i18n contains a format function that translates the given string, inserting templateArgs", async () => {
             expect(game.i18n).to.have.property("format");
             expect(
-                game.i18n.format("splittermond.chatCard.spellMessage.tooManyHandlers", { action: "Handlung" })
+                game.i18n.format("splittermond.chatCard.rollMessage.tooManyHandlers", { action: "Handlung" })
             ).to.equal(
                 "Es gibt mehr als einen eingetragenen Bearbeiter für die Aktion 'Handlung'. Bitte wenden Sie sich an den Entwickler."
             );
@@ -411,7 +411,7 @@ export function applicationTests(context: QuenchBatchContext) {
 
             expect(combat.combatants.contents).to.have.length(1);
             expect(combatant.combat).to.deep.equal(combat);
-            expect(combatant.actor, "combatant actor is actor").to.deep.equal(actor);
+            expect(combatant.actor.id, "combatant actor is actor").to.deep.equal(actor.id);
             expect(combatant.token, "combatant token is token").to.deep.equal(token);
             expect(combatant.actor.token, "actor token is token").to.deep.equal(token);
             expect((game.splittermond.tickBarHud as TickBarHud).viewed).to.equal(combat);

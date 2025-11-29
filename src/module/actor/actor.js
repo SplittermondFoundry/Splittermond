@@ -2,7 +2,7 @@ import * as Dice from "../check/dice";
 import * as Chat from "../util/chat";
 
 import Attribute from "./attribute";
-import Skill from "./skill.js";
+import Skill from "./skill";
 import DerivedValue from "./derived-value";
 import ModifierManager from "./modifiers/modifier-manager";
 import Attack from "./attack";
@@ -102,7 +102,7 @@ export default class SplittermondActor extends Actor {
 
         if (!this.skills) {
             this.skills = [...splittermond.skillGroups.general, ...splittermond.skillGroups.magic].reduce((obj, id) => {
-                obj[id] = new Skill(this, id);
+                obj[id] = Skill.initialize(this, id);
                 return obj;
             }, {});
         }
@@ -474,7 +474,7 @@ export default class SplittermondActor extends Actor {
         const isInjuring = this.items.find((i) => i.name === "Natürliche Waffe");
         if (this.type === "character") {
             attacks.push(
-                new Attack(this, {
+                Attack.initialize(this, {
                     id: "weaponless",
                     type: "not-an-item",
                     name: foundryApi.localize("splittermond.weaponless"),

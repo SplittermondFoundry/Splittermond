@@ -1,45 +1,14 @@
 <!--DO NOT CHANGE THIS TEMPLATE UNLESS YOU ALSO CHANGE THE SpellRollTemplateInterfaces.ts FILE-->
-<div class="splittermond check {{rollResultClass}}">
-    <header class="chat-message-header">
-        {{#with header}}
-            {{#if img}}
-                <img alt="Icon attached to the spell" src="{{img}}" width="36" height="36" />
-            {{/if}}
-            <div>
-                <h2>{{title}}</h2>
-                <span class="roll-type">{{rollTypeMessage}}</span>
-                {{#if difficulty}}
-                    <span class="{{#if hideDifficulty}}gm-only{{/if}}">
-                &nbsp;      {{localize "splittermond.versus"}}&nbsp;<span class="difficulty">{{difficulty}}</span>
-                    </span>
-                {{/if}}
-            </div>
-        {{/with}}
-    </header>
+<div class="splittermond spell check {{rollResultClass}}">
+    {{#with header}}
+        {{> chat-card-header alt="Icon attached to the spell"}}
+    {{/with}}
     {{> roll-result rollResult}}
     {{> degree-of-success-display degreeOfSuccessDisplay}}
-    <div class="splittermond-chat-action-container">
-        {{#if this.degreeOfSuccessOptions}}
-            <strong>{{localize "splittermond.degreeOfSuccessOptionsHeader"}}</strong>
-            <div class="degree-of-success-description">
-                {{#each this.degreeOfSuccessOptions}}
-                    <div class="splittermond-inline-label-input">
-                        <input
-                                id="{{id}}"
-                                type="checkbox"
-                                class="splittermond-chat-action inline-label-input"
-                            {{#if checked}}checked{{/if}}
-                            {{#if disabled}}disabled{{/if}}
-                                data-action="{{action}}"
-                                data-multiplicity="{{multiplicity}}"
-                        />
-                        <label class="inline-label" for="{{id}}">{{text}}</label>
-                    </div>
-                {{/each}}
-            </div>
-        {{/if}}
+    <div class="splittermond-chat-action-container chat-card-segment">
+        {{> degree-of-success-options degreeOfSuccessOptions}}
     </div>
-    <div class="actions splittermond-chat-action-container">
+    <div class="actions splittermond-chat-action-container chat-card-segment">
         <h3>{{localize "splittermond.furtherActions"}}</h3>
         {{#with actions}}
             {{#if activeDefense }}

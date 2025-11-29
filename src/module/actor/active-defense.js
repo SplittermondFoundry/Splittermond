@@ -14,7 +14,6 @@ export default class ActiveDefense {
         this.id = id;
         this.type = type;
         this.skill = skill;
-        this.actor = this.skill.actor;
         this.itemFeatures = features;
         this.name = name;
         this.img = img;
@@ -22,6 +21,9 @@ export default class ActiveDefense {
 
     get features() {
         return this.itemFeatures.features;
+    }
+    get actor() {
+        return this.skill.actor;
     }
 
     async roll(options = {}) {

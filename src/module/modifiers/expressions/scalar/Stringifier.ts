@@ -15,7 +15,7 @@ import {
 import { exhaustiveMatchGuard } from "module/modifiers/util";
 
 export function asString(expression: Expression): string {
-    return unbrace(do_toString(expression));
+    return unbrace(do_toString(expression)).replace(/\s*\+\s*-\s*/g, " - ");
 }
 
 function unbrace(str: string) {
@@ -31,7 +31,7 @@ function do_toString(expression: Expression): string {
     } else if (expression instanceof RollExpression) {
         return expression.value.formula;
     } else if (expression instanceof AddExpression) {
-        return `(${do_toString(expression.left)} + ${do_toString(expression.right)})`;
+        return `(${unbrace(do_toString(expression.left))} + ${unbrace(do_toString(expression.right))})`;
     } else if (expression instanceof SubtractExpression) {
         return `(${do_toString(expression.left)} - ${do_toString(expression.right)})`;
     } else if (expression instanceof MultiplyExpression) {
@@ -43,16 +43,16 @@ function do_toString(expression: Expression): string {
     } else if (expression instanceof AbsExpression) {
         return expression.arg instanceof AmountExpression
             ? do_toString(expression.arg).replace(/^-/, "")
-            : `|${do_toString(expression.arg)}|`;
+            : `|${unbrace(do_toString(expression.arg))}|`;
     }
     exhaustiveMatchGuard(expression);
 }
 
 function asMultiplicationString(expression: MultiplyExpression): string {
     if (expression.left instanceof AmountExpression && expression.left.amount == -1) {
-        return `-${asString(expression.right)}`;
+        return `-${do_toString(expression.right)}`;
     } else if (expression.right instanceof AmountExpression && expression.right.amount == -1) {
-        return `-${asString(expression.right)}`;
+        return `-${do_toString(expression.left)}`;
     } else {
         return stringify(expression, "\u00D7"); //use unicode multiplication sign
     }

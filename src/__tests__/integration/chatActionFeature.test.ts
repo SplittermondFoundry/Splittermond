@@ -7,9 +7,13 @@ import type { Hooks } from "module/api/foundryTypes";
 import SplittermondActor from "../../module/actor/actor";
 import SplittermondSpellItem from "module/item/spell";
 import { CheckReport } from "module/check";
-import { SpellRollMessage } from "module/util/chat/spellChatMessage/SpellRollMessage";
+import { SpellRollMessage } from "module/util/chat/rollMessages/spellChatMessage/SpellRollMessage";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
+import type SplittermondWeaponItem from "module/item/weapon";
+import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
+import Attack from "module/actor/attack";
+import type { AttackCheckReport } from "module/util/chat/rollMessages/attackChatMessage/interfaces";
 
 declare const game: any;
 declare const Hooks: Hooks;
@@ -109,7 +113,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
         }
     });
 
-    describe("SpellRollMessage", () => {
+    describe("RollMessages", () => {
         let messagesToDelete: string[] = [];
         afterEach(async () => {
             await ChatMessage.deleteDocuments(messagesToDelete);
@@ -131,7 +135,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                     await actor.createEmbeddedDocuments("Item", [{ type: "spell", name: "Test Spell" }])
                 )[0];
                 await spell.update({ system: { costs: "4V1", skill: "lightmagic", enhancementCosts: "1EG/+1V1" } });
-                const chatMessage = createSampleChatMessage(actor, spell);
+                const chatMessage = createSpellChatMessage(actor, spell);
 
                 await chatMessage.sendToChat();
                 const messageId = chatMessage.messageId ?? "This is not a chat message";
@@ -144,7 +148,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             })
         );
 
-        function createSampleChatMessage(actor: SplittermondActor, spell: SplittermondSpellItem): SplittermondChatCard {
+        function createSpellChatMessage(actor: SplittermondActor, spell: SplittermondSpellItem): SplittermondChatCard {
             const checkReport: CheckReport = {
                 roll: {
                     total: 35,
@@ -165,9 +169,11 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 succeeded: true,
                 degreeOfSuccess: { fromRoll: 5, modification: 0 },
                 difficulty: 20,
+                defenseType: null,
                 isFumble: false,
                 isCrit: true,
                 degreeOfSuccessMessage: "mega success",
+                maneuvers: [],
             };
             return SplittermondChatCard.create(
                 actor,
@@ -175,8 +181,62 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 getMessageConfig({ type: "spellRollMessage" })
             );
         }
-    });
 
+        it(
+            "should not fail for operating an attack chat message",
+            withActor(async (actor) => {
+                const weapon: SplittermondWeaponItem = (
+                    await actor.createEmbeddedDocuments("Item", [{ type: "weapon", name: "Test weapon" }])
+                )[0];
+                await weapon.update({ system: { skill: "longrange", attribute1: "agility", attribute2: "strength" } });
+                const chatMessage = createAttackChatMessage(actor, weapon);
+
+                await chatMessage.sendToChat();
+                const messageId = chatMessage.messageId ?? "This is not a chat message";
+                messagesToDelete.push(messageId);
+                await handleChatAction({ action: "damageUpdate", multiplicity: 2 }, messageId);
+                await handleChatAction({ action: "rangeUpdate", multiplicity: 1 }, messageId);
+            })
+        );
+
+        function createAttackChatMessage(
+            actor: SplittermondActor,
+            weapon: SplittermondWeaponItem
+        ): SplittermondChatCard {
+            const checkReport: AttackCheckReport = {
+                roll: {
+                    total: 35,
+                    dice: [{ total: 18 }],
+                    tooltip: "",
+                },
+                skill: {
+                    id: weapon.skill,
+                    points: 6,
+                    attributes: {
+                        [weapon.system.attribute1]: actor.attributes[weapon.system.attribute1].value,
+                        [weapon.system.attribute2]: actor.attributes[weapon.system.attribute2].value,
+                    },
+                },
+                modifierElements: [{ isMalus: false, value: "0", description: "4" }],
+                hideDifficulty: false,
+                rollType: "standard",
+                succeeded: true,
+                degreeOfSuccess: { fromRoll: 5, modification: 0 },
+                difficulty: 20,
+                defenseType: null,
+                isFumble: false,
+                isCrit: true,
+                degreeOfSuccessMessage: "mega success",
+                maneuvers: [],
+                grazingHitPenalty: 0,
+            };
+            return SplittermondChatCard.create(
+                actor,
+                AttackRollMessage.initialize(Attack.initialize(actor, weapon, false), checkReport),
+                getMessageConfig({ type: "attackRollMessage" })
+            );
+        }
+    });
     describe("chat feature API tests", () => {
         it("should deliver the current user", () => {
             const currentUser = foundryApi.currentUser;

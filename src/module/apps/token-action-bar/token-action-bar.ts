@@ -159,9 +159,10 @@ export default class TokenActionBar extends SplittermondApplication {
             };
 
             data.attacks = this._currentActor.attacks
-                .map((a) => a.toObject())
+                .map((a) => a.toObjectData())
                 .map((a) => ({
                     ...a,
+                    skill: { label: a.skill.label, value: `${a.skill.value}` },
                     weaponSpeed: `${a.weaponSpeed}`,
                     range: `${a.range}`,
                 }));
@@ -273,7 +274,7 @@ export default class TokenActionBar extends SplittermondApplication {
             if (success) this._currentActor?.setFlag("splittermond", "preparedAttack", null);
             return;
         }
-        const attack = this._currentActor?.attacks.find((attack) => attack.toObject().id === attackId);
+        const attack = this._currentActor?.attacks.find((attack) => attack.toObjectData().id === attackId);
         if (!attack) {
             console.debug(`Splittermond | Attack of id ${attackId} not found on actor`);
             return;

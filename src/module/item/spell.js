@@ -9,7 +9,7 @@ import { SplittermondChatCard } from "../util/chat/SplittermondChatCard";
 import { splittermond } from "../config";
 import { PrimaryCost } from "../util/costs/PrimaryCost";
 import { Cost } from "../util/costs/Cost";
-import { SpellRollMessage } from "../util/chat/spellChatMessage/SpellRollMessage";
+import { SpellRollMessage } from "../util/chat/rollMessages/spellChatMessage/SpellRollMessage";
 import { ItemFeaturesModel, mergeFeatures } from "./dataModel/propertyModels/ItemFeaturesModel";
 import { DamageRoll } from "../util/damage/DamageRoll";
 import {

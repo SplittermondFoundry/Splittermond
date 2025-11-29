@@ -146,20 +146,20 @@ export function from13_8_8_migrateSkillModifiers(source: unknown) {
     if (!hasStringKey(source, "modifier")) {
         return source;
     }
-    const isGeneralSkillMod = (mod: string) => mod.startsWith("generalskills");
-    const isMagicSkillMod = (mod: string) => mod.startsWith("magicskills");
-    const isFightingSkillMod = (mod: string) => mod.startsWith("fightingskills");
+    const isGeneralSkillMod = (mod: string) => mod.toLowerCase().startsWith("generalskills");
+    const isMagicSkillMod = (mod: string) => mod.toLowerCase().startsWith("magicskills");
+    const isFightingSkillMod = (mod: string) => mod.toLowerCase().startsWith("fightingskills");
     const { keep, change } = separateModifiers(
         source.modifier,
         (mod) => isMagicSkillMod(mod) || isFightingSkillMod(mod) || isGeneralSkillMod(mod)
     );
     const changed = change.map((mod) => {
         if (isGeneralSkillMod(mod)) {
-            return mod.replace(/^generalskills/, "actor.skills.general");
+            return mod.replace(/^generalskills/i, "actor.skills.general");
         } else if (isMagicSkillMod(mod)) {
-            return mod.replace(/^magicskills/, "actor.skills.magic");
+            return mod.replace(/^magicskills/i, "actor.skills.magic");
         } else if (isFightingSkillMod(mod)) {
-            return mod.replace(/^fightingskills/, "actor.skills.fighting");
+            return mod.replace(/^fightingskills/i, "actor.skills.fighting");
         }
         return mod;
     });

@@ -1,8 +1,11 @@
 import { FoundryRoll, isRoll, OperatorTerm, RollTerm } from "module/api/Roll";
-import { AmountExpression, dividedBy, Expression, minus, plus, RollExpression, times } from "./definitions";
+import { AmountExpression, dividedBy, Expression, minus, of, plus, RollExpression, times } from "./definitions";
 import { foundryApi } from "module/api/foundryApi";
 
 type NoOperatorTerm = Exclude<RollTerm, OperatorTerm>;
+type BinaryOperator = (left: Expression, right: Expression) => Expression;
+const terminalCodon = null;
+type UnaryOperator = { binary: BinaryOperator | typeof terminalCodon; term: Expression };
 
 export function mapRoll(roll: FoundryRoll): Expression {
     //counting from the right produces an order of operations with whicht the most common roll expression 1d6+ 2+3 can be easily condensed.
@@ -14,24 +17,43 @@ export function mapRoll(roll: FoundryRoll): Expression {
         throw new Error(`Foundry Roll ${roll.formula} appears invalid, cannot map to expression`);
     }
     let rightExpression: Expression = termToExpression(asNoOperator(rightTerm.value));
+    const unaryOperators: UnaryOperator[] = [];
     while (true) {
         const operator = termIterator.next();
         const leftTerm = termIterator.next();
 
         if (operator.done && leftTerm.done) {
-            return rightExpression;
+            unaryOperators.push({ binary: null, term: rightExpression });
+            return executeOperators(unaryOperators);
         } else if (operator.done || leftTerm.done) {
             throw new Error("Not enough terms to be a correct roll formula");
         } else if (asOperator(operator.value).operator === "+") {
-            rightExpression = plus(termToExpression(asNoOperator(leftTerm.value)), rightExpression);
+            unaryOperators.push({ binary: plus, term: rightExpression });
         } else if (asOperator(operator.value).operator === "-") {
-            rightExpression = minus(termToExpression(asNoOperator(leftTerm.value)), rightExpression);
+            unaryOperators.push({ binary: plus, term: minus(of(0), rightExpression) });
         } else if (asOperator(operator.value).operator === "*") {
-            rightExpression = times(termToExpression(asNoOperator(leftTerm.value)), rightExpression);
+            unaryOperators.push({ binary: times, term: rightExpression });
         } else if (asOperator(operator.value).operator === "/") {
-            rightExpression = dividedBy(termToExpression(asNoOperator(leftTerm.value)), rightExpression);
+            unaryOperators.push({ binary: times, term: dividedBy(of(1), rightExpression) });
+        }
+        rightExpression = termToExpression(asNoOperator(leftTerm.value));
+    }
+}
+function executeOperators(unaryOperators: UnaryOperator[]): Expression {
+    let aggregate = unaryOperators[0];
+    if (!aggregate.binary) {
+        return aggregate.term;
+    }
+    for (const { binary: operator, term } of unaryOperators.slice(1)) {
+        const { binary: oldOperator, term: total } = aggregate;
+        const newTotal = oldOperator!(term, total); //Operator cannot be null here
+        if (operator === terminalCodon) {
+            return newTotal;
+        } else {
+            aggregate = { binary: operator, term: newTotal };
         }
     }
+    throw new Error("No formula ending codon given.");
 }
 
 function groupTermsByOperator(terms: RollTerm[]): RollTerm[] {

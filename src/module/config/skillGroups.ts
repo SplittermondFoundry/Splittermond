@@ -51,6 +51,7 @@ const magicSkills = [
 ] as const;
 export const skillGroups = {
     essential: ["acrobatics", "athletics", "determination", "stealth", "perception", "endurance"],
+    ranged: ["throwing", "longrange"],
     fighting: fightingSkills,
     general: generalSkills,
     magic: magicSkills,

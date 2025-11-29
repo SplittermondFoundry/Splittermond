@@ -1,4 +1,4 @@
-import { ModifierHandler, ModifierRegistry, ModifierType } from "module/modifiers";
+import { ModifierRegistry } from "module/modifiers";
 import { ActorSkillHandler, SkillHandler } from "module/actor/modifiers/SkillHandler";
 import { splittermond } from "module/config";
 import {
@@ -11,10 +11,8 @@ import {
 } from "module/actor/modifiers/ActorModifierHandlers";
 import type { ScalarModifier } from "module/modifiers/parsing";
 import { ActorSplinterpointsHandler, SplinterpointsHandler } from "module/actor/modifiers/SplinterpointsHandler";
-import { derivedAttributes, type SplittermondDerivedAttribute } from "module/config/attributes";
-import { Expression, pow } from "module/modifiers/expressions/scalar";
-import { foundryApi } from "module/api/foundryApi";
-import SplittermondItem from "module/item/item";
+import { derivedAttributes } from "module/config/attributes";
+import { pow } from "module/modifiers/expressions/scalar";
 
 export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier>) {
     const lowerFumbleResultHandler = SkillFilterHandler({ topLevelPath: "lowerfumbleresult" });
@@ -42,12 +40,6 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
     registry.addHandler("tickmalus", TickHandicapHandler("tickmalus"));
     registry.addHandler("handicap", TickHandicapHandler("handicap"));
     registry.addHandler("bonuscap", BasicModifierHandler("bonuscap"));
-    derivedAttributes.forEach((slug) => {
-        const segment = `${slug}.multiplier`;
-        const fullId = `actor.${segment}` as Lowercase<string>;
-        registry.addHandler(segment, ProductModifierHandler(segment, fullId, pow));
-        registry.addHandler(fullId, ProductModifierHandler(fullId, fullId, pow));
-    });
     ["focusregeneration", "healthregeneration"].forEach((slug) => {
         const segment = `${slug}.multiplier`;
         const fullId = `actor.${segment}` as Lowercase<string>;
@@ -62,38 +54,18 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
             registry.addHandler(segment, BasicModifierHandler(segment));
         });
     });
+    addDerivedValueHandlers(registry);
 }
 
-export function addDerivedValueHandlers(registry: ModifierRegistry<ScalarModifier>) {
-    const standardAdder = using(registry, BasicModifierHandler);
-    derivedAttributes.filter((attr) => attr !== "initiative").forEach((da) => standardAdder.addForValue(da));
-    using(registry, InverseModifierHandler).addForValue("initiative");
-}
-
-type HandlerConstructor = (
-    arg0: string,
-    arg1?: Lowercase<string>
-) => {
-    new (
-        logError: (...messages: string[]) => void,
-        sourceItem: SplittermondItem,
-        type: ModifierType,
-        multiplier: Expression
-    ): ModifierHandler<ScalarModifier>;
-};
-function using(registry: ModifierRegistry<ScalarModifier>, handler: HandlerConstructor) {
-    return {
-        addForValue(attr: SplittermondDerivedAttribute) {
-            const basePath = `splittermond.derivedAttribute.${attr}`;
-            const shortForm = foundryApi.localize(`${basePath}.short`);
-            const longForm = foundryApi.localize(`${basePath}.long`);
-            registry.addHandler(attr, handler(attr));
-            registry.addHandler(shortForm, handler(shortForm, attr));
-            try {
-                registry.addHandler(longForm, handler(longForm, attr));
-            } catch (_) {
-                //ignore errors from long form already registered
-            }
-        },
-    };
+function addDerivedValueHandlers(registry: ModifierRegistry<ScalarModifier>) {
+    derivedAttributes.forEach((slug) => {
+        const segment = `${slug}.multiplier`;
+        const fullId = `actor.${segment}` as Lowercase<string>;
+        registry.addHandler(segment, ProductModifierHandler(segment, fullId, pow));
+        registry.addHandler(fullId, ProductModifierHandler(fullId, fullId, pow));
+    });
+    derivedAttributes
+        .filter((attr) => attr !== "initiative")
+        .forEach((da) => registry.addHandler(da, BasicModifierHandler(da)));
+    registry.addHandler("initiative", InverseModifierHandler("initiative"));
 }

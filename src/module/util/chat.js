@@ -83,101 +83,11 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
 
     switch (data.type) {
         case "attack":
-            templateContext.title = data.weapon.name;
-            templateContext.img = data.weapon.img;
-            let ticks = ["longrange", "throwing"].includes(data.weapon.skill.id) ? 3 : data.weapon.weaponSpeed;
-            if (data.succeeded) {
-                if (data.maneuvers.length > totalDegreeOfSuccess) {
-                    templateContext.degreeOfSuccessDisplay.degreeOfSuccessMessage =
-                        foundryApi.localize(`splittermond.grazingHit`);
-                    templateContext.isGrazingHit = true;
-                }
-
-                if (data.maneuvers.length > 0) {
-                    templateContext.degreeOfSuccessDescription =
-                        "<h3>" + foundryApi.localize(`splittermond.maneuver`) + "</h3>";
-                    templateContext.degreeOfSuccessDescription += "<ol>";
-                    for (let i = 0; i < data.maneuvers.length; i++) {
-                        templateContext.degreeOfSuccessDescription += `<li class="maneuver">
-                        ${data.maneuvers[i].name}
-                        <div class="description">${data.maneuvers[i].system.description}</div>
-                        </li>`;
-                    }
-                    templateContext.degreeOfSuccessDescription += "</ol>";
-                }
-                if (totalDegreeOfSuccess >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold) {
-                    ticks = ticks - 1;
-                }
-
-                templateContext.actions.push({
-                    name: `${foundryApi.localize("splittermond.activeDefense")} (${foundryApi.localize("splittermond.derivedAttribute.defense.short")})`,
-                    icon: "fa-shield-alt",
-                    classes: "active-defense",
-                    data: {
-                        type: "defense",
-                    },
-                });
-
-                //Officially damage modifier is a private member. We're exploiting the fact that we're using JS here
-                //where the TS compile will not notice. I find this hack acceptable, because this code should be
-                //migrated
-                const serializedImplements = {
-                    principalComponent: {
-                        formula: data.weapon.damageImplements.principalComponent.damageRoll.backingRoll.formula,
-                        features: data.weapon.damageImplements.principalComponent.damageRoll._features.features,
-                        modifier: data.weapon.damageImplements.principalComponent.damageRoll._damageModifier,
-                        damageSource: data.weapon.damageImplements.principalComponent.damageSource,
-                        damageType: data.weapon.damageImplements.principalComponent.damageType,
-                    },
-                    otherComponents: data.weapon.damageImplements.otherComponents.map((i) => {
-                        return {
-                            formula: i.damageRoll.backingRoll.formula,
-                            features: i.damageRoll._features.features,
-                            modifier: i.damageRoll._damageModifier,
-                            damageSource: i.damageSource,
-                            damageType: i.damageType,
-                        };
-                    }),
-                };
-                templateContext.actions.push({
-                    name: game.i18n.localize(`splittermond.damage`) + " (" + data.weapon.damage + ")",
-                    icon: "fa-heart-broken",
-                    classes: "rollable",
-                    data: {
-                        "roll-type": "damage",
-                        actorId: actor.id,
-                        costType: data.weapon.costType,
-                        grazingHitPenalty: templateContext.isGrazingHit ? data.maneuvers.length * 2 : 0,
-                        isGrazingHit: templateContext.isGrazingHit,
-                        damageImplements: JSON.stringify(serializedImplements),
-                    },
-                });
-            }
-
-            if (data.isFumble || totalDegreeOfSuccess <= splittermond.check.degreeOfSuccess.criticalFailureThreshold) {
-                templateContext.actions.push({
-                    name: foundryApi.localize("splittermond.fumbleTableLabel"),
-                    icon: "fa-dice",
-                    classes: "rollable",
-                    data: {
-                        "roll-type": "attackFumble",
-                    },
-                });
-            }
-
-            templateContext.actions.push({
-                name: `${ticks} ` + foundryApi.localize(`splittermond.ticks`),
-                icon: "fa-stopwatch",
-                classes: "add-tick",
-                data: {
-                    ticks: ticks,
-                    message: data.weapon.name,
-                },
-            });
-            break;
         case "spell":
             foundryApi.reportError("splittermond.unknownError");
-            throw new Error("Spells are handled wia the chat card module and you should not have reached this point.");
+            throw new Error(
+                "Spells and Attacks are handled wia the chat card module and you should not have reached this point."
+            );
         case "defense":
             templateContext.title = data.itemData.name;
             templateContext.img = data.itemData.img;

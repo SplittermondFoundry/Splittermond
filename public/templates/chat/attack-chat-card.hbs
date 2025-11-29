@@ -1,0 +1,85 @@
+<!--DO NOT CHANGE THIS TEMPLATE UNLESS YOU ALSO CHANGE THE AttackRollTemplateInterfaces.ts FILE-->
+<div class="splittermond attack check {{rollResultClass}}">
+    {{#with header}}
+        {{> chat-card-header alt="Icon attached to the weapon"}}
+    {{/with}}
+    {{> roll-result rollResult}}
+    {{> degree-of-success-display degreeOfSuccessDisplay}}
+    <div class="splittermond-chat-action-container chat-card-segment">
+        <h3>{{localize "splittermond.maneuver"}}</h3>
+        <div class="degree-of-success-description">
+            <ol>
+                {{#each maneuvers}}
+                    <li class="maneuver splittermond-chat-action">
+                        {{name}}
+                        <div class="description">{{{description}}}</div>
+                    </li>
+                {{/each}}
+            </ol>
+        </div>
+    </div>
+    <div class="splittermond-chat-action-container chat-card-segment">
+        {{> degree-of-success-options degreeOfSuccessOptions}}
+    </div>
+    <div class="actions splittermond-chat-action-container chat-card-segment">
+        <h3>{{localize "splittermond.furtherActions"}}</h3>
+        {{#with actions}}
+            {{#if activeDefense }}
+                {{> "activeDefenseButton" activeDefense}}
+            {{/if}}
+            {{#if applyDamage}}
+                {{> "applyDamageButton" applyDamage}}
+            {{/if}}
+            {{#if advanceToken}}
+                {{> "advanceTokenButton" advanceToken}}
+            {{/if}}
+            {{#if consumeCost}}
+                {{> "consumeCostButton" consumeCost}}
+            {{/if}}
+            {{#if useSplinterpoint}}
+                {{> "useSplinterpointButton" useSplinterpoint}}
+            {{/if}}
+            {{#if rollFumble}}
+                {{> "rollFumbleButton" rollFumble}}
+            {{/if}}
+        {{/with}}
+
+        {{#* inline "consumeCostButton"}}
+            <button class="splittermond-chat-action" data-action="consumeCost" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-heart-broken"></i>
+                {{value}} {{localize "splittermond.chatCard.attackMessage.consumeCost"}}
+            </button>
+        {{/inline}}
+        {{#* inline "applyDamageButton"}}
+            <button class="splittermond-chat-action" data-action="applyDamage" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-heart-broken"></i>
+                {{value}} {{localize "splittermond.damage"}}
+            </button>
+        {{/inline}}
+        {{#* inline "advanceTokenButton"}}
+            <button class="splittermond-chat-action" data-action="advanceToken" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-stopwatch"></i>
+                {{value}} {{localize "splittermond.ticks"}}
+            </button>
+        {{/inline}}
+        {{#* inline "useSplinterpointButton"}}
+            <button class="splittermond-chat-action" data-action="useSplinterpoint" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-moon"></i>
+                {{localize "splittermond.splinterpoint"}}
+            </button>
+        {{/inline}}
+        {{#* inline "rollFumbleButton"}}
+            <button class="splittermond-chat-action" data-localAction="rollFumble" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-dice"></i>
+                {{localize "splittermond.fumbleTableLabel"}}
+            </button>
+        {{/inline}}
+        {{#* inline "activeDefenseButton"}}
+            <button class="splittermond-chat-action" data-localAction="activeDefense">
+                <i class="fas fa-shield-alt"></i>
+                {{localize "splittermond.activeDefense"}} ({{difficulty}})
+            </button>
+        {{/inline}}
+    </div>
+</div>
+

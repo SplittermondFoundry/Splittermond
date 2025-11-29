@@ -48,7 +48,7 @@ describe("Attack", () => {
                 null,
                 false
             );
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -69,7 +69,7 @@ describe("Attack", () => {
                 feature: "Scharf 2",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -88,7 +88,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -106,7 +106,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -123,7 +123,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -141,7 +141,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -157,7 +157,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, true);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -174,7 +174,7 @@ describe("Attack", () => {
                 item: "Kurzschwert",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -191,7 +191,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -208,7 +208,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -233,7 +233,7 @@ describe("Attack", () => {
                 null,
                 false
             );
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
 
@@ -251,7 +251,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             expect(underTest.damage).to.equal("1W6 + 5");
         });
@@ -265,7 +265,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
             };
             actor.modifier.add("item.damage", modifierAttributes, of(0), null, false);
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             expect(underTest.damage).to.equal("");
         });
@@ -274,7 +274,7 @@ describe("Attack", () => {
     it("should pass custom options to the roll method", () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem();
-        const underTest = new Attack(actor, attackItem);
+        const underTest = Attack.initialize(actor, attackItem);
 
         const customOptions = {
             type: "spell",
@@ -304,7 +304,7 @@ describe("Attack", () => {
     it("should merge default options with custom options in the roll method", () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem();
-        const underTest = new Attack(actor, attackItem);
+        const underTest = Attack.initialize(actor, attackItem);
 
         const customOptions = {
             difficulty: 20,
@@ -328,7 +328,7 @@ describe("Attack", () => {
             passedOptions?.checkMessageData ? Object.keys(passedOptions?.checkMessageData.weapon) : []
         ).to.deep.equal(
             Object.keys({
-                ...underTest.toObject(),
+                ...underTest.toObjectData(),
                 damageImplements: underTest.getForDamageRoll(),
             })
         );
@@ -337,7 +337,7 @@ describe("Attack", () => {
     it("should use default options when no custom options are provided", () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem();
-        const underTest = new Attack(actor, attackItem);
+        const underTest = Attack.initialize(actor, attackItem);
 
         const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options));
         underTest.roll();
@@ -356,7 +356,7 @@ describe("Attack", () => {
             passedOptions?.checkMessageData ? Object.keys(passedOptions?.checkMessageData.weapon) : []
         ).to.deep.equal(
             Object.keys({
-                ...underTest.toObject(),
+                ...underTest.toObjectData(),
                 damageImplements: underTest.getForDamageRoll(),
             })
         );
@@ -366,7 +366,7 @@ describe("Attack", () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem({ weaponSpeed: 7 });
         actor.modifier.add("item.weaponspeed", { type: "magic", name: attackItem?.name }, of(3), null, false);
-        const underTest = new Attack(actor, attackItem);
+        const underTest = Attack.initialize(actor, attackItem);
 
         expect(underTest.weaponSpeed).to.equal(4);
     });
@@ -382,7 +382,7 @@ describe("Attack", () => {
             null,
             false
         );
-        const underTest = new Attack(actor, attackItem);
+        const underTest = Attack.initialize(actor, attackItem);
 
         expect(underTest.weaponSpeed).to.equal(7);
     });
@@ -397,7 +397,7 @@ describe("Attack", () => {
             null,
             false
         );
-        const underTest = new Attack(actor, attackItem);
+        const underTest = Attack.initialize(actor, attackItem);
 
         expect(underTest.weaponSpeed).to.equal(7);
     });
@@ -412,7 +412,7 @@ describe("Attack", () => {
             null,
             false
         );
-        const underTest = new Attack(actor, attackItem);
+        const underTest = Attack.initialize(actor, attackItem);
 
         expect(underTest.weaponSpeed).to.equal(7);
     });
@@ -420,7 +420,7 @@ describe("Attack", () => {
         const actor = setUpActor(sandbox);
         sandbox.stub(actor, "items").value([{ name: "Improvisation", type: "mastery" }]);
         const attackItem = setUpAttackItem({ weaponSpeed: 7, features: ItemFeaturesModel.from("Improvisiert") });
-        const underTest = new Attack(actor, attackItem);
+        const underTest = Attack.initialize(actor, attackItem);
 
         expect(underTest.weaponSpeed).to.equal(5);
     });
@@ -429,7 +429,7 @@ describe("Attack", () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem({ skill: "blades" });
 
-        const underTest = new Attack(actor, attackItem);
+        const underTest = Attack.initialize(actor, attackItem);
 
         expect(underTest.isPrepared).to.be.true;
     });
@@ -440,7 +440,7 @@ describe("Attack", () => {
             actor.getFlag.withArgs("splittermond", "preparedAttack").returns(null);
             const attackItem = setUpAttackItem({ skill });
 
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             expect(underTest.isPrepared).to.be.false;
         });
@@ -452,7 +452,7 @@ describe("Attack", () => {
             const attackItem = setUpAttackItem({ skill });
             attackItem.id = id;
 
-            const underTest = new Attack(actor, attackItem);
+            const underTest = Attack.initialize(actor, attackItem);
 
             expect(underTest.isPrepared).to.be.true;
         });
@@ -476,9 +476,9 @@ function setUpActor(sandbox: SinonSandbox) {
     return actor;
 }
 
-type AttackItemData = ConstructorParameters<typeof Attack>[1]["system"];
+type AttackItemData = Parameters<typeof Attack.initialize>[1]["system"];
 
-function setUpAttackItem(props: AttackItemData = {}): ConstructorParameters<typeof Attack>[1] {
+function setUpAttackItem(props: AttackItemData = {}): Parameters<typeof Attack.initialize>[1] {
     return {
         id: "",
         img: "",
@@ -486,8 +486,8 @@ function setUpAttackItem(props: AttackItemData = {}): ConstructorParameters<type
         type: "weapon",
         system: {
             skill: "melee",
-            attribute1: "STA",
-            attribute2: "BEW",
+            attribute1: "strength",
+            attribute2: "agility",
             skillValue: 15,
             minAttributes: "BEW 1, STA 1",
             skillMod: 0,

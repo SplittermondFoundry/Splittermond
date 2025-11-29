@@ -198,17 +198,17 @@ an dem Typsystem wieder entwickelt. Allerdings gilt, dass die Typen auch weiterh
 dringensten braucht, nämlich bei Release einer neuen Version. Dennoch kann angedacht werden zukünftig die Foundry
 Typdefinitionen zu benutzen, eventuell durch Verwenden von Aliasen in unserem System.
 
-### Standards
+### Modifikatoren
 
-Das Projekt benutzt `Typescript` und `prettier` um einen einheitlichen Code-Stil zu gewährleisten. Es wird in GitHub
-sichergestellt, dass nur korrekt typisierter, formatierter und getesteter Code in den Hauptzweig gemerged werden kann.
-Es empfielt sich die IDE anzuweisen die entsprechenden Konfigurationen zu benutzen.
+Für das Design der Modifikatoren wurden folgende Prinzipien zu Grunde gelegt:
 
-### Tests
+- Nutzer sollten informiert werden, wenn es einen Modifikatorenpfad nicht gibt
+- Nutzer sollten informiert werden, wenn Attribute ungültig sind oder einen falschen Wertebereich haben
+- Modifikatorverarbeitung sollte dort passieren, wo sie gelesen werden.
 
-Es gibt im Repo zwei Arten von Tests: "Unit-Tests" und "Integration-Tests".
+Aus diesem Grund existiert eine eingener Unterordner für das Lesen der Modifikatoren der ohne Wissen über die Domäne, wo der Modifikator benutzt wird, auskommt.
 
-### Editieren von Kompendien
+## Editieren von Kompendien
 
 siehe auch [Foundry Wiki - Kompendium (engl.)](https://foundryvtt.wiki/en/development/api/CompendiumCollection)
 

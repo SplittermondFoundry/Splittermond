@@ -120,6 +120,7 @@ declare global {
         sheet: InstanceType<typeof FoundryApplication>; //true in the future, now we're still on AppV1
 
         get inCombat(): boolean;
+        get isToken(): boolean;
     }
 
     class Item extends FoundryDocument {

@@ -7,12 +7,14 @@ import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
 import Skill from "module/actor/skill";
 import { foundryApi } from "module/api/foundryApi";
+import { ChatMessage } from "module/api/ChatMessage";
 import { Dice } from "module/check/dice";
 import { Chat } from "module/util/chat";
 import CheckDialog from "module/apps/dialog/check-dialog";
 import type { IModifier } from "module/modifiers";
 import { evaluate, isGreaterZero, of } from "module/modifiers/expressions/scalar";
 
+type SkillCheckReport = Exclude<Awaited<ReturnType<Skill["roll"]>>, false | typeof ChatMessage>;
 describe("Skill", () => {
     let sandbox: SinonSandbox;
     beforeEach(() => {
@@ -28,7 +30,7 @@ describe("Skill", () => {
 
     it("should allow overwriting options with the check dialog", async () => {
         const actor = setUpActor(sandbox);
-        const underTest = new Skill(actor, "Testskill");
+        const underTest = Skill.initialize(actor, "Testskill");
 
         const customOptions = {
             type: "test roll",
@@ -103,7 +105,7 @@ describe("Skill", () => {
 
     it("should use the passed options if askUser is false", async () => {
         const actor = setUpActor(sandbox);
-        const underTest = new Skill(actor, "Testskill");
+        const underTest = Skill.initialize(actor, "Testskill");
 
         const roll = {
             dice: [],
@@ -165,7 +167,7 @@ describe("Skill", () => {
 
     it("should use default options if askUser is false and no options where passed", async () => {
         const actor = setUpActor(sandbox);
-        const underTest = new Skill(actor, "Testskill");
+        const underTest = Skill.initialize(actor, "Testskill");
 
         const roll = {
             dice: [],
@@ -217,7 +219,11 @@ describe("Skill", () => {
     });
 
     describe("roll modification", () => {
-        beforeEach(() => sandbox.stub(foundryApi, "createChatMessage"));
+        beforeEach(() => {
+            sandbox.stub(foundryApi, "createChatMessage");
+            sandbox.stub(foundryApi, "chatMessageTypes").get(() => ({ OTHER: 0 }));
+            sandbox.stub(ChatMessage, "applyRollMode").callsFake((data: any) => data);
+        });
         it("should apply roll modifiers", async () => {
             const actor = setUpActor(sandbox);
             const mod = getModifier({ groupId: "check.result", attributes: { category: "success" } });
@@ -227,16 +233,15 @@ describe("Skill", () => {
             });
             actor.modifier.addModifier(mod);
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
-            const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            const result = (await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
-            });
+            })) as SkillCheckReport;
 
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.fromRoll).to.equal(0);
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.fromRoll).to.equal(0);
+            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
         });
 
         it("should apply success roll modifiers to outstanding rolls", async () => {
@@ -248,16 +253,15 @@ describe("Skill", () => {
             });
             actor.modifier.addModifier(mod);
             stubFoundryRoll(createTestRoll("2d10", [10, 10], actor.system.skills.acrobatics.value));
-            const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            const result = (await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
-            });
+            })) as SkillCheckReport;
 
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.fromRoll).to.equal(8);
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.fromRoll).to.equal(8);
+            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
         });
 
         it("should apply failure roll modifiers to devastating rolls", async () => {
@@ -269,16 +273,15 @@ describe("Skill", () => {
             });
             actor.modifier.addModifier(mod);
             stubFoundryRoll(createTestRoll("2d10", [1, 1], actor.system.skills.acrobatics.value));
-            const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            const result = (await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 30,
-            });
+            })) as SkillCheckReport;
 
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.fromRoll).to.equal(-9); //malus by Fumble
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.fromRoll).to.equal(-9); //malus by Fumble
+            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
         });
 
         it("should ignore modifiers for wrong category", async () => {
@@ -290,16 +293,15 @@ describe("Skill", () => {
             });
             actor.modifier.addModifier(mod);
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
-            const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            const result = (await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
-            });
+            })) as SkillCheckReport;
 
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.fromRoll).to.equal(0);
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.modification).to.equal(0);
+            expect(result.report.degreeOfSuccess.fromRoll).to.equal(0);
+            expect(result.report.degreeOfSuccess.modification).to.equal(0);
         });
 
         it("should filter modifiers by skill", async () => {
@@ -314,16 +316,15 @@ describe("Skill", () => {
             });
             actor.modifier.addModifier(mod);
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
-            const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            const result = (await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
-            });
+            })) as SkillCheckReport;
 
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.fromRoll).to.equal(0);
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.fromRoll).to.equal(0);
+            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
         });
 
         it("should ignore modifiers for wrong skill", async () => {
@@ -338,16 +339,15 @@ describe("Skill", () => {
             });
             actor.modifier.addModifier(mod);
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
-            const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            const result = (await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
-            });
+            })) as SkillCheckReport;
 
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.fromRoll).to.equal(0);
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.modification).to.equal(0);
+            expect(result.report.degreeOfSuccess.fromRoll).to.equal(0);
+            expect(result.report.degreeOfSuccess.modification).to.equal(0);
         });
 
         it("should apply check type filter", async () => {
@@ -362,16 +362,15 @@ describe("Skill", () => {
             });
             actor.modifier.addModifier(mod);
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
-            const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            const result = (await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
-            });
+            })) as SkillCheckReport;
 
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.fromRoll).to.equal(0);
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.fromRoll).to.equal(0);
+            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
         });
 
         it("should ignore wrong check type filter", async () => {
@@ -386,16 +385,15 @@ describe("Skill", () => {
             });
             actor.modifier.addModifier(mod);
             stubFoundryRoll(createTestRoll("2d10", [2, 3], actor.system.skills.acrobatics.value));
-            const receiver = sandbox.stub(Chat, "prepareCheckMessageData").resolves();
 
-            await new Skill(actor, "acrobatics").roll({
+            const result = (await Skill.initialize(actor, "acrobatics").roll({
                 type: "attack",
                 askUser: false,
                 difficulty: 15,
-            });
+            })) as SkillCheckReport;
 
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.fromRoll).to.equal(0);
-            expect(receiver.firstCall.lastArg.degreeOfSuccess.modification).to.equal(0);
+            expect(result.report.degreeOfSuccess.fromRoll).to.equal(0);
+            expect(result.report.degreeOfSuccess.modification).to.equal(0);
         });
     });
 });
@@ -412,6 +410,7 @@ function setUpActor(sandbox: SinonSandbox) {
     Object.defineProperty(actor, "modifier", { value: new ModifierManager(), enumerable: true, writable: false });
     Object.defineProperty(actor, "system", { value: dataModel, enumerable: true, writable: true });
     Object.defineProperty(actor, "attributes", { value: {}, enumerable: true, writable: true });
+    Object.defineProperty(actor, "uuid", { value: "Actor.test-actor-uuid", enumerable: true, writable: false });
     Object.defineProperty(actor.system, "skills", { value: {}, enumerable: true, writable: true });
     Object.defineProperty(actor, "items", { value: [], enumerable: true, writable: true });
     actor.findItem.callThrough();

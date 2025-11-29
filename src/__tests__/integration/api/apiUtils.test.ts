@@ -114,6 +114,23 @@ export function apiUtilsTest(context: QuenchBatchContext) {
             expect(foundItem).to.be.instanceOf(Item);
             expect(foundItem.name).to.equal(item.name);
         });
+
+        it("from UUIDSync returns document", async () => {
+            const item = await createItem({
+                name: "Test Item",
+                type: "mastery",
+                system: {
+                    availableIn: "endurance, strength",
+                },
+            });
+
+            const uuid = item.uuid;
+
+            const foundItem = foundry.utils.fromUuidSync(uuid);
+
+            expect(foundItem).to.be.instanceOf(Item);
+            expect(foundItem.name).to.equal(item.name);
+        });
     });
 
     it("deepClone clones deeply", () => {

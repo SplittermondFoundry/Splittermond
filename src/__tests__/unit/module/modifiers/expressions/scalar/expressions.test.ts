@@ -72,7 +72,7 @@ describe("Expressions", () => {
             [times(plus(of(3), of(3)), of(3)), 18, of(18), "(3 + 3) \u00D7 3", "(3 + 3) * 3"],
             [times(minus(of(4), of(3)), of(3)), 3, of(3), "(4 - 3) \u00D7 3", "(4 - 3) * 3"],
             [times(minus(of(3), of(4)), of(3)), -3, of(-3), "(3 - 4) \u00D7 3", "(3 - 4) * 3"],
-            [times(abs(minus(of(3), of(4))), of(3)), 3, of(3), "|(3 - 4)| \u00D7 3", "abs(3 - 4) * 3"],
+            [times(abs(minus(of(3), of(4))), of(3)), 3, of(3), "|3 - 4| \u00D7 3", "abs(3 - 4) * 3"],
             [minus(of(3), pow(of(4), of(3))), -61, of(-61), "3 - (4 ^ 3)", "3 - pow(4,3)"],
             [
                 dividedBy(times(of(2), plus(of(1), of(2))), times(of(3), minus(of(4), of(3)))),
@@ -361,4 +361,314 @@ describe("Roll condensation", () => {
             asString(plus(firstRoll, secondRoll))
         );
     });
+});
+
+describe("String beautification", () => {
+    const sandbox = sinon.createSandbox();
+    beforeEach(() => stubRollApi(sandbox));
+    afterEach(() => sandbox.restore());
+
+    describe("Plus-Minus replacement", () => {
+        it("should replace + - with -", () => {
+            const expression = plus(of(3), of(-2));
+            expect(asString(expression)).to.equal("3 - 2");
+        });
+
+        it("should handle multiple negative additions", () => {
+            const expression = plus(plus(of(3), of(-2)), of(-4));
+            expect(asString(expression)).to.equal("3 - 2 - 4");
+        });
+
+        it("should handle negative in middle of expression", () => {
+            const expression = plus(plus(of(5), of(-1)), of(2));
+            expect(asString(expression)).to.equal("5 - 1 + 2");
+        });
+
+        it("should not affect standalone negative numbers", () => {
+            const expression = of(-5);
+            expect(asString(expression)).to.equal("-5");
+        });
+
+        it("should handle negative in multiplication", () => {
+            const expression = times(of(3), of(-2));
+            expect(asString(expression)).to.equal("3 \u00D7 -2");
+        });
+    });
+
+    describe("Unbrace top level", () => {
+        it("should remove outer braces from addition", () => {
+            const expression = plus(of(1), of(2));
+            expect(asString(expression)).to.equal("1 + 2");
+        });
+
+        it("should remove outer braces from subtraction", () => {
+            const expression = minus(of(5), of(3));
+            expect(asString(expression)).to.equal("5 - 3");
+        });
+
+        it("should remove outer braces from multiplication", () => {
+            const expression = times(of(2), of(3));
+            expect(asString(expression)).to.equal("2 \u00D7 3");
+        });
+
+        it("should remove outer braces from division", () => {
+            const expression = dividedBy(of(6), of(2));
+            expect(asString(expression)).to.equal("6 / 2");
+        });
+
+        it("should remove outer braces from power", () => {
+            const expression = pow(of(2), of(3));
+            expect(asString(expression)).to.equal("2 ^ 3");
+        });
+    });
+
+    describe("Unbrace in additions", () => {
+        it("should unbrace both operands in addition", () => {
+            const left = plus(of(1), of(2));
+            const right = plus(of(3), of(4));
+            const expression = plus(left, right);
+            expect(asString(expression)).to.equal("1 + 2 + 3 + 4");
+        });
+
+        it("should unbrace left operand only", () => {
+            const left = plus(of(1), of(2));
+            const expression = plus(left, of(5));
+            expect(asString(expression)).to.equal("1 + 2 + 5");
+        });
+
+        it("should unbrace right operand only", () => {
+            const right = plus(of(3), of(4));
+            const expression = plus(of(1), right);
+            expect(asString(expression)).to.equal("1 + 3 + 4");
+        });
+
+        it("should unbrace multiplication in addition", () => {
+            const expression = plus(times(of(2), of(3)), of(1));
+            expect(asString(expression)).to.equal("2 \u00D7 3 + 1");
+        });
+    });
+
+    describe("Unbrace numbers", () => {
+        it("should unbrace single positive numbers in multiplication", () => {
+            const expression = times(of(2), of(3));
+            expect(asString(expression)).to.equal("2 \u00D7 3");
+        });
+
+        it("should not unbrace expressions in multiplication", () => {
+            const expression = times(plus(of(1), of(2)), of(3));
+            expect(asString(expression)).to.equal("(1 + 2) \u00D7 3");
+        });
+
+        it("should unbrace numbers in division", () => {
+            const expression = dividedBy(of(6), of(2));
+            expect(asString(expression)).to.equal("6 / 2");
+        });
+
+        it("should unbrace numbers in power", () => {
+            const expression = pow(of(2), of(3));
+            expect(asString(expression)).to.equal("2 ^ 3");
+        });
+    });
+
+    describe("Negative multiplication handling", () => {
+        it("should convert -1 * x to -x when -1 is on left", () => {
+            const expression = times(of(-1), of(5));
+            expect(asString(expression)).to.equal("-5");
+        });
+
+        it("should convert x * -1 to -x when -1 is on right", () => {
+            const expression = times(of(5), of(-1));
+            expect(asString(expression)).to.equal("-5");
+        });
+
+        it("should handle -1 * expression", () => {
+            const expression = times(of(-1), plus(of(2), of(3)));
+            expect(asString(expression)).to.equal("-(2 + 3)");
+        });
+
+        it("should not affect other negative multiplications", () => {
+            const expression = times(of(-2), of(3));
+            expect(asString(expression)).to.equal("-2 \u00D7 3");
+        });
+    });
+
+    describe("Complex beautification scenarios", () => {
+        it("should handle nested additions with negatives", () => {
+            const expression = plus(plus(of(10), of(-3)), plus(of(5), of(-2)));
+            expect(asString(expression)).to.equal("10 - 3 + 5 - 2");
+        });
+
+        it("should preserve necessary braces for precedence", () => {
+            const expression = times(plus(of(2), of(3)), minus(of(5), of(1)));
+            expect(asString(expression)).to.equal("(2 + 3) \u00D7 (5 - 1)");
+        });
+
+        it("should handle absolute value with addition", () => {
+            const expression = abs(plus(of(3), of(-2)));
+            expect(asString(expression)).to.equal("|3 - 2|");
+        });
+
+        it("should handle division with complex expressions", () => {
+            const numerator = times(of(2), plus(of(1), of(2)));
+            const denominator = times(of(3), minus(of(4), of(3)));
+            const expression = dividedBy(numerator, denominator);
+            expect(asString(expression)).to.equal("(2 \u00D7 (1 + 2)) / (3 \u00D7 (4 - 3))");
+        });
+
+        it("should handle power with subtraction", () => {
+            const expression = minus(of(3), pow(of(4), of(3)));
+            expect(asString(expression)).to.equal("3 - (4 ^ 3)");
+        });
+
+        it("should handle roll expressions with negatives", () => {
+            const rollExpr = mapRoll(createTestRoll("1d6", [6], -3));
+            const expression = plus(rollExpr, of(2));
+            expect(asString(expression)).to.equal("1d6 - 3 + 2");
+        });
+    });
+
+    describe("Edge cases", () => {
+        it("should handle zero in addition", () => {
+            const expression = plus(of(0), of(5));
+            expect(asString(expression)).to.equal("5");
+        });
+
+        it("should handle zero in subtraction", () => {
+            const expression = minus(of(5), of(0));
+            expect(asString(expression)).to.equal("5");
+        });
+
+        it("should handle identity multiplication", () => {
+            const expression = times(of(1), of(5));
+            expect(asString(expression)).to.equal("5");
+        });
+
+        it("should handle double negative", () => {
+            const expression = minus(of(3), of(-2));
+            expect(asString(expression)).to.equal("3 - -2");
+        });
+
+        it("should handle absolute value of negative", () => {
+            const expression = abs(of(-5));
+            expect(asString(expression)).to.equal("5");
+        });
+
+        it("should handle absolute value of expression", () => {
+            const expression = abs(minus(of(2), of(5)));
+            expect(asString(expression)).to.equal("|2 - 5|");
+        });
+    });
+});
+
+describe("Roll mapping", () => {
+    const sandbox = sinon.createSandbox();
+    beforeEach(() => stubRollApi(sandbox));
+    afterEach(() => sandbox.restore());
+
+    it("should map a one dice roll", () => {
+        const rollTerm = mapRoll(createTestRoll("1d6", [6]));
+        expect(asString(rollTerm)).to.equal("1d6");
+    });
+
+    it("should keep the order of terms", () => {
+        const testRoll = createTestRoll("1d6", [6], 3);
+        testRoll.terms.splice(0, 0, makeNumeric(2), makeOperator("+"));
+        const rollTerm = mapRoll(testRoll);
+        expect(asString(rollTerm)).to.equal("2 + 1d6 + 3");
+    });
+
+    describe("Addition Only", () => {
+        it("should map a roll with one terms", () => {
+            const testRoll = createTestRoll("1d6", [6], 3);
+            const rollTerm = mapRoll(testRoll);
+            expect(asString(rollTerm)).to.equal("1d6 + 3");
+        });
+        it("should map a roll with one negative term", () => {
+            const testRoll = createTestRoll("1d6", [6], -3);
+            testRoll.terms.push(makeOperator("+"), makeNumeric(2));
+            const rollTerm = mapRoll(testRoll);
+            expect(asString(rollTerm)).to.equal("1d6 - 3 + 2");
+        });
+
+        it("should map a roll with several terms", () => {
+            const testRoll = createTestRoll("1d6", [6], 3);
+            testRoll.terms.push(makeOperator("+"), makeNumeric(2));
+            const rollTerm = mapRoll(testRoll);
+            expect(asString(rollTerm)).to.equal("1d6 + 3 + 2");
+        });
+
+        it("should map a roll with first term negative", () => {
+            const testRoll = createTestRoll("1d6", [6], -3);
+            testRoll.terms.push(makeOperator("+"), makeNumeric(2));
+            const rollTerm = mapRoll(testRoll);
+            expect(asString(rollTerm)).to.equal("1d6 - 3 + 2");
+        });
+
+        it("should map a roll with second term negative", () => {
+            const testRoll = createTestRoll("1d6", [6], 3);
+            testRoll.terms.push(makeOperator("-"), makeNumeric(2));
+            const rollTerm = mapRoll(testRoll);
+            expect(asString(rollTerm)).to.equal("1d6 + 3 - 2");
+        });
+
+        it("should map a roll with three terms", () => {
+            const testRoll = createTestRoll("1d6", [6], 3);
+            testRoll.terms.push(makeOperator("+"), makeNumeric(2));
+            testRoll.terms.push(makeOperator("+"), makeNumeric(1));
+            const rollTerm = mapRoll(testRoll);
+            expect(asString(rollTerm)).to.equal("1d6 + 3 + 2 + 1");
+        });
+
+        it("should map a roll with terms, one negative", () => {
+            const testRoll = createTestRoll("1d6", [6], 3);
+            testRoll.terms.push(makeOperator("-"), makeNumeric(4));
+            testRoll.terms.push(makeOperator("+"), makeNumeric(2));
+            const rollTerm = mapRoll(testRoll);
+            expect(asString(rollTerm)).to.equal("1d6 + 3 - 4 + 2");
+        });
+    });
+
+    describe("Mulitiplication included", () => {
+        it("should map a roll with a final multiplication term", () => {
+            const testRoll = createTestRoll("1d6", [6], -3);
+            testRoll.terms.push(makeOperator("*"), makeNumeric(2));
+            const rollTerm = mapRoll(testRoll);
+            expect(evaluate(rollTerm)).to.equal(0);
+            expect(asString(rollTerm)).to.equal("1d6 - (3 \u00D7 2)");
+        });
+
+        it("should map a roll with a multiplication term", () => {
+            const testRoll = createTestRoll("1d6", [6]);
+            testRoll.terms.push(makeOperator("*"), makeNumeric(2));
+            const rollTerm = mapRoll(testRoll);
+            expect(evaluate(rollTerm)).to.equal(12);
+            expect(asString(rollTerm)).to.equal("1d6 \u00D7 2");
+        });
+
+        it("should map a roll with a leading multiplication term", () => {
+            const testRoll = createTestRoll("1d6", [6]);
+            testRoll.terms.push(makeOperator("*"), makeNumeric(2));
+            testRoll.terms.push(makeOperator("+"), makeNumeric(1));
+            const rollTerm = mapRoll(testRoll);
+            expect(evaluate(rollTerm)).to.equal(13);
+            expect(asString(rollTerm)).to.equal("1d6 \u00D7 2 + 1");
+        });
+    });
+
+    function makeOperator(term: "+" | "-" | "*" | "/") {
+        return {
+            operator: term,
+            formula: term,
+            _evaluated: false,
+        };
+    }
+    function makeNumeric(number: number) {
+        return {
+            number,
+            formula: `${number}`,
+            _evaluated: false,
+            expression: `${number}`,
+            total: number,
+        };
+    }
 });

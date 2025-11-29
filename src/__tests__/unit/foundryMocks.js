@@ -28,7 +28,9 @@ global.Actor = class Actor extends FoundryDocument {};
 
 global.Item = class Item extends FoundryDocument {};
 
-global.ChatMessage = class ChatMessage extends FoundryDocument {};
+global.ChatMessage = class ChatMessage extends FoundryDocument {
+    static applyRollMode() {}
+};
 global.Combat = class Combat extends FoundryDocument {
     scene = null;
     get isActive() {

@@ -44,4 +44,32 @@ describe("calculateDegreeOfSuccessDisplay", () => {
             openBonusDegreesOfSuccess: 3,
         });
     });
+
+    it("should not infer bonus degrees for negative roll degrees", () => {
+        const checkDegrees = { degreeOfSuccessMessage: "", degreeOfSuccess: { fromRoll: -2, modification: 0 } };
+        const openDegreesOfSuccess = -2;
+        const result = renderDegreesOfSuccess(checkDegrees, openDegreesOfSuccess);
+        expect(result).to.deep.equal({
+            degreeOfSuccessMessage: checkDegrees.degreeOfSuccessMessage,
+            totalDegreesOfSuccess: 0,
+            usedDegreesOfSuccess: 0,
+            usedBonusDegreesOfSuccess: 0,
+            openDegreesOfSuccess: 0,
+            openBonusDegreesOfSuccess: 0,
+        });
+    });
+
+    it("should keep bonus degrees when roll degrees ", () => {
+        const checkDegrees = { degreeOfSuccessMessage: "", degreeOfSuccess: { fromRoll: -2, modification: 3 } };
+        const openDegreesOfSuccess = 1;
+        const result = renderDegreesOfSuccess(checkDegrees, openDegreesOfSuccess);
+        expect(result).to.deep.equal({
+            degreeOfSuccessMessage: checkDegrees.degreeOfSuccessMessage,
+            totalDegreesOfSuccess: 1,
+            usedDegreesOfSuccess: 0,
+            usedBonusDegreesOfSuccess: 0,
+            openDegreesOfSuccess: 0,
+            openBonusDegreesOfSuccess: 1,
+        });
+    });
 });

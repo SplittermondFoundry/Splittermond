@@ -23,13 +23,26 @@ type CheckDegreeCategories = Omit<DegreeOfSuccessDisplay, "degreeOfSuccessMessag
 function calculateDegreesOfSuccess(checkDegrees: CheckDegreesInput, openDegrees: number): CheckDegreeCategories {
     const degreesFromRoll = checkDegrees.fromRoll;
     const bonusDegrees = checkDegrees.modification;
-    const totalDegreesOfSuccess = degreesFromRoll + bonusDegrees;
+    const totalDegreesOfSuccess = Math.max(0, degreesFromRoll + bonusDegrees);
+
+    // If total degrees are zero or negative, return all zeros
+    if (totalDegreesOfSuccess <= 0) {
+        return {
+            totalDegreesOfSuccess: 0,
+            usedDegreesOfSuccess: 0,
+            usedBonusDegreesOfSuccess: 0,
+            openDegreesOfSuccess: 0,
+            openBonusDegreesOfSuccess: 0,
+        };
+    }
 
     // Calculate how many degrees are "used" (not open)
     const allUsedDegrees = Math.max(0, totalDegreesOfSuccess - openDegrees);
 
     // Split used degrees into normal and bonus
-    const usedDegreesOfSuccess = Math.min(allUsedDegrees, degreesFromRoll);
+    // Only count positive roll degrees as normal degrees
+    const positiveRollDegrees = Math.max(0, degreesFromRoll);
+    const usedDegreesOfSuccess = Math.min(allUsedDegrees, positiveRollDegrees);
     const usedBonusDegreesOfSuccess = allUsedDegrees - usedDegreesOfSuccess;
 
     // Calculate open degrees

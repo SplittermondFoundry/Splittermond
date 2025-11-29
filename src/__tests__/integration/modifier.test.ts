@@ -1065,12 +1065,17 @@ export function modifierTest(context: QuenchBatchContext) {
 
                 await passesEventually(() => {
                     const messages = foundryApi.messages as unknown as Collection<FoundryChatMessage>;
-                    const lastMessage = Array.from(messages.contents).find((m) => m.speaker?.actor === actor.id);
+                    const lastMessage = Array.from(messages.contents)
+                        .sort((a, b) => b.timestamp - a.timestamp)
+                        .find((m) => m.speaker?.actor === actor.id);
                     const messageContent = lastMessage?.content ?? "";
                     const total = messageContent.match(/(?<=<div class="roll-total">)\d+(?=<\/div>)/)?.[0];
                     const degreeOfSuccess = messageContent.match(/(?<=<strong>)\d+(?=\s+EG<\/strong>)/)?.[0];
-                    const rollTotal = parseInt(total ?? "") - actor.skills.acrobatics.value;
+                    const rollTotal = parseInt(total ?? "") - splittermond.check.defaultDifficulty;
                     const rollDegreeOfSuccess = Math.floor(rollTotal / 3);
+                    expect(total, "total exists").to.not.be.undefined;
+                    expect(degreeOfSuccess, "degrees of success exist").to.not.be.undefined;
+                    expect(Number.isFinite(rollTotal), "roll total is a number").to.be.true;
                     expect(parseInt(degreeOfSuccess ?? "0")).to.equal(rollDegreeOfSuccess + 2);
                 });
             })

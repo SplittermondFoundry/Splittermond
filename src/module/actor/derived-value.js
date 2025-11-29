@@ -2,17 +2,20 @@ import * as Tooltip from "../util/tooltip.js";
 import Modifiable from "./modifiable.js";
 import { evaluate, of, plus, times } from "../modifiers/expressions/scalar/index.js";
 
-export default class DerivedValue extends Modifiable {
+export default class DerivedValue extends Modifiable(Object) {
+    /**@type string[]*/ _modifierPath;
+    /**@type SplittermondActor*/ actor;
     /**
      *
      * @param {Actor} actor Actor object of DerivedValue
      * @param {string} id ID of Derived value like "size", "speed", "initiative" etc.
      */
     constructor(actor, id) {
-        let path = [id];
-        if ("speed" === id) path.push("woundmalus");
-        if ("initiative" === id) path.push("initiativewoundmalus");
-        super(actor, path);
+        super();
+        this._modifierPath = [id];
+        this.actor = actor;
+        if ("speed" === id) this._modifierPath.push("woundmalus");
+        if ("initiative" === id) this._modifierPath.push("initiativewoundmalus");
         this.id = id;
         this.multiplier = 1;
         this.label = {
