@@ -396,6 +396,262 @@ describe("Skill", () => {
             expect(result.report.degreeOfSuccess.modification).to.equal(0);
         });
     });
+
+    describe("selectable modifiers with emphasis", () => {
+        it("should present selectable skill modifiers with emphasis in check dialog", async () => {
+            const actor = setUpActor(sandbox);
+
+            // Set up actor with perception skill
+            actor.system.updateSource({
+                attributes: { intuition: { initial: 3 }, mind: { initial: 2 } },
+                skills: { perception: { value: 10, points: 5 } },
+            });
+
+            // Add a selectable modifier with emphasis for the specific skill
+            const emphasisModifier = getModifier({
+                groupId: "actor.skills",
+                attributes: {
+                    name: "Sichtprobe",
+                    skill: "perception",
+                    emphasis: "Sichtprobe",
+                    type: null,
+                },
+                value: of(2),
+                selectable: true,
+            });
+            actor.modifier.addModifier(emphasisModifier);
+
+            // Stub settings and chat
+            sandbox.stub(foundryApi, "settings").get(() => ({
+                get: () => "publicroll",
+            }));
+            sandbox.stub(foundryApi, "rollModes").get(() => ({}));
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves({});
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            // Create the skill and prepare the roll dialog
+            const underTest = Skill.initialize(actor, "perception");
+
+            // Call prepareRollDialog which should include the emphasis data
+            const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
+                difficulty: "15",
+                maneuvers: [],
+                modifier: 2,
+                modifierElements: [{ value: 2, description: "Sichtprobe" }],
+                rollMode: "publicroll",
+                rollType: "standard",
+            });
+
+            await underTest.roll({
+                askUser: true,
+            });
+
+            // Verify that CheckDialog.create was called with the emphasis data
+            expect(checkDialogCreateStub.calledOnce).to.be.true;
+            const dialogArgs = checkDialogCreateStub.firstCall.args[0];
+
+            // Check that emphasis array is present and contains the selectable modifier
+            expect(dialogArgs.emphasis).to.be.an("array");
+            expect(dialogArgs.emphasis).to.have.lengthOf(1);
+            expect(dialogArgs.emphasis[0]).to.deep.include({
+                name: "Sichtprobe",
+                label: "Sichtprobe + 2",
+                value: "2",
+                active: false,
+            });
+        });
+
+        it("should present multiple selectable modifiers with different emphasis values", async () => {
+            const actor = setUpActor(sandbox);
+
+            actor.system.updateSource({
+                attributes: { intuition: { initial: 3 }, mind: { initial: 2 } },
+                skills: { perception: { value: 10, points: 5 } },
+            });
+
+            // Add multiple selectable modifiers with different emphasis
+            const visualModifier = getModifier({
+                groupId: "actor.skills",
+                attributes: {
+                    name: "Sichtprobe",
+                    skill: "perception",
+                    emphasis: "Sichtprobe",
+                    type: null,
+                },
+                value: of(2),
+                selectable: true,
+            });
+
+            const hearingModifier = getModifier({
+                groupId: "actor.skills",
+                attributes: {
+                    name: "Gehörprobe",
+                    skill: "perception",
+                    emphasis: "Gehörprobe",
+                    type: null,
+                },
+                value: of(3),
+                selectable: true,
+            });
+
+            actor.modifier.addModifier(visualModifier);
+            actor.modifier.addModifier(hearingModifier);
+
+            sandbox.stub(foundryApi, "settings").get(() => ({
+                get: () => "publicroll",
+            }));
+            sandbox.stub(foundryApi, "rollModes").get(() => ({}));
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves({});
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            const underTest = Skill.initialize(actor, "perception");
+
+            const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
+                difficulty: "15",
+                maneuvers: [],
+                modifier: 0,
+                modifierElements: [],
+                rollMode: "publicroll",
+                rollType: "standard",
+            });
+
+            await underTest.roll({ askUser: true });
+
+            expect(checkDialogCreateStub.calledOnce).to.be.true;
+            const dialogArgs = checkDialogCreateStub.firstCall.args[0];
+
+            expect(dialogArgs.emphasis).to.be.an("array");
+            expect(dialogArgs.emphasis).to.have.lengthOf(2);
+
+            // Check first emphasis (Sichtprobe)
+            expect(dialogArgs.emphasis[0]).to.deep.include({
+                name: "Sichtprobe",
+                label: "Sichtprobe + 2",
+                value: "2",
+                active: false,
+            });
+
+            // Check second emphasis (Gehörprobe)
+            expect(dialogArgs.emphasis[1]).to.deep.include({
+                name: "Gehörprobe",
+                label: "Gehörprobe + 3",
+                value: "3",
+                active: false,
+            });
+        });
+
+        it("should mark pre-selected emphasis as active in check dialog", async () => {
+            const actor = setUpActor(sandbox);
+
+            actor.system.updateSource({
+                attributes: { intuition: { initial: 3 }, mind: { initial: 2 } },
+                skills: { perception: { value: 10, points: 5 } },
+            });
+
+            const emphasisModifier = getModifier({
+                groupId: "actor.skills",
+                attributes: {
+                    name: "Sichtprobe",
+                    skill: "perception",
+                    emphasis: "Sichtprobe",
+                    type: null,
+                },
+                value: of(2),
+                selectable: true,
+            });
+            actor.modifier.addModifier(emphasisModifier);
+
+            sandbox.stub(foundryApi, "settings").get(() => ({
+                get: () => "publicroll",
+            }));
+            sandbox.stub(foundryApi, "rollModes").get(() => ({}));
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves({});
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            const underTest = Skill.initialize(actor, "perception");
+
+            const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
+                difficulty: "15",
+                maneuvers: [],
+                modifier: 2,
+                modifierElements: [{ value: 2, description: "Sichtprobe" }],
+                rollMode: "publicroll",
+                rollType: "standard",
+            });
+
+            // Pass pre-selected modifiers
+            await underTest.roll({
+                askUser: true,
+                preSelectedModifier: ["Sichtprobe"],
+            });
+
+            expect(checkDialogCreateStub.calledOnce).to.be.true;
+            const dialogArgs = checkDialogCreateStub.firstCall.args[0];
+
+            expect(dialogArgs.emphasis).to.be.an("array");
+            expect(dialogArgs.emphasis).to.have.lengthOf(1);
+            expect(dialogArgs.emphasis[0]).to.deep.include({
+                name: "Sichtprobe",
+                label: "Sichtprobe + 2",
+                value: "2",
+                active: true, // Should be marked as active
+            });
+        });
+
+        it("should handle negative (malus) emphasis modifiers correctly", async () => {
+            const actor = setUpActor(sandbox);
+
+            actor.system.updateSource({
+                attributes: { intuition: { initial: 3 }, mind: { initial: 2 } },
+                skills: { perception: { value: 10, points: 5 } },
+            });
+
+            const malusModifier = getModifier({
+                groupId: "actor.skills",
+                attributes: {
+                    name: "Schlechte Sicht",
+                    skill: "perception",
+                    emphasis: "Schlechte Sicht",
+                    type: null,
+                },
+                value: of(-3),
+                selectable: true,
+            });
+            actor.modifier.addModifier(malusModifier);
+
+            sandbox.stub(foundryApi, "settings").get(() => ({
+                get: () => "publicroll",
+            }));
+            sandbox.stub(foundryApi, "rollModes").get(() => ({}));
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves({});
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            const underTest = Skill.initialize(actor, "perception");
+
+            const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
+                difficulty: "15",
+                maneuvers: [],
+                modifier: 0,
+                modifierElements: [],
+                rollMode: "publicroll",
+                rollType: "standard",
+            });
+
+            await underTest.roll({ askUser: true });
+
+            expect(checkDialogCreateStub.calledOnce).to.be.true;
+            const dialogArgs = checkDialogCreateStub.firstCall.args[0];
+
+            expect(dialogArgs.emphasis).to.be.an("array");
+            expect(dialogArgs.emphasis).to.have.lengthOf(1);
+            expect(dialogArgs.emphasis[0]).to.deep.include({
+                name: "Schlechte Sicht",
+                label: "Schlechte Sicht - 3",
+                value: "-3",
+                active: false,
+            });
+        });
+    });
 });
 
 function setUpActor(sandbox: SinonSandbox) {

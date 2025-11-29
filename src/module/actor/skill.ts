@@ -171,14 +171,14 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         return value;
     }
 
-    /**
-     * @returns {IModifier[]}
-     */
     get selectableModifier(): IModifier[] {
-        return this.actor.modifier
+        const fromPath = this.actor.modifier
             .getForIds(...(this._modifierPath as any))
             .selectable()
             .getModifiers();
+        const fromSkill = this.skillModifiers().selectable().getModifiers();
+        fromPath.push(...fromSkill);
+        return fromSkill;
     }
 
     get isGrandmaster() {
@@ -213,13 +213,14 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         return skillAttributes;
     }
     additionalModifiers() {
+        return this.skillModifiers().notSelectable().getModifiers();
+    }
+    private skillModifiers() {
         return this.actor.modifier
             .getForId("actor.skills")
             .withAttributeValuesOrAbsent("attribute1", this.attribute1?.id ?? "", this.attribute2?.id ?? "")
             .withAttributeValuesOrAbsent("attribute2", this.attribute2?.id ?? "", this.attribute1?.id ?? "")
-            .withAttributeValuesOrAbsent("skill", this.id)
-            .notSelectable()
-            .getModifiers();
+            .withAttributeValuesOrAbsent("skill", this.id);
     }
 
     /**
