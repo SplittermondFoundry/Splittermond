@@ -6,10 +6,10 @@ import { foundryApi } from "module/api/foundryApi";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 export abstract class RollMessage<
-        T extends { openDegreesOfSuccess: number },
-        ACTIONS extends Action<AVAILABLE>,
-        AVAILABLE extends string,
-    >
+    T extends { openDegreesOfSuccess: number },
+    ACTIONS extends Action<AVAILABLE>,
+    AVAILABLE extends string,
+>
     extends SplittermondDataModel<T>
     implements ChatMessageModel
 {
