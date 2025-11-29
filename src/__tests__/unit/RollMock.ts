@@ -1,5 +1,5 @@
 import { Die, FoundryRoll, NumericTerm, OperatorTerm, ParentheticTerm, RollTerm } from "module/api/Roll";
-import { foundryApi } from "../../module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 import sinon, { SinonSandbox } from "sinon";
 
 // roll.mock.ts
