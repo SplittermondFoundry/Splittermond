@@ -1,7 +1,10 @@
 import type { CheckReport } from "module/check/CheckReport";
 import { evaluateCheck } from "module/check/dice";
 
-export async function addSplinterpointBonus(checkReport: CheckReport, splinterPointBonus: number) {
+export async function addSplinterpointBonus<T extends CheckReport>(
+    checkReport: T,
+    splinterPointBonus: number
+): Promise<T> {
     checkReport.roll.total += splinterPointBonus;
     const updatedReport = await evaluateCheck(
         Promise.resolve(checkReport.roll),

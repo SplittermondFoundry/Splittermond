@@ -28,7 +28,7 @@ function AttackRollMessageSchema() {
         checkReport: new fieldExtensions.TypedObjectField({
             required: true,
             nullable: false,
-            validate: (x: AttackCheckReport) => x != null && typeof x === "object" && "hideDifficulty" in x,
+            validate: (x: AttackCheckReport) => x != null && typeof x === "object", //Apparently foundry only sends diffs :(
         }),
         actorReference: new fields.EmbeddedDataField(AgentReference, { required: true, nullable: false }),
         attack: new fields.EmbeddedDataField(Attack, {
@@ -150,7 +150,8 @@ export class AttackRollMessage extends RollMessage<
             .getBonus(this.checkReport.skill.id);
         const checkReport = this.checkReport;
         const newCheckReport = await addSplinterpointBonus(checkReport, splinterPointBonus);
-        this.updateSource({ checkReport: newCheckReport, splinterPointUsed: true });
+        const readaptedCheckReport = this.attack.adaptForGrazingHit(newCheckReport);
+        this.updateSource({ checkReport: readaptedCheckReport, splinterPointUsed: true });
     }
 
     get template() {

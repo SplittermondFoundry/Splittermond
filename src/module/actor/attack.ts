@@ -452,7 +452,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
         }).sendToChat();
     }
 
-    private adaptForGrazingHit(checkReport: CheckReport) {
+    public adaptForGrazingHit(checkReport: CheckReport) {
         const totalDegreesOfSuccess = checkReport.degreeOfSuccess.fromRoll + checkReport.degreeOfSuccess.modification;
         const isGrazingHit = totalDegreesOfSuccess < checkReport.maneuvers.length && checkReport.succeeded;
         const message = isGrazingHit
