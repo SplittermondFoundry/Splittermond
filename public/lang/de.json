@@ -35,7 +35,7 @@
             "noGMConnected": "Aktion kann nicht ausgeführt werden, da kein berechtigter Nutzer (Spielleiter) verbunden ist.",
             "messageNotFound": "Die zu ändernde Nachricht wurde nicht im Chat Log gefunden.",
             "actionNotFound": "Die gewählte Aktion konnte nicht ausgeführt werden, da der Empfänger sie nicht kennt. Bitte erstellen Sie einen Fehlerbericht.",
-            "spellMessage": {
+            "rollMessage": {
                 "noHandler": "Es ist kein Bearbeiter für die Aktion '{action}' eingetragen. Bitte wenden Sie sich an den Entwickler.",
                 "tooManyHandlers": "Es gibt mehr als einen eingetragenen Bearbeiter für die Aktion '{action}'. Bitte wenden Sie sich an den Entwickler."
             },
@@ -49,6 +49,10 @@
                 "noUserTargetsFound": "Nutzer {user}hat keine Ziele ausgewählt.",
                 "noTargetsFound": "Keine Ziele für Schaden gefunden.",
                 "consumptionMessage": "{principalImplement} von {sourceName}"
+            },
+            "attackMessage": {
+                "selectConsumeCost": "Betäubungsschaden nehmen",
+                "consumeCost": "Eigenschaden"
             }
         },
         "damageMessage": {

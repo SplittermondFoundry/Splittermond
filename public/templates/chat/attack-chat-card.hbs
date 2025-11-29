@@ -33,6 +33,9 @@
             {{#if advanceToken}}
                 {{> "advanceTokenButton" advanceToken}}
             {{/if}}
+            {{#if consumeCost}}
+                {{> "consumeCostButton" consumeCost}}
+            {{/if}}
             {{#if useSplinterpoint}}
                 {{> "useSplinterpointButton" useSplinterpoint}}
             {{/if}}
@@ -41,6 +44,12 @@
             {{/if}}
         {{/with}}
 
+        {{#* inline "consumeCostButton"}}
+            <button class="splittermond-chat-action" data-action="consumeCost" {{#if disabled}}disabled{{/if}}>
+                <i class="fas fa-heart-broken"></i>
+                {{value}} {{localize "splittermond.chatCard.attackMessage.consumeCost"}}
+            </button>
+        {{/inline}}
         {{#* inline "applyDamageButton"}}
             <button class="splittermond-chat-action" data-action="applyDamage" {{#if disabled}}disabled{{/if}}>
                 <i class="fas fa-heart-broken"></i>

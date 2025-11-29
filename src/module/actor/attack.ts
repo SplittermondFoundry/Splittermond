@@ -454,14 +454,14 @@ export default class Attack extends SplittermondDataModel<AttackType> {
 
     private adaptForGrazingHit(checkReport: CheckReport) {
         const totalDegreesOfSuccess = checkReport.degreeOfSuccess.fromRoll + checkReport.degreeOfSuccess.modification;
-        const isGrazingHit = totalDegreesOfSuccess < checkReport.maneuvers.length;
+        const isGrazingHit = totalDegreesOfSuccess < checkReport.maneuvers.length && checkReport.succeeded;
         const message = isGrazingHit
-            ? checkReport.degreeOfSuccessMessage
-            : foundryApi.localize(`splittermond.grazingHit`);
+            ? foundryApi.localize("splittermond.grazingHit")
+            : checkReport.degreeOfSuccessMessage;
         return {
             ...checkReport,
             degreeOfSuccessMessage: message,
-            grazingHitPenalty: isGrazingHit ? 0 : splittermond.grazingHitBasePenalty * checkReport.maneuvers.length,
+            grazingHitPenalty: isGrazingHit ? splittermond.grazingHitBasePenalty * checkReport.maneuvers.length : 0,
         };
     }
 }

@@ -79,7 +79,10 @@ export class SpellRollMessage extends RollMessage<
                 spellReference,
                 actorReference
             ).toObject(),
-            openDegreesOfSuccess: checkReport.degreeOfSuccess.fromRoll + checkReport.degreeOfSuccess.modification,
+            openDegreesOfSuccess: Math.max(
+                0,
+                checkReport.degreeOfSuccess.fromRoll + checkReport.degreeOfSuccess.modification
+            ),
         });
     }
 

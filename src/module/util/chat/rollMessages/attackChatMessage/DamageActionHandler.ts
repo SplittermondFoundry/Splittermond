@@ -20,7 +20,8 @@ import type Attack from "module/actor/attack";
 
 function DamageActionHandlerSchema() {
     return {
-        used: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+        damageUsed: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+        penaltyUsed: new fields.BooleanField({ required: true, nullable: false, initial: false }),
         damageAddition: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
         actorReference: new fields.EmbeddedDataField(AgentReference, { required: true, nullable: false }),
         attackReference: new fields.EmbeddedDataField(OnAncestorReference<Attack>, {
@@ -32,6 +33,7 @@ function DamageActionHandlerSchema() {
             nullable: false,
         }),
         options: new fields.EmbeddedDataField(NumberDegreeOfSuccessOptionField, { required: true, nullable: false }),
+        consumedGrazingHitCost: new fields.BooleanField({ required: true, nullable: false, initial: false }),
     };
 }
 
@@ -47,7 +49,8 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
     ): DamageActionHandler {
         const damageAdditionConfig = splittermond.spellEnhancement.damage;
         return new DamageActionHandler({
-            used: false,
+            damageUsed: false,
+            penaltyUsed: false,
             damageAddition: 0,
             actorReference: actorReference,
             attackReference: attackReference,
@@ -57,26 +60,42 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
                 damageAdditionConfig.damageIncrease,
                 damageAdditionConfig.textTemplate
             ),
+            consumedGrazingHitCost: false,
         });
     }
 
-    public readonly handlesDegreeOfSuccessOptions = ["damageUpdate"];
+    public readonly handlesDegreeOfSuccessOptions = ["damageUpdate", "grazingHitUpdate"];
 
     useDegreeOfSuccessOption(degreeOfSuccessOptionData: any): DegreeOfSuccessAction {
         return configureUseOption()
-            .withUsed(() => this.used)
+            .withUsed(() => this.damageUsed)
             .withHandlesOptions(this.handlesDegreeOfSuccessOptions)
             .whenAllChecksPassed((degreeOfSuccessOptionData) => {
-                const multiplicity = Number.parseInt(degreeOfSuccessOptionData.multiplicity);
-                const option = this.options.forMultiplicity(multiplicity);
-                return {
-                    usedDegreesOfSuccess: option.isChecked() ? -1 * option.cost : option.cost,
-                    action: () => {
-                        option.check();
-                        const damageAdditionIncrement = option.isChecked() ? option.effect : -1 * option.effect;
-                        this.updateSource({ damageAddition: this.damageAddition + damageAdditionIncrement });
-                    },
-                };
+                switch (degreeOfSuccessOptionData.action) {
+                    case "damageUpdate":
+                        const multiplicity = Number.parseInt(degreeOfSuccessOptionData.multiplicity);
+                        const option = this.options.forMultiplicity(multiplicity);
+                        return {
+                            usedDegreesOfSuccess: option.isChecked() ? -1 * option.cost : option.cost,
+                            action: () => {
+                                option.check();
+                                const damageAdditionIncrement = option.isChecked() ? option.effect : -1 * option.effect;
+                                this.updateSource({ damageAddition: this.damageAddition + damageAdditionIncrement });
+                            },
+                        };
+                    case "grazingHitUpdate":
+                        return {
+                            usedDegreesOfSuccess: 0,
+                            action: () => {
+                                this.updateSource({ consumedGrazingHitCost: !this.consumedGrazingHitCost });
+                            },
+                        };
+                    default:
+                        return {
+                            usedDegreesOfSuccess: 0,
+                            action: () => {},
+                        };
+                }
             })
             .useOption(degreeOfSuccessOptionData);
     }
@@ -85,56 +104,100 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
         if (!this.isOption()) {
             return [];
         }
-        return this.options
+        const options = [];
+        if (this.isGrazingHit()) {
+            options.push({
+                render: {
+                    multiplicity: "1",
+                    checked: this.consumedGrazingHitCost,
+                    text: foundryApi.localize("splittermond.chatCard.attackMessage.selectConsumeCost"),
+                    disabled: this.damageUsed || this.penaltyUsed,
+                    action: "grazingHitUpdate",
+                },
+                cost: 0,
+            });
+        }
+        const damageOptions = this.options
             .getMultiplicities()
             .map((m) => this.options.forMultiplicity(m))
             .map((m) => ({
                 render: {
                     ...m.render(),
-                    disabled: this.used,
+                    disabled: this.damageUsed,
                     action: "damageUpdate",
                 },
                 cost: m.isChecked() ? -m.cost : m.cost,
             }));
+        options.push(...damageOptions);
+        return options;
+    }
+    private isGrazingHit() {
+        return this.checkReportReference.get().grazingHitPenalty > 0;
     }
 
-    public readonly handlesActions = ["applyDamage"] as const;
+    public readonly handlesActions = ["applyDamage", "consumeCost"] as const;
 
     useAction(actionData: ActionInput): Promise<void> {
-        return configureUseAction()
-            .withUsed(() => this.used)
-            .withIsOptionEvaluator(() => this.isOption())
-            .withHandlesActions(this.handlesActions)
-            .whenAllChecksPassed(() => {
-                this.updateSource({ used: true });
-                const attack = this.attackReference.get();
-                const damages = this.totalDamage;
-                const costType = attack.costType ?? "V";
-                const rollOptions = {
-                    costBase: CostBase.create(costType as CostType),
-                    grazingHitPenalty: this.checkReportReference.get().grazingHitPenalty,
-                };
-                return DamageInitializer.rollFromDamageRoll(
-                    [damages.principalComponent, ...damages.otherComponents],
-                    rollOptions,
-                    this.actorReference.getAgent()
-                ).then((chatCard) => chatCard.sendToChat());
-            })
-            .useAction(actionData);
+        if (actionData.action === "applyDamage") {
+            return configureUseAction()
+                .withUsed(() => this.damageUsed)
+                .withIsOptionEvaluator(() => this.isOption())
+                .withHandlesActions(this.handlesActions)
+                .whenAllChecksPassed(() => this.applyDamage())
+                .useAction(actionData);
+        } else if (actionData.action === "consumeCost") {
+            return configureUseAction()
+                .withUsed(() => this.penaltyUsed)
+                .withIsOptionEvaluator(() => this.isGrazingHit())
+                .withHandlesActions(this.handlesActions)
+                .whenAllChecksPassed(() => this.consumeGrazingHitDamage())
+                .useAction(actionData);
+        }
+        return Promise.reject();
+    }
+
+    private consumeGrazingHitDamage() {
+        return this.actorReference
+            .getAgent()
+            .consumeCost("health", `${this.checkReportReference.get().grazingHitPenalty}`, "");
+    }
+
+    private applyDamage() {
+        this.updateSource({ damageUsed: true });
+        const attack = this.attackReference.get();
+        const damages = this.totalDamage;
+        const costType = attack.costType ?? "V";
+        const rollOptions = {
+            costBase: CostBase.create(costType as CostType),
+            grazingHitPenalty: this.checkReportReference.get().grazingHitPenalty,
+        };
+        return DamageInitializer.rollFromDamageRoll(
+            [damages.principalComponent, ...damages.otherComponents],
+            rollOptions,
+            this.actorReference.getAgent()
+        ).then((chatCard) => chatCard.sendToChat());
     }
 
     renderActions(): ValuedAction[] {
         if (!this.isOption()) {
             return [];
         }
-        return [
-            {
-                type: "applyDamage",
-                value: this.getConcatenatedDamageRolls(),
-                disabled: this.used,
+        const options: ValuedAction[] = [];
+        options.push({
+            type: "applyDamage" as const,
+            value: this.getConcatenatedDamageRolls(),
+            disabled: this.damageUsed,
+            isLocal: false,
+        });
+        if (this.isGrazingHit() && this.consumedGrazingHitCost) {
+            options.push({
+                type: "consumeCost" as const,
+                value: `${this.checkReportReference.get().grazingHitPenalty}`,
+                disabled: this.penaltyUsed,
                 isLocal: false,
-            },
-        ];
+            });
+        }
+        return options;
     }
 
     private getConcatenatedDamageRolls() {
@@ -156,6 +219,9 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
     get totalDamage() {
         const damage = this.attackReference.get().getForDamageRoll();
         damage.principalComponent.damageRoll.increaseDamage(this.damageAddition);
+        if (this.isGrazingHit() && !this.consumedGrazingHitCost) {
+            damage.principalComponent.damageRoll.decreaseDamage(this.checkReportReference.get().grazingHitPenalty);
+        }
         return damage;
     }
 }

@@ -17,7 +17,7 @@ export interface Action {
     isLocal: boolean;
 }
 export interface ValuedAction extends Action {
-    type: "applyDamage" | "advanceToken" | "activeDefense";
+    type: "applyDamage" | "advanceToken" | "activeDefense" | "consumeCost";
     /** Text displayed on the  action button*/
     value: string;
     /**Only for the active defense action, should be value*/

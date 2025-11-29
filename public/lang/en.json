@@ -13,7 +13,7 @@
             "noGMConnected": "Action cannot be performed, because no authorized user (GM) is connected",
             "messageNotFound": "Message to update not found in the chat log",
             "actionNotFound": "The selected action could not be executed, because the recipient does not know it. Please file a bug report.",
-            "spellMessage": {
+            "rollMessage": {
                 "noHandler": "No handler registered for action '{action}'. Please contact the developer.",
                 "tooManyHandlers": "More than one handler registered for action '{action}'. Please contact the developer"
             },
@@ -27,6 +27,10 @@
                 "noUserTargetsFound": "User {user} has no targets selected.",
                 "noTargetsFound": "Could not find targets for Damage",
                 "consumptionMessage": "{principalImplement} by {sourceName}"
+            },
+            "attackMessage": {
+                "selectConsumeCost": "Take numbing damage",
+                "consumeCost": "self-damage"
             }
         },
         "damageMessage": {

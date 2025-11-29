@@ -36,9 +36,9 @@ export abstract class RollMessage<
         const degreeOfSuccessOption = this.optionsHandlerMap.get(optionData.action);
         const action = this.actionsHandlerMap.get(optionData.action);
         if (!action && !degreeOfSuccessOption) {
-            foundryApi.warnUser("splittermond.chatCard.spellMessage.noHandler", { action: optionData.action });
+            foundryApi.warnUser("splittermond.chatCard.rollMessage.noHandler", { action: optionData.action });
         } else if (!!action && !!degreeOfSuccessOption) {
-            foundryApi.warnUser("splittermond.chatCard.spellMessage.tooManyHandlers", { action: optionData.action });
+            foundryApi.warnUser("splittermond.chatCard.rollMessage.tooManyHandlers", { action: optionData.action });
         } else if (action) {
             return this.handleActions(action, optionData as ActionInput<AVAILABLE> /*conversion after type checking*/);
         } else if (degreeOfSuccessOption) {

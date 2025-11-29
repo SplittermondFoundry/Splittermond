@@ -12,7 +12,14 @@ import type {
 /**
  * Available actions as specified in attack-chat-card.hbs
  */
-const availableActions = ["activeDefense", "applyDamage", "advanceToken", "useSplinterpoint", "rollFumble"] as const;
+const availableActions = [
+    "activeDefense",
+    "applyDamage",
+    "advanceToken",
+    "useSplinterpoint",
+    "rollFumble",
+    "consumeCost",
+] as const;
 export type AvailableActions = (typeof availableActions)[number];
 
 export function isAvailableAction(action: string): action is AvailableActions {

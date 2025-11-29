@@ -81,10 +81,12 @@ export class AttackRollMessage extends RollMessage<
                 attackReference,
                 actorReference
             ).toObject(),
-            openDegreesOfSuccess:
+            openDegreesOfSuccess: Math.max(
+                0,
                 checkReport.degreeOfSuccess.fromRoll +
-                checkReport.degreeOfSuccess.modification -
-                checkReport.maneuvers.length,
+                    checkReport.degreeOfSuccess.modification -
+                    checkReport.maneuvers.length
+            ),
         });
     }
 
