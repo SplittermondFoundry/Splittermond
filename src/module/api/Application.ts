@@ -6,8 +6,7 @@ export interface DialogV2RenderOptions {
 }
 
 export interface DialogV2ConstructorInput
-    extends foundry.applications.types.ApplicationConfiguration,
-        foundry.DialogV2Configuration {}
+    extends foundry.applications.types.ApplicationConfiguration, foundry.DialogV2Configuration {}
 
 declare namespace foundry {
     import ApplicationV2 = foundry.applications.api.ApplicationV2;
