@@ -352,8 +352,10 @@ describe("DamageActionHandler", () => {
             underTest.useAction({ action: "applyDamage" });
 
             // Verify the damage was reduced by 4
-            const damageRoll = initMock.lastCall.args[0][0].damageRoll;
-            expect(damageRoll.getDamageFormula()).to.equal("1W6 + 6");
+            const damageRoll = initMock.lastCall.firstArg[0].damageRoll;
+            const rollOptions = initMock.lastCall.args[1];
+            expect(damageRoll.getDamageFormula()).to.equal("1W6 + 10");
+            expect(rollOptions.grazingHitPenalty).to.equal(4);
         });
 
         it("should not reduce damage by grazing hit penalty when consumed", () => {

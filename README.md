@@ -204,9 +204,21 @@ Für das Design der Modifikatoren wurden folgende Prinzipien zu Grunde gelegt:
 
 - Nutzer sollten informiert werden, wenn es einen Modifikatorenpfad nicht gibt
 - Nutzer sollten informiert werden, wenn Attribute ungültig sind oder einen falschen Wertebereich haben
+- Nutzer sollen möglichst die Begriffe verwenden können, die ihnen aus dem Umgang mit Splittermond bereits geläufig sind.
 - Modifikatorverarbeitung sollte dort passieren, wo sie gelesen werden.
 
-Aus diesem Grund existiert eine eingener Unterordner für das Lesen der Modifikatoren der ohne Wissen über die Domäne, wo der Modifikator benutzt wird, auskommt.
+Vor diesem Hintergrund wurde der Parser gebaut. Er beruht auf der Idee, die meisten Informationen für einen Modifikator über "Attribute" mitzugeben. Das heißt, ein Modifikator besteht aus einem ID-Teil (z.B. skills), der im Wesentlichen den Groben Aufgabenbereich des Modifikators angibt und nicht übersetzt wird (Legacy Ausnahmen ausgenommen), und Attributen (Schlüssel=Ausprägung), von denen eines der Wert sein muss. Die Attributsausprägungen können übersetzt sein und Leerzeichen enthalten. Werte können Zahlen, (Fokus-)kosten und Referenzen auf Eigenschaften eines Charakters sein.
+
+Diese vom Modifikatormodul global vorberitenten Objekte werden an sogenannte Handler übergeben. Diese Handler stellen die Trennschicht zwischen dem Modifikatormodul und den konsumierenden Modulen her. Das Modifkatormodul übernimmt dabei globale Aufgaben, wie die Auswahl des richtigen Handlers, die Bereitstellung des richtigen Pfades, globale Validierungen und Fehlerberichterstattung.
+In den konsumierenden Modulen können dann mit Modulspezifischem Wissen Dinge wie korrekte Zugehörigkeit zu einem Wertesatz überprüft werden.
+
+Zum Zeitpunkt der Niederschrift waren die meisten Modifikatioren schon auf dieses System umgezogen, aber insbesondere Modifikatoren
+für spezialisierte Angriffe und Modifikatoren für NPC Angriffe sind noch nicht auf das neue System übertragen. Aus diesem Grund gibt
+es auch noch keine Fehlermeldung für die Eingabe einer nicht existierenden ID.
+
+### Chat Nachrichten für Proben
+
+Seit V13 Nutzen Chat Nachrichten für Proben individuelle Datenmodelle in denen der jeweilige Zustand der Nutzerinteraktion gespeichert wird. In V12 wurde dies noch über Flags und manuelle Reinstanziierung bei Änderung gelöst. Ebenfalls noch aus V12 stammt die Annahme, dass nur der SL die Chatnachrichten editieren kann. (Ich glaube, das hat sich nicht geändert). Deshalb existiert, entkoppelt von der eigentlichen Chatnachricht ein System um eine Änderung auf der Karte mittels eines Websockets an den SL zu schicken und dann von ihm die Änderung vornehmen zu lassen. Es gibt eine spezielle css Klasse, die nur zu diesem Zweck auf den Interaktionsobjekten angebracht ist. Die Art der Interaktion wird über "Data-Action" mitgegeben.
 
 ## Editieren von Kompendien
 
