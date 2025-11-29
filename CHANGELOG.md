@@ -1,12 +1,23 @@
+## 13.11.1
+
+### Fixed
+
+- Schadensreduktion für Streiftreffer wird nur einmal abgerechnet
+
 ## 13.11.0
 
 ### New Features
 
 - Erfolgsgrade auf Angriffswürfe können jetzt abgerechnet werden.
+- Es kann sich ausgesucht werden welche Art von Strafe sich durch Streiftreffer ergibt.
 
 ### Changes
 
 - Attribute von Waffen und Fertigkeiten werden validiert. Ungültige Attribute führen zu Fehlern.
+
+### Fixed
+
+- Das Auslesen komplexer Würfelterme für Schadensberechnung funktioniert jetzt zuverlässiger
 
 ## 13.10.0
 

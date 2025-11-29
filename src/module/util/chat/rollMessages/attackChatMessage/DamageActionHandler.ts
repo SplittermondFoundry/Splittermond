@@ -174,13 +174,16 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
         const costType = attack.costType ?? "V";
         const rollOptions = {
             costBase: CostBase.create(costType as CostType),
-            grazingHitPenalty: this.checkReportReference.get().grazingHitPenalty,
+            grazingHitPenalty: this.isApplyPenalty() ? this.checkReportReference.get().grazingHitPenalty : 0,
         };
         return DamageInitializer.rollFromDamageRoll(
             [damages.principalComponent, ...damages.otherComponents],
             rollOptions,
             this.actorReference.getAgent()
         ).then((chatCard) => chatCard.sendToChat());
+    }
+    private isApplyPenalty() {
+        return this.isGrazingHit() && !this.consumedGrazingHitCost;
     }
 
     renderActions(): ValuedAction[] {
@@ -207,6 +210,9 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
 
     private getConcatenatedDamageRolls() {
         const allDamage = this.totalDamage;
+        if (this.isApplyPenalty()) {
+            allDamage.principalComponent.damageRoll.decreaseDamage(this.checkReportReference.get().grazingHitPenalty);
+        }
         const allFormulas = [
             allDamage.principalComponent.damageRoll.getDamageFormula(),
             ...allDamage.otherComponents.map((c) => c.damageRoll.getDamageFormula()),
@@ -216,7 +222,6 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
             : toDisplayFormula(asString(condense(mapRoll(foundryApi.roll(toRollFormula(allFormulas.join(" + ")))))));
     }
 
-    //TODO: should the check report be used here?
     private isOption() {
         return this.checkReportReference.get().succeeded;
     }
@@ -224,9 +229,6 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
     get totalDamage() {
         const damage = this.attackReference.get().getForDamageRoll();
         damage.principalComponent.damageRoll.increaseDamage(this.damageAddition);
-        if (this.isGrazingHit() && !this.consumedGrazingHitCost) {
-            damage.principalComponent.damageRoll.decreaseDamage(this.checkReportReference.get().grazingHitPenalty);
-        }
         return damage;
     }
 }
