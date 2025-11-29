@@ -3,6 +3,7 @@
 ### Fixed
 
 - Schadensreduktion für Streiftreffer wird nur einmal abgerechnet
+- Modifikatoren für "skills" mit Schwerpunkt werden jetzt auch berücksichtigt.
 
 ## 13.11.0
 
