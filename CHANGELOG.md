@@ -1,3 +1,9 @@
+## 13.11.2
+
+### Fixed
+
+- Die Aktion zur Ausgabe von Splitterpunkten is nur Aktiv, wenn es auch Splitterpunkte zum Ausgeben gibt.
+
 ## 13.11.1
 
 ### Fixed

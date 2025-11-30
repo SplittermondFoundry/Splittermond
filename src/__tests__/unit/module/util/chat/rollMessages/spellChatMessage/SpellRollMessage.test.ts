@@ -223,17 +223,42 @@ describe("SpellRollMessage", () => {
             expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 0, modification: 0 });
             expect(underTest.checkReport.succeeded).to.be.true;
         });
-        it("should be rendered if not a fumble", () => {
+
+        it("should be available for splinterpoint bearers", () => {
             const underTest = createSpellRollMessage(sandbox);
             underTest.checkReport.isFumble = false;
+            sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 3, value: 3 }));
 
             expect(underTest.getData().actions.useSplinterpoint).not.to.be.undefined;
+            expect(
+                (underTest.getData().actions.useSplinterpoint as Record<string, unknown>)?.disabled,
+                "Splinterpoint button disabled"
+            ).to.be.false;
         });
+
         it("should not be applicable for fumbles", () => {
             const underTest = createSpellRollMessage(sandbox);
             underTest.checkReport.isFumble = true;
 
             expect(underTest.getData().actions.useSplinterpoint).to.be.undefined;
+        });
+
+        it("should not be applicable for actors without splinterpoints", () => {
+            const underTest = createSpellRollMessage(sandbox);
+            sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 0, value: 0 }));
+
+            expect(underTest.getData().actions.useSplinterpoint).to.be.undefined;
+        });
+
+        it("should be disable for actors without available splinterpoints", () => {
+            const underTest = createSpellRollMessage(sandbox);
+            sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 3, value: 0 }));
+
+            expect(underTest.getData().actions.useSplinterpoint).not.to.be.undefined;
+            expect(
+                (underTest.getData().actions.useSplinterpoint as Record<string, unknown>)?.disabled,
+                "Splinterpoint button disable"
+            ).to.be.true;
         });
 
         function fullCheckReport(): CheckReport {

@@ -183,17 +183,42 @@ describe("AttackRollMessage", () => {
             expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 0, modification: 0 });
             expect(underTest.checkReport.succeeded).to.be.true;
         });
-        it("should be rendered if not a fumble", () => {
+        it("should be available for splinterpoint bearers", () => {
             const underTest = createAttackRollMessage(sandbox);
             underTest.checkReport.isFumble = false;
+            sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 3, value: 3 }));
 
             expect(underTest.getData().actions.useSplinterpoint).not.to.be.undefined;
+            expect(
+                (underTest.getData().actions.useSplinterpoint as Record<string, unknown>)?.disabled,
+                "Splinterpoint button disabled"
+            ).to.be.false;
         });
+
         it("should not be applicable for fumbles", () => {
             const underTest = createAttackRollMessage(sandbox);
             underTest.checkReport.isFumble = true;
+            sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 3, value: 3 }));
 
             expect(underTest.getData().actions.useSplinterpoint).to.be.undefined;
+        });
+
+        it("should not be applicable for actors without splinterpoints", () => {
+            const underTest = createAttackRollMessage(sandbox);
+            sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 0, value: 0 }));
+
+            expect(underTest.getData().actions.useSplinterpoint).to.be.undefined;
+        });
+
+        it("should be disable for actors without available splinterpoints", () => {
+            const underTest = createAttackRollMessage(sandbox);
+            sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 3, value: 0 }));
+
+            expect(underTest.getData().actions.useSplinterpoint).not.to.be.undefined;
+            expect(
+                (underTest.getData().actions.useSplinterpoint as Record<string, unknown>)?.disabled,
+                "Splinterpoint button disabled"
+            ).to.be.true;
         });
 
         it("should convert a grazing hit into a normal hit when increasing degrees of success", async () => {

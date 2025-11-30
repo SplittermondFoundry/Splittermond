@@ -100,12 +100,13 @@ export class SpellRollMessage extends RollMessage<
             handlesActions: ["useSplinterpoint"],
             handlesDegreeOfSuccessOptions: [],
             renderActions: () =>
-                this.checkReport.isFumble
+                this.checkReport.isFumble || this.actorReference.getAgent().splinterpoints.max <= 0
                     ? []
                     : [
                           {
                               type: "useSplinterpoint",
-                              disabled: this.splinterPointUsed,
+                              disabled:
+                                  this.splinterPointUsed || this.actorReference.getAgent().splinterpoints.value <= 0,
                               isLocal: false,
                           },
                       ],
