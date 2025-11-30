@@ -34,6 +34,7 @@ function DamageActionHandlerSchema() {
         }),
         options: new fields.EmbeddedDataField(NumberDegreeOfSuccessOptionField, { required: true, nullable: false }),
         consumedGrazingHitCost: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+        convertedToNumbingDamage: new fields.BooleanField({ required: true, nullable: false, initial: false }),
     };
 }
 
@@ -61,10 +62,11 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
                 damageAdditionConfig.textTemplate
             ),
             consumedGrazingHitCost: false,
+            convertedToNumbingDamage: false,
         });
     }
 
-    public readonly handlesDegreeOfSuccessOptions = ["damageUpdate", "grazingHitUpdate"];
+    public readonly handlesDegreeOfSuccessOptions = ["damageUpdate", "grazingHitUpdate", "numbingDamageUpdate"];
 
     useDegreeOfSuccessOption(degreeOfSuccessOptionData: any): DegreeOfSuccessAction {
         // Determine which guard to use based on the action type
@@ -85,6 +87,13 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
                                 option.check();
                                 const damageAdditionIncrement = option.isChecked() ? option.effect : -1 * option.effect;
                                 this.updateSource({ damageAddition: this.damageAddition + damageAdditionIncrement });
+                            },
+                        };
+                    case "numbingDamageUpdate":
+                        return {
+                            usedDegreesOfSuccess: this.convertedToNumbingDamage ? -1 : 1,
+                            action: () => {
+                                this.updateSource({ convertedToNumbingDamage: !this.convertedToNumbingDamage });
                             },
                         };
                     case "grazingHitUpdate":
@@ -115,12 +124,22 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
                     multiplicity: "1",
                     checked: this.consumedGrazingHitCost,
                     text: foundryApi.localize("splittermond.chatCard.attackMessage.selectConsumeCost"),
-                    disabled: this.damageUsed || this.penaltyUsed,
+                    disabled: this.damageUsed,
                     action: "grazingHitUpdate",
                 },
                 cost: 0,
             });
         }
+        const numbingDamageOption = {
+            render: {
+                multiplicity: "1",
+                checked: this.convertedToNumbingDamage,
+                text: foundryApi.localize("splittermond.chatCard.attackMessage.numbingDamage"),
+                disabled: this.damageUsed,
+                action: "numbingDamageUpdate",
+            },
+            cost: this.convertedToNumbingDamage ? -1 : 1,
+        };
         const damageOptions = this.options
             .getMultiplicities()
             .map((m) => this.options.forMultiplicity(m))
@@ -132,7 +151,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
                 },
                 cost: m.isChecked() ? -m.cost : m.cost,
             }));
-        options.push(...damageOptions);
+        options.push(...damageOptions, numbingDamageOption);
         return options;
     }
     private isGrazingHit() {
@@ -171,7 +190,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
         this.updateSource({ damageUsed: true });
         const attack = this.attackReference.get();
         const damages = this.totalDamage;
-        const costType = attack.costType ?? "V";
+        const costType = this.convertedToNumbingDamage ? "E" : (attack.costType ?? "V");
         const rollOptions = {
             costBase: CostBase.create(costType as CostType),
             grazingHitPenalty: this.isApplyPenalty() ? this.checkReportReference.get().grazingHitPenalty : 0,
