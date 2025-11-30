@@ -103,7 +103,7 @@ describe("AttackRollMessage", () => {
 
         await underTest.handleGenericAction({ action: "advanceToken" });
 
-        expect(warnUserStub.called).to.be.true;
+        expect(warnUserStub.called).to.be.false;
     });
 
     it("should handle action applyDamage", async () => {

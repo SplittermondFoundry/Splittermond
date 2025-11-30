@@ -41,6 +41,7 @@ export function setUpMockAttackSelfReference(
     Object.defineProperty(attackMock, "id", { value: "attack1", enumerable: true });
     Object.defineProperty(attackMock, "name", { value: "Test Attack", enumerable: true });
     Object.defineProperty(attackMock, "img", { value: "test.png", enumerable: true });
+    sandbox.stub(attackMock, "weaponSpeed").get(() => 6);
     return attackMock as SinonStubbedInstance<Attack> & OnAncestorReference<SinonStubbedInstance<Attack>>;
 }
 
