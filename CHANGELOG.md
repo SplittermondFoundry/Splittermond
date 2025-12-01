@@ -1,3 +1,15 @@
+## 13.11.3
+
+### New Features
+
+- Die Manöver "Störender Angriff" und "Betäubungsschlag" können jetzt abgerechnet werden.
+- Die Manöver sind nur im Nahkampf verfügbar.
+
+  
+### Fixed
+
+- Im Fernkampf werden nach dem Wurf nur 3 Ticks hinzugefügt.
+
 ## 13.11.2
 
 ### Fixed
