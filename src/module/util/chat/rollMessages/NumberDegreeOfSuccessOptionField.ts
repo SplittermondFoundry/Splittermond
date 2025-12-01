@@ -88,6 +88,7 @@ export class NumberDegreeOfSuccessOptionField extends SplittermondDataModel<Degr
     }
 
     private createText(multiplicity: number): string {
-        return `${this.getCost(multiplicity)} EG ${multiplicity > 1 ? `${multiplicity} ` : ""}${foundryApi.localize(this.textTemplate)}`;
+        const actualEffect = this.effect * multiplicity;
+        return `${this.getCost(multiplicity)} EG – ${actualEffect > 1 ? `${actualEffect} ` : ""}${foundryApi.localize(this.textTemplate)}`;
     }
 }

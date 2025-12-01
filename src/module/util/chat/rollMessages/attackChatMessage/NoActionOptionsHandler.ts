@@ -6,10 +6,21 @@ import { splittermondSpellEnhancement } from "module/config/SplittermondSpellEnh
 import type Attack from "module/actor/attack";
 import { isMember } from "module/util/util";
 import { splittermond } from "module/config";
+import { splittermondAttackEnhancements } from "module/config/SplittermondAttackEnhancements";
 
 function NoActionOptionsHandlerSchema() {
     return {
         range: new fields.SchemaField(
+            {
+                isOption: new fields.BooleanField({ required: true, nullable: false }),
+                options: new fields.EmbeddedDataField(NumberDegreeOfSuccessOptionField, {
+                    required: true,
+                    nullable: false,
+                }),
+            },
+            { required: true, nullable: false }
+        ),
+        interruptingAttack: new fields.SchemaField(
             {
                 isOption: new fields.BooleanField({ required: true, nullable: false }),
                 options: new fields.EmbeddedDataField(NumberDegreeOfSuccessOptionField, {
@@ -37,6 +48,14 @@ export class NoActionOptionsHandler extends SplittermondDataModel<NoActionOption
                     splittermondSpellEnhancement.range.textTemplate
                 ),
             },
+            interruptingAttack: {
+                isOption: true,
+                options: NumberDegreeOfSuccessOptionField.initialize(
+                    splittermond.attackEnhancement.interruptingAttack.cost,
+                    splittermondAttackEnhancements.interruptingAttack.bonusOnInterruption,
+                    splittermond.attackEnhancement.interruptingAttack.textTemplate
+                ),
+            },
         });
     }
 
@@ -50,12 +69,15 @@ export class NoActionOptionsHandler extends SplittermondDataModel<NoActionOption
         return Promise.resolve();
     }
 
-    handlesDegreeOfSuccessOptions = ["rangeUpdate"] as const;
+    handlesDegreeOfSuccessOptions = ["rangeUpdate", "interruptingAttackUpdate"] as const;
 
     renderDegreeOfSuccessOptions(): DegreeOfSuccessOptionSuggestion[] {
         let options: DegreeOfSuccessOptionSuggestion[] = [];
         if (this.range.isOption) {
             options.push(...this.renderOption(this.range.options, "rangeUpdate"));
+        }
+        if (this.interruptingAttack.isOption) {
+            options.push(...this.renderOption(this.interruptingAttack.options, "interruptingAttackUpdate"));
         }
         return options;
     }
@@ -82,6 +104,8 @@ export class NoActionOptionsHandler extends SplittermondDataModel<NoActionOption
                 switch (degreeOfSuccessOptionData.action) {
                     case "rangeUpdate":
                         return this.useOption(this.range.options, multiplicity);
+                    case "interruptingAttackUpdate":
+                        return this.useOption(this.interruptingAttack.options, multiplicity);
                 }
             })
             .useOption(degreeOfSuccessOptionData);

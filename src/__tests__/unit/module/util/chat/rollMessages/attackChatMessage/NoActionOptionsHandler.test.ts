@@ -16,19 +16,59 @@ describe("NoActionOptionsHandler", () => {
         const underTest = setUpNoActionsHandler(sandbox, false);
         underTest.range.isOption = false;
 
-        expect(underTest.renderDegreeOfSuccessOptions()).to.have.length(0);
+        const rangeUpdateOptions = underTest
+            .renderDegreeOfSuccessOptions()
+            .filter((o) => o.render.action === "rangeUpdate");
+
+        expect(rangeUpdateOptions).to.have.length(0);
     });
 
     it("should render range options for ranged attacks", () => {
         const underTest = setUpNoActionsHandler(sandbox, true);
         underTest.range.isOption = true;
 
-        expect(underTest.renderDegreeOfSuccessOptions()).to.have.length(4);
-        expect(underTest.renderDegreeOfSuccessOptions().map((o) => o.render.action)).to.contain("rangeUpdate");
+        const rangeUpdateOptions = underTest
+            .renderDegreeOfSuccessOptions()
+            .filter((o) => o.render.action === "rangeUpdate");
+
+        expect(rangeUpdateOptions).to.have.length(4);
+    });
+
+    it("should render interrupting attack options", () => {
+        const underTest = setUpNoActionsHandler(sandbox, false);
+        underTest.range.isOption = false;
+
+        const rangeUpdateOptions = underTest
+            .renderDegreeOfSuccessOptions()
+            .filter((o) => o.render.action === "interruptingAttackUpdate");
+
+        expect(rangeUpdateOptions).to.have.length(4);
     });
 
     [1, 2, 4, 8].forEach((multiplicity) => {
         const rangeUpdateOptionData = { action: "rangeUpdate", multiplicity: `${multiplicity}` };
+        const interruptionOption = { action: "interruptingAttackUpdate", multiplicity: `${multiplicity}` };
+
+        it(`should check interruption option for multiplicity ${multiplicity}`, () => {
+            const underTest = setUpNoActionsHandler(sandbox, true);
+
+            const suggestion = underTest.useDegreeOfSuccessOption(interruptionOption);
+            suggestion.action();
+
+            expect(suggestion.usedDegreesOfSuccess).to.be.greaterThan(0);
+            expect(underTest.interruptingAttack.options.isChecked(multiplicity)).to.be.true;
+        });
+
+        it(`should uncheck interruption option for multiplicity ${multiplicity}`, () => {
+            const underTest = setUpNoActionsHandler(sandbox, true);
+
+            underTest.useDegreeOfSuccessOption(interruptionOption).action();
+            const suggestion = underTest.useDegreeOfSuccessOption(interruptionOption);
+            suggestion.action();
+
+            expect(suggestion.usedDegreesOfSuccess).to.be.lessThan(0);
+            expect(underTest.interruptingAttack.options.isChecked(multiplicity)).to.be.false;
+        });
 
         it(`should check range option for multiplicity ${multiplicity}`, () => {
             const underTest = setUpNoActionsHandler(sandbox, true);

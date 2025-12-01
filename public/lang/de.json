@@ -53,7 +53,8 @@
             "attackMessage": {
                 "selectConsumeCost": "Betäubungsschaden nehmen",
                 "numbingDamage": "Betäubungsschlag",
-                "interruptingAttack": "störender Angriff",
+                "interruptingAttack": "auf Stören einer kontinu-ierlichen Aktion",
+
                 "consumeCost": "Eigenschaden"
             }
         },

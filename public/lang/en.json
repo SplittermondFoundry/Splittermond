@@ -32,7 +32,7 @@
                 "selectConsumeCost": "Take numbing damage",
                 "consumeCost": "Self-Damage",
                 "numbingDamage": "Numbing Hit",
-                "interruptingAttak": "Interrupting Attack"
+                "interruptingAttack": "to disruption a continuous action"
             }
         },
         "damageMessage": {

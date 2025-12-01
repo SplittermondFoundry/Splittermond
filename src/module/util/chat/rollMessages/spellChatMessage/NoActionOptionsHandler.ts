@@ -4,7 +4,7 @@ import { configureUseOption, DegreeOfSuccessAction, DegreeOfSuccessOptionInput }
 import { NumberDegreeOfSuccessOptionField } from "../NumberDegreeOfSuccessOptionField";
 import { ItemReference } from "module/data/references/ItemReference";
 import SplittermondSpellItem from "../../../../item/spell";
-import { splittermondSpellEnhancement } from "module/config/SplittermondSpellEnhancements";
+import { splittermond } from "module/config";
 
 function NoActionOptionsHandlerSchema() {
     return {
@@ -51,25 +51,25 @@ export class NoActionOptionsHandler extends SplittermondDataModel<NoActionOption
             effectArea: {
                 isOption: !!spellReference.getItem().degreeOfSuccessOptions.effectArea,
                 options: NumberDegreeOfSuccessOptionField.initialize(
-                    splittermondSpellEnhancement.effectArea.degreesOfSuccess,
+                    splittermond.spellEnhancement.effectArea.degreesOfSuccess,
                     0, //We cannot do calculations on effect area, because the value is given as "5m" or similar
-                    splittermondSpellEnhancement.effectArea.textTemplate
+                    splittermond.spellEnhancement.effectArea.textTemplate
                 ),
             },
             effectDuration: {
                 isOption: !!spellReference.getItem().degreeOfSuccessOptions.effectDuration,
                 options: NumberDegreeOfSuccessOptionField.initialize(
-                    splittermondSpellEnhancement.effectDuration.degreesOfSuccess,
+                    splittermond.spellEnhancement.effectDuration.degreesOfSuccess,
                     0, //We cannot do calculations on effect duration, because the value can be given a string (e.g."K")
-                    splittermondSpellEnhancement.effectDuration.textTemplate
+                    splittermond.spellEnhancement.effectDuration.textTemplate
                 ),
             },
             range: {
                 isOption: !!spellReference.getItem().degreeOfSuccessOptions.range,
                 options: NumberDegreeOfSuccessOptionField.initialize(
-                    splittermondSpellEnhancement.range.degreesOfSuccess,
+                    splittermond.spellEnhancement.range.degreesOfSuccess,
                     0, //We cannot do calculations on range, because the value can be given as "5m" or similar
-                    splittermondSpellEnhancement.range.textTemplate
+                    splittermond.spellEnhancement.range.textTemplate
                 ),
             },
         });

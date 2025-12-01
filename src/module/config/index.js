@@ -13,6 +13,7 @@ import { itemFeatures } from "./itemFeatures";
 import { droppableCharacterItemTypes, droppableNpcItemTypes, itemTypes } from "./itemTypes";
 import { time } from "module/config/timeUnits";
 import { splinterpoints } from "module/config/splinterpoints.js";
+import { splittermondAttackEnhancements } from "module/config/SplittermondAttackEnhancements.js";
 
 /**
  * Global configuration object for the Splittermond system. Stores constants that are specific to Splittermond behavior.
@@ -1135,6 +1136,7 @@ splittermond.fumbleTable = {
 splittermond.weaponFeatures = itemFeatures;
 splittermond.itemFeatures = itemFeatures;
 splittermond.spellEnhancement = splittermondSpellEnhancement;
+splittermond.attackEnhancement = splittermondAttackEnhancements;
 splittermond.degreeOfSuccessThresholds = {
     critical: 5,
 };

@@ -55,7 +55,7 @@ describe("SpellRollMessage", () => {
             disabled: false,
             action: "consumedFocusUpdate",
             multiplicity: "1",
-            text: "3 EG splittermond.degreeOfSuccessOptions.consumedFocus",
+            text: "3 EG – splittermond.degreeOfSuccessOptions.consumedFocus",
         });
     });
 
