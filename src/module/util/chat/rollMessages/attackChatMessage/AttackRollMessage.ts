@@ -21,6 +21,8 @@ import { getRollResultClass } from "../ChatMessageUtils";
 import { RollMessage } from "module/util/chat/rollMessages/RollMessage";
 import type { ActionHandler } from "module/util/chat/rollMessages/ChatCardCommonInterfaces";
 import { TickCostActionHandler } from "module/util/chat/rollMessages/attackChatMessage/TickCostActionHandler";
+import { isMember } from "module/util/util";
+import { splittermond } from "module/config";
 
 const constructorRegistryKey = "attackRollMessage";
 
@@ -70,6 +72,7 @@ export class AttackRollMessage extends RollMessage<
             .references("attack") as OnAncestorReference<Attack>;
 
         const actorReference = AgentReference.initialize(attack.actor);
+        const tickCost = isMember(splittermond.skillGroups.ranged, checkReport.skill.id) ? 3 : attack.weaponSpeed;
         return new AttackRollMessage({
             checkReport: checkReport,
             actorReference,
@@ -77,7 +80,7 @@ export class AttackRollMessage extends RollMessage<
             constructorKey: constructorRegistryKey,
             splinterPointUsed: false,
             damageHandler: DamageActionHandler.initialize(actorReference, attackReference, reportReference).toObject(),
-            tickCostHandler: TickCostActionHandler.initialize(actorReference, attack.weaponSpeed),
+            tickCostHandler: TickCostActionHandler.initialize(actorReference, tickCost),
             noActionOptionsHandler: NoActionOptionsHandler.initialize(attack).toObject(),
             noOptionsActionHandler: NoOptionsActionHandler.initialize(
                 reportReference,

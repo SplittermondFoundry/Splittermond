@@ -610,6 +610,7 @@ function setUpDamageActionHandler(sandbox: SinonSandbox): WithMockedRefs<DamageA
     const attackReference = setUpMockAttackSelfReference(sandbox, actor);
     setNecessaryDefaultsForAttackProperties(attackReference, sandbox);
     const checkReportReference = setUpCheckReportSelfReference();
+    checkReportReference.skill = { id: "melee", attributes: { strength: 3, agility: 3 }, points: 3 };
     return withToObjectReturnsSelf(() => {
         return DamageActionHandler.initialize(AgentReference.initialize(actor), attackReference, checkReportReference);
     }) as unknown as WithMockedRefs<DamageActionHandler>; /*TS cannot know that we're injecting mocks*/
