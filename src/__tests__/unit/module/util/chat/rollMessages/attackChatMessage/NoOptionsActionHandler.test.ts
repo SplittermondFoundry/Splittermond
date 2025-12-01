@@ -12,6 +12,7 @@ import { expect } from "chai";
 import { referencesUtils } from "module/data/references/referencesUtils";
 import { injectParent } from "../../../../../testUtils";
 import { withToObjectReturnsSelf } from "../util";
+import { foundryApi } from "module/api/foundryApi";
 
 describe("Roll Fumble", () => {
     let sandbox: SinonSandbox;
@@ -91,6 +92,7 @@ describe("Active Defense", () => {
     });
 
     it("should be offered if check succeeded", () => {
+        sandbox.stub(foundryApi, "localize").callsFake((key) => key);
         const underTest = setUpNoOptionsActionHandler(sandbox);
         underTest.checkReportReference.get().succeeded = true;
 

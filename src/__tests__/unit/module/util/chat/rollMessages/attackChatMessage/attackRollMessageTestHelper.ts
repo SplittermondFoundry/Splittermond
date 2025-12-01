@@ -7,6 +7,7 @@ import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import Attack from "module/actor/attack";
 import type { AttackCheckReport } from "module/util/chat/rollMessages/attackChatMessage/interfaces";
 import type { SinonSandbox, SinonStubbedInstance } from "sinon";
+import type { SplittermondSkill } from "module/config/skillGroups";
 
 export function setUpMockActor(sandbox: SinonSandbox): SinonStubbedInstance<SplittermondActor> {
     const actorMock = sandbox.createStubInstance(SplittermondActor);
@@ -19,7 +20,8 @@ export function setUpMockActor(sandbox: SinonSandbox): SinonStubbedInstance<Spli
 
 export function setUpMockAttackSelfReference(
     sandbox: SinonSandbox,
-    actorMock: SinonStubbedInstance<SplittermondActor>
+    actorMock: SinonStubbedInstance<SplittermondActor>,
+    skill: SplittermondSkill = "melee"
 ): SinonStubbedInstance<Attack> & OnAncestorReference<SinonStubbedInstance<Attack>> {
     const attackMock = sandbox.createStubInstance(Attack);
     Object.defineProperty(attackMock, "actor", { value: actorMock, enumerable: true });
@@ -34,13 +36,14 @@ export function setUpMockAttackSelfReference(
         },
     });
     Object.defineProperty(attackMock, "skill", {
-        value: { id: "longrange", attributes: {}, points: 5 },
+        value: { id: skill, attributes: {}, points: 5 },
         enumerable: true,
         writable: true,
     });
     Object.defineProperty(attackMock, "id", { value: "attack1", enumerable: true });
     Object.defineProperty(attackMock, "name", { value: "Test Attack", enumerable: true });
     Object.defineProperty(attackMock, "img", { value: "test.png", enumerable: true });
+    sandbox.stub(attackMock, "weaponSpeed").get(() => 6);
     return attackMock as SinonStubbedInstance<Attack> & OnAncestorReference<SinonStubbedInstance<Attack>>;
 }
 

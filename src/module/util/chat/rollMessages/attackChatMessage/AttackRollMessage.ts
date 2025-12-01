@@ -20,6 +20,9 @@ import Attack from "module/actor/attack";
 import { getRollResultClass } from "../ChatMessageUtils";
 import { RollMessage } from "module/util/chat/rollMessages/RollMessage";
 import type { ActionHandler } from "module/util/chat/rollMessages/ChatCardCommonInterfaces";
+import { TickCostActionHandler } from "module/util/chat/rollMessages/attackChatMessage/TickCostActionHandler";
+import { isMember } from "module/util/util";
+import { splittermond } from "module/config";
 
 const constructorRegistryKey = "attackRollMessage";
 
@@ -39,6 +42,7 @@ function AttackRollMessageSchema() {
         openDegreesOfSuccess: new fields.NumberField({ required: true, nullable: false }),
         constructorKey: new fields.StringField({ required: true, trim: true, blank: false, nullable: false }),
         damageHandler: new fields.EmbeddedDataField(DamageActionHandler, { required: true, nullable: false }),
+        tickCostHandler: new fields.EmbeddedDataField(TickCostActionHandler, { required: true, nullable: false }),
         noActionOptionsHandler: new fields.EmbeddedDataField(NoActionOptionsHandler, {
             required: true,
             nullable: false,
@@ -68,6 +72,7 @@ export class AttackRollMessage extends RollMessage<
             .references("attack") as OnAncestorReference<Attack>;
 
         const actorReference = AgentReference.initialize(attack.actor);
+        const tickCost = isMember(splittermond.skillGroups.ranged, checkReport.skill.id) ? 3 : attack.weaponSpeed;
         return new AttackRollMessage({
             checkReport: checkReport,
             actorReference,
@@ -75,6 +80,7 @@ export class AttackRollMessage extends RollMessage<
             constructorKey: constructorRegistryKey,
             splinterPointUsed: false,
             damageHandler: DamageActionHandler.initialize(actorReference, attackReference, reportReference).toObject(),
+            tickCostHandler: TickCostActionHandler.initialize(actorReference, tickCost),
             noActionOptionsHandler: NoActionOptionsHandler.initialize(attack).toObject(),
             noOptionsActionHandler: NoOptionsActionHandler.initialize(
                 reportReference,
@@ -94,6 +100,7 @@ export class AttackRollMessage extends RollMessage<
         super(data, ...args);
         const handlers: ActionHandler<ValuedAction | UnvaluedAction, AvailableActions>[] = [];
         handlers.push(this.damageHandler);
+        handlers.push(this.tickCostHandler);
         handlers.push(this.noActionOptionsHandler);
         handlers.push(this.noOptionsActionHandler);
         handlers.forEach((handler) => this.registerHandler(handler));

@@ -96,6 +96,6 @@ export class FocusDegreeOfSuccessOptionField extends SplittermondDataModel<Focus
     }
 
     private createText(multiplicity: number): string {
-        return `${this.getCost(multiplicity)} EG ${multiplicity > 1 ? `${multiplicity} ` : ""}${foundryApi.localize(this.textTemplate)}`;
+        return `${this.getCost(multiplicity)} EG – ${multiplicity > 1 ? `${multiplicity} ` : ""}${foundryApi.localize(this.textTemplate)}`;
     }
 }

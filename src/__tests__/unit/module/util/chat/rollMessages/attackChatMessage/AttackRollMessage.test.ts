@@ -18,6 +18,7 @@ import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import Attack from "module/actor/attack";
 import { withToObjectReturnsSelf } from "../util";
 import { Dice } from "module/check/dice";
+import type { SplittermondSkill } from "module/config/skillGroups";
 
 describe("AttackRollMessage", () => {
     let sandbox: sinon.SinonSandbox;
@@ -65,7 +66,7 @@ describe("AttackRollMessage", () => {
         expect(attackRollMessage.getData().degreeOfSuccessOptions.filter((dos) => dos.checked)).to.be.empty;
     });
 
-    ["damageUpdate", "rangeUpdate"].forEach((option) => {
+    ["damageUpdate", "interruptingAttackUpdate", "numbingDamageUpdate"].forEach((option) => {
         it(`should handle option ${option}`, () => {
             const underTest = createAttackRollMessage(sandbox);
 
@@ -87,6 +88,27 @@ describe("AttackRollMessage", () => {
         });
     });
 
+    it(`should handle option rangeUpdate`, () => {
+        const option = "rangeUpdate";
+        const underTest = createAttackRollMessage(sandbox, "longrange");
+
+        underTest.updateSource({ openDegreesOfSuccess: 100 });
+
+        underTest.handleGenericAction({ action: option, multiplicity: "1" });
+        const afterFirstUpdate = underTest
+            .getData()
+            .degreeOfSuccessOptions.filter((o) => o.action === option)
+            .find((o) => o.multiplicity === "1");
+        underTest.handleGenericAction({ action: option, multiplicity: "1" });
+        const afterSecondUpdate = underTest
+            .getData()
+            .degreeOfSuccessOptions.filter((o) => o.action === option)
+            .find((o) => o.multiplicity === "1");
+
+        expect(afterFirstUpdate?.checked).to.be.true;
+        expect(afterSecondUpdate?.checked).to.be.false;
+    });
+
     it(`should handle action rollFumble`, async () => {
         const underTest = createAttackRollMessage(sandbox);
         underTest.checkReport.succeeded = true;
@@ -103,7 +125,7 @@ describe("AttackRollMessage", () => {
 
         await underTest.handleGenericAction({ action: "advanceToken" });
 
-        expect(warnUserStub.called).to.be.true;
+        expect(warnUserStub.called).to.be.false;
     });
 
     it("should handle action applyDamage", async () => {
@@ -366,9 +388,9 @@ describe("AttackRollMessage", () => {
     });
 });
 
-function createAttackRollMessage(sandbox: SinonSandbox) {
+function createAttackRollMessage(sandbox: SinonSandbox, skill: SplittermondSkill = "melee") {
     const mockActor = setUpMockActor(sandbox);
-    const mockAttack = setUpMockAttackSelfReference(sandbox, mockActor);
+    const mockAttack = setUpMockAttackSelfReference(sandbox, mockActor, skill);
     setNecessaryDefaultsForAttackProperties(mockAttack, sandbox);
     const attackRollMessage = withToObjectReturnsSelf(() => {
         return AttackRollMessage.initialize(mockAttack, {
@@ -385,7 +407,7 @@ function createAttackRollMessage(sandbox: SinonSandbox) {
             modifierElements: [],
             roll: { dice: [], tooltip: "", total: 0 },
             rollType: "standard",
-            skill: { attributes: {}, id: "longrange", points: 0 },
+            skill: { attributes: {}, id: skill, points: 0 },
             succeeded: true,
             maneuvers: [],
             grazingHitPenalty: 0,

@@ -44,7 +44,7 @@ describe("DamageActionHandler", () => {
 
             const options = underTest.renderDegreeOfSuccessOptions();
 
-            expect(options).to.have.length(4);
+            expect(options.filter((o) => o.render.action == "damageUpdate")).to.have.length(4);
             expect(options.map((o) => o.render.action)).to.contain("damageUpdate");
         });
 
@@ -120,7 +120,7 @@ describe("DamageActionHandler", () => {
 
             const options = underTest.renderDegreeOfSuccessOptions();
 
-            expect(options).to.have.length(4);
+            expect(options.filter((o) => o.render.action == "damageUpdate")).to.have.length(4);
             expect(options.map((o) => o.render.disabled).reduce((a, b) => a && b, true)).to.be.true;
         });
 
@@ -420,6 +420,189 @@ describe("DamageActionHandler", () => {
             expect(actor.consumeCost.calledOnce).to.be.true;
         });
     });
+
+    describe("Numbing Damage", () => {
+        it("should render numbingDamage option when attack succeeds", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+
+            const options = underTest.renderDegreeOfSuccessOptions();
+
+            const numbingDamageOption = options.find((o) => o.render.action === "numbingDamageUpdate");
+            expect(numbingDamageOption).to.not.be.undefined;
+            expect(numbingDamageOption?.render.text).to.equal("splittermond.chatCard.attackMessage.numbingDamage");
+            expect(numbingDamageOption?.cost).to.equal(1);
+        });
+
+        it("should not render numbingDamage option when attack fails", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = false;
+
+            const options = underTest.renderDegreeOfSuccessOptions();
+
+            const numbingDamageOption = options.find((o) => o.render.action === "numbingDamageUpdate");
+            expect(numbingDamageOption).to.be.undefined;
+        });
+
+        it("should toggle convertedToNumbingDamage when numbingDamageUpdate is called", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+
+            underTest.useDegreeOfSuccessOption({ action: "numbingDamageUpdate", multiplicity: "1" }).action();
+            expect(underTest.convertedToNumbingDamage).to.be.true;
+
+            underTest.useDegreeOfSuccessOption({ action: "numbingDamageUpdate", multiplicity: "1" }).action();
+            expect(underTest.convertedToNumbingDamage).to.be.false;
+        });
+
+        it("should cost 1 degrees of success when toggling numbingDamage", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+
+            const result = underTest.useDegreeOfSuccessOption({ action: "numbingDamageUpdate", multiplicity: "1" });
+
+            expect(result.usedDegreesOfSuccess).to.equal(1);
+        });
+
+        it("should cost -1 degrees of success to remove toggled numbingDamage", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.updateSource({ convertedToNumbingDamage: true });
+
+            const result = underTest.useDegreeOfSuccessOption({ action: "numbingDamageUpdate", multiplicity: "1" });
+
+            expect(result.usedDegreesOfSuccess).to.equal(-1);
+        });
+
+        it("should display -1 degrees of success to remove toggled numbingDamage", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+            underTest.updateSource({ convertedToNumbingDamage: true });
+
+            const result = underTest.renderDegreeOfSuccessOptions();
+
+            expect(result.find((o) => o.render.action === "numbingDamageUpdate")!.cost).to.equal(-1);
+        });
+
+        it("should render numbingDamage option as checked when enabled", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            underTest.checkReportReference.get().succeeded = true;
+
+            underTest.useDegreeOfSuccessOption({ action: "numbingDamageUpdate", multiplicity: "1" }).action();
+            const options = underTest.renderDegreeOfSuccessOptions();
+
+            const numbingDamageOption = options.find((o) => o.render.action === "numbingDamageUpdate");
+            expect(numbingDamageOption?.render.checked).to.be.true;
+        });
+
+        it("should disable numbingDamage option when damage is used", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            sandbox.stub(DamageInitializer, "rollFromDamageRoll").returns(Promise.resolve(chatCardMock));
+            underTest.checkReportReference.get().succeeded = true;
+            sandbox.stub(underTest.attackReference.get(), "costType").get(() => "V");
+            sandbox.stub(underTest.attackReference.get(), "damage").get(() => "1d6");
+
+            underTest.useAction({ action: "applyDamage" });
+
+            const options = underTest.renderDegreeOfSuccessOptions();
+            const numbingDamageOption = options.find((o) => o.render.action === "numbingDamageUpdate");
+            expect(numbingDamageOption?.render.disabled).to.be.true;
+        });
+
+        it("should change cost type to 'E' when numbingDamage is enabled", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            const initMock = sandbox.stub(DamageInitializer, "rollFromDamageRoll").resolves(chatCardMock);
+            underTest.checkReportReference.get().succeeded = true;
+            sandbox.stub(underTest.attackReference.get(), "costType").get(() => "V");
+            underTest.attackReference.get().getForDamageRoll.returns({
+                principalComponent: {
+                    damageRoll: new DamageRoll(new MockRoll("1d6 + 5"), ItemFeaturesModel.emptyFeatures()),
+                    damageType: "physical",
+                    damageSource: underTest.attackReference.get().name,
+                },
+                otherComponents: [],
+            });
+
+            underTest.useDegreeOfSuccessOption({ action: "numbingDamageUpdate", multiplicity: "1" }).action();
+            underTest.useAction({ action: "applyDamage" });
+
+            const rollOptions = initMock.lastCall.args[1];
+            expect(rollOptions.costBase.costType).to.equal("E");
+        });
+
+        it("should use attack cost type when numbingDamage is not enabled", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            const initMock = sandbox.stub(DamageInitializer, "rollFromDamageRoll").resolves(chatCardMock);
+            underTest.checkReportReference.get().succeeded = true;
+            sandbox.stub(underTest.attackReference.get(), "costType").get(() => "V");
+            underTest.attackReference.get().getForDamageRoll.returns({
+                principalComponent: {
+                    damageRoll: new DamageRoll(new MockRoll("1d6 + 5"), ItemFeaturesModel.emptyFeatures()),
+                    damageType: "physical",
+                    damageSource: underTest.attackReference.get().name,
+                },
+                otherComponents: [],
+            });
+
+            underTest.useAction({ action: "applyDamage" });
+
+            const rollOptions = initMock.lastCall.args[1];
+            expect(rollOptions.costBase.costType).to.equal("V");
+        });
+
+        it("should use 'E' cost type when numbingDamage is toggled and attack has null cost type", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            const initMock = sandbox.stub(DamageInitializer, "rollFromDamageRoll").resolves(chatCardMock);
+            underTest.checkReportReference.get().succeeded = true;
+            sandbox.stub(underTest.attackReference.get(), "costType").get(() => null);
+            underTest.attackReference.get().getForDamageRoll.returns({
+                principalComponent: {
+                    damageRoll: new DamageRoll(new MockRoll("1d6"), ItemFeaturesModel.emptyFeatures()),
+                    damageType: "physical",
+                    damageSource: underTest.attackReference.get().name,
+                },
+                otherComponents: [],
+            });
+
+            underTest.useDegreeOfSuccessOption({ action: "numbingDamageUpdate", multiplicity: "1" }).action();
+            underTest.useAction({ action: "applyDamage" });
+
+            const rollOptions = initMock.lastCall.args[1];
+            expect(rollOptions.costBase.costType).to.equal("E");
+        });
+
+        it("should work together with damage increases", () => {
+            const underTest = setUpDamageActionHandler(sandbox);
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            const initMock = sandbox.stub(DamageInitializer, "rollFromDamageRoll").resolves(chatCardMock);
+            underTest.checkReportReference.get().succeeded = true;
+            sandbox.stub(underTest.attackReference.get(), "costType").get(() => "V");
+            underTest.attackReference.get().getForDamageRoll.returns({
+                principalComponent: {
+                    damageRoll: new DamageRoll(new MockRoll("1d6 + 5"), ItemFeaturesModel.emptyFeatures()),
+                    damageType: "physical",
+                    damageSource: underTest.attackReference.get().name,
+                },
+                otherComponents: [],
+            });
+            const mockRoll = new MockRoll("1d6 + 5");
+            mockRoll.terms.push(foundryApi.rollInfra.plusTerm(), foundryApi.rollInfra.numericTerm(2));
+            stubFoundryRoll(mockRoll, sandbox);
+
+            underTest.useDegreeOfSuccessOption({ action: "damageUpdate", multiplicity: "2" }).action();
+            underTest.useDegreeOfSuccessOption({ action: "numbingDamageUpdate", multiplicity: "1" }).action();
+            underTest.useAction({ action: "applyDamage" });
+
+            const damageRoll = initMock.lastCall.args[0][0].damageRoll;
+            const rollOptions = initMock.lastCall.args[1];
+            expect(damageRoll.getDamageFormula()).to.equal("1W6 + 7");
+            expect(rollOptions.costBase.costType).to.equal("E");
+        });
+    });
 });
 
 function setUpDamageActionHandler(sandbox: SinonSandbox): WithMockedRefs<DamageActionHandler> {
@@ -427,6 +610,7 @@ function setUpDamageActionHandler(sandbox: SinonSandbox): WithMockedRefs<DamageA
     const attackReference = setUpMockAttackSelfReference(sandbox, actor);
     setNecessaryDefaultsForAttackProperties(attackReference, sandbox);
     const checkReportReference = setUpCheckReportSelfReference();
+    checkReportReference.skill = { id: "melee", attributes: { strength: 3, agility: 3 }, points: 3 };
     return withToObjectReturnsSelf(() => {
         return DamageActionHandler.initialize(AgentReference.initialize(actor), attackReference, checkReportReference);
     }) as unknown as WithMockedRefs<DamageActionHandler>; /*TS cannot know that we're injecting mocks*/
