@@ -59,7 +59,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
             options: NumberDegreeOfSuccessOptionField.initialize(
                 damageAdditionConfig.degreesOfSuccess,
                 damageAdditionConfig.damageIncrease,
-                damageAdditionConfig.textTemplate
+                "splittermond.chatCard.attackMessage.increaseDamage"
             ),
             consumedGrazingHitCost: false,
             convertedToNumbingDamage: false,
