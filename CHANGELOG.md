@@ -6,6 +6,7 @@
 - Modifkatoren mit ID <Fertigkeit> sind wieder Auswählbar
 - Zauber auf Charakteren können verschoben und sortiert werden.
 - Freie Manöver sind wieder im Fernkampf verfügbar
+- Vorbereitete Angriffe werden bei erfolgtem Angriff wieder zurückgesetzt.
 
 ## 13.11.3
 
