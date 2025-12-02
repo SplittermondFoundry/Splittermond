@@ -220,6 +220,12 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             result[item.skill.id].spells.push(item);
             return result;
         }, {});
+        for (const key in sheetData.spellsBySkill) {
+            sheetData.spellsBySkill[key].spells.sort((a, b) => a.sort - b.sort);
+        }
+        sheetData.spellsBySkill = Object.fromEntries(
+            Object.entries(sheetData.spellsBySkill).sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+        );
         for (const key in sheetData.itemsByType) {
             sheetData.itemsByType[key].sort((a, b) => a.sort - b.sort);
         }
@@ -587,7 +593,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         const attackId = target.dataset.attackId;
         if (attackId) {
             event.dataTransfer.setData(
-                "application/json",
+                "text/plain",
                 JSON.stringify({
                     type: "attack",
                     attackId: attackId,
@@ -599,7 +605,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         return super._onDragStart(event);
     }
     _onDrop(event) {
-        const droppedData = event.dataTransfer.getData("application/json");
+        const droppedData = event.dataTransfer.getData("text/plain");
         const droppedDataParsed = !!droppedData ? JSON.parse(droppedData) : null;
         if (droppedDataParsed && droppedDataParsed.type === "attack") {
             const sourceActor = foundryApi.getActor(droppedDataParsed.actorId);

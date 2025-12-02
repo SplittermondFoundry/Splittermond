@@ -43,7 +43,7 @@
             </div>
             <ol class="list-body item-list">
                 {{#each this.spells}}
-                    <li class="list-item item {{#if this.enoughFocus}}available{{else}}not-available{{/if}}"
+                    <li class="list-item item {{#if this.enoughFocus}}available{{else}}not-available{{/if}} draggable"
                         data-item-id="{{this.id}}">
                         <img width="32" height="32" src="{{{this.img}}}">
                         <label>

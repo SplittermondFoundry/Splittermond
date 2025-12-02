@@ -637,5 +637,51 @@ export function actorTest(context: QuenchBatchContext) {
                 expect(equipmentItems[1].sort, "Second item sort").to.be.lessThan(equipmentItems[2].sort);
             })
         );
+
+        it(
+            "should sort spells correctly in prepareContext",
+            withActor(async (actor) => {
+                // Create items with explicit sort values out of order
+                const item1 = (
+                    await actor.createEmbeddedDocuments("Item", [
+                        { type: "spell", name: "C Spell", system: { skill: "combatmagic" }, sort: 100 },
+                    ])
+                )[0];
+                const item2 = (
+                    await actor.createEmbeddedDocuments("Item", [
+                        { type: "spell", name: "A Spell", system: { skill: "arcanelore" }, sort: 100000 },
+                    ])
+                )[0];
+                const item3 = (
+                    await actor.createEmbeddedDocuments("Item", [
+                        { type: "spell", name: "B spell", system: { skill: "arcanelore" }, sort: 200000 },
+                    ])
+                )[0];
+
+                // Verify items were created with the expected sort values (out of order by name)
+                expect(item1.sort, "Item1 sort").to.equal(100);
+                expect(item2.sort, "Item2 sort").to.equal(100000);
+                expect(item3.sort, "Item3 sort").to.equal(200000);
+
+                const sheet = new SplittermondCharacterSheet({ document: actor });
+                const context = await sheet._prepareContext();
+                if (
+                    !("spellsBySkill" in context) ||
+                    !context.spellsBySkill ||
+                    typeof context.spellsBySkill !== "object"
+                ) {
+                    expect.fail("Context should have spellsBySkill");
+                    throw new Error("Should have spellsBySkill"); //Satisfy compiler
+                }
+
+                const skills = Object.keys(context.spellsBySkill);
+                const arcaneLoreSpells = (context.spellsBySkill as Record<string, any>).arcanelore.spells;
+
+                expect(skills[0]).equal("arcanelore");
+                expect(skills[1]).equal("combatmagic");
+                expect(arcaneLoreSpells[0]._id).to.equal(item2.id);
+                expect(arcaneLoreSpells[1]._id).to.equal(item3.id);
+            })
+        );
     });
 }
