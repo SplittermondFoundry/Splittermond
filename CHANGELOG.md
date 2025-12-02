@@ -1,3 +1,12 @@
+## 13.11.4
+
+### Fixed 
+
+- Modifikatoren für NPC Antgriffe sind wieder Auswählbar
+- Modifkatoren mit ID <Fertigkeit> sind wieder Auswählbar
+- Zauber auf Charakteren können verschoben und sortiert werden.
+- Freie Manöver sind wieder im Fernkampf verfügbar
+
 ## 13.11.3
 
 ### New Features
