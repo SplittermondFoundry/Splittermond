@@ -471,10 +471,9 @@ describe("Skill", () => {
 
             // Add multiple selectable modifiers with different emphasis
             const visualModifier = getModifier({
-                groupId: "actor.skills",
+                groupId: "perception",
                 attributes: {
                     name: "Sichtprobe",
-                    skill: "perception",
                     emphasis: "Sichtprobe",
                     type: null,
                 },

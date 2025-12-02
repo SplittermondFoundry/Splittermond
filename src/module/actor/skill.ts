@@ -178,7 +178,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             .getModifiers();
         const fromSkill = this.skillModifiers().selectable().getModifiers();
         fromPath.push(...fromSkill);
-        return fromSkill;
+        return fromPath;
     }
 
     get isGrandmaster() {
