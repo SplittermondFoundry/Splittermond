@@ -23,6 +23,7 @@ import type { ActionHandler } from "module/util/chat/rollMessages/ChatCardCommon
 import { TickCostActionHandler } from "module/util/chat/rollMessages/attackChatMessage/TickCostActionHandler";
 import { isMember } from "module/util/util";
 import { splittermond } from "module/config";
+import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
 
 const constructorRegistryKey = "attackRollMessage";
 
@@ -87,12 +88,7 @@ export class AttackRollMessage extends RollMessage<
                 attackReference,
                 actorReference
             ).toObject(),
-            openDegreesOfSuccess: Math.max(
-                0,
-                checkReport.degreeOfSuccess.fromRoll +
-                    checkReport.degreeOfSuccess.modification -
-                    checkReport.maneuvers.length
-            ),
+            openDegreesOfSuccess: Math.max(0, totalDegreesOfSuccess(checkReport) - checkReport.maneuvers.length),
         });
     }
 
@@ -160,6 +156,11 @@ export class AttackRollMessage extends RollMessage<
         const newCheckReport = await addSplinterpointBonus(checkReport, splinterPointBonus);
         const readaptedCheckReport = this.attack.adaptForGrazingHit(newCheckReport);
         this.updateSource({ checkReport: readaptedCheckReport, splinterPointUsed: true });
+        this.updateSource({
+            openDegreesOfSuccess:
+                this.openDegreesOfSuccess +
+                (totalDegreesOfSuccess(newCheckReport) - totalDegreesOfSuccess(checkReport)),
+        });
     }
 
     get template() {

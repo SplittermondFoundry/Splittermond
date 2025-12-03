@@ -1,5 +1,6 @@
 import type { CheckReport } from "module/check/CheckReport";
 import { Dice } from "module/check/dice";
+import { foundryApi } from "module/api/foundryApi";
 
 export async function addSplinterpointBonus<T extends CheckReport>(
     checkReport: T,
@@ -12,6 +13,11 @@ export async function addSplinterpointBonus<T extends CheckReport>(
         checkReport.difficulty,
         checkReport.rollType
     );
+    checkReport.modifierElements.push({
+        isMalus: false,
+        value: `${splinterPointBonus}`,
+        description: foundryApi.localize("splittermond.splinterpoint"),
+    });
     return {
         ...checkReport,
         ...updatedReport,

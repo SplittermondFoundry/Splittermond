@@ -19,6 +19,7 @@ import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess"
 import { addSplinterpointBonus } from "module/check/addSplinterpoint";
 import { getRollResultClass } from "../ChatMessageUtils";
 import { RollMessage } from "module/util/chat/rollMessages/RollMessage";
+import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
 
 const constructorRegistryKey = "SpellRollMessage";
 
@@ -79,10 +80,7 @@ export class SpellRollMessage extends RollMessage<
                 spellReference,
                 actorReference
             ).toObject(),
-            openDegreesOfSuccess: Math.max(
-                0,
-                checkReport.degreeOfSuccess.fromRoll + checkReport.degreeOfSuccess.modification
-            ),
+            openDegreesOfSuccess: Math.max(0, totalDegreesOfSuccess(checkReport)),
         });
     }
 
@@ -149,6 +147,11 @@ export class SpellRollMessage extends RollMessage<
         const checkReport = this.checkReport;
         const newCheckReport = await addSplinterpointBonus(checkReport, splinterPointBonus);
         this.updateSource({ checkReport: newCheckReport, splinterPointUsed: true });
+        this.updateSource({
+            openDegreesOfSuccess:
+                this.openDegreesOfSuccess +
+                (totalDegreesOfSuccess(newCheckReport) - totalDegreesOfSuccess(checkReport)),
+        });
     }
 
     get template() {
