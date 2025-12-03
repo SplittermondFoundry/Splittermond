@@ -986,10 +986,15 @@ export default class SplittermondActor extends Actor {
     /** @returns {{pointSpent:boolean, getBonus(skillName:SplittermondSkill): number}} splinterpoints spent */
     spendSplinterpoint() {
         if (this.splinterpoints.value > 0) {
-            this.system.updateSource({
-                splinterpoints: {
-                    ...this.system.splinterpoints,
-                    value: parseInt(this.system.splinterpoints.value) - 1,
+            //We can keep this function dangling. It is not integral to the spend splinterpoint flow to have this
+            //action completed before we return.
+            // noinspection JSIgnoredPromiseFromCall
+            this.update({
+                system: {
+                    splinterpoints: {
+                        ...this.system.splinterpoints,
+                        value: parseInt(this.system.splinterpoints.value) - 1,
+                    },
                 },
             });
             return { pointSpent: true, getBonus: (skillName) => this.#getSplinterpointBonus(skillName) };

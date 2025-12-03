@@ -1,3 +1,9 @@
+## 13.11.5
+
+### Fixed
+
+- Splitterpunkte von Angriffen und Zaubern werden jetzt korrekt abgerechnet und angezeigt.
+
 ## 13.11.4
 
 ### Fixed
