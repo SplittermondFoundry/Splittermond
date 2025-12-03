@@ -1,6 +1,6 @@
 ## 13.11.4
 
-### Fixed 
+### Fixed
 
 - Modifikatoren für NPC Antgriffe sind wieder Auswählbar
 - Modifkatoren mit ID <Fertigkeit> sind wieder Auswählbar
@@ -11,9 +11,12 @@
 - Beim Sortieren und Übertragen von Zaubern zwischen Akteuren, wird keine Fertigkeitsdialog mehr aufgerufen
 
 ### Changes
-- Zauber ohne Verstärkunskosten erhalten keine Option zur Verstärkung des Zaubers.
-- "Arkane Kunde" kann als Zauberfertigkeit ausgewählt werden wenn der Zauber nicht "Verfügbar In" gesetzt, und keine 
-Magieschule als Fertigkeit gesetzt hat.
+
+- Zauber ohne Verstärkungskosten erhalten keine Option zur Verstärkung des Zaubers.
+- "Arkane Kunde" kann als Zauberfertigkeit ausgewählt werden, wenn der Zauber nicht "Verfügbar In" gesetzt, und keine
+  Magieschule als Fertigkeit gesetzt hat.
+- Fertigkeiten sind nicht mehr Ziehbar.
+- Das Platzieren von Fertigkeiten und Angriffen auf der Hotbar wird nicht mehr unterstützt.
 
 ## 13.11.3
 
@@ -22,7 +25,6 @@ Magieschule als Fertigkeit gesetzt hat.
 - Die Manöver "Störender Angriff" und "Betäubungsschlag" können jetzt abgerechnet werden.
 - Die Manöver sind nur im Nahkampf verfügbar.
 
-  
 ### Fixed
 
 - Im Fernkampf werden nach dem Wurf nur 3 Ticks hinzugefügt.
