@@ -1,6 +1,6 @@
 {
     "name": "@SplittermondFoundry/splittermond",
-    "version": "13.11.5",
+    "version": "13.11.6",
     "description": "A system for playing the german pen and paper RPG Splittermond.",
     "main": "src/splittermond.js",
     "type": "module",
