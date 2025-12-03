@@ -9,6 +9,7 @@ import { FoundryDialog } from "module/api/Application";
 import { SplittermondBaseActorSheet } from "module/data/SplittermondApplication";
 import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import { MasteryDataModel } from "module/item/dataModel/MasteryDataModel";
+import SplittermondActor from "module/actor/actor";
 
 declare const foundry: any;
 declare const global: any;
@@ -119,6 +120,30 @@ describe("SplittermondActorSheet", () => {
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("deathmagic");
             expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(1);
+        });
+
+        it("should not prompt for skill selection source is a spell on an actor", async () => {
+            let invocationCount = 0;
+            foundry.applications.api.DialogV2.prototype.render = function () {
+                invocationCount += 1;
+                return this.options.buttons
+                    .find((b: { action: string; callback: Function }) => b.action === "deathmagic")
+                    .callback();
+            };
+
+            const itemData: any = {
+                type: "spell",
+                actor: sandbox.createStubInstance(SplittermondActor),
+                //The skill validation indeed accepts any skill. This is to highlight we assume the item is configured when it comes from an actor
+                system: new SpellDataModel({ availableIn: "", skill: "endurance", skillLevel: 0 } as any),
+            };
+
+            await sheet._onDropDocument(mockEvent, itemData);
+
+            expect(invocationCount).to.equal(0);
+            expect(superFunctionStub.called).to.be.true;
+            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("endurance");
+            expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(0);
         });
 
         [

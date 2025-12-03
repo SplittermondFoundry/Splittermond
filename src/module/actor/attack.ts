@@ -446,10 +446,16 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             return;
         }
         const checkReport = this.adaptForGrazingHit(result.report);
-        return SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, checkReport), {
-            ...result.rollOptions,
-            type: "attackRollMessage",
-        }).sendToChat();
+        return (
+            SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, checkReport), {
+                ...result.rollOptions,
+                type: "attackRollMessage",
+            })
+                .sendToChat()
+                // We need to return that to the token action bar so that it knows to delete prepared attacks
+                //Ideally, attack preparation would probably be handled here though!
+                .then(() => true)
+        );
     }
 
     public adaptForGrazingHit(checkReport: CheckReport) {

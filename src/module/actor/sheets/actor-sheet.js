@@ -220,6 +220,12 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             result[item.skill.id].spells.push(item);
             return result;
         }, {});
+        for (const key in sheetData.spellsBySkill) {
+            sheetData.spellsBySkill[key].spells.sort((a, b) => a.sort - b.sort);
+        }
+        sheetData.spellsBySkill = Object.fromEntries(
+            Object.entries(sheetData.spellsBySkill).sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+        );
         for (const key in sheetData.itemsByType) {
             sheetData.itemsByType[key].sort((a, b) => a.sort - b.sort);
         }
@@ -587,7 +593,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         const attackId = target.dataset.attackId;
         if (attackId) {
             event.dataTransfer.setData(
-                "application/json",
+                "text/plain",
                 JSON.stringify({
                     type: "attack",
                     attackId: attackId,
@@ -599,7 +605,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         return super._onDragStart(event);
     }
     _onDrop(event) {
-        const droppedData = event.dataTransfer.getData("application/json");
+        const droppedData = event.dataTransfer.getData("text/plain");
         const droppedDataParsed = !!droppedData ? JSON.parse(droppedData) : null;
         if (droppedDataParsed && droppedDataParsed.type === "attack") {
             const sourceActor = foundryApi.getActor(droppedDataParsed.actorId);
@@ -634,7 +640,12 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             foundryApi.informUser("splittermond.applications.actorSheet.invalidItemType", { type: translatedType });
             return null;
         }
-        if (document.type === "spell") {
+        /* Assume that the Spell was configured when it was brought on the actor. Therefore, if a document has an actor, there
+         * is no need to ask again. This is important e.g. for scrolls. In the end, what we want to catch here are spells from
+         * a compendium that come with the 'arcanelore' skill but are actually supposed to be from a specific school, given in
+         * 'availableIn'
+         */
+        if (document.type === "spell" && !document.actor) {
             const allowedSkills = splittermond.skillGroups.magic;
             const dialogTitle = foundryApi.localize("splittermond.chooseMagicSkill");
             const parsed = parseAvailableIn(document.system?.availableIn ?? "", allowedSkills);
@@ -647,7 +658,11 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                     dialogTitle
                 );
             } else if (parsed.length === 0) {
-                selectedSkill = await selectFromAllSkills(allowedSkills, [0, 1, 2, 3, 4, 5], dialogTitle);
+                selectedSkill = await selectFromAllSkills(
+                    ["arcanelore", ...allowedSkills],
+                    [0, 1, 2, 3, 4, 5],
+                    dialogTitle
+                );
             } else if (parsed.length === 1) {
                 selectedSkill = { skill: parsed[0].skill, level: parsed[0].level ?? 0 };
             }

@@ -39,10 +39,9 @@ export class NoActionOptionsHandler extends SplittermondDataModel<NoActionOption
     static defineSchema = NoActionOptionsHandlerSchema;
 
     static initialize(attack: Attack): NoActionOptionsHandler {
-        const isRanged = isMember(splittermond.skillGroups.ranged, attack.skill.id);
         return new NoActionOptionsHandler({
             range: {
-                isOption: isRanged,
+                isOption: isMember(splittermond.skillGroups.ranged, attack.skill.id),
                 options: NumberDegreeOfSuccessOptionField.initialize(
                     splittermondSpellEnhancement.range.degreesOfSuccess,
                     0, //We cannot do calculations on range, because the value can be given as "5m" or similar
@@ -50,7 +49,7 @@ export class NoActionOptionsHandler extends SplittermondDataModel<NoActionOption
                 ),
             },
             interruptingAttack: {
-                isOption: !isRanged,
+                isOption: true,
                 options: NumberDegreeOfSuccessOptionField.initialize(
                     splittermond.attackEnhancement.interruptingAttack.cost,
                     splittermondAttackEnhancements.interruptingAttack.bonusOnInterruption,

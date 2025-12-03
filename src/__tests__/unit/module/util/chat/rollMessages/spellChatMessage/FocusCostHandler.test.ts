@@ -92,6 +92,19 @@ describe("FocusCostActionHandler", () => {
             expect(multiplicitiesRendered).to.not.include("2");
         });
 
+        it("should not render spell Enhancement if no cost is set", () => {
+            const underTest = setUpFocusActionHandler(sandbox);
+            underTest.spellReference.getItem().getCostsForFinishedRoll.returns(new Cost(6, 2, true).asPrimaryCost());
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.updateSource({ spellEnhancement: { cost: 0 } });
+
+            const options = underTest.renderDegreeOfSuccessOptions();
+
+            const missingAction = ["spellEnhancementUpdate"];
+
+            expect(options.map((o) => o.render.action)).to.not.contain.members(missingAction);
+        });
+
         (
             [
                 ["consumedFocusUpdate", new Cost(0, 1, false)],

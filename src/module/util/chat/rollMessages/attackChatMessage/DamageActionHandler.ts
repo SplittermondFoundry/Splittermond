@@ -17,7 +17,6 @@ import { foundryApi } from "module/api/foundryApi";
 import { asString, condense, mapRoll } from "module/modifiers/expressions/scalar";
 import { toDisplayFormula, toRollFormula } from "module/util/damage/util";
 import type Attack from "module/actor/attack";
-import { isMember } from "module/util/util";
 
 function DamageActionHandlerSchema() {
     return {
@@ -60,7 +59,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
             options: NumberDegreeOfSuccessOptionField.initialize(
                 damageAdditionConfig.degreesOfSuccess,
                 damageAdditionConfig.damageIncrease,
-                damageAdditionConfig.textTemplate
+                "splittermond.chatCard.attackMessage.increaseDamage"
             ),
             consumedGrazingHitCost: false,
             convertedToNumbingDamage: false,
@@ -243,10 +242,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
     }
 
     private isOption() {
-        return (
-            this.checkReportReference.get().succeeded &&
-            !isMember(splittermond.skillGroups.ranged, this.checkReportReference.get().skill.id)
-        );
+        return this.checkReportReference.get().succeeded;
     }
 
     get totalDamage() {

@@ -12,6 +12,8 @@ import { DamageRoll } from "module/util/damage/DamageRoll";
 import { createTestRoll, stubRollApi } from "../../RollMock";
 import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 import Skill from "module/actor/skill";
+import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
+import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 
 describe("Attack", () => {
     let sandbox: SinonSandbox;
@@ -432,6 +434,41 @@ describe("Attack", () => {
         const underTest = Attack.initialize(actor, attackItem);
 
         expect(underTest.isPrepared).to.be.true;
+    });
+
+    it("should return 'true' if an attack was rolled", async () => {
+        const actor = setUpActor(sandbox);
+        const attackItem = setUpAttackItem();
+        const underTest = Attack.initialize(actor, attackItem);
+
+        const report = {
+            report: {
+                defenseType: "gw" as const,
+                degreeOfSuccess: { fromRoll: 0, modification: 0 },
+                degreeOfSuccessMessage: "",
+                difficulty: 0,
+                grazingHitPenalty: 0,
+                hideDifficulty: false,
+                isCrit: false,
+                isFumble: false,
+                maneuvers: [],
+                modifierElements: [],
+                roll: { dice: [], tooltip: "", total: 0 },
+                rollType: "safety",
+                skill: { attributes: { strength: 3, intuition: 3 }, id: "melee", points: 1 },
+                succeeded: false,
+            },
+            rollOptions: {},
+        };
+        const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+        chatCardMock.sendToChat.resolves();
+        sandbox.stub(Skill.prototype, "roll").resolves(report);
+        sandbox.stub(AttackRollMessage, "initialize").returns(sandbox.createStubInstance(AttackRollMessage));
+        sandbox.stub(SplittermondChatCard, "create").returns(chatCardMock);
+
+        const result = await underTest.roll({});
+
+        expect(result).to.be.true;
     });
 
     ["longrange", "throwing"].forEach((skill) => {

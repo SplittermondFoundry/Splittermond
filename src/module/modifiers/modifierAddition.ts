@@ -102,7 +102,15 @@ export function initAddModifier(
                         .filter((item) => item.type === "npcattack")
                         .map((item) => `skill.${item.id}`) //name would be better thematically (skill name for npc attacks is the item name) but id is more reliable
                         .forEach((skill) => {
-                            modifiers.push(createModifier(skill, times(of(multiplier), modifier.value), item, type));
+                            modifiers.push(
+                                createModifier(
+                                    skill,
+                                    times(of(multiplier), modifier.value),
+                                    item,
+                                    type,
+                                    modifier.attributes as Record<string, string>
+                                )
+                            );
                         });
                     break;
                 default:
@@ -116,14 +124,21 @@ export function initAddModifier(
     };
 }
 
-function createModifier(path: string, value: ScalarExpression, item: SplittermondItem, type: ModifierType): IModifier {
+function createModifier(
+    path: string,
+    value: ScalarExpression,
+    item: SplittermondItem,
+    type: ModifierType,
+    attributes: Record<string, string> = {}
+): IModifier {
     return new Modifier(
         path,
         value,
         {
-            name: item.name,
+            name: attributes.emphasis ?? item.name,
             type,
         },
-        item
+        item,
+        !!attributes.emphasis
     );
 }
