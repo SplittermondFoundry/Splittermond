@@ -8,6 +8,7 @@
 - Freie Manöver sind wieder im Fernkampf verfügbar
 - Vorbereitete Angriffe werden bei erfolgtem Angriff wieder zurückgesetzt.
 - Proben für Zauber ohne Verstärkungskosten funktionieren jetzt.
+- Beim Sortieren von Zaubern auf dem Gleichen 
 
 ### Changes
 - Zauber ohne Verstärkunskosten erhalten keine Option zur Verstärkung des Zaubers.

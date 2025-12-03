@@ -640,7 +640,12 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             foundryApi.informUser("splittermond.applications.actorSheet.invalidItemType", { type: translatedType });
             return null;
         }
-        if (document.type === "spell") {
+        /* Assume that the Spell was configured when it was brought on the actor. Therefore, if a document has an actor, there
+         * is no need to ask again. This is important e.g. for scrolls. In the end, what we want to catch here are spells from
+         * a compendium that come with the 'arcanelore' skill but are actually supposed to be from a specific school, given in
+         * 'availableIn'
+         */
+        if (document.type === "spell" && !document.actor) {
             const allowedSkills = splittermond.skillGroups.magic;
             const dialogTitle = foundryApi.localize("splittermond.chooseMagicSkill");
             const parsed = parseAvailableIn(document.system?.availableIn ?? "", allowedSkills);

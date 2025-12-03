@@ -35,10 +35,6 @@ export function skillAlreadySet(item: SpellDataModel | MasteryDataModel, referen
     return !!skill && referenceSet.includes(skill);
 }
 
-/**
- * We're not using DialogV2, because it is way harder to set up the one-click selection with buttons.
- * Prompts the user to select a skill/level from parsed options, or falls back to all allowed skills.
- */
 export async function selectFromParsedSkills(
     parsed: Array<SkillOption>,
     dialogTitle: string
