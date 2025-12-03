@@ -658,7 +658,11 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                     dialogTitle
                 );
             } else if (parsed.length === 0) {
-                selectedSkill = await selectFromAllSkills(allowedSkills, [0, 1, 2, 3, 4, 5], dialogTitle);
+                selectedSkill = await selectFromAllSkills(
+                    ["arcanelore", ...allowedSkills],
+                    [0, 1, 2, 3, 4, 5],
+                    dialogTitle
+                );
             } else if (parsed.length === 1) {
                 selectedSkill = { skill: parsed[0].skill, level: parsed[0].level ?? 0 };
             }
