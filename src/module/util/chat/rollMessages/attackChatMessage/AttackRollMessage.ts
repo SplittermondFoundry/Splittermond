@@ -81,7 +81,7 @@ export class AttackRollMessage extends RollMessage<
             constructorKey: constructorRegistryKey,
             splinterPointUsed: false,
             damageHandler: DamageActionHandler.initialize(actorReference, attackReference, reportReference).toObject(),
-            tickCostHandler: TickCostActionHandler.initialize(actorReference, tickCost),
+            tickCostHandler: TickCostActionHandler.initialize(actorReference, reportReference, tickCost),
             noActionOptionsHandler: NoActionOptionsHandler.initialize(attack).toObject(),
             noOptionsActionHandler: NoOptionsActionHandler.initialize(
                 reportReference,

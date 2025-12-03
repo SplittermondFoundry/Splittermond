@@ -1,3 +1,9 @@
+## 13.11.7
+
+### Fixed
+
+- Herausragend erfolgreiche Angriffe reduzieren die Tickzahl
+
 ## 13.11.6
 
 ### Fixed
