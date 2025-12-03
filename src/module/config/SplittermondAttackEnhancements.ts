@@ -8,4 +8,7 @@ export const splittermondAttackEnhancements = {
         cost: 1,
         textTemplate: "splittermond.degreeOfSuccessOptions.range",
     },
+    criticalSuccess: {
+        weaponspeedReduction: 1,
+    },
 } as const;

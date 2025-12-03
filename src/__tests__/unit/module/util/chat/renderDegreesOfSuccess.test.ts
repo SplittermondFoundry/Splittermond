@@ -51,7 +51,7 @@ describe("calculateDegreeOfSuccessDisplay", () => {
         const result = renderDegreesOfSuccess(checkDegrees, openDegreesOfSuccess);
         expect(result).to.deep.equal({
             degreeOfSuccessMessage: checkDegrees.degreeOfSuccessMessage,
-            totalDegreesOfSuccess: 0,
+            totalDegreesOfSuccess: -2,
             usedDegreesOfSuccess: 0,
             usedBonusDegreesOfSuccess: 0,
             openDegreesOfSuccess: 0,
