@@ -19,6 +19,7 @@ import Attack from "module/actor/attack";
 import { withToObjectReturnsSelf } from "../util";
 import { Dice } from "module/check/dice";
 import type { SplittermondSkill } from "module/config/skillGroups";
+import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
 
 describe("AttackRollMessage", () => {
     let sandbox: sinon.SinonSandbox;
@@ -153,20 +154,42 @@ describe("AttackRollMessage", () => {
         expect(warnUserStub.called).to.be.false;
     });
     describe("Splinterpoint usage", () => {
-        it("should increase degrees of success by three", async () => {
-            const underTest = createAttackRollMessage(sandbox);
-            (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
-            underTest.actorReference.getAgent().spendSplinterpoint.returns({
-                pointSpent: true,
-                getBonus() {
-                    return 3;
-                },
+        [
+            [3, 3],
+            [5, 4],
+        ].forEach(([splinterpointValue, increase]) => {
+            it(`should increase degrees of success by ${splinterpointValue}`, async () => {
+                const underTest = createAttackRollMessage(sandbox);
+                (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
+                underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                    pointSpent: true,
+                    getBonus() {
+                        return splinterpointValue;
+                    },
+                });
+                underTest.updateSource({ checkReport: fullCheckReport() });
+
+                await underTest.handleGenericAction({ action: "useSplinterpoint" });
+
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
             });
-            underTest.updateSource({ checkReport: fullCheckReport() });
+            it(`should increase open degrees of success by ${increase}`, async () => {
+                const underTest = createAttackRollMessage(sandbox);
+                (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
+                underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                    pointSpent: true,
+                    getBonus() {
+                        return splinterpointValue;
+                    },
+                });
+                underTest.updateSource({ checkReport: fullCheckReport() });
+                underTest.updateSource({ openDegreesOfSuccess: totalDegreesOfSuccess(underTest.checkReport) });
 
-            await underTest.handleGenericAction({ action: "useSplinterpoint" });
+                await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 3, modification: 0 });
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
+                expect(underTest.openDegreesOfSuccess).to.deep.equal(increase);
+            });
         });
 
         it("should only be usable once", async () => {
@@ -342,7 +365,7 @@ describe("AttackRollMessage", () => {
                 isCrit: false,
                 isFumble: false,
                 modifierElements: [],
-                roll: { dice: [{ total: 5 }], tooltip: "", total: 15 },
+                roll: { dice: [{ total: 5 }], tooltip: "", total: 16 },
                 rollType: "standard",
                 skill: { attributes: { strength: 1, agility: 2 }, id: "slashing", points: 7 },
                 maneuvers: [],

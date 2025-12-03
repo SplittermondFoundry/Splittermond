@@ -20,6 +20,7 @@ import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeat
 import { DamageInitializer } from "module/util/chat/damageChatMessage/initDamage";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { withToObjectReturnsSelf } from "../util";
+import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
 
 describe("SpellRollMessage", () => {
     let sandbox: sinon.SinonSandbox;
@@ -174,19 +175,40 @@ describe("SpellRollMessage", () => {
         expect(warnUserStub.called).to.be.false;
     });
     describe("Splinterpoint usage", () => {
-        it("should increase degrees of success by three", async () => {
-            const underTest = createSpellRollMessage(sandbox);
-            underTest.actorReference.getAgent().spendSplinterpoint.returns({
-                pointSpent: true,
-                getBonus() {
-                    return 3;
-                },
+        [
+            [3, 3],
+            [5, 4],
+        ].forEach(([splinterpointValue, increase]) => {
+            it(`should increase degrees of success by ${splinterpointValue}`, async () => {
+                const underTest = createSpellRollMessage(sandbox);
+                underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                    pointSpent: true,
+                    getBonus() {
+                        return splinterpointValue;
+                    },
+                });
+                underTest.updateSource({ checkReport: fullCheckReport() });
+
+                await underTest.handleGenericAction({ action: "useSplinterpoint" });
+
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
             });
-            underTest.updateSource({ checkReport: fullCheckReport() });
+            it(`should increase open degrees of success by ${increase}`, async () => {
+                const underTest = createSpellRollMessage(sandbox);
+                underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                    pointSpent: true,
+                    getBonus() {
+                        return splinterpointValue;
+                    },
+                });
+                underTest.updateSource({ checkReport: fullCheckReport() });
+                underTest.updateSource({ openDegreesOfSuccess: totalDegreesOfSuccess(underTest.checkReport) });
 
-            await underTest.handleGenericAction({ action: "useSplinterpoint" });
+                await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 3, modification: 0 });
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
+                expect(underTest.openDegreesOfSuccess).to.deep.equal(increase);
+            });
         });
 
         it("should only be usable once", async () => {
@@ -272,7 +294,7 @@ describe("SpellRollMessage", () => {
                 isCrit: false,
                 isFumble: false,
                 modifierElements: [],
-                roll: { dice: [{ total: 5 }], tooltip: "", total: 15 },
+                roll: { dice: [{ total: 6 }], tooltip: "", total: 16 },
                 rollType: "standard",
                 skill: { attributes: { mystic: 1, mind: 2 }, id: "windmagic", points: 7 },
                 maneuvers: [],

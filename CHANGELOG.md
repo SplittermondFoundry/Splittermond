@@ -1,3 +1,9 @@
+## 13.11.6
+
+### Fixed
+
+- Splitterpunkte erhöhen die Anzahl offener Erfolgsgrade
+  
 ## 13.11.5
 
 ### Fixed
