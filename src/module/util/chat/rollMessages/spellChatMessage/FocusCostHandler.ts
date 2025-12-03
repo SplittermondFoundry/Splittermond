@@ -146,16 +146,18 @@ export class FocusCostHandler extends SplittermondDataModel<FocusCostHandlerType
                 .forEach((m) => options.push(m));
         }
 
-        options.push({
-            render: {
-                checked: this.spellEnhancement.checked,
-                disabled: this.used,
-                action: "spellEnhancementUpdate",
-                multiplicity: "1",
-                text: `${this.spellReference.getItem().enhancementCosts} ${this.spellReference.getItem().enhancementDescription}`,
-            },
-            cost: this.spellEnhancement.checked ? -1 * this.spellEnhancement.cost : this.spellEnhancement.cost,
-        });
+        if (this.spellEnhancement.cost !== 0) {
+            options.push({
+                render: {
+                    checked: this.spellEnhancement.checked,
+                    disabled: this.used,
+                    action: "spellEnhancementUpdate",
+                    multiplicity: "1",
+                    text: `${this.spellReference.getItem().enhancementCosts} ${this.spellReference.getItem().enhancementDescription}`,
+                },
+                cost: this.spellEnhancement.checked ? -1 * this.spellEnhancement.cost : this.spellEnhancement.cost,
+            });
+        }
         return options;
     }
     private overshootsCost(cost: CostModifier) {
@@ -231,11 +233,7 @@ export class FocusCostHandler extends SplittermondDataModel<FocusCostHandlerType
 
     private updateFocus(type: "consumed" | "exhausted" | "channeled", multiplicity: number) {
         if (!this[type].isOption) {
-            console.warn(`Splittermond | Attempt to update option ${type}, when it should not be available`);
-            return {
-                usedDegreesOfSuccess: 0,
-                action() {},
-            };
+            return this.returnNoAction(type);
         }
         const option = this[type].forMultiplicity(multiplicity);
         return {
@@ -249,6 +247,9 @@ export class FocusCostHandler extends SplittermondDataModel<FocusCostHandlerType
     }
 
     private updateSpellEnhancement() {
+        if (this.spellEnhancement.cost === 0) {
+            return this.returnNoAction("spellEnhancementUpdate");
+        }
         return {
             usedDegreesOfSuccess: this.spellEnhancement.checked
                 ? -1 * this.spellEnhancement.cost
@@ -266,6 +267,13 @@ export class FocusCostHandler extends SplittermondDataModel<FocusCostHandlerType
                     this.subtractCost(this.spellEnhancement.effect);
                 }
             },
+        };
+    }
+    private returnNoAction(type: string) {
+        console.warn(`Splittermond | Attempt to update option ${type}, when it should not be available`);
+        return {
+            usedDegreesOfSuccess: 0,
+            action() {},
         };
     }
 

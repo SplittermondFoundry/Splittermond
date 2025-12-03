@@ -7,6 +7,10 @@
 - Zauber auf Charakteren können verschoben und sortiert werden.
 - Freie Manöver sind wieder im Fernkampf verfügbar
 - Vorbereitete Angriffe werden bei erfolgtem Angriff wieder zurückgesetzt.
+- Proben für Zauber ohne Verstärkungskosten funktionieren jetzt.
+
+### Changes
+- Zauber ohne Verstärkunskosten erhalten keine Option zur Verstärkung des Zaubers.
 
 ## 13.11.3
 
