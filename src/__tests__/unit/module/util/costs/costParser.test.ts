@@ -74,6 +74,7 @@ describe("Parses degrees of success correctly", () => {
             ["3 Eg/+K4V1", 3],
             ["K4V1", 0],
             ["", 0],
+            ["0EG/+0", 0],
         ] as const
     ).forEach(([costString, expectedDegreesOfSuccess]) => {
         it(`Parses ${costString} as ${expectedDegreesOfSuccess}`, () => {
