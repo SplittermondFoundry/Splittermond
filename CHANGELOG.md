@@ -3,7 +3,9 @@
 ### Fixed
 
 - Splitterpunkte erhöhen die Anzahl offener Erfolgsgrade
-  
+- Splitterpunktnutzung wird als Modifikator angezeigt
+- Splitterpunktnutzung reduziert nicht die Anzahl der Erfolgsgrade
+
 ## 13.11.5
 
 ### Fixed

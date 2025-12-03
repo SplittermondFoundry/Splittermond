@@ -282,6 +282,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             value: `${Math.abs(mod.value)}`,
             description: mod.description,
         }));
+        //it may make sense to revisit each value and refactor the code to only use what is really needed.
         if (options.type === "spell" || options.type === "attack") {
             return {
                 rollOptions: ChatMessage.applyRollMode(
@@ -303,7 +304,8 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
                     rollType: checkData.rollType,
                     roll: {
                         total: rollResult.roll.total,
-                        dice: rollResult.roll.dice,
+                        //check report only needs the dice total, but that is a getter. We map it here explicitly
+                        dice: rollResult.roll.dice.map((die) => ({ total: die.total })),
                         tooltip: await rollResult.roll.getTooltip(),
                     },
                     modifierElements: [...this.#getStaticModifiersForReport(), ...mappedModifiers],

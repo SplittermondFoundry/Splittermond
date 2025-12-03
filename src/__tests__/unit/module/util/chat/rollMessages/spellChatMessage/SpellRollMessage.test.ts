@@ -211,6 +211,46 @@ describe("SpellRollMessage", () => {
             });
         });
 
+        it(`should add splinterpoint modifier`, async () => {
+            const underTest = createSpellRollMessage(sandbox);
+            underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                pointSpent: true,
+                getBonus() {
+                    return 3;
+                },
+            });
+            underTest.updateSource({ checkReport: fullCheckReport() });
+
+            await underTest.handleGenericAction({ action: "useSplinterpoint" });
+
+            expect(underTest.checkReport.modifierElements).to.deep.contain({
+                isMalus: false,
+                value: "3",
+                description: "splittermond.splinterpoint",
+            });
+        });
+        it("should retain degrees of success from triumphs", async () => {
+            const underTest = createSpellRollMessage(sandbox);
+            underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                pointSpent: true,
+                getBonus() {
+                    return 3;
+                },
+            });
+            const checkReport = fullCheckReport();
+            checkReport.isCrit = true;
+            checkReport.degreeOfSuccess.fromRoll += 3;
+            checkReport.roll.dice = [{ total: 19 }];
+            checkReport.roll.total = 29;
+            checkReport.isCrit = true;
+            checkReport.degreeOfSuccess.fromRoll = 9;
+            underTest.updateSource({ checkReport: checkReport });
+
+            await underTest.handleGenericAction({ action: "useSplinterpoint" });
+
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 10, modification: 0 });
+        });
+
         it("should only be usable once", async () => {
             const underTest = createSpellRollMessage(sandbox);
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
