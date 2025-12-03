@@ -3,6 +3,7 @@
 ### Fixed
 
 - Herausragend erfolgreiche Angriffe reduzieren die Tickzahl
+- Negative EG werden wieder angezeigt
 
 ## 13.11.6
 

@@ -25,10 +25,9 @@ function calculateDegreesOfSuccess(checkDegrees: CheckDegreesInput, openDegrees:
     const bonusDegrees = checkDegrees.modification;
     const totalDegreesOfSuccess = Math.max(0, degreesFromRoll + bonusDegrees);
 
-    // If total degrees are zero or negative, return all zeros
     if (totalDegreesOfSuccess <= 0) {
         return {
-            totalDegreesOfSuccess: 0,
+            totalDegreesOfSuccess: degreesFromRoll + bonusDegrees,
             usedDegreesOfSuccess: 0,
             usedBonusDegreesOfSuccess: 0,
             openDegreesOfSuccess: 0,
