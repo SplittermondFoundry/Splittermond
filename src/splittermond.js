@@ -257,6 +257,7 @@ Hooks.on("init", function () {
                     );
                 }
                 if (skill) {
+                    //JQuery less alternative see ticks.
                     return $(
                         `<a class="rollable" data-roll-type="skill" data-skill="${skill}" data-difficulty="${difficulty}"><i class="fas fa-dice"></i> ${label}</a>`
                     )[0];
@@ -289,6 +290,7 @@ Hooks.on("init", function () {
                     );
                 }
                 if (skill) {
+                    //JQuery less alternative see ticks.
                     return $(
                         `<a class="request-skill-check" data-skill="${skill}" data-difficulty="${difficulty}"><i class="fas fa-comment"></i> ${label}</a>`
                     )[0];
@@ -315,9 +317,12 @@ Hooks.on("init", function () {
                     message = parsedString[1];
                 }
 
-                return $(
-                    `<a class="add-tick" data-ticks="${ticks.value}" data-message="${message}"><i class="fas fa-stopwatch"></i> ${label}</a>`
-                )[0];
+                const newLink = document.createElement("a");
+                newLink.classList.add("add-tick");
+                newLink.dataset.ticks = ticks;
+                newLink.dataset.message = message;
+                newLink.insertAdjacentHTML("afterbegin", `<i class="fas fa-stopwatch"></i> ${label}`);
+                return newLink;
             },
         },
         {
@@ -332,6 +337,7 @@ Hooks.on("init", function () {
                     label = match[2];
                 }
 
+                //JQuery less alternative see ticks.
                 return $(
                     `<a class="pdflink" data-pdfcode="${pdfcode}" data-pdfpage="${pdfpage}"><i class="fas fa-file-pdf"></i> ${label}</a>`
                 )[0];

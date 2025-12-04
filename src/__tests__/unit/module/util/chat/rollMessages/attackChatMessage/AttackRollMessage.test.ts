@@ -459,25 +459,29 @@ function createAttackRollMessage(sandbox: SinonSandbox, skill: SplittermondSkill
     const mockAttack = setUpMockAttackSelfReference(sandbox, mockActor, skill);
     setNecessaryDefaultsForAttackProperties(mockAttack, sandbox);
     const attackRollMessage = withToObjectReturnsSelf(() => {
-        return AttackRollMessage.initialize(mockAttack, {
-            degreeOfSuccess: {
-                fromRoll: 0,
-                modification: 0,
+        return AttackRollMessage.initialize(
+            mockAttack,
+            {
+                degreeOfSuccess: {
+                    fromRoll: 0,
+                    modification: 0,
+                },
+                degreeOfSuccessMessage: "A very important message",
+                difficulty: 0,
+                defenseType: null,
+                hideDifficulty: false,
+                isCrit: false,
+                isFumble: false,
+                modifierElements: [],
+                roll: { dice: [], tooltip: "", total: 0 },
+                rollType: "standard",
+                skill: { attributes: {}, id: skill, points: 0 },
+                succeeded: true,
+                maneuvers: [],
+                grazingHitPenalty: 0,
             },
-            degreeOfSuccessMessage: "A very important message",
-            difficulty: 0,
-            defenseType: null,
-            hideDifficulty: false,
-            isCrit: false,
-            isFumble: false,
-            modifierElements: [],
-            roll: { dice: [], tooltip: "", total: 0 },
-            rollType: "standard",
-            skill: { attributes: {}, id: skill, points: 0 },
-            succeeded: true,
-            maneuvers: [],
-            grazingHitPenalty: 0,
-        });
+            3
+        );
     });
     injectParent(attackRollMessage);
     return attackRollMessage as unknown as WithMockedRefs<AttackRollMessage>; //TS cannot know that we injected mocks

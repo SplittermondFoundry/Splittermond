@@ -232,7 +232,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             };
             return SplittermondChatCard.create(
                 actor,
-                AttackRollMessage.initialize(Attack.initialize(actor, weapon, false), checkReport),
+                AttackRollMessage.initialize(Attack.initialize(actor, weapon, false), checkReport, 3),
                 getMessageConfig({ type: "attackRollMessage" })
             );
         }

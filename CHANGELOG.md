@@ -1,3 +1,10 @@
+## 13.11.8
+
+### Fixed
+
+- Tickberechnungen für Angriffe erfolgen nun in der Angriffsklasse
+- Tickzuschläge in Fließtexten funktionieren wieder.
+
 ## 13.11.7
 
 ### Fixed
