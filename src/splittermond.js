@@ -316,7 +316,7 @@ Hooks.on("init", function () {
                 }
 
                 return $(
-                    `<a class="add-tick" data-ticks="${ticks.value}" data-message="${message}"><i class="fas fa-stopwatch"></i> ${label}</a>`
+                    `<a class="add-tick" data-ticks="${ticks}" data-message="${message}"><i class="fas fa-stopwatch"></i> ${label}</a>`
                 )[0];
             },
         },
