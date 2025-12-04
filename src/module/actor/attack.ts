@@ -24,6 +24,7 @@ import { isMember } from "module/util/util";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
 import type { CheckReport } from "module/check";
+import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
 
 type Options<T extends object> = { [K in keyof T]+?: T[K] | null | undefined };
 
@@ -386,11 +387,12 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             weaponSpeed += parseInt(this.actor.tickMalus);
         return weaponSpeed;
     }
+    get isRanged() {
+        return isMember(splittermond.skillGroups.ranged, this.skill.id);
+    }
 
     get isPrepared() {
-        return isMember(splittermond.skillGroups.ranged, this.skill.id)
-            ? this.actor.getFlag("splittermond", "preparedAttack") == this.id
-            : true;
+        return this.isRanged ? this.actor.getFlag("splittermond", "preparedAttack") == this.id : true;
     }
 
     get actor(): SplittermondActor {
@@ -446,8 +448,9 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             return;
         }
         const checkReport = this.adaptForGrazingHit(result.report);
+        const tickCost = this.getAfterRollTickCost(checkReport);
         return (
-            SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, checkReport), {
+            SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, checkReport, tickCost), {
                 ...result.rollOptions,
                 type: "attackRollMessage",
             })
@@ -469,5 +472,15 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             degreeOfSuccessMessage: message,
             grazingHitPenalty: isGrazingHit ? splittermond.grazingHitBasePenalty * checkReport.maneuvers.length : 0,
         };
+    }
+
+    private getAfterRollTickCost(checkReport: CheckReport) {
+        const base = this.isRanged ? 3 : this.weaponSpeed;
+        const isCritSuccess =
+            totalDegreesOfSuccess(checkReport) >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold;
+        const successReduction = isCritSuccess
+            ? splittermond.attackEnhancement.criticalSuccess.weaponspeedReduction
+            : 0;
+        return base - successReduction;
     }
 }

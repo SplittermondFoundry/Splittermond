@@ -14,6 +14,7 @@ import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 import Skill from "module/actor/skill";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
+import { splittermond } from "module/config";
 
 describe("Attack", () => {
     let sandbox: SinonSandbox;
@@ -492,6 +493,90 @@ describe("Attack", () => {
             const underTest = Attack.initialize(actor, attackItem);
 
             expect(underTest.isPrepared).to.be.true;
+        });
+    });
+
+    describe("Tick calculation", () => {
+        function getReport() {
+            return {
+                report: {
+                    defenseType: "gw" as const,
+                    degreeOfSuccess: { fromRoll: 0, modification: 0 },
+                    degreeOfSuccessMessage: "",
+                    difficulty: 0,
+                    grazingHitPenalty: 0,
+                    hideDifficulty: false,
+                    isCrit: false,
+                    isFumble: false,
+                    maneuvers: [],
+                    modifierElements: [],
+                    roll: { dice: [], tooltip: "", total: 0 },
+                    rollType: "safety",
+                    skill: { attributes: { strength: 3, intuition: 3 }, id: "melee", points: 1 },
+                    succeeded: false,
+                },
+                rollOptions: {},
+            };
+        }
+        it("should serve 3 ticks for ranged attacks", async () => {
+            const actor = setUpActor(sandbox);
+            const attackItem = setUpAttackItem();
+            attackItem.system.skill = "longrange";
+            const underTest = Attack.initialize(actor, attackItem);
+
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            chatCardMock.sendToChat.resolves();
+            sandbox.stub(Skill.prototype, "roll").resolves(getReport());
+            const initStub = sandbox
+                .stub(AttackRollMessage, "initialize")
+                .returns(sandbox.createStubInstance(AttackRollMessage));
+            sandbox.stub(SplittermondChatCard, "create").returns(chatCardMock);
+
+            await underTest.roll({});
+
+            expect(initStub.firstCall.lastArg).to.equal(3);
+        });
+        it("should serve weaponspeed for melee attacks", async () => {
+            const actor = setUpActor(sandbox);
+            const attackItem = setUpAttackItem();
+            attackItem.system.skill = "blades";
+            const underTest = Attack.initialize(actor, attackItem);
+
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            chatCardMock.sendToChat.resolves();
+            sandbox.stub(Skill.prototype, "roll").resolves(getReport());
+            const initStub = sandbox
+                .stub(AttackRollMessage, "initialize")
+                .returns(sandbox.createStubInstance(AttackRollMessage));
+            sandbox.stub(SplittermondChatCard, "create").returns(chatCardMock);
+
+            await underTest.roll({});
+
+            expect(initStub.firstCall.lastArg).to.equal(attackItem.system.weaponSpeed);
+        });
+        it("should reduce tickCost for critical successes", async () => {
+            const actor = setUpActor(sandbox);
+            const attackItem = setUpAttackItem();
+            attackItem.system.skill = "blades";
+            const underTest = Attack.initialize(actor, attackItem);
+
+            const chatCardMock = sandbox.createStubInstance(SplittermondChatCard);
+            chatCardMock.sendToChat.resolves();
+
+            const report = getReport();
+            report.report.degreeOfSuccess = { fromRoll: 3, modification: 2 };
+            sandbox.stub(Skill.prototype, "roll").resolves(report);
+            const initStub = sandbox
+                .stub(AttackRollMessage, "initialize")
+                .returns(sandbox.createStubInstance(AttackRollMessage));
+            sandbox.stub(SplittermondChatCard, "create").returns(chatCardMock);
+
+            await underTest.roll({});
+
+            expect(initStub.firstCall.lastArg).to.equal(
+                (attackItem.system.weaponSpeed ?? 0) -
+                    splittermond.attackEnhancement.criticalSuccess.weaponspeedReduction
+            );
         });
     });
 });
