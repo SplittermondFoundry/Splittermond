@@ -75,7 +75,9 @@ export type SettingTypeMapper<T extends SettingTypes> = T extends typeof Number
       ? boolean
       : T extends typeof String
         ? string
-        : never;
+        : T extends new () => object
+          ? object
+          : never;
 export type SettingTypes = NumberConstructor | BooleanConstructor | StringConstructor;
 export interface SettingsConfig<T extends SettingTypes> {
     name?: string;

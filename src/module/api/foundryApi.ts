@@ -199,10 +199,10 @@ export const foundryApi = new (class FoundryApi {
                 // @ts-ignore
                 return game.settings.set(namespace, key, value);
             },
-            get<T extends typeof Number | typeof Boolean | typeof String>(
+            get<T>(
                 namespace: string,
                 key: string
-            ): SettingTypeMapper<T> {
+            ): T extends typeof Number | typeof Boolean | typeof String ? SettingTypeMapper<T> : T {
                 // @ts-ignore
                 return game.settings.get(namespace, key);
             },

@@ -1,6 +1,7 @@
 import { setPreCreateItemHook } from "module/combat/initialTickCalculator";
 import SplittermondCombat from "module/combat/combat";
 import type { FoundryCombatant } from "module/api/foundryTypes";
+import { foundryApi } from "module/api/foundryApi";
 
 export enum CombatPauseType {
     wait = 10000,
@@ -16,4 +17,17 @@ export function initializeCombat(config: (typeof CONFIG)["Combat"]) {
     config.documentClass = SplittermondCombat;
 
     setPreCreateItemHook();
+}
+
+export function setTurnMarker() {
+    const namespace = "core";
+    const key = "combatTrackerConfig";
+    const existing = foundryApi.settings.get<{ turnMarker: { src: string } }>(namespace, key);
+    foundryApi.settings.set(namespace, key, {
+        ...existing,
+        turnMarker: {
+            ...existing.turnMarker,
+            src: "systems/splittermond/images/Blauer-Mond.png",
+        },
+    });
 }
