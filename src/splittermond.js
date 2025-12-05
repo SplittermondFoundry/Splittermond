@@ -25,7 +25,7 @@ import { initializeActor } from "module/actor/index.js";
 import { initializeModifiers } from "module/modifiers/index.js";
 import { initializeCosts } from "module/util/costs/index.js";
 import { addTicks } from "module/combat/addTicks.js";
-import { initializeCombat } from "module/combat/index.js";
+import { initializeCombat, setTurnMarker } from "module/combat/index.js";
 import { closestData } from "module/data/ClosestDataMixin.js";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel";
@@ -67,6 +67,7 @@ function handlePdf(links) {
 }
 
 Hooks.once("ready", async function () {
+    setTurnMarker();
     return Promise.all([initTickBarHud(game.splittermond), initTokenActionBar(game.splittermond)]).then(() => {
         console.log("Splittermond | Ready");
         foundryApi.hooks.call("splittermond.ready");

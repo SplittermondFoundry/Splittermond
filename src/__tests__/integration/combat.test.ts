@@ -114,5 +114,12 @@ export function combatTest(context: QuenchBatchContext) {
                 expect(statusEffect[0].system.startTick, "Start tick was not set").to.equal(0);
             })
         );
+
+        it("should find combat tracker config under combatTrackerConfig", () => {
+            const combatConfig = foundryApi.settings.get("core", "combatTrackerConfig");
+            expect(typeof combatConfig).to.equal("object");
+            expect(combatConfig).to.include.keys("turnMarker");
+            expect((combatConfig as any).turnMarker).to.include.keys("src");
+        });
     });
 }
