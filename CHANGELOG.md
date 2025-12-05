@@ -1,3 +1,9 @@
+## 13.11.9
+
+### New Features
+
+- ein eigener Turn Tracker für Splittermond
+
 ## 13.11.8
 
 ### Fixed
