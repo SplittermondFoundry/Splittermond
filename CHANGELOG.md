@@ -2,6 +2,7 @@
 ### Fixed
 
 - Rundenmarker wird jetzt nicht mit jedem Neustart überschrieben, sondern existiert als Vorgabe für das Splittermondsystem.
+- Initialisierung von Settings stört jetzt die restliche Initialisierung nicht mehr.
 
 
 ## 13.11.9

@@ -2,7 +2,7 @@ import { UserReport } from "./UserReporterImpl";
 import { CostBase } from "../../../costs/costTypes";
 import { CostModifier } from "../../../costs/Cost";
 import { PrimaryCost } from "../../../costs/PrimaryCost";
-import { settings } from "../../../../settings";
+import { settings } from "module/settings";
 import { DamageReportDialog, UserAdjustments } from "./DamageReportDialog";
 
 let displayDamageDialogue: Awaited<ReturnType<typeof settings.registerString>> = {
@@ -21,7 +21,13 @@ settings
         scope: "client",
         default: "once",
     })
-    .then((value) => (displayDamageDialogue = value));
+    .then((value) => (displayDamageDialogue = value))
+    .catch((e) =>
+        console.error(
+            `Splittermond | Failed to initialize Damage Dialogue Settings. Resorting to default ${displayDamageDialogue.get()}.`,
+            e
+        )
+    );
 
 export class UserModificationDialogue {
     private storedUserAdjustment: CostModifier = CostModifier.zero;
