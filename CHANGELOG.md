@@ -1,3 +1,9 @@
+## 13.11.10
+### Fixed
+
+- Rundenmarker wird jetzt nicht mit jedem Neustart überschrieben, sondern existiert als Vorgabe für das Splittermondsystem.
+
+
 ## 13.11.9
 
 ### New Features
