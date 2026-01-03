@@ -331,7 +331,7 @@ describe("Attack", () => {
             passedOptions?.checkMessageData ? Object.keys(passedOptions?.checkMessageData.weapon) : []
         ).to.deep.equal(
             Object.keys({
-                ...underTest.toObjectData(),
+                ...underTest.toObject(),
                 damageImplements: underTest.getForDamageRoll(),
             })
         );
@@ -359,7 +359,7 @@ describe("Attack", () => {
             passedOptions?.checkMessageData ? Object.keys(passedOptions?.checkMessageData.weapon) : []
         ).to.deep.equal(
             Object.keys({
-                ...underTest.toObjectData(),
+                ...underTest.toObject(),
                 damageImplements: underTest.getForDamageRoll(),
             })
         );

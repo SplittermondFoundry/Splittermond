@@ -16,15 +16,14 @@ import { ItemFeaturesModel, mergeFeatures } from "../item/dataModel/propertyMode
 import { DamageRoll } from "../util/damage/DamageRoll";
 import { toDisplayFormula } from "../util/damage/util";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
-import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "../data/SplittermondDataModel";
-import type { SplittermondAttribute } from "module/config/attributes";
-import { type CostType, isCostType } from "module/util/costs/costTypes";
-import { type DamageType, damageTypes } from "module/config/damageTypes";
-import { isMember } from "module/util/util";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
 import type { CheckReport } from "module/check";
 import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
+import type { SplittermondAttribute } from "module/config/attributes";
+import type { DamageType } from "module/config/damageTypes";
+import type { CostType } from "module/util/costs/costTypes";
+import { isMember } from "module/util/util";
 
 type Options<T extends object> = { [K in keyof T]+?: T[K] | null | undefined };
 
@@ -58,55 +57,42 @@ function withDefaults(data: Options<AttackItemData>): AttackItemData {
         get skill() {
             return data.skill ?? "";
         },
-        set skill(_: string) {},
         get attribute1() {
             return data.attribute1 ?? "";
         },
-        set attribute1(_: SplittermondAttribute | "") {},
         get attribute2() {
             return data.attribute2 ?? "";
         },
-        set attribute2(_: SplittermondAttribute | "") {},
         get skillValue() {
             return data.skillValue ?? 0;
         },
-        set skillValue(_: number) {},
         get minAttributes() {
             return data.minAttributes ?? "";
         },
-        set minAttributes(_: string) {},
         get skillMod() {
             return data.skillMod ?? 0;
         },
-        set skillMod(_: number) {},
         get damageLevel() {
             return data.damageLevel ?? 0;
         },
-        set damageLevel(_: number) {},
         get range() {
             return data.range ?? 0;
         },
-        set range(_: number) {},
         get features() {
             return data.features ?? new ItemFeaturesModel({ internalFeatureList: [] });
         },
-        set features(_: ItemFeaturesModel) {},
         get damage() {
             return data.damage ?? new DamageModel({ stringInput: "1W6" });
         }, //assume that an attack does do some damage
-        set damage(_: DamageModel) {},
         get weaponSpeed() {
             return data.weaponSpeed ?? 6;
         }, //Splittermond balances damage at 1/tick so with 6 we achieve that average
-        set weaponSpeed(_: number) {},
         get damageType() {
             return data.damageType ?? "physical";
         },
-        set damageType(_: DamageType) {},
         get costType() {
             return data.costType ?? "V";
         },
-        set costType(_: CostType) {},
         //@formatter:on
     };
 }
@@ -116,102 +102,62 @@ const attributeMapper = initMapper(splittermond.attributes)
     .andOtherMappers((a) => `splittermond.attribute.${a}.short`)
     .build();
 
-function AttackSchema() {
-    return {
-        actorUuid: new fields.StringField({ required: true, nullable: false }),
-        item: new fieldExtensions.TypedObjectField<AttackItem, true, false>({
-            required: true,
-            nullable: false,
-            validate: (x): x is AttackItem => x !== null && x !== undefined,
-        }),
-        isSecondaryAttack: new fields.BooleanField({ required: true, nullable: false, initial: false }),
-        attackData: new fields.SchemaField(
-            {
-                skill: new fields.StringField({ required: true, nullable: false }),
-                attribute1: new fieldExtensions.StringEnumField({
-                    required: true,
-                    nullable: false,
-                    validate: (x: SplittermondAttribute | "") => isMember([...splittermond.attributes, ""], x),
-                }),
-                attribute2: new fieldExtensions.StringEnumField({
-                    required: true,
-                    nullable: false,
-                    validate: (x: SplittermondAttribute | "") => isMember([...splittermond.attributes, ""], x),
-                }),
-                skillValue: new fields.NumberField({ required: true, nullable: false }),
-                minAttributes: new fields.StringField({ required: true, nullable: false }),
-                skillMod: new fields.NumberField({ required: true, nullable: false }),
-                damageLevel: new fields.NumberField({ required: true, nullable: false }),
-                range: new fields.NumberField({ required: true, nullable: false }),
-                features: new fields.EmbeddedDataField(ItemFeaturesModel, { required: true, nullable: false }),
-                damage: new fields.EmbeddedDataField(DamageModel, { required: true, nullable: false }),
-                weaponSpeed: new fields.NumberField({ required: true, nullable: false }),
-                damageType: new fieldExtensions.StringEnumField({
-                    required: true,
-                    nullable: false,
-                    validate: (x: DamageType) => isMember(damageTypes, x),
-                }),
-                costType: new fieldExtensions.StringEnumField({
-                    required: true,
-                    nullable: false,
-                    validate: isCostType,
-                }),
-            },
-            { required: true, nullable: false }
-        ),
-        id: new fields.StringField({ required: true, nullable: false }),
-        img: new fields.StringField({ required: true, nullable: false }),
-        name: new fields.StringField({ required: true, nullable: false }),
-        skill: new fields.EmbeddedDataField(Skill, { required: true, nullable: false }),
-        editable: new fields.BooleanField({ required: true, nullable: false }),
-        deletable: new fields.BooleanField({ required: true, nullable: false }),
-    };
-}
+export default class Attack {
+    public readonly item: AttackItem;
+    private readonly isSecondaryAttack: boolean;
+    private readonly attackData: AttackItemData;
 
-export type AttackType = DataModelSchemaType<typeof AttackSchema>;
+    public readonly id: string;
+    public readonly img: string;
+    public readonly name: string;
+    public readonly skill: Skill;
+    public readonly editable: boolean;
+    public readonly deletable: boolean;
 
-export default class Attack extends SplittermondDataModel<AttackType> {
-    static defineSchema = AttackSchema;
-
-    private _actor: SplittermondActor | null = null;
-    private _attackData: AttackItemData | null = null;
-
+    static initialize(actor: SplittermondActor, item: AttackItem, secondaryAttack = false) {
+        return new Attack(actor, item, secondaryAttack);
+    }
     /**
-     * Initializer function that replaces the constructor logic
+     *
      * @param  actor Actor-Object of attack
      * @param  item Corresponding item for attack
      * @param  secondaryAttack Generate secondary attack of item
      */
-    static initialize(actor: SplittermondActor, item: AttackItem, secondaryAttack = false): Attack {
-        const isSecondaryAttack = secondaryAttack;
-        const attackData = withDefaults(
+    constructor(
+        public readonly actor: SplittermondActor,
+        item: AttackItem,
+        secondaryAttack = false
+    ) {
+        this.isSecondaryAttack = secondaryAttack;
+        this.attackData = withDefaults(
             secondaryAttack && item.system.secondaryAttack ? item.system.secondaryAttack : item.system
         );
 
-        const editable = ["weapon", "shield", "npcattack"].includes(item.type);
-        const deletable = ["npcattack"].includes(item.type);
-        const id = !isSecondaryAttack ? item.id : `${item.id}_secondary`;
-        const img = item.img;
-        const name = !isSecondaryAttack
+        this.editable = ["weapon", "shield", "npcattack"].includes(item.type);
+        this.deletable = ["npcattack"].includes(item.type);
+        this.id = !this.isSecondaryAttack ? item.id : `${item.id}_secondary`;
+        this.img = item.img;
+        this.name = !this.isSecondaryAttack
             ? item.name
-            : `${item.name} (${foundryApi.localize(`splittermond.skillLabel.${attackData.skill}`)})`;
-        const skill = Skill.initialize(
-            actor,
-            attackData.skill || name,
-            attackData.attribute1,
-            attackData.attribute2,
-            attackData.skillValue
+            : `${item.name} (${foundryApi.localize(`splittermond.skillLabel.${this.attackData.skill}`)})`;
+        this.skill = Skill.initialize(
+            this.actor,
+            this.attackData.skill || this.name,
+            this.attackData.attribute1,
+            this.attackData.attribute2,
+            this.attackData.skillValue
         );
-        skill.addModifierPath(`skill.${id}`);
+        this.skill.addModifierPath(`skill.${this.id}`);
+        this.item = item;
 
         let minAttributeMalus = 0;
-        attackData.minAttributes.split(",").forEach((aStr) => {
+        this.attackData.minAttributes.split(",").forEach((aStr) => {
             const attribute = aStr.match(/^\S+(?=\s)/)?.[0];
             const minAttributeValue = parseInt(aStr.match(/([0-9]+)$/)?.[0] ?? "0");
             if (attribute) {
                 let attr = attributeMapper().toCode(attribute);
                 if (attr) {
-                    let diff = parseInt(actor.attributes[attr].value) - minAttributeValue;
+                    let diff = parseInt(this.actor.attributes[attr].value) - minAttributeValue;
                     if (diff < 0) {
                         minAttributeMalus += diff;
                     }
@@ -220,84 +166,66 @@ export default class Attack extends SplittermondDataModel<AttackType> {
         });
 
         if (minAttributeMalus) {
-            actor.modifier.add(
-                `skill.${id}`,
+            this.actor.modifier.add(
+                `skill.${this.id}`,
                 {
                     name: foundryApi.localize("splittermond.minAttributes"),
                     type: "innate",
                 },
                 of(minAttributeMalus),
-                item
+                this
             );
-            actor.modifier.add(
+            this.actor.modifier.add(
                 "weaponspeed",
                 {
-                    item: id,
+                    item: this.id,
                     name: foundryApi.localize("splittermond.minAttributes"),
                     type: "innate",
                 },
                 of(minAttributeMalus),
-                item
+                this
             );
         }
 
         //add skill modifier if present AND greater than 0!
-        if (attackData.skillMod) {
-            actor.modifier.add(
-                `skill.${id}`,
+        if (this.attackData.skillMod) {
+            this.actor.modifier.add(
+                `skill.${this.id}`,
                 {
                     name: foundryApi.localize("splittermond.skillMod"),
                     type: "innate",
                 },
-                of(attackData.skillMod),
-                item
+                of(this.attackData.skillMod),
+                this
             );
         }
 
-        if (attackData.damageLevel > 2) {
-            actor.modifier.add(
-                `skill.${id}`,
+        if (this.attackData.damageLevel > 2) {
+            this.actor.modifier.add(
+                `skill.${this.id}`,
                 {
                     name: foundryApi.localize("splittermond.damageLevel"),
                     type: "innate",
                 },
                 of(-3),
-                item
+                this
             );
         }
-
-        const attack = new Attack({
-            actorUuid: actor.uuid,
-            item,
-            isSecondaryAttack,
-            attackData,
-            id,
-            img,
-            name,
-            skill,
-            editable,
-            deletable,
-        });
-        attack._actor = actor; // Cache the actor reference, we don't need to retrieve immediately
-        // For most cases, we want to keep the attack data that is nicely linked to our sources, because the state of the source may change after
-        // we recorded its value into our schema. This does not matter that much for Chat Cards, but is quite relevant for attacks.
-        attack._attackData = attackData;
-        return attack;
     }
 
     get range() {
-        return this._attackData?.range ?? this.attackData.range;
+        return this.attackData.range;
     }
 
     /**
      * Returns the features of the attack as a string, suitable for display.
      */
     get features() {
-        return this._attackData?.features.features ?? this.attackData.features.features;
+        return this.attackData.features.features;
     }
 
     get featuresAsRef() {
-        return this._attackData?.features ?? this.attackData.features;
+        return this.attackData.features;
     }
 
     getForDamageRoll() {
@@ -337,14 +265,11 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             .withAttributeValuesOrAbsent("skill", this.skill.id)
             .getModifiers()
             .map((m) => {
-                const features = mergeFeatures(
-                    ItemFeaturesModel.from(m.attributes.features ?? ""),
-                    this.attackData.features
-                );
+                const features = mergeFeatures(ItemFeaturesModel.from(m.attributes.features ?? ""), this.featuresAsRef);
                 return {
                     damageExpression: m.value,
                     features: features,
-                    damageType: m.attributes.damageType ?? (this.attackData.damageType as DamageType),
+                    damageType: m.attributes.damageType ?? this.attackData.damageType,
                     damageSource: m.attributes.name ?? null,
                 };
             });
@@ -366,15 +291,15 @@ export default class Attack extends SplittermondDataModel<AttackType> {
     }
 
     get damageType() {
-        return this._attackData?.damageType ?? this.attackData.damageType;
+        return this.attackData.damageType;
     }
 
     get costType() {
-        return this._attackData?.costType ?? this.attackData.costType;
+        return this.attackData.costType;
     }
 
     get weaponSpeed() {
-        let weaponSpeed = this._attackData?.weaponSpeed ?? this.attackData.weaponSpeed;
+        let weaponSpeed = this.attackData.weaponSpeed;
         weaponSpeed -= this.actor.modifier
             .getForId("item.weaponspeed")
             .withAttributeValuesOrAbsent("item", this.item.id, this.item.name)
@@ -395,19 +320,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
         return this.isRanged ? this.actor.getFlag("splittermond", "preparedAttack") == this.id : true;
     }
 
-    get actor(): SplittermondActor {
-        if (this._actor === null) {
-            const actor = foundryApi.utils.fromUUIDSync(this.actorUuid);
-            if (!actor) {
-                throw new Error(`Failed to retrieve actor with UUID: ${this.actorUuid}`);
-            }
-            this._actor = actor as SplittermondActor;
-        }
-        return this._actor;
-    }
-
-    //Can potentially be merged with `toObject` but I was too lazy to try
-    toObjectData() {
+    toObject() {
         return {
             id: this.id,
             img: this.img,
@@ -422,7 +335,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             editable: this.editable,
             deletable: this.deletable,
             isPrepared: this.isPrepared,
-            featureList: this.featuresAsRef.featuresAsStringList(),
+            featureList: this.attackData.features.featuresAsStringList(),
         };
     }
 
@@ -437,7 +350,7 @@ export default class Attack extends SplittermondDataModel<AttackType> {
             modifier: 0,
             checkMessageData: {
                 weapon: {
-                    ...this.toObjectData(),
+                    ...this.toObject(),
                     damageImplements: this.getForDamageRoll(),
                 },
             },

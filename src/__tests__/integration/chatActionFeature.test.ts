@@ -2,7 +2,7 @@ import { withActor, withScene } from "./fixtures.js";
 import { ChatMessage } from "../../module/api/ChatMessage";
 import { handleChatAction, SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { foundryApi } from "module/api/foundryApi";
-import { SimpleMessage } from "module/data/SplittermondChatMessage";
+import { SimpleMessage, SplittermondChatMessage } from "module/data/SplittermondChatMessage";
 import type { Hooks } from "module/api/foundryTypes";
 import SplittermondActor from "../../module/actor/actor";
 import SplittermondSpellItem from "module/item/spell";
@@ -12,8 +12,8 @@ import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import type SplittermondWeaponItem from "module/item/weapon";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
-import Attack from "module/actor/attack";
 import type { AttackCheckReport } from "module/util/chat/rollMessages/attackChatMessage/interfaces";
+import type { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
 
 declare const game: any;
 declare const Hooks: Hooks;
@@ -188,7 +188,13 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 const weapon: SplittermondWeaponItem = (
                     await actor.createEmbeddedDocuments("Item", [{ type: "weapon", name: "Test weapon" }])
                 )[0];
-                await weapon.update({ system: { skill: "longrange", attribute1: "agility", attribute2: "strength" } });
+                await weapon.update({
+                    system: { skill: "longrange", attribute1: "agility", attribute2: "strength", equipped: true },
+                });
+                actor.prepareBaseData();
+                actor.prepareEmbeddedDocuments();
+                actor.prepareDerivedData();
+
                 const chatMessage = createAttackChatMessage(actor, weapon);
 
                 await chatMessage.sendToChat();
@@ -196,6 +202,46 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 messagesToDelete.push(messageId);
                 await handleChatAction({ action: "damageUpdate", multiplicity: 2 }, messageId);
                 await handleChatAction({ action: "rangeUpdate", multiplicity: 1 }, messageId);
+            })
+        );
+
+        it(
+            "should account for modifiers on attack rolls",
+            withActor(async (actor) => {
+                const weapon: SplittermondWeaponItem = (
+                    await actor.createEmbeddedDocuments("Item", [{ type: "weapon", name: "The Grindstone" }])
+                )[0];
+                await weapon.update({
+                    system: {
+                        skill: "longrange",
+                        attribute1: "agility",
+                        attribute2: "strength",
+                        damage: "1W1",
+                        equipped: true,
+                        modifier: "item.addFeature feature='Kritisch' 3",
+                    },
+                });
+                actor.prepareBaseData();
+                actor.prepareEmbeddedDocuments();
+                actor.prepareDerivedData();
+
+                const chatMessage = createAttackChatMessage(actor, weapon);
+                await chatMessage.sendToChat();
+                const messageId = chatMessage.messageId ?? "This is not a chat message";
+                messagesToDelete.push(messageId);
+                await handleChatAction({ action: "applyDamage", multiplicity: 1 }, messageId);
+
+                const damageMessage = game.messages
+                    .filter((m: SplittermondChatMessage) => m.timestamp > foundryApi.messages.get(messageId).timestamp)
+                    .filter((m: SplittermondChatMessage) => m.type === "damageMessage")
+                    .map((m: SplittermondChatMessage) => m.system as DamageMessage)
+                    .find((m: DamageMessage) => m.getData().source === "The Grindstone");
+                expect(damageMessage.getData().total).to.equal(4);
+                expect(damageMessage.getData().features).to.deep.contain({
+                    active: true,
+                    name: "Kritisch",
+                    value: 3,
+                });
             })
         );
 
@@ -232,7 +278,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             };
             return SplittermondChatCard.create(
                 actor,
-                AttackRollMessage.initialize(Attack.initialize(actor, weapon, false), checkReport, 3),
+                AttackRollMessage.initialize(actor.attacks.find((a) => a.id === weapon.id)!, checkReport, 3),
                 getMessageConfig({ type: "attackRollMessage" })
             );
         }

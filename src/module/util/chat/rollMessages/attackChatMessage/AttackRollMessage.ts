@@ -22,6 +22,7 @@ import { RollMessage } from "module/util/chat/rollMessages/RollMessage";
 import type { ActionHandler } from "module/util/chat/rollMessages/ChatCardCommonInterfaces";
 import { TickCostActionHandler } from "module/util/chat/rollMessages/attackChatMessage/TickCostActionHandler";
 import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
+import { AttackReference } from "module/util/chat/rollMessages/attackChatMessage/AttackReference";
 
 const constructorRegistryKey = "attackRollMessage";
 
@@ -33,7 +34,7 @@ function AttackRollMessageSchema() {
             validate: (x: AttackCheckReport) => x != null && typeof x === "object", //Apparently foundry only sends diffs :(
         }),
         actorReference: new fields.EmbeddedDataField(AgentReference, { required: true, nullable: false }),
-        attack: new fields.EmbeddedDataField(Attack, {
+        attackReference: new fields.EmbeddedDataField(AttackReference, {
             required: true,
             nullable: false,
         }),
@@ -66,15 +67,13 @@ export class AttackRollMessage extends RollMessage<
         const reportReference = OnAncestorReference.for(AttackRollMessage)
             .identifiedBy("constructorKey", constructorRegistryKey)
             .references("checkReport");
-        const attackReference = OnAncestorReference.for(AttackRollMessage)
-            .identifiedBy("constructorKey", constructorRegistryKey)
-            .references("attack") as OnAncestorReference<Attack>;
 
         const actorReference = AgentReference.initialize(attack.actor);
+        const attackReference = new AttackReference({ actor: actorReference, attack: attack.id });
         return new AttackRollMessage({
             checkReport: checkReport,
             actorReference,
-            attack,
+            attackReference,
             constructorKey: constructorRegistryKey,
             splinterPointUsed: false,
             damageHandler: DamageActionHandler.initialize(actorReference, attackReference, reportReference).toObject(),
@@ -123,11 +122,11 @@ export class AttackRollMessage extends RollMessage<
         this.renderActions().forEach((action) => (renderedActions[action.type] = action));
         return {
             header: {
-                img: this.attack.img,
+                img: this.attackReference.get().img,
                 difficulty: `${this.checkReport.difficulty}`,
                 hideDifficulty: this.checkReport.hideDifficulty,
                 rollTypeMessage: foundryApi.localize(`splittermond.rollType.${this.checkReport.rollType}`),
-                title: this.attack.name,
+                title: this.attackReference.get().name,
             },
             degreeOfSuccessDisplay: renderDegreesOfSuccess(this.checkReport, this.openDegreesOfSuccess),
             rollResult: new RollResultRenderer(null, this.checkReport).render(),
@@ -151,7 +150,7 @@ export class AttackRollMessage extends RollMessage<
             .getBonus(this.checkReport.skill.id);
         const checkReport = this.checkReport;
         const newCheckReport = await addSplinterpointBonus(checkReport, splinterPointBonus);
-        const readaptedCheckReport = this.attack.adaptForGrazingHit(newCheckReport);
+        const readaptedCheckReport = this.attackReference.get().adaptForGrazingHit(newCheckReport);
         this.updateSource({ checkReport: readaptedCheckReport, splinterPointUsed: true });
         this.updateSource({
             openDegreesOfSuccess:

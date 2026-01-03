@@ -2,6 +2,7 @@ import { Roll } from "./Roll";
 
 declare class ChatMessage extends FoundryDocument {
     id: string;
+    type: string;
     /** The Ids of the users that are to be addressed by this message*/
     whisper: string[];
     /** the message content, an HTML string*/
