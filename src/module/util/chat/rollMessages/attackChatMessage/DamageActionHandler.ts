@@ -16,7 +16,7 @@ import { CostBase, type CostType } from "../../../costs/costTypes";
 import { foundryApi } from "module/api/foundryApi";
 import { asString, condense, mapRoll } from "module/modifiers/expressions/scalar";
 import { toDisplayFormula, toRollFormula } from "module/util/damage/util";
-import type Attack from "module/actor/attack";
+import { AttackReference } from "module/util/chat/rollMessages/attackChatMessage/AttackReference";
 
 function DamageActionHandlerSchema() {
     return {
@@ -24,7 +24,7 @@ function DamageActionHandlerSchema() {
         penaltyUsed: new fields.BooleanField({ required: true, nullable: false, initial: false }),
         damageAddition: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
         actorReference: new fields.EmbeddedDataField(AgentReference, { required: true, nullable: false }),
-        attackReference: new fields.EmbeddedDataField(OnAncestorReference<Attack>, {
+        attackReference: new fields.EmbeddedDataField(AttackReference, {
             required: true,
             nullable: false,
         }),
@@ -45,7 +45,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
 
     static initialize(
         actorReference: AgentReference,
-        attackReference: OnAncestorReference<Attack>,
+        attackReference: AttackReference,
         checkReportReference: OnAncestorReference<AttackCheckReport>
     ): DamageActionHandler {
         const damageAdditionConfig = splittermond.spellEnhancement.damage;

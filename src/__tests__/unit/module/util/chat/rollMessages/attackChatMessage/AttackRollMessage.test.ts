@@ -134,7 +134,7 @@ describe("AttackRollMessage", () => {
         const damageStub = sandbox.stub(DamageInitializer, "rollFromDamageRoll").resolves(chatCardMock);
         const underTest = createAttackRollMessage(sandbox);
         underTest.checkReport.succeeded = true;
-        sandbox.stub(underTest.attack, "costType").get(() => "V");
+        sandbox.stub(underTest.attackReference.get(), "costType").get(() => "V");
 
         await underTest.handleGenericAction({ action: "applyDamage" });
 
@@ -160,7 +160,7 @@ describe("AttackRollMessage", () => {
         ].forEach(([splinterpointValue, increase]) => {
             it(`should increase degrees of success by ${splinterpointValue}`, async () => {
                 const underTest = createAttackRollMessage(sandbox);
-                (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
+                (underTest.attackReference.get().adaptForGrazingHit as SinonStub).callThrough();
                 underTest.actorReference.getAgent().spendSplinterpoint.returns({
                     pointSpent: true,
                     getBonus() {
@@ -175,7 +175,7 @@ describe("AttackRollMessage", () => {
             });
             it(`should increase open degrees of success by ${increase}`, async () => {
                 const underTest = createAttackRollMessage(sandbox);
-                (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
+                (underTest.attackReference.get().adaptForGrazingHit as SinonStub).callThrough();
                 underTest.actorReference.getAgent().spendSplinterpoint.returns({
                     pointSpent: true,
                     getBonus() {
@@ -194,7 +194,7 @@ describe("AttackRollMessage", () => {
 
         it(`should add splinterpoint modifier`, async () => {
             const underTest = createAttackRollMessage(sandbox);
-            (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
+            (underTest.attackReference.get().adaptForGrazingHit as SinonStub).callThrough();
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
@@ -214,7 +214,7 @@ describe("AttackRollMessage", () => {
 
         it("should retain degrees of success from triumphs", async () => {
             const underTest = createAttackRollMessage(sandbox);
-            (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
+            (underTest.attackReference.get().adaptForGrazingHit as SinonStub).callThrough();
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
@@ -237,7 +237,7 @@ describe("AttackRollMessage", () => {
 
         it("should only be usable once", async () => {
             const underTest = createAttackRollMessage(sandbox);
-            (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
+            (underTest.attackReference.get().adaptForGrazingHit as SinonStub).callThrough();
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
@@ -254,7 +254,7 @@ describe("AttackRollMessage", () => {
 
         it("should convert a failure into a success", async () => {
             const underTest = createAttackRollMessage(sandbox);
-            (underTest.attack.adaptForGrazingHit as SinonStub).callThrough();
+            (underTest.attackReference.get().adaptForGrazingHit as SinonStub).callThrough();
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
@@ -311,7 +311,7 @@ describe("AttackRollMessage", () => {
 
         it("should convert a grazing hit into a normal hit when increasing degrees of success", async () => {
             const underTest = createAttackRollMessage(sandbox);
-            const attackStub = underTest.attack as SinonStubbedInstance<Attack>;
+            const attackStub = underTest.attackReference.get() as SinonStubbedInstance<Attack>;
 
             // Mock evaluateCheck to return 4 degrees of success after splinterpoint
             const evaluateCheckStub = sandbox.stub(Dice, "evaluateCheck");
@@ -352,7 +352,7 @@ describe("AttackRollMessage", () => {
 
         it("should still be a grazing hit after splinterpoint if degrees remain insufficient", async () => {
             const underTest = createAttackRollMessage(sandbox);
-            const attackStub = underTest.attack as SinonStubbedInstance<Attack>;
+            const attackStub = underTest.attackReference.get();
 
             // Mock evaluateCheck to return 4 degrees of success after splinterpoint
             const evaluateCheckStub = sandbox.stub(Dice, "evaluateCheck");
@@ -457,6 +457,7 @@ describe("AttackRollMessage", () => {
 function createAttackRollMessage(sandbox: SinonSandbox, skill: SplittermondSkill = "melee") {
     const mockActor = setUpMockActor(sandbox);
     const mockAttack = setUpMockAttackSelfReference(sandbox, mockActor, skill);
+    mockActor.attacks.push(mockAttack);
     setNecessaryDefaultsForAttackProperties(mockAttack, sandbox);
     const attackRollMessage = withToObjectReturnsSelf(() => {
         return AttackRollMessage.initialize(

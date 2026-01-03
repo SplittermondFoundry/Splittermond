@@ -711,7 +711,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
  */
 function mapAttacks(actor) {
     return actor.attacks.map((attack) => ({
-        ...attack.toObjectData(),
+        ...attack.toObject(),
         damageImplements: mapDamageImplements(attack),
     }));
 }

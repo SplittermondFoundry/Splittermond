@@ -1,3 +1,11 @@
+## 13.11.10
+
+### Fixed
+
+- Rundenmarker wird jetzt nicht mit jedem Neustart überschrieben, sondern existiert als Vorgabe für das Splittermondsystem.
+- Initialisierung von Settings stört jetzt die restliche Initialisierung nicht mehr.
+- Scharf, Exakt, Wuchtig und Kritisch werden jetzt berücksichtigt, wenn sie über Modifikatoren hinzugefügt werden.
+
 ## 13.11.9
 
 ### New Features

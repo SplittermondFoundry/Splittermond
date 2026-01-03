@@ -315,6 +315,12 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(CONFIG, "CONFIG does not have a property called Combat").to.have.property("Combat");
         });
 
+        it("combat should have fallbackTurnMarker", () => {
+            expect(CONFIG.Combat, "CONFIG.Combat does not have a property called fallbackTurnMarker").to.have.property(
+                "fallbackTurnMarker"
+            );
+        });
+
         it("should have a property called Dice", () => {
             expect(CONFIG, "CONFIG does not have a property called Dice").to.have.property("Dice");
         });

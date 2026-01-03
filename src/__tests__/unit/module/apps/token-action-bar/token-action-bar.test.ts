@@ -9,8 +9,6 @@ import SplittermondSpellItem from "../../../../../module/item/spell";
 import { foundryApi } from "../../../../../module/api/foundryApi";
 import { SpellDataModel } from "../../../../../module/item/dataModel/SpellDataModel";
 import Attack from "../../../../../module/actor/attack";
-import type { CostType } from "module/util/costs/costTypes";
-import type { DamageType } from "module/config/damageTypes";
 
 describe("TokenActionBar", () => {
     let sandbox: SinonSandbox;
@@ -94,7 +92,7 @@ describe("TokenActionBar", () => {
         attackLi.dataset.attackId = attackId;
         attackLi.dataset.prepared = "false";
         const attackStub = sandbox.createStubInstance(Attack);
-        attackStub.toObjectData.returns({ ...getMockAttackObject(), id: attackId });
+        sandbox.define(attackStub, "id", attackId);
         sandbox.stub(attackStub, "weaponSpeed").get(() => 3);
         actorStub.attacks.push(attackStub);
         await bar.rollAttack(null as any, attackLi);
@@ -147,22 +145,3 @@ describe("TokenActionBar", () => {
         expect(itemStub.update.calledWith({ "system.equipped": true })).to.be.true;
     });
 });
-
-function getMockAttackObject() {
-    return {
-        id: "",
-        img: "",
-        name: "",
-        skill: {} as any,
-        range: 0,
-        features: "",
-        damage: "",
-        damageType: "physical" as DamageType,
-        costType: "E" as CostType,
-        weaponSpeed: 0,
-        editable: false,
-        deletable: false,
-        isPrepared: false,
-        featureList: [],
-    };
-}

@@ -6,7 +6,7 @@ import { AgentReference } from "module/data/references/AgentReference";
 import { referencesUtils } from "module/data/references/referencesUtils";
 import { foundryApi } from "module/api/foundryApi";
 import { configureUseAction } from "../ChatMessageUtils";
-import type Attack from "module/actor/attack";
+import { AttackReference } from "module/util/chat/rollMessages/attackChatMessage/AttackReference";
 
 function NoOptionsActionHandlerSchema() {
     return {
@@ -14,7 +14,7 @@ function NoOptionsActionHandlerSchema() {
             required: true,
             nullable: false,
         }),
-        attackReference: new fields.EmbeddedDataField(OnAncestorReference<Attack>, {
+        attackReference: new fields.EmbeddedDataField(AttackReference, {
             required: true,
             nullable: false,
         }),
@@ -29,7 +29,7 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
 
     static initialize(
         checkReportReference: OnAncestorReference<CheckReport>,
-        attackReference: OnAncestorReference<Attack>,
+        attackReference: AttackReference,
         casterReference: AgentReference
     ): NoOptionsActionHandler {
         return new NoOptionsActionHandler({
