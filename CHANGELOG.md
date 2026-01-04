@@ -1,3 +1,9 @@
+## 13.11.11
+
+### Fixed
+
+- Datenblätter merken sich jetzt die Scrollposition wenn man Fertigkeiten oder Meisterschaften ändert.
+
 ## 13.11.10
 
 ### Fixed
