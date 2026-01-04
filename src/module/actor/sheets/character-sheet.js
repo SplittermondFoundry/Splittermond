@@ -42,6 +42,7 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         editor: super.BIOGRAPHY_TAB,
         general: {
             template: `${TEMPLATE_BASE_PATH}/sheets/actor/character-general-tab.hbs`,
+            scrollable: [""],
             classes: ["scrollable"],
         },
         skills: {
@@ -51,6 +52,7 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-list.hbs`,
                 `${TEMPLATE_BASE_PATH}/sheets/actor/parts/mastery-by-skill.hbs`,
             ],
+            scrollable: [".list.skills", ".list.masteries"],
             classes: ["scrollable"],
         },
         spells: super.SPELLS_TAB,
