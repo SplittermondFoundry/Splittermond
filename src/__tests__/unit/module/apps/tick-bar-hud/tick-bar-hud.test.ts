@@ -246,6 +246,66 @@ describe("TickBarHud", () => {
             expect(context.ticks.flatMap((t) => t.combatants)).to.be.empty;
         });
 
+        it("should mark combatant as hidden when combatant.hidden is true and user is not owner", async () => {
+            const sampleCombat = createCombat(sandbox, { isActive: true, started: true });
+            const hiddenCombatant = addNewCombatant(sandbox, sampleCombat, {
+                initiative: 10,
+                visible: true,
+                hidden: true,
+                isOwner: false,
+                name: "Hidden Enemy",
+            });
+            addToCombatTurns(sampleCombat, hiddenCombatant);
+            hiddenCombatant.actor.getVirtualStatusTokens.returns([]);
+            sandbox.stub(foundryApi, "combats").get(() => [sampleCombat]);
+
+            const context = await new TickBarHud()._prepareContext({ parts: [] });
+
+            const tick10 = context.ticks.find((t) => t.tickNumber === 10);
+            expect(tick10?.combatants).to.have.length(1);
+            expect(tick10?.combatants[0].hidden).to.be.true;
+        });
+
+        it("should not mark combatant as hidden when combatant.hidden is true but user is owner", async () => {
+            const sampleCombat = createCombat(sandbox, { isActive: true, started: true });
+            const hiddenOwnedCombatant = addNewCombatant(sandbox, sampleCombat, {
+                initiative: 10,
+                visible: true,
+                hidden: true,
+                isOwner: true,
+                name: "Hidden Ally",
+            });
+            addToCombatTurns(sampleCombat, hiddenOwnedCombatant);
+            hiddenOwnedCombatant.actor.getVirtualStatusTokens.returns([]);
+            sandbox.stub(foundryApi, "combats").get(() => [sampleCombat]);
+
+            const context = await new TickBarHud()._prepareContext({ parts: [] });
+
+            const tick10 = context.ticks.find((t) => t.tickNumber === 10);
+            expect(tick10?.combatants).to.have.length(1);
+            expect(tick10?.combatants[0].hidden).to.be.false;
+        });
+
+        it("should not mark combatant as hidden when combatant.hidden is false", async () => {
+            const sampleCombat = createCombat(sandbox, { isActive: true, started: true });
+            const visibleCombatant = addNewCombatant(sandbox, sampleCombat, {
+                initiative: 10,
+                visible: true,
+                hidden: false,
+                isOwner: false,
+                name: "Visible Combatant",
+            });
+            addToCombatTurns(sampleCombat, visibleCombatant);
+            visibleCombatant.actor.getVirtualStatusTokens.returns([]);
+            sandbox.stub(foundryApi, "combats").get(() => [sampleCombat]);
+
+            const context = await new TickBarHud()._prepareContext({ parts: [] });
+
+            const tick10 = context.ticks.find((t) => t.tickNumber === 10);
+            expect(tick10?.combatants).to.have.length(1);
+            expect(tick10?.combatants[0].hidden).to.be.false;
+        });
+
         it("should populate status effects on appropriate ticks", async () => {
             // Setup: Mock combatants with virtual status tokens
             const combat = createCombat(sandbox, { isActive: true, started: true });

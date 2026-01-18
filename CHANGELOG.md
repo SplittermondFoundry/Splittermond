@@ -1,3 +1,9 @@
+## 13.11.12
+
+### Fixed
+
+- Charaktere, die auf dem Spielbrett versteckt sind, werden jetzt nur noch dem Besitzer angezeigt
+
 ## 13.11.11
 
 ### Fixed
