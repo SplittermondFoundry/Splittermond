@@ -156,7 +156,7 @@ export default class TickBarHud extends SplittermondApplication {
                         active: false,
                         owner: c.isOwner,
                         defeated: c.isDefeated,
-                        hidden: c.hidden,
+                        hidden: c.hidden && !c.isOwner,
                         initiative: c.initiative,
                         hasRolled: true,
                     };
@@ -182,7 +182,7 @@ export default class TickBarHud extends SplittermondApplication {
                         active: i === combat.turn,
                         owner: c.isOwner,
                         defeated: c.isDefeated,
-                        hidden: c.hidden,
+                        hidden: c.hidden && !c.isOwner,
                         initiative: c.initiative,
                         hasRolled: c.initiative !== null,
                     });

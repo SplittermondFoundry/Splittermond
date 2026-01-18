@@ -15,9 +15,11 @@
                 </div>
                 <div class="tick-bar-hud-combatant-list">
                     {{#each combatants}}
+                        {{#unless hidden}}
                         <div class="tick-bar-hud-combatant-list-item {{#if active}} active{{/if}}" data-combatant-id="{{this.id}}" data-tooltip="{{this.name}}">
                             <img class="token-image" width="48" height="48" src="{{this.img}}" title="{{this.name}}"/>
                         </div>
+                        {{/unless}}
                     {{/each}}
                 </div>
                 
@@ -33,9 +35,11 @@
                 <div class="tick-bar-hud-tick-number tick-bar-hud-tick-number-special"><span>{{localize "splittermond.wait"}}</span></div>
                 <div class="tick-bar-hud-combatant-list">
                     {{#each wait}}
+                        {{#unless hidden}}
                         <div class="tick-bar-hud-combatant-list-item{{#if active}} active{{/if}}" data-combatant-id="{{this.id}}"  data-tooltip="{{this.name}}">
                             <img class="token-image" width="48" height="48" src="{{this.img}}" title="{{this.name}}"/>
                         </div>
+                        {{/unless}}
                     {{/each}}
                 </div>
             </div>
@@ -43,9 +47,11 @@
                 <div class="tick-bar-hud-tick-number tick-bar-hud-tick-number-special"><span>{{localize "splittermond.keepReady"}}</span></div>
                 <div class="tick-bar-hud-combatant-list">
                     {{#each keepReady}}
+                        {{#unless hidden}}
                         <div class="tick-bar-hud-combatant-list-item {{#if active}} active{{/if}}" data-combatant-id="{{this.id}}" data-tooltip="{{this.name}}">
                             <img class="token-image" width="48" height="48" src="{{this.img}}" title="{{this.name}}"/>
                         </div>
+                        {{/unless}}
                     {{/each}}
                 </div>
             </div>
