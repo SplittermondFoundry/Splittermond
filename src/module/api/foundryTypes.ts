@@ -133,6 +133,7 @@ declare global {
         readonly folder: string;
         system: Record<string, any>;
         sort: number; //Yes they are really defined on the Item.
+        isOwner: boolean;
     }
 
     class Token {

@@ -119,7 +119,9 @@ export function initAddModifier(
                     break;
             }
         });
-        allErrors.printAll();
+        // Only display errors to the GM or the owner of the item
+        // Otherwise players might get spoilers
+        if (item.isOwner) allErrors.printAll();
         return { modifiers, costModifiers };
     };
 }
