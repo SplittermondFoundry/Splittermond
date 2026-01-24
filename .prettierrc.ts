@@ -1,1 +1,1 @@
-C:/Foundry/repo/Splittermond/config/prettierrc.ts
+config/prettierrc.ts
