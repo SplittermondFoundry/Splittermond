@@ -1,3 +1,7 @@
+## 13.11.13
+
+- Auswahl von Betäubungsschaden im Schadensdialog wird jetzt registriert
+
 ## 13.11.12
 
 ### Fixed

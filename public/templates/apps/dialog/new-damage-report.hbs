@@ -58,7 +58,7 @@
         <label>{{localize "splittermond.damageCategory"}}</label>
         <select id="costTypeSelect" name="costTypeSelect" style="max-width: 150px">
             <option value="V"{{#if (eq type "V")}} selected{{/if}}>{{localize "splittermond.normalDamage"}}</option>
-            <option value=""{{#if (eq type "E")}} selected{{/if}}>{{localize "splittermond.stunDamage"}}</option>
+            <option value="E"{{#if (eq type "E")}} selected{{/if}}>{{localize "splittermond.stunDamage"}}</option>
             <option value="K"{{#if (eq type "K")}} selected{{/if}}>{{localize
                     "splittermond.channeledDamage"}}</option>
         </select>
