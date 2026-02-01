@@ -1,15 +1,15 @@
-import { DamageReportDialog } from "../../../../../../../module/util/chat/damageChatMessage/userDialogue/DamageReportDialog";
-import { UserReport } from "../../../../../../../module/util/chat/damageChatMessage/userDialogue/UserReporterImpl";
+import { DamageReportDialog } from "module/util/chat/damageChatMessage/userDialogue/DamageReportDialog";
+import { UserReport } from "module/util/chat/damageChatMessage/userDialogue/UserReporterImpl";
 import sinon, { SinonSandbox } from "sinon";
-import { AgentReference } from "../../../../../../../module/data/references/AgentReference";
-import { Cost } from "../../../../../../../module/util/costs/Cost";
+import { AgentReference } from "module/data/references/AgentReference";
+import { Cost } from "module/util/costs/Cost";
 import SplittermondActor from "../../../../../../../module/actor/actor";
-import { foundryApi } from "../../../../../../../module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 import { createHtml } from "../../../../../../handlebarHarness";
 import { expect } from "chai";
 import { DOMWindow, JSDOM } from "jsdom";
-import { FoundryDialog } from "../../../../../../../module/api/Application";
-import { CostBase } from "../../../../../../../module/util/costs/costTypes";
+import { FoundryDialog } from "module/api/Application";
+import { CostBase } from "module/util/costs/costTypes";
 
 declare const foundry: any;
 
