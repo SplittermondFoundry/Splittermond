@@ -133,7 +133,6 @@ declare global {
         readonly folder: string;
         system: Record<string, any>;
         sort: number; //Yes they are really defined on the Item.
-        isOwner: boolean;
     }
 
     class Token {
@@ -189,13 +188,27 @@ declare global {
         getFlag(scope: string, key: string): unknown;
 
         setFlag(scope: string, key: string, value: unknown): Promise<FoundryDocument>;
+
+        get isOwner(): boolean; //Defined on ClientDocument not the Document itself, but we're only dealing with ClientDocument anyway.
     }
 
     const CONFIG: {
-        Item: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
-        Actor: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
-        ChatMessage: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
-        Combat: { documentClass: Function; dataModels: Record<string, unknown> } & Record<string, unknown>;
+        Item: {
+            documentClass: Function;
+            dataModels: Record<string, unknown>;
+        } & Record<string, unknown>;
+        Actor: {
+            documentClass: Function;
+            dataModels: Record<string, unknown>;
+        } & Record<string, unknown>;
+        ChatMessage: {
+            documentClass: Function;
+            dataModels: Record<string, unknown>;
+        } & Record<string, unknown>;
+        Combat: {
+            documentClass: Function;
+            dataModels: Record<string, unknown>;
+        } & Record<string, unknown>;
         Dice: { rollModes: Record<string, RollMode> } & Record<string, unknown>;
     } & Record<string, unknown>;
 }

@@ -1,6 +1,8 @@
 ## 13.11.13
 
 - Auswahl von Betäubungsschaden im Schadensdialog wird jetzt registriert
+- Fehlermeldungen von Modifikatoren werden jetzt nur noch Besitzern (inkludiert SL) angezeigt.
+  Vielen Dank an IceFreez3r für den Beitrag.
 
 ## 13.11.12
 
@@ -12,7 +14,7 @@
 
 ### Fixed
 
-- Datenblätter merken sich jetzt die Scrollposition wenn man Fertigkeiten oder Meisterschaften ändert.
+- Datenblätter merken sich jetzt die Scrollposition, wenn man Fertigkeiten oder Meisterschaften ändert.
 
 ## 13.11.10
 

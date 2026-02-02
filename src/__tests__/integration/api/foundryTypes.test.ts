@@ -23,30 +23,28 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(typeof ChatMessage).to.equal("function");
         });
 
-        ["img", "name", "type", "uuid"].forEach((property) => {
-            it(`should have a string property ${property}`, () => {
+        (
+            [
+                ["img", "string"],
+                ["name", "string"],
+                ["type", "string"],
+                ["uuid", "string"],
+                ["system", "object"],
+                ["folder", "object"],
+                ["isOwner", "boolean"],
+            ] as const
+        ).forEach(([property, type]) => {
+            it(`should have a ${type} property ${property}`, () => {
                 game.items.forEach((item: FoundryDocument) => {
                     expect(item, `Chat message ${item.id} does not have ${property}`).to.have.property(property);
                     expect(
                         typeof item[property as keyof typeof item],
-                        `chat message property ${property} is not a string`
-                    ).to.equal("string");
+                        `chat message property ${property} is not ${type}`
+                    ).to.equal(type);
                 });
             });
         });
-        ["system", "folder"].forEach((property) => {
-            it(`should have an object property ${property}`, () => {
-                game.items.forEach((chatMessage: FoundryDocument) => {
-                    expect(chatMessage, `Chat Message ${chatMessage.id} does not have ${property}`).to.have.property(
-                        property
-                    );
-                    expect(
-                        typeof chatMessage[property as keyof typeof chatMessage],
-                        `chat message property ${property} is not an object`
-                    ).to.equal("object");
-                });
-            });
-        });
+
         ["prepareBaseData", "prepareDerivedData", "toObject", "getFlag", "updateSource", "applyRollMode"].forEach(
             (property) => {
                 it(`should have a method ${property}`, () => {
@@ -72,28 +70,28 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(typeof Item).to.equal("function");
         });
 
-        ["img", "name", "type", "uuid"].forEach((property) => {
-            it(`should have a string property ${property}`, () => {
+        (
+            [
+                ["img", "string"],
+                ["name", "string"],
+                ["type", "string"],
+                ["uuid", "string"],
+                ["system", "object"],
+                ["folder", "object"],
+                ["isOwner", "boolean"],
+            ] as const
+        ).forEach(([property, type]) => {
+            it(`should have a ${type} property ${property}`, () => {
                 game.items.forEach((item: FoundryDocument) => {
                     expect(item, `Item ${item.id} does not have ${property}`).to.have.property(property);
                     expect(
                         typeof item[property as keyof typeof item],
-                        `item property ${property} is not a string`
-                    ).to.equal("string");
+                        `item property ${property} is not ${type}`
+                    ).to.equal(type);
                 });
             });
         });
-        ["system", "folder"].forEach((property) => {
-            it(`should have an object property ${property}`, () => {
-                game.items.forEach((item: FoundryDocument) => {
-                    expect(item, `Item ${item.id} does not have ${property}`).to.have.property(property);
-                    expect(
-                        typeof item[property as keyof typeof item],
-                        `item property ${property} is not an object`
-                    ).to.equal("object");
-                });
-            });
-        });
+
         ["prepareBaseData", "prepareDerivedData", "toObject", "getFlag", "setFlag", "updateSource"].forEach(
             (property) => {
                 it(`should have a method ${property}`, () => {
@@ -116,7 +114,9 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         describe("Item Sheet Registration", () => {
             class TestItemSheet extends SplittermondBaseItemSheet {}
             it("can register a sheet for item", () => {
-                foundryApi.sheets.items.register("splittermond", TestItemSheet, { type: ["projectile"] });
+                foundryApi.sheets.items.register("splittermond", TestItemSheet, {
+                    type: ["projectile"],
+                });
 
                 expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).to.include(TestItemSheet);
             });
@@ -152,6 +152,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 ["folder", "object"],
                 ["inCombat", "boolean"],
                 ["isToken", "boolean"],
+                ["isOwner", "boolean"],
             ] as const
         ).forEach(([property, type]) => {
             it(`should have a property ${property} of type ${type}`, () => {
@@ -188,7 +189,9 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         describe("Actor Sheet Registration", () => {
             class TestActorSheet extends SplittermondBaseActorSheet {}
             it("can register a sheet", () => {
-                foundryApi.sheets.actors.register("splittermond", TestActorSheet, { type: ["npc"] });
+                foundryApi.sheets.actors.register("splittermond", TestActorSheet, {
+                    type: ["npc"],
+                });
 
                 expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).to.include(TestActorSheet);
             });
@@ -291,7 +294,9 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             "should return an actor for a set character",
             withPlayer(
                 withActor(async (testActor, nonGM: User) => {
-                    await (nonGM as unknown as FoundryDocument).update({ character: testActor });
+                    await (nonGM as unknown as FoundryDocument).update({
+                        character: testActor,
+                    });
                     expect(nonGM.character).to.be.instanceof(Actor);
                 })
             )
@@ -366,8 +371,14 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         }
 
         it("should only return Item folders when requested", async () => {
-            const itemFolder = await createFolder({ name: "Test Item Folder", type: "Item" });
-            const actorFolder = await createFolder({ name: "Test Actor Folder", type: "Actor" });
+            const itemFolder = await createFolder({
+                name: "Test Item Folder",
+                type: "Item",
+            });
+            const actorFolder = await createFolder({
+                name: "Test Actor Folder",
+                type: "Actor",
+            });
 
             const folders = foundryApi.getFolders("Item");
 
@@ -376,8 +387,14 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         });
 
         it("should only return Actor folders when requested", async () => {
-            const itemFolder = await createFolder({ name: "Test Item Folder", type: "Item" });
-            const actorFolder = await createFolder({ name: "Test Actor Folder", type: "Actor" });
+            const itemFolder = await createFolder({
+                name: "Test Item Folder",
+                type: "Item",
+            });
+            const actorFolder = await createFolder({
+                name: "Test Actor Folder",
+                type: "Actor",
+            });
 
             const folders = foundryApi.getFolders("Actor");
 
@@ -386,8 +403,14 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         });
 
         it("should return all folders when no type is specified", async () => {
-            const itemFolder = await createFolder({ name: "Test Item Folder", type: "Item" });
-            const actorFolder = await createFolder({ name: "Test Actor Folder", type: "Actor" });
+            const itemFolder = await createFolder({
+                name: "Test Item Folder",
+                type: "Item",
+            });
+            const actorFolder = await createFolder({
+                name: "Test Actor Folder",
+                type: "Actor",
+            });
 
             const folders = foundryApi.getFolders();
 
@@ -396,8 +419,15 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         });
 
         it("should return parent and child folders flattened", async () => {
-            const parent = await createFolder({ name: "Test Item Folder", type: "Item" });
-            const child = await createFolder({ name: "Test Actor Folder", type: "Item", folder: parent.id });
+            const parent = await createFolder({
+                name: "Test Item Folder",
+                type: "Item",
+            });
+            const child = await createFolder({
+                name: "Test Actor Folder",
+                type: "Item",
+                folder: parent.id,
+            });
 
             const folders = foundryApi.getFolders("Item");
 
