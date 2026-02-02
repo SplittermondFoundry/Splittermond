@@ -71,6 +71,7 @@ describe("addModifier", () => {
             type: "weapon",
             actor: actor,
             system: {},
+            isOwner: true,
         } as unknown as SinonStubbedInstance<SplittermondItem>;
 
         sandbox.stub(foundryApi, "reportError");
