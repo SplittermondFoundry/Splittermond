@@ -1,0 +1,39 @@
+<section class="tab {{tab.cssClass}}" data-group="primary" data-tab="npc">
+    <div class="filter column">
+        <div class="row flex-gap compendium-item-filters"><i class="fas fa-search"></i><input type="text" placeholder="Suche" name="search">
+
+            <input type="checkbox" value="true" name="show-world-items" id="show-world-items-npc" data-action="showWorldItemNpc"><label
+                    for="show-world-items-npc">{{localize "splittermond.showWorldItems"}}</label>
+        </div>
+    </div>
+    <div class="list">
+        <ol class="list-body">
+            {{#each items.npc}}
+                <li class="list-item draggable" data-item-id="{{this.uuid}}" data-doc-type="Actor"
+                    data-npc-type="{{this.system.type}}" data-npc-level="{{this.system.level}}">
+                    <div class="npc-portrait">
+                        <img class="npc-img" src="{{this.img}}" alt="{{this.name}}">
+                    </div>
+                    <div>
+                        <label>{{this.name}}</label>
+                        <div class="npc-type">
+                            {{this.system.type}}
+                        </div>
+                    </div>
+                    <div class="monster-level">
+                        {{this.system.level}}
+                    </div>
+                    <div class="compendium">
+                        {{#if this.compendium}}
+                            <span class="label">{{this.compendium.metadata.label}}</span>
+                            <span class="id">{{this.compendium.metadata.id}}</span>
+                        {{else}}
+                            <span class="label">{{this.collection.name}}</span>
+                            <span class="id">world.{{this.collectionName}}</span>
+                        {{/if}}
+                    </div>
+                </li>
+            {{/each}}
+        </ol>
+    </div>
+</section>

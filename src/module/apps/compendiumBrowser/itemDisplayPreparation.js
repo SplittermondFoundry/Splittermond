@@ -7,6 +7,9 @@ import { initializeSpellItemPreparation } from "./prepareSpellItemIndex.js";
 import { initializeMasteryItemPreparation } from "./prepareMasteryItemIndex.js";
 import { initializeMetadata } from "./metadataInitializer.js";
 import { prepareWeaponItemIndex } from "./prepareWeaponsIndex.js";
+import { prepareArmorItemIndex } from "./prepareArmorItemIndex.js";
+import { prepareShieldItemIndex } from "./prepareShieldItemIndex.js";
+import { prepareNpcIndex } from "./prepareNpcIndex.js";
 import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "../../item/availabilityParser.ts";
 
 /**
@@ -34,7 +37,7 @@ export function initializeDisplayPreparation(i18n, magicSkills, masterySkills) {
         return index.then(
             /**@param {ItemIndexEntity[]} itemIndexEntities*/ (itemIndexEntities) => {
                 for (const itemIndex of itemIndexEntities) {
-                    if (!["spell", "mastery", "weapon"].includes(itemIndex.type)) {
+                    if (!["spell", "mastery", "weapon", "armor", "shield", "npc"].includes(itemIndex.type)) {
                         continue;
                     }
                     data = initializeItemType(itemIndex.type, data);
@@ -70,6 +73,12 @@ export function initializeDisplayPreparation(i18n, magicSkills, masterySkills) {
                 return prepareMasteryItemIndex;
             case "weapon":
                 return prepareWeaponItemIndex;
+            case "armor":
+                return prepareArmorItemIndex;
+            case "shield":
+                return prepareShieldItemIndex;
+            case "npc":
+                return prepareNpcIndex;
             default:
                 return initializeMetadata;
         }
