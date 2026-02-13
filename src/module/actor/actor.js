@@ -8,6 +8,7 @@ import ModifierManager from "./modifiers/modifier-manager";
 import Attack from "./attack";
 import ActiveDefense from "./active-defense.js";
 import { parseCostString } from "../util/costs/costParser";
+import SplittermondCompendium from "../util/compendium";
 import { initializeSpellCostManagement } from "../util/costs/spellCostManagement";
 import { settings } from "../settings";
 import { splittermond } from "../config";
@@ -944,6 +945,43 @@ export default class SplittermondActor extends Actor {
                 },
             });
         });
+
+        // Look up items in compendiums to get full data (descriptions, images, effects)
+        const compendiumLookupTypes = ["spell", "mastery", "weapon", "armor", "shield", "equipment"];
+        await Promise.all(newItems.map(async (item, index) => {
+            if (!compendiumLookupTypes.includes(item.type)) return;
+
+            const compendiumItem = await SplittermondCompendium.findItem(item.type, item.name);
+            if (!compendiumItem) return;
+
+            const compendiumData = compendiumItem.toObject();
+            delete compendiumData._id;
+
+            // Preserve genesis-specific properties per type
+            switch (item.type) {
+                case "spell":
+                    compendiumData.system.skill = item.system.skill;
+                    compendiumData.system.skillLevel = item.system.skillLevel;
+                    break;
+                case "mastery":
+                    compendiumData.system.skill = item.system.skill;
+                    compendiumData.system.level = item.system.level;
+                    if (item.system.modifier) compendiumData.system.modifier = item.system.modifier;
+                    if (item.system.description) compendiumData.system.description = item.system.description;
+                    break;
+                case "weapon":
+                    if (item.system.secondaryAttack) {
+                        compendiumData.system.secondaryAttack = item.system.secondaryAttack;
+                    }
+                    break;
+                case "equipment":
+                    compendiumData.system.quantity = item.system.quantity;
+                    break;
+                // armor, shield: use compendium data as-is
+            }
+
+            newItems[index] = compendiumData;
+        }));
 
         if (genesisData.telare) {
             newData.system.currency.S = Math.floor(genesisData.telare / 10000);
