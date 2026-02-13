@@ -8,6 +8,22 @@
     <div class="splittermond-chat-action-container chat-card-segment">
         {{> degree-of-success-options degreeOfSuccessOptions}}
     </div>
+    {{#if description}}
+        <div class="chat-card-segment">
+            <h3>{{localize "splittermond.description"}}</h3>
+            <div class="spell-description">
+                {{{description}}}
+            </div>
+        </div>
+    {{/if}}
+    {{#if enhancementDescription}}
+        <div class="chat-card-segment">
+            <h3>{{localize "splittermond.enhancementDescription"}}</h3>
+            <div class="spell-enhancement-description">
+                {{{enhancementDescription}}}
+            </div>
+        </div>
+    {{/if}}
     <div class="actions splittermond-chat-action-container chat-card-segment">
         <h3>{{localize "splittermond.furtherActions"}}</h3>
         {{#with actions}}

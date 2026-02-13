@@ -29,6 +29,8 @@ export function isAvailableAction(action: string): action is AvailableActions {
 export interface SpellRollMessageRenderedData extends BaseChatCardRenderedData {
     degreeOfSuccessOptions: DegreeOfSuccessOptionsPartialData;
     actions: Partial<Record<AvailableActions, object>>;
+    description: string | null;
+    enhancementDescription: string | null;
 }
 
 export interface DegreeOfSuccessOption extends ChatCardDegreeOfSuccessOption {}
