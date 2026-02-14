@@ -16,8 +16,12 @@
                     </div>
                     <div>
                         <label>{{this.name}}</label>
-                        <div class="npc-type">
-                            {{this.system.type}}
+                        <div class="available-in">
+                            <ul class="taglist-small">
+                                {{#each this.typeList}}
+                                    <li class="active">{{this.label}}</li>
+                                {{/each}}
+                            </ul>
                         </div>
                     </div>
                     <div class="monster-level">
