@@ -147,6 +147,22 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
             .then(this.sortCategories);
         return new Promise(async (resolve, __) => {
             data.items = await allItems;
+
+            const npcTypes: FilterSkills = { none: "Alle Typen" };
+            if (data.items.npc) {
+                const uniqueTypes = new Set<string>();
+                data.items.npc.forEach((npc: ItemIndexEntity) => {
+                    if (npc.system?.type && typeof npc.system.type === "string") {
+                        npc.system.type.split(",").forEach((t: string) => {
+                            const trimmed = t.trim();
+                            if (trimmed && trimmed !== "-") uniqueTypes.add(trimmed);
+                        });
+                    }
+                });
+                [...uniqueTypes].sort().forEach((t) => { npcTypes[t] = t; });
+            }
+            data.npcFilter = { types: npcTypes };
+
             console.debug(`Splittermond | Compendium Browser getData took ${performance.now() - getDataTimerStart} ms`);
             resolve(data);
         });
@@ -411,13 +427,15 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         const currentSection = this.element.querySelector('section.tab[data-tab="npc"]') as HTMLElement;
         const nameFilter = this.getNameFilter(currentSection);
         const displayWorldItems = this.getWorldItemsFilter(currentSection);
+        const typeFilter = this.getNpcTypeFilter(currentSection);
 
         filterItems(currentSection, (el) => {
             const name = el.querySelector("label")?.textContent ?? "";
             const npcType = el.dataset.npcType ?? "";
             const nameMatches = nameFilter.test(`${name} ${npcType}`);
             const shouldDisplayWorldItem = displayWorldItems || !!el.dataset.itemId?.startsWith("Compendium");
-            return nameMatches && shouldDisplayWorldItem;
+            const typeMatches = typeFilter === "none" || npcType.split(",").some((t) => t.trim() === typeFilter);
+            return nameMatches && shouldDisplayWorldItem && typeMatches;
         });
     }
 
@@ -438,6 +456,13 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     private getSkillFilter(currentSection: HTMLElement): string {
         const selectElement: HTMLSelectElement | null = currentSection.querySelector(
             '.compendium-item-filters select[name="skill"]'
+        );
+        return selectElement?.value ?? "none";
+    }
+
+    private getNpcTypeFilter(currentSection: HTMLElement): string {
+        const selectElement: HTMLSelectElement | null = currentSection.querySelector(
+            '.compendium-item-filters select[name="npc-type"]'
         );
         return selectElement?.value ?? "none";
     }

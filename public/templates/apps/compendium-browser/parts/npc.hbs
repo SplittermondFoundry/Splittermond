@@ -1,9 +1,14 @@
 <section class="tab {{tab.cssClass}}" data-group="primary" data-tab="npc">
     <div class="filter column">
-        <div class="row flex-gap compendium-item-filters"><i class="fas fa-search"></i><input type="text" placeholder="Suche" name="search">
+        <div class="row flex-gap"><i class="fas fa-search"></i><input type="text" placeholder="Suche" name="search">
 
             <input type="checkbox" value="true" name="show-world-items" id="show-world-items-npc" data-action="showWorldItemNpc"><label
                     for="show-world-items-npc">{{localize "splittermond.showWorldItems"}}</label>
+        </div>
+        <div class="row compendium-item-filters">
+            <select name="npc-type" data-action="filterForNpcType">
+                {{selectOptions npcFilter.types selected="none"}}
+            </select>
         </div>
     </div>
     <div class="list">
