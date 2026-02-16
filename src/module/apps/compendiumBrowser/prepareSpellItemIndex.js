@@ -47,7 +47,12 @@ export function initializeSpellItemPreparation(spellAvailabilityParser) {
                     return produceSpellAvailabilityTags(this.system, spellAvailabilityParser);
                 },
             },
-            spellTypeList: { value: item.system.spellType?.split(",") },
+            spellTypeList: {
+                value: item.system.spellType
+                    ?.split(",")
+                    .map((s) => s.trim())
+                    .filter((s) => s),
+            },
         };
         for (const key in properties) {
             if (!(key in item)) {
