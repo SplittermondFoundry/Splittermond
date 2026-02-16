@@ -12,11 +12,12 @@ import * as Regenbogenschwinge from "../../../../resources/importSamples/HexenkÃ
 import * as Schuppenruestung from "../../../../resources/importSamples/GRW/armor/SchuppenrÃ¼stung.resource";
 import { describe, it } from "mocha";
 import sinon, { SinonSandbox, SinonStub } from "sinon";
-import { actorCreator, itemCreator } from "../../../../../module/data/EntityCreator";
+import { actorCreator, itemCreator } from "module/data/EntityCreator";
 import { expect } from "chai";
-import { foundryApi } from "../../../../../module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 import { initLocalizer } from "./poorMansLocalizer";
 import SplittermondCompendium from "../../../../../module/util/compendium";
+import { clearAvailabilityParserCache } from "module/item/availabilityParser";
 
 global.ClipboardEvent = class {
     constructor(private text: string) {}
@@ -29,6 +30,7 @@ describe("ItemImporter", () => {
     let sandbox: SinonSandbox;
     beforeEach(() => {
         sandbox = sinon.createSandbox();
+        clearAvailabilityParserCache();
         sandbox.stub(foundryApi, "localize").callsFake(initLocalizer());
         sandbox.stub(foundryApi, "format").callsFake(initLocalizer());
         sandbox.stub(foundryApi, "informUser");
