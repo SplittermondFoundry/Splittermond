@@ -11,6 +11,15 @@ let cachedMasteryAvailabilityParser: MasteryAvailabilityParser;
 type Localizer = { localize: (arg0: string) => string };
 
 /**
+ * Clears the cached availability parsers. This is primarily useful for testing
+ * when the localizer is stubbed with different implementations between tests.
+ */
+export function clearAvailabilityParserCache(): void {
+    cachedSpellAvailabilityParser = undefined!;
+    cachedMasteryAvailabilityParser = undefined!;
+}
+
+/**
  * Returns a cached instance of the spell availability parser or creates a new one if inputs don't match.
  */
 export function getMasteryAvailabilityParser(i18n: Localizer, masterySkills: Readonly<SplittermondSkill[]>) {

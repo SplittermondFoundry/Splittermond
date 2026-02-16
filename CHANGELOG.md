@@ -1,4 +1,12 @@
+## 13.11.14
+
+### Fixed
+
+- Keine Leerzeichen mehr in Zaubertypen, womit potentielle Fehler in Modifikatoren die auf Typen filtern nicht mehr vorkommen.
+
 ## 13.11.13
+
+### Fixed
 
 - Auswahl von Betäubungsschaden im Schadensdialog wird jetzt registriert
 - Fehlermeldungen von Modifikatoren werden jetzt nur noch Besitzern (inkludiert SL) angezeigt.
