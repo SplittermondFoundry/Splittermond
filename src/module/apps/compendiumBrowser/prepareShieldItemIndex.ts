@@ -1,35 +1,27 @@
 import { produceAttackableItemTags } from "../../item/tags/attackableItemTags.js";
 import { initializeMetadata } from "./metadataInitializer.js";
+import { type ItemIndexEntity, type CompendiumMetadata } from "./compendium-browser";
 
-/**
- * @param {CompendiumMetadata} compendiumMetadata
- * @param {ItemIndexEntity} itemIndexEntity
- * @returns {ItemIndexEntity}
- */
-export function prepareArmorItemIndex(compendiumMetadata, itemIndexEntity) {
-    if (!isDisplayableArmor(itemIndexEntity)) {
-        throw new Error(`Item '${itemIndexEntity.name}' is not an armor`);
+export function prepareShieldItemIndex(
+    compendiumMetadata: CompendiumMetadata,
+    itemIndexEntity: ItemIndexEntity
+): ItemIndexEntity {
+    if (!isDisplayableShield(itemIndexEntity)) {
+        throw new Error(`Item '${itemIndexEntity.name}' is not a shield`);
     }
     initializeTagGenerator(itemIndexEntity);
     return initializeMetadata(compendiumMetadata, itemIndexEntity);
 }
 
-/**
- * @param {ItemIndexEntity} itemIndexEntity
- * @returns {boolean}
- */
-function isDisplayableArmor(itemIndexEntity) {
+function isDisplayableShield(itemIndexEntity: ItemIndexEntity): boolean {
     return (
-        itemIndexEntity.type === "armor" &&
+        itemIndexEntity.type === "shield" &&
         typeof itemIndexEntity.system === "object" &&
         itemIndexEntity.system.features !== undefined
     );
 }
 
-/**
- * @param {ItemIndexEntity} item
- */
-function initializeTagGenerator(item) {
+function initializeTagGenerator(item: ItemIndexEntity): void {
     const property = "featuresList";
     if (!(property in item)) {
         Object.defineProperty(item, property, {

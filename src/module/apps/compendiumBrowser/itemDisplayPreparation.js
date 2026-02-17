@@ -7,9 +7,9 @@ import { initializeSpellItemPreparation } from "./prepareSpellItemIndex.js";
 import { initializeMasteryItemPreparation } from "./prepareMasteryItemIndex.js";
 import { initializeMetadata } from "./metadataInitializer.js";
 import { prepareWeaponItemIndex } from "./prepareWeaponsIndex.js";
-import { prepareArmorItemIndex } from "./prepareArmorItemIndex.js";
-import { prepareShieldItemIndex } from "./prepareShieldItemIndex.js";
-import { prepareNpcIndex } from "./prepareNpcIndex.js";
+import { prepareArmorItemIndex } from "./prepareArmorItemIndex.ts";
+import { prepareShieldItemIndex } from "./prepareShieldItemIndex.ts";
+import { prepareNpcIndex } from "./prepareNpcIndex.ts";
 import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "../../item/availabilityParser.ts";
 
 /**
