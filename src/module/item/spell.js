@@ -115,7 +115,10 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
     }
 
     get spellTypeList() {
-        return this.spellType?.split(",").map((str) => str.trim());
+        return this.spellType
+            ?.split(",")
+            .map((str) => str.trim())
+            .filter((str) => str);
     }
 
     get availableInList() {
