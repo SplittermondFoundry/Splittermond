@@ -59,9 +59,12 @@
     }
 
     .list {
-        div:first-child {
+        .item-details {
+            display: flex;
             flex-direction: column;
             align-items: flex-start;
+            flex: 1;
+            min-width: 0;
         }
 
         .level {
@@ -110,9 +113,47 @@
             font-size: 10px;
         }
 
+        .taglist-small li {
+            font-family: "Signika";
+            font-size: 10px;
+        }
+
         .list-item {
             padding-top: 3px;
             padding-bottom: 3px;
+            gap: 6px;
+        }
+
+        .defense-bonus {
+            width: 50px;
+            text-align: center;
+        }
+
+        .damage-reduction {
+            width: 50px;
+            text-align: center;
+        }
+
+        .handicap {
+            width: 50px;
+            text-align: center;
+        }
+
+        .monster-level {
+            width: 60px;
+            text-align: center;
+        }
+
+        .item-portrait {
+            flex: 0 0 36px;
+            height: 36px;
+        }
+
+        .item-img {
+            width: 36px;
+            height: 36px;
+            object-fit: cover;
+            border-radius: 4px;
         }
     }
 }

@@ -8,7 +8,9 @@ import { CompendiumPacks } from "../../api/foundryTypes";
 import { closestData } from "../../data/ClosestDataMixin";
 import { SplittermondApplication, TEMPLATE_BASE_PATH } from "../../data/SplittermondApplication";
 
-type ItemIndexEntity = {
+export type CompendiumMetadata = { id: string; label: string };
+
+export type ItemIndexEntity = {
     type: string;
     folder: string;
     img: string;
@@ -38,6 +40,9 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
                 { id: "spell", group: "primary", label: "splittermond.spells" },
                 { id: "mastery", group: "primary", label: "splittermond.masteries" },
                 { id: "weapon", group: "primary", label: "splittermond.weapons" },
+                { id: "armor", group: "primary", label: "splittermond.armors" },
+                { id: "shield", group: "primary", label: "splittermond.shields" },
+                { id: "npc", group: "primary", label: "splittermond.npc" },
             ],
             initial: "spell",
         },
@@ -54,6 +59,15 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         },
         weapon: {
             template: `${TEMPLATE_BASE_PATH}/apps/compendium-browser/parts/weapon.hbs`,
+        },
+        armor: {
+            template: `${TEMPLATE_BASE_PATH}/apps/compendium-browser/parts/armor.hbs`,
+        },
+        shield: {
+            template: `${TEMPLATE_BASE_PATH}/apps/compendium-browser/parts/shield.hbs`,
+        },
+        npc: {
+            template: `${TEMPLATE_BASE_PATH}/apps/compendium-browser/parts/npc.hbs`,
         },
     };
 
@@ -135,6 +149,22 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
             .then(this.sortCategories);
         return new Promise(async (resolve, __) => {
             data.items = await allItems;
+
+            const npcTypes: FilterSkills = { none: "Alle Typen" };
+            if (data.items.npc) {
+                const uniqueTypes = new Set<string>();
+                data.items.npc.forEach((npc: ItemIndexEntity) => {
+                    if (npc.system?.type && typeof npc.system.type === "string") {
+                        npc.system.type.split(",").forEach((t: string) => {
+                            const trimmed = t.trim();
+                            if (trimmed && trimmed !== "-") uniqueTypes.add(trimmed);
+                        });
+                    }
+                });
+                [...uniqueTypes].sort().forEach((t) => { npcTypes[t] = t; });
+            }
+            data.npcFilter = { types: npcTypes };
+
             console.debug(`Splittermond | Compendium Browser getData took ${performance.now() - getDataTimerStart} ms`);
             resolve(data);
         });
@@ -143,8 +173,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     recordCompendiaItemsInCategories(compendia: CompendiumPacks): Promise<Record<string, ItemIndexEntity[]>> {
         let allItems: Record<string, ItemIndexEntity[]> = {};
 
-        const indices = compendia
-            .filter((pack) => pack.documentName === "Item")
+        const wellFormedPacks = compendia
             .filter((pack) => {
                 const wellFormedMetadata = "id" in pack.metadata && "label" in pack.metadata;
                 if (!wellFormedMetadata) {
@@ -153,7 +182,10 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
                     );
                 }
                 return wellFormedMetadata;
-            })
+            });
+
+        const itemIndices = wellFormedPacks
+            .filter((pack) => pack.documentName === "Item")
             .map((pack) => ({
                 metadata: { id: pack.metadata.id, label: pack.metadata.label },
                 index: pack.getIndex({
@@ -166,12 +198,29 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
                         "system.spellType",
                         "system.secondaryAttack.skill",
                         "system.damage",
+                        "system.defenseBonus",
+                        "system.damageReduction",
+                        "system.handicap",
                     ],
                 }),
             }));
 
+        const actorIndices = wellFormedPacks
+            .filter((pack) => pack.documentName === "Actor")
+            .map((pack) => ({
+                metadata: { id: pack.metadata.id, label: pack.metadata.label },
+                index: pack.getIndex({
+                    fields: [
+                        "system.type",
+                        "system.level",
+                    ],
+                }),
+            }));
+
+        const allIndices = [...itemIndices, ...actorIndices];
+
         return Promise.all(
-            indices.map((compendiumBrowserCompendium) =>
+            allIndices.map((compendiumBrowserCompendium) =>
                 this.produceDisplayableItems()(
                     compendiumBrowserCompendium.metadata,
                     compendiumBrowserCompendium.index,
@@ -225,6 +274,21 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
                 this._onSearchFilterWeapon();
             })
         );
+        this.element.querySelectorAll('[data-tab="armor"] input, [data-tab="armor"] select').forEach((el) =>
+            el.addEventListener("change", () => {
+                this._onSearchFilterArmor();
+            })
+        );
+        this.element.querySelectorAll('[data-tab="shield"] input, [data-tab="shield"] select').forEach((el) =>
+            el.addEventListener("change", () => {
+                this._onSearchFilterShield();
+            })
+        );
+        this.element.querySelectorAll('[data-tab="npc"] input, [data-tab="npc"] select').forEach((el) =>
+            el.addEventListener("change", () => {
+                this._onSearchFilterNpc();
+            })
+        );
     }
 
     async render(options: Parameters<InstanceType<typeof FoundryApplication>["render"]>[0] = {}): Promise<this> {
@@ -265,10 +329,11 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
     _onDragStart(event: DragEvent): void {
         const li = event.currentTarget as HTMLElement;
+        const docType = li.dataset.docType || "Item";
         event.dataTransfer?.setData(
             "text/plain",
             JSON.stringify({
-                type: "Item",
+                type: docType,
                 uuid: li.dataset.itemId,
             })
         );
@@ -332,6 +397,50 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         });
     }
 
+    _onSearchFilterArmor(): void {
+        const currentSection = this.element.querySelector('section.tab[data-tab="armor"]') as HTMLElement;
+        const nameFilter = this.getNameFilter(currentSection);
+        const displayWorldItems = this.getWorldItemsFilter(currentSection);
+
+        filterItems(currentSection, (el) => {
+            const name = el.querySelector("label")?.textContent ?? "";
+            const features = el.dataset.features ?? "";
+            const nameMatches = nameFilter.test(`${name} ${features}`);
+            const shouldDisplayWorldItem = displayWorldItems || !!el.dataset.itemId?.startsWith("Compendium");
+            return nameMatches && shouldDisplayWorldItem;
+        });
+    }
+
+    _onSearchFilterShield(): void {
+        const currentSection = this.element.querySelector('section.tab[data-tab="shield"]') as HTMLElement;
+        const nameFilter = this.getNameFilter(currentSection);
+        const displayWorldItems = this.getWorldItemsFilter(currentSection);
+
+        filterItems(currentSection, (el) => {
+            const name = el.querySelector("label")?.textContent ?? "";
+            const features = el.dataset.features ?? "";
+            const nameMatches = nameFilter.test(`${name} ${features}`);
+            const shouldDisplayWorldItem = displayWorldItems || !!el.dataset.itemId?.startsWith("Compendium");
+            return nameMatches && shouldDisplayWorldItem;
+        });
+    }
+
+    _onSearchFilterNpc(): void {
+        const currentSection = this.element.querySelector('section.tab[data-tab="npc"]') as HTMLElement;
+        const nameFilter = this.getNameFilter(currentSection);
+        const displayWorldItems = this.getWorldItemsFilter(currentSection);
+        const typeFilter = this.getNpcTypeFilter(currentSection);
+
+        filterItems(currentSection, (el) => {
+            const name = el.querySelector("label")?.textContent ?? "";
+            const npcType = el.dataset.npcType ?? "";
+            const nameMatches = nameFilter.test(`${name} ${npcType}`);
+            const shouldDisplayWorldItem = displayWorldItems || !!el.dataset.itemId?.startsWith("Compendium");
+            const typeMatches = typeFilter === "none" || npcType.split(",").some((t) => t.trim() === typeFilter);
+            return nameMatches && shouldDisplayWorldItem && typeMatches;
+        });
+    }
+
     private getCommonFilters(currentSection: HTMLElement) {
         return {
             nameFilter: this.getNameFilter(currentSection),
@@ -349,6 +458,13 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     private getSkillFilter(currentSection: HTMLElement): string {
         const selectElement: HTMLSelectElement | null = currentSection.querySelector(
             '.compendium-item-filters select[name="skill"]'
+        );
+        return selectElement?.value ?? "none";
+    }
+
+    private getNpcTypeFilter(currentSection: HTMLElement): string {
+        const selectElement: HTMLSelectElement | null = currentSection.querySelector(
+            '.compendium-item-filters select[name="npc-type"]'
         );
         return selectElement?.value ?? "none";
     }

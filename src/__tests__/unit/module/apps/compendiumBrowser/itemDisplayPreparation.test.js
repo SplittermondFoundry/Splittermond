@@ -64,8 +64,54 @@ function getSampleWeaponItem() {
     };
 }
 
+function getSampleArmorItem() {
+    return {
+        ...defautItem,
+        type: "armor",
+        name: "Kettenhemd",
+        system: {
+            features: "Schwer",
+            defenseBonus: 2,
+            damageReduction: 3,
+            handicap: 2,
+        },
+    };
+}
+
+function getSampleShieldItem() {
+    return {
+        ...defautItem,
+        type: "shield",
+        name: "Holzschild",
+        system: {
+            features: "Extraschwer",
+            defenseBonus: 1,
+            handicap: 1,
+        },
+    };
+}
+
+function getSampleNpcItem() {
+    return {
+        ...defautItem,
+        type: "npc",
+        name: "Goblin",
+        system: {
+            type: "Goblinoid, Kulturschaffender",
+            level: "3",
+        },
+    };
+}
+
 const sampleCompendiumData = { id: "world.discarded", label: "Ablage P" };
-const getAllItemData = () => [getSampleSpellItem(), getSampleMasteryItem(), getSampleWeaponItem()];
+const getAllItemData = () => [
+    getSampleSpellItem(),
+    getSampleMasteryItem(),
+    getSampleWeaponItem(),
+    getSampleArmorItem(),
+    getSampleShieldItem(),
+    getSampleNpcItem(),
+];
 
 describe("spell item preparation for compendium browser", () => {
     /** @type {{localize: (x:string)=>string}} */
@@ -214,5 +260,98 @@ describe("weapon item preparation for compendium browser", () => {
         await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
         expect(collector.weapon[0].system.features).not.to.be.undefined; //jshint ignore:line
         expect(collector.weapon[0].system.skill).not.to.be.undefined; //jshint ignore:line
+    });
+});
+
+describe("armor item preparation for compendium browser", () => {
+    const produceDisplayableItems = initializeDisplayPreparation({ localize: identity }, [], []);
+    it("should sort armor items into separate array", async () => {
+        const collector = {};
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        expect(collector).to.include.keys("armor");
+        expect(collector.armor[0]).to.deep.contain(getSampleArmorItem());
+    });
+
+    it("should add metadata to armor", async () => {
+        const collector = {};
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        expect(collector.armor[0]).to.deep.contain({ compendium: { metadata: sampleCompendiumData } });
+    });
+
+    it("should throw an error if the item is not an armor", async () => {
+        const malformedArmor = getSampleArmorItem();
+        delete malformedArmor.system.features;
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve([malformedArmor]), {}).catch((err) => {
+            expect(err).to.be.an.instanceOf(Error);
+            expect(err.message).to.equal(`Item '${malformedArmor.name}' is not an armor`);
+        });
+    });
+
+    it("should produce armor feature tags", async () => {
+        const collector = {};
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        expect(collector.armor[0].featuresList).to.deep.equal(["Schwer"]);
+    });
+});
+
+describe("shield item preparation for compendium browser", () => {
+    const produceDisplayableItems = initializeDisplayPreparation({ localize: identity }, [], []);
+    it("should sort shield items into separate array", async () => {
+        const collector = {};
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        expect(collector).to.include.keys("shield");
+        expect(collector.shield[0]).to.deep.contain(getSampleShieldItem());
+    });
+
+    it("should add metadata to shields", async () => {
+        const collector = {};
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        expect(collector.shield[0]).to.deep.contain({ compendium: { metadata: sampleCompendiumData } });
+    });
+
+    it("should throw an error if the item is not a shield", async () => {
+        const malformedShield = getSampleShieldItem();
+        delete malformedShield.system.features;
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve([malformedShield]), {}).catch((err) => {
+            expect(err).to.be.an.instanceOf(Error);
+            expect(err.message).to.equal(`Item '${malformedShield.name}' is not a shield`);
+        });
+    });
+
+    it("should produce shield feature tags", async () => {
+        const collector = {};
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        expect(collector.shield[0].featuresList).to.deep.equal(["Extraschwer"]);
+    });
+});
+
+describe("npc item preparation for compendium browser", () => {
+    const produceDisplayableItems = initializeDisplayPreparation({ localize: identity }, [], []);
+    it("should sort npc items into separate array", async () => {
+        const collector = {};
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        expect(collector).to.include.keys("npc");
+        expect(collector.npc[0]).to.deep.contain(getSampleNpcItem());
+    });
+
+    it("should add metadata to npcs", async () => {
+        const collector = {};
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        expect(collector.npc[0]).to.deep.contain({ compendium: { metadata: sampleCompendiumData } });
+    });
+
+    it("should throw an error if the actor is not an npc", async () => {
+        const malformedNpc = getSampleNpcItem();
+        malformedNpc.type = "character";
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve([malformedNpc]), {}).catch((err) => {
+            expect(err).to.be.an.instanceOf(Error);
+            expect(err.message).to.equal(`Actor '${malformedNpc.name}' is not an NPC`);
+        });
+    });
+
+    it("should produce npc type tags", async () => {
+        const collector = {};
+        await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        expect(collector.npc[0].typeList).to.deep.equal([{ label: "Goblinoid" }, { label: "Kulturschaffender" }]);
     });
 });

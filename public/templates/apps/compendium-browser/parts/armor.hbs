@@ -1,0 +1,49 @@
+<section class="tab {{tab.cssClass}}" data-group="primary" data-tab="armor">
+    <div class="filter column">
+        <div class="row flex-gap compendium-item-filters"><i class="fas fa-search"></i><input type="text" placeholder="Suche" name="search">
+
+            <input type="checkbox" value="true" name="show-world-items" id="show-world-items-armor" data-action="showWorldItemArmor"><label
+                    for="show-world-items-armor">{{localize "splittermond.showWorldItems"}}</label>
+        </div>
+    </div>
+    <div class="list">
+        <ol class="list-body">
+            {{#each items.armor}}
+                <li class="list-item draggable" data-item-id="{{this.uuid}}"
+                    data-features="{{this.system.features.internalFeatureList}}">
+                    <div class="item-portrait">
+                        <img class="item-img" src="{{this.img}}" alt="{{this.name}}">
+                    </div>
+                    <div class="item-details">
+                        <label>{{this.name}}</label>
+                        <div class="features">
+                            <ul class="taglist-small">
+                                {{#each this.featuresList}}
+                                    <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="defense-bonus">
+                        VTD+{{this.system.defenseBonus}}
+                    </div>
+                    <div class="damage-reduction">
+                        SR {{this.system.damageReduction}}
+                    </div>
+                    <div class="handicap">
+                        BE {{this.system.handicap}}
+                    </div>
+                    <div class="compendium">
+                        {{#if this.compendium}}
+                            <span class="label">{{this.compendium.metadata.label}}</span>
+                            <span class="id">{{this.compendium.metadata.id}}</span>
+                        {{else}}
+                            <span class="label">{{this.collection.name}}</span>
+                            <span class="id">world.{{this.collectionName}}</span>
+                        {{/if}}
+                    </div>
+                </li>
+            {{/each}}
+        </ol>
+    </div>
+</section>

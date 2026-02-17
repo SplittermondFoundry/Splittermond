@@ -17,7 +17,10 @@
                     data-features="{{this.system.features.internalFeatureList}}" data-damage="{{this.system.damage.stringInput}}"
                     data-secondary-damage="{{this.system.secondaryAttack.damage.stringInput}}"
                     data-secondary-features="{{this.system.secondaryAttack.features.internalFeatureList}}">
-                    <div>
+                    <div class="item-portrait">
+                        <img class="item-img" src="{{this.img}}" alt="{{this.name}}">
+                    </div>
+                    <div class="item-details">
                         <label>{{this.name}}</label>
                         <div class="features">
                             <ul class="taglist-small">
