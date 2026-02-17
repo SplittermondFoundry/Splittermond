@@ -1,11 +1,10 @@
 import { initializeMetadata } from "./metadataInitializer.js";
+import { type ItemIndexEntity, type CompendiumMetadata } from "./compendium-browser";
 
-/**
- * @param {CompendiumMetadata} compendiumMetadata
- * @param {ItemIndexEntity} itemIndexEntity
- * @returns {ItemIndexEntity}
- */
-export function prepareNpcIndex(compendiumMetadata, itemIndexEntity) {
+export function prepareNpcIndex(
+    compendiumMetadata: CompendiumMetadata,
+    itemIndexEntity: ItemIndexEntity
+): ItemIndexEntity {
     if (!isDisplayableNpc(itemIndexEntity)) {
         throw new Error(`Actor '${itemIndexEntity.name}' is not an NPC`);
     }
@@ -13,10 +12,7 @@ export function prepareNpcIndex(compendiumMetadata, itemIndexEntity) {
     return initializeMetadata(compendiumMetadata, itemIndexEntity);
 }
 
-/**
- * @param {ItemIndexEntity} item
- */
-function initializeTagGenerator(item) {
+function initializeTagGenerator(item: ItemIndexEntity): void {
     const property = "typeList";
     if (!(property in item)) {
         Object.defineProperty(item, property, {
@@ -27,23 +23,12 @@ function initializeTagGenerator(item) {
     }
 }
 
-/**
- * @param {{type: string}} system
- * @returns {{label: string}[]}
- */
-function produceNpcTypeTags(system) {
+function produceNpcTypeTags(system: { type: string }): { label: string }[] {
     if (!system.type || typeof system.type !== "string") return [];
     if (system.type.trim() === "" || system.type.trim() === "-") return [];
     return system.type.split(",").map((s) => ({ label: s.trim() }));
 }
 
-/**
- * @param {ItemIndexEntity} itemIndexEntity
- * @returns {boolean}
- */
-function isDisplayableNpc(itemIndexEntity) {
-    return (
-        itemIndexEntity.type === "npc" &&
-        typeof itemIndexEntity.system === "object"
-    );
+function isDisplayableNpc(itemIndexEntity: ItemIndexEntity): boolean {
+    return itemIndexEntity.type === "npc" && typeof itemIndexEntity.system === "object";
 }

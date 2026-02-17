@@ -8,7 +8,9 @@ import { CompendiumPacks } from "../../api/foundryTypes";
 import { closestData } from "../../data/ClosestDataMixin";
 import { SplittermondApplication, TEMPLATE_BASE_PATH } from "../../data/SplittermondApplication";
 
-type ItemIndexEntity = {
+export type CompendiumMetadata = { id: string; label: string };
+
+export type ItemIndexEntity = {
     type: string;
     folder: string;
     img: string;
