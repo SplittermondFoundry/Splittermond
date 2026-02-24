@@ -3,6 +3,7 @@
 ### Fixed
 
 - Keine Leerzeichen mehr in Zaubertypen, womit potentielle Fehler in Modifikatoren die auf Typen filtern nicht mehr vorkommen.
+- Die Tableiste des Kompendiumbrowsers sieht wieder normal aus.
 
 ## 13.11.13
 
