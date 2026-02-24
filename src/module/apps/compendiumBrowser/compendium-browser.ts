@@ -308,8 +308,13 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
     async render(options: Parameters<InstanceType<typeof FoundryApplication>["render"]>[0] = {}): Promise<this> {
         const renderResult = await super.render(options);
-        // Initialize the spell section so that everything is visible.
+        // Initialize all sections so that filters are applied on first render.
         this._onSearchFilterSpell();
+        this._onSearchFilterMastery();
+        this._onSearchFilterWeapon();
+        this._onSearchFilterArmor();
+        this._onSearchFilterShield();
+        this._onSearchFilterNpc();
         this.element.querySelector('a[data-tab="spell"]')?.classList.add("active");
         this.element.querySelector('section[data-tab="spell"]')?.classList.add("active");
         return renderResult;
@@ -413,7 +418,8 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     }
 
     _onSearchFilterArmor(): void {
-        const currentSection = this.element.querySelector('section.tab[data-tab="armor"]') as HTMLElement;
+        const currentSection = this.element.querySelector('section.tab[data-tab="armor"]') as HTMLElement | null;
+        if (!currentSection) return;
         const nameFilter = this.getNameFilter(currentSection);
         const displayWorldItems = this.getWorldItemsFilter(currentSection);
 
@@ -427,7 +433,8 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     }
 
     _onSearchFilterShield(): void {
-        const currentSection = this.element.querySelector('section.tab[data-tab="shield"]') as HTMLElement;
+        const currentSection = this.element.querySelector('section.tab[data-tab="shield"]') as HTMLElement | null;
+        if (!currentSection) return;
         const nameFilter = this.getNameFilter(currentSection);
         const displayWorldItems = this.getWorldItemsFilter(currentSection);
 
@@ -441,7 +448,8 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     }
 
     _onSearchFilterNpc(): void {
-        const currentSection = this.element.querySelector('section.tab[data-tab="npc"]') as HTMLElement;
+        const currentSection = this.element.querySelector('section.tab[data-tab="npc"]') as HTMLElement | null;
+        if (!currentSection) return;
         const nameFilter = this.getNameFilter(currentSection);
         const displayWorldItems = this.getWorldItemsFilter(currentSection);
         const typeFilter = this.getNpcTypeFilter(currentSection);
