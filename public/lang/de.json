@@ -190,7 +190,8 @@
                 "invalidItemType": "Objekte vom Typ {type} können hier nicht abgelegt werden."
             },
             "compendiumBrowser": {
-                "noItem": "Das gesuchte Objekt konnte nicht gefunden werden."
+                "noItem": "Das gesuchte Objekt konnte nicht gefunden werden.",
+                "allTypes": "Alle Typen"
             }
         },
         "modifier": "Modifikator",
@@ -208,6 +209,7 @@
         "chooseMagicSkill": "Wähle eine Magieschule!",
         "chooseSkill": "Wähle eine Fertigkeit!",
         "npc": "Nicht-Spieler-Charakter",
+        "npcs": "NSC",
         "character": "Spieler-Charakter",
         "save": "Speichern",
         "ok": "OK",

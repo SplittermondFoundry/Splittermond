@@ -42,7 +42,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
                 { id: "weapon", group: "primary", label: "splittermond.weapons" },
                 { id: "armor", group: "primary", label: "splittermond.armors" },
                 { id: "shield", group: "primary", label: "splittermond.shields" },
-                { id: "npc", group: "primary", label: "splittermond.npc" },
+                { id: "npc", group: "primary", label: "splittermond.npcs" },
             ],
             initial: "spell",
         },
@@ -146,24 +146,11 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
         const allItems = this.recordCompendiaItemsInCategories(foundryApi.collections.packs)
             .then((record) => this.appendWorldItemsToRecord(record, itemRetriever.items))
+            .then((record) => this.appendWorldActorsToRecord(record, foundryApi.collections.actors))
             .then(this.sortCategories);
         return new Promise(async (resolve, __) => {
             data.items = await allItems;
-
-            const npcTypes: FilterSkills = { none: "Alle Typen" };
-            if (data.items.npc) {
-                const uniqueTypes = new Set<string>();
-                data.items.npc.forEach((npc: ItemIndexEntity) => {
-                    if (npc.system?.type && typeof npc.system.type === "string") {
-                        npc.system.type.split(",").forEach((t: string) => {
-                            const trimmed = t.trim();
-                            if (trimmed && trimmed !== "-") uniqueTypes.add(trimmed);
-                        });
-                    }
-                });
-                [...uniqueTypes].sort().forEach((t) => { npcTypes[t] = t; });
-            }
-            data.npcFilter = { types: npcTypes };
+            data.npcFilter = { types: this.collectNpcTypes(data.items.npc ?? []) };
 
             console.debug(`Splittermond | Compendium Browser getData took ${performance.now() - getDataTimerStart} ms`);
             resolve(data);
@@ -173,16 +160,15 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
     recordCompendiaItemsInCategories(compendia: CompendiumPacks): Promise<Record<string, ItemIndexEntity[]>> {
         let allItems: Record<string, ItemIndexEntity[]> = {};
 
-        const wellFormedPacks = compendia
-            .filter((pack) => {
-                const wellFormedMetadata = "id" in pack.metadata && "label" in pack.metadata;
-                if (!wellFormedMetadata) {
-                    console.warn(
-                        `Splittermond | Pack ${pack.metadata.name} does not have well-formed metadata. It will be ignored.`
-                    );
-                }
-                return wellFormedMetadata;
-            });
+        const wellFormedPacks = compendia.filter((pack) => {
+            const wellFormedMetadata = "id" in pack.metadata && "label" in pack.metadata;
+            if (!wellFormedMetadata) {
+                console.warn(
+                    `Splittermond | Pack ${pack.metadata.name} does not have well-formed metadata. It will be ignored.`
+                );
+            }
+            return wellFormedMetadata;
+        });
 
         const itemIndices = wellFormedPacks
             .filter((pack) => pack.documentName === "Item")
@@ -210,10 +196,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
             .map((pack) => ({
                 metadata: { id: pack.metadata.id, label: pack.metadata.label },
                 index: pack.getIndex({
-                    fields: [
-                        "system.type",
-                        "system.level",
-                    ],
+                    fields: ["system.type", "system.level"],
                 }),
             }));
 
@@ -243,11 +226,43 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         return record;
     }
 
+    appendWorldActorsToRecord(
+        record: Record<string, ItemIndexEntity[]>,
+        actors: Collection<Actor>
+    ): Record<string, ItemIndexEntity[]> {
+        actors.forEach((actor) => {
+            if (!(actor.type in record)) {
+                record[actor.type] = [];
+            }
+            record[actor.type].push(actor as unknown as ItemIndexEntity);
+        });
+        return record;
+    }
+
     sortCategories(record: Record<string, ItemIndexEntity[]>): Record<string, ItemIndexEntity[]> {
         Object.keys(record).forEach((k) => {
             record[k].sort((a, b) => (a.name < b.name ? -1 : 1));
         });
         return record;
+    }
+
+    private collectNpcTypes(npcs: ItemIndexEntity[]): FilterSkills {
+        const npcTypes: FilterSkills = {
+            none: foundryApi.localize("splittermond.applications.compendiumBrowser.allTypes"),
+        };
+        const uniqueTypes = new Set<string>();
+        npcs.forEach((npc: ItemIndexEntity) => {
+            if (npc.system?.type && typeof npc.system.type === "string") {
+                npc.system.type.split(",").forEach((t: string) => {
+                    const trimmed = t.trim();
+                    if (trimmed && trimmed !== "-") uniqueTypes.add(trimmed);
+                });
+            }
+        });
+        [...uniqueTypes].sort().forEach((t) => {
+            npcTypes[t] = t;
+        });
+        return npcTypes;
     }
 
     async _onRender(context: any, options: any): Promise<void> {
@@ -329,7 +344,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
     _onDragStart(event: DragEvent): void {
         const li = event.currentTarget as HTMLElement;
-        const docType = li.dataset.docType || "Item";
+        const docType = li.dataset.docType ?? "Item";
         event.dataTransfer?.setData(
             "text/plain",
             JSON.stringify({
