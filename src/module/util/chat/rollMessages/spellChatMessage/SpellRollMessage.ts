@@ -136,6 +136,8 @@ export class SpellRollMessage extends RollMessage<
                     id: `${option.action}-${option.multiplicity}-${new Date().getTime()}`,
                 })),
             actions: renderedActions,
+            description: this.spellReference.getItem().description || null,
+            enhancementDescription: this.spellReference.getItem().enhancementDescription || null,
         };
     }
 
