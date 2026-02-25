@@ -679,8 +679,10 @@ export default class SplittermondActor extends Actor {
 
         // If Genesis-JSON-Export
         if (data.jsonExporterVersion && data.system === "SPLITTERMOND") {
-            updateActor = updateActor ?? (await askUserAboutActorOverwrite());
-            const importedGenesisData = await this.#importGenesisData(data, updateActor);
+            const options = updateActor != null
+                ? { updateActor, compendiumLookup: true }
+                : await askUserAboutImportOptions();
+            const importedGenesisData = await this.#importGenesisData(data, options.updateActor, options.compendiumLookup);
             json = JSON.stringify(importedGenesisData);
         }
 
@@ -690,9 +692,10 @@ export default class SplittermondActor extends Actor {
     /**
      * @param {Record<string,unknown>} data
      * @param {boolean} updateActor
+     * @param {boolean} compendiumLookup
      * @returns {Promise<Partial<CharacterData>| undefined>}
      */
-    async #importGenesisData(data, updateActor) {
+    async #importGenesisData(data, updateActor, compendiumLookup) {
         const genesisData = data;
         let newData = this.toObject();
         let newItems = [];
@@ -947,41 +950,24 @@ export default class SplittermondActor extends Actor {
         });
 
         // Look up items in compendiums to get full data (descriptions, images, effects)
-        const compendiumLookupTypes = ["spell", "mastery", "weapon", "armor", "shield", "equipment"];
-        await Promise.all(newItems.map(async (item, index) => {
-            if (!compendiumLookupTypes.includes(item.type)) return;
+        if (compendiumLookup) {
+            const compendiumLookupTypes = ["spell", "mastery", "weapon", "armor", "shield", "equipment"];
+            await Promise.all(newItems.map(async (item, index) => {
+                if (!compendiumLookupTypes.includes(item.type)) return;
 
-            const compendiumItem = await SplittermondCompendium.findItem(item.type, item.name);
-            if (!compendiumItem) return;
+                const compendiumItem = await SplittermondCompendium.findItem(item.type, item.name);
+                if (!compendiumItem) return;
 
-            const compendiumData = compendiumItem.toObject();
-            delete compendiumData._id;
+                const compendiumData = compendiumItem.toObject();
+                delete compendiumData._id;
 
-            // Preserve genesis-specific properties per type
-            switch (item.type) {
-                case "spell":
-                    compendiumData.system.skill = item.system.skill;
-                    compendiumData.system.skillLevel = item.system.skillLevel;
-                    break;
-                case "mastery":
-                    compendiumData.system.skill = item.system.skill;
-                    compendiumData.system.level = item.system.level;
-                    if (item.system.modifier) compendiumData.system.modifier = item.system.modifier;
-                    if (item.system.description) compendiumData.system.description = item.system.description;
-                    break;
-                case "weapon":
-                    if (item.system.secondaryAttack) {
-                        compendiumData.system.secondaryAttack = item.system.secondaryAttack;
-                    }
-                    break;
-                case "equipment":
+                if (item.type === "equipment") {
                     compendiumData.system.quantity = item.system.quantity;
-                    break;
-                // armor, shield: use compendium data as-is
-            }
+                }
 
-            newItems[index] = compendiumData;
-        }));
+                newItems[index] = compendiumData;
+            }));
+        }
 
         if (genesisData.telare) {
             newData.system.currency.S = Math.floor(genesisData.telare / 10000);
@@ -1364,14 +1350,36 @@ export default class SplittermondActor extends Actor {
     }
 }
 
-async function askUserAboutActorOverwrite() {
-    const labels = {
-        titleKey: "Import",
-        contentKey: "splittermond.updateOrOverwriteActor",
-        yesKey: "splittermond.update",
-        noKey: "splittermond.overwrite",
-    };
-    return askUser(labels);
+/**
+ * @return {Promise<{updateActor: boolean, compendiumLookup: boolean}>}
+ */
+async function askUserAboutImportOptions() {
+    return new Promise((resolve) => {
+        const checkboxId = "genesis-compendium-lookup";
+        const content =
+            `<p>${foundryApi.localize("splittermond.updateOrOverwriteActor")}</p>` +
+            `<div style="margin-top: 0.5em">` +
+            `<label><input type="checkbox" id="${checkboxId}" checked /> ` +
+            `${foundryApi.localize("splittermond.genesisImport.compendiumLookup")}</label>` +
+            `</div>`;
+
+        let dialog = new FoundryDialog({
+            window: { title: "Import" },
+            content,
+            buttons: [
+                { action: "update", default: true, label: "splittermond.update" },
+                { action: "overwrite", label: "splittermond.overwrite" },
+            ],
+            submit: (result) => {
+                const checkbox = dialog.element?.querySelector(`#${checkboxId}`);
+                resolve({
+                    updateActor: result === "update",
+                    compendiumLookup: checkbox?.checked ?? true,
+                });
+            },
+        });
+        return dialog.render(true);
+    });
 }
 
 /**
