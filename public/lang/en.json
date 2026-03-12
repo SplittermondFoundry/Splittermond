@@ -221,7 +221,8 @@
             "invalidItemType": "Items of type {type} cannot be added here."
         },
         "compendiumBrowser": {
-            "noItem": "The Item in question could not be found"
+            "noItem": "The Item in question could not be found",
+            "allTypes": "All Types"
         }
     },
     "degreeOfSuccessClassification": {
