@@ -192,6 +192,7 @@
         }
     },
     "genesisImport": {
+        "compendiumLookup": "Enrich data from compendiums",
         "spellValidation": {
             "nameUnknown": "unknown spell",
             "spellsExcluded": "Upon import, some spells were omitted. See console for details.",
