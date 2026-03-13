@@ -17,12 +17,13 @@
                 </div>
             {{/if}}
             {{#if (eq item.type "weapon")}}
-                <div class="skill">
-                    <ul class="taglist-small">
-                        <li class="active">{{localize (concat "splittermond.skillLabel." item.system.skill)
-                                                      'string'}}</li>
-                    </ul>
-                </div>
+                {{#if item.system.skill}}
+                    <div class="skill">
+                        <ul class="taglist-small">
+                            <li class="active">{{localize (concat "splittermond.skillLabel." item.system.skill)}}</li>
+                        </ul>
+                    </div>
+                {{/if}}
             {{/if}}
             {{#if (eq item.type "mastery")}}
                 <div class="skill">
