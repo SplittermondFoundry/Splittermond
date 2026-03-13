@@ -38,9 +38,13 @@ export default class SplittermondWeaponSheet extends SplittermondItemSheet {
             {
                 label: "splittermond.attributes",
                 value:
-                    this.localizer.localize("splittermond.attribute." + this.item.system.attribute1 + ".short") +
+                    (this.item.system.attribute1
+                        ? this.localizer.localize("splittermond.attribute." + this.item.system.attribute1 + ".short")
+                        : "-") +
                     " + " +
-                    this.localizer.localize("splittermond.attribute." + this.item.system.attribute2 + ".short"),
+                    (this.item.system.attribute2
+                        ? this.localizer.localize("splittermond.attribute." + this.item.system.attribute2 + ".short")
+                        : "-"),
             },
             {
                 label: "splittermond.minAttributes",

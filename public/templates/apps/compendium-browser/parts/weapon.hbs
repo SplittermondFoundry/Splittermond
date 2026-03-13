@@ -32,9 +32,13 @@
                     </div>
                     <div class="skill">
                         <ul class="taglist-small">
-                            <li class="active">{{localize (concat "splittermond.skillLabel." this.system.skill) 'string'}}</li>
+                            {{#if this.system.skill}}
+                                <li class="active">{{localize (concat "splittermond.skillLabel." this.system.skill)}}</li>
+                            {{/if}}
                             {{#if this.hasSecondaryAttack}}
-                                <li>{{localize (concat "splittermond.skillLabel." this.system.secondaryAttack.skill) 'string'}}</li>
+                                {{#if this.system.secondaryAttack.skill}}
+                                    <li>{{localize (concat "splittermond.skillLabel." this.system.secondaryAttack.skill)}}</li>
+                                {{/if}}
                             {{/if}}
                         </ul>
 
