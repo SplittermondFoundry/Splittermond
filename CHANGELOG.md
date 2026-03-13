@@ -1,3 +1,14 @@
+## 13.12.0
+
+### New Features
+
+- Zusätzliche Reiter für Items im Kompendium Browser, mit bestem Dank an cvaliente
+
+### Fixed
+
+- Initiativen basieren jetzt für jeden Wurf auf dem aktuellen Tick
+- Verbesserte Waffenanzeige bei ungesetzten Attributen
+
 ## 13.11.14
 
 ### Fixed
