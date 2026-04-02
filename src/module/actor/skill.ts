@@ -290,7 +290,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
                         rolls: [rollResult.roll],
                         type: foundryApi.chatMessageStyles.OTHER,
                     },
-                    checkData.rollMode
+                    checkData.messageMode
                 ),
                 /**@type CheckReport*/
                 report: {
@@ -345,7 +345,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         };
 
         return foundryApi.createChatMessage(
-            await Chat.prepareCheckMessageData(this.actor, checkData.rollMode, rollResult.roll, checkMessageData)
+            await Chat.prepareCheckMessageData(this.actor, checkData.messageMode, rollResult.roll, checkMessageData)
         );
     }
 
@@ -425,7 +425,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             difficulty: difficulty || splittermond.check.defaultDifficulty,
             modifier: modifier || 0,
             emphasis: emphasisData,
-            rollMode: foundryApi.settings.get("core", "rollMode") as string,
+            rollMode: foundryApi.settings.get("core", "messageMode") as string,
             rollModes: foundryApi.rollModes,
             title: this.#createRollDialogTitle(title, subtitle),
             skill: this,

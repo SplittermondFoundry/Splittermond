@@ -86,11 +86,9 @@
 
         <label>{{localize "splittermond.rollMode"}}</label>
         <select name="rollMode">
-            {{#select rollMode}}
-                {{#each rollModes as |propertyValue propertyKey|}}
-                    <option value="{{propertyKey}}">{{localize propertyValue.label}}</option>
-                {{/each}}
-            {{/select}}
+            {{#each rollModes as |propertyValue propertyKey|}}
+                <option value="{{propertyKey}}" {{#if propertyValue.selected}}selected{{/if}}>{{localize propertyValue.label}}</option>
+            {{/each}}
         </select>
     </div>
 </form>
