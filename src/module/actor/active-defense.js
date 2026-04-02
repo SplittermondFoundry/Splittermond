@@ -29,7 +29,7 @@ export default class ActiveDefense {
     async roll(options = {}) {
         if (!this.actor) return Promise.resolve(false);
 
-        options = duplicate(options);
+        options = foundryApi.utils.duplicate(options);
         options.type = "defense";
         options.preSelectedModifier = [];
         options.difficulty = splittermond.check.activeDefenseDifficulty;

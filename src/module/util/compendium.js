@@ -1,3 +1,5 @@
+import { foundryApi } from "module/api/foundryApi.ts";
+
 export default class SplittermondCompendium {
     static allItems = {};
 
@@ -14,7 +16,7 @@ export default class SplittermondCompendium {
                 let temp = pack.index.find((i) => i.type === type && i.name.startsWith(name));
 
                 if (temp) {
-                    temp = duplicate(temp);
+                    temp = foundryApi.utils.duplicate(temp);
                     temp.pack = pack;
                     possibleItems.push(temp);
 

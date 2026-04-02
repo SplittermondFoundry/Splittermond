@@ -21,6 +21,7 @@ import {
     plus,
 } from "../modifiers/expressions/scalar/index.js";
 import { toDisplayFormula } from "../util/damage/util";
+import { foundryApi } from "module/api/foundryApi.ts";
 
 /**
  * @extends SplittermondItem
@@ -174,7 +175,7 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
     async roll(options) {
         if (!this.actor) return false;
 
-        options = duplicate(options);
+        options = foundryApi.utils.duplicate(options);
         options.type = "spell";
         options.subtitle = this.name;
         options.difficulty = this.difficulty;

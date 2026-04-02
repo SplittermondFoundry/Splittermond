@@ -302,7 +302,7 @@ export default class SplittermondActor extends Actor {
         const data = this.system;
         const healthNbrLevels = this.healthNbrLevels;
 
-        data.health.woundMalus.levels = duplicate(CONFIG.splittermond.woundMalus[healthNbrLevels]);
+        data.health.woundMalus.levels = foundryApi.utils.duplicate(splittermond.woundMalus[healthNbrLevels]);
         data.health.woundMalus.levels = data.health.woundMalus.levels.map((i) => {
             i.value = Math.min(i.value - this.woundMalusMod, 0);
             return i;
@@ -1244,7 +1244,7 @@ export default class SplittermondActor extends Actor {
         const data = this.system;
         let costData = parseCostString(valueStr.toString()).asPrimaryCost();
 
-        let subData = duplicate(data[type]);
+        let subData = foundryApi.utils.duplicate(data[type]);
 
         if (costData.channeled) {
             if (!subData.channeled.hasOwnProperty("entries")) {

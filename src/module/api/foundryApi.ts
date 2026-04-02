@@ -265,7 +265,7 @@ export const foundryApi = new (class FoundryApi {
             // @ts-ignore
             return foundry.utils.deepClone(object, { strict: true });
         },
-        duplicate<T extends object>(object: T): T {
+        duplicate<T>(object: T): T {
             return JSON.parse(JSON.stringify(object)); //clone of foundry's duplicate method.
         },
         mergeObject<T extends object, U extends object>(
