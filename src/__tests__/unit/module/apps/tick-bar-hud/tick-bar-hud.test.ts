@@ -353,7 +353,7 @@ describe("TickBarHud", () => {
             ]);
             sandbox.stub(foundryApi, "combats").get(() => [combat]);
             sandbox.stub(foundryApi, "currentUser").get(() => ({ id: "userId" }));
-            sandbox.stub(foundryApi, "chatMessageTypes").get(() => ({ OTHER: 0 }));
+            sandbox.stub(foundryApi, "chatMessageStyles").get(() => ({ OTHER: 0 }));
             sandbox.stub(foundryApi, "getSpeaker").returns({ scene: "", actor: "", token: "", alias: "" });
             sandbox.stub(foundryApi, "renderer").get(() => () => Promise.resolve(""));
             CONFIG.sounds = { notification: "" };

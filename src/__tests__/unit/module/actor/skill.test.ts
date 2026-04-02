@@ -221,7 +221,7 @@ describe("Skill", () => {
     describe("roll modification", () => {
         beforeEach(() => {
             sandbox.stub(foundryApi, "createChatMessage");
-            sandbox.stub(foundryApi, "chatMessageTypes").get(() => ({ OTHER: 0 }));
+            sandbox.stub(foundryApi, "chatMessageStyles").get(() => ({ OTHER: 0 }));
             sandbox.stub(ChatMessage, "applyRollMode").callsFake((data: any) => data);
         });
         it("should apply roll modifiers", async () => {

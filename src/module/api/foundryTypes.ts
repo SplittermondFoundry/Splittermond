@@ -33,7 +33,7 @@ export interface Speaker {
     alias: string;
 }
 
-export enum ChatMessageTypes {
+export enum ChatMessageStyles {
     OTHER,
     OOC,
     IC,

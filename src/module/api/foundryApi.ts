@@ -1,5 +1,5 @@
 import {
-    type ChatMessageTypes,
+    type ChatMessageStyles,
     type CompendiumPacks,
     type FoundryCombat,
     type FoundryScene,
@@ -100,9 +100,9 @@ export const foundryApi = new (class FoundryApi {
         return game.i18n.format(messageKey, templateArgs);
     }
 
-    get chatMessageTypes(): typeof ChatMessageTypes {
+    get chatMessageStyles(): typeof ChatMessageStyles {
         //@ts-ignore
-        return CONST.CHAT_MESSAGE_TYPES;
+        return CONST.CHAT_MESSAGE_STYLES;
     }
 
     get rollModes() {
