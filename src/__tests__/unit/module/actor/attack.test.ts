@@ -11,10 +11,11 @@ import { foundryApi } from "module/api/foundryApi";
 import { DamageRoll } from "module/util/damage/DamageRoll";
 import { createTestRoll, stubRollApi } from "../../RollMock";
 import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
-import Skill from "module/actor/skill";
+import Skill, { SpellOrAttackRollResult } from "module/actor/skill";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { splittermond } from "module/config";
+import { AttackCheckReport } from "module/util/chat/rollMessages/attackChatMessage/interfaces";
 
 describe("Attack", () => {
     let sandbox: SinonSandbox;
@@ -280,7 +281,7 @@ describe("Attack", () => {
         const underTest = Attack.initialize(actor, attackItem);
 
         const customOptions = {
-            type: "spell",
+            type: "spell" as const,
             title: "foo",
             subtitle: "bar",
             difficulty: 20,
@@ -289,7 +290,7 @@ describe("Attack", () => {
             checkMessageData: { baz: 1 },
         };
 
-        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options));
+        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options as any));
         underTest.roll(customOptions);
 
         expect(rollSpy.calledOnce).to.be.true;
@@ -314,7 +315,7 @@ describe("Attack", () => {
             modifier: 5,
         };
 
-        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options));
+        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options as any));
         underTest.roll(customOptions);
 
         expect(rollSpy.calledOnce).to.be.true;
@@ -342,7 +343,7 @@ describe("Attack", () => {
         const attackItem = setUpAttackItem();
         const underTest = Attack.initialize(actor, attackItem);
 
-        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options));
+        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options as any));
         underTest.roll();
 
         expect(rollSpy.calledOnce).to.be.true;
@@ -442,13 +443,12 @@ describe("Attack", () => {
         const attackItem = setUpAttackItem();
         const underTest = Attack.initialize(actor, attackItem);
 
-        const report = {
+        const report: SpellOrAttackRollResult = {
             report: {
                 defenseType: "gw" as const,
                 degreeOfSuccess: { fromRoll: 0, modification: 0 },
                 degreeOfSuccessMessage: "",
                 difficulty: 0,
-                grazingHitPenalty: 0,
                 hideDifficulty: false,
                 isCrit: false,
                 isFumble: false,
@@ -497,7 +497,7 @@ describe("Attack", () => {
     });
 
     describe("Tick calculation", () => {
-        function getReport() {
+        function getReport(): { report: AttackCheckReport; rollOptions: object } {
             return {
                 report: {
                     defenseType: "gw" as const,

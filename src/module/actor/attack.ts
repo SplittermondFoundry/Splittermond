@@ -1,4 +1,4 @@
-import Skill from "./skill";
+import Skill, { SpellOrAttackRollResult } from "./skill";
 import {
     asString,
     condense,
@@ -343,7 +343,7 @@ export default class Attack {
         if (!this.actor) return false;
 
         const attackRollOptions = {
-            type: "attack",
+            type: "attack" as const,
             subtitle: this.item.name,
             difficulty: "VTD" as const,
             preSelectedModifier: [this.item.name],
@@ -356,22 +356,19 @@ export default class Attack {
             },
             ...structuredClone(options),
         };
-        const result = await this.skill.roll(attackRollOptions);
+        const result = (await this.skill.roll(attackRollOptions)) as SpellOrAttackRollResult | false;
         if (!result) {
-            return;
+            return false;
         }
         const checkReport = this.adaptForGrazingHit(result.report);
         const tickCost = this.getAfterRollTickCost(checkReport);
-        return (
-            SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, checkReport, tickCost), {
-                ...result.rollOptions,
-                type: "attackRollMessage",
-            })
-                .sendToChat()
-                // We need to return that to the token action bar so that it knows to delete prepared attacks
-                //Ideally, attack preparation would probably be handled here though!
-                .then(() => true)
-        );
+        await SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, checkReport, tickCost), {
+            ...result.rollOptions,
+            type: "attackRollMessage",
+        } as any).sendToChat();
+        // We need to return that to the token action bar so that it knows to delete prepared attacks
+        // Ideally, attack preparation would probably be handled here though!
+        return true;
     }
 
     public adaptForGrazingHit(checkReport: CheckReport) {

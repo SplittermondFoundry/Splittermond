@@ -3,9 +3,10 @@ import { foundryApi } from "../../api/foundryApi";
 import { FoundryDialog } from "module/api/Application";
 import { ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { RollType } from "module/config/check";
-import { RollDifficultyString } from "module/util/rollDifficultyParser";
 import { changeValue } from "module/util/commonHtmlHandlers";
 import type { ChatMessageMode } from "module/api/foundryTypes";
+import { MessageMode } from "module/api/ChatMessage";
+import { RollDifficultyType } from "module/util/rollDifficultyParser";
 
 export interface CheckDialogInput {
     title?: string;
@@ -13,17 +14,17 @@ export interface CheckDialogInput {
     skillTooltip: string;
     modifier: number;
     emphasis: { name: string; label: string; value: unknown; active: boolean }[];
-    difficulty: RollDifficultyString;
-    messageMode: string;
+    difficulty: RollDifficultyType;
+    messageMode: MessageMode;
     rollModes: Record<string, ChatMessageMode>;
 }
 
 export interface CheckDialogData {
-    difficulty: RollDifficultyString;
+    difficulty: string;
     maneuvers: Item[];
     modifier: number;
     modifierElements: { value: number; description: string }[];
-    messageMode: string;
+    messageMode: MessageMode;
     rollType: RollType;
 }
 
@@ -106,8 +107,8 @@ export default class CheckDialog extends FoundryDialog {
         const checkDialogData: CheckDialogData = {
             modifier: modifierInput.valueAsNumber,
             /*assuming this is OK; we'll validate in the parser*/
-            difficulty: difficultyInput.value as RollDifficultyString,
-            messageMode: rollModeInput.value,
+            difficulty: difficultyInput.value,
+            messageMode: rollModeInput.value as MessageMode,
             modifierElements: [],
             maneuvers: [],
             rollType: "standard", // gets overwritten in the submit function

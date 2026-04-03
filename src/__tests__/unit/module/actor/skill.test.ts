@@ -33,11 +33,11 @@ describe("Skill", () => {
         const underTest = Skill.initialize(actor, "Testskill");
 
         const customOptions = {
-            type: "test roll",
+            type: "skill",
             difficulty: 20,
             modifier: 1,
             askUser: true,
-        };
+        } as const;
         const checkDialogStub = sandbox.stub(CheckDialog, "create").resolves({
             difficulty: "25", // changed from 20 to 25
             maneuvers: [],
@@ -98,7 +98,7 @@ describe("Skill", () => {
             skillPoints: 0,
             skillValue: 0,
             succeeded: true,
-            type: "test roll",
+            type: "skill",
         });
         expect(createMessageStub.calledOnce).to.be.true;
     });
@@ -125,11 +125,11 @@ describe("Skill", () => {
         const createMessageStub = sandbox.stub(foundryApi, "createChatMessage").resolves();
 
         const customOptions = {
-            type: "test roll",
+            type: "skill",
             difficulty: 20,
             modifier: 1,
             askUser: false,
-        };
+        } as const;
 
         await underTest.roll(customOptions);
 
@@ -160,7 +160,7 @@ describe("Skill", () => {
             skillPoints: 0,
             skillValue: 0,
             succeeded: true,
-            type: "test roll",
+            type: "skill",
         });
         expect(createMessageStub.calledOnce).to.be.true;
     });

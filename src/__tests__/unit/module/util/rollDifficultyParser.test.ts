@@ -4,7 +4,7 @@ import { parseRollDifficulty } from "module/util/rollDifficultyParser";
 
 describe("roll difficulty parser", () => {
     it("should return the difficulty as number if initialized with a number", () => {
-        const rollDifficulty = parseRollDifficulty(20);
+        const rollDifficulty = parseRollDifficulty("20");
         expect(rollDifficulty.difficulty).to.equal(20);
     });
 
