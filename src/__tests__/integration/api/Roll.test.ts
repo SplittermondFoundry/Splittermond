@@ -2,21 +2,27 @@ import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import { foundryApi } from "module/api/foundryApi";
 import { addRolls, type Die as DieType, sumRolls } from "module/api/Roll";
 
-declare class Die implements DieType {
-    formula: string;
-    results: { active: boolean; result: number; discarded?: boolean }[];
-    _evaluated: boolean;
-    faces: number;
-    modifiers: string[];
-    number: number;
-}
+declare namespace foundry {
+    namespace dice {
+        namespace terms {
+            class Die implements DieType {
+                formula: string;
+                results: { active: boolean; result: number; discarded?: boolean }[];
+                _evaluated: boolean;
+                faces: number;
+                modifiers: string[];
+                number: number;
+            }
 
-declare class OperatorTerm {
-    operator: string;
-}
+            class OperatorTerm {
+                operator: string;
+            }
 
-declare class NumericTerm {
-    number: number;
+            class NumericTerm {
+                number: number;
+            }
+        }
+    }
 }
 
 export function foundryRollTest(context: QuenchBatchContext) {
@@ -47,18 +53,18 @@ export function foundryRollTest(context: QuenchBatchContext) {
             expect(firstTerm.faces).to.equal(6);
             expect(firstTerm.number).to.equal(2);
 
-            expect(firstTerm).to.be.instanceOf(Die);
+            expect(firstTerm).to.be.instanceOf(foundry.dice.terms.Die);
             expect(firstTerm.results).to.have.length(2);
             expect(firstTerm.results[0]).to.have.property("active");
             expect(firstTerm.results[0]).to.have.property("result");
             expect(firstTerm.results[0].result).to.be.below(7).and.above(0);
             expect(firstTerm.results[0].active).to.be.true;
 
-            expect(rollResult.terms[1]).to.be.instanceOf(OperatorTerm);
-            expect((rollResult.terms[1] as OperatorTerm).operator).to.equal("+");
+            expect(rollResult.terms[1]).to.be.instanceOf(foundry.dice.terms.OperatorTerm);
+            expect((rollResult.terms[1] as foundry.dice.terms.OperatorTerm).operator).to.equal("+");
 
-            expect(rollResult.terms[2]).to.be.instanceOf(NumericTerm);
-            expect((rollResult.terms[2] as NumericTerm).number).to.equal(1);
+            expect(rollResult.terms[2]).to.be.instanceOf(foundry.dice.terms.NumericTerm);
+            expect((rollResult.terms[2] as foundry.dice.terms.NumericTerm).number).to.equal(1);
         });
 
         it("should not fail for a zero dice formula", async () => {
@@ -90,12 +96,12 @@ export function foundryRollTest(context: QuenchBatchContext) {
 
         it("should allow manipulation of roll terms", async () => {
             const roll = foundryApi.roll("998d6");
-            (roll.terms[0] as Die).number += 1;
-            (roll.terms[0] as Die).modifiers.push("kh1");
+            (roll.terms[0] as foundry.dice.terms.Die).number += 1;
+            (roll.terms[0] as foundry.dice.terms.Die).modifiers.push("kh1");
 
             const rollResult = await roll.evaluate();
 
-            expect((rollResult.terms[0] as Die).results.length).to.equal(999);
+            expect((rollResult.terms[0] as foundry.dice.terms.Die).results.length).to.equal(999);
             expect(rollResult.total).to.be.below(7);
         });
 
