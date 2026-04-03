@@ -1,44 +1,52 @@
 import { foundryApi } from "./foundryApi";
+declare namespace foundry {
+    namespace dice {
+        namespace terms {
+            class Die {
+                number: number;
+                faces: number;
+                readonly formula: string;
+                /**
+                 * Contains dice postprocessing, like keep lowest or similar
+                 */
+                modifiers: string[];
+                results: { active: boolean; result: number }[];
 
+                /**@internal*/ _evaluated: boolean;
+            }
+
+            class OperatorTerm {
+                operator: string;
+                readonly formula: string;
+                /**@internal*/ _evaluated: boolean;
+            }
+            class ParentheticTerm {
+                roll: FoundryRoll;
+                /**@internal*/ _evaluated: boolean;
+            }
+
+            class NumericTerm {
+                number: number;
+                readonly expression: string;
+                readonly total: number;
+                readonly formula: string;
+
+                /**@internal*/ _evaluated: boolean;
+            }
+        }
+    }
+}
+
+export type Die = foundry.dice.terms.Die;
+export type OperatorTerm = foundry.dice.terms.OperatorTerm;
+export type ParentheticTerm = foundry.dice.terms.ParentheticTerm;
+export type NumericTerm = foundry.dice.terms.NumericTerm;
 /*
     Note: There also exist 'FunctionalTerm' and 'StringTerm' in the foundry codebase. But the former is too
     complicated to handle for us (we'll just have functional terms remain as rolls) and what the latter does
     I do not yet understand (It might be for descriptions, which we don't need).
  */
 export type RollTerm = Die | OperatorTerm | NumericTerm | ParentheticTerm;
-
-export interface Die {
-    number: number;
-    faces: number;
-    readonly formula: string;
-    /**
-     * Contains dice postprocessing, like keep lowest or similar
-     */
-    modifiers: string[];
-    results: { active: boolean; result: number }[];
-
-    /**@internal*/ _evaluated: boolean;
-}
-
-export interface OperatorTerm {
-    operator: string;
-    readonly formula: string;
-    /**@internal*/ _evaluated: boolean;
-}
-
-export interface ParentheticTerm {
-    roll: FoundryRoll;
-    /**@internal*/ _evaluated: boolean;
-}
-
-export interface NumericTerm {
-    number: number;
-    readonly expression: string;
-    readonly total: number;
-    readonly formula: string;
-
-    /**@internal*/ _evaluated: boolean;
-}
 
 export declare class Roll {
     evaluate: () => Promise<Roll>;
