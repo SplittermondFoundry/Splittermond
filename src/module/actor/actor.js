@@ -1073,7 +1073,7 @@ export default class SplittermondActor extends Actor {
 
         let chatMessageData = await Chat.prepareCheckMessageData(
             this,
-            message.rollMode,
+            message.messageMode,
             checkData.roll,
             checkMessageData
         );

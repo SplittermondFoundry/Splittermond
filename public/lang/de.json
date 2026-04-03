@@ -622,7 +622,7 @@
             "3": "Veteran",
             "4": "Heroe"
         },
-        "rollMode": "Wurfmodus",
+        "messageMode": "Nachrichtenmodus",
         "sufferedDamage": "erlittener Schaden",
         "fumbleTable": {
             "fight": {

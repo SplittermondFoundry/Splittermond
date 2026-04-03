@@ -403,7 +403,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                     user: foundryApi.currentUser.id,
                     speaker,
                     rolls: [roll],
-                    rollMode: "whisper", //Don't ask me why this is necessary, but it is
+                    messageMode: "whisper", //Don't ask me why this is necessary, but it is
                     whisper: [foundryApi.currentUser],
                     content: "Random text content",
                 };

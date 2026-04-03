@@ -32,7 +32,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         ...data,
         degreeOfSuccessDisplay: renderDegreesOfSuccess(data, totalDegreeOfSuccess),
         roll: roll,
-        rollMode: rollMode,
+        messageMode: rollMode,
         tooltip: await roll.getTooltip(),
         actions: [],
     };

@@ -84,8 +84,8 @@
             </div>
         {{/if}}
 
-        <label>{{localize "splittermond.rollMode"}}</label>
-        <select name="rollMode">
+        <label>{{localize "splittermond.messageMode"}}</label>
+        <select name="messageMode">
             {{#each rollModes as |propertyValue propertyKey|}}
                 <option value="{{propertyKey}}" {{#if propertyValue.selected}}selected{{/if}}>{{localize propertyValue.label}}</option>
             {{/each}}

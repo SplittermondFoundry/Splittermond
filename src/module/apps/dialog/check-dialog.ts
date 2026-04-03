@@ -1,11 +1,11 @@
 import Skill from "module/actor/skill";
 import { foundryApi } from "../../api/foundryApi";
 import { FoundryDialog } from "module/api/Application";
-import { RollMode } from "module/api/foundryTypes";
 import { ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { RollType } from "module/config/check";
 import { RollDifficultyString } from "module/util/rollDifficultyParser";
 import { changeValue } from "module/util/commonHtmlHandlers";
+import type { ChatMessageMode } from "module/api/foundryTypes";
 
 export interface CheckDialogInput {
     title?: string;
@@ -14,8 +14,8 @@ export interface CheckDialogInput {
     modifier: number;
     emphasis: { name: string; label: string; value: unknown; active: boolean }[];
     difficulty: RollDifficultyString;
-    rollMode: string;
-    rollModes: Record<string, RollMode>;
+    messageMode: string;
+    rollModes: Record<string, ChatMessageMode>;
 }
 
 export interface CheckDialogData {
@@ -23,7 +23,7 @@ export interface CheckDialogData {
     maneuvers: Item[];
     modifier: number;
     modifierElements: { value: number; description: string }[];
-    rollMode: string;
+    messageMode: string;
     rollType: RollType;
 }
 
@@ -57,7 +57,7 @@ export default class CheckDialog extends FoundryDialog {
         const enrichedRollModes = Object.fromEntries(
             Object.entries(checkData.rollModes).map(([key, mode]) => [
                 key,
-                { ...mode, selected: key === checkData.rollMode },
+                { ...mode, selected: key === checkData.messageMode },
             ])
         );
         const html = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/apps/dialog/check-dialog.hbs`, {
@@ -107,7 +107,7 @@ export default class CheckDialog extends FoundryDialog {
             modifier: modifierInput.valueAsNumber,
             /*assuming this is OK; we'll validate in the parser*/
             difficulty: difficultyInput.value as RollDifficultyString,
-            rollMode: rollModeInput.value,
+            messageMode: rollModeInput.value,
             modifierElements: [],
             maneuvers: [],
             rollType: "standard", // gets overwritten in the submit function

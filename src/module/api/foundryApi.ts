@@ -106,7 +106,7 @@ export const foundryApi = new (class FoundryApi {
     }
 
     get rollModes() {
-        return CONFIG.Dice.rollModes;
+        return CONFIG.ChatMessage.modes;
     }
 
     get currentUser(): User {

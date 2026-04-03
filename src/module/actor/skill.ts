@@ -285,7 +285,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         //it may make sense to revisit each value and refactor the code to only use what is really needed.
         if (options.type === "spell" || options.type === "attack") {
             return {
-                rollOptions: ChatMessage.applyRollMode(
+                rollOptions: ChatMessage.applyMode(
                     {
                         rolls: [rollResult.roll],
                         type: foundryApi.chatMessageStyles.OTHER,
@@ -377,7 +377,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
                 modifierElements: modifier
                     ? [{ value: modifier, description: foundryApi.localize("splittermond.modifier") }]
                     : [],
-                rollMode: "publicroll",
+                messageMode: "public",
                 rollType: rollType ?? "standard",
             };
         }
@@ -425,7 +425,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             difficulty: difficulty || splittermond.check.defaultDifficulty,
             modifier: modifier || 0,
             emphasis: emphasisData,
-            rollMode: foundryApi.settings.get("core", "messageMode") as string,
+            messageMode: foundryApi.settings.get("core", "messageMode") as string,
             rollModes: foundryApi.rollModes,
             title: this.#createRollDialogTitle(title, subtitle),
             skill: this,

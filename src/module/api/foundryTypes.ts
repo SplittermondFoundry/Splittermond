@@ -39,12 +39,11 @@ export enum ChatMessageStyles {
     IC,
     EMOTE,
 }
-
-export interface RollMode {
+export interface ChatMessageMode {
+    handler: (data: any) => void;
     icon: string;
     label: string;
 }
-
 export interface User {
     isGM: boolean;
     id: string;
@@ -204,12 +203,13 @@ declare global {
         ChatMessage: {
             documentClass: Function;
             dataModels: Record<string, unknown>;
+            modes: Record<string, ChatMessageMode>;
         } & Record<string, unknown>;
         Combat: {
             documentClass: Function;
             dataModels: Record<string, unknown>;
         } & Record<string, unknown>;
-        Dice: { rollModes: Record<string, RollMode> } & Record<string, unknown>;
+        Dice: Record<string, unknown>;
     } & Record<string, unknown>;
 }
 

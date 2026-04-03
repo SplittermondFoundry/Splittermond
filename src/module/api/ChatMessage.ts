@@ -17,10 +17,7 @@ declare class ChatMessage extends FoundryDocument {
 
     deleteDocuments(documentId: string[]): Promise<void>;
 
-    static applyRollMode(
-        chatData: object,
-        rollMode: "publicroll" | "gmroll" | "blindroll" | "selfroll" | "roll"
-    ): object;
+    static applyMode(chatData: object, mode: "public" | "gm" | "blind" | "self"): object;
 }
 
 const foundryChatMessage: typeof ChatMessage = ChatMessage;

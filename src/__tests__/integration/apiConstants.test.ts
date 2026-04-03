@@ -20,17 +20,17 @@ export function apiConstantsTest(context: QuenchBatchContext) {
             expect(rollModes, "rollModes is an object").to.be.an("object");
             expect(Object.keys(rollModes).length).to.equal(4);
             expect(rollModes.blindroll, "rollModes has a blindroll mode").to.be.an("object");
-            expect(rollModes.blindroll.icon, "rollMode blindroll has an icon").to.be.a("string");
-            expect(rollModes.blindroll.label, "rollMode blindroll has a label").to.be.a("string");
+            expect(rollModes.blindroll.icon, "messageMode blindroll has an icon").to.be.a("string");
+            expect(rollModes.blindroll.label, "messageMode blindroll has a label").to.be.a("string");
             expect(rollModes.gmroll, "rollModes has a gmroll mode").to.be.an("object");
-            expect(rollModes.gmroll.icon, "rollMode gmroll has an icon").to.be.a("string");
-            expect(rollModes.gmroll.label, "rollMode gmroll has a label").to.be.a("string");
+            expect(rollModes.gmroll.icon, "messageMode gmroll has an icon").to.be.a("string");
+            expect(rollModes.gmroll.label, "messageMode gmroll has a label").to.be.a("string");
             expect(rollModes.publicroll, "rollModes has a publicroll mode").to.be.an("object");
-            expect(rollModes.publicroll.icon, "rollMode publicroll has an icon").to.be.a("string");
-            expect(rollModes.publicroll.label, "rollMode publicroll has a label").to.be.a("string");
+            expect(rollModes.publicroll.icon, "messageMode publicroll has an icon").to.be.a("string");
+            expect(rollModes.publicroll.label, "messageMode publicroll has a label").to.be.a("string");
             expect(rollModes.selfroll, "rollModes has a selfroll mode").to.be.an("object");
-            expect(rollModes.selfroll.icon, "rollMode selfroll has an icon").to.be.a("string");
-            expect(rollModes.selfroll.label, "rollMode selfroll has a label").to.be.a("string");
+            expect(rollModes.selfroll.icon, "messageMode selfroll has an icon").to.be.a("string");
+            expect(rollModes.selfroll.label, "messageMode selfroll has a label").to.be.a("string");
         });
     });
 }
