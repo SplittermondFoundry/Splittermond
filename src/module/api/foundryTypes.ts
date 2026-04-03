@@ -220,11 +220,9 @@ export interface MergeObjectOptions {
     overwrite?: boolean;
     inplace?: boolean;
     enforceTypes?: boolean;
-    /** <p>Forces the function to interpret keys that start with -= as deletion instructions.
-     *  E.g. If  set to <em> true</em> {"-=k1": null} will delete k1 from the object.</p>
-     *  <p><strong>DO NOT USE THIS.</strong> if this prop is set to false, "-=k1" will be added to the object. </p>
-     */
-    performDeletions?: boolean;
+    /* Forces the function to delete keys which are set to an instance of {@link foundry.data.operators.ForcedDeletion}.*/
+    applyOperators?: boolean;
+    recursive?: boolean;
 }
 export interface CompendiumPacks extends Collection<foundry.documents.collections.CompendiumCollection> {}
 
