@@ -28,6 +28,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             rolls: [],
             whisper: [],
             type: "simple",
+            style: 0,
             mode: "CHAT.RollPublic",
             ...input,
         };

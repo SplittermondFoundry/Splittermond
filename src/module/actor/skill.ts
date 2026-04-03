@@ -313,7 +313,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
                 rollOptions: ChatMessage.applyMode(
                     {
                         rolls: [rollResult.roll],
-                        type: foundryApi.chatMessageStyles.OTHER,
+                        style: foundryApi.chatMessageStyles.OTHER,
                     },
                     checkData.messageMode
                 ),
