@@ -18,19 +18,22 @@ export function apiConstantsTest(context: QuenchBatchContext) {
         it("has the correct roll modes", () => {
             const rollModes = foundryApi.rollModes;
             expect(rollModes, "rollModes is an object").to.be.an("object");
-            expect(Object.keys(rollModes).length).to.equal(4);
-            expect(rollModes.blindroll, "rollModes has a blindroll mode").to.be.an("object");
-            expect(rollModes.blindroll.icon, "messageMode blindroll has an icon").to.be.a("string");
-            expect(rollModes.blindroll.label, "messageMode blindroll has a label").to.be.a("string");
-            expect(rollModes.gmroll, "rollModes has a gmroll mode").to.be.an("object");
-            expect(rollModes.gmroll.icon, "messageMode gmroll has an icon").to.be.a("string");
-            expect(rollModes.gmroll.label, "messageMode gmroll has a label").to.be.a("string");
-            expect(rollModes.publicroll, "rollModes has a publicroll mode").to.be.an("object");
-            expect(rollModes.publicroll.icon, "messageMode publicroll has an icon").to.be.a("string");
-            expect(rollModes.publicroll.label, "messageMode publicroll has a label").to.be.a("string");
-            expect(rollModes.selfroll, "rollModes has a selfroll mode").to.be.an("object");
-            expect(rollModes.selfroll.icon, "messageMode selfroll has an icon").to.be.a("string");
-            expect(rollModes.selfroll.label, "messageMode selfroll has a label").to.be.a("string");
+            expect(Object.keys(rollModes).length).to.equal(5);
+            expect(rollModes.blind, "rollModes has a blind mode").to.be.an("object");
+            expect(rollModes.blind.icon, "messageMode blind has an icon").to.be.a("string");
+            expect(rollModes.blind.label, "messageMode blind has a label").to.be.a("string");
+            expect(rollModes.gm, "rollModes has a gm mode").to.be.an("object");
+            expect(rollModes.gm.icon, "messageMode gm has an icon").to.be.a("string");
+            expect(rollModes.gm.label, "messageMode gm has a label").to.be.a("string");
+            expect(rollModes.public, "rollModes has a public mode").to.be.an("object");
+            expect(rollModes.public.icon, "messageMode public has an icon").to.be.a("string");
+            expect(rollModes.public.label, "messageMode public has a label").to.be.a("string");
+            expect(rollModes.self, "rollModes has a self mode").to.be.an("object");
+            expect(rollModes.self.icon, "messageMode self has an icon").to.be.a("string");
+            expect(rollModes.self.label, "messageMode self has a label").to.be.a("string");
+            expect(rollModes.ic, "rollModes has a ic mode").to.be.an("object");
+            expect(rollModes.ic.icon, "messageMode ic has an icon").to.be.a("string");
+            expect(rollModes.ic.label, "messageMode ic has a label").to.be.a("string");
         });
     });
 }

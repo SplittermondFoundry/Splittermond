@@ -5,7 +5,7 @@ import { ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/Splitt
 import { RollType } from "module/config/check";
 import { changeValue } from "module/util/commonHtmlHandlers";
 import type { ChatMessageMode } from "module/api/foundryTypes";
-import { MessageMode } from "module/api/ChatMessage";
+import { MessageModeKey } from "module/api/ChatMessage";
 import { RollDifficultyType } from "module/util/rollDifficultyParser";
 
 export interface CheckDialogInput {
@@ -15,7 +15,7 @@ export interface CheckDialogInput {
     modifier: number;
     emphasis: { name: string; label: string; value: unknown; active: boolean }[];
     difficulty: RollDifficultyType;
-    messageMode: MessageMode;
+    messageMode: MessageModeKey;
     rollModes: Record<string, ChatMessageMode>;
 }
 
@@ -24,7 +24,7 @@ export interface CheckDialogData {
     maneuvers: Item[];
     modifier: number;
     modifierElements: { value: number; description: string }[];
-    messageMode: MessageMode;
+    messageMode: MessageModeKey;
     rollType: RollType;
 }
 
@@ -108,7 +108,7 @@ export default class CheckDialog extends FoundryDialog {
             modifier: modifierInput.valueAsNumber,
             /*assuming this is OK; we'll validate in the parser*/
             difficulty: difficultyInput.value,
-            messageMode: rollModeInput.value as MessageMode,
+            messageMode: rollModeInput.value as MessageModeKey,
             modifierElements: [],
             maneuvers: [],
             rollType: "standard", // gets overwritten in the submit function

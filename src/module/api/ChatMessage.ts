@@ -1,6 +1,6 @@
 import { Roll } from "./Roll";
 
-export type MessageMode = "public" | "gm" | "blind" | "self";
+export type MessageModeKey = "public" | "gm" | "blind" | "self" | "ic";
 declare class ChatMessage extends FoundryDocument {
     id: string;
     type: string;
@@ -18,7 +18,7 @@ declare class ChatMessage extends FoundryDocument {
 
     deleteDocuments(documentId: string[]): Promise<void>;
 
-    static applyMode(chatData: object, mode: MessageMode): object;
+    static applyMode(chatData: object, mode: MessageModeKey): object;
 }
 
 const foundryChatMessage: typeof ChatMessage = ChatMessage;

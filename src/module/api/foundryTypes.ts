@@ -1,5 +1,6 @@
 import { DataModel } from "./DataModel";
 import type { FoundryApplication } from "./Application";
+import { MessageModeKey } from "./ChatMessage";
 
 export type FoundryCombat = foundry.documents.Combat;
 export type FoundryCombatant = foundry.documents.Combatant;
@@ -203,7 +204,7 @@ declare global {
         ChatMessage: {
             documentClass: Function;
             dataModels: Record<string, unknown>;
-            modes: Record<string, ChatMessageMode>;
+            modes: Record<MessageModeKey, ChatMessageMode>;
         } & Record<string, unknown>;
         Combat: {
             documentClass: Function;
