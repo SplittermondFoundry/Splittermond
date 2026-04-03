@@ -181,7 +181,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         rolls: [roll],
         content: await foundryApi.renderer(template, templateContext),
         sound: CONFIG.sounds.dice,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        type: foundryApi.chatMessageStyles.OTHER,
         flags: {
             splittermond: {
                 check: flagsData,
