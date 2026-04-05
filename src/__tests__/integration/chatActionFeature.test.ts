@@ -217,7 +217,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                         skill: "longrange",
                         attribute1: "agility",
                         attribute2: "strength",
-                        damage: "1W1",
+                        damage: { stringInput: "1W1" },
                         equipped: true,
                         modifier: "item.addFeature feature='Kritisch' 3",
                     },
