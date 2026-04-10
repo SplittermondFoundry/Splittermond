@@ -13,7 +13,7 @@ export interface CheckDialogInput {
     skill: Skill;
     skillTooltip: string;
     modifier: number;
-    emphasis: { name: string; label: string; value: unknown; active: boolean }[];
+    emphasis: { name: string; label: string; value: string; numericValue: number; active: boolean }[];
     difficulty: RollDifficultyType;
     messageMode: MessageModeKey;
     rollModes: Record<string, ChatMessageMode>;
@@ -123,7 +123,7 @@ export default class CheckDialog extends FoundryDialog {
         html.querySelectorAll<HTMLInputElement>("input[name='emphasis']").forEach((el) => {
             if (el.checked && el.dataset.name) {
                 checkDialogData.modifierElements.push({
-                    value: parseInt(el.value) || 0,
+                    value: parseFloat(el.dataset.numericValue ?? "0") || 0,
                     description: el.dataset.name,
                 });
             }

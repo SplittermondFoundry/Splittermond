@@ -3,7 +3,7 @@ import { Dice } from "../check/dice";
 import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty, RollDifficultyType } from "../util/rollDifficultyParser";
-import { asString, condense } from "module/modifiers/expressions/scalar";
+import { asString, condense, evaluate } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
 import { modifyEvaluation } from "module/check/modifyEvaluation";
@@ -382,14 +382,18 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         if (selectableModifier) {
             selectedModifiers = selectedModifiers.map((s) => s.trim().toLowerCase());
             emphasisData = selectableModifier
-                .map((mod: IModifier) => [mod.attributes.name, asString(condense(mod.value))])
-                .map(([key, value]) => {
-                    const operator = /(?<=^\s*)[+-]/.exec(value)?.[0] ?? "+";
-                    const cleanedValue = value.replace(/^\s*[+-]/, "").trim();
+                .map((mod: IModifier) => {
+                    const condensed = condense(mod.value);
+                    return [mod.attributes.name, asString(condensed), evaluate(condensed)] as const;
+                })
+                .map(([key, displayValue, numericValue]) => {
+                    const operator = /(?<=^\s*)[+-]/.exec(displayValue)?.[0] ?? "+";
+                    const cleanedValue = displayValue.replace(/^\s*[+-]/, "").trim();
                     return {
                         name: key,
                         label: `${key} ${operator} ${cleanedValue}`,
-                        value: value,
+                        value: displayValue,
+                        numericValue,
                         active: selectedModifiers.includes(key.trim().toLowerCase()),
                     };
                 });

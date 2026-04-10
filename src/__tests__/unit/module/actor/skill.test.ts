@@ -457,6 +457,7 @@ describe("Skill", () => {
                 name: "Sichtprobe",
                 label: "Sichtprobe + 2",
                 value: "2",
+                numericValue: 2,
                 active: false,
             });
         });
@@ -527,6 +528,7 @@ describe("Skill", () => {
                 name: "Sichtprobe",
                 label: "Sichtprobe + 2",
                 value: "2",
+                numericValue: 2,
                 active: false,
             });
 
@@ -535,6 +537,7 @@ describe("Skill", () => {
                 name: "Gehörprobe",
                 label: "Gehörprobe + 3",
                 value: "3",
+                numericValue: 3,
                 active: false,
             });
         });
@@ -593,6 +596,7 @@ describe("Skill", () => {
                 name: "Sichtprobe",
                 label: "Sichtprobe + 2",
                 value: "2",
+                numericValue: 2,
                 active: true, // Should be marked as active
             });
         });
@@ -647,6 +651,7 @@ describe("Skill", () => {
                 name: "Schlechte Sicht",
                 label: "Schlechte Sicht - 3",
                 value: "-3",
+                numericValue: -3,
                 active: false,
             });
         });
@@ -704,6 +709,7 @@ describe("Skill", () => {
                 name: "test",
                 label: "test - 6",
                 value: "-6",
+                numericValue: -6,
                 active: false,
             });
         });
