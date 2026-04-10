@@ -122,12 +122,12 @@ export default class CheckDialog extends FoundryDialog {
             });
         }
         html.querySelectorAll<HTMLInputElement>("input[name='emphasis']").forEach((el) => {
-            if (el.checked && el.dataset.name) {
-                const emphasisEntry = checkData.emphasis.find((e) => e.name === el.dataset.name);
+            if (el.checked && el.dataset.index != null) {
+                const emphasisEntry = checkData.emphasis[parseInt(el.dataset.index)];
                 if (emphasisEntry) {
                     checkDialogData.modifierElements.push({
                         value: emphasisEntry.numericValue,
-                        description: el.dataset.name,
+                        description: emphasisEntry.name,
                     });
                 }
             }
