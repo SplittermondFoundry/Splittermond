@@ -10,23 +10,17 @@ on:
                 description: "Version (without v prefix)"
                 required: true
 
+env:
+    outputName: splittermond-${{github.event.inputs.version}}
+    outputFile: splittermond-${{github.event.inputs.version}}.zip
+    prefixedVersion: v${{github.event.inputs.version}}
+
 jobs:
-    release-new-version:
+    build:
         runs-on: ubuntu-latest
-        env:
-            outputName: splittermond-${{github.event.inputs.version}}
-            outputFile: splittermond-${{github.event.inputs.version}}.zip
-            prefixedVersion: v${{github.event.inputs.version}}
         steps:
-            - name: check env
-              run: |
-                  echo ${outputName}
-                    echo ${outputFile}
             - name: Checkout code
               uses: actions/checkout@v6
-              with:
-                  fetch-depth: 0 # fetch all history so we actually commit on top of main
-                  #ref: main
             - name: Set up Node.js
               uses: actions/setup-node@v6
               with:
@@ -41,7 +35,7 @@ jobs:
               env:
                   fileToUpdate: "./package.json"
                   version: ${{github.event.inputs.version}}
-            - name: Set new paths in System.json
+            - name: Set new paths in system.json
               run: node ./.github/scripts/replace_links.cjs
               env:
                   fileToUpdate: "./public/system.json"
@@ -53,20 +47,82 @@ jobs:
               run: npm run format
             - name: Build
               run: npm run build
+            - name: Upload dist artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: dist
+                  path: dist/
+            - name: Upload versioned sources
+              uses: actions/upload-artifact@v4
+              with:
+                  name: versioned-sources
+                  path: |
+                      public/system.json
+                      package.json
+                      package-lock.json
+
+    version-bump:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
+            - name: Download versioned sources
+              uses: actions/download-artifact@v4
+              with:
+                  name: versioned-sources
             - name: Push to main
               run: |
                   git config user.name github-actions[bot]
                   git config user.email github-actions[bot]@github.com
-                  git add public/system.json package.json  package-lock.json
+                  git add public/system.json package.json package-lock.json
                   git commit -m "Update version to ${{github.event.inputs.version}}"
                   git tag ${{env.prefixedVersion}}
-                  git push 
+                  git push
                   git push --tags
+
+    release-github:
+        needs: [build, version-bump]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+            - name: Download dist artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: dist
+                  path: dist/
             - name: Create Zip for foundry
               run: |
-                  sudo apt-get install zip 
                   cd dist/ && zip -r ../${{env.outputFile}} ./*; cd -
                   zip -r ${{env.outputFile}} README.md FoundryModule1.png screenshots
+            - name: Upload release assets
+              uses: softprops/action-gh-release@v2.6.1
+              with:
+                  generate_release_notes: true
+                  draft: false
+                  tag_name: ${{env.prefixedVersion}}
+                  files: |
+                      ${{env.outputFile}}
+                      dist/system.json
+
+    release-npm:
+        needs: [build, version-bump]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+            - name: Set up Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: "24"
+            - name: Download dist artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: dist
+                  path: dist/
             - name: Release package to github
               run: |
                   npm set "//npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}}"
@@ -74,15 +130,22 @@ jobs:
                   npm set "//npm.pkg.github.com/:_authToken=garbage"
               env:
                   NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-            - name: Upload release assets
-              uses: softprops/action-gh-release@v2.6.1
+
+    release-foundry:
+        needs: release-github
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+            - name: Set up Node.js
+              uses: actions/setup-node@v6
               with:
-                  generate_release_notes: true
-                  draft: false
-                  tag_name: v${{github.event.inputs.version}}
-                  files: |
-                      ${{env.outputFile}}
-                      dist/system.json
+                  node-version: "24"
+            - name: Download dist artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: dist
+                  path: dist/
             - name: Release to Foundry
               run: node ./.github/scripts/publish_to_foundry.mjs
               env:
