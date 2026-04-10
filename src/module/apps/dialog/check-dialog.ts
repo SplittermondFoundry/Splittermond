@@ -7,13 +7,14 @@ import { changeValue } from "module/util/commonHtmlHandlers";
 import type { ChatMessageMode } from "module/api/foundryTypes";
 import { MessageModeKey } from "module/api/ChatMessage";
 import { RollDifficultyType } from "module/util/rollDifficultyParser";
+import { of, type Expression } from "module/modifiers/expressions/scalar";
 
 export interface CheckDialogInput {
     title?: string;
     skill: Skill;
     skillTooltip: string;
     modifier: number;
-    emphasis: { name: string; label: string; value: unknown; active: boolean }[];
+    emphasis: { name: string; label: string; value: string; numericValue: Expression; active: boolean }[];
     difficulty: RollDifficultyType;
     messageMode: MessageModeKey;
     rollModes: Record<string, ChatMessageMode>;
@@ -22,8 +23,7 @@ export interface CheckDialogInput {
 export interface CheckDialogData {
     difficulty: string;
     maneuvers: Item[];
-    modifier: number;
-    modifierElements: { value: number; description: string }[];
+    modifierElements: { value: Expression; description: string }[];
     messageMode: MessageModeKey;
     rollType: RollType;
 }
@@ -104,8 +104,8 @@ export default class CheckDialog extends FoundryDialog {
         const difficultyInput = html.querySelector<HTMLInputElement>("input[name='difficulty']")!;
         const rollModeInput = html.querySelector<HTMLSelectElement>("select[name='messageMode']")!;
 
+        const modifierValue = modifierInput.valueAsNumber;
         const checkDialogData: CheckDialogData = {
-            modifier: modifierInput.valueAsNumber,
             /*assuming this is OK; we'll validate in the parser*/
             difficulty: difficultyInput.value,
             messageMode: rollModeInput.value as MessageModeKey,
@@ -114,18 +114,21 @@ export default class CheckDialog extends FoundryDialog {
             rollType: "standard", // gets overwritten in the submit function
         };
 
-        if (checkDialogData.modifier) {
+        if (modifierValue) {
             checkDialogData.modifierElements.push({
-                value: checkDialogData.modifier,
+                value: of(modifierValue),
                 description: foundryApi.localize("splittermond.modifier"),
             });
         }
         html.querySelectorAll<HTMLInputElement>("input[name='emphasis']").forEach((el) => {
-            if (el.checked && el.dataset.name) {
-                checkDialogData.modifierElements.push({
-                    value: parseInt(el.value) || 0,
-                    description: el.dataset.name,
-                });
+            if (el.checked && el.dataset.index != null) {
+                const emphasisEntry = checkData.emphasis[parseInt(el.dataset.index)];
+                if (emphasisEntry) {
+                    checkDialogData.modifierElements.push({
+                        value: emphasisEntry.numericValue,
+                        description: emphasisEntry.name,
+                    });
+                }
             }
         });
 
@@ -134,8 +137,6 @@ export default class CheckDialog extends FoundryDialog {
                 checkDialogData.maneuvers.push(checkData.skill.maneuvers[parseInt(el.value)]);
             }
         });
-
-        checkDialogData.modifier = checkDialogData.modifierElements.reduce((acc, el) => acc + el.value, 0);
 
         return checkDialogData;
     }
