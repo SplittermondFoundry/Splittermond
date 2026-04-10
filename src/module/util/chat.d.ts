@@ -28,7 +28,7 @@ export function canEditMessageOf(userId: string): boolean {}
 export function prepareCheckMessageData(
     actor: SplittermondActor,
     rollMode: string,
-    roll: Roll,
+    roll: { total: number; getTooltip(): Promise<string>; dice: { total: number }[] },
     data: Record<string, unknown>
 ): Promise<Record<string, unknown>> {}
 
