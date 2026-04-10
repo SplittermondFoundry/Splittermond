@@ -209,6 +209,7 @@ declare global {
         Combat: {
             documentClass: Function;
             dataModels: Record<string, unknown>;
+            fallbackTurnMarker: string;
         } & Record<string, unknown>;
         Dice: Record<string, unknown>;
     } & Record<string, unknown>;

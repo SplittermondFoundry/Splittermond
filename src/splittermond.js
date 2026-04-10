@@ -67,7 +67,6 @@ function handlePdf(links) {
 }
 
 Hooks.once("ready", async function () {
-    setTurnMarker(CONFIG.Combat);
     return Promise.all([initTickBarHud(game.splittermond), initTokenActionBar(game.splittermond)]).then(() => {
         console.log("Splittermond | Ready");
         foundryApi.hooks.call("splittermond.ready");
