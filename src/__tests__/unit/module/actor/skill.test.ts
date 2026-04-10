@@ -12,7 +12,7 @@ import { Dice } from "module/check/dice";
 import { Chat } from "module/util/chat";
 import CheckDialog from "module/apps/dialog/check-dialog";
 import type { IModifier } from "module/modifiers";
-import { evaluate, isGreaterZero, of } from "module/modifiers/expressions/scalar";
+import { evaluate, isGreaterZero, of, times } from "module/modifiers/expressions/scalar";
 
 type SkillCheckReport = Exclude<Awaited<ReturnType<Skill["roll"]>>, false | typeof ChatMessage>;
 describe("Skill", () => {
@@ -647,6 +647,63 @@ describe("Skill", () => {
                 name: "Schlechte Sicht",
                 label: "Schlechte Sicht - 3",
                 value: "-3",
+                active: false,
+            });
+        });
+
+        it("should condense multiplied emphasis modifier values from status effects with levels", async () => {
+            const actor = setUpActor(sandbox);
+
+            actor.system.updateSource({
+                attributes: { intuition: { initial: 3 }, mind: { initial: 2 } },
+                skills: { perception: { value: 10, points: 5 } },
+            });
+
+            // Simulate a status effect at level 2 with a -3 modifier:
+            // The multiplier (level=2) is applied via times(of(2), of(-3))
+            const multipliedModifier = getModifier({
+                groupId: "actor.skills",
+                attributes: {
+                    name: "test",
+                    skill: "perception",
+                    emphasis: "test",
+                    type: null,
+                },
+                value: times(of(2), of(-3)),
+                selectable: true,
+            });
+            actor.modifier.addModifier(multipliedModifier);
+
+            sandbox.stub(foundryApi, "settings").get(() => ({
+                get: () => "public",
+            }));
+            sandbox.stub(foundryApi, "rollModes").get(() => ({}));
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves({});
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            const underTest = Skill.initialize(actor, "perception");
+
+            const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
+                difficulty: "15",
+                maneuvers: [],
+                modifier: 0,
+                modifierElements: [],
+                messageMode: "public",
+                rollType: "standard",
+            });
+
+            await underTest.roll({ askUser: true });
+
+            expect(checkDialogCreateStub.calledOnce).to.be.true;
+            const dialogArgs = checkDialogCreateStub.firstCall.args[0];
+
+            expect(dialogArgs.emphasis).to.be.an("array");
+            expect(dialogArgs.emphasis).to.have.lengthOf(1);
+            // The value should be condensed to -6, not displayed as "2 × -3"
+            expect(dialogArgs.emphasis[0]).to.deep.include({
+                name: "test",
+                label: "test - 6",
+                value: "-6",
                 active: false,
             });
         });

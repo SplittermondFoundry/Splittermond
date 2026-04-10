@@ -3,7 +3,7 @@ import { Dice } from "../check/dice";
 import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty, RollDifficultyType } from "../util/rollDifficultyParser";
-import { asString } from "module/modifiers/expressions/scalar";
+import { asString, condense } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
 import { modifyEvaluation } from "module/check/modifyEvaluation";
@@ -382,7 +382,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         if (selectableModifier) {
             selectedModifiers = selectedModifiers.map((s) => s.trim().toLowerCase());
             emphasisData = selectableModifier
-                .map((mod: IModifier) => [mod.attributes.name, asString(mod.value)])
+                .map((mod: IModifier) => [mod.attributes.name, asString(condense(mod.value))])
                 .map(([key, value]) => {
                     const operator = /(?<=^\s*)[+-]/.exec(value)?.[0] ?? "+";
                     const cleanedValue = value.replace(/^\s*[+-]/, "").trim();
@@ -420,7 +420,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
     #getStaticModifiersForReport() {
         return this.collectModifiers().map((mod: any) => ({
             isMalus: mod.isMalus,
-            value: asString(mod.value),
+            value: asString(condense(mod.value)),
             description: mod.attributes.name,
         }));
     }

@@ -7,6 +7,9 @@ Many great thanks to @IceFreez3r. Only with his help was such a quick update pos
 - Migrationen für prä v13 Datenmodelle wurden entfernt
 - Splittermond erwartet nun mindestens Foundry V14
 
+### Fixes
+- Modifikatoren gestapelter Zustände werden jetzt korrekt berechnet
+
 ## 13.12.0
 
 ### New Features
