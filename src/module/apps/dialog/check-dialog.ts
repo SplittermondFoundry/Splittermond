@@ -7,7 +7,7 @@ import { changeValue } from "module/util/commonHtmlHandlers";
 import type { ChatMessageMode } from "module/api/foundryTypes";
 import { MessageModeKey } from "module/api/ChatMessage";
 import { RollDifficultyType } from "module/util/rollDifficultyParser";
-import { evaluate, of, type Expression } from "module/modifiers/expressions/scalar";
+import { of, type Expression } from "module/modifiers/expressions/scalar";
 
 export interface CheckDialogInput {
     title?: string;
@@ -23,7 +23,6 @@ export interface CheckDialogInput {
 export interface CheckDialogData {
     difficulty: string;
     maneuvers: Item[];
-    modifier: number;
     modifierElements: { value: Expression; description: string }[];
     messageMode: MessageModeKey;
     rollType: RollType;
@@ -105,8 +104,8 @@ export default class CheckDialog extends FoundryDialog {
         const difficultyInput = html.querySelector<HTMLInputElement>("input[name='difficulty']")!;
         const rollModeInput = html.querySelector<HTMLSelectElement>("select[name='messageMode']")!;
 
+        const modifierValue = modifierInput.valueAsNumber;
         const checkDialogData: CheckDialogData = {
-            modifier: modifierInput.valueAsNumber,
             /*assuming this is OK; we'll validate in the parser*/
             difficulty: difficultyInput.value,
             messageMode: rollModeInput.value as MessageModeKey,
@@ -115,9 +114,9 @@ export default class CheckDialog extends FoundryDialog {
             rollType: "standard", // gets overwritten in the submit function
         };
 
-        if (checkDialogData.modifier) {
+        if (modifierValue) {
             checkDialogData.modifierElements.push({
-                value: of(checkDialogData.modifier),
+                value: of(modifierValue),
                 description: foundryApi.localize("splittermond.modifier"),
             });
         }
@@ -138,8 +137,6 @@ export default class CheckDialog extends FoundryDialog {
                 checkDialogData.maneuvers.push(checkData.skill.maneuvers[parseInt(el.value)]);
             }
         });
-
-        checkDialogData.modifier = checkDialogData.modifierElements.reduce((acc, el) => acc + evaluate(el.value), 0);
 
         return checkDialogData;
     }

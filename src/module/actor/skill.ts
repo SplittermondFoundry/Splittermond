@@ -262,8 +262,18 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         if (this.isGrandmaster) {
             checkData.rollType = (checkData.rollType + "Grandmaster") as RollType;
         }
+        let condensedModifiers = 0;
+        const mappedModifiers = checkData.modifierElements.map((mod) => {
+            const value = evaluate(mod.value);
+            condensedModifiers += value;
+            return {
+                isMalus: value < 0,
+                value: `${Math.abs(value)}`,
+                description: mod.description,
+            };
+        });
 
-        const immediateRollResult = await Dice.check(this, parsedDifficulty, checkData.rollType, checkData.modifier);
+        const immediateRollResult = await Dice.check(this, parsedDifficulty, checkData.rollType, condensedModifiers);
         let rollResult = modifyEvaluation(
             {
                 ...immediateRollResult,
@@ -274,14 +284,6 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         );
         let skillAttributes = this.attributeValues;
 
-        const mappedModifiers = checkData.modifierElements.map((mod) => {
-            const value = evaluate(mod.value);
-            return {
-                isMalus: value < 0,
-                value: `${Math.abs(value)}`,
-                description: mod.description,
-            };
-        });
         //it may make sense to revisit each value and refactor the code to only use what is really needed.
         if (options.type === "spell" || options.type === "attack") {
             const report: CheckReport = {
@@ -362,7 +364,6 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             return {
                 difficulty: (difficulty || splittermond.check.defaultDifficulty).toString(),
                 maneuvers: [],
-                modifier: modifier || 0,
                 modifierElements: modifier
                     ? [{ value: of(modifier), description: foundryApi.localize("splittermond.modifier") }]
                     : [],
@@ -385,11 +386,9 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         if (selectableModifier) {
             selectedModifiers = selectedModifiers.map((s) => s.trim().toLowerCase());
             emphasisData = selectableModifier
-                .map((mod: IModifier) => {
-                    const condensed = condense(mod.value);
-                    return [mod.attributes.name, asString(condensed), condensed] as const;
-                })
-                .map(([key, displayValue, numericValue]) => {
+                .map((mod: IModifier) => [mod.attributes.name, condense(mod.value)] as const)
+                .map(([key, numericValue]) => {
+                    const displayValue = asString(numericValue);
                     const operator = /(?<=^\s*)[+-]/.exec(displayValue)?.[0] ?? "+";
                     const cleanedValue = displayValue.replace(/^\s*[+-]/, "").trim();
                     return {

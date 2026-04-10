@@ -41,7 +41,6 @@ describe("Skill", () => {
         const checkDialogStub = sandbox.stub(CheckDialog, "create").resolves({
             difficulty: "25", // changed from 20 to 25
             maneuvers: [],
-            modifier: 3, // changed from 1 to 3
             modifierElements: [{ value: of(3), description: "modifier" }],
             messageMode: "gm", // changed from public to gm
             rollType: "risk", // changed from standard to risk
@@ -436,7 +435,6 @@ describe("Skill", () => {
             const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
                 difficulty: "15",
                 maneuvers: [],
-                modifier: 2,
                 modifierElements: [{ value: of(2), description: "Sichtprobe" }],
                 messageMode: "public",
                 rollType: "standard",
@@ -509,7 +507,6 @@ describe("Skill", () => {
             const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
                 difficulty: "15",
                 maneuvers: [],
-                modifier: 0,
                 modifierElements: [],
                 messageMode: "public",
                 rollType: "standard",
@@ -575,7 +572,6 @@ describe("Skill", () => {
             const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
                 difficulty: "15",
                 maneuvers: [],
-                modifier: 2,
                 modifierElements: [{ value: of(2), description: "Sichtprobe" }],
                 messageMode: "public",
                 rollType: "standard",
@@ -634,7 +630,6 @@ describe("Skill", () => {
             const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
                 difficulty: "15",
                 maneuvers: [],
-                modifier: 0,
                 modifierElements: [],
                 messageMode: "public",
                 rollType: "standard",
@@ -691,7 +686,6 @@ describe("Skill", () => {
             const checkDialogCreateStub = sandbox.stub(CheckDialog, "create").resolves({
                 difficulty: "15",
                 maneuvers: [],
-                modifier: 0,
                 modifierElements: [],
                 messageMode: "public",
                 rollType: "standard",

@@ -61,7 +61,6 @@ describe("CheckDialog", () => {
 
             const result = CheckDialog._prepareFormData(html, checkData);
 
-            expect(result.modifier).to.equal(5);
             expect(result.modifierElements).to.have.lengthOf(1);
             expect(evaluate(result.modifierElements[0].value)).to.equal(5);
         });
@@ -83,7 +82,6 @@ describe("CheckDialog", () => {
             expect(result.modifierElements).to.have.lengthOf(1);
             expect(evaluate(result.modifierElements[0].value)).to.equal(2);
             expect(result.modifierElements[0].description).to.equal("Sichtprobe");
-            expect(result.modifier).to.equal(2);
         });
 
         it("should not include unchecked emphasis modifiers", () => {
@@ -101,7 +99,6 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(0);
-            expect(result.modifier).to.equal(0);
         });
 
         it("should correctly evaluate multiplied expressions from status effects with levels", () => {
@@ -121,7 +118,6 @@ describe("CheckDialog", () => {
 
             expect(result.modifierElements).to.have.lengthOf(1);
             expect(evaluate(result.modifierElements[0].value)).to.equal(-6);
-            expect(result.modifier).to.equal(-6);
         });
 
         it("should distinguish duplicate emphasis names by index", () => {
@@ -146,7 +142,6 @@ describe("CheckDialog", () => {
             expect(result.modifierElements).to.have.lengthOf(1);
             expect(evaluate(result.modifierElements[0].value)).to.equal(5);
             expect(result.modifierElements[0].description).to.equal("Schwerpunkt");
-            expect(result.modifier).to.equal(5);
         });
 
         it("should sum both duplicate emphasis entries when both are checked", () => {
@@ -170,7 +165,6 @@ describe("CheckDialog", () => {
             expect(result.modifierElements).to.have.lengthOf(2);
             expect(evaluate(result.modifierElements[0].value)).to.equal(2);
             expect(evaluate(result.modifierElements[1].value)).to.equal(5);
-            expect(result.modifier).to.equal(7);
         });
 
         it("should combine manual modifier with emphasis modifiers", () => {
@@ -189,7 +183,6 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(2);
-            expect(result.modifier).to.equal(-1);
         });
     });
 });

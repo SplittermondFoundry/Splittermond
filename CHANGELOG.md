@@ -8,6 +8,7 @@ Many great thanks to @IceFreez3r. Only with his help was such a quick update pos
 - Splittermond erwartet nun mindestens Foundry V14
 
 ### Fixes
+
 - Modifikatoren gestapelter Zustände werden jetzt korrekt berechnet
 
 ## 13.12.0
