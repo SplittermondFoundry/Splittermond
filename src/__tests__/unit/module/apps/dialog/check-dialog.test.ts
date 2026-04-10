@@ -37,7 +37,7 @@ function buildCheckData(emphasis: CheckDialogInput["emphasis"] = []): CheckDialo
         skillTooltip: "",
         modifier: 0,
         emphasis,
-        difficulty: "15",
+        difficulty: 15,
         messageMode: "public",
         rollModes: {},
     };

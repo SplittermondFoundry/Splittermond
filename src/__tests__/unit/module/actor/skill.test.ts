@@ -457,9 +457,9 @@ describe("Skill", () => {
                 name: "Sichtprobe",
                 label: "Sichtprobe + 2",
                 value: "2",
+                numericValue: of(2),
                 active: false,
             });
-            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(2);
         });
 
         it("should present multiple selectable modifiers with different emphasis values", async () => {
@@ -528,18 +528,18 @@ describe("Skill", () => {
                 name: "Sichtprobe",
                 label: "Sichtprobe + 2",
                 value: "2",
+                numericValue: of(2),
                 active: false,
             });
-            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(2);
 
             // Check second emphasis (Gehörprobe)
             expect(dialogArgs.emphasis[1]).to.deep.include({
                 name: "Gehörprobe",
                 label: "Gehörprobe + 3",
                 value: "3",
+                numericValue: of(3),
                 active: false,
             });
-            expect(evaluate(dialogArgs.emphasis[1].numericValue)).to.equal(3);
         });
 
         it("should mark pre-selected emphasis as active in check dialog", async () => {
@@ -596,9 +596,9 @@ describe("Skill", () => {
                 name: "Sichtprobe",
                 label: "Sichtprobe + 2",
                 value: "2",
+                numericValue: of(2),
                 active: true, // Should be marked as active
             });
-            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(2);
         });
 
         it("should handle negative (malus) emphasis modifiers correctly", async () => {
@@ -651,9 +651,9 @@ describe("Skill", () => {
                 name: "Schlechte Sicht",
                 label: "Schlechte Sicht - 3",
                 value: "-3",
+                numericValue: of(-3),
                 active: false,
             });
-            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(-3);
         });
 
         it("should condense multiplied emphasis modifier values from status effects with levels", async () => {
@@ -709,9 +709,9 @@ describe("Skill", () => {
                 name: "test",
                 label: "test - 6",
                 value: "-6",
+                numericValue: of(-6),
                 active: false,
             });
-            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(-6);
         });
     });
 });
