@@ -67,7 +67,6 @@ function handlePdf(links) {
 }
 
 Hooks.once("ready", async function () {
-    setTurnMarker(CONFIG.Combat);
     return Promise.all([initTickBarHud(game.splittermond), initTokenActionBar(game.splittermond)]).then(() => {
         console.log("Splittermond | Ready");
         foundryApi.hooks.call("splittermond.ready");
@@ -120,7 +119,7 @@ Hooks.once("init", async function () {
     game.splittermond.magicFumble = Macros.magicFumble;
     game.splittermond.attackFumble = Macros.attackFumble;
     game.splittermond.compendiumBrowser = new SplittermondCompendiumBrowser();
-    Die.MODIFIERS.ri = Dice.riskModifier;
+    foundry.dice.terms.Die.MODIFIERS.ri = Dice.riskModifier;
 
     Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
     Handlebars.registerHelper("times", function (n, block) {

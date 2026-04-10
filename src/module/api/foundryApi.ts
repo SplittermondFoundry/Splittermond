@@ -1,5 +1,5 @@
 import {
-    type ChatMessageTypes,
+    type ChatMessageStyles,
     type CompendiumPacks,
     type FoundryCombat,
     type FoundryScene,
@@ -100,13 +100,13 @@ export const foundryApi = new (class FoundryApi {
         return game.i18n.format(messageKey, templateArgs);
     }
 
-    get chatMessageTypes(): typeof ChatMessageTypes {
+    get chatMessageStyles(): typeof ChatMessageStyles {
         //@ts-ignore
-        return CONST.CHAT_MESSAGE_TYPES;
+        return CONST.CHAT_MESSAGE_STYLES;
     }
 
     get rollModes() {
-        return CONFIG.Dice.rollModes;
+        return CONFIG.ChatMessage.modes;
     }
 
     get currentUser(): User {
@@ -265,7 +265,7 @@ export const foundryApi = new (class FoundryApi {
             // @ts-ignore
             return foundry.utils.deepClone(object, { strict: true });
         },
-        duplicate<T extends object>(object: T): T {
+        duplicate<T>(object: T): T {
             return JSON.parse(JSON.stringify(object)); //clone of foundry's duplicate method.
         },
         mergeObject<T extends object, U extends object>(

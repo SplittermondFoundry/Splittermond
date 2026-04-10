@@ -1,3 +1,12 @@
+## 14.0.0
+
+Many great thanks to @IceFreez3r. Only with his help was such a quick update possible.
+
+### Breaking changes
+
+- Migrationen für prä v13 Datenmodelle wurden entfernt
+- Splittermond erwartet nun mindestens Foundry V14
+
 ## 13.12.0
 
 ### New Features

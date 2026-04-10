@@ -302,7 +302,7 @@ export default class SplittermondActor extends Actor {
         const data = this.system;
         const healthNbrLevels = this.healthNbrLevels;
 
-        data.health.woundMalus.levels = duplicate(CONFIG.splittermond.woundMalus[healthNbrLevels]);
+        data.health.woundMalus.levels = foundryApi.utils.duplicate(splittermond.woundMalus[healthNbrLevels]);
         data.health.woundMalus.levels = data.health.woundMalus.levels.map((i) => {
             i.value = Math.min(i.value - this.woundMalusMod, 0);
             return i;
@@ -760,7 +760,7 @@ export default class SplittermondActor extends Actor {
                 name: w,
             });
         });
-        newData.system.attributes = duplicate(this.system.attributes);
+        newData.system.attributes = foundryApi.utils.duplicate(this.system.attributes);
         genesisData.attributes.forEach((a) => {
             const id = a.id.toLowerCase();
             if (CONFIG.splittermond.attributes.includes(id)) {
@@ -773,7 +773,7 @@ export default class SplittermondActor extends Actor {
                 newData.system.species.size = a.value;
             }
         });
-        newData.system.skills = duplicate(this.system.skills);
+        newData.system.skills = foundryApi.utils.duplicate(this.system.skills);
         genesisData.skills.forEach((s) => {
             let id = s.id.toLowerCase();
             if (newData.system.skills[id]) {
@@ -962,7 +962,7 @@ export default class SplittermondActor extends Actor {
                 if (foundItem) {
                     i._id = foundItem.id;
                     delete i.img;
-                    updateItems.push(duplicate(i));
+                    updateItems.push(foundryApi.utils.duplicate(i));
                     return false;
                 }
                 return true;
@@ -979,7 +979,7 @@ export default class SplittermondActor extends Actor {
         newData.name = genesisData.name;
         newData.prototypeToken.name = genesisData.name;
         newData.prototypeToken.actorLink = true;
-        newData.items = duplicate(newItems);
+        newData.items = foundryApi.utils.duplicate(newItems);
         return newData;
     }
 
@@ -1073,7 +1073,7 @@ export default class SplittermondActor extends Actor {
 
         let chatMessageData = await Chat.prepareCheckMessageData(
             this,
-            message.rollMode,
+            message.messageMode,
             checkData.roll,
             checkMessageData
         );
@@ -1145,8 +1145,8 @@ export default class SplittermondActor extends Actor {
     }
 
     async shortRest() {
-        let focusData = duplicate(this.system.focus);
-        let healthData = duplicate(this.system.health);
+        let focusData = foundryApi.utils.duplicate(this.system.focus);
+        let healthData = foundryApi.utils.duplicate(this.system.health);
 
         focusData.exhausted.value = 0;
         healthData.exhausted.value = 0;
@@ -1156,8 +1156,8 @@ export default class SplittermondActor extends Actor {
 
     async longRest(clearChanneled = true, askUser = true) {
         const finalClearChanneled = askUser ? await this.#askUserForLongRest() : clearChanneled;
-        let focusData = duplicate(this.system.focus);
-        let healthData = duplicate(this.system.health);
+        let focusData = foundryApi.utils.duplicate(this.system.focus);
+        let healthData = foundryApi.utils.duplicate(this.system.health);
 
         if (finalClearChanneled) {
             focusData.channeled.entries = [];
@@ -1244,7 +1244,7 @@ export default class SplittermondActor extends Actor {
         const data = this.system;
         let costData = parseCostString(valueStr.toString()).asPrimaryCost();
 
-        let subData = duplicate(data[type]);
+        let subData = foundryApi.utils.duplicate(data[type]);
 
         if (costData.channeled) {
             if (!subData.channeled.hasOwnProperty("entries")) {

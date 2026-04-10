@@ -50,14 +50,19 @@ export function apiUtilsTest(context: QuenchBatchContext) {
             expect(result).to.deep.equal({ k1: { i1: "v1", i2: "v2" } });
         });
 
-        it("should perform deletions when performDeletions is true", () => {
-            const result = mergeObject({ k1: "v1", k2: "v2" }, { "-=k1": null }, { performDeletions: true });
+        it("should perform deletions when applyOperators is true", () => {
+            const result = mergeObject(
+                { k1: "v1", k2: "v2" },
+                { k1: new foundry.data.operators.ForcedDeletion() },
+                { applyOperators: true }
+            );
             expect(result).to.deep.equal({ k2: "v2" });
         });
 
-        it("should not perform deletions when performDeletions is false", () => {
-            const result = mergeObject({ k1: "v1", k2: "v2" }, { "-=k1": null }, { performDeletions: false });
-            expect(result).to.deep.equal({ k1: "v1", k2: "v2", "-=k1": null });
+        it("should not perform deletions when applyOperators is false", () => {
+            const del = new foundry.data.operators.ForcedDeletion();
+            const result = mergeObject({ k1: "v1", k2: "v2" }, { k1: del }, { applyOperators: false });
+            expect(result).to.deep.equal({ k1: del, k2: "v2" });
         });
 
         it("should enforce types when enforceTypes is true", () => {

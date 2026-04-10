@@ -10,6 +10,7 @@ import { CostBase } from "../../costs/costTypes";
 import { SplittermondChatCard } from "../SplittermondChatCard";
 import { toDisplayFormula } from "../../damage/util";
 import { asString, condense, mapRoll } from "module/modifiers/expressions/scalar";
+import { foundryApi } from "module/api/foundryApi";
 
 export const DamageInitializer = {
     rollFromDamageRoll,
@@ -91,6 +92,7 @@ async function rollFromDamageRoll(
 
     return SplittermondChatCard.create(speaker, DamageMessage.initialize(damageEvent, evaluatedImplements.features), {
         type: "damageMessage",
+        style: foundryApi.chatMessageStyles.OTHER,
         whisper: [],
         blind: false,
         rolls: [totalRoll],

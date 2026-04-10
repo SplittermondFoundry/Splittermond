@@ -448,7 +448,7 @@ describe("SplittermondActor", () => {
             sandbox.stub(foundryApi, "localize").callsFake((key) => key);
             sandbox.stub(foundryApi, "format").callsFake((key) => key);
             sandbox.stub(foundryApi, "reportError");
-            sandbox.stub(foundryApi, "chatMessageTypes").get(() => ({ OTHER: 1 }));
+            sandbox.stub(foundryApi, "chatMessageStyles").get(() => ({ OTHER: 1 }));
             sandbox.stub(foundryApi, "currentUser").get(() => ({ id: "user1" }) as User);
             sandbox.stub(foundryApi, "getSpeaker").returns(speaker);
             sandbox.stub(foundryApi, "renderer").get(() => async (template: string, data: object) => {

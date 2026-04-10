@@ -13,8 +13,14 @@ import { withActor } from "./fixtures";
 import { DamageEvent, DamageImplement } from "module/util/damage/DamageEvent";
 import { CostBase } from "module/util/costs/costTypes";
 
-declare class Die {
-    results: any;
+declare namespace foundry {
+    namespace dice {
+        namespace terms {
+            class Die {
+                results: { active: boolean; result: number; discarded?: boolean }[];
+            }
+        }
+    }
 }
 
 export function DamageProcessingTest(context: QuenchBatchContext) {
@@ -24,10 +30,10 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
         it("Exact should modify roll in a way that the highest dice is kept", async () => {
             const roll = (await DamageRoll.parse("2d6", "Exakt 1").evaluate()).roll;
 
-            expect(roll.terms[0]).to.be.instanceOf(Die);
-            expect((roll.terms[0] as Die).results).to.have.length(3);
+            expect(roll.terms[0]).to.be.instanceOf(foundry.dice.terms.Die);
+            expect((roll.terms[0] as foundry.dice.terms.Die).results).to.have.length(3);
 
-            const sortedResults = (roll.terms[0] as Die).results
+            const sortedResults = (roll.terms[0] as foundry.dice.terms.Die).results
                 .filter((r: unknown) => r && r instanceof Object && "result" in r)
                 .sort((a: { result: number }, b: { result: number }) => a.result - b.result);
             expect(sortedResults[0].active).to.be.false;
@@ -39,8 +45,8 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
             const roll = evaluatedDamage.roll;
 
             expect(roll.total).to.be.greaterThanOrEqual(3);
-            expect(roll.terms[0]).to.be.instanceOf(Die);
-            const activeTerm = (roll.terms[0] as Die).results.filter((r: any) => r?.active);
+            expect(roll.terms[0]).to.be.instanceOf(foundry.dice.terms.Die);
+            const activeTerm = (roll.terms[0] as foundry.dice.terms.Die).results.filter((r: any) => r?.active);
             expect(activeTerm).to.have.length(1);
             expect(activeTerm[0].result < 3).to.be.equal(
                 evaluatedDamage.getActiveFeatures().some((f) => f.name === "Scharf" && f.active)
@@ -50,10 +56,11 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
         it("Kritisch should modify roll in a way that the highest dice are increased", async () => {
             const roll = (await DamageRoll.parse("999d6", "Kritisch 1").evaluate()).roll;
 
-            expect(roll.terms[0]).to.be.instanceOf(Die);
+            expect(roll.terms[0]).to.be.instanceOf(foundry.dice.terms.Die);
             expect(roll.total).not.to.equal(
                 roll.terms
-                    .filter((t) => t instanceof Die)
+                    .map((t) => t as foundry.dice.terms.Die | unknown)
+                    .filter((t) => t instanceof foundry.dice.terms.Die)
                     .flatMap((t) => t.results)
                     .reduce((former, latter) => (former += latter.result), 0)
             );

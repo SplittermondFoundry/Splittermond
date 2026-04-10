@@ -33,21 +33,21 @@ describe("Skill", () => {
         const underTest = Skill.initialize(actor, "Testskill");
 
         const customOptions = {
-            type: "test roll",
+            type: "skill",
             difficulty: 20,
             modifier: 1,
             askUser: true,
-        };
+        } as const;
         const checkDialogStub = sandbox.stub(CheckDialog, "create").resolves({
             difficulty: "25", // changed from 20 to 25
             maneuvers: [],
             modifier: 3, // changed from 1 to 3
             modifierElements: [{ value: 3, description: "modifier" }],
-            rollMode: "gmroll", // changed from publicroll to gmroll
+            messageMode: "gm", // changed from public to gm
             rollType: "risk", // changed from standard to risk
         });
         sandbox.stub(foundryApi, "settings").get(() => ({
-            get: () => "publicroll",
+            get: () => "public",
         }));
         sandbox.stub(foundryApi, "rollModes").get(() => ({}));
 
@@ -74,7 +74,7 @@ describe("Skill", () => {
         expect(diceCheckStub.calledOnce).to.be.true;
         expect(chatPrepareStub.calledOnce).to.be.true;
         expect(chatPrepareStub.firstCall.args[0]).to.equal(actor);
-        expect(chatPrepareStub.firstCall.args[1]).to.equal("gmroll");
+        expect(chatPrepareStub.firstCall.args[1]).to.equal("gm");
         expect(chatPrepareStub.firstCall.args[2]).to.equal(roll);
         expect(chatPrepareStub.firstCall.args[3]).to.be.an("object");
         expect(chatPrepareStub.firstCall.args[3]).to.deep.include({
@@ -98,7 +98,7 @@ describe("Skill", () => {
             skillPoints: 0,
             skillValue: 0,
             succeeded: true,
-            type: "test roll",
+            type: "skill",
         });
         expect(createMessageStub.calledOnce).to.be.true;
     });
@@ -125,18 +125,18 @@ describe("Skill", () => {
         const createMessageStub = sandbox.stub(foundryApi, "createChatMessage").resolves();
 
         const customOptions = {
-            type: "test roll",
+            type: "skill",
             difficulty: 20,
             modifier: 1,
             askUser: false,
-        };
+        } as const;
 
         await underTest.roll(customOptions);
 
         expect(diceCheckStub.calledOnce).to.be.true;
         expect(chatPrepareStub.calledOnce).to.be.true;
         expect(chatPrepareStub.firstCall.args[0]).to.equal(actor);
-        expect(chatPrepareStub.firstCall.args[1]).to.equal("publicroll");
+        expect(chatPrepareStub.firstCall.args[1]).to.equal("public");
         expect(chatPrepareStub.firstCall.args[2]).to.equal(roll);
         expect(chatPrepareStub.firstCall.args[3]).to.be.an("object");
         expect(chatPrepareStub.firstCall.args[3]).to.deep.include({
@@ -160,7 +160,7 @@ describe("Skill", () => {
             skillPoints: 0,
             skillValue: 0,
             succeeded: true,
-            type: "test roll",
+            type: "skill",
         });
         expect(createMessageStub.calledOnce).to.be.true;
     });
@@ -195,7 +195,7 @@ describe("Skill", () => {
         expect(diceCheckStub.calledOnce).to.be.true;
         expect(chatPrepareStub.calledOnce).to.be.true;
         expect(chatPrepareStub.firstCall.args[0]).to.equal(actor);
-        expect(chatPrepareStub.firstCall.args[1]).to.equal("publicroll");
+        expect(chatPrepareStub.firstCall.args[1]).to.equal("public");
         expect(chatPrepareStub.firstCall.args[2]).to.equal(roll);
         expect(chatPrepareStub.firstCall.args[3]).to.be.an("object");
         expect(chatPrepareStub.firstCall.args[3]).to.deep.include({
@@ -221,8 +221,8 @@ describe("Skill", () => {
     describe("roll modification", () => {
         beforeEach(() => {
             sandbox.stub(foundryApi, "createChatMessage");
-            sandbox.stub(foundryApi, "chatMessageTypes").get(() => ({ OTHER: 0 }));
-            sandbox.stub(ChatMessage, "applyRollMode").callsFake((data: any) => data);
+            sandbox.stub(foundryApi, "chatMessageStyles").get(() => ({ OTHER: 0 }));
+            sandbox.stub(ChatMessage, "applyMode").callsFake((data: any) => data);
         });
         it("should apply roll modifiers", async () => {
             const actor = setUpActor(sandbox);
@@ -423,7 +423,7 @@ describe("Skill", () => {
 
             // Stub settings and chat
             sandbox.stub(foundryApi, "settings").get(() => ({
-                get: () => "publicroll",
+                get: () => "public",
             }));
             sandbox.stub(foundryApi, "rollModes").get(() => ({}));
             sandbox.stub(Chat, "prepareCheckMessageData").resolves({});
@@ -438,7 +438,7 @@ describe("Skill", () => {
                 maneuvers: [],
                 modifier: 2,
                 modifierElements: [{ value: 2, description: "Sichtprobe" }],
-                rollMode: "publicroll",
+                messageMode: "public",
                 rollType: "standard",
             });
 
@@ -497,7 +497,7 @@ describe("Skill", () => {
             actor.modifier.addModifier(hearingModifier);
 
             sandbox.stub(foundryApi, "settings").get(() => ({
-                get: () => "publicroll",
+                get: () => "public",
             }));
             sandbox.stub(foundryApi, "rollModes").get(() => ({}));
             sandbox.stub(Chat, "prepareCheckMessageData").resolves({});
@@ -510,7 +510,7 @@ describe("Skill", () => {
                 maneuvers: [],
                 modifier: 0,
                 modifierElements: [],
-                rollMode: "publicroll",
+                messageMode: "public",
                 rollType: "standard",
             });
 
@@ -561,7 +561,7 @@ describe("Skill", () => {
             actor.modifier.addModifier(emphasisModifier);
 
             sandbox.stub(foundryApi, "settings").get(() => ({
-                get: () => "publicroll",
+                get: () => "public",
             }));
             sandbox.stub(foundryApi, "rollModes").get(() => ({}));
             sandbox.stub(Chat, "prepareCheckMessageData").resolves({});
@@ -574,7 +574,7 @@ describe("Skill", () => {
                 maneuvers: [],
                 modifier: 2,
                 modifierElements: [{ value: 2, description: "Sichtprobe" }],
-                rollMode: "publicroll",
+                messageMode: "public",
                 rollType: "standard",
             });
 
@@ -619,7 +619,7 @@ describe("Skill", () => {
             actor.modifier.addModifier(malusModifier);
 
             sandbox.stub(foundryApi, "settings").get(() => ({
-                get: () => "publicroll",
+                get: () => "public",
             }));
             sandbox.stub(foundryApi, "rollModes").get(() => ({}));
             sandbox.stub(Chat, "prepareCheckMessageData").resolves({});
@@ -632,7 +632,7 @@ describe("Skill", () => {
                 maneuvers: [],
                 modifier: 0,
                 modifierElements: [],
-                rollMode: "publicroll",
+                messageMode: "public",
                 rollType: "standard",
             });
 

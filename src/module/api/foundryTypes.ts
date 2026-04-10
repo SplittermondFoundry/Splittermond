@@ -1,5 +1,6 @@
 import { DataModel } from "./DataModel";
 import type { FoundryApplication } from "./Application";
+import { MessageModeKey } from "./ChatMessage";
 
 export type FoundryCombat = foundry.documents.Combat;
 export type FoundryCombatant = foundry.documents.Combatant;
@@ -33,18 +34,17 @@ export interface Speaker {
     alias: string;
 }
 
-export enum ChatMessageTypes {
+export enum ChatMessageStyles {
     OTHER,
     OOC,
     IC,
     EMOTE,
 }
-
-export interface RollMode {
+export interface ChatMessageMode {
+    handler: (data: any) => void;
     icon: string;
     label: string;
 }
-
 export interface User {
     isGM: boolean;
     id: string;
@@ -204,12 +204,14 @@ declare global {
         ChatMessage: {
             documentClass: Function;
             dataModels: Record<string, unknown>;
+            modes: Record<MessageModeKey, ChatMessageMode>;
         } & Record<string, unknown>;
         Combat: {
             documentClass: Function;
             dataModels: Record<string, unknown>;
+            fallbackTurnMarker: string;
         } & Record<string, unknown>;
-        Dice: { rollModes: Record<string, RollMode> } & Record<string, unknown>;
+        Dice: Record<string, unknown>;
     } & Record<string, unknown>;
 }
 
@@ -219,11 +221,9 @@ export interface MergeObjectOptions {
     overwrite?: boolean;
     inplace?: boolean;
     enforceTypes?: boolean;
-    /** <p>Forces the function to interpret keys that start with -= as deletion instructions.
-     *  E.g. If  set to <em> true</em> {"-=k1": null} will delete k1 from the object.</p>
-     *  <p><strong>DO NOT USE THIS.</strong> if this prop is set to false, "-=k1" will be added to the object. </p>
-     */
-    performDeletions?: boolean;
+    /* Forces the function to delete keys which are set to an instance of {@link foundry.data.operators.ForcedDeletion}.*/
+    applyOperators?: boolean;
+    recursive?: boolean;
 }
 export interface CompendiumPacks extends Collection<foundry.documents.collections.CompendiumCollection> {}
 

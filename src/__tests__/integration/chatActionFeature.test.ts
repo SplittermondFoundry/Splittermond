@@ -28,6 +28,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             rolls: [],
             whisper: [],
             type: "simple",
+            style: 0,
             mode: "CHAT.RollPublic",
             ...input,
         };
@@ -216,7 +217,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                         skill: "longrange",
                         attribute1: "agility",
                         attribute2: "strength",
-                        damage: "1W1",
+                        damage: { stringInput: "1W1" },
                         equipped: true,
                         modifier: "item.addFeature feature='Kritisch' 3",
                     },
@@ -403,7 +404,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                     user: foundryApi.currentUser.id,
                     speaker,
                     rolls: [roll],
-                    rollMode: "whisper", //Don't ask me why this is necessary, but it is
+                    messageMode: "whisper", //Don't ask me why this is necessary, but it is
                     whisper: [foundryApi.currentUser],
                     content: "Random text content",
                 };

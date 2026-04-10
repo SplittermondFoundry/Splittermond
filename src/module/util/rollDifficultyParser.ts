@@ -2,25 +2,17 @@ import { splittermond } from "module/config";
 import type { DefenseType } from "module/actor/actor";
 
 type RollDifficultyDefense = "VTD" | "KW" | "GW";
-type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-/**Represents integer values from 0 to 999 as string literal types, Difficulties in the hundreds are already ludicrous */
-type DifficultyInteger = `${Digit}` | `${Digit}${Digit}` | `${Digit}${Digit}${Digit}`;
-export type RollDifficultyString = DifficultyInteger | RollDifficultyDefense;
-type RollDifficultyType = RollDifficultyDefense | number;
+export type RollDifficultyType = RollDifficultyDefense | number;
 
-export function parseRollDifficulty(input: unknown) {
-    if (input instanceof RollDifficulty) {
-        return input;
-    } else {
-        return new RollDifficulty(input);
-    }
+export function parseRollDifficulty(input: string): RollDifficulty {
+    return new RollDifficulty(input);
 }
 
 class RollDifficulty {
     private _difficulty: RollDifficultyType;
     evaluatedDifficulty: number;
 
-    constructor(difficulty: unknown) {
+    constructor(difficulty: string) {
         this._difficulty = this.toRollDifficultyString(difficulty);
         this.evaluatedDifficulty = 0;
     }

@@ -16,6 +16,7 @@ export function initializeCombat(config: (typeof CONFIG)["Combat"]) {
     config.documentClass = SplittermondCombat;
 
     setPreCreateItemHook();
+    setTurnMarker(config);
 }
 
 export function setTurnMarker(config: { fallbackTurnMarker: string }) {

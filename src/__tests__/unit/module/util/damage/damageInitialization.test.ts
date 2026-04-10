@@ -13,7 +13,7 @@ describe("Damage Event initialization", () => {
     let sandbox: sinon.SinonSandbox;
     beforeEach(() => {
         sandbox = sinon.createSandbox();
-        sandbox.stub(foundryApi, "chatMessageTypes").value({ OTHER: 0 });
+        sandbox.stub(foundryApi, "chatMessageStyles").value({ OTHER: 0 });
         sandbox
             .stub(foundryApi, "getSpeaker")
             .returns({ actor: null, scene: "askf4903", token: null, alias: "Gamemaster" });

@@ -6,6 +6,7 @@ import { FoundryChatMessage } from "../../api/ChatMessage";
 import { DataModelSchemaType, fields, SplittermondDataModel } from "../../data/SplittermondDataModel";
 
 interface ChatMessageConfig {
+    style: number;
     type: string;
     mode?: string;
     whisper: string[];
@@ -18,6 +19,7 @@ function SplittermondChatCardModelSchema() {
         chatOptions: new fields.SchemaField(
             {
                 type: new fields.StringField({ required: true, nullable: false }),
+                style: new fields.NumberField({ required: true, nullable: false }),
                 mode: new fields.StringField({ required: false, blank: false, nullable: true }),
                 rolls: new fields.ArrayField(new fields.StringField({}), {
                     required: true,
@@ -92,6 +94,7 @@ export class SplittermondChatCard extends SplittermondDataModel<SplittermondChat
             rolls: this.chatOptions.rolls,
             whisper: this.chatOptions.whisper,
             type: this.chatOptions.type,
+            style: this.chatOptions.style,
             content,
             system: this.system,
             flags: {

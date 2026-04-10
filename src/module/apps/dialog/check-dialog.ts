@@ -1,11 +1,12 @@
 import Skill from "module/actor/skill";
 import { foundryApi } from "../../api/foundryApi";
 import { FoundryDialog } from "module/api/Application";
-import { RollMode } from "module/api/foundryTypes";
 import { ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { RollType } from "module/config/check";
-import { RollDifficultyString } from "module/util/rollDifficultyParser";
 import { changeValue } from "module/util/commonHtmlHandlers";
+import type { ChatMessageMode } from "module/api/foundryTypes";
+import { MessageModeKey } from "module/api/ChatMessage";
+import { RollDifficultyType } from "module/util/rollDifficultyParser";
 
 export interface CheckDialogInput {
     title?: string;
@@ -13,17 +14,17 @@ export interface CheckDialogInput {
     skillTooltip: string;
     modifier: number;
     emphasis: { name: string; label: string; value: unknown; active: boolean }[];
-    difficulty: RollDifficultyString;
-    rollMode: string;
-    rollModes: Record<string, RollMode>;
+    difficulty: RollDifficultyType;
+    messageMode: MessageModeKey;
+    rollModes: Record<string, ChatMessageMode>;
 }
 
 export interface CheckDialogData {
-    difficulty: RollDifficultyString;
+    difficulty: string;
     maneuvers: Item[];
     modifier: number;
     modifierElements: { value: number; description: string }[];
-    rollMode: string;
+    messageMode: MessageModeKey;
     rollType: RollType;
 }
 
@@ -54,9 +55,16 @@ export default class CheckDialog extends FoundryDialog {
 
     static async create(checkData: CheckDialogInput): Promise<CheckDialogData | null> {
         const baseId = `${new Date().toISOString()}${Math.random()}`;
+        const enrichedRollModes = Object.fromEntries(
+            Object.entries(checkData.rollModes).map(([key, mode]) => [
+                key,
+                { ...mode, selected: key === checkData.messageMode },
+            ])
+        );
         const html = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/apps/dialog/check-dialog.hbs`, {
             baseId,
             ...checkData,
+            rollModes: enrichedRollModes,
         });
 
         return new Promise<CheckDialogData | null>((resolve) => {
@@ -94,13 +102,13 @@ export default class CheckDialog extends FoundryDialog {
     static _prepareFormData(html: HTMLElement, checkData: CheckDialogInput) {
         const modifierInput = html.querySelector<HTMLInputElement>("input[name='modifier']")!;
         const difficultyInput = html.querySelector<HTMLInputElement>("input[name='difficulty']")!;
-        const rollModeInput = html.querySelector<HTMLSelectElement>("select[name='rollMode']")!;
+        const rollModeInput = html.querySelector<HTMLSelectElement>("select[name='messageMode']")!;
 
         const checkDialogData: CheckDialogData = {
             modifier: modifierInput.valueAsNumber,
             /*assuming this is OK; we'll validate in the parser*/
-            difficulty: difficultyInput.value as RollDifficultyString,
-            rollMode: rollModeInput.value,
+            difficulty: difficultyInput.value,
+            messageMode: rollModeInput.value as MessageModeKey,
             modifierElements: [],
             maneuvers: [],
             rollType: "standard", // gets overwritten in the submit function

@@ -4,6 +4,7 @@ import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeat
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { splittermond } from "module/config/index.js";
 import { renderDegreesOfSuccess } from "module/util/chat/renderDegreesOfSuccess.js";
+import { ChatMessage } from "module/api/ChatMessage.ts";
 
 export const Chat = {
     canEditMessageOf,
@@ -32,7 +33,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         ...data,
         degreeOfSuccessDisplay: renderDegreesOfSuccess(data, totalDegreeOfSuccess),
         roll: roll,
-        rollMode: rollMode,
+        messageMode: rollMode,
         tooltip: await roll.getTooltip(),
         actions: [],
     };
@@ -181,7 +182,8 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         rolls: [roll],
         content: await foundryApi.renderer(template, templateContext),
         sound: CONFIG.sounds.dice,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        style: foundryApi.chatMessageStyles.OTHER,
+        type: "base",
         flags: {
             splittermond: {
                 check: flagsData,
@@ -189,7 +191,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
         },
     };
 
-    return ChatMessage.applyRollMode(checkMessageData, rollMode);
+    return ChatMessage.applyMode(checkMessageData, rollMode);
 }
 
 /**
@@ -236,7 +238,7 @@ export async function prepareStatusEffectMessage(actor, data) {
         speaker: foundryApi.getSpeaker({ actor: actor }),
         content: await foundryApi.renderer(template, templateContext),
         sound: CONFIG.sounds.notification,
-        type: foundryApi.chatMessageTypes.OTHER,
+        type: foundryApi.chatMessageStyles.OTHER,
     };
     return statusEffectData;
 }

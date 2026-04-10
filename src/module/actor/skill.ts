@@ -1,21 +1,23 @@
-import CheckDialog from "../apps/dialog/check-dialog";
+import CheckDialog, { CheckDialogData } from "../apps/dialog/check-dialog";
 import { Dice } from "../check/dice";
 import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
-import { parseRollDifficulty } from "../util/rollDifficultyParser";
+import { parseRollDifficulty, RollDifficultyType } from "../util/rollDifficultyParser";
 import { asString } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
 import { modifyEvaluation } from "module/check/modifyEvaluation";
 import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "../data/SplittermondDataModel";
 import SplittermondActor from "./actor";
-import { ChatMessage } from "module/api/ChatMessage";
+import { ChatMessage, FoundryChatMessage } from "module/api/ChatMessage";
 import type Attribute from "module/actor/attribute";
 import type { IModifier } from "module/modifiers";
 import type { SplittermondAttribute } from "module/config/attributes";
 import { isMember } from "module/util/util";
 import Modifiable from "module/actor/modifiable";
-import type SplittermondMasteryItem from "module/item/mastery";
+import { RollType } from "module/config/check";
+import { CheckReport } from "module/check";
+import { SplittermondSkill } from "module/config/skillGroups";
 
 function newSkillAttribute() {
     const id = new fieldExtensions.StringEnumField({
@@ -48,6 +50,10 @@ function SkillSchema() {
 }
 
 type SkillType = DataModelSchemaType<typeof SkillSchema>;
+export type SpellOrAttackRollResult = {
+    rollOptions: object;
+    report: CheckReport;
+};
 
 /**
  * Skill class representing a character's skill
@@ -223,21 +229,17 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             .withAttributeValuesOrAbsent("skill", this.id);
     }
 
-    /**
-     * @param {{
-     *  difficulty?: RollDifficultyString,
-     *  preSelectedModifier?: string[],
-     *  subtitle?: string,
-     *  title?: string,
-     *  type?: string|"attack"|"spell"|"defense",
-     *  modifier?: number,
-     *  checkMessageData?: Record<string, any>,
-     *  rollType?: RollType,
-     *  askUser?: boolean,
-     * }} options
-     * @return {Promise<*|boolean>}
-     */
-    async roll(options: any = {}) {
+    async roll(options: {
+        difficulty?: RollDifficultyType;
+        preSelectedModifier?: string[];
+        subtitle?: string;
+        title?: string;
+        type?: "attack" | "spell" | "defense" | "skill";
+        modifier?: number;
+        checkMessageData?: Record<string, any>;
+        rollType?: RollType;
+        askUser?: boolean;
+    }): Promise<false | FoundryChatMessage | SpellOrAttackRollResult> {
         let checkData = await this.finalizeCheckInputData(
             options.preSelectedModifier,
             options.title,
@@ -252,21 +254,16 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         }
         const principalTarget = Array.from(foundryApi.currentUser.targets)[0] as any;
         const rollDifficulty = parseRollDifficulty(checkData.difficulty);
-        let hideDifficulty = rollDifficulty.isTargetDependentValue();
+        const hideDifficulty = rollDifficulty.isTargetDependentValue();
         if (principalTarget) {
             rollDifficulty.evaluate(principalTarget);
         }
-        checkData.difficulty = rollDifficulty.difficulty;
+        const parsedDifficulty = rollDifficulty.difficulty;
         if (this.isGrandmaster) {
-            checkData.rollType = checkData.rollType + "Grandmaster";
+            checkData.rollType = (checkData.rollType + "Grandmaster") as RollType;
         }
 
-        const immediateRollResult = await Dice.check(
-            this,
-            checkData.difficulty,
-            checkData.rollType,
-            checkData.modifier
-        );
+        const immediateRollResult = await Dice.check(this, parsedDifficulty, checkData.rollType, checkData.modifier);
         let rollResult = modifyEvaluation(
             {
                 ...immediateRollResult,
@@ -284,43 +281,43 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         }));
         //it may make sense to revisit each value and refactor the code to only use what is really needed.
         if (options.type === "spell" || options.type === "attack") {
+            const report: CheckReport = {
+                skill: {
+                    id: this.id as SplittermondSkill,
+                    attributes: skillAttributes,
+                    points: this.points,
+                },
+                difficulty: rollResult.difficulty,
+                defenseType: rollDifficulty.defenseType,
+                rollType: checkData.rollType,
+                roll: {
+                    total: rollResult.roll.total,
+                    //check report only needs the dice total, but that is a getter. We map it here explicitly
+                    dice: rollResult.roll.dice.map((die) => ({ total: die.total })),
+                    tooltip: await rollResult.roll.getTooltip(),
+                },
+                modifierElements: [...this.#getStaticModifiersForReport(), ...mappedModifiers],
+                succeeded: rollResult.succeeded,
+                isFumble: rollResult.isFumble,
+                isCrit: rollResult.isCrit,
+                degreeOfSuccess: rollResult.degreeOfSuccess,
+                degreeOfSuccessMessage: rollResult.degreeOfSuccessMessage,
+                hideDifficulty,
+                maneuvers: checkData.maneuvers.map((item) => ({
+                    uuid: item.uuid,
+                    name: item.name,
+                    description: item.system.description,
+                })),
+            };
             return {
-                rollOptions: ChatMessage.applyRollMode(
+                rollOptions: ChatMessage.applyMode(
                     {
                         rolls: [rollResult.roll],
-                        type: foundryApi.chatMessageTypes.OTHER,
+                        style: foundryApi.chatMessageStyles.OTHER,
                     },
-                    checkData.rollMode
+                    checkData.messageMode
                 ),
-                /**@type CheckReport*/
-                report: {
-                    skill: {
-                        id: this.id,
-                        attributes: skillAttributes,
-                        points: this.points,
-                    },
-                    difficulty: rollResult.difficulty,
-                    defenseType: rollDifficulty.defenseType,
-                    rollType: checkData.rollType,
-                    roll: {
-                        total: rollResult.roll.total,
-                        //check report only needs the dice total, but that is a getter. We map it here explicitly
-                        dice: rollResult.roll.dice.map((die) => ({ total: die.total })),
-                        tooltip: await rollResult.roll.getTooltip(),
-                    },
-                    modifierElements: [...this.#getStaticModifiersForReport(), ...mappedModifiers],
-                    succeeded: rollResult.succeeded,
-                    isFumble: rollResult.isFumble,
-                    isCrit: rollResult.isCrit,
-                    degreeOfSuccess: rollResult.degreeOfSuccess,
-                    degreeOfSuccessMessage: rollResult.degreeOfSuccessMessage,
-                    hideDifficulty,
-                    maneuvers: checkData.maneuvers.map((item: SplittermondMasteryItem) => ({
-                        uuid: item.uuid,
-                        name: item.name,
-                        description: item.system.description,
-                    })),
-                },
+                report,
             };
         }
 
@@ -345,60 +342,41 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         };
 
         return foundryApi.createChatMessage(
-            await Chat.prepareCheckMessageData(this.actor, checkData.rollMode, rollResult.roll, checkMessageData)
+            await Chat.prepareCheckMessageData(this.actor, checkData.messageMode, rollResult.roll, checkMessageData)
         );
     }
 
-    /**
-     * @param {?string[]} selectedModifiers
-     * @param {?string} title
-     * @param {?string} subtitle
-     * @param {?RollDifficultyString} difficulty
-     * @param {?number} modifier
-     * @param {?RollType} rollType
-     * @param {boolean} askUser
-     * @return {Promise<CheckDialogData|null>}
-     */
     async finalizeCheckInputData(
-        selectedModifiers: string[] | null,
-        title: string | null,
-        subtitle: string | null,
-        difficulty: any,
-        modifier: number | null,
-        rollType: any,
+        selectedModifiers?: string[],
+        title?: string,
+        subtitle?: string,
+        difficulty?: RollDifficultyType,
+        modifier?: number,
+        rollType?: RollType,
         askUser: boolean = true
-    ): Promise<any> {
+    ): Promise<CheckDialogData | null> {
         if (!askUser) {
-            /** @type CheckDialogData */
             return {
-                difficulty: difficulty || splittermond.check.defaultDifficulty,
+                difficulty: (difficulty || splittermond.check.defaultDifficulty).toString(),
                 maneuvers: [],
                 modifier: modifier || 0,
                 modifierElements: modifier
                     ? [{ value: modifier, description: foundryApi.localize("splittermond.modifier") }]
                     : [],
-                rollMode: "publicroll",
+                messageMode: "public",
                 rollType: rollType ?? "standard",
             };
         }
         return this.prepareRollDialog(selectedModifiers ?? [], title, subtitle, difficulty, modifier);
     }
 
-    /**
-     * @param {string[]} selectedModifiers
-     * @param {?string} title
-     * @param {?string} subtitle
-     * @param {?RollDifficultyString} difficulty
-     * @param {number} modifier
-     * @return {Promise<CheckDialogData|null>}
-     */
     async prepareRollDialog(
         selectedModifiers: string[],
-        title: string | null,
-        subtitle: string | null,
-        difficulty: any,
-        modifier: number | null
-    ): Promise<any> {
+        title?: string,
+        subtitle?: string,
+        difficulty?: RollDifficultyType,
+        modifier?: number
+    ): Promise<CheckDialogData | null> {
         let emphasisData: any[] = [];
         let selectableModifier = this.selectableModifier;
         if (selectableModifier) {
@@ -425,7 +403,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             difficulty: difficulty || splittermond.check.defaultDifficulty,
             modifier: modifier || 0,
             emphasis: emphasisData,
-            rollMode: foundryApi.settings.get("core", "rollMode") as string,
+            messageMode: foundryApi.settings.get("core", "messageMode"),
             rollModes: foundryApi.rollModes,
             title: this.#createRollDialogTitle(title, subtitle),
             skill: this,
@@ -433,12 +411,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         });
     }
 
-    /**
-     * @param {?string} title
-     * @param {?string} subtitle
-     * @return {string}
-     */
-    #createRollDialogTitle(title: string | null, subtitle: string | null): string {
+    #createRollDialogTitle(title?: string, subtitle?: string): string {
         const displayTitle = title || foundryApi.localize(this.label);
         const displaySubtitle = subtitle || "";
         return displaySubtitle ? displayTitle : `${displayTitle} - ${displaySubtitle}`;
