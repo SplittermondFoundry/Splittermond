@@ -2,8 +2,8 @@
     "extends": "@tsconfig/node24",
     "compilerOptions": {
         "target": "es2020",
-        "module": "es2020",
-        "moduleResolution": "Node",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
         "esModuleInterop": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
@@ -12,10 +12,9 @@
         "strict": true,
         "skipLibCheck": true,
         "sourceMap": true,
-        "baseUrl": "./src",
         "paths": {
-            "module/*": ["module/*"],
-            "*": ["*"]
+            "module/*": ["./src/module/*"],
+            "__tests__/*": ["./src/__tests__/*"]
         },
         "rootDir": "./src",
         "noEmit": true,
@@ -24,5 +23,5 @@
         "checkJs": false,
         "lib": ["es2020", "dom"]
     },
-    "include": ["src/**/*"]
+    "include": ["src/**/*"],
 }
