@@ -126,7 +126,8 @@ jobs:
             - name: Release package to github
               run: |
                   npm set "//npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}}"
-                  npm publish
+                  TAG=$(node -e "console.log(require('./package.json').version.includes('-') ? require('./package.json').version.split('-')[1] : 'latest')")
+                  npm publish --tag ${TAG}
                   npm set "//npm.pkg.github.com/:_authToken=garbage"
               env:
                   NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
