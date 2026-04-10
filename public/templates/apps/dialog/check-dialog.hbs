@@ -28,7 +28,7 @@
             <ul class="checkbox-list">
                 {{#each emphasis}}
                     <li>
-                        <input type="checkbox" name="emphasis" data-name="{{this.name}}" data-numeric-value="{{this.numericValue}}" id="emphasis_{{@index}}_{{@root.baseId}}"
+                        <input type="checkbox" name="emphasis" data-name="{{this.name}}" id="emphasis_{{@index}}_{{@root.baseId}}"
                                value="{{this.value}}" {{#if this.active}}checked{{/if}}>
                         <label for="emphasis_{{@index}}_{{@root.baseId}}">
                             <i class="fa-solid fa-plus icon" data-name="unchecked"></i>

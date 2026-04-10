@@ -42,7 +42,7 @@ describe("Skill", () => {
             difficulty: "25", // changed from 20 to 25
             maneuvers: [],
             modifier: 3, // changed from 1 to 3
-            modifierElements: [{ value: 3, description: "modifier" }],
+            modifierElements: [{ value: of(3), description: "modifier" }],
             messageMode: "gm", // changed from public to gm
             rollType: "risk", // changed from standard to risk
         });
@@ -437,7 +437,7 @@ describe("Skill", () => {
                 difficulty: "15",
                 maneuvers: [],
                 modifier: 2,
-                modifierElements: [{ value: 2, description: "Sichtprobe" }],
+                modifierElements: [{ value: of(2), description: "Sichtprobe" }],
                 messageMode: "public",
                 rollType: "standard",
             });
@@ -457,9 +457,9 @@ describe("Skill", () => {
                 name: "Sichtprobe",
                 label: "Sichtprobe + 2",
                 value: "2",
-                numericValue: 2,
                 active: false,
             });
+            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(2);
         });
 
         it("should present multiple selectable modifiers with different emphasis values", async () => {
@@ -528,18 +528,18 @@ describe("Skill", () => {
                 name: "Sichtprobe",
                 label: "Sichtprobe + 2",
                 value: "2",
-                numericValue: 2,
                 active: false,
             });
+            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(2);
 
             // Check second emphasis (Gehörprobe)
             expect(dialogArgs.emphasis[1]).to.deep.include({
                 name: "Gehörprobe",
                 label: "Gehörprobe + 3",
                 value: "3",
-                numericValue: 3,
                 active: false,
             });
+            expect(evaluate(dialogArgs.emphasis[1].numericValue)).to.equal(3);
         });
 
         it("should mark pre-selected emphasis as active in check dialog", async () => {
@@ -576,7 +576,7 @@ describe("Skill", () => {
                 difficulty: "15",
                 maneuvers: [],
                 modifier: 2,
-                modifierElements: [{ value: 2, description: "Sichtprobe" }],
+                modifierElements: [{ value: of(2), description: "Sichtprobe" }],
                 messageMode: "public",
                 rollType: "standard",
             });
@@ -596,9 +596,9 @@ describe("Skill", () => {
                 name: "Sichtprobe",
                 label: "Sichtprobe + 2",
                 value: "2",
-                numericValue: 2,
                 active: true, // Should be marked as active
             });
+            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(2);
         });
 
         it("should handle negative (malus) emphasis modifiers correctly", async () => {
@@ -651,9 +651,9 @@ describe("Skill", () => {
                 name: "Schlechte Sicht",
                 label: "Schlechte Sicht - 3",
                 value: "-3",
-                numericValue: -3,
                 active: false,
             });
+            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(-3);
         });
 
         it("should condense multiplied emphasis modifier values from status effects with levels", async () => {
@@ -709,9 +709,9 @@ describe("Skill", () => {
                 name: "test",
                 label: "test - 6",
                 value: "-6",
-                numericValue: -6,
                 active: false,
             });
+            expect(evaluate(dialogArgs.emphasis[0].numericValue)).to.equal(-6);
         });
     });
 });

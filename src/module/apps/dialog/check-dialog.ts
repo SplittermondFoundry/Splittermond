@@ -7,13 +7,14 @@ import { changeValue } from "module/util/commonHtmlHandlers";
 import type { ChatMessageMode } from "module/api/foundryTypes";
 import { MessageModeKey } from "module/api/ChatMessage";
 import { RollDifficultyType } from "module/util/rollDifficultyParser";
+import { evaluate, of, type Expression } from "module/modifiers/expressions/scalar";
 
 export interface CheckDialogInput {
     title?: string;
     skill: Skill;
     skillTooltip: string;
     modifier: number;
-    emphasis: { name: string; label: string; value: string; numericValue: number; active: boolean }[];
+    emphasis: { name: string; label: string; value: string; numericValue: Expression; active: boolean }[];
     difficulty: RollDifficultyType;
     messageMode: MessageModeKey;
     rollModes: Record<string, ChatMessageMode>;
@@ -23,7 +24,7 @@ export interface CheckDialogData {
     difficulty: string;
     maneuvers: Item[];
     modifier: number;
-    modifierElements: { value: number; description: string }[];
+    modifierElements: { value: Expression; description: string }[];
     messageMode: MessageModeKey;
     rollType: RollType;
 }
@@ -116,16 +117,19 @@ export default class CheckDialog extends FoundryDialog {
 
         if (checkDialogData.modifier) {
             checkDialogData.modifierElements.push({
-                value: checkDialogData.modifier,
+                value: of(checkDialogData.modifier),
                 description: foundryApi.localize("splittermond.modifier"),
             });
         }
         html.querySelectorAll<HTMLInputElement>("input[name='emphasis']").forEach((el) => {
             if (el.checked && el.dataset.name) {
-                checkDialogData.modifierElements.push({
-                    value: parseFloat(el.dataset.numericValue ?? "0") || 0,
-                    description: el.dataset.name,
-                });
+                const emphasisEntry = checkData.emphasis.find((e) => e.name === el.dataset.name);
+                if (emphasisEntry) {
+                    checkDialogData.modifierElements.push({
+                        value: emphasisEntry.numericValue,
+                        description: el.dataset.name,
+                    });
+                }
             }
         });
 
@@ -135,7 +139,7 @@ export default class CheckDialog extends FoundryDialog {
             }
         });
 
-        checkDialogData.modifier = checkDialogData.modifierElements.reduce((acc, el) => acc + el.value, 0);
+        checkDialogData.modifier = checkDialogData.modifierElements.reduce((acc, el) => acc + evaluate(el.value), 0);
 
         return checkDialogData;
     }

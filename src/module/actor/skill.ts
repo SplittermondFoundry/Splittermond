@@ -3,7 +3,7 @@ import { Dice } from "../check/dice";
 import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty, RollDifficultyType } from "../util/rollDifficultyParser";
-import { asString, condense, evaluate } from "module/modifiers/expressions/scalar";
+import { asString, condense, evaluate, of } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
 import { modifyEvaluation } from "module/check/modifyEvaluation";
@@ -274,11 +274,14 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         );
         let skillAttributes = this.attributeValues;
 
-        const mappedModifiers = checkData.modifierElements.map((mod: any) => ({
-            isMalus: mod.value < 0,
-            value: `${Math.abs(mod.value)}`,
-            description: mod.description,
-        }));
+        const mappedModifiers = checkData.modifierElements.map((mod) => {
+            const value = evaluate(mod.value);
+            return {
+                isMalus: value < 0,
+                value: `${Math.abs(value)}`,
+                description: mod.description,
+            };
+        });
         //it may make sense to revisit each value and refactor the code to only use what is really needed.
         if (options.type === "spell" || options.type === "attack") {
             const report: CheckReport = {
@@ -361,7 +364,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
                 maneuvers: [],
                 modifier: modifier || 0,
                 modifierElements: modifier
-                    ? [{ value: modifier, description: foundryApi.localize("splittermond.modifier") }]
+                    ? [{ value: of(modifier), description: foundryApi.localize("splittermond.modifier") }]
                     : [],
                 messageMode: "public",
                 rollType: rollType ?? "standard",
@@ -384,7 +387,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             emphasisData = selectableModifier
                 .map((mod: IModifier) => {
                     const condensed = condense(mod.value);
-                    return [mod.attributes.name, asString(condensed), evaluate(condensed)] as const;
+                    return [mod.attributes.name, asString(condensed), condensed] as const;
                 })
                 .map(([key, displayValue, numericValue]) => {
                     const operator = /(?<=^\s*)[+-]/.exec(displayValue)?.[0] ?? "+";
