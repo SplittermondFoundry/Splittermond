@@ -10,8 +10,9 @@ import { SplittermondApplication, TEMPLATE_BASE_PATH } from "../../data/Splitter
 
 export type CompendiumMetadata = { id: string; label: string };
 
+export type CompendiumItemType = "spell" | "mastery" | "weapon" | "armor" | "shield" | "npc";
 export type ItemIndexEntity = {
-    type: string;
+    type: CompendiumItemType;
     folder: string;
     img: string;
     name: string;
@@ -157,7 +158,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         });
     }
 
-    recordCompendiaItemsInCategories(compendia: CompendiumPacks): Promise<Record<string, ItemIndexEntity[]>> {
+    async recordCompendiaItemsInCategories(compendia: CompendiumPacks): Promise<Record<string, ItemIndexEntity[]>> {
         let allItems: Record<string, ItemIndexEntity[]> = {};
 
         const wellFormedPacks = compendia.filter((pack) => {
@@ -221,7 +222,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
             if (!(item.type in record)) {
                 record[item.type] = [];
             }
-            record[item.type].push(item);
+            record[item.type].push(item as ItemIndexEntity);
         });
         return record;
     }
