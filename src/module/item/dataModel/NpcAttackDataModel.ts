@@ -2,6 +2,7 @@ import { DataModelSchemaType, fields, SplittermondDataModel } from "../../data/S
 import SplittermondNpcAttackItem from "../npcattack";
 import { damage, getDescriptorFields } from "./commonFields";
 import { ItemFeaturesModel } from "./propertyModels/ItemFeaturesModel";
+import { from0_12_20_migrateDamage, from0_12_20_migrateFeatures, migrateFrom0_12_20 } from "./migrations";
 
 function ItemNpcAttackDataModelSchema() {
     return {
@@ -18,6 +19,13 @@ export type NpcAttackDataModelType = DataModelSchemaType<typeof ItemNpcAttackDat
 
 export class NpcAttackDataModel extends SplittermondDataModel<NpcAttackDataModelType, SplittermondNpcAttackItem> {
     static defineSchema = ItemNpcAttackDataModelSchema;
+
+    static migrateData(source: unknown) {
+        source = migrateFrom0_12_20(source);
+        source = from0_12_20_migrateDamage(source);
+        source = from0_12_20_migrateFeatures(source);
+        return super.migrateData(source);
+    }
 
     get attribute1() {
         return null;
