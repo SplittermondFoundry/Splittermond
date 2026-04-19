@@ -48,12 +48,12 @@ jobs:
             - name: Build
               run: npm run build
             - name: Upload dist artifact
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v7
               with:
                   name: dist
                   path: dist/
             - name: Upload versioned sources
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v7
               with:
                   name: versioned-sources
                   path: |
