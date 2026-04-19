@@ -118,6 +118,7 @@ Hooks.once("init", async function () {
     game.splittermond.importNpc = Macros.importNpc;
     game.splittermond.magicFumble = Macros.magicFumble;
     game.splittermond.attackFumble = Macros.attackFumble;
+    game.splittermond.addFreeXP = Macros.addFreeXP;
     game.splittermond.compendiumBrowser = new SplittermondCompendiumBrowser();
     foundry.dice.terms.Die.MODIFIERS.ri = Dice.riskModifier;
 

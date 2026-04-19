@@ -330,6 +330,7 @@ declare namespace foundry {
     }
 }
 
+export type FoundryDialogType = foundry.applications.api.DialogV2;
 export const FoundryDialog = foundry.applications.api.DialogV2;
 export const FoundryApplication = foundry.applications.api.ApplicationV2;
 export const FoundryItemSheet = foundry.applications.sheets.ItemSheetV2;
