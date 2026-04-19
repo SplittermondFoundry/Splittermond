@@ -97,6 +97,16 @@
                 "invalidDescriptorValue": "The value '{value}' for the attribute '{attribute}' for the modifier '{groupId}' is invalid.",
                 "unknownDescriptor": "The attribute '{attribute}' for the modifier '{groupId}' ist unknown."
             }
+        },
+        "addFreeXP": {
+            "noPlayerCharacters": "No player characters found.",
+            "dialogTitle": "Distribute Free XP",
+            "amountLabel": "Amount of Free XP:",
+            "distribute": "Distribute",
+            "zeroAmount": "0 Free XP distributed – no changes made.",
+            "chatMessage": "{amount} Free XP awarded to:",
+            "distributed": "{amount} Free XP distributed to {count} character(s).",
+            "noneUpdated": "No characters updated – see console for details."
         }
     },
     "bonusCap": "Bonus Limit",
@@ -236,4 +246,5 @@
     "COMBAT": {
         "Round": "Tick {round}"
     }
+}
 }

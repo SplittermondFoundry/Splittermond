@@ -7,6 +7,10 @@ Many great thanks to @IceFreez3r. Only with his help was such a quick update pos
 - Migrationen für prä v13 Datenmodelle wurden entfernt
 - Splittermond erwartet nun mindestens Foundry V14
 
+### Features
+
+- Ein Makro zum Verteilen von freien Erfahrungspunkten an alle Spieler. Mit Dank an Pad, der den Hauptteil des Codes geliefert hat.
+
 ### Fixes
 
 - Modifikatoren gestapelter Zustände werden jetzt korrekt berechnet

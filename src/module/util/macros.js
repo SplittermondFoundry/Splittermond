@@ -453,3 +453,52 @@ export function attackFumble(eg = 0, costs = 0) {
     }
     actor.rollAttackFumble();
 }
+
+//TODO Select players by the fact if they are not controlled only by GM
+export async function addFreeXP() {
+    // === Splittermond – Nur FREE XP an alle Actors im Ordner "Spieler" verteilen ===
+    // Fragt Menge ab, addiert ausschließlich auf Free XP (system.experience.free)
+    // und postet eine Chat-Nachricht.
+
+    const targets = foundryApi.collections.actors.filter((a) => a.type === "character").filter((a) => a.hasPlayerOwner);
+    if (!targets.length) return foundryApi.warnUser("splittermond.addFreeXP.noPlayerCharacters");
+
+    const amount = await FoundryDialog.prompt({
+        window: { title: foundryApi.localize("splittermond.addFreeXP.dialogTitle") },
+        content: `<p><span>${foundryApi.localize("splittermond.addFreeXP.amountLabel")}</span>
+                    &nbsp;<input name="xp" type="number" value="1" step="1" style="width:6em">
+                  </p>`,
+        ok: {
+            label: foundryApi.localize("splittermond.addFreeXP.distribute"),
+            callback: (_event, button) => parseInt(button.form?.elements.namedItem("xp")?.value, 10) || 0,
+        },
+    }).catch(() => null);
+    if (amount == null) return;
+    if (amount === 0) return foundryApi.informUser("splittermond.addFreeXP.zeroAmount");
+
+    const updated = [];
+    for (const actor of targets) {
+        const curFree = Number(actor.system.experience.free) || 0;
+        try {
+            await actor.update({ "system.experience.free": curFree + amount });
+            updated.push(actor.name);
+        } catch (e) {
+            console.error(`Free-XP-Update failed for ${actor.name}:`, e);
+        }
+    }
+
+    if (updated.length) {
+        const list = updated.map((n) => `<li>${foundry.utils.escapeHTML(n)}</li>`).join("");
+        const heading = foundryApi.format("splittermond.addFreeXP.chatMessage", { amount: `${amount}` });
+        await ChatMessage.create({
+            content: `<p><strong>${heading}</strong></p><ul>${list}</ul>`,
+            speaker: ChatMessage.getSpeaker(),
+        });
+        foundryApi.informUser("splittermond.addFreeXP.distributed", {
+            amount: `${amount}`,
+            count: `${updated.length}`,
+        });
+    } else {
+        foundryApi.warnUser("splittermond.addFreeXP.noneUpdated");
+    }
+}

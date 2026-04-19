@@ -683,6 +683,16 @@
         "library": "Bibliothek",
         "modificatorHelpText": "Mit Komma getrennte Modifikatoren, siehe @Compendium[splittermond.journal-entries.Modifikatoren]{Modifikatoren}.",
         "minAttributesHelpText": "Mit Komma getrennte minimale Attribute. Beisp.: <pre>STÄ 3, BEW 2</pre>",
+        "addFreeXP": {
+            "noPlayerCharacters": "Keine Spielercharaktere gefunden.",
+            "dialogTitle": "Freie Erfahrungspunkte verteilen",
+            "amountLabel": "Menge an Freien Erfahrungspunkten:",
+            "distribute": "Verteilen",
+            "zeroAmount": "0 Free XP verteilt – keine Änderung.",
+            "chatMessage": "{amount} Freie XP vergeben an:",
+            "distributed": "{amount} Freie XP an {count} Charakter(e) verteilt.",
+            "noneUpdated": "Keine Charaktere aktualisiert – siehe Konsole für Details."
+        },
         "pdfoundry": {
             "page": "Seite",
             "notinstalled": "Um PDF links zu verwenden muss PDFoundry installiert sein!",
