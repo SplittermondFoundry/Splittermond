@@ -3,6 +3,7 @@ import SplittermondSpellItem from "../spell";
 import { damage, getDescriptorFields, validatedBoolean } from "./commonFields";
 import { ItemFeaturesModel } from "./propertyModels/ItemFeaturesModel";
 import { CastDurationModel, parseCastDuration } from "./propertyModels/CastDurationModel";
+import { from0_12_20_migrateDamage, from0_12_20_migrateFeatures } from "./migrations";
 import type { SplittermondSkill } from "module/config/skillGroups";
 import { splittermond } from "module/config";
 
@@ -52,6 +53,8 @@ export class SpellDataModel extends SplittermondDataModel<SpellDataModelType, Sp
     static defineSchema = SpellDataModelSchema;
 
     static migrateData(source: unknown) {
+        source = from0_12_20_migrateDamage(source);
+        source = from0_12_20_migrateFeatures(source);
         source = from13_40_0_migrateCastDuration(source);
         source = from13_7_2_initSkill(source);
         return super.migrateData(source);
