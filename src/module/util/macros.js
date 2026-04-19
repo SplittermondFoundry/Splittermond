@@ -1,4 +1,4 @@
-import RequestCheckDialog from "../apps/dialog/request-check-dialog.js";
+import RequestCheckDialog from "../apps/dialog/RequestCheckDialog.js";
 import { FoundryDialog } from "module/api/Application.js";
 import { foundryApi } from "module/api/foundryApi.js";
 

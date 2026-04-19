@@ -2,7 +2,9 @@
     <div class="properties-editor">
         <label>{{localize "splittermond.skill"}}</label>
         <select name="skill">
-            {{selectOptions skills selected=skill nameAttr="key" labelAttr="label" localize=true}}
+            {{#each skills}}
+            <option value="{{key}}" {{#if (eq key ../skill)}}selected{{/if}}>{{label}}</option>
+            {{/each}}
         </select>
         <label>{{localize "splittermond.difficulty"}}</label>
         <div class="row">

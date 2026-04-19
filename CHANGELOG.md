@@ -10,6 +10,7 @@ Many great thanks to @IceFreez3r. Only with his help was such a quick update pos
 ### Fixes
 
 - Modifikatoren gestapelter Zustände werden jetzt korrekt berechnet
+- Abrage nach Proben nutzt nun DialogV2
 
 ## 13.12.0
 
