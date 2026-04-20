@@ -2,7 +2,7 @@ import { initializeDisplayPreparation } from "./itemDisplayPreparation";
 import { FoundryApplication, FoundryDragDrop } from "../../api/Application";
 import { foundryApi } from "../../api/foundryApi";
 import { splittermond } from "../../config";
-import { itemRetriever } from "../../data/EntityRetriever";
+import { itemRetriever, actorRetriever } from "../../data/EntityRetriever";
 import SplittermondItem from "../../item/item";
 import { CompendiumPacks } from "../../api/foundryTypes";
 import { closestData } from "../../data/ClosestDataMixin";
@@ -147,7 +147,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
         const allItems = this.recordCompendiaItemsInCategories(foundryApi.collections.packs)
             .then((record) => this.appendWorldItemsToRecord(record, itemRetriever.items))
-            .then((record) => this.appendWorldActorsToRecord(record, foundryApi.collections.actors))
+            .then((record) => this.appendWorldActorsToRecord(record, actorRetriever.actors))
             .then(this.sortCategories);
         return new Promise(async (resolve, __) => {
             data.items = await allItems;

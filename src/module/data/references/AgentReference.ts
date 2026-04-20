@@ -1,6 +1,7 @@
 import { foundryApi } from "module/api/foundryApi";
 import { DataModelSchemaType, fields, SplittermondDataModel } from "../SplittermondDataModel";
 import SplittermondActor from "../../actor/actor";
+import { actorRetriever } from "../EntityRetriever";
 
 /**
  * A reference to a Token object, which is used to represent a specific Token within a ChatMessage.
@@ -36,7 +37,7 @@ export class AgentReference extends SplittermondDataModel<DataModelSchemaType<ty
 
     #getActor(): Actor | undefined {
         if (this.type === "actor") {
-            return foundryApi.getActor(this.id);
+            return actorRetriever.get(this.id);
         } else if (this.sceneId) {
             return foundryApi.getToken(this.sceneId, this.id)?.actor;
         } else {

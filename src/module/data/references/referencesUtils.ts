@@ -1,5 +1,6 @@
 import { foundryApi } from "module/api/foundryApi";
 import { AgentReference } from "./AgentReference";
+import { actorRetriever } from "../EntityRetriever";
 
 export const referencesUtils = {
     /**@type {() => AgentReference}*/ findBestUserActor,
@@ -22,7 +23,7 @@ function findBestUserActor(): AgentReference {
     }
 
     if (!actor && speaker.actor) {
-        const topLevelActor = foundryApi.getActor(speaker.actor);
+        const topLevelActor = actorRetriever.get(speaker.actor);
         actor = topLevelActor ? withTry(() => AgentReference.initialize(topLevelActor)) : null;
     }
     if (!actor) {

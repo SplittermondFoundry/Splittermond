@@ -14,6 +14,7 @@ import { SplittermondSkill } from "module/config/skillGroups";
 import { closestData } from "module/data/ClosestDataMixin";
 import { TokenActionBarTemplateData } from "./templateInterface";
 import { ElementToggler } from "./ElementToggler";
+import { actorRetriever } from "module/data/EntityRetriever";
 
 let theInstance: TokenActionBar | null = null;
 let showActionBarGetter = () => false;
@@ -110,8 +111,7 @@ export default class TokenActionBar extends SplittermondApplication {
             this._currentActor = null;
             if (speaker.token)
                 this._currentActor = foundryApi.getToken(speaker.scene, speaker.token)!.actor as SplittermondActor;
-            if (!this._currentActor && speaker.actor)
-                this._currentActor = foundryApi.getActor(speaker.actor) as SplittermondActor;
+            if (!this._currentActor && speaker.actor) this._currentActor = actorRetriever.get(speaker.actor) ?? null;
 
             const customHotbar = document.querySelector("#custom-hotbar");
             if (this._currentActor == null) {
