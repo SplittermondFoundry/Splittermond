@@ -15,6 +15,7 @@ Many great thanks to @IceFreez3r. Only with his help was such a quick update pos
 
 - Modifikatoren gestapelter Zustände werden jetzt korrekt berechnet
 - Abrage nach Proben nutzt nun DialogV2
+- Compendium Browser zeigt Nutzern keine Objekte die nur für die SL sind mehr an.
 
 ## 13.12.0
 

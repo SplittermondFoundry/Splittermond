@@ -32,6 +32,7 @@ export function combatTest(context: QuenchBatchContext) {
     });
     after(async () => {
         await Scene.deleteDocuments([scene.id]);
+
         originalScene?.activate();
     });
     beforeEach(() => (sandbox = sinon.createSandbox()));

@@ -190,6 +190,8 @@ declare global {
         setFlag(scope: string, key: string, value: unknown): Promise<FoundryDocument>;
 
         get isOwner(): boolean; //Defined on ClientDocument not the Document itself, but we're only dealing with ClientDocument anyway.
+        get visible(): boolean; //Defined on ClientDocument not the Document itself
+        get hasPlayerOwner(): boolean; //Defined on ClientDocument, not Document
     }
 
     const CONFIG: {
@@ -277,6 +279,7 @@ declare namespace foundry {
                 documentName: string;
                 name: string;
                 getIndex<T extends string>(options?: { fields?: T[] }): Promise<Collection<Record<T, unknown>>>;
+                get visible(): boolean;
             }
         }
     }
