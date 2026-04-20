@@ -2,7 +2,7 @@ import { initializeDisplayPreparation } from "./itemDisplayPreparation";
 import { FoundryApplication, FoundryDragDrop } from "../../api/Application";
 import { foundryApi } from "../../api/foundryApi";
 import { splittermond } from "../../config";
-import { itemRetriever } from "../../data/EntityRetriever";
+import { itemRetriever, actorRetriever } from "../../data/EntityRetriever";
 import SplittermondItem from "../../item/item";
 import { CompendiumPacks } from "../../api/foundryTypes";
 import { closestData } from "../../data/ClosestDataMixin";
@@ -147,7 +147,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
         const allItems = this.recordCompendiaItemsInCategories(foundryApi.collections.packs)
             .then((record) => this.appendWorldItemsToRecord(record, itemRetriever.items))
-            .then((record) => this.appendWorldActorsToRecord(record, foundryApi.collections.actors))
+            .then((record) => this.appendWorldActorsToRecord(record, actorRetriever.actors))
             .then(this.sortCategories);
         return new Promise(async (resolve, __) => {
             data.items = await allItems;
@@ -170,8 +170,10 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
             }
             return wellFormedMetadata;
         });
+        //Ensure we only account for compendia that the user is supposed to see
+        const accessiblePacks = wellFormedPacks.filter((pack) => pack.visible);
 
-        const itemIndices = wellFormedPacks
+        const itemIndices = accessiblePacks
             .filter((pack) => pack.documentName === "Item")
             .map((pack) => ({
                 metadata: { id: pack.metadata.id, label: pack.metadata.label },
@@ -192,7 +194,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
                 }),
             }));
 
-        const actorIndices = wellFormedPacks
+        const actorIndices = accessiblePacks
             .filter((pack) => pack.documentName === "Actor")
             .map((pack) => ({
                 metadata: { id: pack.metadata.id, label: pack.metadata.label },
@@ -218,12 +220,14 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         record: Record<string, ItemIndexEntity[]>,
         items: Collection<SplittermondItem>
     ): Record<string, ItemIndexEntity[]> {
-        items.forEach((item: SplittermondItem) => {
-            if (!(item.type in record)) {
-                record[item.type] = [];
-            }
-            record[item.type].push(item as ItemIndexEntity);
-        });
+        items
+            .filter((item) => item.visible)
+            .forEach((item: SplittermondItem) => {
+                if (!(item.type in record)) {
+                    record[item.type] = [];
+                }
+                record[item.type].push(item as ItemIndexEntity);
+            });
         return record;
     }
 
@@ -231,12 +235,14 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         record: Record<string, ItemIndexEntity[]>,
         actors: Collection<Actor>
     ): Record<string, ItemIndexEntity[]> {
-        actors.forEach((actor) => {
-            if (!(actor.type in record)) {
-                record[actor.type] = [];
-            }
-            record[actor.type].push(actor as unknown as ItemIndexEntity);
-        });
+        actors
+            .filter((actor) => actor.visible)
+            .forEach((actor) => {
+                if (!(actor.type in record)) {
+                    record[actor.type] = [];
+                }
+                record[actor.type].push(actor as unknown as ItemIndexEntity);
+            });
         return record;
     }
 

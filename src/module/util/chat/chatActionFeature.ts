@@ -6,6 +6,7 @@ import { ChatMessageModel, SimpleMessage, SplittermondChatMessage } from "../../
 import { SpellRollMessage } from "./rollMessages/spellChatMessage/SpellRollMessage";
 import { DamageMessage } from "./damageChatMessage/DamageMessage";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
+import { actorRetriever } from "../../data/EntityRetriever";
 
 const socketEvent = "system.splittermond";
 
@@ -131,7 +132,7 @@ function prohibitActionOnChatCard(__: unknown, html: HTMLElement, data: unknown)
     }
     let actor = foundryApi.getSpeaker(data.message.speaker).actor;
 
-    if (!((actor && foundryApi.getActor(actor)?.isOwner) || canEditMessageOf(data.author.id))) {
+    if (!((actor && actorRetriever.get(actor)?.isOwner) || canEditMessageOf(data.author.id))) {
         html.querySelectorAll(
             ".splittermond-chat-action[data-action]:not(.splittermond-chat-action[data-localaction])"
         ).forEach((el) => el.remove());

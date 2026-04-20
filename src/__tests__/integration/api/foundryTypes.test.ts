@@ -32,6 +32,8 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 ["system", "object"],
                 ["folder", "object"],
                 ["isOwner", "boolean"],
+                ["visible", "boolean"],
+                ["hasPlayerOwner", "boolean"],
             ] as const
         ).forEach(([property, type]) => {
             it(`should have a ${type} property ${property}`, () => {
@@ -79,6 +81,8 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 ["system", "object"],
                 ["folder", "object"],
                 ["isOwner", "boolean"],
+                ["visible", "boolean"],
+                ["hasPlayerOwner", "boolean"],
             ] as const
         ).forEach(([property, type]) => {
             it(`should have a ${type} property ${property}`, () => {
@@ -153,6 +157,8 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 ["inCombat", "boolean"],
                 ["isToken", "boolean"],
                 ["isOwner", "boolean"],
+                ["visible", "boolean"],
+                ["hasPlayerOwner", "boolean"],
             ] as const
         ).forEach(([property, type]) => {
             it(`should have a property ${property} of type ${type}`, () => {
@@ -518,26 +524,21 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
 
     describe("Combatant", () => {
         const TestCombatant = class extends Combatant {};
-        ["type", "uuid"].forEach((property) => {
-            it(`should have a string property ${property}`, () => {
-                game.combats.forEach((combat: FoundryDocument) => {
-                    expect(combat, `Combatant ${combat.id} does not have ${property}`).to.have.property(property);
-                    expect(
-                        typeof combat[property as keyof typeof combat],
-                        `combat property ${property} is not a string`
-                    ).to.equal("string");
-                });
+        (
+            [
+                ["type", fields.StringField], //technically ForeignDocument but we don't have that class here
+                ["system", fields.ObjectField],
+            ] as const
+        ).forEach(([key, type]) => {
+            it(`should have a schema property ${key}`, () => {
+                expect(Combatant.defineSchema(), `Did not find key ${key} in schema`).to.have.property(key);
+                expect((Combatant.defineSchema() as any)[key], `${key} is not of type`).to.be.instanceOf(type);
             });
         });
-        ["system"].forEach((property) => {
-            it(`should have an object property ${property}`, () => {
-                game.combats.forEach((combat: FoundryDocument) => {
-                    expect(combat, `Combatant ${combat.id} does not have ${property}`).to.have.property(property);
-                    expect(
-                        typeof combat[property as keyof typeof combat],
-                        `combat property ${property} is not an object`
-                    ).to.equal("object");
-                });
+        ["combat", "visible", "token"].forEach((property) => {
+            it(`should have an accessor property ${property}`, () => {
+                const descriptor = new Combatant();
+                expect(descriptor, `Combatant does not have accessor ${property}`).to.not.be.undefined;
             });
         });
         ["prepareBaseData", "prepareDerivedData", "toObject", "setFlag", "getFlag", "updateSource"].forEach(
@@ -553,8 +554,8 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 });
             }
         );
-        ["isDefeated"].forEach((property) => {
-            it(`should have a boolean property${property}`, () => {
+        ["isDefeated", "visible"].forEach((property) => {
+            it(`should have a boolean property ${property}`, () => {
                 expect(TestCombatant.prototype, `Combatant prototype does not have ${property}`).to.have.property(
                     property
                 );
@@ -575,6 +576,21 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             it(`should have a schema property ${key}`, () => {
                 expect(Combatant.defineSchema(), `Did not find key ${key} in schema`).to.have.property(key);
                 expect((Combatant.defineSchema() as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+            });
+        });
+    });
+
+    describe("Collection", () => {
+        it("should have a contents getter that returns an array", () => {
+            const packs = foundryApi.collections.packs;
+            expect(packs).to.have.property("contents");
+            expect(packs.contents).to.be.an("array");
+        });
+        it("should have a visibility setting on compendium packs", () => {
+            const packs = foundryApi.collections.packs;
+            packs.forEach((pack) => {
+                expect(pack, `Pack ${pack.name} does not have a 'visible' property`).to.have.property("visible");
+                expect(pack.visible).to.be.a("boolean");
             });
         });
     });

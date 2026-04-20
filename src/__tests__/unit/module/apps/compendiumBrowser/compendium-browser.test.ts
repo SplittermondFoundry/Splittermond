@@ -11,6 +11,7 @@ import {
     SplittermondSkill,
 } from "../../../../../module/config/skillGroups";
 import SplittermondSpellItem from "../../../../../module/item/spell";
+import SplittermondItem from "../../../../../module/item/item";
 import { SpellDataModel } from "../../../../../module/item/dataModel/SpellDataModel";
 
 describe("compendium-browser filters", async () => {
@@ -253,7 +254,85 @@ describe("compendium-browser filters", async () => {
             });
         });
     });
+
+    describe("compendium-browser visibility filtering", () => {
+        it("should omit private compendia that are not visible", async () => {
+            const browser = new SplittermondCompendiumBrowser();
+            // Stub produceDisplayableItems to avoid foundryApi dependency
+            // @ts-expect-error accessing private method for test
+            browser._produceDisplayableItems = (_metadata: unknown, _index: unknown, _record: unknown) =>
+                Promise.resolve();
+            const privatePackGetIndex = sinon.stub().resolves([]);
+            const visiblePackGetIndex = sinon.stub().resolves([]);
+            const visiblePack = createMockPack("visible-pack", "Visible Pack", true, "Item", visiblePackGetIndex);
+            const privatePack = createMockPack("private-pack", "Private Pack", false, "Item", privatePackGetIndex);
+            const compendia = createMockCompendia([visiblePack, privatePack]);
+
+            await browser.recordCompendiaItemsInCategories(compendia);
+
+            expect(visiblePackGetIndex.called, "visible pack getIndex should be called").to.be.true;
+            expect(privatePackGetIndex.called, "private pack getIndex should not be called").to.be.false;
+        });
+
+        it("should omit private world items that are not visible", () => {
+            const browser = new SplittermondCompendiumBrowser();
+            const visibleItem = { type: "spell", name: "Visible Spell", visible: true } as unknown as SplittermondItem;
+            const privateItem = { type: "spell", name: "Private Spell", visible: false } as unknown as SplittermondItem;
+            const items = createMockCollection([visibleItem, privateItem]);
+
+            const result = browser.appendWorldItemsToRecord({}, items);
+
+            const allNames = Object.values(result)
+                .flat()
+                .map((item) => item.name);
+            expect(allNames).to.include("Visible Spell");
+            expect(allNames).to.not.include("Private Spell");
+        });
+
+        it("should omit private world actors that are not visible", () => {
+            const browser = new SplittermondCompendiumBrowser();
+            const visibleActor = { type: "npc", name: "Visible NPC", visible: true } as unknown as Actor;
+            const privateActor = { type: "npc", name: "Private NPC", visible: false } as unknown as Actor;
+            const actors = createMockCollection([visibleActor, privateActor]);
+
+            const result = browser.appendWorldActorsToRecord({}, actors);
+
+            const allNames = Object.values(result)
+                .flat()
+                .map((item) => item.name);
+            expect(allNames).to.include("Visible NPC");
+            expect(allNames).to.not.include("Private NPC");
+        });
+    });
 });
+
+function createMockPack(
+    packId: string,
+    label: string,
+    visible: boolean,
+    documentName: string,
+    getIndex: sinon.SinonStub
+) {
+    return {
+        metadata: { id: packId, label, name: packId },
+        documentName,
+        visible,
+        getIndex,
+    };
+}
+
+function createMockCompendia(packs: ReturnType<typeof createMockPack>[]) {
+    return {
+        filter: (fn: (pack: any) => boolean) => packs.filter(fn),
+    } as unknown as import("../../../../../module/api/foundryTypes").CompendiumPacks;
+}
+
+function createMockCollection<T>(items: T[]) {
+    return {
+        filter: (fn: (item: T) => boolean) => items.filter(fn),
+        forEach: (fn: (item: T) => void) => items.forEach(fn),
+    } as unknown as Collection<T>;
+}
 
 type SetupProbe = (probe: ReturnType<typeof getProbe>) => void;
 async function setupCompendiumBrowser(setupProbe: SetupProbe) {
