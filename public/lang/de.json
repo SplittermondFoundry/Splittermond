@@ -768,6 +768,7 @@
             }
         },
         "genesisImport": {
+            "compendiumLookup": "Daten aus Kompendien anreichern",
             "spellValidation": {
                 "nameUnknown": "Unbekannter Zauber",
                 "spellsExcluded": "Beim Import wurden einige Zauber ausgelassen. Überprüfen Sie die Browser-Konsole auf Details.",
