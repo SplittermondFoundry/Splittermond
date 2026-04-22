@@ -64,7 +64,8 @@ export abstract class FumbleHandler {
             speaker: foundryApi.getSpeaker({ actor }),
             rolls: [roll],
             content: await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/chat/skill-check.hbs`, templateContext),
-            type: foundryApi.chatMessageStyles.OTHER,
+            style: foundryApi.chatMessageStyles.OTHER,
+            type: "base",
         };
 
         return foundryApi.createChatMessage(chatData);
