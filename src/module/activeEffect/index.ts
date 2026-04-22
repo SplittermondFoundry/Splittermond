@@ -1,4 +1,4 @@
-import { SplittermondActiveEffect } from "./SplittermondActiveEffect.js";
+import { SplittermondActiveEffect } from "./SplittermondActiveEffect";
 
 export { SplittermondActiveEffect };
 
@@ -8,5 +8,5 @@ export { SplittermondActiveEffect };
  */
 export function initializeActiveEffects() {
     console.log("Splittermond | Initializing Active Effects feature");
-    CONFIG.ActiveEffect.documentClass = SplittermondActiveEffect;
+    (CONFIG as any).ActiveEffect.documentClass = SplittermondActiveEffect;
 }
