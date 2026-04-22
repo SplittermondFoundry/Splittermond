@@ -101,5 +101,32 @@
                 </ol>
             </div>
         </div>
+        {{#if activeEffects.length}}
+        <div class="active-effects">
+            <div class="list">
+                <div class="list-header">
+                    <h3>{{localize "splittermond.activeEffects"}}</h3>
+                </div>
+                <ol class="list-body">
+                    {{#each activeEffects}}
+                        <li class="list-item effect" data-effect-id="{{this.id}}">
+                            <span class="name">{{this.name}}</span>
+                            <span class="source">({{this.sourceName}})</span>
+                            <div class="list-actions">
+                                <button class="button-inline" type="button" data-action="toggle-effect"
+                                        title="{{#if this.disabled}}Enable{{else}}Disable{{/if}}">
+                                    <i class="fa {{#if this.disabled}}fa-eye-slash{{else}}fa-eye{{/if}}"
+                                       aria-hidden="true"></i>
+                                </button>
+                                <button class="button-inline" type="button" data-action="delete-effect">
+                                    <i class="fas fa-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </li>
+                    {{/each}}
+                </ol>
+            </div>
+        </div>
+        {{/if}}
     </div>
 </section>
