@@ -1,6 +1,6 @@
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "module/config/index.js";
-import { rebuildModifierEffects } from "../activeEffect/effectBuilder.js";
+import { rebuildModifierEffects } from "../activeEffect/effectBuilder.ts";
 
 export default class SplittermondItem extends Item {
     constructor(data, context = {}) {

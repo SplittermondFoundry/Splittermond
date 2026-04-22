@@ -32,7 +32,7 @@ import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDura
 import { getTimeUnitConversion } from "module/util/util.js";
 import { initializeChecks } from "module/check/index.js";
 import { initializeHooks, registerHook } from "module/hooks/index.ts";
-import { initializeActiveEffects } from "module/activeEffect/index.js";
+import { initializeActiveEffects } from "module/activeEffect/index.ts";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
