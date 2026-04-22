@@ -1,5 +1,6 @@
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "module/config/index.js";
+import { rebuildModifierEffects } from "../activeEffect/effectBuilder.js";
 
 export default class SplittermondItem extends Item {
     constructor(data, context = {}) {
@@ -100,5 +101,30 @@ export default class SplittermondItem extends Item {
                 this.actor.addModifier(this, data.modifier);
                 break;
         }
+    }
+
+    /** @override */
+    async _onCreate(data, options, userId) {
+        await super._onCreate(data, options, userId);
+        if (this.type === "statuseffect" && game.user.id === userId) {
+            await this.#rebuildStatusEffectModifiers();
+        }
+    }
+
+    /** @override */
+    async _onUpdate(changed, options, userId) {
+        await super._onUpdate(changed, options, userId);
+        if (this.type === "statuseffect" && game.user.id === userId) {
+            const modifierChanged = "modifier" in (changed.system ?? {});
+            const levelChanged = "level" in (changed.system ?? {});
+            if (modifierChanged || levelChanged) {
+                await this.#rebuildStatusEffectModifiers();
+            }
+        }
+    }
+
+    async #rebuildStatusEffectModifiers() {
+        const level = this.system.level ?? 1;
+        await rebuildModifierEffects(this, "magic", level);
     }
 }
