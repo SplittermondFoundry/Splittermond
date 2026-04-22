@@ -1,3 +1,9 @@
+## 14.0.1
+
+### Fixes
+
+- Patzer und Statuseffektkommunikation funktioniert wieder
+
 ## 14.0.0
 
 Many great thanks to @IceFreez3r. Only with his help was such a quick update possible.

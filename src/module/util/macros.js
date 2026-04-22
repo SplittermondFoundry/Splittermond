@@ -490,9 +490,9 @@ export async function addFreeXP() {
     if (updated.length) {
         const list = updated.map((n) => `<li>${foundry.utils.escapeHTML(n)}</li>`).join("");
         const heading = foundryApi.format("splittermond.addFreeXP.chatMessage", { amount: `${amount}` });
-        await ChatMessage.create({
+        await foundryApi.createChatMessage({
             content: `<p><strong>${heading}</strong></p><ul>${list}</ul>`,
-            speaker: ChatMessage.getSpeaker(),
+            speaker: foundryApi.getSpeaker({}),
         });
         foundryApi.informUser("splittermond.addFreeXP.distributed", {
             amount: `${amount}`,

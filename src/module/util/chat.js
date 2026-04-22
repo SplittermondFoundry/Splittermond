@@ -238,7 +238,8 @@ export async function prepareStatusEffectMessage(actor, data) {
         speaker: foundryApi.getSpeaker({ actor: actor }),
         content: await foundryApi.renderer(template, templateContext),
         sound: CONFIG.sounds.notification,
-        type: foundryApi.chatMessageStyles.OTHER,
+        type: "base",
+        style: foundryApi.chatMessageStyles.OTHER,
     };
     return statusEffectData;
 }
