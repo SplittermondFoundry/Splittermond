@@ -5,6 +5,7 @@ import { parseModifiers } from "module/modifiers/parsing";
 
 interface EffectCreationData {
     name: string;
+    origin: string;
     transfer: boolean;
     disabled: boolean;
     changes: Array<{
@@ -22,13 +23,15 @@ function buildEffectData(
     parsed: ParsedModifier,
     modifierType: ModifierType,
     multiplier: number,
-    rawFragment: string
+    rawFragment: string,
+    origin: string
 ): EffectCreationData {
     const valueStr = parsed.attributes.value != null ? String(parsed.attributes.value) : "0";
     // @ts-ignore -- CONST is a Foundry global
     const customMode: number = CONST.ACTIVE_EFFECT_MODES.CUSTOM;
     return {
         name: rawFragment.trim(),
+        origin: origin,
         transfer: true,
         disabled: false,
         changes: [
@@ -75,7 +78,7 @@ export async function addModifierEffects(
 
     const effectDataArray: EffectCreationData[] = modifiers.map((parsed, index) => {
         const rawFragment = rawFragments[index] ?? parsed.path;
-        return buildEffectData(parsed, modifierType, multiplier, rawFragment);
+        return buildEffectData(parsed, modifierType, multiplier, rawFragment, item.uuid);
     });
 
     if (effectDataArray.length > 0) {
@@ -121,7 +124,7 @@ export async function rebuildModifierEffects(
     // 3. Build effect data for each parsed modifier
     const effectDataArray: EffectCreationData[] = modifiers.map((parsed, index) => {
         const rawFragment = rawFragments[index] ?? parsed.path;
-        return buildEffectData(parsed, modifierType, multiplier, rawFragment);
+        return buildEffectData(parsed, modifierType, multiplier, rawFragment, item.uuid);
     });
 
     if (effectDataArray.length > 0) {

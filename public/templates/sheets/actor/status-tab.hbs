@@ -109,9 +109,10 @@
                 </div>
                 <ol class="list-body">
                     {{#each activeEffects}}
-                        <li class="list-item effect" data-effect-id="{{this.id}}">
+                        <li class="list-item effect{{#if this.disabled}} effect-disabled{{/if}}{{#if this.fromItem}} effect-from-item{{/if}}" data-effect-id="{{this.id}}">
                             <span class="name">{{this.name}}</span>
                             <span class="source">({{this.sourceName}})</span>
+                            {{#unless this.fromItem}}
                             <div class="list-actions">
                                 <button class="button-inline" type="button" data-action="toggle-effect"
                                         title="{{#if this.disabled}}Enable{{else}}Disable{{/if}}">
@@ -122,6 +123,7 @@
                                     <i class="fas fa-trash" aria-hidden="true"></i>
                                 </button>
                             </div>
+                            {{/unless}}
                         </li>
                     {{/each}}
                 </ol>
