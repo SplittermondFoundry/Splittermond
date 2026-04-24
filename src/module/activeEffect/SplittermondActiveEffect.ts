@@ -1,5 +1,3 @@
-import { foundryApi } from "../api/foundryApi";
-
 /**
  * Foundry's ActiveEffect is a global class. We declare a minimal local type
  * to satisfy the TypeScript compiler while extending it.
@@ -27,9 +25,9 @@ export class SplittermondActiveEffect extends BaseActiveEffect {
 
         // For transferred effects, this.parent is the Actor, not the Item.
         // Resolve the source item via the origin UUID.
-        const origin = (this as any).origin as string | undefined;
-        const sourceItem = origin ? foundryApi.utils.fromUUIDSync(origin) : null;
-        if (!sourceItem || !(sourceItem instanceof Item)) return false;
+        //@ts-expect-error
+        const sourceItem = this.item ?? null;
+        if (!sourceItem) return false;
 
         switch (sourceItem.type) {
             case "weapon":
