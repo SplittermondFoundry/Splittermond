@@ -1,9 +1,18 @@
+import type { IModifier } from "module/modifiers";
+import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import type { ModifierDataModel } from "./dataModel/ModifierDataModel";
+import type { InverseModifierDataModel } from "./dataModel/InverseModifierDataModel";
+import type { MultiplicativeModifierDataModel } from "./dataModel/MultiplicativeModifierDataModel";
+import type { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
+import { FoundryActiveEffect } from "module/api/ActiveEffect";
+
 /**
  * Foundry's ActiveEffect is a global class. We declare a minimal local type
  * to satisfy the TypeScript compiler while extending it.
  */
-// @ts-ignore -- ActiveEffect is a Foundry global
-const BaseActiveEffect: typeof ActiveEffect = ActiveEffect;
+
+const MODIFIER_TYPES = ["modifier", "inverseModifier", "multiplicativeModifier"] as const;
+const COST_MODIFIER_TYPES = ["costModifier"] as const;
 
 /**
  * Splittermond system subclass of ActiveEffect.
@@ -12,7 +21,9 @@ const BaseActiveEffect: typeof ActiveEffect = ActiveEffect;
  * as ActiveEffect documents. The effects are displayed in the actor's status tab but are
  * NOT yet consumed by the modifier system — the old pipeline still handles application.
  */
-export class SplittermondActiveEffect extends BaseActiveEffect {
+export class SplittermondActiveEffect extends FoundryActiveEffect {
+    declare system: IModifier | ICostModifier;
+    declare type: typeof COST_MODIFIER_TYPES | typeof MODIFIER_TYPES;
     /**
      * Determine whether this effect is suppressed based on the source item's state.
      * For example, weapon effects are suppressed when the weapon is not equipped.
@@ -24,8 +35,6 @@ export class SplittermondActiveEffect extends BaseActiveEffect {
         if (super.isSuppressed) return true;
 
         // For transferred effects, this.parent is the Actor, not the Item.
-        // Resolve the source item via the origin UUID.
-        //@ts-expect-error
         const sourceItem = this.item ?? null;
         if (!sourceItem) return false;
 
@@ -39,5 +48,60 @@ export class SplittermondActiveEffect extends BaseActiveEffect {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Returns the typed system data as an {@link IModifier} if this effect's type
+     * is one of the scalar modifier types, otherwise `null`.
+     */
+    get asModifier(): IModifier | null {
+        //@ts-expect-error - type is a Foundry property on ActiveEffect
+        if (MODIFIER_TYPES.has(this.type)) {
+            return this.system as unknown as
+                | ModifierDataModel
+                | InverseModifierDataModel
+                | MultiplicativeModifierDataModel;
+        }
+        return null;
+    }
+
+    /**
+     * Returns the typed system data as an {@link ICostModifier} if this effect's type
+     * is a cost modifier type, otherwise `null`.
+     */
+    get asCostModifier(): ICostModifier | null {
+        //@ts-expect-error - type is a Foundry property on ActiveEffect
+        if (COST_MODIFIER_TYPES.has(this.type)) {
+            return this.system as CostModifierDataModel;
+        }
+        return null;
+    }
+
+    /**
+     * Collect all {@link IModifier} instances from a collection of active effects,
+     * filtering out suppressed and disabled effects.
+     */
+    static getModifiers(effects: Iterable<SplittermondActiveEffect>): IModifier[] {
+        const result: IModifier[] = [];
+        for (const effect of effects) {
+            if (effect.disabled || effect.isSuppressed) continue;
+            const modifier = effect.asModifier;
+            if (modifier) result.push(modifier);
+        }
+        return result;
+    }
+
+    /**
+     * Collect all {@link ICostModifier} instances from a collection of active effects,
+     * filtering out suppressed and disabled effects.
+     */
+    static getCostModifiers(effects: Iterable<SplittermondActiveEffect>): ICostModifier[] {
+        const result: ICostModifier[] = [];
+        for (const effect of effects) {
+            if (effect.disabled || effect.isSuppressed) continue;
+            const costModifier = effect.asCostModifier;
+            if (costModifier) result.push(costModifier);
+        }
+        return result;
     }
 }
