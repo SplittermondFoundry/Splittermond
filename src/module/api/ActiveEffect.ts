@@ -1,8 +1,10 @@
+import { DataModel } from "./DataModel";
+
 /**
  * Minimal type declaration for Foundry's ActiveEffect document class.
  * Mirrors the pattern used by other API types (e.g. {@link FoundryChatMessage}).
  */
-export declare class FoundryActiveEffect extends FoundryDocument {
+declare class _FoundryActiveEffect extends DataModel<any, any> {
     readonly id: string;
     readonly uuid: string;
     readonly parent: FoundryDocument;
@@ -22,9 +24,13 @@ export declare class FoundryActiveEffect extends FoundryDocument {
     get item(): Item | undefined;
 
     getFlag(scope: string, key: string): unknown;
-    setFlag(scope: string, key: string, value: unknown): Promise<FoundryActiveEffect>;
+    setFlag(scope: string, key: string, value: unknown): Promise<_FoundryActiveEffect>;
 
-    update(data: object, context?: any): Promise<FoundryActiveEffect>;
+    update(data: object, context?: any): Promise<_FoundryActiveEffect>;
 
     static defineSchema(): object;
 }
+
+// @ts-ignore -- ActiveEffect is a Foundry global
+export const FoundryActiveEffect: typeof _FoundryActiveEffect = ActiveEffect;
+export type FoundryActiveEffect = _FoundryActiveEffect;

@@ -26,6 +26,15 @@ class FoundryDocument {
 
 global.Actor = class Actor extends FoundryDocument {};
 
+global.ActiveEffect = class ActiveEffect extends FoundryDocument {
+    get isSuppressed() {
+        return false;
+    }
+    get item() {
+        return undefined;
+    }
+};
+
 global.Item = class Item extends FoundryDocument {};
 
 global.ChatMessage = class ChatMessage extends FoundryDocument {
