@@ -125,8 +125,6 @@ export default class SplittermondItem extends Item {
 
     async #rebuildStatusEffectModifiers() {
         const level = this.system.level ?? 1;
-        console.log(`Splittermond | rebuildStatusEffectModifiers for "${this.name}" (id=${this.system.id}), modifier="${this.system.modifier}", level=${level}`);
         await rebuildModifierEffects(this, "magic", level);
-        console.log(`Splittermond | After rebuild, item effects count:`, (this).effects?.size ?? 0);
     }
 }

@@ -1,0 +1,67 @@
+.effects-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+
+    .effects-add {
+        display: flex;
+        gap: 0.5em;
+        align-items: center;
+
+        input.effect-modifier-input {
+            flex: 1;
+        }
+
+        button {
+            white-space: nowrap;
+        }
+    }
+
+    .effects-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25em;
+    }
+
+    .effect-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.35em 0.5em;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.04);
+
+        .effect-card-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+
+            .effect-name {
+                font-weight: bold;
+            }
+
+            .effect-disabled-badge {
+                font-size: 0.8em;
+                opacity: 0.6;
+                font-style: italic;
+            }
+        }
+
+        .effect-card-actions {
+            display: flex;
+            gap: 0.25em;
+        }
+    }
+
+    .effects-empty {
+        opacity: 0.6;
+        font-style: italic;
+        text-align: center;
+        margin: 1em 0;
+    }
+}
+
