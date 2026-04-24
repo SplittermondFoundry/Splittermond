@@ -9,11 +9,14 @@
         align-items: center;
 
         input.effect-modifier-input {
-            flex: 1;
+            flex: 0 1 auto;
+            min-width: 0;
         }
 
-        button {
+        button.effect-add-button {
             white-space: nowrap;
+            padding: 0.25em 0.5em;
+            cursor: pointer;
         }
     }
 
@@ -63,5 +66,17 @@
         text-align: center;
         margin: 1em 0;
     }
+
+    .effect-card.effect-disabled {
+        opacity: 0.5;
+        background: rgba(0, 0, 0, 0.02);
+    }
 }
 
+.list-item.effect-disabled {
+    opacity: 0.5;
+}
+
+.list-item.effect-from-item {
+    font-style: italic;
+}
