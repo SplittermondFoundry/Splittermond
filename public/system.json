@@ -39,6 +39,12 @@
         "filePathFields": {}
       }
     },
+    "ActiveEffect": {
+      "modifier": {},
+      "inverseModifier": {},
+      "multiplicativeModifier": {},
+      "costModifier": {}
+    },
     "Item": {
       "ancestry": {
         "htmlFields": [
