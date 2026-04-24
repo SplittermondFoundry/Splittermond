@@ -124,6 +124,13 @@
         "spellEffect": "Zaubereffekt",
         "spellEffects": "Zaubereffekte",
         "activeEffects": "Aktive Effekte",
+        "effects": "Effekte",
+        "effectsPanel": {
+            "inputPlaceholder": "Modifikator eingeben, z.B. VTD +2, LP +1",
+            "add": "Hinzufügen",
+            "disabled": "Deaktiviert",
+            "empty": "Keine Effekte vorhanden."
+        },
         "furtherActions": "Weitere Aktionen",
         "update": "Aktualisieren",
         "overwrite": "Überschreiben",
