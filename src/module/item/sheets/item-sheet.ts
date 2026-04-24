@@ -225,6 +225,18 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     protected async _onRender(context: ApplicationRenderContext, options: any): Promise<void> {
         await super._onRender(context, options);
         autoExpandInputs(this.element);
+
+        const modifierInput = this.element.querySelector<HTMLInputElement>(".effect-modifier-input");
+        if (modifierInput) {
+            modifierInput.addEventListener("keydown", (event: KeyboardEvent) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const addButton = this.element.querySelector<HTMLButtonElement>("[data-action='add-effect']");
+                    addButton?.click();
+                }
+            });
+        }
     }
 
     static #increaseValue(_event: Event, target: HTMLElement): void {

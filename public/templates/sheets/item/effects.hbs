@@ -3,7 +3,7 @@
         <div class="effects-add">
             <input type="text" class="effect-modifier-input"
                    placeholder="{{localize 'splittermond.effectsPanel.inputPlaceholder'}}" />
-            <button class="button-inline" type="button" data-action="add-effect">
+            <button class="effect-add-button" type="button" data-action="add-effect">
                 <i class="fas fa-plus" aria-hidden="true"></i>
                 {{localize "splittermond.effectsPanel.add"}}
             </button>
@@ -11,7 +11,7 @@
         {{#if effects.length}}
         <ol class="effects-list">
             {{#each effects}}
-            <li class="effect-card" data-effect-id="{{this.id}}">
+            <li class="effect-card{{#if this.disabled}} effect-disabled{{/if}}" data-effect-id="{{this.id}}">
                 <div class="effect-card-content">
                     <span class="effect-name">{{this.name}}</span>
                     {{#if this.disabled}}

@@ -151,6 +151,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 name: e.name,
                 disabled: e.disabled,
                 sourceName: e.sourceName,
+                fromItem: e.parent !== this.actor,
             }));
 
         sheetData.combatTabs = {
