@@ -5,6 +5,7 @@ import type { InverseModifierDataModel } from "./dataModel/InverseModifierDataMo
 import type { MultiplicativeModifierDataModel } from "./dataModel/MultiplicativeModifierDataModel";
 import type { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
 import { FoundryActiveEffect } from "module/api/ActiveEffect";
+import { isMember } from "module/util/util";
 
 /**
  * Foundry's ActiveEffect is a global class. We declare a minimal local type
@@ -13,6 +14,8 @@ import { FoundryActiveEffect } from "module/api/ActiveEffect";
 
 const MODIFIER_TYPES = ["modifier", "inverseModifier", "multiplicativeModifier"] as const;
 const COST_MODIFIER_TYPES = ["costModifier"] as const;
+
+export type EffectType = (typeof MODIFIER_TYPES)[number] | (typeof COST_MODIFIER_TYPES)[number];
 
 /**
  * Splittermond system subclass of ActiveEffect.
@@ -23,7 +26,7 @@ const COST_MODIFIER_TYPES = ["costModifier"] as const;
  */
 export class SplittermondActiveEffect extends FoundryActiveEffect {
     declare system: IModifier | ICostModifier;
-    declare type: typeof COST_MODIFIER_TYPES | typeof MODIFIER_TYPES;
+    declare type: EffectType;
     /**
      * Determine whether this effect is suppressed based on the source item's state.
      * For example, weapon effects are suppressed when the weapon is not equipped.
@@ -55,8 +58,7 @@ export class SplittermondActiveEffect extends FoundryActiveEffect {
      * is one of the scalar modifier types, otherwise `null`.
      */
     get asModifier(): IModifier | null {
-        //@ts-expect-error - type is a Foundry property on ActiveEffect
-        if (MODIFIER_TYPES.has(this.type)) {
+        if (isMember(MODIFIER_TYPES, this.type)) {
             return this.system as unknown as
                 | ModifierDataModel
                 | InverseModifierDataModel
@@ -70,8 +72,7 @@ export class SplittermondActiveEffect extends FoundryActiveEffect {
      * is a cost modifier type, otherwise `null`.
      */
     get asCostModifier(): ICostModifier | null {
-        //@ts-expect-error - type is a Foundry property on ActiveEffect
-        if (COST_MODIFIER_TYPES.has(this.type)) {
+        if (isMember(COST_MODIFIER_TYPES, this.type)) {
             return this.system as CostModifierDataModel;
         }
         return null;
