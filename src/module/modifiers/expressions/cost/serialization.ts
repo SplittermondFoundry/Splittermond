@@ -1,0 +1,72 @@
+import {
+    AddExpression,
+    AmountExpression,
+    type CostExpression,
+    MultiplyExpression,
+    ReferenceExpression,
+    SubtractExpression,
+} from "module/modifiers/expressions/cost/definitions";
+import {
+    serialize as serializeScalar,
+    deserialize as deserializeScalar,
+} from "module/modifiers/expressions/scalar/serialization";
+import { CostModifier } from "module/util/costs/Cost";
+
+type SerializedCostExpression = Record<string, unknown> & { type: string };
+
+export function serialize(expression: CostExpression): SerializedCostExpression {
+    if (expression instanceof AmountExpression) {
+        return { type: "amount", amount: expression.amount.toObject() };
+    } else if (expression instanceof ReferenceExpression) {
+        const uuid = expression.uuid;
+        if (!uuid) {
+            throw new Error(
+                `Splittermond | Cannot serialize cost ReferenceExpression: source object does not have a uuid property.`
+            );
+        }
+        return {
+            type: "reference",
+            propertyPath: expression.propertyPath,
+            stringRep: expression.stringRep,
+            uuid,
+        };
+    } else if (expression instanceof AddExpression) {
+        return { type: "add", left: serialize(expression.left), right: serialize(expression.right) };
+    } else if (expression instanceof SubtractExpression) {
+        return { type: "subtract", left: serialize(expression.left), right: serialize(expression.right) };
+    } else if (expression instanceof MultiplyExpression) {
+        return { type: "multiply", scalar: serializeScalar(expression.scalar), cost: serialize(expression.cost) };
+    }
+    throw new Error(`Splittermond | Cannot serialize unknown cost expression type: ${expression}`);
+}
+
+export function deserialize(data: SerializedCostExpression): CostExpression {
+    switch (data.type) {
+        case "amount":
+            return new AmountExpression(new CostModifier(data.amount as any));
+        case "reference":
+            return new ReferenceExpression(
+                data.propertyPath as string,
+                null,
+                data.stringRep as string,
+                data.uuid as string
+            );
+        case "add":
+            return new AddExpression(
+                deserialize(data.left as SerializedCostExpression),
+                deserialize(data.right as SerializedCostExpression)
+            );
+        case "subtract":
+            return new SubtractExpression(
+                deserialize(data.left as SerializedCostExpression),
+                deserialize(data.right as SerializedCostExpression)
+            );
+        case "multiply":
+            return new MultiplyExpression(
+                deserializeScalar(data.scalar as any),
+                deserialize(data.cost as SerializedCostExpression)
+            );
+        default:
+            throw new Error(`Splittermond | Cannot deserialize unknown cost expression type: ${data.type}`);
+    }
+}

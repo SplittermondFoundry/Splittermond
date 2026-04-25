@@ -19,6 +19,7 @@ export * from "./Stringifier";
 export * from "./Comparator";
 export * from "./rollTermMapper";
 export * from "./toRollMapper";
+export * from "./serialization";
 
 /**
  * Splittermond roll terms generally follow the pattern of RollTerm, OperatorTerm, NumericTerm. Unfortuantely,
