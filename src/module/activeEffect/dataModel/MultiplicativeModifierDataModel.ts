@@ -1,4 +1,4 @@
-import { DataModelSchemaType, fields } from "../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, fieldExtensions } from "../../data/SplittermondDataModel";
 import { SplittermondBaseActiveEffect } from "../../data/SplittermondBaseActiveEffect";
 import type { IModifier, ModifierAttributes, ModifierType } from "module/modifiers";
 import type { TooltipFormula } from "module/util/tooltip";
@@ -7,16 +7,22 @@ import {
     asString,
     condense,
     type Expression,
-    evaluate,
     isGreaterThan,
     isLessThan,
     of,
 } from "module/modifiers/expressions/scalar";
+import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
+
+type SerializedExpression = Record<string, unknown> & { type: string };
 
 function MultiplicativeModifierDataModelSchema() {
     return {
         path: new fields.StringField({ required: true, nullable: false }),
-        numericValue: new fields.NumberField({ required: true, nullable: false }),
+        serializedValue: new fieldExtensions.TypedObjectField<SerializedExpression, true, false>({
+            required: true,
+            nullable: false,
+            validate: (v: SerializedExpression) => typeof v === "object" && "type" in v,
+        }),
         selectable: new fields.BooleanField({ required: true, nullable: false, initial: false }),
         attributeName: new fields.StringField({ required: true, nullable: false }),
         attributeType: new fields.StringField({ required: true, nullable: true, initial: null }),
@@ -36,11 +42,10 @@ export class MultiplicativeModifierDataModel
     static defineSchema = MultiplicativeModifierDataModelSchema;
 
     /**
-     * Create initialization data for a MultiplicativeModifierDataModel, mirroring the
-     * {@link MultiplicativeModifier} constructor signature.
+     * Create initialization data for a MultiplicativeModifierDataModel.
      *
      * @param groupId Modifier group identifier
-     * @param value The modifier expression (will be evaluated to a number)
+     * @param value The modifier expression (will be serialized)
      * @param attributes Secondary selection characteristics
      * @param selectable Whether the modifier is selectable as a roll option
      */
@@ -52,7 +57,7 @@ export class MultiplicativeModifierDataModel
     ): MultiplicativeModifierDataModelType {
         return {
             path: groupId,
-            numericValue: evaluate(value),
+            serializedValue: serialize(value),
             attributeName: attributes.name,
             attributeType: attributes.type,
             selectable,
@@ -60,7 +65,7 @@ export class MultiplicativeModifierDataModel
     }
 
     get value(): Expression {
-        return of(this.numericValue);
+        return deserialize(this.serializedValue);
     }
 
     get isBonus(): boolean {
