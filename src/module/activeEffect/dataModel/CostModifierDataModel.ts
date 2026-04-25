@@ -1,18 +1,22 @@
-import { DataModelSchemaType, fields } from "../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, fieldExtensions } from "../../data/SplittermondDataModel";
 import { SplittermondBaseActiveEffect } from "../../data/SplittermondBaseActiveEffect";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
-import { type CostExpression, of, evaluate as evaluateCost } from "module/modifiers/expressions/cost";
-import { CostModifier } from "module/util/costs/Cost";
+import { type CostExpression } from "module/modifiers/expressions/cost";
+import {
+    serialize,
+    deserialize,
+} from "module/modifiers/expressions/cost/serialization";
+
+type SerializedCostExpression = Record<string, unknown> & { type: string };
 
 function CostModifierDataModelSchema() {
     return {
         label: new fields.StringField({ required: true, nullable: false }),
-        /** The non-consumed portion of the cost reduction */
-        nonConsumed: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
-        /** The consumed portion of the cost reduction */
-        consumed: new fields.NumberField({ required: true, nullable: false, initial: 0 }),
-        /** Whether the cost is channeled */
-        channeled: new fields.BooleanField({ required: true, nullable: false, initial: false }),
+        serializedValue: new fieldExtensions.TypedObjectField<SerializedCostExpression, true, false>({
+            required: true,
+            nullable: false,
+            validate: (v: SerializedCostExpression) => typeof v === "object" && "type" in v,
+        }),
         /** The skill attached to the item carrying this modifier */
         skill: new fields.StringField({ required: true, nullable: true, initial: null }),
         /** Optional skill attribute for the cost modifier */
@@ -35,11 +39,10 @@ export class CostModifierDataModel
     static defineSchema = CostModifierDataModelSchema;
 
     /**
-     * Create initialization data for a CostModifierDataModel, mirroring the
-     * shape produced by {@link CostModifierHandler.buildModifier}.
+     * Create initialization data for a CostModifierDataModel.
      *
      * @param label The unparsed input formula for spell reductions
-     * @param value The cost expression (will be evaluated to extract cost components)
+     * @param value The cost expression (will be serialized)
      * @param skill The skill attached to the item carrying this modifier
      * @param attributes Optional skill/type attributes for the cost modifier
      */
@@ -49,13 +52,9 @@ export class CostModifierDataModel
         skill: string | null = null,
         attributes: { skill?: string; type?: string } = {},
     ): CostModifierDataModelType {
-        const evaluated = evaluateCost(value);
-        const obj = evaluated.toObject();
         return {
             label,
-            nonConsumed: obj._exhausted + obj._channeled,
-            consumed: obj._consumed + obj._channeledConsumed,
-            channeled: obj._channeled !== 0 || obj._channeledConsumed !== 0,
+            serializedValue: serialize(value),
             skill,
             attributeSkill: attributes.skill ?? null,
             attributeType: attributes.type ?? null,
@@ -63,12 +62,7 @@ export class CostModifierDataModel
     }
 
     get value(): CostExpression {
-        return of(new CostModifier({
-            _channeled: this.channeled ? this.nonConsumed : 0,
-            _channeledConsumed: this.channeled ? this.consumed : 0,
-            _exhausted: this.channeled ? 0 : this.nonConsumed,
-            _consumed: this.channeled ? 0 : this.consumed,
-        }));
+        return deserialize(this.serializedValue);
     }
 
     get attributes(): { skill?: string; type?: string } {
