@@ -1,5 +1,6 @@
 import { FoundryRoll } from "module/api/Roll";
 import { RollExpression } from "./rollExpressions";
+import { foundryApi } from "module/api/foundryApi";
 
 export * from "./rollExpressions";
 
@@ -128,12 +129,50 @@ class OneExpression extends AmountExpression {
     }
 }
 
+function hasUuid(object: object | null): object is { uuid: string } {
+    return !!object && "uuid" in object && typeof object.uuid === "string";
+}
+
 export class ReferenceExpression {
+    private _source: object | null;
+    private readonly _uuid: string | null;
+
     constructor(
         public readonly propertyPath: string,
-        public readonly source: object,
-        public readonly stringRep: string
-    ) {}
+        source: object | null,
+        public readonly stringRep: string,
+        uuid: string | null = null
+    ) {
+        this._source = source;
+        this._uuid = uuid ?? (hasUuid(source) ? source.uuid : null);
+    }
+
+    get source(): object {
+        if (this._source) {
+            return this._source;
+        }
+        if (this._uuid) {
+            const resolved = foundryApi.utils.fromUUIDSync(this._uuid);
+            if (!resolved) {
+                throw new Error(
+                    `Splittermond | Cannot resolve ReferenceExpression source: fromUuidSync returned null for uuid '${this._uuid}'.`
+                );
+            }
+            this._source = resolved;
+            return resolved;
+        }
+        throw new Error(`Splittermond | ReferenceExpression has neither a source object nor a uuid to resolve.`);
+    }
+
+    get uuid(): string | null {
+        if (this._uuid) {
+            return this._uuid;
+        }
+        if (hasUuid(this._source)) {
+            return this._source.uuid;
+        }
+        return null;
+    }
 }
 
 export class AddExpression {

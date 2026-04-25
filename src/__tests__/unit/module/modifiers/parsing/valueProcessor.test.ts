@@ -56,11 +56,9 @@ describe("Value Processor", () => {
         expect(errors).to.have.lengthOf(0);
         const expr = result!.value as ReferenceExpression;
         expect(expr).to.be.an.instanceOf(ReferenceExpression);
-        expect(expr).to.deep.equal({
-            propertyPath: "existing.path",
-            source: mockSource,
-            stringRep: "existing.path",
-        });
+        expect(expr.propertyPath).to.equal("existing.path");
+        expect(expr.source).to.equal(mockSource);
+        expect(expr.stringRep).to.equal("existing.path");
     });
 
     it("should collect validation errors for invalid references", () => {
