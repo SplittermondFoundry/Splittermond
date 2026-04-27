@@ -4,7 +4,7 @@ import type { ModifierDataModel } from "./dataModel/ModifierDataModel";
 import type { InverseModifierDataModel } from "./dataModel/InverseModifierDataModel";
 import type { MultiplicativeModifierDataModel } from "./dataModel/MultiplicativeModifierDataModel";
 import type { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
-import { FoundryActiveEffect } from "module/api/ActiveEffect";
+import { SplittermondBaseActiveEffect } from "module/data/SplittermondBaseActiveEffect";
 import { isMember } from "module/util/util";
 
 /**
@@ -24,7 +24,7 @@ export type EffectType = (typeof MODIFIER_TYPES)[number] | (typeof COST_MODIFIER
  * as ActiveEffect documents. The effects are displayed in the actor's status tab but are
  * NOT yet consumed by the modifier system — the old pipeline still handles application.
  */
-export class SplittermondActiveEffect extends FoundryActiveEffect {
+export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
     declare system: IModifier | ICostModifier;
     declare type: EffectType;
     /**
