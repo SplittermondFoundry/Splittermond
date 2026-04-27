@@ -11,6 +11,7 @@ import {
     isLessThanZero,
 } from "module/modifiers/expressions/scalar";
 import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
+import type { DataModelConstructorInput } from "module/api/DataModel";
 
 type SerializedExpression = Record<string, unknown> & { type: string };
 
@@ -37,6 +38,13 @@ export type ModifierDataModelType = DataModelSchemaType<typeof ModifierDataModel
 export class ModifierDataModel extends SplittermondDataModel<ModifierDataModelType, FoundryActiveEffect> implements IModifier {
     static defineSchema = ModifierDataModelSchema;
 
+    readonly value: Expression;
+
+    constructor(data: DataModelConstructorInput<ModifierDataModelType>, context: unknown) {
+        super(data, context);
+        this.value = deserialize(this.serializedValue);
+    }
+
     /**
      * Create initialization data for a ModifierDataModel, mirroring the
      * {@link Modifier} constructor signature.
@@ -59,10 +67,6 @@ export class ModifierDataModel extends SplittermondDataModel<ModifierDataModelTy
             attributeType: attributes.type,
             selectable,
         };
-    }
-
-    get value(): Expression {
-        return deserialize(this.serializedValue);
     }
 
     get isBonus(): boolean {
