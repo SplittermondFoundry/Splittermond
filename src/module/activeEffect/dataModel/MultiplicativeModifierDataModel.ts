@@ -12,6 +12,7 @@ import {
     of,
 } from "module/modifiers/expressions/scalar";
 import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
+import type { DataModelConstructorInput } from "module/api/DataModel";
 
 type SerializedExpression = Record<string, unknown> & { type: string };
 
@@ -41,6 +42,13 @@ export class MultiplicativeModifierDataModel
 {
     static defineSchema = MultiplicativeModifierDataModelSchema;
 
+    readonly value: Expression;
+
+    constructor(data: DataModelConstructorInput<MultiplicativeModifierDataModelType>, context: unknown) {
+        super(data, context);
+        this.value = deserialize(this.serializedValue);
+    }
+
     /**
      * Create initialization data for a MultiplicativeModifierDataModel.
      *
@@ -62,10 +70,6 @@ export class MultiplicativeModifierDataModel
             attributeType: attributes.type,
             selectable,
         };
-    }
-
-    get value(): Expression {
-        return deserialize(this.serializedValue);
     }
 
     get isBonus(): boolean {
