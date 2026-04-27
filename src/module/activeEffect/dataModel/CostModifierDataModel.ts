@@ -1,11 +1,8 @@
-import { DataModelSchemaType, fields, fieldExtensions } from "../../data/SplittermondDataModel";
-import { SplittermondBaseActiveEffect } from "../../data/SplittermondBaseActiveEffect";
+import { DataModelSchemaType, fields, fieldExtensions, SplittermondDataModel } from "../../data/SplittermondDataModel";
+import type { FoundryActiveEffect } from "../../api/ActiveEffect";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import { type CostExpression } from "module/modifiers/expressions/cost";
-import {
-    serialize,
-    deserialize,
-} from "module/modifiers/expressions/cost/serialization";
+import { serialize, deserialize } from "module/modifiers/expressions/cost/serialization";
 
 type SerializedCostExpression = Record<string, unknown> & { type: string };
 
@@ -33,7 +30,7 @@ export type CostModifierDataModelType = DataModelSchemaType<typeof CostModifierD
  * Captures the cost reduction/addition data that the {@link CostModifierHandler} produces.
  */
 export class CostModifierDataModel
-    extends SplittermondBaseActiveEffect<CostModifierDataModelType>
+    extends SplittermondDataModel<CostModifierDataModelType, FoundryActiveEffect>
     implements ICostModifier
 {
     static defineSchema = CostModifierDataModelSchema;
@@ -50,7 +47,7 @@ export class CostModifierDataModel
         label: string,
         value: CostExpression,
         skill: string | null = null,
-        attributes: { skill?: string; type?: string } = {},
+        attributes: { skill?: string; type?: string } = {}
     ): CostModifierDataModelType {
         return {
             label,
