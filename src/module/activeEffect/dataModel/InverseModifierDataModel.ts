@@ -1,5 +1,5 @@
-import { DataModelSchemaType, fields, fieldExtensions } from "../../data/SplittermondDataModel";
-import { SplittermondBaseActiveEffect } from "../../data/SplittermondBaseActiveEffect";
+import { DataModelSchemaType, fields, fieldExtensions, SplittermondDataModel } from "../../data/SplittermondDataModel";
+import type { FoundryActiveEffect } from "../../api/ActiveEffect";
 import type { IModifier, ModifierAttributes, ModifierType } from "module/modifiers";
 import type { TooltipFormula } from "module/util/tooltip";
 import {
@@ -35,7 +35,7 @@ export type InverseModifierDataModelType = DataModelSchemaType<typeof InverseMod
  * Inverted logic: a bonus when value < 0, a malus when value > 0.
  */
 export class InverseModifierDataModel
-    extends SplittermondBaseActiveEffect<InverseModifierDataModelType>
+    extends SplittermondDataModel<InverseModifierDataModelType, FoundryActiveEffect>
     implements IModifier
 {
     static defineSchema = InverseModifierDataModelSchema;
