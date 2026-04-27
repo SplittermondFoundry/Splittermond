@@ -11,6 +11,7 @@ import {
     isLessThanZero,
 } from "module/modifiers/expressions/scalar";
 import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
+import type { DataModelConstructorInput } from "module/api/DataModel";
 
 type SerializedExpression = Record<string, unknown> & { type: string };
 
@@ -40,6 +41,13 @@ export class InverseModifierDataModel
 {
     static defineSchema = InverseModifierDataModelSchema;
 
+    readonly value: Expression;
+
+    constructor(data: DataModelConstructorInput<InverseModifierDataModelType>, context: unknown) {
+        super(data, context);
+        this.value = deserialize(this.serializedValue);
+    }
+
     /**
      * Create initialization data for an InverseModifierDataModel.
      *
@@ -61,10 +69,6 @@ export class InverseModifierDataModel
             attributeType: attributes.type,
             selectable,
         };
-    }
-
-    get value(): Expression {
-        return deserialize(this.serializedValue);
     }
 
     get isBonus(): boolean {
