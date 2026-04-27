@@ -3,6 +3,7 @@ import type { FoundryActiveEffect } from "../../api/ActiveEffect";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import { type CostExpression } from "module/modifiers/expressions/cost";
 import { serialize, deserialize } from "module/modifiers/expressions/cost/serialization";
+import type { DataModelConstructorInput } from "module/api/DataModel";
 
 type SerializedCostExpression = Record<string, unknown> & { type: string };
 
@@ -35,6 +36,13 @@ export class CostModifierDataModel
 {
     static defineSchema = CostModifierDataModelSchema;
 
+    readonly value: CostExpression;
+
+    constructor(data: DataModelConstructorInput<CostModifierDataModelType>, context: unknown) {
+        super(data, context);
+        this.value = deserialize(this.serializedValue);
+    }
+
     /**
      * Create initialization data for a CostModifierDataModel.
      *
@@ -56,10 +64,6 @@ export class CostModifierDataModel
             attributeSkill: attributes.skill ?? null,
             attributeType: attributes.type ?? null,
         };
-    }
-
-    get value(): CostExpression {
-        return deserialize(this.serializedValue);
     }
 
     get attributes(): { skill?: string; type?: string } {
