@@ -1,10 +1,10 @@
-import { SplittermondDataModel } from "./SplittermondDataModel";
-import type { FoundryActiveEffect } from "../api/ActiveEffect";
+import { FoundryActiveEffect } from "../api/ActiveEffect";
 
 /**
- * Base class for all ActiveEffect DataModels in the Splittermond system.
- * Analogous to {@link SplittermondDataModel} but typed with {@link FoundryActiveEffect} as parent.
+ * Base class for the Splittermond system's ActiveEffect document subclass.
+ * Extends {@link FoundryActiveEffect} so that concrete subclasses like
+ * {@link SplittermondActiveEffect} can share common behaviour here.
  */
-const SplittermondBaseActiveEffect = class<T extends object> extends SplittermondDataModel<T, FoundryActiveEffect> {};
+const SplittermondBaseActiveEffect = class extends FoundryActiveEffect {};
 
 export { SplittermondBaseActiveEffect };
