@@ -1,13 +1,11 @@
-import { DataModel } from "./DataModel";
-
 /**
  * Minimal type declaration for Foundry's ActiveEffect document class.
  * Mirrors the pattern used by other API types (e.g. {@link FoundryChatMessage}).
  */
-declare class _FoundryActiveEffect extends DataModel<any, any> {
+declare class _FoundryActiveEffect extends FoundryDocument {
     readonly id: string;
     readonly uuid: string;
-    readonly parent: FoundryDocument;
+    readonly parent: FoundryDocument | undefined;
     readonly name: string;
     readonly origin: string;
     readonly transfer: boolean;
