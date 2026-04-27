@@ -1,5 +1,5 @@
-import { DataModelSchemaType, fields, fieldExtensions } from "../../data/SplittermondDataModel";
-import { SplittermondBaseActiveEffect } from "../../data/SplittermondBaseActiveEffect";
+import { DataModelSchemaType, fields, fieldExtensions, SplittermondDataModel } from "../../data/SplittermondDataModel";
+import type { FoundryActiveEffect } from "../../api/ActiveEffect";
 import type { IModifier, ModifierAttributes, ModifierType } from "module/modifiers";
 import type { TooltipFormula } from "module/util/tooltip";
 import {
@@ -34,7 +34,7 @@ export type ModifierDataModelType = DataModelSchemaType<typeof ModifierDataModel
  * DataModel for the standard additive {@link Modifier}.
  * A bonus when value > 0, a malus when value < 0.
  */
-export class ModifierDataModel extends SplittermondBaseActiveEffect<ModifierDataModelType> implements IModifier {
+export class ModifierDataModel extends SplittermondDataModel<ModifierDataModelType, FoundryActiveEffect> implements IModifier {
     static defineSchema = ModifierDataModelSchema;
 
     /**
