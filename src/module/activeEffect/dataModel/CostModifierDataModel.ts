@@ -6,6 +6,7 @@ import { serialize, deserialize } from "module/modifiers/expressions/cost/serial
 import type { DataModelConstructorInput } from "module/api/DataModel";
 
 type SerializedCostExpression = Record<string, unknown> & { type: string };
+type CostModifierAttributes = { skill?: string; type?: string };
 
 function CostModifierDataModelSchema() {
     return {
@@ -17,10 +18,12 @@ function CostModifierDataModelSchema() {
         }),
         /** The skill attached to the item carrying this modifier */
         skill: new fields.StringField({ required: true, nullable: true, initial: null }),
-        /** Optional skill attribute for the cost modifier */
-        attributeSkill: new fields.StringField({ required: true, nullable: true, initial: null }),
-        /** Optional type attribute for the cost modifier */
-        attributeType: new fields.StringField({ required: true, nullable: true, initial: null }),
+        attributes: new fieldExtensions.TypedObjectField<CostModifierAttributes, true, false>({
+            required: true,
+            nullable: false,
+            initial: {},
+            validate: (v: CostModifierAttributes) => typeof v === "object",
+        }),
     };
 }
 
@@ -61,15 +64,11 @@ export class CostModifierDataModel
             label,
             serializedValue: serialize(value),
             skill,
-            attributeSkill: attributes.skill ?? null,
-            attributeType: attributes.type ?? null,
+            attributes,
         };
     }
 
     get attributes(): { skill?: string; type?: string } {
-        return {
-            skill: this.attributeSkill ?? undefined,
-            type: this.attributeType ?? undefined,
-        };
+        return (this as any).toObject().attributes;
     }
 }
