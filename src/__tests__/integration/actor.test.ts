@@ -16,7 +16,7 @@ import SplittermondActorSheet from "../../module/actor/sheets/actor-sheet";
 import { withActor } from "./fixtures";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import { passesEventually } from "../util";
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import { of } from "module/modifiers/expressions/scalar";
 import type { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
 import type SplittermondWeaponItem from "module/item/weapon";
@@ -476,7 +476,7 @@ export function actorTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
-                actor.modifier.addModifier(new Modifier("item.damage", of(5), { name: "Test", type: "innate" }));
+                actor.modifier.addModifier(Modifier.create("item.damage", of(5), { name: "Test", type: "innate" }));
                 const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
 
                 const assertion = new Promise((resolve, reject) => {

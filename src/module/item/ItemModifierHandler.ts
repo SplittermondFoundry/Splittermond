@@ -1,5 +1,5 @@
 import type { ScalarModifier, Value } from "../modifiers/parsing";
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import { splittermond } from "../config";
 import type SplittermondItem from "./item";
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
@@ -55,7 +55,7 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
         const operator = modifier.path.endsWith("multiplier") ? pow : times;
         const adjustedValue = operator(modifier.value, this.multiplier);
 
-        return [new Modifier(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false)];
+        return [Modifier.create(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false)];
     }
 
     mapAttribute(path: string, attribute: string, value: Value): string | undefined {
