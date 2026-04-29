@@ -2,17 +2,15 @@ import type { SplittermondSkill } from "module/config/skillGroups";
 import { BarebonesModifierHandler } from "module/actor/modifiers/BarebonesModifierHandler";
 import type { ScalarModifier } from "module/modifiers/parsing";
 import type { IModifier } from "module/modifiers";
-import Modifier from "module/modifiers/impl/modifier";
-import { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
+import { Modifier, InverseModifier, MultiplicativeModifier } from "module/activeEffect";
 import type { Expression } from "module/modifiers/expressions/scalar";
-import { InverseModifier } from "module/modifiers/impl/InverseModifier";
 
 export function IndividualSkillHandlers(skill: SplittermondSkill) {
     return class extends BarebonesModifierHandler({ topLevelPath: skill, optionalAttributes: ["emphasis"] }) {
         buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
-                return new Modifier(
+                return Modifier.create(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
@@ -29,7 +27,7 @@ export function BasicModifierHandler(inputPath: string, groupId?: string) {
         buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
-                return new Modifier(
+                return Modifier.create(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
@@ -45,7 +43,7 @@ export function InverseModifierHandler(inputPath: string, groupId?: Lowercase<st
         buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
-                return new InverseModifier(
+                return InverseModifier.create(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
@@ -69,7 +67,7 @@ export function ProductModifierHandler(
         protected buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
-                return new MultiplicativeModifier(
+                return MultiplicativeModifier.create(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.name },
@@ -95,7 +93,7 @@ export function TickHandicapHandler(inputPath: string) {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
                 const demoddedId = mod.groupId.replace(/\.mod$/i, "");
-                return new Modifier(demoddedId, mod.value, mod.attributes, mod.origin, mod.selectable);
+                return Modifier.create(demoddedId, mod.value, mod.attributes, mod.origin, mod.selectable);
             });
         }
     };
@@ -115,7 +113,7 @@ export function SkillFilterHandler<CONFIG extends { topLevelPath: string }>(conf
                 if (mod.attributes.skill) {
                     mod.attributes.skill = this.commonNormalizers.normalizeSkill(mod.groupId, mod.attributes.skill);
                 }
-                return new Modifier(mod.groupId, mod.value, mod.attributes, mod.origin, mod.selectable);
+                return Modifier.create(mod.groupId, mod.value, mod.attributes, mod.origin, mod.selectable);
             });
         }
     };

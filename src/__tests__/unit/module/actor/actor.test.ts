@@ -14,7 +14,7 @@ import { asMock } from "../../settingsMock";
 import { settings } from "module/settings";
 import { JSDOM } from "jsdom";
 import { StrengthDataModel } from "module/item/dataModel/StrengthDataModel";
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import { of } from "module/modifiers/expressions/scalar";
 import { actualAddModifierFunction } from "module/actor/addModifierAdapter";
 import { initializeModifiers } from "module/modifiers";
@@ -266,7 +266,7 @@ describe("SplittermondActor", () => {
                 actor.system.attributes.constitution.updateSource({ initial: 3, advances: 0 });
                 actor.prepareBaseData();
                 actor.modifier.addModifier(
-                    new Modifier(
+                    Modifier.create(
                         "actor.healthregeneration.multiplier",
                         of(multiplier),
                         {
@@ -289,7 +289,7 @@ describe("SplittermondActor", () => {
             actor.system.attributes.constitution.updateSource({ initial: 3, advances: 0 });
             actor.prepareBaseData();
             actor.modifier.addModifier(
-                new Modifier(
+                Modifier.create(
                     "actor.healthregeneration.bonus",
                     of(2),
                     {
@@ -311,7 +311,7 @@ describe("SplittermondActor", () => {
             actor.system.attributes.willpower.updateSource({ initial: 3, advances: 0 });
             actor.prepareBaseData();
             actor.modifier.addModifier(
-                new Modifier(
+                Modifier.create(
                     "actor.focusregeneration.multiplier",
                     of(3),
                     {
@@ -333,7 +333,7 @@ describe("SplittermondActor", () => {
             actor.system.attributes.constitution.updateSource({ initial: 3, advances: 0 });
             actor.prepareBaseData();
             actor.modifier.addModifier(
-                new Modifier(
+                Modifier.create(
                     "actor.focusregeneration.bonus",
                     of(2),
                     {

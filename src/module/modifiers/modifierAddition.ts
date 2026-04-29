@@ -3,7 +3,7 @@ import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
 import { type FocusModifier, parseModifiers, type ScalarModifier } from "./parsing";
 import { Expression as ScalarExpression, of, times } from "./expressions/scalar";
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
@@ -133,7 +133,7 @@ function createModifier(
     type: ModifierType,
     attributes: Record<string, string> = {}
 ): IModifier {
-    return new Modifier(
+    return Modifier.create(
         path,
         value,
         {
