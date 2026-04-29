@@ -3,6 +3,7 @@ import { initAddModifier } from "module/modifiers/modifierAddition";
 import type { FocusModifier, ScalarModifier } from "module/modifiers/parsing";
 import type { TooltipFormula } from "module/util/tooltip";
 import type { Expression } from "module/modifiers/expressions/scalar";
+import { isMember } from "module/util/util";
 
 export type { ModifierRegistry } from "./ModifierRegistry";
 export type ScalarRegistry = ModifierRegistry<ScalarModifier>;
@@ -20,6 +21,8 @@ export function initializeModifiers() {
         addModifier: initAddModifier(modifierRegistry, costModifierRegistry),
     };
 }
+
+const modifierTypes = ["magic", "equipment", "innate", null] as const;
 /**
  * The type of item from which the modifier stems. Use
  * <ul>
@@ -28,7 +31,10 @@ export function initializeModifiers() {
  *     <li><code>innate</code> for strengths, masteries and other permanent effects</li>
  * </ul>
  */
-export type ModifierType = "magic" | "equipment" | "innate" | null;
+export type ModifierType = (typeof modifierTypes)[number];
+export function isModifierType(v: string | null): v is ModifierType {
+    return isMember(modifierTypes, v);
+}
 
 export interface ModifierAttributes {
     name: string;
