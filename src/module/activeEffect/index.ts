@@ -8,10 +8,10 @@ import {
 import { CostModifierDataModel, type CostModifierDataModelType } from "./dataModel/CostModifierDataModel";
 
 export { SplittermondActiveEffect };
-export { ModifierDataModel, type ModifierDataModelType };
-export { InverseModifierDataModel, type InverseModifierDataModelType };
-export { MultiplicativeModifierDataModel, type MultiplicativeModifierDataModelType };
-export { CostModifierDataModel, type CostModifierDataModelType };
+export { ModifierDataModel as Modifier, type ModifierDataModelType };
+export { InverseModifierDataModel as InverseModifier, type InverseModifierDataModelType };
+export { MultiplicativeModifierDataModel as MultiplicativeModifier, type MultiplicativeModifierDataModelType };
+export { CostModifierDataModel as CostModifier, type CostModifierDataModelType };
 
 /**
  * Register the custom ActiveEffect subclass with Foundry.

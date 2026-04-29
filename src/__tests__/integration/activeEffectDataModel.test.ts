@@ -1,11 +1,8 @@
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
-import { ModifierDataModel } from "module/activeEffect/dataModel/ModifierDataModel";
-import { InverseModifierDataModel } from "module/activeEffect/dataModel/InverseModifierDataModel";
-import { MultiplicativeModifierDataModel } from "module/activeEffect/dataModel/MultiplicativeModifierDataModel";
-import { CostModifierDataModel } from "module/activeEffect/dataModel/CostModifierDataModel";
+import { Modifier, InverseModifier, MultiplicativeModifier, CostModifier } from "module/activeEffect";
 import { evaluate, of, plus, times } from "module/modifiers/expressions/scalar";
 import { of as costOf, evaluate as costEvaluate } from "module/modifiers/expressions/cost";
-import { CostModifier } from "module/util/costs/Cost";
+import { CostModifier as Cost } from "module/util/costs/Cost";
 import { withActor } from "./fixtures";
 
 export function activeEffectDataModelTest(context: QuenchBatchContext) {
@@ -14,7 +11,7 @@ export function activeEffectDataModelTest(context: QuenchBatchContext) {
     describe("ActiveEffect DataModel serialization via Foundry persistence", () => {
         describe("ModifierDataModel", () => {
             it("should persist and restore a simple expression through an ActiveEffect", withActor(async (actor) => {
-                const initData = ModifierDataModel.init("test.path", of(5), { name: "Test", type: "innate" });
+                const initData = Modifier.init("test.path", of(5), { name: "Test", type: "innate" });
                 const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
                     { name: "Test Effect", type: "modifier", system: initData },
                 ]);
@@ -28,7 +25,7 @@ export function activeEffectDataModelTest(context: QuenchBatchContext) {
 
             it("should persist and restore a complex expression", withActor(async (actor) => {
                 const expr = plus(of(3), times(of(2), of(4)));
-                const initData = ModifierDataModel.init("complex.path", expr, { name: "Complex", type: "magic" });
+                const initData = Modifier.init("complex.path", expr, { name: "Complex", type: "magic" });
                 const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
                     { name: "Complex Effect", type: "modifier", system: initData },
                 ]);
@@ -38,7 +35,7 @@ export function activeEffectDataModelTest(context: QuenchBatchContext) {
             }));
 
             it("should survive actor re-preparation", withActor(async (actor) => {
-                const initData = ModifierDataModel.init("prep.path", of(7), { name: "Prep", type: "innate" });
+                const initData = Modifier.init("prep.path", of(7), { name: "Prep", type: "innate" });
                 await actor.createEmbeddedDocuments("ActiveEffect", [
                     { name: "Prep Effect", type: "modifier", system: initData },
                 ]);
@@ -52,7 +49,7 @@ export function activeEffectDataModelTest(context: QuenchBatchContext) {
 
         describe("InverseModifierDataModel", () => {
             it("should persist and restore through an ActiveEffect", withActor(async (actor) => {
-                const initData = InverseModifierDataModel.init("inv.path", of(-3), { name: "Inverse", type: "innate" });
+                const initData = InverseModifier.init("inv.path", of(-3), { name: "Inverse", type: "innate" });
                 const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
                     { name: "Inverse Effect", type: "inverseModifier", system: initData },
                 ]);
@@ -65,7 +62,7 @@ export function activeEffectDataModelTest(context: QuenchBatchContext) {
 
         describe("MultiplicativeModifierDataModel", () => {
             it("should persist and restore through an ActiveEffect", withActor(async (actor) => {
-                const initData = MultiplicativeModifierDataModel.init("mult.path", of(3), {
+                const initData = MultiplicativeModifier.init("mult.path", of(3), {
                     name: "Mult",
                     type: "innate",
                 });
@@ -81,8 +78,8 @@ export function activeEffectDataModelTest(context: QuenchBatchContext) {
 
         describe("CostModifierDataModel", () => {
             it("should persist and restore through an ActiveEffect", withActor(async (actor) => {
-                const costMod = new CostModifier({ _channeled: 3, _channeledConsumed: 0, _exhausted: 2, _consumed: 0 });
-                const initData = CostModifierDataModel.init("focus.reduction", costOf(costMod), "fireMagic");
+                const costMod = new Cost({ _channeled: 3, _channeledConsumed: 0, _exhausted: 2, _consumed: 0 });
+                const initData = CostModifier.init("focus.reduction", costOf(costMod), "fireMagic");
                 const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
                     { name: "Cost Effect", type: "costModifier", system: initData },
                 ]);

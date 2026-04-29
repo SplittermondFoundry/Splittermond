@@ -13,7 +13,7 @@ import { clearMappers } from "module/modifiers/parsing/normalizer";
 import { evaluate, of, pow } from "module/modifiers/expressions/scalar";
 import { of as ofCost, times } from "module/modifiers/expressions/cost";
 import { stubRollApi } from "../../RollMock";
-import { InverseModifier } from "module/modifiers/impl/InverseModifier";
+import { InverseModifier } from "module/activeEffect";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
@@ -68,6 +68,7 @@ describe("addModifier", () => {
         };
         item = {
             id: "item1",
+            uuid: "Item.item1",
             name: "Test Item",
             type: "weapon",
             actor: actor,
@@ -75,6 +76,14 @@ describe("addModifier", () => {
             isOwner: true,
         } as unknown as SinonStubbedInstance<SplittermondItem>;
 
+        sandbox.stub(actor, "uuid").get(() => `Actor.${actor.id}`);
+        sandbox
+            .stub(foundryApi.utils, "fromUUIDSync")
+            .withArgs(item.uuid)
+            .returns(item)
+            .withArgs(actor.uuid)
+            .returns(actor);
+        sandbox.stub(foundryApi, "reportError");
         reportErrorStub = sandbox.stub(foundryApi, "reportError");
         sandbox.stub(foundryApi, "format").callsFake((key: string) => key);
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => {

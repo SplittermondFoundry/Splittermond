@@ -1,7 +1,7 @@
 import { type Config, IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import { Expression, isZero, times } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import type SplittermondItem from "module/item/item";
 import { type CheckSuccessState, successStates } from "module/check/modifyEvaluation";
 import { isMember } from "module/util/util";
@@ -47,7 +47,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
             emphasis,
         };
         const totalValue = times(modifier.value, this.multiplier);
-        return [new Modifier(modifier.path, totalValue, attributes, this.sourceItem, !!attributes.emphasis)];
+        return [Modifier.create(modifier.path, totalValue, attributes, this.sourceItem, !!attributes.emphasis)];
     }
 
     validateOutcomeCategory(category: Value): string | undefined {
