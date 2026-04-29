@@ -15,6 +15,7 @@ import { serialize, deserialize } from "module/modifiers/expressions/scalar/seri
 import type { DataModelConstructorInput } from "module/api/DataModel";
 
 type SerializedExpression = Record<string, unknown> & { type: string };
+type ExtraAttributes = Record<string, string | undefined | null>;
 
 function MultiplicativeModifierDataModelSchema() {
     return {
@@ -27,6 +28,12 @@ function MultiplicativeModifierDataModelSchema() {
         selectable: new fields.BooleanField({ required: true, nullable: false, initial: false }),
         attributeName: new fields.StringField({ required: true, nullable: false }),
         attributeType: new fields.StringField({ required: true, nullable: true, initial: null }),
+        extraAttributes: new fieldExtensions.TypedObjectField<ExtraAttributes, true, false>({
+            required: true,
+            nullable: false,
+            initial: {},
+            validate: (v: ExtraAttributes) => typeof v === "object",
+        }),
     };
 }
 
@@ -43,10 +50,25 @@ export class MultiplicativeModifierDataModel
     static defineSchema = MultiplicativeModifierDataModelSchema;
 
     readonly value: Expression;
+    private readonly _explicitOrigin: object | null;
 
     constructor(data: DataModelConstructorInput<MultiplicativeModifierDataModelType>, context: unknown) {
         super(data, context);
         this.value = deserialize(this.serializedValue);
+        this._explicitOrigin = (context as any)?.origin ?? null;
+    }
+
+    /**
+     * Convenience factory matching the legacy {@link MultiplicativeModifier} constructor signature.
+     */
+    static create(
+        groupId: string,
+        value: Expression,
+        attributes: ModifierAttributes,
+        origin: object | null = null,
+        selectable = false,
+    ): MultiplicativeModifierDataModel {
+        return new MultiplicativeModifierDataModel(MultiplicativeModifierDataModel.init(groupId, value, attributes, selectable), { origin });
     }
 
     /**
@@ -63,11 +85,13 @@ export class MultiplicativeModifierDataModel
         attributes: ModifierAttributes,
         selectable = false,
     ): MultiplicativeModifierDataModelType {
+        const { name, type, ...extra } = attributes;
         return {
             path: groupId,
             serializedValue: serialize(value),
-            attributeName: attributes.name,
-            attributeType: attributes.type,
+            attributeName: name,
+            attributeType: type,
+            extraAttributes: extra as ExtraAttributes,
             selectable,
         };
     }
@@ -90,13 +114,14 @@ export class MultiplicativeModifierDataModel
 
     get attributes(): ModifierAttributes {
         return {
+            ...this.extraAttributes,
             name: this.attributeName,
             type: this.attributeType as ModifierType,
         };
     }
 
     get origin(): object | null {
-        return this.parent?.parent ?? null;
+        return this._explicitOrigin ?? this.parent?.parent ?? null;
     }
 
     addTooltipFormulaElements(formula: TooltipFormula): void {
