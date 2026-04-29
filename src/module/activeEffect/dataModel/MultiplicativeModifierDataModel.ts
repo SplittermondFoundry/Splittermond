@@ -1,6 +1,6 @@
-import { DataModelSchemaType, fields, fieldExtensions, SplittermondDataModel } from "../../data/SplittermondDataModel";
+import { DataModelSchemaType, SplittermondDataModel } from "../../data/SplittermondDataModel";
 import type { FoundryActiveEffect } from "../../api/ActiveEffect";
-import type { IModifier, ModifierAttributes, ModifierType } from "module/modifiers";
+import type { IModifier, ModifierAttributes } from "module/modifiers";
 import type { TooltipFormula } from "module/util/tooltip";
 import {
     abs,
@@ -13,31 +13,9 @@ import {
 } from "module/modifiers/expressions/scalar";
 import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
+import { modifierSchema } from "./modifierSchema";
 
-type SerializedExpression = Record<string, unknown> & { type: string };
-type ExtraAttributes = Record<string, string | undefined | null>;
-
-function MultiplicativeModifierDataModelSchema() {
-    return {
-        path: new fields.StringField({ required: true, nullable: false }),
-        serializedValue: new fieldExtensions.TypedObjectField<SerializedExpression, true, false>({
-            required: true,
-            nullable: false,
-            validate: (v: SerializedExpression) => typeof v === "object" && "type" in v,
-        }),
-        selectable: new fields.BooleanField({ required: true, nullable: false, initial: false }),
-        attributeName: new fields.StringField({ required: true, nullable: false }),
-        attributeType: new fields.StringField({ required: true, nullable: true, initial: null }),
-        extraAttributes: new fieldExtensions.TypedObjectField<ExtraAttributes, true, false>({
-            required: true,
-            nullable: false,
-            initial: {},
-            validate: (v: ExtraAttributes) => typeof v === "object",
-        }),
-    };
-}
-
-export type MultiplicativeModifierDataModelType = DataModelSchemaType<typeof MultiplicativeModifierDataModelSchema>;
+export type MultiplicativeModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
 /**
  * DataModel for the {@link MultiplicativeModifier}.
@@ -47,7 +25,7 @@ export class MultiplicativeModifierDataModel
     extends SplittermondDataModel<MultiplicativeModifierDataModelType, FoundryActiveEffect>
     implements IModifier
 {
-    static defineSchema = MultiplicativeModifierDataModelSchema;
+    static defineSchema = modifierSchema;
 
     readonly value: Expression;
     private readonly _explicitOrigin: object | null;
@@ -66,9 +44,12 @@ export class MultiplicativeModifierDataModel
         value: Expression,
         attributes: ModifierAttributes,
         origin: object | null = null,
-        selectable = false,
+        selectable = false
     ): MultiplicativeModifierDataModel {
-        return new MultiplicativeModifierDataModel(MultiplicativeModifierDataModel.init(groupId, value, attributes, selectable), { origin });
+        return new MultiplicativeModifierDataModel(
+            MultiplicativeModifierDataModel.init(groupId, value, attributes, selectable),
+            { origin }
+        );
     }
 
     /**
@@ -83,15 +64,12 @@ export class MultiplicativeModifierDataModel
         groupId: string,
         value: Expression,
         attributes: ModifierAttributes,
-        selectable = false,
+        selectable = false
     ): MultiplicativeModifierDataModelType {
-        const { name, type, ...extra } = attributes;
         return {
             path: groupId,
             serializedValue: serialize(value),
-            attributeName: name,
-            attributeType: type,
-            extraAttributes: extra as ExtraAttributes,
+            attributes,
             selectable,
         };
     }
@@ -110,14 +88,6 @@ export class MultiplicativeModifierDataModel
 
     get selectable(): boolean {
         return (this as any).toObject().selectable;
-    }
-
-    get attributes(): ModifierAttributes {
-        return {
-            ...this.extraAttributes,
-            name: this.attributeName,
-            type: this.attributeType as ModifierType,
-        };
     }
 
     get origin(): object | null {
