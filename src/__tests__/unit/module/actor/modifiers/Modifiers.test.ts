@@ -1,4 +1,4 @@
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import { Modifiers } from "module/actor/modifiers/Modifiers";
 import { expect } from "chai";
 import { foundryApi } from "module/api/foundryApi";
@@ -9,8 +9,8 @@ import { of } from "module/modifiers/expressions/scalar";
 
 describe("Modifiers", () => {
     it("should create a new instance from static method", () => {
-        const one = new Modifier("path", of(2), { name: "One", type: "innate" });
-        const other = new Modifier("path", of(3), { name: "Two", type: "innate" });
+        const one = Modifier.create("path", of(2), { name: "One", type: "innate" });
+        const other = Modifier.create("path", of(3), { name: "Two", type: "innate" });
 
         const modifiers = new Modifiers(one, other);
 
@@ -19,8 +19,8 @@ describe("Modifiers", () => {
     });
 
     it("should calculate the total value correctly", () => {
-        const one = new Modifier("path", of(2), { name: "One", type: "innate" });
-        const other = new Modifier("path", of(3), { name: "Two", type: "innate" });
+        const one = Modifier.create("path", of(2), { name: "One", type: "innate" });
+        const other = Modifier.create("path", of(3), { name: "Two", type: "innate" });
 
         const modifiers = new Modifiers(one, other);
 
@@ -28,8 +28,8 @@ describe("Modifiers", () => {
     });
 
     it("should calculate the total value correctly", () => {
-        const one = new Modifier("path", of(2), { name: "One", type: "innate" });
-        const other = new Modifier("path", of(3), { name: "Two", type: "innate" });
+        const one = Modifier.create("path", of(2), { name: "One", type: "innate" });
+        const other = Modifier.create("path", of(3), { name: "Two", type: "innate" });
 
         const modifiers = new Modifiers(one, other).filter((mod) => mod.attributes.name === "One");
 
@@ -43,8 +43,8 @@ describe("Modifiers", () => {
         });
         afterEach(() => sandbox.restore());
         it("should add all parts to the tooltip formula", () => {
-            const one = new Modifier("path", of(2), { name: "One", type: "innate" });
-            const other = new Modifier("path", of(3), { name: "Two", type: "innate" });
+            const one = Modifier.create("path", of(2), { name: "One", type: "innate" });
+            const other = Modifier.create("path", of(3), { name: "Two", type: "innate" });
             const modifiers = new Modifiers(one, other);
             const formula = new TooltipFormula();
 

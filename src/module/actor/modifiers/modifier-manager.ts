@@ -1,4 +1,4 @@
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import { Expression } from "module/modifiers/expressions/scalar";
 import type { IModifier, ModifierAttributes } from "module/modifiers";
 import { Modifiers } from "module/actor/modifiers/Modifiers";
@@ -19,7 +19,7 @@ export default class ModifierManager {
         origin: object | null = null,
         selectable = false
     ) {
-        this.addModifier(new Modifier(path, value, attributes, origin, selectable));
+        this.addModifier(Modifier.create(path, value, attributes, origin, selectable));
     }
 
     addModifier(modifier: IModifier) {

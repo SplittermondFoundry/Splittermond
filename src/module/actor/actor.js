@@ -17,7 +17,7 @@ import { addModifier } from "./addModifierAdapter";
 import { evaluate, of } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
-import { InverseModifier } from "module/modifiers/impl/InverseModifier";
+import { InverseModifier } from "module/activeEffect";
 import { genesisSpellImport } from "./genesisImport/spellImport";
 import { addTicks } from "module/combat/addTicks";
 import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
@@ -445,7 +445,7 @@ export default class SplittermondActor extends Actor {
                 this
             );
             this.modifier.addModifier(
-                new InverseModifier(
+                InverseModifier.create(
                     "initiativewoundmalus",
                     of(-data.health.woundMalus.value),
                     {
