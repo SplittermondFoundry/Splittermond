@@ -3,6 +3,7 @@
 ### Fixes
 
 - Titel für Zauberpatzer werden wieder angezeigt.
+- Zauber können wieder in Kompendien geschrieben werden
 
 ## 14.0.1
 
