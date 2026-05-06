@@ -1,5 +1,7 @@
 {
     "splittermond": {
+        "magicFumbleSorcerer": "Fumbled Spell (Sorcerer)",
+        "magicFumblePriest": "Fumbled Spell (Priest)",
         "chooseMagicSkill": "Choose a school af magic!",
         "chooseSkill": "Choose a skill!",
         "damageType": "damage type",

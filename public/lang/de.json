@@ -383,7 +383,8 @@
         "lowerFumbleResultHelp": "Anzahl Stufen um die die Patzerauswirkung vermindert wird (z.B. Fokuskontrolle)",
         "priest": "Priester",
         "sorcerer": "Zauberer",
-        "magicFumble": "Zauberpatzer",
+        "magicFumbleSorcerer": "Zauberpatzer (Zauberer)",
+        "magicFumblePriest": "Zauberpatzer (Priester)",
         "attackFumble": "Kampfpatzer",
         "message": {
             "itemImported": "Das Item \"{name}\" wurde als \"{type}\" importiert!",

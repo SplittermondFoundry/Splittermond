@@ -1,3 +1,9 @@
+## 14.0.2
+
+### Fixes
+
+- Titel für Zauberpatzer werden wieder angezeigt.
+
 ## 14.0.1
 
 ### Fixes
