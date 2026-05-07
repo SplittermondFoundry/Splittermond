@@ -356,6 +356,23 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             ]);
         });
 
+        it("should have a property called ActiveEffect", () => {
+            expect(CONFIG, "CONFIG does not have a property called ActiveEffect").to.have.property("ActiveEffect");
+        });
+
+        it("should have required ActiveEffect properties", () => {
+            expect(CONFIG.ActiveEffect, "CONFIG.ActiveEffect does not have documentClass").to.have.property(
+                "documentClass"
+            );
+            expect(CONFIG.ActiveEffect.documentClass, "CONFIG.ActiveEffect.documentClass is not a function").to.be.a(
+                "function"
+            );
+            expect(CONFIG.ActiveEffect, "CONFIG.ActiveEffect does not have dataModels").to.have.property("dataModels");
+            expect(CONFIG.ActiveEffect.dataModels, "CONFIG.ActiveEffect.dataModels is not an object").to.be.an(
+                "object"
+            );
+        });
+
         it("should have splittermond properties", () => {
             const underTest = CONFIG.splittermond;
             expect(underTest, "CONFIG does not have a property called splittermond").to.be.an("object");
