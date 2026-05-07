@@ -17,11 +17,11 @@ export { CostModifierDataModel as CostModifier, type CostModifierDataModelType }
  * Register the custom ActiveEffect subclass with Foundry.
  * Call this during system init, before any documents are created.
  */
-export function initializeActiveEffects() {
+export function initializeActiveEffects(config: typeof CONFIG) {
     console.log("Splittermond | Initializing Active Effects feature");
-    (CONFIG as any).ActiveEffect.documentClass = SplittermondActiveEffect;
-    (CONFIG as any).ActiveEffect.dataModels = {
-        ...((CONFIG as any).ActiveEffect.dataModels ?? {}),
+    config.ActiveEffect.documentClass = SplittermondActiveEffect;
+    config.ActiveEffect.dataModels = {
+        ...(config.ActiveEffect.dataModels ?? {}),
         modifier: ModifierDataModel,
         inverseModifier: InverseModifierDataModel,
         multiplicativeModifier: MultiplicativeModifierDataModel,
