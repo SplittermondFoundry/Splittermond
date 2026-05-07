@@ -217,6 +217,11 @@ declare global {
             fallbackTurnMarker: string;
         } & Record<string, unknown>;
         Dice: Record<string, unknown>;
+        ActiveEffect: {
+            documentClass: Function;
+            dataModels: Record<string, unknown>;
+        };
+        dataModels: Record<string, unknown>;
     } & Record<string, unknown>;
 }
 
