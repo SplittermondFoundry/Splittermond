@@ -480,6 +480,7 @@ describe("Modifiable", () => {
             selectable: props.selectable ?? false,
             origin: props.origin ?? null,
             value: props.value ?? of(1),
+            effectType: props.effectType ?? "modifier",
             addTooltipFormulaElements: props.addTooltipFormulaElements ?? sandbox.stub(),
             attributes: {
                 name: props.attributes?.name ?? "Test Modifier",

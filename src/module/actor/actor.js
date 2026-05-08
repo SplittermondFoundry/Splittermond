@@ -533,13 +533,13 @@ export default class SplittermondActor extends Actor {
         const result = addModifier(item, str, type, multiplier);
 
         // Apply scalar modifiers to the actor's modifier manager
-        result.modifiers.forEach((modifier) => {
+        result.modifiers.forEach(({ modifier }) => {
             this.modifier.addModifier(modifier);
         });
 
         // Apply cost modifiers to the appropriate spell cost reduction managers
         const data = asPreparedData(this.system);
-        result.costModifiers.forEach((costModifier) => {
+        result.costModifiers.forEach(({ modifier: costModifier }) => {
             const modifierLabel = costModifier.label.toLowerCase();
             if (modifierLabel.startsWith("focus.reduction")) {
                 data.spellCostReduction.addCostModifier(costModifier);

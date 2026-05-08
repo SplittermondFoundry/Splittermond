@@ -27,6 +27,7 @@ export function withErrorLogger(errorLogger: IErrorConsumer) {
             path: modifier.path,
             attributes: { ...modifier.attributes },
             value: processedValue,
+            rawFragment: modifier.rawFragment ?? "",
         };
         delete valueProcessedModifier.attributes.value;
         return valueProcessedModifier;
@@ -47,6 +48,7 @@ export function withErrorLogger(errorLogger: IErrorConsumer) {
             path: modifier.path,
             attributes: { ...modifier.attributes },
             value: processedValue,
+            rawFragment: modifier.rawFragment,
         };
         delete valueProcessedModifier.attributes.value;
         return valueProcessedModifier;

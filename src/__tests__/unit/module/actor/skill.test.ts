@@ -744,6 +744,7 @@ function getModifier(mod: ModifierPartial = {}): IModifier {
         origin: null,
         isBonus: (mod.value && isGreaterZero(mod.value)) ?? true,
         value: mod.value ?? of(1),
+        effectType: mod.effectType ?? "modifier",
         addTooltipFormulaElements: () => {},
     };
 }

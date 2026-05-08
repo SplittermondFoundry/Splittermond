@@ -5,6 +5,7 @@ import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import { type CostExpression } from "module/modifiers/expressions/cost";
 import { serialize, deserialize } from "module/modifiers/expressions/cost/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
+import type { EffectType } from "./effectTypes";
 
 type SerializedCostExpression = Record<string, unknown> & { type: string };
 type CostModifierAttributes = { skill?: string; type?: string };
@@ -43,6 +44,7 @@ export class CostModifierDataModel
     }
 
     readonly value: CostExpression;
+    readonly effectType: EffectType = "costModifier";
 
     constructor(data: DataModelConstructorInput<CostModifierDataModelType>, context: unknown) {
         super(data, context);

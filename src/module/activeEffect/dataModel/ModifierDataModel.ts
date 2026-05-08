@@ -14,6 +14,7 @@ import {
 import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import { modifierSchema } from "./modifierSchema";
+import type { EffectType } from "./effectTypes";
 
 export type ModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -82,6 +83,8 @@ export class ModifierDataModel extends SplittermondActiveEffectDataModel<Modifie
     get groupId(): string {
         return this.path;
     }
+
+    readonly effectType: EffectType = "modifier";
 
     get selectable(): boolean {
         return (this as any).toObject().selectable;

@@ -38,6 +38,7 @@ function mockModifier(): IModifier {
         selectable: false,
         attributes: { name: "Test", type: "innate" },
         origin: null,
+        effectType: "modifier",
         addTooltipFormulaElements() {},
     };
 }
@@ -49,6 +50,7 @@ function mockCostModifier(): ICostModifier {
         value: { amount: { _channeled: 0, _channeledConsumed: 0, _exhausted: 1, _consumed: 0 } } as any,
         skill: null,
         attributes: {},
+        effectType: "costModifier",
     };
 }
 
