@@ -78,7 +78,7 @@ export default class SplittermondItem extends Item {
                 this.actor.addModifier(this, data.modifier, "innate", data.quantity);
                 break;
             case "statuseffect":
-                this.actor.addModifier(this, data.modifier, "statuseffect", data.level);
+                this.actor.addModifier(this, data.modifier, "innate", data.level);
                 break;
             case "spelleffect":
                 if (data.active) {
