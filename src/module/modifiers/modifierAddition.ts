@@ -50,7 +50,7 @@ export function initAddModifier(
 
         const unprocessedModifiers: Array<{ parsed: ScalarModifier; rawFragment: string }> = [];
         for (const parsedModifier of parsedResult.modifiers) {
-            const rawFragment = parsedModifier.rawFragment ?? "";
+            const rawFragment = parsedModifier.rawFragment;
             if (costHandlerCache.handles(parsedModifier.path)) {
                 const normalized = processCostValue(parsedModifier, item.actor);
                 if (!normalized) continue;
