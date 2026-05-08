@@ -101,7 +101,7 @@ Hooks.once("init", async function () {
     initializeHooks(game.splittermond.API.hooks);
     initializeActor(CONFIG.Actor, modifierModule);
     initializeActiveEffects(CONFIG);
-    initializeItem(CONFIG, modifierModule.modifierRegistry);
+    initializeItem(CONFIG, modifierModule.modifierRegistry, modifierModule.addModifier);
     initializeCosts(modifierModule.costModifierRegistry);
     initializeChecks(modifierModule.modifierRegistry);
     chatActionFeature(CONFIG.ChatMessage);
