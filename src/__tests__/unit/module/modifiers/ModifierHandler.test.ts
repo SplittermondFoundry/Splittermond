@@ -48,7 +48,7 @@ describe("Modifier handler", () => {
             const errors: string[] = [];
             const probe = new TestModifierHandler(toLog(errors), config);
 
-            probe.processModifier({ path, value: of(1), attributes: {} });
+            probe.processModifier({ path, rawFragment: `${path} +1`, value: of(1), attributes: {} });
 
             expect(errors).to.have.length(1);
             expect(errors[0]).to.equal("splittermond.modifiers.parseMessages.unknownGroupId");
@@ -68,7 +68,7 @@ describe("Modifier handler", () => {
             const probe = new TestModifierHandler(toLog(errors), config);
             const buildSpy = sandbox.spy(probe, "buildModifier");
 
-            probe.processModifier({ path, value: of(1), attributes: {} });
+            probe.processModifier({ path, rawFragment: `${path} +1`, value: of(1), attributes: {} });
 
             expect(errors).to.be.empty;
             expect(buildSpy.lastCall.lastArg).to.deep.equal(expectedConfig);
@@ -81,7 +81,7 @@ describe("Modifier handler", () => {
         const probe = new TestModifierHandler(toLog(), config);
         const buildSpy = sandbox.spy(probe, "buildModifier");
 
-        const result = probe.processModifier({ path: "invalid.path", value: of(1), attributes: {} });
+        const result = probe.processModifier({ path: "invalid.path", rawFragment: "invalid.path +1", value: of(1), attributes: {} });
 
         expect(result).to.be.empty;
         expect(buildSpy.callCount).to.equal(0);
@@ -93,7 +93,7 @@ describe("Modifier handler", () => {
         const probe = new TestModifierHandler(toLog(), config);
         const buildSpy = sandbox.spy(probe, "buildModifier");
 
-        probe.processModifier({ path: "TEST.ONE", value: of(1), attributes: {} });
+        probe.processModifier({ path: "TEST.ONE", rawFragment: "TEST.ONE +1", value: of(1), attributes: {} });
 
         expect(buildSpy.callCount).to.equal(1);
     });
@@ -108,6 +108,7 @@ describe("Modifier handler", () => {
 
         probe.processModifier({
             path: "test.one",
+            rawFragment: 'test.one required1="value1" optional1="value2" unknownAttr1="unknown1" unknownAttr2="unknown2" +1',
             value: of(1),
             attributes: {
                 required1: "value1",
@@ -128,7 +129,7 @@ describe("Modifier handler", () => {
         const errors: string[] = [];
         const probe = new TestModifierHandler(toLog(errors), config);
 
-        probe.processModifier({ path: "test.one", value: of(1), attributes: {} });
+        probe.processModifier({ path: "test.one", rawFragment: "test.one +1", value: of(1), attributes: {} });
 
         expect(errors).to.have.length(1);
         expect(errors[0]).to.equal("splittermond.modifiers.parseMessages.missingDescriptor");
@@ -144,6 +145,7 @@ describe("Modifier handler", () => {
 
         const result = probe.processModifier({
             path: "test.one",
+            rawFragment: 'test.one someOtherAttr="value" +1',
             value: of(1),
             attributes: {
                 // Missing the required "mustHave" attribute
@@ -168,7 +170,12 @@ describe("Modifier handler", () => {
         const probe = new TestModifierHandler(toLog(errors), customConfig);
         const buildSpy = sandbox.spy(probe, "buildModifier");
 
-        probe.processModifier({ path: "multi.segment.path.sub1", value: of(1), attributes: {} });
+        probe.processModifier({
+            path: "multi.segment.path.sub1",
+            rawFragment: "multi.segment.path.sub1 +1",
+            value: of(1),
+            attributes: {},
+        });
 
         expect(buildSpy.callCount).to.equal(1);
     });
