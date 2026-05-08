@@ -9,6 +9,7 @@ export type ErrorMessage = string;
 export interface ParsedModifier {
     path: string;
     attributes: Record<string, Value>;
+    rawFragment: string;
 }
 
 export type Value = ParsedExpression | number | FoundryRoll | string;
