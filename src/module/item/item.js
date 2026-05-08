@@ -2,6 +2,21 @@ import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "module/config/index.js";
 import { rebuildModifierEffects } from "../activeEffect/effectBuilder.ts";
 
+/** @type {import("module/modifiers/modifierAddition").AddModifierResult extends object ? Function : never} */
+let _addModifier = null;
+
+/**
+ * Inject the addModifier function produced by initializeModifiers.
+ * Must be called during system init before any items are created.
+ */
+export function setAddModifier(addModifierFn) {
+    _addModifier = addModifierFn;
+}
+
+export function getAddModifier() {
+    return _addModifier;
+}
+
 export default class SplittermondItem extends Item {
     constructor(data, context = {}) {
         if (context?.splittermond?.ready) {
@@ -125,6 +140,6 @@ export default class SplittermondItem extends Item {
 
     async #rebuildStatusEffectModifiers() {
         const level = this.system.level ?? 1;
-        await rebuildModifierEffects(this, "magic", level);
+        await rebuildModifierEffects(_addModifier, this, "magic", level);
     }
 }
