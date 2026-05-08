@@ -1,4 +1,5 @@
-import { DataModelSchemaType, fields, fieldExtensions, SplittermondDataModel } from "../../data/SplittermondDataModel";
+import { DataModelSchemaType, fields, fieldExtensions } from "../../data/SplittermondDataModel";
+import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
 import type { FoundryActiveEffect } from "../../api/ActiveEffect";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import { type CostExpression } from "module/modifiers/expressions/cost";
@@ -34,10 +35,12 @@ export type CostModifierDataModelType = DataModelSchemaType<typeof CostModifierD
  * Captures the cost reduction/addition data that the {@link CostModifierHandler} produces.
  */
 export class CostModifierDataModel
-    extends SplittermondDataModel<CostModifierDataModelType, FoundryActiveEffect>
+    extends SplittermondActiveEffectDataModel<CostModifierDataModelType, FoundryActiveEffect>
     implements ICostModifier
 {
-    static defineSchema = CostModifierDataModelSchema;
+    static defineSchema() {
+        return { ...super.defineSchema(), ...CostModifierDataModelSchema() };
+    }
 
     readonly value: CostExpression;
 
