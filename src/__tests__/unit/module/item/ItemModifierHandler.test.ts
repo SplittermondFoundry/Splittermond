@@ -1,11 +1,11 @@
-import { expect } from "chai";
-import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
-import { ItemModifierHandler } from "module/item/ItemModifierHandler";
+import {expect} from "chai";
+import sinon, {SinonSandbox, SinonStubbedInstance} from "sinon";
+import {ItemModifierHandler} from "module/item/ItemModifierHandler";
 import SplittermondItem from "module/item/item";
-import { foundryApi } from "module/api/foundryApi";
-import { clearMappers } from "module/modifiers/parsing/normalizer";
-import { evaluate, type Expression, of } from "module/modifiers/expressions/scalar";
-import type { ScalarModifier } from "module/modifiers/parsing";
+import {foundryApi} from "module/api/foundryApi";
+import {clearMappers} from "module/modifiers/parsing/normalizer";
+import {evaluate, type Expression, of} from "module/modifiers/expressions/scalar";
+import type {ScalarModifier} from "module/modifiers/parsing";
 
 class TestItemModifierHandler extends ItemModifierHandler {
     public buildModifier(modifier: ScalarModifier) {
@@ -193,6 +193,7 @@ describe("ItemModifierHandler", () => {
 
         it("should process defense tick cost modifiers", () => {
             const scalarModifier: ScalarModifier = {
+                rawFragment: 'item.defenseTickCost itemType="shield" defenseType="vtd" -1',
                 path: "item.defenseTickCost",
                 value: of(-1),
                 attributes: {
@@ -220,6 +221,7 @@ describe("ItemModifierHandler", () => {
         ).forEach(([input, expected]) => {
             it(`should normalize defense tick cost defense type alias ${input}`, () => {
                 const scalarModifier: ScalarModifier = {
+                    rawFragment: input,
                     path: "item.defenseTickCost",
                     value: of(-1),
                     attributes: {

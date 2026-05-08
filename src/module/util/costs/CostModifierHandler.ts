@@ -50,6 +50,7 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
                     skill: group ?? undefined,
                     type: type ?? undefined,
                 },
+                effectType: "costModifier" as const,
             },
         ];
     }

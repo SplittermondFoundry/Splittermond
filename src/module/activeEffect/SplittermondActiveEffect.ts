@@ -6,16 +6,9 @@ import type { MultiplicativeModifierDataModel } from "./dataModel/Multiplicative
 import type { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
 import { SplittermondBaseActiveEffect } from "module/data/SplittermondBaseActiveEffect";
 import { isMember } from "module/util/util";
+import { type EffectType, MODIFIER_TYPES, COST_MODIFIER_TYPES } from "./dataModel/effectTypes";
 
-/**
- * Foundry's ActiveEffect is a global class. We declare a minimal local type
- * to satisfy the TypeScript compiler while extending it.
- */
-
-const MODIFIER_TYPES = ["modifier", "inverseModifier", "multiplicativeModifier"] as const;
-const COST_MODIFIER_TYPES = ["costModifier"] as const;
-
-export type EffectType = (typeof MODIFIER_TYPES)[number] | (typeof COST_MODIFIER_TYPES)[number];
+export type { EffectType };
 
 /**
  * Splittermond system subclass of ActiveEffect.

@@ -10,9 +10,19 @@ import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
 import type { IModifier, ModifierType } from "module/modifiers/index";
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
 
+export interface TaggedModifier {
+    modifier: IModifier;
+    rawFragment: string;
+}
+
+export interface TaggedCostModifier {
+    modifier: ICostModifier;
+    rawFragment: string;
+}
+
 export interface AddModifierResult {
-    modifiers: IModifier[];
-    costModifiers: ICostModifier[];
+    modifiers: TaggedModifier[];
+    costModifiers: TaggedCostModifier[];
 }
 
 export function initAddModifier(
@@ -25,8 +35,8 @@ export function initAddModifier(
         type: ModifierType = null,
         multiplier = 1
     ): AddModifierResult {
-        const modifiers: IModifier[] = [];
-        const costModifiers: ICostModifier[] = [];
+        const modifiers: TaggedModifier[] = [];
+        const costModifiers: TaggedCostModifier[] = [];
 
         if (str == "") {
             return { modifiers, costModifiers };
@@ -38,28 +48,29 @@ export function initAddModifier(
         const handlerCache = registry.getCache(allErrors.consumer, item, type, of(multiplier));
         const costHandlerCache = costRegistry.getCache(allErrors.consumer, item, type, of(multiplier));
 
-        const unprocessedModifiers: ScalarModifier[] = [];
+        const unprocessedModifiers: Array<{ parsed: ScalarModifier; rawFragment: string }> = [];
         for (const parsedModifier of parsedResult.modifiers) {
+            const rawFragment = parsedModifier.rawFragment ?? "";
             if (costHandlerCache.handles(parsedModifier.path)) {
                 const normalized = processCostValue(parsedModifier, item.actor);
                 if (!normalized) continue;
-                const modifier = costHandlerCache.getHandler(normalized.path).processModifier(normalized);
-                costModifiers.push(...modifier);
+                const produced = costHandlerCache.getHandler(normalized.path).processModifier(normalized);
+                produced.forEach((modifier) => costModifiers.push({ modifier, rawFragment }));
             } else if (handlerCache.handles(parsedModifier.path)) {
                 const normalized = processScalarValue(parsedModifier, item.actor);
                 if (!normalized) continue;
-                const modifier = handlerCache.getHandler(normalized.path).processModifier(normalized);
-                modifiers.push(...modifier);
+                const produced = handlerCache.getHandler(normalized.path).processModifier(normalized);
+                produced.forEach((modifier) => modifiers.push({ modifier, rawFragment }));
             } else {
                 const normalized = processScalarValue(parsedModifier, item.actor);
                 if (!normalized) continue;
-                unprocessedModifiers.push(normalized);
+                unprocessedModifiers.push({ parsed: normalized, rawFragment });
             }
         }
 
         //Backup processor for modifiers that have no dedicated handler
         //deprecated paths are also handled here
-        unprocessedModifiers.forEach((modifier) => {
+        unprocessedModifiers.forEach(({ parsed: modifier, rawFragment }) => {
             if (["damage", "weaponspeed"].includes(modifier.path.toLowerCase().split(".")[0])) {
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
                     old: modifier.path,
@@ -87,8 +98,8 @@ export function initAddModifier(
 
             if (handlerCache.handles(modifier.path)) {
                 const handler = handlerCache.getHandler(modifier.path);
-                const createdModifier = handler.processModifier(modifier);
-                modifiers.push(...createdModifier);
+                const produced = handler.processModifier(modifier);
+                produced.forEach((m) => modifiers.push({ modifier: m, rawFragment }));
                 return;
             }
 
@@ -102,20 +113,24 @@ export function initAddModifier(
                         .filter((item) => item.type === "npcattack")
                         .map((item) => `skill.${item.id}`) //name would be better thematically (skill name for npc attacks is the item name) but id is more reliable
                         .forEach((skill) => {
-                            modifiers.push(
-                                createModifier(
+                            modifiers.push({
+                                modifier: createModifier(
                                     skill,
                                     times(of(multiplier), modifier.value),
                                     item,
                                     type,
                                     modifier.attributes as Record<string, string>
-                                )
-                            );
+                                ),
+                                rawFragment,
+                            });
                         });
                     break;
                 default:
                     //mainly for internal modifiers.
-                    modifiers.push(createModifier(modifierLabel, times(of(multiplier), modifier.value), item, type));
+                    modifiers.push({
+                        modifier: createModifier(modifierLabel, times(of(multiplier), modifier.value), item, type),
+                        rawFragment,
+                    });
                     break;
             }
         });

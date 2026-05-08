@@ -11,3 +11,8 @@ dist/
 
 public/images/source/
 
+workdir/
+test-results/
+.opencode/
+
+AGENTS.md
