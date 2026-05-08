@@ -242,6 +242,36 @@ global.foundry = {
                 return JSON.parse(JSON.stringify(this));
             }
         },
+        TypeDataModel: class {
+            constructor(data, context = {}) {
+                for (const key in data) {
+                    Object.defineProperty(this, key, {
+                        value: data[key],
+                        writable: true,
+                        enumerable: true,
+                        configurable: true,
+                    });
+                }
+                if ("parent" in context) {
+                    Object.defineProperty(this, "parent", {
+                        value: context.parent,
+                        writable: true,
+                        enumerable: true,
+                        configurable: true,
+                    });
+                }
+            }
+
+            updateSource(data, context) {
+                for (const key in data) {
+                    this[key] = data[key];
+                }
+            }
+
+            toObject() {
+                return JSON.parse(JSON.stringify(this));
+            }
+        },
     },
     applications: {
         ux: {
@@ -252,6 +282,12 @@ global.foundry = {
         api: foundryApplicationsApi,
         sheets: foundryApplicationSheets,
     },
+};
+
+global.foundry.data.ActiveEffectTypeDataModel = class extends global.foundry.abstract.TypeDataModel {
+    static defineSchema() {
+        return {};
+    }
 };
 
 global.game = {};
