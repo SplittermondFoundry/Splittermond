@@ -15,6 +15,7 @@ import {
 import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import { modifierSchema } from "./modifierSchema";
+import type { EffectType } from "./effectTypes";
 
 export type MultiplicativeModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -89,6 +90,8 @@ export class MultiplicativeModifierDataModel
     get groupId(): string {
         return this.path;
     }
+
+    readonly effectType: EffectType = "multiplicativeModifier";
 
     get selectable(): boolean {
         return (this as any).toObject().selectable;

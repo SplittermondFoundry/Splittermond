@@ -4,6 +4,7 @@ import type { FocusModifier, ScalarModifier } from "module/modifiers/parsing";
 import type { TooltipFormula } from "module/util/tooltip";
 import type { Expression } from "module/modifiers/expressions/scalar";
 import { isMember } from "module/util/util";
+import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
 
 export type { ModifierRegistry } from "./ModifierRegistry";
 export type ScalarRegistry = ModifierRegistry<ScalarModifier>;
@@ -53,4 +54,5 @@ export interface IModifier {
     readonly selectable: boolean;
     readonly attributes: ModifierAttributes;
     readonly origin: object | null;
+    readonly effectType: EffectType;
 }
