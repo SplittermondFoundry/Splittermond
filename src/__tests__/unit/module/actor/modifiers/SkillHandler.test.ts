@@ -30,6 +30,7 @@ describe("SkillHandler", () => {
                 const underTest = new ActorSkillHandler(errorLogger, item, "innate", of(1));
                 const result = underTest.processModifier({
                     path: `actor.skills.${name}`,
+                    rawFragment: `actor.skills.${name} +2`,
                     attributes: {},
                     value: of(2),
                 });
@@ -51,6 +52,7 @@ describe("SkillHandler", () => {
 
         const result = underTest.processModifier({
             path: "skills",
+            rawFragment: 'skills skill="athletics" +3',
             attributes: { skill: "athletics" },
             value: of(3),
         });
@@ -72,6 +74,7 @@ describe("SkillHandler", () => {
 
         const result = underTest.processModifier({
             path: "skills",
+            rawFragment: 'skills skill="athletics" +3',
             attributes: { skill: "athletics" },
             value: of(3),
         });
@@ -91,6 +94,7 @@ describe("SkillHandler", () => {
 
             const result = underTest.processModifier({
                 path: "skills",
+                rawFragment: `skills ${attr}="strength" +2`,
                 attributes,
                 value: of(2),
             });
@@ -110,6 +114,7 @@ describe("SkillHandler", () => {
 
         const result = underTest.processModifier({
             path: "skills",
+            rawFragment: 'skills skill="athletics" emphasis="Kletteraffe" +3',
             attributes: { skill: "athletics", emphasis: "Kletteraffe" },
             value: of(3),
         })[0];
@@ -130,6 +135,7 @@ describe("SkillHandler", () => {
 
         const result = underTest.processModifier({
             path: "actor.skills",
+            rawFragment: 'actor.skills skill="unknownSkill" +2',
             attributes: { skill: "unknownSkill" },
             value: of(2),
         });
@@ -146,6 +152,7 @@ describe("SkillHandler", () => {
 
         const result = underTest.processModifier({
             path: "actor.skills",
+            rawFragment: 'actor.skills attribute1="unknownAttribute" +2',
             attributes: { attribute1: "unknownAttribute" },
             value: of(2),
         });

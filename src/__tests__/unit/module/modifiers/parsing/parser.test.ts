@@ -21,15 +21,19 @@ describe("Modifier Parser", () => {
     });
     (
         [
-            ["AUS +1", { path: "AUS", attributes: { value: 1 } }],
-            ["bonuscap -1", { path: "bonuscap", attributes: { value: -1 } }],
-            ["speed.multiplier 2", { path: "speed.multiplier", attributes: { value: 2 } }],
-            ["gsw.mult 0", { path: "gsw.mult", attributes: { value: 0 } }],
+            ["AUS +1", { path: "AUS", attributes: { value: 1 }, rawFragment: "AUS +1" }],
+            ["bonuscap -1", { path: "bonuscap", attributes: { value: -1 }, rawFragment: "bonuscap -1" }],
+            [
+                "speed.multiplier 2",
+                { path: "speed.multiplier", attributes: { value: 2 }, rawFragment: "speed.multiplier 2" },
+            ],
+            ["gsw.mult 0", { path: "gsw.mult", attributes: { value: 0 }, rawFragment: "gsw.mult 0" }],
             [
                 "generalskills.firemagic/Schaden +2",
                 {
                     path: "generalskills.firemagic",
                     attributes: { emphasis: "Schaden", value: 2 },
+                    rawFragment: "generalskills.firemagic/Schaden +2",
                 },
             ],
         ] as const
@@ -42,14 +46,22 @@ describe("Modifier Parser", () => {
 
     (
         [
-            ["AUS +1", { path: "AUS", attributes: { value: 1 } }],
-            ["bonuscap -1", { path: "boNuscap", attributes: { value: -1 } }],
-            ["speed.multiplier 2", { path: "spEed.multiplier", attributes: { value: 2 } }],
+            ["AUS +1", { path: "AUS", attributes: { value: 1 }, rawFragment: "AUS +1" }],
+            ["bonuscap -1", { path: "boNuscap", attributes: { value: -1 }, rawFragment: "boNuscap -1" }],
+            [
+                "speed.multiplier 2",
+                {
+                    path: "spEed.multiplier",
+                    attributes: { value: 2 },
+                    rawFragment: "spEed.multiplier 2",
+                },
+            ],
             [
                 "generalskills.firemagic/Schaden +2",
                 {
                     path: "geNeralskills.firemagic",
                     attributes: { emphasis: "Schaden", value: 2 },
+                    rawFragment: "geNeralskills.firemagic/Schaden +2",
                 },
             ],
         ] as const
@@ -64,19 +76,52 @@ describe("Modifier Parser", () => {
         [
             [
                 "AUS value=${GSW}",
-                { path: "AUS", attributes: { value: { propertyPath: "GSW", sign: 1, original: "GSW" } } },
+                {
+                    path: "AUS",
+                    attributes: { value: { propertyPath: "GSW", sign: 1, original: "GSW" } },
+                    rawFragment: "AUS value=${GSW}",
+                },
             ],
             [
                 "AUS value=-${GSW}",
-                { path: "AUS", attributes: { value: { propertyPath: "GSW", sign: -1, original: "GSW" } } },
+                {
+                    path: "AUS",
+                    attributes: { value: { propertyPath: "GSW", sign: -1, original: "GSW" } },
+                    rawFragment: "AUS value=-${GSW}",
+                },
             ],
             [
                 "AUS value=+${GSW}",
-                { path: "AUS", attributes: { value: { propertyPath: "GSW", sign: 1, original: "GSW" } } },
+                {
+                    path: "AUS",
+                    attributes: { value: { propertyPath: "GSW", sign: 1, original: "GSW" } },
+                    rawFragment: "AUS value=+${GSW}",
+                },
             ],
-            ["AUS ${GSW}", { path: "AUS", attributes: { value: { propertyPath: "GSW", sign: 1, original: "GSW" } } }],
-            ["AUS -${GSW}", { path: "AUS", attributes: { value: { propertyPath: "GSW", sign: -1, original: "GSW" } } }],
-            ["AUS +${GSW}", { path: "AUS", attributes: { value: { propertyPath: "GSW", sign: 1, original: "GSW" } } }],
+            [
+                "AUS ${GSW}",
+                {
+                    path: "AUS",
+                    attributes: { value: { propertyPath: "GSW", sign: 1, original: "GSW" } },
+                    rawFragment: "AUS ${GSW}",
+                },
+            ],
+            [
+                "AUS -${GSW}",
+                {
+                    path: "AUS",
+                    attributes: { value: { propertyPath: "GSW", sign: -1, original: "GSW" } },
+                    rawFragment: "AUS -${GSW}",
+                },
+            ],
+            [
+                "AUS +${GSW}",
+                {
+                    path: "AUS",
+                    attributes: { value: { propertyPath: "GSW", sign: 1, original: "GSW" } },
+                    rawFragment: "AUS +${GSW}",
+                },
+            ],
             [
                 "AUS +${Geschichte und Mythen}",
                 {
@@ -84,6 +129,7 @@ describe("Modifier Parser", () => {
                     attributes: {
                         value: { propertyPath: "Geschichte und Mythen", sign: 1, original: "Geschichte und Mythen" },
                     },
+                    rawFragment: "AUS +${Geschichte und Mythen}",
                 },
             ],
             [
@@ -93,6 +139,7 @@ describe("Modifier Parser", () => {
                     attributes: {
                         value: { propertyPath: "Geschichte und Mythen", sign: -1, original: "Geschichte und Mythen" },
                     },
+                    rawFragment: "AUS value=-${Geschichte und Mythen}",
                 },
             ],
             [
@@ -102,6 +149,7 @@ describe("Modifier Parser", () => {
                     attributes: {
                         value: { propertyPath: "Geschichte und Mythen", sign: -1, original: "Geschichte und Mythen" },
                     },
+                    rawFragment: "AUS value='-${Geschichte und Mythen}'",
                 },
             ],
             [
@@ -109,6 +157,7 @@ describe("Modifier Parser", () => {
                 {
                     path: "damage",
                     attributes: { weapon: "Fulnisches Doppelschwert", value: 1 },
+                    rawFragment: "damage weapon='Fulnisches Doppelschwert' +1",
                 },
             ],
             [
@@ -116,16 +165,20 @@ describe("Modifier Parser", () => {
                 {
                     path: "generalSkills.firemagic",
                     attributes: { value: 2, emphasis: "Schaden" },
+                    rawFragment: "generalSkills.firemagic emphasis=Schaden value=2",
                 },
             ],
-            ['handicap.shield.mod value="3"', { path: "handicap.shield.mod", attributes: { value: 3 } }],
+            [
+                'handicap.shield.mod value="3"',
+                { path: "handicap.shield.mod", attributes: { value: 3 }, rawFragment: 'handicap.shield.mod value="3"' },
+            ],
             [
                 'item.defenseTickCost defenseType="vtd" -1',
-                { path: "item.defenseTickCost", attributes: { defenseType: "vtd", value: -1 } },
+                { path: "item.defenseTickCost", attributes: { defenseType: "vtd", value: -1 },rawFragment: 'item.defenseTickCost defenseType="vtd" -1'  },
             ],
             [
                 'item.defenseTickCost defenseType="br" -1',
-                { path: "item.defenseTickCost", attributes: { defenseType: "br", value: -1 } },
+                { path: "item.defenseTickCost", attributes: { defenseType: "br", value: -1 }, rawFragment: 'item.defenseTickCost defenseType="br" -1'},
             ],
         ] as const
     ).forEach(([input, expected]) => {
@@ -164,10 +217,12 @@ describe("Modifier Parser", () => {
         expect(result[0]).to.deep.equal({
             path: "npcattacks",
             attributes: { value: 1 },
+            rawFragment: "npcattacks +1",
         });
         expect(result[1]).to.deep.equal({
             path: "generalskills",
             attributes: { value: 1 },
+            rawFragment: "generalskills +1",
         });
     });
 
@@ -183,6 +238,7 @@ describe("Modifier Parser", () => {
                 Merkmale: "Durchdringung 2, Kritisch 2",
                 value: 1,
             },
+            rawFragment: 'damage Merkmale="Durchdringung 2, Kritisch 2" 1',
         });
         expect(result[1]).to.deep.equal({
             path: "damage",
@@ -190,6 +246,7 @@ describe("Modifier Parser", () => {
                 Merkmale: "Feuer 1, Kälte 2",
                 value: 1,
             },
+            rawFragment: "damage Merkmale='Feuer 1, Kälte 2' 1",
         });
     });
 

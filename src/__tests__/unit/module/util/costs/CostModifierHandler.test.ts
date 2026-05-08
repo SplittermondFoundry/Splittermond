@@ -1,12 +1,12 @@
-import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
+import {CostModifierHandler} from "module/util/costs/CostModifierHandler";
 import sinon from "sinon";
 import SplittermondSpellItem from "module/item/spell";
-import { of } from "module/modifiers/expressions/scalar";
-import { of as ofCost, times } from "module/modifiers/expressions/cost";
-import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
-import { parseCostString } from "module/util/costs/costParser";
-import { expect } from "chai";
-import { foundryApi } from "module/api/foundryApi";
+import {of} from "module/modifiers/expressions/scalar";
+import {of as ofCost, times} from "module/modifiers/expressions/cost";
+import {SpellDataModel} from "module/item/dataModel/SpellDataModel";
+import {parseCostString} from "module/util/costs/costParser";
+import {expect} from "chai";
+import {foundryApi} from "module/api/foundryApi";
 
 describe("CostModifierHandler", () => {
     const sandbox = sinon.createSandbox();
@@ -31,6 +31,7 @@ describe("CostModifierHandler", () => {
 
             const result = underTest.processModifier({
                 path: "FOcuS.ADDition",
+                rawFragment: "FOcuS.ADDition",
                 value: asCost("2V1"),
                 attributes: {},
             })![0];
@@ -46,6 +47,7 @@ describe("CostModifierHandler", () => {
 
             const result = underTest.processModifier({
                 path: "focus.EnhancEdAddition",
+                rawFragment: "focus.EnhancEdAddition",
                 value: asCost("2V1"),
                 attributes: {},
             })![0];
@@ -61,6 +63,7 @@ describe("CostModifierHandler", () => {
 
             const result = underTest.processModifier({
                 path: "FOcuS.REDucTIon",
+                rawFragment: "FOcuS.REDucTIon",
                 value: asCost("2V1"),
                 attributes: {},
             })![0];
@@ -76,6 +79,7 @@ describe("CostModifierHandler", () => {
 
             const result = underTest.processModifier({
                 path: "FOcuS.EnHaNcedREDucTIon",
+                rawFragment: "FOcuS.EnHaNcedREDucTIon",
                 value: asCost("2V1"),
                 attributes: {},
             })![0];
@@ -92,6 +96,7 @@ describe("CostModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "invalid.path",
+            rawFragment: "invalid.path 2V1",
             value: asCost("2V1"),
             attributes: {},
         });
@@ -106,6 +111,7 @@ describe("CostModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "focus.addition",
+            rawFragment: "focus.addition 2V1",
             value: asCost("2V1"),
             attributes: {},
         })![0];
@@ -122,6 +128,7 @@ describe("CostModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "focus.enhancedreduction",
+            rawFragment: "focus.enhancedreduction 2V1",
             value: asCost("2V1"),
             attributes: {},
         })![0];
@@ -138,6 +145,7 @@ describe("CostModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: 'focus.reduction skill="invalid" 2V1',
             value: asCost("2V1"),
             attributes: { skill: "invalid" },
         })![0];
@@ -153,6 +161,7 @@ describe("CostModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: "focus.reduction 2V1",
             value: asCost("2V1"),
             attributes: {},
         })![0];
@@ -168,6 +177,7 @@ describe("CostModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "focus.addition",
+            rawFragment: "focus.addition 3V1",
             value: asCost("3V1"),
             attributes: {},
         })![0];
@@ -184,6 +194,7 @@ describe("CostModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: "focus.reduction 2V1",
             value: asCost("2V1"),
             attributes: {},
         })![0];
@@ -199,6 +210,7 @@ describe("CostModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: 'focus.reduction type="valid-type" 2V1',
             value: asCost("2V1"),
             attributes: { type: "valid-type" },
         })![0];
@@ -214,6 +226,7 @@ describe("CostModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: 'focus.reduction skill="invalid" 2V1',
             value: asCost("2V1"),
             attributes: { skill: "invalid" },
         })![0];
