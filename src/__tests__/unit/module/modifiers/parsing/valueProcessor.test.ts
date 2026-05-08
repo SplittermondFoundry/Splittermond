@@ -24,6 +24,7 @@ describe("Value Processor", () => {
     it("should handle valid number attributes", () => {
         const modifier: ParsedModifier = {
             path: "test.path",
+            rawFragment: "test.path 5",
             attributes: {
                 value: 5,
                 stringAttr: "static",
@@ -41,6 +42,7 @@ describe("Value Processor", () => {
     it("should handle valid reference expressions", () => {
         const modifier: ParsedModifier = {
             path: "test.path",
+            rawFragment: "test.path ${existing.path}",
             attributes: {
                 value: {
                     propertyPath: "existing.path",
@@ -64,6 +66,7 @@ describe("Value Processor", () => {
     it("should collect validation errors for invalid references", () => {
         const modifier: ParsedModifier = {
             path: "invalid.path",
+            rawFragment: "invalid.path ${non.existing.path}",
             attributes: {
                 value: {
                     propertyPath: "non.existing.path",
@@ -83,6 +86,7 @@ describe("Value Processor", () => {
     it("should maintain attribute structure", () => {
         const complexModifier: ParsedModifier = {
             path: "complex.path",
+            rawFragment: "complex.path -${existing.path}",
             attributes: {
                 num: 42,
                 value: { propertyPath: "existing.path", sign: -1, original: "existing.path" },
@@ -104,6 +108,7 @@ describe("Value Processor", () => {
     it("should count string values as vector expressions", () => {
         const complexModifier: ParsedModifier = {
             path: "focus.reduction skill=path",
+            rawFragment: "focus.reduction skill=path K7V5",
             attributes: {
                 value: "K7V5",
             },
@@ -120,6 +125,7 @@ describe("Value Processor", () => {
         const focusSource = { existing: { path: "1" } };
         const complexModifier: ParsedModifier = {
             path: "focus.enhancedreduction skill=path",
+            rawFragment: "focus.enhancedreduction skill=path -${existing.path}",
             attributes: {
                 value: {
                     propertyPath: "existing.path",

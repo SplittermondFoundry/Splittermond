@@ -56,6 +56,7 @@ describe("ItemModifierHandler", () => {
         it("should create a modifier with correct properties", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.damage",
+                rawFragment: 'item.damage damageType="fire" +5',
                 value: of(5),
                 attributes: {
                     damageType: "fire",
@@ -169,6 +170,7 @@ describe("ItemModifierHandler", () => {
         it("should process valid modifier", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.damage",
+                rawFragment: 'item.damage damageType="fire" +5',
                 value: of(5),
                 attributes: {
                     damageType: "fire",
@@ -229,6 +231,7 @@ describe("ItemModifierHandler", () => {
         it("should multiply modifier values", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration",
+                rawFragment: 'item.castDuration unit="T" +5',
                 value: of(5),
                 attributes: {
                     unit: "T",
@@ -244,6 +247,7 @@ describe("ItemModifierHandler", () => {
         it("should take cast duration multiplier to the modifier multipliers power", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration.multiplier",
+                rawFragment: 'item.castDuration.multiplier unit="T" 0.5',
                 value: of(0.5),
                 attributes: {
                     unit: "T",
@@ -259,6 +263,7 @@ describe("ItemModifierHandler", () => {
         it("should omit modifier with zero value", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.damage",
+                rawFragment: "item.damage +0",
                 value: of(0),
                 attributes: {},
             };
@@ -271,6 +276,7 @@ describe("ItemModifierHandler", () => {
         it("should reject modifier with invalid path", () => {
             const scalarModifier: ScalarModifier = {
                 path: "actor.damage",
+                rawFragment: "actor.damage +5",
                 value: of(5),
                 attributes: {},
             };
@@ -284,6 +290,7 @@ describe("ItemModifierHandler", () => {
         it("should reject modifier with unknown subpath", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.unknown",
+                rawFragment: "item.unknown +5",
                 value: of(5),
                 attributes: {},
             };
@@ -298,6 +305,7 @@ describe("ItemModifierHandler", () => {
     it("should report unknown attributes", () => {
         const scalarModifier: ScalarModifier = {
             path: "item.damage",
+            rawFragment: 'item.damage unknownAttribute="value" +5',
             value: of(5),
             attributes: {
                 unknownAttribute: "value",

@@ -26,6 +26,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: 'check.result category="outstanding" +2',
             attributes: { category: "outstanding" },
             value: of(2),
         });
@@ -47,6 +48,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: 'check.result category="success" +2',
             attributes: { category: "success" },
             value: of(2),
         });
@@ -63,6 +65,7 @@ describe("CheckModifierHandler", () => {
 
             const result = underTest.processModifier({
                 path: "check.result",
+                rawFragment: `check.result category="${category}" +3`,
                 attributes: { category },
                 value: of(3),
             });
@@ -80,6 +83,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: 'check.result category="success" skill="endurance" +3',
             attributes: { category: "success", skill: "endurance" },
             value: of(3),
         });
@@ -96,6 +100,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: 'check.result category="success" skill="perturbance" +3',
             attributes: { category: "success", skill: "perturbance" },
             value: of(3),
         });
@@ -112,6 +117,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: 'check.result category="success" +2',
             attributes: { category: "success" },
             value: of(2),
         })[0];
@@ -129,6 +135,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: 'check.result category="failure" +1',
             attributes: { category: "failure" },
             value: of(1),
         })[0];
@@ -144,6 +151,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: 'check.result category="invalidCategory" +2',
             attributes: { category: "invalidCategory" },
             value: of(2),
         });
@@ -160,6 +168,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: "check.result +2",
             attributes: {},
             value: of(2),
         });
@@ -176,6 +185,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: 'check.result category="success" type="attack" +3',
             attributes: { category: "success", type: "attack" },
             value: of(3),
         });
@@ -192,6 +202,7 @@ describe("CheckModifierHandler", () => {
 
         const result = underTest.processModifier({
             path: "check.result",
+            rawFragment: 'check.result category="success" type="reverence" +3',
             attributes: { category: "success", type: "reverence" },
             value: of(3),
         });
