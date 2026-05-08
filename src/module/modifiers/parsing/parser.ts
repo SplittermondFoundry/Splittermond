@@ -58,7 +58,7 @@ function parseModifier(modifier: string): SingleParseResult {
         return foundryApi.format("splittermond.modifiers.parseMessages.notAModifier", { modifier });
     }
 
-    const parseResult = parsePath(pathMatch[0]);
+    const parseResult = parsePath(pathMatch[0], modifier);
 
     const attributeParseResult = parseAttributes(attributeMatch);
     if (typeof attributeParseResult === "string") {
@@ -94,11 +94,12 @@ function findAttributes(modifier: string): string[] {
     return attributeMatches;
 }
 
-function parsePath(path: string): ParsedModifier {
+function parsePath(path: string, rawFragment: string): ParsedModifier {
     const pathAndEmphasis = path.split("/");
     return {
         path: pathAndEmphasis[0],
         attributes: { ...(pathAndEmphasis?.[1] ? { emphasis: pathAndEmphasis?.[1] } : {}) },
+        rawFragment,
     };
 }
 

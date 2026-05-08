@@ -10,6 +10,7 @@ import {splittermond} from "module/config/index.js";
 import {getMasteryAvailabilityParser, getSpellAvailabilityParser} from "module/item/availabilityParser";
 import {addModifierEffects} from "module/activeEffect/effectBuilder";
 import type {ItemType} from "module/config/itemTypes";
+import {getAddModifier} from "module/item/item";
 
 interface ItemSheetData {
     cssClass: string;
@@ -252,7 +253,9 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         if (!input) return;
         const modifierString = input.value.trim();
         if (!modifierString) return;
-        await addModifierEffects(this.item, modifierString);
+        const modifierFn = getAddModifier();
+        if (!modifierFn) return;
+        await addModifierEffects(modifierFn, this.item, modifierString);
         input.value = "";
         this.render();
     }
