@@ -43,6 +43,7 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
                     origin: this.sourceItem,
                     selectable: false,
                     isBonus: isGreaterZero(value) ?? true,
+                    effectType: "modifier" as const,
                     addTooltipFormulaElements() {},
                 },
             ];
