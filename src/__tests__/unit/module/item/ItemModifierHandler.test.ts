@@ -182,6 +182,48 @@ describe("ItemModifierHandler", () => {
             expect(result.attributes.damageType).to.equal("fire");
         });
 
+        it("should process defense tick cost modifiers", () => {
+            const scalarModifier: ScalarModifier = {
+                path: "item.defenseTickCost",
+                value: of(-1),
+                attributes: {
+                    itemType: "shield",
+                    defenseType: "vtd",
+                },
+            };
+
+            const result = handler.processModifier(scalarModifier)![0];
+
+            expect(result.groupId).to.equal("item.defenseTickCost");
+            expect(result.value).to.deep.equal(of(-1));
+            expect(result.attributes.itemType).to.equal("shield");
+            expect(result.attributes.defenseType).to.equal("defense");
+        });
+
+        (
+            [
+                ["def", "defense"],
+                ["kw", "bodyresist"],
+                ["br", "bodyresist"],
+                ["gw", "mindresist"],
+                ["mr", "mindresist"],
+            ] as const
+        ).forEach(([input, expected]) => {
+            it(`should normalize defense tick cost defense type alias ${input}`, () => {
+                const scalarModifier: ScalarModifier = {
+                    path: "item.defenseTickCost",
+                    value: of(-1),
+                    attributes: {
+                        defenseType: input,
+                    },
+                };
+
+                const result = handler.processModifier(scalarModifier)![0];
+
+                expect(result.attributes.defenseType).to.equal(expected);
+            });
+        });
+
         it("should multiply modifier values", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration",

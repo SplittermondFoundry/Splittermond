@@ -62,7 +62,7 @@ export default class SplittermondShieldItem extends AttackableItem(SplittermondP
 
         let skill = Skill.initialize(this.actor, this.system.skill, "intuition", "strength");
         this.activeDefenses.push(
-            new ActiveDefense(this.id, "defense", this.name, skill, this.system.features, this.img)
+            new ActiveDefense(this.id, "defense", this.name, skill, this.system.features, this.img, this.type)
         );
 
         this.actor.activeDefense.defense.push(this.activeDefenses[0]);

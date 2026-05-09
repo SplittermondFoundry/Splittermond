@@ -477,6 +477,40 @@ describe("addModifier", () => {
         });
     });
 
+    describe("defense tick cost modifiers", () => {
+        it("should handle defense tick cost modifiers", () => {
+            const result = addModifier(item, 'item.defenseTickCost itemType="shield" +1');
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0]).to.deep.include({
+                path: "item.defenseTickCost",
+                value: of(1),
+                attributes: { name: "Test Item", type: null, itemType: "shield" },
+                origin: item,
+            });
+        });
+
+        it("should support item and skill filters", () => {
+            const result = addModifier(item, 'item.defenseTickCost item="Rundschild" skill="melee" +1');
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0]).to.deep.include({
+                path: "item.defenseTickCost",
+                value: of(1),
+                attributes: { name: "Test Item", type: null, item: "Rundschild", skill: "melee" },
+                origin: item,
+            });
+        });
+        it("should normalize defense type filters in the item handler", () => {
+            const result = addModifier(item, 'item.defenseTickCost defenseType="kw" -1');
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0]).to.deep.include({
+                path: "item.defenseTickCost",
+                value: of(-1),
+                attributes: { name: "Test Item", type: null, defenseType: "bodyresist" },
+                origin: item,
+            });
+        });
+    });
+
     describe("cast duration modifiers", () => {
         it("should handle cast duration modifiers", () => {
             const result = addModifier(item, 'item.castDuration unit="Ticks" +2');

@@ -9,14 +9,16 @@ export default class ActiveDefense {
      * @param {Skill}skill
      * @param {ItemFeaturesModel}features
      * @param {string|null}img
+     * @param {string|null}itemType
      */
-    constructor(id, type, name, skill, features, img = null) {
+    constructor(id, type, name, skill, features, img = null, itemType = null) {
         this.id = id;
         this.type = type;
         this.skill = skill;
         this.itemFeatures = features;
         this.name = name;
         this.img = img;
+        this.itemType = itemType;
     }
 
     get features() {

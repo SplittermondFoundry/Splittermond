@@ -13,6 +13,8 @@ export const modifiers = {
     shield1: "handicap.shield.mod -1",
     armour2: "tickMalus.armor.mod -1",
     shield2: "tickMalus.shield.mod -1",
+    "schnelle schildabwehr": 'item.defenseTickCost itemType="shield" -1',
+    "beidhändige abwehr": 'item.defenseTickCost skill="${skill}" -1',
     flashreflexes: "INI -3",
     goodreflexes: "VTD +1",
     arcanespeed: "GSW +1",
