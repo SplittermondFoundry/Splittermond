@@ -119,6 +119,14 @@ describe("Modifier Parser", () => {
                 },
             ],
             ['handicap.shield.mod value="3"', { path: "handicap.shield.mod", attributes: { value: 3 } }],
+            [
+                'item.defenseTickCost defenseType="vtd" -1',
+                { path: "item.defenseTickCost", attributes: { defenseType: "vtd", value: -1 } },
+            ],
+            [
+                'item.defenseTickCost defenseType="br" -1',
+                { path: "item.defenseTickCost", attributes: { defenseType: "br", value: -1 } },
+            ],
         ] as const
     ).forEach(([input, expected]) => {
         it(`should parse the new style mod '${input}'`, () => {
@@ -141,6 +149,7 @@ describe("Modifier Parser", () => {
         "AUS",
         "AUS=1",
         'damage/Sehr gute Handschuhe damageType="fire" value=1',
+        "item.defenseTickCost vtd -1",
     ].forEach((input) => {
         it(`should return error for invalid modifier format ${input}`, () => {
             const result = parseModifiers(input);

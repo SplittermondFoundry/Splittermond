@@ -25,6 +25,8 @@ export const Chat: {
 
 export function canEditMessageOf(userId: string): boolean {}
 
+export function calculateDefenseTickCost(data: Record<string, any>, totalDegreeOfSuccess: number): number {}
+
 export function prepareCheckMessageData(
     actor: SplittermondActor,
     rollMode: string,
