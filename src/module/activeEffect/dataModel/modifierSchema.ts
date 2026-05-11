@@ -28,6 +28,8 @@ function validateModifier(attributes: ModifierAttributes): attributes is Modifie
     return (
         typeof attributes === "object" &&
         isModifierType(attributes.type) &&
-        Array.from(Object.values(attributes)).every((v) => typeof v === "string")
+        Array.from(Object.values(attributes))
+            .filter(v => v !== undefined && v !== null)
+            .every((v) => typeof v === "string")
     );
 }
