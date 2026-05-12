@@ -1,20 +1,20 @@
-import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
-import { ICostModifier } from "module/util/costs/spellCostManagement";
-import { times as timesCost } from "module/modifiers/expressions/cost";
-import { type Expression, of, times } from "module/modifiers/expressions/scalar";
-import type { FocusModifier, Value } from "module/modifiers/parsing";
-import { ModifierHandler, type ModifierType } from "module/modifiers";
-import { makeConfig } from "module/modifiers/ModifierConfig";
-import type SplittermondItem from "module/item/item";
-import { splittermond } from "module/config";
-import { isMember } from "module/util/util";
+import {normalizeDescriptor} from "module/modifiers/parsing/normalizer";
+import {ICostModifier} from "module/util/costs/spellCostManagement";
+import {times as timesCost} from "module/modifiers/expressions/cost";
+import {type Expression, of, times} from "module/modifiers/expressions/scalar";
+import type {FocusModifier, Value} from "module/modifiers/parsing";
+import {ModifierHandler, type ModifierType} from "module/modifiers";
+import {makeConfig} from "module/modifiers/ModifierConfig";
+import type {IModifierSource} from "module/modifiers/IModifierSource";
+import {splittermond} from "module/config";
+import {isMember} from "module/util/util";
 
 type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
 
 export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     constructor(
         logErrors: (...message: string[]) => void,
-        private readonly sourceItem: SplittermondItem,
+        private readonly sourceItem: IModifierSource,
         _: ModifierType,
         private readonly multiplier: Expression
     ) {
@@ -45,7 +45,7 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
             {
                 label: this.normalizePath(modifier.path),
                 value: timesCost(this.getMultiplier(modifier.path), modifier.value),
-                skill: "skill" in this.sourceItem.system ? this.sourceItem.system.skill : null,
+                skill: hasSystemSkill(this.sourceItem) ? this.sourceItem.system.skill : null,
                 attributes: {
                     skill: group ?? undefined,
                     type: type ?? undefined,
@@ -77,7 +77,7 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
             this.reportInvalidDescriptor(groupId, "skill", normalized);
             //If the skill is invalid, but the item has a skill, use that one. If not use the invalid one,
             //because we don't want to accidentally make the modifier global.
-            return hasSkill(this.sourceItem.system) ? this.sourceItem.system.skill : normalized;
+            return hasSystemSkill(this.sourceItem) ? this.sourceItem.system.skill : normalized;
         }
         return normalized;
     }
@@ -101,6 +101,13 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     }
 }
 
+function hasSystemSkill(input:object): input is {system:{skill:string}}{
+    return hasSystem(input) && hasSkill(input.system);
+}
+function hasSystem(input: object): input is {system:object}{
+    return "system" in input && typeof input.system == "object" && !Array.isArray(input.system);
+}
+
 function hasSkill(input: object): input is { skill: string } {
-    return "skill" in input && typeof (input as any).skill === "string";
+    return "skill" in input && typeof input.skill === "string";
 }
