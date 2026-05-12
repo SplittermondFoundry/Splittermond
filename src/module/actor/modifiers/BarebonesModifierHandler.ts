@@ -1,7 +1,7 @@
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import { type Expression, isGreaterZero, isZero, times } from "module/modifiers/expressions/scalar";
-import type SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 
 export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }>(
@@ -15,7 +15,7 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
         static config = config;
         constructor(
             logErrors: (...message: string[]) => void,
-            private readonly sourceItem: SplittermondItem,
+            private readonly sourceItem: IModifierSource,
             private readonly modifierType: ModifierType,
             private readonly multiplier: Expression
         ) {

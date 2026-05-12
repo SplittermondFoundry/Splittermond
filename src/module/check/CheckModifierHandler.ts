@@ -2,7 +2,7 @@ import { type Config, IModifier, makeConfig, ModifierHandler, type ModifierType 
 import { Expression, isZero, times } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import { Modifier } from "module/activeEffect";
-import type SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { type CheckSuccessState, successStates } from "module/check/modifyEvaluation";
 import { isMember } from "module/util/util";
 import { initMapper, LanguageMapper } from "module/util/LanguageMapper";
@@ -22,7 +22,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
 
     constructor(
         logErrors: (...message: string[]) => void,
-        private readonly sourceItem: SplittermondItem,
+        private readonly sourceItem: IModifierSource,
         private readonly modifierType: ModifierType,
         private readonly multiplier: Expression
     ) {
