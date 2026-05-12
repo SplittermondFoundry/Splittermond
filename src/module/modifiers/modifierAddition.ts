@@ -1,4 +1,4 @@
-import SplittermondItem from "../item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
 import { type FocusModifier, parseModifiers, type ScalarModifier } from "./parsing";
@@ -30,7 +30,7 @@ export function initAddModifier(
     costRegistry: ModifierRegistry<FocusModifier>
 ) {
     return function addModifier(
-        item: SplittermondItem,
+        item: IModifierSource,
         str = "",
         type: ModifierType = null,
         multiplier = 1
@@ -144,7 +144,7 @@ export function initAddModifier(
 function createModifier(
     path: string,
     value: ScalarExpression,
-    item: SplittermondItem,
+    item: IModifierSource,
     type: ModifierType,
     attributes: Record<string, string> = {}
 ): IModifier {
