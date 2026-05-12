@@ -1,14 +1,14 @@
 import { type AnyModifier, ModifierHandler } from "module/modifiers/ModiferHandler";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import { IllegalStateException } from "module/data/exceptions";
-import type SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { Expression } from "module/modifiers/expressions/scalar";
 import type { ModifierType } from "module/modifiers/index";
 
 type ErrorLogger = (...messages: string[]) => void;
 type HandlerConstructorArgs = [
     logError: ErrorLogger,
-    sourceItem: SplittermondItem,
+    sourceItem: IModifierSource,
     type: ModifierType,
     multiplier: Expression,
 ];
@@ -115,7 +115,7 @@ class ModifierCache<TYPE extends AnyModifier> {
 }
 
 class NoActionModifierHandler<T extends AnyModifier> extends ModifierHandler<T> {
-    constructor(logErrors: ErrorLogger, _: SplittermondItem, __: ModifierType, ___: Expression) {
+    constructor(logErrors: ErrorLogger, _: IModifierSource, __: ModifierType, ___: Expression) {
         super(logErrors, makeConfig({ topLevelPath: "" }));
     }
 

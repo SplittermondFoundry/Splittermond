@@ -1,7 +1,7 @@
 import { type Config, type ModifierAttributes, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { Value } from "module/modifiers/parsing";
 import type { AnyModifier } from "module/modifiers/ModiferHandler";
-import type SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 import { isExpression, isZero } from "module/modifiers/expressions/scalar";
 import { isZero as isCostZero } from "module/modifiers/expressions/cost";
@@ -12,7 +12,7 @@ export function ByAttributeHandler<T extends AnyModifier>(base: typeof ModifierH
         constructor(
             logErrors: (...message: string[]) => void,
             config: Config,
-            protected readonly sourceItem: SplittermondItem,
+            protected readonly sourceItem: IModifierSource,
             protected readonly modifierType: ModifierType
         ) {
             super(logErrors, config);
