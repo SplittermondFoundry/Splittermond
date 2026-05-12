@@ -3,7 +3,7 @@ import { expect } from "chai";
 import sinon, { SinonSandbox, type SinonSpy } from "sinon";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ModifierHandler } from "module/modifiers/ModiferHandler";
-import SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { ModifierType } from "module/modifiers";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import { foundryApi } from "module/api/foundryApi";
@@ -15,33 +15,20 @@ describe("ModifierRegistry", () => {
     let registry: ModifierRegistry<ScalarModifier>;
     let consoleDebugSpy: SinonSpy;
 
-    // Mock handler classes for testing
     class TestHandler extends ModifierHandler<ScalarModifier> {
-        constructor(logErrors: (...messages: string[]) => void, _: SplittermondItem, _modifierType: ModifierType) {
+        constructor(logErrors: (...messages: string[]) => void, _: IModifierSource, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "test" }));
         }
-
-        protected omitForValue(): boolean {
-            return false;
-        }
-
-        protected buildModifier() {
-            return [];
-        }
+        protected omitForValue(): boolean { return false; }
+        protected buildModifier() { return []; }
     }
 
     class AnotherTestHandler extends ModifierHandler<ScalarModifier> {
-        constructor(logErrors: (...messages: string[]) => void, _: SplittermondItem, _modifierType: ModifierType) {
+        constructor(logErrors: (...messages: string[]) => void, _: IModifierSource, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "another" }));
         }
-
-        protected omitForValue(): boolean {
-            return false;
-        }
-
-        protected buildModifier() {
-            return [];
-        }
+        protected omitForValue(): boolean { return false; }
+        protected buildModifier() { return []; }
     }
 
     beforeEach(() => {
@@ -239,7 +226,7 @@ describe("ModifierRegistry", () => {
     describe("getCache", () => {
         it("should return a ModifierCache instance", () => {
             const mockLogErrors = sandbox.stub();
-            const mockItem = {} as SplittermondItem;
+            const mockItem = {} as IModifierSource;
             const mockType = "equipment" as ModifierType;
 
             const cache = registry.getCache(mockLogErrors, mockItem, mockType, of(1));
@@ -250,7 +237,7 @@ describe("ModifierRegistry", () => {
 
         it("should return different cache instances for different calls", () => {
             const mockLogErrors = sandbox.stub();
-            const mockItem = {} as SplittermondItem;
+            const mockItem = {} as IModifierSource;
             const mockType = "equipment" as ModifierType;
 
             const cache1 = registry.getCache(mockLogErrors, mockItem, mockType, of(1));
@@ -263,11 +250,11 @@ describe("ModifierRegistry", () => {
     describe("ModifierCache", () => {
         let cache: any;
         let mockLogErrors: sinon.SinonStub;
-        let mockItem: SplittermondItem;
+        let mockItem: IModifierSource;
 
         beforeEach(() => {
             mockLogErrors = sandbox.stub();
-            mockItem = { name: "Test Item" } as SplittermondItem;
+            mockItem = { name: "Test Item" } as IModifierSource;
             cache = registry.getCache(mockLogErrors, mockItem, "equipment", of(1));
         });
 
