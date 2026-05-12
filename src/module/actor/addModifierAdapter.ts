@@ -1,9 +1,9 @@
-import type SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { ModifierType } from "module/modifiers";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
 
 export type IAddModifier = (
-    item: SplittermondItem,
+    item: IModifierSource,
     modifier: string,
     type: ModifierType,
     multiplier: number

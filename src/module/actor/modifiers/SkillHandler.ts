@@ -1,7 +1,7 @@
 import { type Config, type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import type { SplittermondSkill } from "module/config/skillGroups";
-import type SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { type Expression, isZero, times } from "module/modifiers/expressions/scalar";
 import { splittermond } from "module/config";
 import { Modifier } from "module/activeEffect";
@@ -26,7 +26,7 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
     constructor(
         logErrors: (...message: string[]) => void,
         config: Config,
-        sourceItem: SplittermondItem,
+        sourceItem: IModifierSource,
         modifierType: ModifierType,
         private readonly multiplier: Expression
     ) {
@@ -108,7 +108,7 @@ export class SkillHandler extends CommonSkillHandler {
     });
     constructor(
         logErrors: (...message: string[]) => void,
-        sourceItem: SplittermondItem,
+        sourceItem: IModifierSource,
         modifierType: ModifierType,
         multiplier: Expression
     ) {
@@ -122,7 +122,7 @@ export class ActorSkillHandler extends CommonSkillHandler {
     });
     constructor(
         logErrors: (...message: string[]) => void,
-        sourceItem: SplittermondItem,
+        sourceItem: IModifierSource,
         modifierType: ModifierType,
         multiplier: Expression
     ) {
