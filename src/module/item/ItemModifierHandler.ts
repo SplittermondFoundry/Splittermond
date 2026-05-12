@@ -1,7 +1,7 @@
 import type { ScalarModifier, Value } from "../modifiers/parsing";
 import { Modifier } from "module/activeEffect";
 import { splittermond } from "../config";
-import type SplittermondItem from "./item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import { type Expression, pow, times } from "module/modifiers/expressions/scalar";
 import { type TimeUnit } from "module/config/timeUnits";
@@ -11,7 +11,7 @@ import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
     constructor(
         logErrors: (...message: string[]) => void,
-        sourceItem: SplittermondItem,
+        sourceItem: IModifierSource,
         modifierType: ModifierType,
         private readonly multiplier: Expression
     ) {
