@@ -11,6 +11,9 @@ import {getMasteryAvailabilityParser, getSpellAvailabilityParser} from "module/i
 import {addModifierEffects} from "module/activeEffect/effectBuilder";
 import type {ItemType} from "module/config/itemTypes";
 import {getAddModifier} from "module/item/item";
+import type {IModifierSource} from "module/modifiers/IModifierSource";
+import type {ModifierType} from "module/modifiers";
+import type {AddModifierResult} from "module/modifiers/modifierAddition";
 
 interface ItemSheetData {
     cssClass: string;
@@ -256,7 +259,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         if (!input) return;
         const modifierString = input.value.trim();
         if (!modifierString) return;
-        const modifierFn = getAddModifier();
+        const modifierFn = getAddModifier() as ((item: IModifierSource, str: string, type: ModifierType, multiplier: number) => AddModifierResult) | null;
         if (!modifierFn) return;
         await addModifierEffects(modifierFn, this.item, modifierString);
         input.value = "";

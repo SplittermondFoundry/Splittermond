@@ -1,13 +1,14 @@
 import type { IModifier, ModifierType } from "module/modifiers";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import type SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
 import { ModifierDataModel } from "./dataModel/ModifierDataModel";
 import { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
 import type { EffectType } from "./dataModel/effectTypes";
 
 type AddModifierFn = (
-    item: SplittermondItem,
+    item: IModifierSource,
     str: string,
     type: ModifierType,
     multiplier: number
@@ -23,7 +24,7 @@ interface EffectCreationData {
     flags: Record<string, unknown>;
 }
 
-function buildScalarEffectData(
+export function buildScalarEffectData(
     modifier: IModifier,
     rawFragment: string,
     origin: string
@@ -50,7 +51,7 @@ function buildScalarEffectData(
     };
 }
 
-function buildCostEffectData(
+export function buildCostEffectData(
     modifier: ICostModifier,
     rawFragment: string,
     origin: string
@@ -82,7 +83,7 @@ function buildCostEffectData(
  */
 export async function addModifierEffects(
     addModifier: AddModifierFn,
-    item: SplittermondItem,
+    item: IModifierSource,
     modifierString: string,
     modifierType: ModifierType = "magic" as ModifierType,
     multiplier: number = 1
