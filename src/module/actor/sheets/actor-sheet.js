@@ -11,6 +11,7 @@ import { closestData } from "module/data/ClosestDataMixin.js";
 import { SplittermondBaseActorSheet, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { TooltipConfigurer } from "module/actor/sheets/TooltipConfigurer.js";
 import { HoverStateTracker } from "module/actor/sheets/HoverStateTracker.ts";
+import { AddModifierEffectDialog } from "module/actor/AddModifierEffectDialog";
 
 export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     static DEFAULT_OPTIONS = {
@@ -73,6 +74,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 "open-defense-dialog": (e, t) => this.#handleOpenDefenseDialog(e, t),
                 "toggle-effect": (_e, t) => this.#handleToggleEffect(t),
                 "delete-effect": (_e, t) => this.#handleDeleteEffect(t),
+                "add-effect": () => this.#handleAddEffect(),
             },
         };
         const actorOptions = foundryApi.utils.mergeObject(instanceDefaults, options);
@@ -527,6 +529,13 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         if (defenseType && ["defense", "bodyresist", "mindresist"].includes(defenseType)) {
             this.actor.activeDefenseDialog(defenseType);
         }
+    }
+
+    /**
+     * Open the dialog to add a new modifier-based active effect
+     */
+    #handleAddEffect() {
+        new AddModifierEffectDialog(this.actor).render({ force: true });
     }
 
     /**
