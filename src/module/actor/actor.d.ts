@@ -12,6 +12,8 @@ import type { ItemType } from "module/config/itemTypes";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { ExpressionBundle, ValueBundle } from "module/util/util";
 import type { Expression } from "module/modifiers/expressions/scalar";
+import type {FoundryActiveEffect} from "module/api/ActiveEffect";
+import {SplittermondActiveEffect} from "module/activeEffect";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 
@@ -78,6 +80,10 @@ declare class SplittermondActor extends Actor {
     getVirtualStatusTokens(): VirtualToken[];
 
     get bonusCap(): ExpressionBundle;
+    allApplicableEffects():Generator<SplittermondActiveEffect,void,void>
+
+    attacks: Attack[];
+    type: "character" | "npc";
 }
 
 interface FindOptions {
