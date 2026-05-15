@@ -1,6 +1,7 @@
 import { DataModel } from "./DataModel";
 import type { FoundryApplication } from "./Application";
 import { MessageModeKey } from "./ChatMessage";
+import type {FoundryActiveEffect} from "module/api/ActiveEffect";
 
 export type FoundryCombat = foundry.documents.Combat;
 export type FoundryCombatant = foundry.documents.Combatant;
@@ -125,6 +126,9 @@ declare global {
 
         get inCombat(): boolean;
         get isToken(): boolean;
+
+        applyActiveEffects(phase:string):void;
+        allApplicableEffects():Generator<FoundryActiveEffect,void,void>
     }
 
     class Item extends FoundryDocument {
