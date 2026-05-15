@@ -260,6 +260,10 @@ export default class SplittermondActor extends Actor {
         }
     }
 
+    applyActiveEffects(){
+        super.applyActiveEffects();
+    }
+
     /**@returns VirtualToken[]*/
     getVirtualStatusTokens() {
         return this.items
