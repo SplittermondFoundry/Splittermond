@@ -9,6 +9,8 @@ import ModifierManager from "./modifiers/modifier-manager";
 import type { VirtualToken } from "../combat/VirtualToken";
 import type { ItemType } from "module/config/itemTypes";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
+import type {FoundryActiveEffect} from "module/api/ActiveEffect";
+import {SplittermondActiveEffect} from "module/activeEffect";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 declare class SplittermondActor extends Actor {
@@ -47,6 +49,8 @@ declare class SplittermondActor extends Actor {
     findItem(): FindOptions;
 
     getVirtualStatusTokens(): VirtualToken[];
+
+    allApplicableEffects():Generator<SplittermondActiveEffect,void,void>
 
     attacks: Attack[];
     type: "character" | "npc";

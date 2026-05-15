@@ -185,6 +185,8 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             "getFlag",
             "updateSource",
             "testUserPermission",
+            "applyActiveEffects",
+            "allApplicableEffects",
         ].forEach((property) => {
             it(`should have a method ${property}`, () => {
                 expect(actor, `Actor prototype does not have ${property}`).to.have.property(property);
