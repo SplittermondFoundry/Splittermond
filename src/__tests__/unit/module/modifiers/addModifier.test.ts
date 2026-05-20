@@ -83,7 +83,6 @@ describe("addModifier", () => {
             .returns(item)
             .withArgs(actor.uuid)
             .returns(actor);
-        sandbox.stub(foundryApi, "reportError");
         reportErrorStub = sandbox.stub(foundryApi, "reportError");
         sandbox.stub(foundryApi, "format").callsFake((key: string) => key);
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => {
@@ -267,7 +266,7 @@ describe("addModifier", () => {
     it("should accept skill attribute for lower fumble result", () => {
         const result = addModifier(item, "lowerfumbleresult  skill=windmagic +3");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
+        expect(result.modifiers[0].modifier).to.deep.contain({
             path: "lowerfumbleresult",
             attributes: { name: "Test Item", type: null, skill: "windmagic" },
             value: of(3),
