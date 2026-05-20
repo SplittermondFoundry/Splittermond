@@ -17,13 +17,15 @@ import { addModifier } from "./addModifierAdapter";
 import { evaluate, max, min, minus, of, plus, syncEvaluate } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
-import { InverseModifier } from "module/activeEffect";
+import { InverseModifier, SplittermondActiveEffect} from "module/activeEffect";
 import { genesisSpellImport } from "./genesisImport/spellImport";
 import { addTicks } from "module/combat/addTicks";
 import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
 import { FoundryDialog } from "module/api/Application.js";
 import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 import { fromExpression } from "module/util/util.ts";
+import {isGenerated} from "module/activeEffect/effectBuilder.ts";
+import {not} from "module/util/util.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -260,8 +262,11 @@ export default class SplittermondActor extends Actor {
         }
     }
 
-    applyActiveEffects(){
-        super.applyActiveEffects();
+    applyActiveEffects(phase){
+        super.applyActiveEffects(phase);
+        if (phase !== "initial") return; //needs to be initial, b/c 'final' happens after derived value calculation.
+        SplittermondActiveEffect.withFilter(not(isGenerated)).getModifiers(this.allApplicableEffects())
+            .forEach((mod) => this.modifier.addModifier(mod))
     }
 
     /**@returns VirtualToken[]*/

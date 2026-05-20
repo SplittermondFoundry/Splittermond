@@ -28,6 +28,7 @@ import Attack from "module/actor/attack";
 import { passesEventually } from "../util";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { SplittermondSkill } from "module/config/skillGroups";
+import { Modifier } from "module/activeEffect";
 
 export function modifierTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
@@ -1126,14 +1127,23 @@ export function modifierTest(context: QuenchBatchContext) {
     describe("Item modifiers", () => {
         it("should account for modifications to weapons", async () => {
             const subject = await createActor("WeaponizedCharacter");
-            (subject.system as CharacterDataModel).attributes.agility.updateSource({ initial: 2, advances: 0 });
-            (subject.system as CharacterDataModel).attributes.strength.updateSource({ initial: 2, advances: 0 });
-            (subject.system as CharacterDataModel).updateSource({
+            await subject.update({system: {
+                attributes: {
+                    agility: {
+                        initial: 2,
+                        advances: 0,
+                    },
+                    strength: {
+                        initial: 2,
+                        advances: 0,
+                    }
+                },
                 skills: {
                     ...subject.system.skills,
                     blades: { points: 2, value: 6 },
-                },
-            });
+                }
+
+            }});
             await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "weapon",
@@ -1174,14 +1184,23 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should account for modifications to shields", async () => {
             const subject = await createActor("WeaponizedCharacter");
-            (subject.system as CharacterDataModel).attributes.agility.updateSource({ initial: 2, advances: 0 });
-            (subject.system as CharacterDataModel).attributes.strength.updateSource({ initial: 2, advances: 0 });
-            (subject.system as CharacterDataModel).updateSource({
-                skills: {
-                    ...subject.system.skills,
-                    blades: { points: 2, value: 6 },
-                },
-            });
+            await subject.update({system: {
+                    attributes: {
+                        agility: {
+                            initial: 2,
+                            advances: 0,
+                        },
+                        strength: {
+                            initial: 2,
+                            advances: 0,
+                        }
+                    },
+                    skills: {
+                        ...subject.system.skills,
+                        blades: { points: 2, value: 6 },
+                    }
+
+                }});
             await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "weapon",
@@ -1229,5 +1248,80 @@ export function modifierTest(context: QuenchBatchContext) {
                 .not.be.empty;
             expect(subject.attacks.find((a) => a.name === "Lance of Longinus")?.features).to.equal("Scharf 2");
         });
+    });
+
+    describe("Active effects from items are recognized exactly once", () => {
+        it("should apply a skill modifier",
+            withActor(async (subject) => {
+                await subject.update({system: {
+                        attributes: {
+                            intuition: {
+                                initial: 2,
+                                advances: 0,
+                            },
+                            mind: {
+                                initial: 3,
+                                advances: 0,
+                            }
+                        },
+                    }});
+                // Base empathy = intuition(2) + charisma(3) + points(0) = 5; with +2 modifier → expected 7, not 9
+                const [item] = await subject.createEmbeddedDocuments("Item", [
+                    { type: "statuseffect", name: "Begabung", system: { modifier: "", level: 1 } },
+                ]);
+                await (item as any).createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "empathy +2",
+                        type: "modifier",
+                        transfer: true,
+                        disabled: false,
+                        system: Modifier.init("empathy", of(2), { name: "Begabung", type: "innate" }),
+                    },
+                ]);
+
+                subject.prepareBaseData();
+                await subject.prepareEmbeddedDocuments();
+                subject.prepareDerivedData();
+
+                expect(subject.skills.empathy.value).to.equal(7);
+            })
+        );
+
+        it("should apply a woundmalus.mod modifier",
+            withActor(async (subject) => {
+                await subject.update({system: {
+                        attributes: {
+                            constitution: {
+                                initial: 2,
+                                advances: 0,
+                            },
+                            agility: {
+                                initial: 3,
+                                advances: 0,
+                            }
+                        },
+                    }});
+                // woundmalus.mod +2 shifts every wound threshold value by +2 (i.e. reduces severity)
+                // If applied twice, woundMalusMod would be 4 instead of 2
+                const [item] = await subject.createEmbeddedDocuments("Item", [
+                    { type: "statuseffect", name: "Eiserne Haut", system: { modifier: "", level: 1 } },
+                ]);
+                await (item as any).createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "woundmalus.mod +2",
+                        type: "modifier",
+                        transfer: true,
+                        disabled: false,
+                        system: Modifier.init("actor.woundmalus.mod", of(2), { name: "Eiserne Haut", type: "innate" }),
+                    },
+                ]);
+
+                subject.prepareBaseData();
+                await subject.prepareEmbeddedDocuments();
+                subject.prepareDerivedData();
+
+                expect((subject as any).woundMalusMod).to.equal(2);
+            })
+        );
     });
 }
