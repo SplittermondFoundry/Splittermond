@@ -27,6 +27,9 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
             weaponspeed: {
                 optionalAttributes: ["item", "itemType", "skill"],
             },
+            defenseTickCost: {
+                optionalAttributes: ["defenseType", "item", "itemType", "skill"],
+            },
             mergeFeature: {
                 requiredAttributes: ["feature"],
                 optionalAttributes: ["item", "itemType", "skill"],
@@ -67,6 +70,8 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
                 return this.normalizeUnit(path, value);
             case "skill":
                 return this.commonNormalizers.normalizeSkill(path, value);
+            case "defenseType":
+                return this.normalizeDefenseType(path, value);
             default:
                 return this.commonNormalizers.validatedAttribute(value);
         }
@@ -107,6 +112,29 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
         } else {
             this.reportInvalidDescriptor(path, "unit", validated);
             return undefined;
+        }
+    }
+
+    normalizeDefenseType(path: string, defenseType: Value | undefined): string | undefined {
+        const validated = this.commonNormalizers.validatedAttribute(defenseType)?.toLowerCase();
+        switch (validated) {
+            case "def":
+            case "vtd":
+            case "defense":
+                return "defense";
+            case "br":
+            case "kw":
+            case "bodyresist":
+                return "bodyresist";
+            case "mr":
+            case "gw":
+            case "mindresist":
+                return "mindresist";
+            case undefined:
+                return undefined;
+            default:
+                this.reportInvalidDescriptor(path, "defenseType", validated);
+                return undefined;
         }
     }
 }
