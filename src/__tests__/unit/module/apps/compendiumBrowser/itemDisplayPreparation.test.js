@@ -1,7 +1,9 @@
 import { describe, it } from "mocha";
 import { expect } from "chai";
-import { initializeDisplayPreparation } from "../../../../../module/apps/compendiumBrowser/itemDisplayPreparation.js";
+import { initializeDisplayPreparation } from "module/apps/compendiumBrowser/itemDisplayPreparation";
 import { identity } from "../../../foundryMocks.js";
+import { ItemFeatureDataModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
+import sinon from "sinon";
 
 const defautItem = {
     folder: "",
@@ -20,7 +22,7 @@ function getSampleSpellItem() {
             level: "",
             availableIn: "lightmagic 1, shadowmagic 3",
             skill: "lightmagic",
-            features: "",
+            features: { internalFeatureList: [] },
             skillLevel: 1,
             spellType: "Leuchten",
         },
@@ -37,7 +39,7 @@ function getSampleMasteryItem() {
             level: "1",
             availableIn: "staffs",
             skill: "staffs",
-            features: "",
+            features: { internalFeatureList: [] },
             skillLevel: 0,
             damage: "",
         },
@@ -54,7 +56,7 @@ function getSampleWeaponItem() {
             availableIn: "",
             spellType: "",
             skill: "swords",
-            features: "Scharf 2",
+            features: { internalFeatureList: [{ name: "Scharf", value: 2 }] },
             skillLevel: 0,
             damage: "1W6+2",
             secondaryAttack: {
@@ -70,7 +72,7 @@ function getSampleArmorItem() {
         type: "armor",
         name: "Kettenhemd",
         system: {
-            features: "Schwer",
+            features: { internalFeatureList: [{ name: "Schwer", value: 1 }] },
             defenseBonus: 2,
             damageReduction: 3,
             handicap: 2,
@@ -84,7 +86,7 @@ function getSampleShieldItem() {
         type: "shield",
         name: "Holzschild",
         system: {
-            features: "Extraschwer",
+            features: { internalFeatureList: [{ name: "Extraschwer", value: 1 }] },
             defenseBonus: 1,
             handicap: 1,
         },
@@ -130,7 +132,9 @@ describe("spell item preparation for compendium browser", () => {
     it("should add metadata to spells", async () => {
         const collector = {};
         await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
-        expect(collector.spell[0]).to.deep.contain({ compendium: { metadata: sampleCompendiumData } });
+        expect(collector.spell[0]).to.deep.contain({
+            compendium: { metadata: sampleCompendiumData },
+        });
     });
 
     it("should throw an error if the item is not a spell", async () => {
@@ -186,7 +190,9 @@ describe("mastery item preparation for compendium browser", () => {
     it("should add metadata to masteries", async () => {
         const collector = {};
         await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
-        expect(collector.mastery[0]).to.deep.contain({ compendium: { metadata: sampleCompendiumData } });
+        expect(collector.mastery[0]).to.deep.contain({
+            compendium: { metadata: sampleCompendiumData },
+        });
     });
 
     it("should throw an error if the item is not a mastery", async () => {
@@ -236,6 +242,7 @@ describe("weapon item preparation for compendium browser", () => {
     it("should produce weapon tags", async () => {
         const collector = {};
         await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        setItemFeaturesDataModel(collector.weapon[0]);
         expect(collector.weapon[0].featuresList).to.deep.equal(["Scharf 2"]);
     });
 
@@ -275,7 +282,9 @@ describe("armor item preparation for compendium browser", () => {
     it("should add metadata to armor", async () => {
         const collector = {};
         await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
-        expect(collector.armor[0]).to.deep.contain({ compendium: { metadata: sampleCompendiumData } });
+        expect(collector.armor[0]).to.deep.contain({
+            compendium: { metadata: sampleCompendiumData },
+        });
     });
 
     it("should throw an error if the item is not an armor", async () => {
@@ -290,6 +299,7 @@ describe("armor item preparation for compendium browser", () => {
     it("should produce armor feature tags", async () => {
         const collector = {};
         await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        setItemFeaturesDataModel(collector.armor[0]);
         expect(collector.armor[0].featuresList).to.deep.equal(["Schwer"]);
     });
 });
@@ -306,7 +316,9 @@ describe("shield item preparation for compendium browser", () => {
     it("should add metadata to shields", async () => {
         const collector = {};
         await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
-        expect(collector.shield[0]).to.deep.contain({ compendium: { metadata: sampleCompendiumData } });
+        expect(collector.shield[0]).to.deep.contain({
+            compendium: { metadata: sampleCompendiumData },
+        });
     });
 
     it("should throw an error if the item is not a shield", async () => {
@@ -321,6 +333,7 @@ describe("shield item preparation for compendium browser", () => {
     it("should produce shield feature tags", async () => {
         const collector = {};
         await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
+        setItemFeaturesDataModel(collector.shield[0]);
         expect(collector.shield[0].featuresList).to.deep.equal(["Extraschwer"]);
     });
 });
@@ -337,7 +350,9 @@ describe("npc item preparation for compendium browser", () => {
     it("should add metadata to npcs", async () => {
         const collector = {};
         await produceDisplayableItems(sampleCompendiumData, Promise.resolve(getAllItemData()), collector);
-        expect(collector.npc[0]).to.deep.contain({ compendium: { metadata: sampleCompendiumData } });
+        expect(collector.npc[0]).to.deep.contain({
+            compendium: { metadata: sampleCompendiumData },
+        });
     });
 
     it("should throw an error if the actor is not an npc", async () => {
@@ -355,3 +370,11 @@ describe("npc item preparation for compendium browser", () => {
         expect(collector.npc[0].typeList).to.deep.equal([{ label: "Goblinoid" }, { label: "Kulturschaffender" }]);
     });
 });
+
+/**
+ * in tests {@Link ItemFeatureDataModel} does not get initialized properly. We have to do this after the fact here
+ */
+function setItemFeaturesDataModel(item) {
+    const itemFeatures = item.system.features.internalFeatureList;
+    item.system.features.internalFeatureList = itemFeatures.map((f) => new ItemFeatureDataModel(f));
+}

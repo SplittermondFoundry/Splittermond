@@ -1,6 +1,6 @@
-import { produceAttackableItemTags } from "../../item/tags/attackableItemTags.js";
 import { initializeMetadata } from "./metadataInitializer.js";
-import { type ItemIndexEntity, type CompendiumMetadata } from "./compendium-browser";
+import { type CompendiumMetadata, type ItemIndexEntity } from "./compendium-browser";
+import { initializeTagGenerator } from "module/apps/compendiumBrowser/tagGenerator";
 
 export function prepareArmorItemIndex(
     compendiumMetadata: CompendiumMetadata,
@@ -19,15 +19,4 @@ function isDisplayableArmor(itemIndexEntity: ItemIndexEntity): boolean {
         typeof itemIndexEntity.system === "object" &&
         itemIndexEntity.system.features !== undefined
     );
-}
-
-function initializeTagGenerator(item: ItemIndexEntity): void {
-    const property = "featuresList";
-    if (!(property in item)) {
-        Object.defineProperty(item, property, {
-            get: function () {
-                return produceAttackableItemTags(this.system);
-            },
-        });
-    }
 }

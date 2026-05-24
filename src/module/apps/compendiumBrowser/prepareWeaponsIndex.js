@@ -1,5 +1,5 @@
-import { produceAttackableItemTags } from "../../item/tags/attackableItemTags.js";
 import { initializeMetadata } from "./metadataInitializer.js";
+import { initializeTagGenerator } from "module/apps/compendiumBrowser/tagGenerator";
 
 /**
  * @param {CompendiumMetadata} compendiumMetadata
@@ -29,20 +29,6 @@ function isDisplayableWeapon(itemIndexEntity) {
         itemIndexEntity.system.secondaryAttack !== undefined &&
         itemIndexEntity.system.secondaryAttack.skill !== undefined
     );
-}
-
-/**
- * @param {ItemIndexEntity} item
- */
-function initializeTagGenerator(item) {
-    const property = "featuresList";
-    if (!(property in item)) {
-        Object.defineProperty(item, property, {
-            get: function () {
-                return produceAttackableItemTags(this.system);
-            },
-        });
-    }
 }
 
 function initializeSecondaryAttack(item) {

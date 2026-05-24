@@ -635,6 +635,13 @@ export default class SplittermondActor extends Actor {
         );
     }
 
+    get typeList() {
+        if (this.type === "character") return [];
+        /**@type NpcDataModel*/
+        const dataModel = this.system;
+        return dataModel.type.split(",").map((type) => ({ label: type.trim() }));
+    }
+
     get damageReduction() {
         return this.modifier.getForId("damagereduction").getModifiers().sum;
     }
@@ -997,7 +1004,10 @@ export default class SplittermondActor extends Actor {
                     },
                 },
             });
-            return { pointSpent: true, getBonus: (skillName) => this.#getSplinterpointBonus(skillName) };
+            return {
+                pointSpent: true,
+                getBonus: (skillName) => this.#getSplinterpointBonus(skillName),
+            };
         }
         return { pointSpent: false, getBonus: () => 0 };
     }
@@ -1051,7 +1061,11 @@ export default class SplittermondActor extends Actor {
             description: foundryApi.localize("splittermond.splinterpoint"),
         });
 
-        this.update({ system: { splinterpoints: { value: parseInt(this.splinterpoints.value) - 1 } } });
+        this.update({
+            system: {
+                splinterpoints: { value: parseInt(this.splinterpoints.value) - 1 },
+            },
+        });
         checkMessageData.availableSplinterpoints = 0;
 
         let checkData = await Dice.evaluateCheck(
@@ -1151,7 +1165,9 @@ export default class SplittermondActor extends Actor {
         focusData.exhausted.value = 0;
         healthData.exhausted.value = 0;
 
-        return await this.update({ system: { health: healthData, focus: focusData } }); //propagate update to the database
+        return await this.update({
+            system: { health: healthData, focus: focusData },
+        }); //propagate update to the database
     }
 
     async longRest(clearChanneled = true, askUser = true) {
@@ -1181,7 +1197,9 @@ export default class SplittermondActor extends Actor {
             0
         );
 
-        return await this.update({ system: { health: healthData, focus: focusData } }); //propagate update to the database
+        return await this.update({
+            system: { health: healthData, focus: focusData },
+        }); //propagate update to the database
     }
 
     #askUserForLongRest() {

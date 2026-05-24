@@ -1,3 +1,11 @@
+
+## 14.0.3
+
+### Fixes
+
+- Kompendien Browser zeigt Waffen und NSC Merkmale immer an.
+- 
+
 ## 14.0.2
 
 ### Fixes
