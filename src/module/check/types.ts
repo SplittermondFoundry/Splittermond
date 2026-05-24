@@ -1,5 +1,11 @@
-import { RollType } from "../config/check";
+import { RollType } from "module/config/check";
 
+export interface DegreeOfSuccessContainer {
+    degreeOfSuccess: {
+        fromRoll: number;
+        modification: number;
+    };
+}
 interface RollResultForSplittermond {
     total: number;
     getTooltip(): Promise<string>;

@@ -115,6 +115,8 @@ declare global {
 
     class Actor extends FoundryDocument {
         name: string;
+        img: string;
+        type: string;
         items: Collection<Item>;
         readonly folder: string;
         system: Record<string, any>;

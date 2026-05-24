@@ -1,6 +1,6 @@
-import { GenericRollEvaluation } from "./GenericRollEvaluation";
 import { SplittermondSkill } from "../config/skillGroups";
 import type { DefenseType } from "module/actor/actor";
+import type { GenericRollEvaluation } from "module/check/types";
 
 export interface CheckReport extends Omit<GenericRollEvaluation, "roll"> {
     skill: {

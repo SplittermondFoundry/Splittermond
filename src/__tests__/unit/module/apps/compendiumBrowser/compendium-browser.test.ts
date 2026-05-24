@@ -5,14 +5,11 @@ import { expect } from "chai";
 import { createHtml } from "../../../../handlebarHarness";
 import SplittermondCompendiumBrowser from "../../../../../module/apps/compendiumBrowser/compendium-browser";
 import { JSDOM } from "jsdom";
-import {
-    SplittermondFightingSkill,
-    SplittermondMagicSkill,
-    SplittermondSkill,
-} from "../../../../../module/config/skillGroups";
+import { SplittermondFightingSkill, SplittermondMagicSkill, SplittermondSkill } from "module/config/skillGroups";
 import SplittermondSpellItem from "../../../../../module/item/spell";
 import SplittermondItem from "../../../../../module/item/item";
-import { SpellDataModel } from "../../../../../module/item/dataModel/SpellDataModel";
+import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
+import type SplittermondActor from "module/actor/actor";
 
 describe("compendium-browser filters", async () => {
     let sandbox: SinonSandbox;
@@ -276,8 +273,16 @@ describe("compendium-browser filters", async () => {
 
         it("should omit private world items that are not visible", () => {
             const browser = new SplittermondCompendiumBrowser();
-            const visibleItem = { type: "spell", name: "Visible Spell", visible: true } as unknown as SplittermondItem;
-            const privateItem = { type: "spell", name: "Private Spell", visible: false } as unknown as SplittermondItem;
+            const visibleItem = {
+                type: "spell",
+                name: "Visible Spell",
+                visible: true,
+            } as unknown as SplittermondItem;
+            const privateItem = {
+                type: "spell",
+                name: "Private Spell",
+                visible: false,
+            } as unknown as SplittermondItem;
             const items = createMockCollection([visibleItem, privateItem]);
 
             const result = browser.appendWorldItemsToRecord({}, items);
@@ -291,8 +296,16 @@ describe("compendium-browser filters", async () => {
 
         it("should omit private world actors that are not visible", () => {
             const browser = new SplittermondCompendiumBrowser();
-            const visibleActor = { type: "npc", name: "Visible NPC", visible: true } as unknown as Actor;
-            const privateActor = { type: "npc", name: "Private NPC", visible: false } as unknown as Actor;
+            const visibleActor = {
+                type: "npc",
+                name: "Visible NPC",
+                visible: true,
+            } as unknown as SplittermondActor;
+            const privateActor = {
+                type: "npc",
+                name: "Private NPC",
+                visible: false,
+            } as unknown as SplittermondActor;
             const actors = createMockCollection([visibleActor, privateActor]);
 
             const result = browser.appendWorldActorsToRecord({}, actors);
@@ -342,7 +355,10 @@ async function setupCompendiumBrowser(setupProbe: SetupProbe) {
     const mastery = createHtml("./templates/apps/compendium-browser/parts/mastery.hbs", probe);
     const weapon = createHtml("./templates/apps/compendium-browser/parts/weapon.hbs", probe);
     const html = `${spell}\n${mastery}\n${weapon}`;
-    const dom = new JSDOM(html, { runScripts: "dangerously", resources: "usable" });
+    const dom = new JSDOM(html, {
+        runScripts: "dangerously",
+        resources: "usable",
+    });
     const objectUnderTest = new TestCompendiumBrowser(dom);
     await objectUnderTest._onRender({}, {});
     await objectUnderTest.render();

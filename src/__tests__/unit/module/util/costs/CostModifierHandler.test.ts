@@ -24,6 +24,68 @@ describe("CostModifierHandler", () => {
         allErrors = [];
         sandbox.restore();
     });
+    describe("Case sensitivity", () => {
+        it("should be case insensitive for addition", () => {
+            const item = createItemWithSkill(sandbox, "deathmagic");
+            const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+
+            const result = underTest.processModifier({
+                path: "FOcuS.ADDition",
+                value: asCost("2V1"),
+                attributes: {},
+            })![0];
+
+            expect(result).to.not.be.null;
+            expect(result?.label).to.equal("focus.reduction");
+            expect(result?.value).to.deep.equal(times(of(-1), asCost("2V1")));
+            expect(allErrors).to.have.length(0);
+        });
+        it("should be case insensitive for enhanced addition", () => {
+            const item = createItemWithSkill(sandbox, "deathmagic");
+            const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+
+            const result = underTest.processModifier({
+                path: "focus.EnhancEdAddition",
+                value: asCost("2V1"),
+                attributes: {},
+            })![0];
+
+            expect(result).to.not.be.null;
+            expect(result?.label).to.equal("focus.enhancedreduction");
+            expect(result?.value).to.deep.equal(times(of(-1), asCost("2V1")));
+            expect(allErrors).to.have.length(0);
+        });
+        it("should be case insensitive for reduction", () => {
+            const item = createItemWithSkill(sandbox, "deathmagic");
+            const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+
+            const result = underTest.processModifier({
+                path: "FOcuS.REDucTIon",
+                value: asCost("2V1"),
+                attributes: {},
+            })![0];
+
+            expect(result).to.not.be.null;
+            expect(result?.label).to.equal("FOcuS.REDucTIon");
+            expect(result?.value).to.deep.equal(asCost("2V1"));
+            expect(allErrors).to.have.length(0);
+        });
+        it("should be case insensitive for enhanced Reduction", () => {
+            const item = createItemWithSkill(sandbox, "deathmagic");
+            const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+
+            const result = underTest.processModifier({
+                path: "FOcuS.EnHaNcedREDucTIon",
+                value: asCost("2V1"),
+                attributes: {},
+            })![0];
+
+            expect(result).to.not.be.null;
+            expect(result?.label).to.equal("FOcuS.EnHaNcedREDucTIon");
+            expect(result?.value).to.deep.equal(asCost("2V1"));
+            expect(allErrors).to.have.length(0);
+        });
+    });
     it("should fail for invalid path", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
         const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
@@ -59,14 +121,14 @@ describe("CostModifierHandler", () => {
         const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
 
         const result = underTest.processModifier({
-            path: "focus.enhancedAddition",
+            path: "focus.enhancedreduction",
             value: asCost("2V1"),
             attributes: {},
         })![0];
 
         expect(result).to.not.be.null;
         expect(result?.label).to.equal("focus.enhancedreduction");
-        expect(result?.value).to.deep.equal(times(of(-1), asCost("2V1")));
+        expect(result?.value).to.deep.equal(asCost("2V1"));
         expect(allErrors).to.have.length(0);
     });
 
@@ -165,7 +227,11 @@ describe("CostModifierHandler", () => {
 function createItemWithSkill(sandbox: sinon.SinonSandbox, skill: string | null | undefined) {
     const item = sandbox.createStubInstance(SplittermondSpellItem);
     item.system = sandbox.createStubInstance(SpellDataModel);
-    Object.defineProperty(item.system, "skill", { value: skill, writable: false, enumerable: true });
+    Object.defineProperty(item.system, "skill", {
+        value: skill,
+        writable: false,
+        enumerable: true,
+    });
     return item;
 }
 

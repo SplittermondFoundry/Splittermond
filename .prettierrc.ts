@@ -1,1 +1,1 @@
-config/prettierrc.ts
+config / prettierrc.ts;

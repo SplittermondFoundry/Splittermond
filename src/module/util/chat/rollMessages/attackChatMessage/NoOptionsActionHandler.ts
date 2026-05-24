@@ -1,7 +1,7 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { ActionHandler, ActionInput, UnvaluedAction, ValuedAction } from "./interfaces";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
-import { CheckReport } from "module/check";
+import { CheckReport, isCritFail } from "module/check";
 import { AgentReference } from "module/data/references/AgentReference";
 import { referencesUtils } from "module/data/references/referencesUtils";
 import { foundryApi } from "module/api/foundryApi";
@@ -18,7 +18,10 @@ function NoOptionsActionHandlerSchema() {
             required: true,
             nullable: false,
         }),
-        casterReference: new fields.EmbeddedDataField(AgentReference, { required: true, nullable: false }),
+        casterReference: new fields.EmbeddedDataField(AgentReference, {
+            required: true,
+            nullable: false,
+        }),
     };
 }
 
@@ -43,7 +46,7 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
 
     renderActions(): (ValuedAction | UnvaluedAction)[] {
         const actions: (ValuedAction | UnvaluedAction)[] = [];
-        if (this.checkReportReference.get().isFumble) {
+        if (this.isFumbleTableActive()) {
             actions.push({
                 disabled: false, //Local actions cannot have their state managed because they don't allow updates.
                 type: "rollFumble",
@@ -96,12 +99,16 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
         return configureUseAction()
             .withUsed(() => false)
             .withHandlesActions(["rollFumble"])
-            .withIsOptionEvaluator(() => this.checkReportReference.get().isFumble)
+            .withIsOptionEvaluator(() => this.isFumbleTableActive())
             .whenAllChecksPassed(() => {
                 this.casterReference.getAgent().rollAttackFumble();
                 return Promise.resolve();
             })
             .useAction(actionData);
+    }
+
+    private isFumbleTableActive() {
+        return this.checkReportReference.get().isFumble || isCritFail(this.checkReportReference.get());
     }
 
     defendActively() {

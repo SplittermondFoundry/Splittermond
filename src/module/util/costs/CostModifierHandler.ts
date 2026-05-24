@@ -82,7 +82,8 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     }
 
     private getMultiplier(groupId: string): Expression {
-        if (groupId.endsWith("reduction") || groupId.endsWith("enhancedreduction")) {
+        const lowerCaseId = groupId.toLowerCase();
+        if (lowerCaseId.endsWith("reduction") || lowerCaseId.endsWith("enhancedreduction")) {
             return this.multiplier;
         } else {
             return times(this.multiplier, of(-1));

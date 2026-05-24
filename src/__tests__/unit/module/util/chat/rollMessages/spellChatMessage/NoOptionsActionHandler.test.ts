@@ -23,6 +23,10 @@ describe("Roll Fumble", () => {
     it("should not render the action if the roll is not a fumble", () => {
         const underTest = setUpNoOptionsActionHandler(sandbox);
         underTest.checkReportReference.get().isFumble = false;
+        underTest.checkReportReference.get().degreeOfSuccess = {
+            fromRoll: -3,
+            modification: 0,
+        };
 
         const actions = underTest.renderActions();
 
@@ -32,6 +36,19 @@ describe("Roll Fumble", () => {
     it("should render the action if the roll is a fumble", () => {
         const underTest = setUpNoOptionsActionHandler(sandbox);
         underTest.checkReportReference.get().isFumble = true;
+
+        const actions = underTest.renderActions();
+
+        expect(actions.find((a) => a.type === "rollMagicFumble")).not.to.be.undefined;
+    });
+
+    it("should render the action if the roll is a crit fail", () => {
+        const underTest = setUpNoOptionsActionHandler(sandbox);
+        underTest.checkReportReference.get().isFumble = false;
+        underTest.checkReportReference.get().degreeOfSuccess = {
+            fromRoll: -5,
+            modification: 0,
+        };
 
         const actions = underTest.renderActions();
 
@@ -51,18 +68,51 @@ describe("Roll Fumble", () => {
         const eg = 3;
         const costs = "8V2";
         const skill = "deathmagic";
-        underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: eg, modification: 0 };
+        underTest.checkReportReference.get().degreeOfSuccess = {
+            fromRoll: eg,
+            modification: 0,
+        };
         sandbox.stub(underTest.spellReference.getItem(), "costs").get(() => costs);
-        underTest.checkReportReference.get().skill = { id: skill, points: 1, attributes: { mystic: 1, mind: 2 } };
+        underTest.checkReportReference.get().skill = {
+            id: skill,
+            points: 1,
+            attributes: { mystic: 1, mind: 2 },
+        };
 
         await underTest.useAction({ action: "rollMagicFumble" });
 
         expect(underTest.casterReference.getAgent().rollMagicFumble.lastCall.args).to.deep.equal([-eg, costs, skill]);
     });
+
+    it("should call the action with the correct parameters if the roll was a crit fail", async () => {
+        const underTest = setUpNoOptionsActionHandler(sandbox);
+        underTest.checkReportReference.get().isFumble = false;
+        const eg = -5;
+        const costs = "8V2";
+        const skill = "deathmagic";
+        underTest.checkReportReference.get().degreeOfSuccess = {
+            fromRoll: eg,
+            modification: 0,
+        };
+        sandbox.stub(underTest.spellReference.getItem(), "costs").get(() => costs);
+        underTest.checkReportReference.get().skill = {
+            id: skill,
+            points: 1,
+            attributes: { mystic: 1, mind: 2 },
+        };
+
+        await underTest.useAction({ action: "rollMagicFumble" });
+
+        expect(underTest.casterReference.getAgent().rollMagicFumble.lastCall.args).to.deep.equal([eg, costs, skill]);
+    });
+
     it("should allow using the action if it has already been used, as it is local", async () => {
         const underTest = setUpNoOptionsActionHandler(sandbox);
         underTest.checkReportReference.get().isFumble = true;
-        underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 3, modification: 0 };
+        underTest.checkReportReference.get().degreeOfSuccess = {
+            fromRoll: 3,
+            modification: 0,
+        };
         sandbox.stub(underTest.spellReference.getItem(), "costs").get(() => "8V2");
         underTest.checkReportReference.get().skill = {
             id: "deathmagic",
@@ -135,14 +185,15 @@ describe("Active Defense", () => {
 
 function setUpNoOptionsActionHandler(sandbox: SinonSandbox): WithMockedRefs<NoOptionsActionHandler> {
     const mockReportReference = setUpCheckReportSelfReference();
-    const mockSpellRefernece = setUpMockSpellSelfReference(sandbox);
+    const mockSpellReference = setUpMockSpellSelfReference(sandbox);
     const mockActor = setUpMockActor(sandbox);
-    linkSpellAndActor(mockSpellRefernece, mockActor);
+    linkSpellAndActor(mockSpellReference, mockActor);
+    mockReportReference.degreeOfSuccess = { fromRoll: 0, modification: 0 };
 
     return withToObjectReturnsSelf(() => {
         const handler = NoOptionsActionHandler.initialize(
             mockReportReference,
-            mockSpellRefernece,
+            mockSpellReference,
             AgentReference.initialize(mockActor)
         );
         injectParent(handler);

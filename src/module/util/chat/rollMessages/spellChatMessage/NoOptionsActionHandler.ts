@@ -1,7 +1,7 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import { ActionHandler, ActionInput, UnvaluedAction, ValuedAction } from "./interfaces";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
-import { CheckReport } from "module/check";
+import { CheckReport, isCritFail } from "module/check";
 import { ItemReference } from "module/data/references/ItemReference";
 import SplittermondSpellItem from "../../../../item/spell";
 import { AgentReference } from "module/data/references/AgentReference";
@@ -19,7 +19,10 @@ function NoOptionsActionHandlerSchema() {
             required: true,
             nullable: false,
         }),
-        casterReference: new fields.EmbeddedDataField(AgentReference, { required: true, nullable: false }),
+        casterReference: new fields.EmbeddedDataField(AgentReference, {
+            required: true,
+            nullable: false,
+        }),
     };
 }
 
@@ -44,7 +47,7 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
 
     renderActions(): (ValuedAction | UnvaluedAction)[] {
         const actions: (ValuedAction | UnvaluedAction)[] = [];
-        if (this.checkReportReference.get().isFumble) {
+        if (this.fumbleTableAvailable()) {
             actions.push({
                 disabled: false, //Local actions cannot have their state managed because they don't allow updates.
                 type: "rollMagicFumble",
@@ -73,6 +76,10 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
         );
     }
 
+    private fumbleTableAvailable() {
+        return this.checkReportReference.get().isFumble || isCritFail(this.checkReportReference.get());
+    }
+
     useAction(actionData: ActionInput): Promise<void> {
         if (actionData.action === "rollMagicFumble") {
             return this.rollFumble(actionData);
@@ -88,7 +95,7 @@ export class NoOptionsActionHandler extends SplittermondDataModel<NoOptionsActio
         return configureUseAction()
             .withUsed(() => false)
             .withHandlesActions(["rollMagicFumble"])
-            .withIsOptionEvaluator(() => this.checkReportReference.get().isFumble)
+            .withIsOptionEvaluator(() => this.fumbleTableAvailable())
             .whenAllChecksPassed(() => {
                 const eg = -Math.abs(degreeOfSuccess.fromRoll + degreeOfSuccess.modification);
                 const costs = this.spellReference.getItem().costs;

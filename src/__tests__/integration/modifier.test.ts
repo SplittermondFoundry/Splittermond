@@ -692,6 +692,38 @@ export function modifierTest(context: QuenchBatchContext) {
 
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("2V1");
         });
+        it("should handle foreduction correctly for a multitype spell", async () => {
+            const subject = await defaultActor("SpellMaster", "");
+            const spellDefinition = {
+                type: "spell",
+                name: "Pseudotodeszauber",
+                system: {
+                    skill: "deathmagic",
+                    type: "desease, death",
+                    level: 1,
+                    costs: "4V2",
+                    difficulty: "18",
+                },
+            };
+            await subject.createEmbeddedDocuments("Item", [
+                {
+                    type: "mastery",
+                    name: "Sparsamer Zauberer",
+                    system: {
+                        skill: "deathmagic",
+                        level: 1,
+                        modifier: "Focus.Reduction skill=deathmagic 2V1",
+                    },
+                },
+            ]);
+            await subject.createEmbeddedDocuments("Item", [spellDefinition]);
+
+            subject.prepareBaseData();
+            await subject.prepareEmbeddedDocuments();
+            subject.prepareDerivedData();
+
+            expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("2V1");
+        });
         it("should handle foreduction correctly for a type only modifier", async () => {
             const subject = await defaultActor("SpellMaster", "");
             const spellDefinition = {

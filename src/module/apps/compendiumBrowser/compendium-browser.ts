@@ -2,11 +2,12 @@ import { initializeDisplayPreparation } from "./itemDisplayPreparation";
 import { FoundryApplication, FoundryDragDrop } from "../../api/Application";
 import { foundryApi } from "../../api/foundryApi";
 import { splittermond } from "../../config";
-import { itemRetriever, actorRetriever } from "../../data/EntityRetriever";
+import { actorRetriever, itemRetriever } from "../../data/EntityRetriever";
 import SplittermondItem from "../../item/item";
 import { CompendiumPacks } from "../../api/foundryTypes";
 import { closestData } from "../../data/ClosestDataMixin";
 import { SplittermondApplication, TEMPLATE_BASE_PATH } from "../../data/SplittermondApplication";
+import type SplittermondActor from "module/actor/actor";
 
 export type CompendiumMetadata = { id: string; label: string };
 
@@ -233,7 +234,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
 
     appendWorldActorsToRecord(
         record: Record<string, ItemIndexEntity[]>,
-        actors: Collection<Actor>
+        actors: Collection<SplittermondActor>
     ): Record<string, ItemIndexEntity[]> {
         actors
             .filter((actor) => actor.visible)
@@ -241,7 +242,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
                 if (!(actor.type in record)) {
                     record[actor.type] = [];
                 }
-                record[actor.type].push(actor as unknown as ItemIndexEntity);
+                record[actor.type].push(actor as ItemIndexEntity);
             });
         return record;
     }

@@ -33,6 +33,7 @@ describe("addModifier", () => {
     let actor: SinonStubbedInstance<SplittermondActor>;
     let item: SinonStubbedInstance<SplittermondItem>;
     let systemData: any;
+    let reportErrorStub: sinon.SinonStub;
     const addModifier = setupAddModifierFunction();
 
     beforeEach(() => {
@@ -74,7 +75,7 @@ describe("addModifier", () => {
             isOwner: true,
         } as unknown as SinonStubbedInstance<SplittermondItem>;
 
-        sandbox.stub(foundryApi, "reportError");
+        reportErrorStub = sandbox.stub(foundryApi, "reportError");
         sandbox.stub(foundryApi, "format").callsFake((key: string) => key);
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => {
             switch (key) {
@@ -253,6 +254,18 @@ describe("addModifier", () => {
                 selectable: false,
             });
         });
+    });
+    it("should accept skill attribute for lower fumble result", () => {
+        const result = addModifier(item, "lowerfumbleresult  skill=windmagic +3");
+        expect(result.modifiers).to.have.length(1);
+        expect(result.modifiers[0]).to.deep.contain({
+            path: "lowerfumbleresult",
+            attributes: { name: "Test Item", type: null, skill: "windmagic" },
+            value: of(3),
+            origin: item,
+            selectable: false,
+        });
+        expect(reportErrorStub.notCalled, "Output to console error").to.be.true;
     });
 
     (["fighting", "magic", "general"] as const).forEach((skillGroup) => {
