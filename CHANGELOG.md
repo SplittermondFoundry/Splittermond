@@ -4,7 +4,7 @@
 ### Fixes
 
 - Kompendien Browser zeigt Waffen und NSC Merkmale immer an.
-- 
+- "Fertigkeit" is nun als valides attribut für "lowerFumbleResult" anerkannt.
 
 ## 14.0.2
 
