@@ -175,7 +175,7 @@ describe("Spell cost calculation reduction selection", () => {
 
     it("should apply reductions only once per spell", () => {
         spellData.skill = "combatmagic";
-        const reducedCosts = calculateReducedEnhancementCosts(spellData, reductionManagement.spellCostReduction);
+        const reducedCosts = calculateReducedEnhancementCosts(spellData, reductionManagement.spellEnhancedCostReduction);
         expect(reducedCosts).to.equal("K16V4");
     });
 });

@@ -255,18 +255,17 @@ describe("addModifier", () => {
             });
         });
     });
-    it("should accept skill attribute for lower fumble result", ()=>{
+    it("should accept skill attribute for lower fumble result", () => {
         const result = addModifier(item, "lowerfumbleresult  skill=windmagic +3");
         expect(result.modifiers).to.have.length(1);
         expect(result.modifiers[0]).to.deep.contain({
             path: "lowerfumbleresult",
-            attributes: { name: "Test Item", type: null, skill:"windmagic" },
+            attributes: { name: "Test Item", type: null, skill: "windmagic" },
             value: of(3),
             origin: item,
             selectable: false,
         });
-        expect(reportErrorStub.notCalled,"Output to console error").to.be.true;
-
+        expect(reportErrorStub.notCalled, "Output to console error").to.be.true;
     });
 
     (["fighting", "magic", "general"] as const).forEach((skillGroup) => {

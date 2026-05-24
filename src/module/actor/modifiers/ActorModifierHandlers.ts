@@ -102,8 +102,12 @@ export function TickHandicapHandler(inputPath: string) {
 }
 
 export function SkillFilterHandler<CONFIG extends { topLevelPath: string }>(config: CONFIG, groupId?: string) {
-    const existingOptionalAttributes = "optionalAttributes" in config && Array.isArray(config.optionalAttributes) ? config.optionalAttributes : [];
-    const enhancedConfig = {...config, optionalAttributes: [...existingOptionalAttributes, "skill"]};
+    const existingOptionalAttributes =
+        "optionalAttributes" in config && Array.isArray(config.optionalAttributes) ? config.optionalAttributes : [];
+    const enhancedConfig = {
+        ...config,
+        optionalAttributes: [...existingOptionalAttributes, "skill"],
+    };
     return class extends BarebonesModifierHandler(enhancedConfig, groupId) {
         buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
