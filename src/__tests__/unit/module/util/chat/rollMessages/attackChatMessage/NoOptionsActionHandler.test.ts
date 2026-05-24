@@ -23,6 +23,10 @@ describe("Roll Fumble", () => {
     it("should not render the action if the roll is not a fumble", () => {
         const underTest = setUpNoOptionsActionHandler(sandbox);
         underTest.checkReportReference.get().isFumble = false;
+        underTest.checkReportReference.get().degreeOfSuccess = {
+            fromRoll: -2,
+            modification: 0,
+        };
 
         const actions = underTest.renderActions();
 
@@ -37,6 +41,20 @@ describe("Roll Fumble", () => {
 
         expect(actions.find((a) => a.type === "rollFumble")).not.to.be.undefined;
     });
+
+    it("should render the action if the roll is a crit fail", () => {
+        const underTest = setUpNoOptionsActionHandler(sandbox);
+        underTest.checkReportReference.get().isFumble = false;
+        underTest.checkReportReference.get().degreeOfSuccess = {
+            fromRoll: -5,
+            modification: 0,
+        };
+
+        const actions = underTest.renderActions();
+
+        expect(actions.find((a) => a.type === "rollFumble")).not.to.be.undefined;
+    });
+
     it("should not allow using the action if the roll is not a fumble", async () => {
         const underTest = setUpNoOptionsActionHandler(sandbox);
         underTest.checkReportReference.get().isFumble = false;
@@ -45,9 +63,23 @@ describe("Roll Fumble", () => {
 
         expect(underTest.casterReference.getAgent().rollAttackFumble.called).to.be.false;
     });
+
     it("should call the action if the roll was a fumble", async () => {
         const underTest = setUpNoOptionsActionHandler(sandbox);
         underTest.checkReportReference.get().isFumble = true;
+
+        await underTest.useAction({ action: "rollFumble" });
+
+        expect(underTest.casterReference.getAgent().rollAttackFumble.called).to.be.true;
+    });
+
+    it("should call the action if the roll was a crit fail", async () => {
+        const underTest = setUpNoOptionsActionHandler(sandbox);
+        underTest.checkReportReference.get().isFumble = false;
+        underTest.checkReportReference.get().degreeOfSuccess = {
+            fromRoll: -5,
+            modification: 0,
+        };
 
         await underTest.useAction({ action: "rollFumble" });
 
@@ -106,6 +138,7 @@ function setUpNoOptionsActionHandler(sandbox: SinonSandbox): WithMockedRefs<NoOp
     const mockReportReference = setUpCheckReportSelfReference();
     const mockActor = setUpMockActor(sandbox);
     const mockAttackReference = setUpMockAttackSelfReference(sandbox, mockActor);
+    mockReportReference.degreeOfSuccess = { fromRoll: 0, modification: 0 };
 
     return withToObjectReturnsSelf(() => {
         const handler = NoOptionsActionHandler.initialize(

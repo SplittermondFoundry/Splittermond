@@ -1,4 +1,3 @@
-
 ## 14.0.3
 
 ### Fixes
@@ -6,6 +5,7 @@
 - Kompendien Browser zeigt Waffen und NSC Merkmale immer an.
 - "Fertigkeit" is nun als valides attribut für "lowerFumbleResult" anerkannt.
 - Großschreiben des Modifikators "focus.reduction" addiert den Modifikatorwert nicht mehr
+- Patzertabelle auch bei verheerendend Fehlschlägen verfügbar
 
 ## 14.0.2
 

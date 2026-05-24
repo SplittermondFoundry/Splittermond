@@ -1,18 +1,15 @@
 import type SplittermondActor from "module/actor/actor";
 import { splittermond } from "module/config";
-import type { GenericRollEvaluation } from "./GenericRollEvaluation";
 import type { SplittermondSkill } from "module/config/skillGroups";
 import type { CheckType } from "module/check/CheckModifierHandler";
+import type { DegreeOfSuccessContainer, GenericRollEvaluation } from "module/check/types";
 
 export const successStates = ["devastating", "failure", "nearmiss", "success", "outstanding"] as const;
 export type CheckSuccessState = (typeof successStates)[number];
-type ModifyEvaluationInput = GenericRollEvaluation & { skill: SplittermondSkill; type: CheckType };
-interface DegreeOfSuccessContainer {
-    degreeOfSuccess: {
-        fromRoll: number;
-        modification: number;
-    };
-}
+type ModifyEvaluationInput = GenericRollEvaluation & {
+    skill: SplittermondSkill;
+    type: CheckType;
+};
 export function totalDegreesOfSuccess(rollEval: DegreeOfSuccessContainer) {
     return rollEval.degreeOfSuccess.fromRoll + rollEval.degreeOfSuccess.modification;
 }
