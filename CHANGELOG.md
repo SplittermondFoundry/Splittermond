@@ -1,3 +1,9 @@
+## 14.0.4
+
+### Fixes
+- Kompendienbrowserreiter funktionieren jetzt korrekt
+
+
 ## 14.0.3
 
 ### Fixes

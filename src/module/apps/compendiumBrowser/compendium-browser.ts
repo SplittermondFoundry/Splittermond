@@ -323,8 +323,6 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         this._onSearchFilterArmor();
         this._onSearchFilterShield();
         this._onSearchFilterNpc();
-        this.element.querySelector('a[data-tab="spell"]')?.classList.add("active");
-        this.element.querySelector('section[data-tab="spell"]')?.classList.add("active");
         return renderResult;
     }
 
