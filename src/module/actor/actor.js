@@ -267,6 +267,22 @@ export default class SplittermondActor extends Actor {
         if (phase !== "initial") return; //needs to be initial, b/c 'final' happens after derived value calculation.
         SplittermondActiveEffect.withFilter(not(isGenerated)).getModifiers(this.allApplicableEffects())
             .forEach((mod) => this.modifier.addModifier(mod))
+        const costModifiers = SplittermondActiveEffect.withFilter(not(isGenerated)).getCostModifiers(this.allApplicableEffects())
+        this.sortCostModifiersIntoManagers(costModifiers);
+    }
+
+    /**
+     * @param {ICostModifier[]} costModifiers
+     */
+    sortCostModifiersIntoManagers(costModifiers) {
+            costModifiers.forEach((mod) => {
+            const modifierLabel = mod.label.toLowerCase();
+            if (modifierLabel.startsWith("focus.reduction")) {
+                this.system.spellCostReduction.addCostModifier(mod);
+            } else if (modifierLabel.startsWith("focus.enhancedreduction")) {
+                this.system.spellEnhancedCostReduction.addCostModifier(mod);
+            }
+        });
     }
 
     /**@returns VirtualToken[]*/
@@ -565,15 +581,7 @@ export default class SplittermondActor extends Actor {
 
         // Apply cost modifiers to the appropriate spell cost reduction managers
         const data = asPreparedData(this.system);
-        result.costModifiers.forEach(({ modifier: costModifier }) => {
-            const modifierLabel = costModifier.label.toLowerCase();
-            if (modifierLabel.startsWith("focus.reduction")) {
-                data.spellCostReduction.addCostModifier(costModifier);
-            } else if (modifierLabel.startsWith("focus.enhancedreduction")) {
-                data.spellEnhancedCostReduction.addCostModifier(costModifier);
-            }
-        });
-
+        this.sortCostModifiersIntoManagers(result.costModifiers.map(m => m.modifier));
         return result;
     }
 
