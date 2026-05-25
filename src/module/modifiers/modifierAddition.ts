@@ -86,9 +86,9 @@ export function initAddModifier(
                 });
                 modifier.path = newGroupId;
             } else {
-                /*handles path translations for derived values and skills. Cannot be done in registry, because the language file loads too late for
+                /* handles path translations for derived values and skills. Cannot be done in registry, because the language file loads too late for
                  * adding initializers in 'init'. You cannot place handlers in the "ready" hook however, because Actors are initialized before the
-                 * 'ready' hook is initialized after Actors.
+                 * 'ready' hook.
                  */
                 const newGroupId = normalizeDescriptor(modifier.path).usingMappers("derivedAttributes", "skills").do();
                 if (handlerCache.handles(newGroupId)) {
@@ -105,34 +105,11 @@ export function initAddModifier(
 
             /**Deprecated*/
             const modifierLabel = modifier.path.toLowerCase();
-            switch (modifierLabel) {
-                //This setup is a bit of a hack, it uses the (private) knowledge that Attack objects add the item id as listener to skill modifiers
-                //And also sneaks in actor knowledge via item.actor
-                case "npcattacks":
-                    item.actor?.items
-                        .filter((item) => item.type === "npcattack")
-                        .map((item) => `skill.${item.id}`) //name would be better thematically (skill name for npc attacks is the item name) but id is more reliable
-                        .forEach((skill) => {
-                            modifiers.push({
-                                modifier: createModifier(
-                                    skill,
-                                    times(of(multiplier), modifier.value),
-                                    item,
-                                    type,
-                                    modifier.attributes as Record<string, string>
-                                ),
-                                rawFragment,
-                            });
-                        });
-                    break;
-                default:
                     //mainly for internal modifiers.
                     modifiers.push({
                         modifier: createModifier(modifierLabel, times(of(multiplier), modifier.value), item, type),
                         rawFragment,
                     });
-                    break;
-            }
         });
         // Only display errors to the GM or the owner of the item
         // Otherwise players might get spoilers
