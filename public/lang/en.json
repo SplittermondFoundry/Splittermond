@@ -116,7 +116,8 @@
         "itemImported": "The item \"{name}\" was imported as \"{type}\"!",
         "mangledTableData": "table data is corrupted. Please check attributes and derived values.",
         "featureParsingFailure": "Feature '{feature}' did not resolve to a valid feature descriptor",
-        "invalidStatusEffectInterval": "The value for the interval on item '{name}' is invalid "
+        "invalidStatusEffectInterval": "The value for the interval on item '{name}' is invalid ",
+        "outdatedFeaturesModel": "One or more objects have an outdated features model. This can be fixed by manually updating the 'features' property. Found on: {item}"
     },
     "settings": {
         "reducibleEnhancementCosts": {

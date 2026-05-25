@@ -1,8 +1,9 @@
 ## 14.0.4
 
 ### Fixes
-- Kompendienbrowserreiter funktionieren jetzt korrekt
 
+- Kompendienbrowserreiter funktionieren jetzt korrekt
+- Kompendieneinträge mit veraltetem Datenmodell stören das Laden des Browsers nicht mehr.
 
 ## 14.0.3
 
