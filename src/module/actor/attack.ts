@@ -151,6 +151,7 @@ export default class Attack {
             this.attackData.skillValue
         );
         this.skill.addModifierPath(`skill.${this.id}`);
+        if (item.type == "npcattack" )this.skill.addModifierPath(`npcattacks`);
         this.item = item;
 
         let minAttributeMalus = 0;
