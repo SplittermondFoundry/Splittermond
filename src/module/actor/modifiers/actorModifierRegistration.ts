@@ -40,6 +40,7 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
     registry.addHandler("tickmalus", TickHandicapHandler("tickmalus"));
     registry.addHandler("handicap", TickHandicapHandler("handicap"));
     registry.addHandler("bonuscap", BasicModifierHandler("bonuscap"));
+    registry.addHandler("npcattacks", BasicModifierHandler("npcattacks"));
     ["focusregeneration", "healthregeneration"].forEach((slug) => {
         const segment = `${slug}.multiplier`;
         const fullId = `actor.${segment}` as Lowercase<string>;

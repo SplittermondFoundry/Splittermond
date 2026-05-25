@@ -213,7 +213,7 @@ describe("addModifier", () => {
         const result = addModifier(item, "npcattacks +3");
         expect(result.modifiers).to.have.length(1);
         expect(result.modifiers[0].modifier).to.deep.contain({
-            path: "skill.npcAttack1",
+            path: "npcattacks",
             attributes: { name: "Test Item", type: null },
             value: of(3),
             origin: item,
