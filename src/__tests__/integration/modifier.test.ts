@@ -795,6 +795,39 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("3V2");
         });
 
+        it("should only modifiy npcattacks with npcattacks", async () => {
+            const subject = await defaultActor("Attacking NPC", "npcattacks -1");
+            const npcAttackDefinition = {
+                type: "npcattack",
+                name: "Körper",
+                system: {
+                    skillValue: 7,
+                },
+            };
+            const weaponDefinition = {
+                type: "weapon",
+                name: "Keule",
+                system: {
+                    skill: "melee",
+                    damage: DamageModel.from("3"),
+                    equipped: true,
+                    attribute1: "strength",
+                    attribute2: "agility",
+                    weaponSpeed: 6,
+                }
+            }
+            const [npcAttack, weapon]= await subject.createEmbeddedDocuments("Item", [npcAttackDefinition, weaponDefinition ]);
+
+            subject.prepareBaseData();
+            await subject.prepareEmbeddedDocuments();
+            subject.prepareDerivedData();
+
+            expect(subject.attacks.find((a) => a.toObject().id === npcAttack.id)?.skill.value).to.equal(
+                npcAttackDefinition.system.skillValue - 1
+            );
+            expect(subject.attacks.find((a) => a.toObject().id === weapon.id)?.skill.value).to.equal(4);
+        });
+
         it("should modify npc attack values", async () => {
             const subject = await defaultActor("Attacking NPC", "npcattacks -1");
             const npcAttackDefinition = {
