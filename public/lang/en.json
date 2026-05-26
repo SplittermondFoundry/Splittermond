@@ -1,4 +1,11 @@
 {
+    "TYPES": {
+        "ActiveEffect": {
+            "modifier": "Modifier",
+            "inverseModifier": "Modifier",
+            "multiplicativeModifier": "Modifier"
+        }
+    },
     "splittermond": {
         "magicFumbleSorcerer": "Fumbled Spell (Sorcerer)",
         "magicFumblePriest": "Fumbled Spell (Priest)",
@@ -109,6 +116,30 @@
             "chatMessage": "{amount} Free XP awarded to:",
             "distributed": "{amount} Free XP distributed to {count} character(s).",
             "noneUpdated": "No characters updated – see console for details."
+        },
+        "activeEffect": {
+            "type": {
+                "base": "Base",
+                "modifier": "Modifier",
+                "costModifier": "Focus Modifier"
+            },
+            "creation": {
+                "title": "Create Active Effect",
+                "type": "Type"
+            },
+            "error": {
+                "wrongModifierType": "This field expects a regular modifier, not a cost modifier.",
+                "wrongCostModifierType": "This field expects a cost modifier, not a regular modifier.",
+                "singleModifierOnly": "Only a single modifier expression is allowed.",
+                "singleCostModifierOnly": "Only a single cost modifier expression is allowed."
+            },
+            "effects": {
+                "rawInput": "Modifier",
+                "modifierHelpText": "A single modifier expression, see @Compendium[splittermond.journal-entries.Modifikatoren]{Modifiers}.",
+                "costFormula": "Cost Formula",
+                "skill": "Skill",
+                "baseHint": "Base effects use the default fields."
+            }
         }
     },
     "bonusCap": "Bonus Limit",
