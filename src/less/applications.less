@@ -168,4 +168,32 @@ form.application.splittermond.sheet {
     &.item .help-text pre {
         margin: 0;
     }
+
+    &.active-effect-config {
+        //Prevent help text to overlap input
+        .help-text {
+            margin-top: 1em;
+        }
+        header {
+            //
+            margin-bottom: 5px;
+        }
+        nav {
+            margin-left:1px;
+            margin-right:1px;
+        }
+
+        color-picker{
+            //prevent the color picker from being overlapped by the editor
+            min-height: 40px;
+            //remove semi transparent black tint
+            background: none;
+            //some additional distance to the editor below
+            margin-bottom: 5px;
+        }
+
+        prose-mirror.editor{
+            min-height: 150px;
+        }
+    }
 }
