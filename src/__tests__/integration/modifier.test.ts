@@ -821,11 +821,12 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.prepareBaseData();
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
+            const findAttack = (id: string)=> subject.attacks.find((a) => a.toObject().id === id);
 
-            expect(subject.attacks.find((a) => a.toObject().id === npcAttack.id)?.skill.value).to.equal(
+            expect(findAttack(npcAttack.id)?.skill.value,"unexpected npc attack skill").to.equal(
                 npcAttackDefinition.system.skillValue - 1
             );
-            expect(subject.attacks.find((a) => a.toObject().id === weapon.id)?.skill.value).to.equal(4);
+            expect(findAttack(weapon.id)?.skill.value, "unexpected weapon skill").to.equal(4);
         });
 
         it("should modify npc attack values", async () => {

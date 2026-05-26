@@ -323,6 +323,16 @@ export const foundryApi = new (class FoundryApi {
                 return Actors.unregisterSheet(...args);
             },
         },
+        activeEffects: {
+            register(...args: any[]): void {
+                // @ts-ignore
+                return foundry.applications.apps.DocumentSheetConfig.registerSheet(ActiveEffect, ...args);
+            },
+            unregister(...args: any[]): void {
+                // @ts-ignore
+                return foundry.applications.apps.DocumentSheetConfig.unregisterSheet(ActiveEffect, ...args);
+            },
+        },
     };
 
     canvas = {
