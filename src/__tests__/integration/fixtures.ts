@@ -1,4 +1,5 @@
 import type SplittermondActor from "module/actor/actor";
+import type { FoundryActiveEffect } from "module/api/ActiveEffect";
 import type { FoundryScene, User } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
 
@@ -44,6 +45,16 @@ export function withActor<P extends Array<any>, R>(fn: (actor: SplittermondActor
             await Actor.deleteDocuments([actor.id]);
         }
     };
+}
+
+export function withActiveEffect<P extends Array<any>, R>(
+    effectData: object,
+    fn: (effect: FoundryActiveEffect, actor: SplittermondActor, ...args: P) => Promise<R>
+) {
+    return withActor(async (actor, ...args: P) => {
+        const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+        return await fn(effect as FoundryActiveEffect, actor, ...args);
+    });
 }
 
 export function withScene<P extends Array<any>, R>(fn: (scene: FoundryScene, ...args: P) => Promise<R>) {
