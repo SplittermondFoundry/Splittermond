@@ -224,6 +224,7 @@ declare global {
         ActiveEffect: {
             documentClass: Function;
             dataModels: Record<string, unknown>;
+            sheetClasses?: Record<string, Record<string, unknown>>;
         };
         dataModels: Record<string, unknown>;
     } & Record<string, unknown>;

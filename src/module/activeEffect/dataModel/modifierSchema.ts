@@ -3,6 +3,15 @@ import { isModifierType, type ModifierAttributes } from "module/modifiers";
 
 type SerializedExpression = Record<string, unknown> & { type: string };
 
+const initalSerializedExpression = {
+    type: "amount",
+    amount: 0
+} as const
+const initialAttributes = {
+    name: "",
+    type: "innate"
+} as const
+
 /**
  * Shared schema for all IModifier DataModels (Modifier, InverseModifier, MultiplicativeModifier).
  * Each call returns fresh field instances as required by Foundry's DataModel system.
@@ -14,12 +23,14 @@ export function modifierSchema() {
             required: true,
             nullable: false,
             validate: (v: SerializedExpression) => typeof v === "object" && "type" in v,
+            initial: initalSerializedExpression
         }),
         selectable: new fields.BooleanField({ required: true, nullable: false, initial: false }),
         attributes: new fieldExtensions.TypedObjectField<ModifierAttributes, true, false>({
             required: true,
             nullable: false,
             validate: validateModifier,
+            initial: initialAttributes
         }),
     };
 }

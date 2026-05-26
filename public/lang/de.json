@@ -1,5 +1,10 @@
 {
     "TYPES": {
+        "ActiveEffect": {
+            "modifier": "Modifikator",
+            "inverseModifier": "Modifikator",
+            "multiplicativeModifier": "Modifikator"
+        },
         "Item": {
             "weapon": "Waffe",
             "projectile": "Geschoss",
@@ -130,6 +135,30 @@
             "add": "Hinzufügen",
             "disabled": "Deaktiviert",
             "empty": "Keine Effekte vorhanden."
+        },
+        "activeEffect": {
+            "type": {
+                "base": "Foundry nativ",
+                "modifier": "Modifikator",
+                "costModifier": "Fokusmodifikator"
+            },
+            "creation": {
+                "title": "Aktiven Effekt erstellen",
+                "type": "Typ"
+            },
+            "error": {
+                "wrongModifierType": "Dieses Feld erwartet einen normalen Modifikator, keinen Fokusmodifikator.",
+                "wrongCostModifierType": "Dieses Feld erwartet einen Fokusmodifikator, keinen normalen Modifikator.",
+                "singleModifierOnly": "Es ist nur ein einzelner Modifikatorausdruck erlaubt.",
+                "singleCostModifierOnly": "Es ist nur ein einzelner Fokusmodifikatorausdruck erlaubt."
+            },
+            "effects": {
+                "rawInput": "Modifikator",
+                "modifierHelpText": "Ein einzelner Modifikatorausdruck, siehe @Compendium[splittermond.journal-entries.Modifikatoren]{Modifikatoren}.",
+                "costFormula": "Kostenformel",
+                "skill": "Fertigkeit",
+                "baseHint": "Basis-Effekte verwenden die Standard-Felder."
+            }
         },
         "furtherActions": "Weitere Aktionen",
         "update": "Aktualisieren",

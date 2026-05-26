@@ -1,5 +1,5 @@
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
-import { Modifier, InverseModifier, MultiplicativeModifier, CostModifier } from "module/activeEffect";
+import { Modifier, InverseModifier, MultiplicativeModifier, CostModifier, SplittermondActiveEffect } from "module/activeEffect";
 import { evaluate, of, plus, times } from "module/modifiers/expressions/scalar";
 import { of as costOf, evaluate as costEvaluate } from "module/modifiers/expressions/cost";
 import { CostModifier as Cost } from "module/util/costs/Cost";
@@ -89,6 +89,70 @@ export function activeEffectDataModelTest(context: QuenchBatchContext) {
                 expect(result.toObject()).to.deep.equal(costMod.toObject());
                 expect(restored.system.label).to.equal("focus.reduction");
                 expect(restored.system.skill).to.equal("fireMagic");
+            }));
+        });
+
+        describe("SplittermondActiveEffect suppression", () => {
+            it("should suppress transferred weapon effects when unequipped", withActor(async (actor) => {
+                const [weapon] = await actor.createEmbeddedDocuments("Item", [
+                    {
+                        type: "weapon",
+                        name: "Training Sword",
+                        system: {
+                            equipped: false,
+                        },
+                    },
+                ]);
+                await weapon.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "skills.acrobatics +2",
+                        type: "modifier",
+                        transfer: true,
+                        disabled: false,
+                        system: Modifier.init("actor.skills", of(2), { name: "Training Sword", type: "innate",skill:"acrobatics" }),
+                    },
+                ]);
+
+                actor.prepareData();
+                const whileUnequipped = SplittermondActiveEffect.getModifiers(actor.allApplicableEffects());
+                expect(whileUnequipped).to.have.length(0);
+
+                await weapon.update({ system: { equipped: true } });
+                actor.prepareData();
+                const whileEquipped = SplittermondActiveEffect.getModifiers(actor.allApplicableEffects());
+                expect(whileEquipped).to.have.length(1);
+                expect(evaluate(whileEquipped[0].value)).to.equal(2);
+            }));
+
+            it("should suppress transferred spell effects when inactive", withActor(async (actor) => {
+                const [spellEffectItem] = await actor.createEmbeddedDocuments("Item", [
+                    {
+                        type: "spelleffect",
+                        name: "Arcane Focus",
+                        system: {
+                            active: false,
+                        },
+                    },
+                ]);
+                await spellEffectItem.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "skills.mysticism +1",
+                        type: "modifier",
+                        transfer: true,
+                        disabled: false,
+                        system: Modifier.init("skills.mysticism", of(1), { name: "Arcane Focus", type: "magic" }),
+                    },
+                ]);
+
+                actor.prepareData();
+                const whileInactive = SplittermondActiveEffect.getModifiers(actor.allApplicableEffects());
+                expect(whileInactive).to.have.length(0);
+
+                await spellEffectItem.update({ system: { active: true } });
+                actor.prepareData();
+                const whileActive = SplittermondActiveEffect.getModifiers(actor.allApplicableEffects());
+                expect(whileActive).to.have.length(1);
+                expect(evaluate(whileActive[0].value)).to.equal(1);
             }));
         });
     });

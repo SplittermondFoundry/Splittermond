@@ -1,11 +1,11 @@
-import type { IModifier, ModifierType } from "module/modifiers";
-import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import type {IModifier, ModifierType} from "module/modifiers";
+import type {ICostModifier} from "module/util/costs/spellCostManagement";
 import type SplittermondItem from "module/item/item";
-import type { IModifierSource } from "module/modifiers/IModifierSource";
-import type { AddModifierResult } from "module/modifiers/modifierAddition";
-import { ModifierDataModel } from "./dataModel/ModifierDataModel";
-import { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
-import type { EffectType } from "./dataModel/effectTypes";
+import type {IModifierSource} from "module/modifiers/IModifierSource";
+import type {AddModifierResult} from "module/modifiers/modifierAddition";
+import {ModifierDataModel} from "./dataModel/ModifierDataModel";
+import {CostModifierDataModel} from "./dataModel/CostModifierDataModel";
+import type {EffectType} from "./dataModel/effectTypes";
 import {SplittermondActiveEffect} from "module/activeEffect/SplittermondActiveEffect";
 
 type AddModifierFn = (
