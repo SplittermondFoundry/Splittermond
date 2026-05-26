@@ -268,6 +268,11 @@ declare namespace foundry {
                 _canDragStart(selector: string): boolean;
                 _onDrop(event: DragEvent): Promise<void>;
             }
+
+            class ActiveEffectConfig extends DocumentSheetV2 {
+                _preparePartContext(partId: string, context: object, options: object): Promise<object>;
+                _processFormData(event: Event, form: HTMLFormElement, formData: unknown): object;
+            }
         }
     }
 
@@ -333,8 +338,11 @@ declare namespace foundry {
 export type FoundryDialogType = foundry.applications.api.DialogV2;
 export const FoundryDialog = foundry.applications.api.DialogV2;
 export const FoundryApplication = foundry.applications.api.ApplicationV2;
+export const FoundryDocumentSheetV2 = foundry.applications.api.DocumentSheetV2;
 export const FoundryItemSheet = foundry.applications.sheets.ItemSheetV2;
 export const FoundryActorSheet = foundry.applications.sheets.ActorSheetV2;
+export const FoundryActiveEffectConfig =
+    (foundry.applications as any)?.sheets?.ActiveEffectConfig ?? foundry.applications.api.DocumentSheetV2;
 export const FoundryHandlebarsMixin = foundry.applications.api.HandlebarsApplicationMixin;
 
 export class FoundryDragDrop extends foundry.applications.ux.DragDrop {}

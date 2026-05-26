@@ -27,6 +27,9 @@ class FoundryDocument {
 global.Actor = class Actor extends FoundryDocument {};
 
 global.ActiveEffect = class ActiveEffect extends FoundryDocument {
+    get disabled() {
+        return false;
+    }
     get isSuppressed() {
         return false;
     }
@@ -101,6 +104,11 @@ const foundryApplicationSheets = {
         }
 
         _onDropDocument() {}
+    },
+    ActiveEffectConfig: class extends foundryApplicationsApi.ApplicationV2 {
+        get document() {
+            return this.options.document;
+        }
     },
 };
 

@@ -16,6 +16,7 @@ import { apiConstantsTest } from "./apiConstants.test";
 import { cssVariablesTest } from "./api/cssVariables.test";
 import { hooksTest } from "./hooks.test";
 import { activeEffectDataModelTest } from "./activeEffectDataModel.test";
+import { activeEffectConfigTest } from "./activeEffectConfig.test";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}
@@ -40,6 +41,7 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.cssVariables", cssVariablesTest);
     quench.registerBatch("splittermond.hooks", hooksTest);
     quench.registerBatch("splittermond.activeEffectDataModel", activeEffectDataModelTest);
+    quench.registerBatch("splittermond.activeEffectConfig", activeEffectConfigTest);
 }
 
 export function init() {
