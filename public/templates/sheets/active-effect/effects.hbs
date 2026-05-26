@@ -1,0 +1,22 @@
+<section class="tab changes{{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+    <div class="splittermond-active-effect-changes">
+        {{#if (eq effectsType "modifier")}}
+            <div class="form-group">
+                <label>{{localize "splittermond.activeEffect.effects.rawInput"}}</label>
+                <input type="text" name="splittermondRawInput" value="{{rawInput}}" />
+            </div>
+            <div class="help-text">{{{modifierHelpText}}}</div>
+        {{else if (eq effectsType "costModifier")}}
+            <div class="form-group">
+                <label>{{localize "splittermond.activeEffect.effects.costFormula"}}</label>
+                <input type="text" name="splittermondCostFormula" value="{{costFormula}}" />
+            </div>
+            <div class="form-group">
+                <label>{{localize "splittermond.activeEffect.effects.skill"}}</label>
+                <input type="text" name="splittermondCostSkill" value="{{costSkill}}" />
+            </div>
+        {{else}}
+            <p class="hint">{{localize "splittermond.activeEffect.effects.baseHint"}}</p>
+        {{/if}}
+    </div>
+</section>
