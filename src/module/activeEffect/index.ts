@@ -6,6 +6,18 @@ import {
     type MultiplicativeModifierDataModelType,
 } from "./dataModel/MultiplicativeModifierDataModel";
 import { CostModifierDataModel, type CostModifierDataModelType } from "./dataModel/CostModifierDataModel";
+import {BaseActiveEffectConfig, SplittermondActiveEffectConfig } from "./sheets/SplittermondActiveEffectConfig";
+import { SplittermondActiveEffectCreationDialog } from "./sheets/SplittermondActiveEffectCreationDialog";
+import { foundryApi } from "module/api/foundryApi";
+
+type ActiveEffectDocumentClass = typeof SplittermondActiveEffect & {
+    createDialog?: (
+        data?: Record<string, unknown>,
+        createOptions?: Record<string, unknown>,
+        dialogOptions?: Record<string, unknown>,
+        renderOptions?: Record<string, unknown>,
+    ) => Promise<unknown>;
+};
 
 export { SplittermondActiveEffect };
 export { ModifierDataModel as Modifier, type ModifierDataModelType };
@@ -26,5 +38,34 @@ export function initializeActiveEffects(config: typeof CONFIG) {
         inverseModifier: InverseModifierDataModel,
         multiplicativeModifier: MultiplicativeModifierDataModel,
         costModifier: CostModifierDataModel,
+    };
+
+    foundryApi.sheets.activeEffects.register("splittermond", BaseActiveEffectConfig, {
+        types: ["base",""],
+        makeDefault: true,
+    });
+
+    foundryApi.sheets.activeEffects.register("splittermond", SplittermondActiveEffectConfig, {
+        types: ["modifier", "inverseModifier", "multiplicativeModifier", "costModifier"],
+        makeDefault: true,
+        label: "splittermond.activeEffects",
+    });
+
+    (SplittermondActiveEffect as ActiveEffectDocumentClass).createDialog = function (
+        data: Record<string, unknown> = {},
+        createOptions: Record<string, unknown> = {},
+        dialogOptions: Record<string, unknown> = {},
+        renderOptions: Record<string, unknown> = {},
+    ) {
+        return SplittermondActiveEffectCreationDialog.show(
+            this as unknown as {
+                create: (data: object, options: object) => Promise<FoundryDocument>;
+                defaultName?: (data: object) => string;
+            },
+            data,
+            createOptions,
+            dialogOptions,
+            renderOptions,
+        );
     };
 }
