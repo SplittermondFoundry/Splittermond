@@ -1,9 +1,12 @@
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import { withScene } from "../fixtures";
 import { foundryApi } from "module/api/foundryApi";
+import { BaseActiveEffectConfig } from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
+import { SplittermondBaseActorSheet, SplittermondBaseItemSheet } from "module/data/SplittermondApplication";
 
 declare const foundry: any;
 declare const canvas: any;
+declare const DocumentSheetConfig: any;
 const mergeObject = foundry.utils.mergeObject;
 
 export function apiUtilsTest(context: QuenchBatchContext) {
@@ -164,5 +167,54 @@ export function apiUtilsTest(context: QuenchBatchContext) {
     it("should have a property resolver", () => {
         const value = foundryApi.utils.resolveProperty({ a: { b: "value" } }, "a.b");
         expect(value).to.equal("value");
+    });
+
+    describe("Sheet Registration", () => {
+        class TestItemSheet extends SplittermondBaseItemSheet {}
+        class TestActorSheet extends SplittermondBaseActorSheet {}
+        class TestActiveEffectSheet extends BaseActiveEffectConfig {}
+
+        it("registers and unregisters an item sheet", () => {
+            foundryApi.sheets.items.register("splittermond", TestItemSheet, {
+                types: ["projectile"],
+                makeDefault: false,
+            });
+
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).to.include(TestItemSheet);
+
+            foundryApi.sheets.items.unregister("splittermond", TestItemSheet);
+
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).not.to.include(TestItemSheet);
+        });
+
+        it("registers and unregisters an actor sheet", () => {
+            foundryApi.sheets.actors.register("splittermond", TestActorSheet, {
+                types: ["npc"],
+                makeDefault: false,
+            });
+
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).to.include(TestActorSheet);
+
+            foundryApi.sheets.actors.unregister("splittermond", TestActorSheet);
+
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).not.to.include(TestActorSheet);
+        });
+
+        it("registers and unregisters an active effect sheet", () => {
+            foundryApi.sheets.activeEffects.register("splittermond", TestActiveEffectSheet, {
+                types: ["base"],
+                makeDefault: false,
+            });
+
+            expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")).to.include(
+                TestActiveEffectSheet
+            );
+
+            foundryApi.sheets.activeEffects.unregister("splittermond", TestActiveEffectSheet);
+
+            expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")).not.to.include(
+                TestActiveEffectSheet
+            );
+        });
     });
 }
