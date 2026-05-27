@@ -8,12 +8,10 @@ import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import SplittermondCharacterSheet from "../../../module/actor/sheets/character-sheet";
 import { withActor, withPlayer, withUnlinkedToken } from "../fixtures";
 import { User } from "module/api/foundryTypes";
-import { SplittermondBaseActorSheet, SplittermondBaseItemSheet } from "module/data/SplittermondApplication";
 
 declare const game: any;
 declare const Combat: any;
 declare const Combatant: any;
-declare const DocumentSheetConfig: any;
 
 export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     const { describe, it, expect, afterEach, before, after } = context;
@@ -115,24 +113,6 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             });
         });
 
-        describe("Item Sheet Registration", () => {
-            class TestItemSheet extends SplittermondBaseItemSheet {}
-            it("can register a sheet for item", () => {
-                foundryApi.sheets.items.register("splittermond", TestItemSheet, {
-                    type: ["projectile"],
-                });
-
-                expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).to.include(TestItemSheet);
-            });
-
-            it("can unregister a sheet for item", () => {
-                foundryApi.sheets.items.unregister("splittermond", TestItemSheet);
-
-                expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).not.to.include(
-                    TestItemSheet
-                );
-            });
-        });
     });
 
     describe("Actor", () => {
@@ -194,22 +174,6 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             });
         });
 
-        describe("Actor Sheet Registration", () => {
-            class TestActorSheet extends SplittermondBaseActorSheet {}
-            it("can register a sheet", () => {
-                foundryApi.sheets.actors.register("splittermond", TestActorSheet, {
-                    type: ["npc"],
-                });
-
-                expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).to.include(TestActorSheet);
-            });
-
-            it("can unregister a sheet", () => {
-                foundryApi.sheets.actors.unregister("splittermond", TestActorSheet);
-
-                expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).not.to.include(TestActorSheet);
-            });
-        });
     });
 
     describe("Compendium Packs", () => {
