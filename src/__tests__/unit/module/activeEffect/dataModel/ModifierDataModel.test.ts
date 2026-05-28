@@ -3,10 +3,10 @@ import { expect } from "chai";
 import sinon from "sinon";
 import { Modifier } from "module/activeEffect";
 import SplittermondItem from "module/item/item";
-import { TooltipFormula } from "module/util/tooltip";
 import { of } from "module/modifiers/expressions/scalar";
+import { TooltipFormula } from "module/util/tooltip";
 
-describe("Modifier", () => {
+describe("ModifierDataModel", () => {
     let sandbox: sinon.SinonSandbox;
     beforeEach(() => (sandbox = sinon.createSandbox()));
     afterEach(() => sandbox.restore());
@@ -28,6 +28,11 @@ describe("Modifier", () => {
         expect(malus.isMalus).to.be.true;
         expect(neutral.isBonus).to.be.false;
         expect(neutral.isMalus).to.be.false;
+    });
+
+    it("should expose modifier effectType", () => {
+        const mod = Modifier.create("path", of(1), { name: "Bonus", type: "magic" });
+        expect(mod.effectType).to.equal("modifier");
     });
 
     it("should format tooltip correctly", () => {
