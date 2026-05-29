@@ -16,6 +16,7 @@ import {modifierSchema} from "./modifierSchema";
 import type {EffectType} from "./effectTypes";
 import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
 import {SplittermondActiveEffect} from "module/activeEffect";
+import {UnboundWarner} from "module/activeEffect/dataModel/UnboundWarner";
 
 
 export type InverseModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
@@ -25,7 +26,7 @@ export type InverseModifierDataModelType = DataModelSchemaType<typeof modifierSc
  * Inverted logic: a bonus when value < 0, a malus when value > 0.
  */
 export class InverseModifierDataModel
-    extends SplittermondActiveEffectDataModel<InverseModifierDataModelType, FoundryActiveEffect>
+    extends UnboundWarner(SplittermondActiveEffectDataModel<InverseModifierDataModelType, SplittermondActiveEffect>)
     implements IModifier
 {
     static defineSchema() {
@@ -78,6 +79,10 @@ export class InverseModifierDataModel
 
     get isMalus(): boolean {
         return isGreaterZero(this.value) ?? false;
+    }
+
+    protected unboundWarningContext() {
+        return { modifierName: this.attributes?.name ?? this.path, propertyPath: this.path };
     }
 
     get groupId(): string {
