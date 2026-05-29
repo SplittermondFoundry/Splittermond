@@ -50,7 +50,8 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
                 times(this.multiplier, modifier.value),
                 normalizedAttributes,
                 this.sourceItem,
-                !!normalizedAttributes.emphasis
+                !!normalizedAttributes.emphasis,
+                () => this.sourceItem.actor,
             ),
         ];
     }
@@ -64,7 +65,7 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
             const value = times(this.multiplier, modifier.value);
             const emphasis = this.commonNormalizers.validatedAttribute(modifier.attributes.emphasis);
             const attributes = { name: emphasis ?? this.sourceItem.name, type: this.modifierType, emphasis };
-            return Modifier.create(skill, value, attributes, this.sourceItem, !!emphasis);
+            return Modifier.create(skill, value, attributes, this.sourceItem, !!emphasis, () => this.sourceItem.actor);
         });
     }
 

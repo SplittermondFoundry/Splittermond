@@ -204,7 +204,8 @@
                 "unknownGroupId": "Der Pfad '{groupId}' ist unbekannt.",
                 "missingDescriptor": "Das Attribut '{attribute}' für den Modifikator '{groupId}' fehlt.",
                 "invalidDescriptorValue": "Der Wert '{value}' für das Attribut '{attribute}' für den Modifikator '{groupId}' ist ungültig.",
-                "unknownDescriptor": "Das Attribut '{attribute}' für den Modifikator '{groupId}' ist unbekannt."
+                "unknownDescriptor": "Das Attribut '{attribute}' für den Modifikator '{groupId}' ist unbekannt.",
+                "unboundReference": "Der Modifikator '{modifierName}' enthält einen Ausdruck ('{propertyPath}'), der nicht aufgelöst werden kann, da kein Aktor vorhanden ist."
             }
         },
         "applications": {
