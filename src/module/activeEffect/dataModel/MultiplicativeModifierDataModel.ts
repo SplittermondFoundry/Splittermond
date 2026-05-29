@@ -26,7 +26,7 @@ export type MultiplicativeModifierDataModelType = DataModelSchemaType<typeof mod
  * A bonus when value > 1, a malus when value < 1.
  */
 export class MultiplicativeModifierDataModel
-    extends SplittermondActiveEffectDataModel<MultiplicativeModifierDataModelType, FoundryActiveEffect>
+    extends UnboundWarner(SplittermondActiveEffectDataModel<MultiplicativeModifierDataModelType, SplittermondActiveEffect>)
     implements IModifier
 {
     static defineSchema() {
@@ -39,8 +39,7 @@ export class MultiplicativeModifierDataModel
     constructor(data: DataModelConstructorInput<MultiplicativeModifierDataModelType>, context: unknown) {
         super(data, context);
         const actorProvider: ActorProvider | undefined = (context as any)?.actorProvider;
-        this.value = deserialize(this.serializedValue, actorProvider);
-        this._explicitOrigin = (context as any)?.origin ?? null;
+        this.value = deserialize(this.serializedValue, actorProvider, this.produceIssueWarning() );
     }
 
     static create(
@@ -84,6 +83,10 @@ export class MultiplicativeModifierDataModel
 
     get isMalus(): boolean {
         return isLessThan(this.value, of(1)) ?? false;
+    }
+
+    protected unboundWarningContext() {
+        return { modifierName: this.attributes?.name ?? this.path, propertyPath: this.path };
     }
 
     get groupId(): string {
