@@ -1,4 +1,4 @@
-import {FoundryActiveEffectConfig,} from "module/api/Application";
+import {type ApplicationFormConfiguration, FoundryActiveEffectConfig,} from "module/api/Application";
 import {foundryApi} from "module/api/foundryApi";
 import {addModifier} from "module/actor/addModifierAdapter";
 import type {IModifierSource} from "module/modifiers/IModifierSource";
@@ -6,7 +6,7 @@ import type {ModifierType} from "module/modifiers";
 import type {AddModifierResult} from "module/modifiers/modifierAddition";
 import {MODIFIER_TYPES} from "module/activeEffect/dataModel/effectTypes";
 import {buildCostEffectData, buildScalarEffectData} from "module/activeEffect/effectBuilder";
-import {TEMPLATE_BASE_PATH} from "module/data/SplittermondApplication";
+import {type ApplicationRenderContext, TEMPLATE_BASE_PATH} from "module/data/SplittermondApplication";
 
 type ActiveEffectDocument = FoundryDocument & {
     type: string;
@@ -50,7 +50,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
     }
 
     protected async _onSubmitForm(
-        formConfig: { closeOnSubmit: boolean } & Record<string, unknown>,
+        formConfig: ApplicationFormConfiguration,
         event: Event,
     ): Promise<void> {
         const warningKey = this.#getTypeMismatchWarningKey(event.currentTarget);
@@ -62,13 +62,13 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
         await super._onSubmitForm(formConfig, event);
     }
 
-    async _preparePartContext(partId: string, context: RenderContext, options?: object): Promise<object> {
-        const partContext = (await super._preparePartContext(partId, context, options ?? {})) as RenderContext;
+    async _preparePartContext(partId: string, context: RenderContext, options?: object): Promise<ApplicationRenderContext> {
+        const partContext = (await super._preparePartContext(partId, context, options ?? {}));
         if (partId !== "changes") return partContext;
         return this.#prepareEffectsContext(partContext);
     }
 
-    async #prepareEffectsContext(context: RenderContext): Promise<RenderContext> {
+    async #prepareEffectsContext(context: ApplicationRenderContext): Promise<ApplicationRenderContext> {
         const effect = this.document;
         const effectType = effect.type;
         if (this.#isModifierType(effectType)) {
