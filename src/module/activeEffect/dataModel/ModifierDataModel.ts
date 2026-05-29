@@ -17,6 +17,7 @@ import type {EffectType} from "./effectTypes";
 import {resolveHostActor} from "./hostActor";
 import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
 import {SplittermondActiveEffect} from "module/activeEffect";
+import {UnboundWarner} from "module/activeEffect/dataModel/UnboundWarner";
 
 export type ModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -24,36 +25,21 @@ export type ModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
  * DataModel for the standard additive {@link Modifier}.
  * A bonus when value > 0, a malus when value < 0.
  */
-export class ModifierDataModel extends SplittermondActiveEffectDataModel<ModifierDataModelType, FoundryActiveEffect> implements IModifier {
+export class ModifierDataModel
+    extends UnboundWarner(SplittermondActiveEffectDataModel<ModifierDataModelType, SplittermondActiveEffect>)
+    implements IModifier {
+
     static defineSchema() {
         return { ...super.defineSchema(), ...modifierSchema() };
     }
 
     readonly value: Expression;
-    private readonly _explicitOrigin: object | null;
-    private _unboundWarningIssued = false;
 
     constructor(data: DataModelConstructorInput<ModifierDataModelType>, context: unknown) {
         super(data, context);
         const ctx = context as any;
         const provider: ActorProvider = ctx?.actorProvider ?? (() => resolveHostActor(this.parent));
-        this.value = deserialize(
-            this.serializedValue,
-            provider,
-            () => {
-                if (!this._unboundWarningIssued) {
-                    this._unboundWarningIssued = true;
-                    const isOwnerOrGm = (this.parent as any)?.isOwner || foundryApi.currentUser?.isGM;
-                    if (isOwnerOrGm) {
-                        foundryApi.warnUser("splittermond.modifiers.parseMessages.unboundReference", {
-                            modifierName: this.attributes?.name ?? this.path,
-                            propertyPath: this.path,
-                        });
-                    }
-                }
-            }
-        );
-        this._explicitOrigin = ctx?.origin ?? null;
+        this.value = deserialize(this.serializedValue, provider, this.produceIssueWarning());
     }
 
     /**
@@ -98,6 +84,10 @@ export class ModifierDataModel extends SplittermondActiveEffectDataModel<Modifie
 
     get isMalus(): boolean {
         return isLessThanZero(this.value) ?? false;
+    }
+
+    protected unboundWarningContext() {
+        return { modifierName: this.attributes?.name ?? this.path, propertyPath: this.path };
     }
 
     get groupId(): string {
