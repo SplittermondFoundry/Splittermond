@@ -50,7 +50,6 @@ describe("Attack", () => {
                     name: attackItem?.name,
                 },
                 of(3),
-                null,
                 false
             );
             const underTest = Attack.initialize(actor, attackItem);
@@ -73,7 +72,7 @@ describe("Attack", () => {
                 item: attackItem?.name,
                 feature: "Scharf 2",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -92,7 +91,7 @@ describe("Attack", () => {
                 type: "magic" as const,
                 name: "Klinge des Lichts",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -110,7 +109,7 @@ describe("Attack", () => {
                 itemType: "weapon",
                 name: "Klinge des Lichts",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -127,7 +126,7 @@ describe("Attack", () => {
                 skill: "blades",
                 name: "Klinge des Lichts",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -145,7 +144,7 @@ describe("Attack", () => {
                 itemType: "npcAttack",
                 name: "Klinge des Lichts",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -161,7 +160,7 @@ describe("Attack", () => {
                 type: "magic" as const,
                 name: "Klinge des Lichts",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, true);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), true);
             const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -178,7 +177,7 @@ describe("Attack", () => {
                 name: "Klinge des Lichts",
                 item: "Kurzschwert",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -195,7 +194,7 @@ describe("Attack", () => {
                 skill: "staffs",
                 name: "Klinge des Lichts",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -212,7 +211,7 @@ describe("Attack", () => {
                 skill: "staffs",
                 name: "Klinge des Lichts",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             const damageItems = underTest.getForDamageRoll();
@@ -235,7 +234,6 @@ describe("Attack", () => {
                     name: attackItem?.name,
                 },
                 of(3),
-                null,
                 false
             );
             const underTest = Attack.initialize(actor, attackItem);
@@ -255,7 +253,7 @@ describe("Attack", () => {
                 type: "magic" as const,
                 name: "Klinge des Lichts",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(3), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             expect(underTest.damage).to.equal("1W6 + 5");
@@ -269,7 +267,7 @@ describe("Attack", () => {
                 type: "magic" as const,
                 name: "Klinge des Lichts",
             };
-            actor.modifier.add("item.damage", modifierAttributes, of(0), null, false);
+            actor.modifier.add("item.damage", modifierAttributes, of(0), false);
             const underTest = Attack.initialize(actor, attackItem);
 
             expect(underTest.damage).to.equal("");
@@ -369,7 +367,7 @@ describe("Attack", () => {
     it("should account for weapon speed modifiers", () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem({ weaponSpeed: 7 });
-        actor.modifier.add("item.weaponspeed", { type: "magic", name: attackItem?.name }, of(3), null, false);
+        actor.modifier.add("item.weaponspeed", { type: "magic", name: attackItem?.name }, of(3), false);
         const underTest = Attack.initialize(actor, attackItem);
 
         expect(underTest.weaponSpeed.display).to.equal("4");
@@ -383,7 +381,6 @@ describe("Attack", () => {
             "item.weaponspeed",
             { type: "magic", name: attackItem?.name, itemType: "weapon" },
             of(3),
-            null,
             false
         );
         const underTest = Attack.initialize(actor, attackItem);
@@ -398,7 +395,6 @@ describe("Attack", () => {
             "item.weaponspeed",
             { type: "magic", name: attackItem?.name, skill: "blades" },
             of(3),
-            null,
             false
         );
         const underTest = Attack.initialize(actor, attackItem);
@@ -413,7 +409,6 @@ describe("Attack", () => {
             "item.weaponspeed",
             { type: "magic", name: attackItem?.name, skill: "blades" },
             of(3),
-            null,
             false
         );
         const underTest = Attack.initialize(actor, attackItem);

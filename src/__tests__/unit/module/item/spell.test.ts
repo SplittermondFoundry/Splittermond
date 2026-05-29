@@ -215,7 +215,7 @@ describe("Spell item damage report", () => {
             name: "Klinge aus Licht",
             features: "Scharf 2",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(1), null, false);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(1), false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -235,7 +235,7 @@ describe("Spell item damage report", () => {
             features: "Scharf 2",
             item: "Kettenblitz",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -252,7 +252,7 @@ describe("Spell item damage report", () => {
             type: "magic" as const,
             name: "Klinge aus Licht",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -267,7 +267,7 @@ describe("Spell item damage report", () => {
             itemType: "spell",
             name: "Klinge aus Licht",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -282,7 +282,7 @@ describe("Spell item damage report", () => {
             skill: underTest.system.skill,
             name: "Klinge aus Licht",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -297,7 +297,7 @@ describe("Spell item damage report", () => {
             itemType: "weapon",
             name: "Klinge aus Licht",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -310,7 +310,7 @@ describe("Spell item damage report", () => {
             type: "magic" as const,
             name: "Klinge aus Licht",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, true);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), true);
 
         const damages = underTest.getForDamageRoll();
 
@@ -325,7 +325,7 @@ describe("Spell item damage report", () => {
             name: "Klinge aus Licht",
             item: "Regentanz",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -340,7 +340,7 @@ describe("Spell item damage report", () => {
             skill: underTest.system.skill !== "deathmagic" ? "deathmagic" : "illusionmagic",
             name: "Klinge aus Licht",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
 
         const damages = underTest.getForDamageRoll();
 
@@ -357,7 +357,7 @@ describe("Spell item damage report", () => {
             type: "magic" as const,
             name: "Klinge aus Licht",
         };
-        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), null, false);
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
 
         const damageString = underTest.damage;
 

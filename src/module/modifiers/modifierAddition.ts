@@ -135,7 +135,6 @@ function createModifier(
             name: attributes.emphasis ?? item.name,
             type,
         },
-        item,
         !!attributes.emphasis,
         actorProvider,
     );
