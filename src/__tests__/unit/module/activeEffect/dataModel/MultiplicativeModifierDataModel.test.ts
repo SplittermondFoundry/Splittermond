@@ -11,7 +11,7 @@ describe("MultiplicativeModifier", () => {
     afterEach(() => sandbox.restore());
 
     it("should initialize with correct values", () => {
-        const mod = MultiplicativeModifier.create("speed.multiplier", of(2), { name: "Haste", type: "magic" }, null, true);
+        const mod = MultiplicativeModifier.create("speed.multiplier", of(2), { name: "Haste", type: "magic" }, true);
         expect(mod.value).to.deep.equal(of(2));
         expect(mod.path).to.equal("speed.multiplier");
         expect(mod.selectable).to.be.true;

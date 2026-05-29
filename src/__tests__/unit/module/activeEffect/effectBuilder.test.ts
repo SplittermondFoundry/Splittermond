@@ -16,7 +16,6 @@ function makeScalarModifier(overrides: Partial<IModifier> = {}): IModifier {
         groupId: "skills.acrobatics",
         selectable: false,
         attributes: { name: "Test Item", type: "innate" },
-        origin: null,
         effectType: "modifier",
         addTooltipFormulaElements() {},
         ...overrides,

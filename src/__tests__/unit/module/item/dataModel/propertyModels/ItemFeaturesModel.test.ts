@@ -42,7 +42,6 @@ describe("ItemFeaturesModel", () => {
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", type: "magic" },
             of(5),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal] }, { parent });
@@ -57,7 +56,6 @@ describe("ItemFeaturesModel", () => {
             "item.addFeature",
             { name: "Test", feature: "Scharf", type: "magic" },
             of(3),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal] }, { parent });
@@ -74,14 +72,12 @@ describe("ItemFeaturesModel", () => {
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", item: "Test", type: "magic" },
             of(5),
-            null,
             false
         );
         parent.parent!.actor.modifier.add(
             "item.addFeature",
             { name: "Test", feature: "Kritisch", item: "Test", type: "magic" },
             of(2),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2, internal3] }, { parent });
@@ -97,14 +93,12 @@ describe("ItemFeaturesModel", () => {
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", item: "Test2", type: "magic" },
             of(5),
-            null,
             false
         );
         parent.parent!.actor.modifier.add(
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", item: "Test3", type: "magic" },
             of(5),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
@@ -120,7 +114,6 @@ describe("ItemFeaturesModel", () => {
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", item: "Test2", type: "magic" },
             of(1),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
@@ -137,14 +130,12 @@ describe("ItemFeaturesModel", () => {
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", itemType: "spell", type: "magic" },
             of(4),
-            null,
             false
         );
         parent.parent!.actor.modifier.add(
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", itemType: "weapon", type: "magic" },
             of(5),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
@@ -161,14 +152,12 @@ describe("ItemFeaturesModel", () => {
             "item.addFeature",
             { name: "Test", feature: "Scharf", itemType: "spell", type: "magic" },
             of(1),
-            null,
             false
         );
         parent.parent!.actor.modifier.add(
             "item.addFeature",
             { name: "Test", feature: "Scharf", itemType: "weapon", type: "magic" },
             of(5),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
@@ -185,14 +174,12 @@ describe("ItemFeaturesModel", () => {
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", skill: "blades", type: "magic" },
             of(4),
-            null,
             false
         );
         parent.parent!.actor.modifier.add(
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", skill: "staffs", type: "magic" },
             of(5),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
@@ -209,14 +196,12 @@ describe("ItemFeaturesModel", () => {
             "item.addFeature",
             { name: "Test", feature: "Scharf", skill: "blades", type: "innate" },
             of(1),
-            null,
             false
         );
         parent.parent!.actor.modifier.add(
             "item.addFeature",
             { name: "Test", feature: "Scharf", skill: "staffs", type: "innate" },
             of(5),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });
@@ -233,14 +218,12 @@ describe("ItemFeaturesModel", () => {
             "item.add",
             { name: "Test", feature: "Scharf", skill: "blades", type: "magic" },
             of(4),
-            null,
             false
         );
         parent.parent!.actor.modifier.add(
             "item.mergeFeature",
             { name: "Test", feature: "Scharf", skill: "staffs", type: "magic" },
             of(5),
-            null,
             false
         );
         const features = new ItemFeaturesModel({ internalFeatureList: [internal1, internal2] }, { parent });

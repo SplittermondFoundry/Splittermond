@@ -31,7 +31,6 @@ export default class SplittermondShieldItem extends AttackableItem(SplittermondP
                     type: "equipment",
                 },
                 of(this.system.defenseBonus),
-                this
             );
         let handicap = this.handicap;
         let tickMalus = this.tickMalus;
@@ -43,7 +42,6 @@ export default class SplittermondShieldItem extends AttackableItem(SplittermondP
                     type: "equipment",
                 },
                 of(handicap),
-                this
             );
         if (tickMalus)
             this.actor.modifier.add(
@@ -53,7 +51,6 @@ export default class SplittermondShieldItem extends AttackableItem(SplittermondP
                     type: "equipment",
                 },
                 of(tickMalus),
-                this
             );
     }
 
