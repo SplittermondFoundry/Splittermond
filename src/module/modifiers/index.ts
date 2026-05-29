@@ -53,6 +53,5 @@ export interface IModifier {
     readonly groupId: string;
     readonly selectable: boolean;
     readonly attributes: ModifierAttributes;
-    readonly origin: object | null;
     readonly effectType: EffectType;
 }

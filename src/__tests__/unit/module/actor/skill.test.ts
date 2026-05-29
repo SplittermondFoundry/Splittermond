@@ -746,7 +746,6 @@ function getModifier(mod: ModifierPartial = {}): IModifier {
             type: mod.attributes?.type ?? "innate",
         },
         selectable: mod.selectable ?? false,
-        origin: null,
         isBonus: (mod.value && isGreaterZero(mod.value)) ?? true,
         value: mod.value ?? of(1),
         effectType: mod.effectType ?? "modifier",
