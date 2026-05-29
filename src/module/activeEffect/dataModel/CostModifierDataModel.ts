@@ -1,15 +1,15 @@
-import { DataModelSchemaType, fields, fieldExtensions } from "../../data/SplittermondDataModel";
-import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
-import type { FoundryActiveEffect } from "../../api/ActiveEffect";
-import type { ICostModifier } from "module/util/costs/spellCostManagement";
-import { type CostExpression } from "module/modifiers/expressions/cost";
-import { serialize, deserialize } from "module/modifiers/expressions/cost/serialization";
-import type { DataModelConstructorInput } from "module/api/DataModel";
-import type { EffectType } from "./effectTypes";
-import { CostModifier } from "module/util/costs/Cost";
-import { resolveHostActor } from "./hostActor";
-import { foundryApi } from "module/api/foundryApi";
-import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import {DataModelSchemaType, fieldExtensions, fields} from "../../data/SplittermondDataModel";
+import {SplittermondActiveEffectDataModel} from "../../data/SplittermondActiveEffectDataModel";
+import type {ICostModifier} from "module/util/costs/spellCostManagement";
+import {type CostExpression} from "module/modifiers/expressions/cost";
+import {deserialize, serialize} from "module/modifiers/expressions/cost/serialization";
+import type {DataModelConstructorInput} from "module/api/DataModel";
+import type {EffectType} from "./effectTypes";
+import {CostModifier} from "module/util/costs/Cost";
+import {resolveHostActor} from "./hostActor";
+import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
+import {UnboundWarner} from "module/activeEffect/dataModel/UnboundWarner";
+import {SplittermondActiveEffect} from "module/activeEffect";
 
 type SerializedCostExpression = Record<string, unknown> & { type: string };
 type CostModifierAttributes = { skill?: string; type?: string };
@@ -41,7 +41,7 @@ export type CostModifierDataModelType = DataModelSchemaType<typeof CostModifierD
  * Captures the cost reduction/addition data that the {@link CostModifierHandler} produces.
  */
 export class CostModifierDataModel
-    extends SplittermondActiveEffectDataModel<CostModifierDataModelType, FoundryActiveEffect>
+    extends UnboundWarner(SplittermondActiveEffectDataModel<CostModifierDataModelType, SplittermondActiveEffect>)
     implements ICostModifier
 {
     static defineSchema() {
@@ -50,28 +50,12 @@ export class CostModifierDataModel
 
     readonly value: CostExpression;
     readonly effectType: EffectType = "costModifier";
-    private _unboundWarningIssued = false;
 
     constructor(data: DataModelConstructorInput<CostModifierDataModelType>, context: unknown) {
         super(data, context);
         const ctx = context as any;
         const provider: ActorProvider = ctx?.actorProvider ?? (() => resolveHostActor(this.parent));
-        this.value = deserialize(
-            this.serializedValue,
-            provider,
-            () => {
-                if (!this._unboundWarningIssued) {
-                    this._unboundWarningIssued = true;
-                    const isOwnerOrGm = (this.parent as any)?.isOwner || foundryApi.currentUser?.isGM;
-                    if (isOwnerOrGm) {
-                        foundryApi.warnUser("splittermond.modifiers.parseMessages.unboundReference", {
-                            modifierName: this.label,
-                            propertyPath: this.label,
-                        });
-                    }
-                }
-            }
-        );
+        this.value = deserialize(this.serializedValue, provider, this.produceIssueWarning())
     }
 
     /**
@@ -98,5 +82,9 @@ export class CostModifierDataModel
 
     get attributes(): { skill?: string; type?: string } {
         return (this as any).toObject().attributes;
+    }
+
+    protected unboundWarningContext() {
+        return { modifierName: this.label, propertyPath: this.label };
     }
 }
