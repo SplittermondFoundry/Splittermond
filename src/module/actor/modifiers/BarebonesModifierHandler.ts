@@ -25,6 +25,9 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
                 this.reportInvalidDescriptor.bind(this)
             );
         }
+        protected get actorProvider() {
+            return () => this.sourceItem.actor;
+        }
         protected buildModifier(modifier: ScalarModifier): IModifier[] {
             const otherAttributes = Object.entries(modifier.attributes).map(this.mapAttribute.bind(this));
             const attributes = {

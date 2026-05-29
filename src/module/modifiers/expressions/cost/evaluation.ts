@@ -7,6 +7,7 @@ import {
     MultiplyExpression,
     ReferenceExpression,
     SubtractExpression,
+    UnboundReferenceError,
 } from "./definitions";
 import { exhaustiveMatchGuard, PropertyResolver } from "module/modifiers/util";
 import {
@@ -27,7 +28,14 @@ async function doEvaluate(
     if (expression instanceof AmountExpression) {
         return expression.amount;
     } else if (expression instanceof ReferenceExpression) {
-        return new PropertyResolver().costModifier(expression.propertyPath, expression.source);
+        try {
+            return new PropertyResolver().costModifier(expression.propertyPath, expression.source);
+        } catch (e) {
+            if (e instanceof UnboundReferenceError) {
+                return CostModifier.zero;
+            }
+            throw e;
+        }
     } else if (expression instanceof AddExpression) {
         return (await doEvaluate(expression.left, scalarEval)).add(await doEvaluate(expression.right, scalarEval));
     } else if (expression instanceof SubtractExpression) {
