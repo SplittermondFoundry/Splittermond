@@ -16,6 +16,7 @@ import { serialize, deserialize } from "module/modifiers/expressions/scalar/seri
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import { modifierSchema } from "./modifierSchema";
 import type { EffectType } from "./effectTypes";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 
 export type MultiplicativeModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -37,23 +38,22 @@ export class MultiplicativeModifierDataModel
 
     constructor(data: DataModelConstructorInput<MultiplicativeModifierDataModelType>, context: unknown) {
         super(data, context);
-        this.value = deserialize(this.serializedValue);
+        const actorProvider: ActorProvider | undefined = (context as any)?.actorProvider;
+        this.value = deserialize(this.serializedValue, actorProvider);
         this._explicitOrigin = (context as any)?.origin ?? null;
     }
 
-    /**
-     * Convenience factory matching the legacy {@link MultiplicativeModifier} constructor signature.
-     */
     static create(
         groupId: string,
         value: Expression,
         attributes: ModifierAttributes,
         origin: object | null = null,
-        selectable = false
+        selectable = false,
+        actorProvider?: ActorProvider,
     ): MultiplicativeModifierDataModel {
         return new MultiplicativeModifierDataModel(
             MultiplicativeModifierDataModel.init(groupId, value, attributes, selectable),
-            { origin }
+            { origin, actorProvider }
         );
     }
 

@@ -1,4 +1,4 @@
-import {type ApplicationFormConfiguration, FoundryActiveEffectConfig,} from "module/api/Application";
+import {type ApplicationFormConfiguration, FoundryActiveEffectConfig} from "module/api/Application";
 import {foundryApi} from "module/api/foundryApi";
 import {addModifier} from "module/actor/addModifierAdapter";
 import type {IModifierSource} from "module/modifiers/IModifierSource";
@@ -14,11 +14,6 @@ type ActiveEffectDocument = FoundryDocument & {
     system: Record<string, unknown>;
     parent?: FoundryDocument;
     getFlag: (scope: string, key: string) => unknown;
-};
-
-type RenderContext = Record<string, unknown> & {
-    source?: Record<string, unknown>;
-    tabs?: Record<string, unknown>;
 };
 
 export class BaseActiveEffectConfig extends FoundryActiveEffectConfig {
@@ -51,7 +46,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
 
     protected async _onSubmitForm(
         formConfig: ApplicationFormConfiguration,
-        event: Event,
+        event: Event | SubmitEvent,
     ): Promise<void> {
         const warningKey = this.#getTypeMismatchWarningKey(event.currentTarget);
         if (warningKey) {
@@ -62,7 +57,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
         await super._onSubmitForm(formConfig, event);
     }
 
-    async _preparePartContext(partId: string, context: RenderContext, options?: object): Promise<ApplicationRenderContext> {
+    async _preparePartContext(partId: string, context: ApplicationRenderContext, options?: object): Promise<ApplicationRenderContext> {
         const partContext = (await super._preparePartContext(partId, context, options ?? {}));
         if (partId !== "changes") return partContext;
         return this.#prepareEffectsContext(partContext);
@@ -153,7 +148,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
             name,
             actor: parent?.documentName === "Actor"
                 ? (parent as unknown as IModifierSource["actor"])
-                : (null as unknown as IModifierSource["actor"]),
+                : null,
             uuid: this.document.uuid,
             isOwner: true,
         };

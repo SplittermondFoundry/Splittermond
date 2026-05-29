@@ -15,6 +15,7 @@ import { serialize, deserialize } from "module/modifiers/expressions/scalar/seri
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import { modifierSchema } from "./modifierSchema";
 import type { EffectType } from "./effectTypes";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 
 export type InverseModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -35,21 +36,20 @@ export class InverseModifierDataModel
 
     constructor(data: DataModelConstructorInput<InverseModifierDataModelType>, context: unknown) {
         super(data, context);
-        this.value = deserialize(this.serializedValue);
+        const actorProvider: ActorProvider | undefined = (context as any)?.actorProvider;
+        this.value = deserialize(this.serializedValue, actorProvider);
         this._explicitOrigin = (context as any)?.origin ?? null;
     }
 
-    /**
-     * Convenience factory matching the legacy {@link InverseModifier} constructor signature.
-     */
     static create(
         groupId: string,
         value: Expression,
         attributes: ModifierAttributes,
         origin: object | null = null,
         selectable = false,
+        actorProvider?: ActorProvider,
     ): InverseModifierDataModel {
-        return new InverseModifierDataModel(InverseModifierDataModel.init(groupId, value, attributes, selectable), { origin });
+        return new InverseModifierDataModel(InverseModifierDataModel.init(groupId, value, attributes, selectable), { origin, actorProvider });
     }
 
     /**
