@@ -7,6 +7,7 @@ import {
     MultiplyExpression,
     ReferenceExpression,
     SubtractExpression,
+    UnboundReferenceError,
 } from "./definitions";
 import { exhaustiveMatchGuard, PropertyResolver } from "module/modifiers/util";
 import { evaluate as scalarEvaluate } from "module/modifiers/expressions/scalar";
@@ -20,7 +21,14 @@ function doEvaluate(expression: CostExpression): CostModifier {
     if (expression instanceof AmountExpression) {
         return expression.amount;
     } else if (expression instanceof ReferenceExpression) {
-        return new PropertyResolver().costModifier(expression.propertyPath, expression.source);
+        try {
+            return new PropertyResolver().costModifier(expression.propertyPath, expression.source);
+        } catch (e) {
+            if (e instanceof UnboundReferenceError) {
+                return CostModifier.zero;
+            }
+            throw e;
+        }
     } else if (expression instanceof AddExpression) {
         return doEvaluate(expression.left).add(doEvaluate(expression.right));
     } else if (expression instanceof SubtractExpression) {

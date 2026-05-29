@@ -1,6 +1,6 @@
 import { FoundryRoll } from "module/api/Roll";
 import { RollExpression } from "./rollExpressions";
-import { foundryApi } from "module/api/foundryApi";
+import { type ActorProvider, UnboundReferenceError } from "module/modifiers/expressions/ActorProvider";
 
 export * from "./rollExpressions";
 
@@ -109,8 +109,8 @@ export function roll(roll: FoundryRoll) {
     return new RollExpression(roll);
 }
 
-export function ref(propertyPath: string, source: object, stringRepresentation: string) {
-    return new ReferenceExpression(propertyPath, source, stringRepresentation);
+export function ref(propertyPath: string, provider: ActorProvider, stringRepresentation: string) {
+    return new ReferenceExpression(propertyPath, stringRepresentation, provider);
 }
 
 export class AmountExpression {
@@ -129,49 +129,32 @@ class OneExpression extends AmountExpression {
     }
 }
 
-function hasUuid(object: object | null): object is { uuid: string } {
-    return !!object && "uuid" in object && typeof object.uuid === "string";
-}
+export { UnboundReferenceError } from "module/modifiers/expressions/ActorProvider";
 
 export class ReferenceExpression {
-    private _source: object | null;
-    private readonly _uuid: string | null;
+    private _provider: ActorProvider | null;
+    private _onUnbound: (() => void) | null = null;
 
     constructor(
         public readonly propertyPath: string,
-        source: object | null,
         public readonly stringRep: string,
-        uuid: string | null = null
+        provider: ActorProvider | null = null
     ) {
-        this._source = source;
-        this._uuid = uuid ?? (hasUuid(source) ? source.uuid : null);
+        this._provider = provider;
+    }
+
+    bindProvider(provider: ActorProvider, onUnbound?: () => void): void {
+        this._provider = provider;
+        this._onUnbound = onUnbound ?? null;
     }
 
     get source(): object {
-        if (this._source) {
-            return this._source;
+        const actor = this._provider?.() ?? null;
+        if (!actor) {
+            this._onUnbound?.();
+            throw new UnboundReferenceError(this.propertyPath);
         }
-        if (this._uuid) {
-            const resolved = foundryApi.utils.fromUUIDSync(this._uuid);
-            if (!resolved) {
-                throw new Error(
-                    `Splittermond | Cannot resolve ReferenceExpression source: fromUuidSync returned null for uuid '${this._uuid}'.`
-                );
-            }
-            this._source = resolved;
-            return resolved;
-        }
-        throw new Error(`Splittermond | ReferenceExpression has neither a source object nor a uuid to resolve.`);
-    }
-
-    get uuid(): string | null {
-        if (this._uuid) {
-            return this._uuid;
-        }
-        if (hasUuid(this._source)) {
-            return this._source.uuid;
-        }
-        return null;
+        return actor;
     }
 }
 

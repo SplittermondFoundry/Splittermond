@@ -1,6 +1,5 @@
 import { describe, it } from "mocha";
 import { expect } from "chai";
-import sinon from "sinon";
 import {
     AddExpression,
     AmountExpression,
@@ -13,7 +12,6 @@ import {
 import { of as scalarOf } from "module/modifiers/expressions/scalar";
 import { deserialize, serialize } from "module/modifiers/expressions/cost/serialization";
 import { CostModifier } from "module/util/costs/Cost";
-import { foundryApi } from "module/api/foundryApi";
 
 function costMod(channeled: number, channeledConsumed: number, exhausted: number, consumed: number) {
     return new CostModifier({
@@ -82,22 +80,14 @@ describe("Cost Expression Serialization", () => {
         });
 
         describe("ReferenceExpression", () => {
-            it("should serialize when source has uuid", () => {
-                const source = { uuid: "Actor.abc123", value: "K3V2" };
-                const expr = ref("value", source, "value");
+            it("should serialize with propertyPath and stringRep (no uuid)", () => {
+                const expr = ref("value", () => null, "value");
                 const result = serialize(expr);
                 expect(result).to.deep.equal({
                     type: "reference",
                     propertyPath: "value",
                     stringRep: "value",
-                    uuid: "Actor.abc123",
                 });
-            });
-
-            it("should throw when source has no uuid", () => {
-                const source = { value: "K3V2" };
-                const expr = ref("value", source, "value");
-                expect(() => serialize(expr)).to.throw(/uuid/);
             });
         });
     });
@@ -150,7 +140,19 @@ describe("Cost Expression Serialization", () => {
             expect(result).to.be.instanceOf(MultiplyExpression);
         });
 
-        it("should deserialize ReferenceExpression with lazy uuid", () => {
+        it("should deserialize ReferenceExpression as unbound", () => {
+            const data = {
+                type: "reference",
+                propertyPath: "system.cost",
+                stringRep: "cost",
+            };
+            const result = deserialize(data);
+            expect(result).to.be.instanceOf(ReferenceExpression);
+            expect((result as ReferenceExpression).propertyPath).to.equal("system.cost");
+            expect((result as ReferenceExpression).stringRep).to.equal("cost");
+        });
+
+        it("should ignore legacy uuid field when deserializing", () => {
             const data = {
                 type: "reference",
                 propertyPath: "system.cost",
@@ -160,7 +162,6 @@ describe("Cost Expression Serialization", () => {
             const result = deserialize(data);
             expect(result).to.be.instanceOf(ReferenceExpression);
             expect((result as ReferenceExpression).propertyPath).to.equal("system.cost");
-            expect((result as ReferenceExpression).uuid).to.equal("Item.xyz789");
         });
 
         it("should throw for unknown type", () => {
@@ -191,72 +192,38 @@ describe("Cost Expression Serialization", () => {
         });
     });
 
-    describe("Cost ReferenceExpression lazy resolution", () => {
-        let sandbox: sinon.SinonSandbox;
-        beforeEach(() => (sandbox = sinon.createSandbox()));
-        afterEach(() => sandbox.restore());
-
-        it("should not resolve uuid on construction", () => {
-            const stub = sandbox.stub(foundryApi.utils, "fromUUIDSync");
-            const expr = new ReferenceExpression("value", null, "value", "Actor.abc123");
-            expect(stub.called).to.be.false;
-            expect(expr.uuid).to.equal("Actor.abc123");
+    describe("Cost ReferenceExpression provider binding", () => {
+        it("should throw UnboundReferenceError when no provider is set", () => {
+            const expr = new ReferenceExpression("value", "value");
+            expect(() => expr.source).to.throw(/no actor context/);
         });
 
-        it("should resolve uuid lazily on source access", () => {
-            const mockSource = { uuid: "Actor.abc123", system: { cost: "K3V2" } };
-            const stub = sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(mockSource as any);
-
-            const expr = new ReferenceExpression("system.cost", null, "cost", "Actor.abc123");
-            const source = expr.source;
-
-            expect(stub.calledOnceWith("Actor.abc123")).to.be.true;
-            expect(source).to.equal(mockSource);
+        it("should throw UnboundReferenceError when provider returns null", () => {
+            const expr = ref("value", () => null, "value");
+            expect(() => expr.source).to.throw(/no actor context/);
         });
 
-        it("should cache resolved source", () => {
-            const mockSource = { uuid: "Actor.abc123", system: { cost: "K3V2" } };
-            const stub = sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(mockSource as any);
-
-            const expr = new ReferenceExpression("system.cost", null, "cost", "Actor.abc123");
-            expr.source;
-            expr.source;
-
-            expect(stub.calledOnce).to.be.true;
+        it("should return source from provider when provider returns an actor", () => {
+            const stubActor = { value: "K3V2" } as any;
+            const expr = ref("value", () => stubActor, "value");
+            expect(expr.source).to.equal(stubActor);
         });
 
-        it("should throw when uuid resolution fails", () => {
-            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(null);
-            const expr = new ReferenceExpression("value", null, "value", "Actor.missing");
-            expect(() => expr.source).to.throw(/fromUuidSync returned null/);
+        it("should allow rebinding via bindProvider", () => {
+            const expr = new ReferenceExpression("value", "value");
+            const stubActor = { value: "3V1" } as any;
+            expr.bindProvider(() => stubActor);
+            expect(expr.source).to.equal(stubActor);
         });
 
-        it("should throw when neither source nor uuid is available", () => {
-            const expr = new ReferenceExpression("value", null, "value", null);
-            expect(() => expr.source).to.throw(/neither a source object nor a uuid/);
-        });
-
-        it("should use direct source when available without resolving uuid", () => {
-            const directSource = { value: "K3V2" };
-            const stub = sandbox.stub(foundryApi.utils, "fromUUIDSync");
-
-            const expr = new ReferenceExpression("value", directSource, "value", "Actor.abc123");
-            const source = expr.source;
-
-            expect(stub.called).to.be.false;
-            expect(source).to.equal(directSource);
-        });
-
-        it("should extract uuid from source object", () => {
-            const source = { uuid: "Item.xyz789", value: "K3" };
-            const expr = ref("value", source, "value");
-            expect(expr.uuid).to.equal("Item.xyz789");
-        });
-
-        it("should return null uuid when source has no uuid", () => {
-            const source = { value: "K3" };
-            const expr = ref("value", source, "value");
-            expect(expr.uuid).to.be.null;
+        it("should roundtrip ReferenceExpression through serialize/deserialize", () => {
+            const stubActor = { value: "K3V2" } as any;
+            const original = ref("value", () => stubActor, "value");
+            const roundtripped = deserialize(serialize(original)) as ReferenceExpression;
+            expect(roundtripped).to.be.instanceOf(ReferenceExpression);
+            expect(roundtripped.propertyPath).to.equal("value");
+            roundtripped.bindProvider(() => stubActor);
+            expect(roundtripped.source).to.equal(stubActor);
         });
     });
 });

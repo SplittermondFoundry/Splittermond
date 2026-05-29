@@ -70,35 +70,35 @@ describe("Expressions", () => {
 
     describe("Reference Expressions", () => {
         it("should evaluate to the value of the property", () => {
-            const property = ref("value", { value: "K3V3" }, "value");
+            const property = ref("value", () => ({ value: "K3V3" }) as any, "value");
             expect(evaluate(property)).to.deep.equal(new Cost(0, 3, true, false).asModifier());
         });
 
         it("should omit properties of the wrong format when multiplying", () => {
-            const property = ref("value", { value: "splittermond" }, "value");
+            const property = ref("value", () => ({ value: "splittermond" }) as any, "value");
             const expression = times(scalarOf(1), minus(of("4"), property));
             expect(evaluate(expression)).to.deep.equal(mod(4, 0, false));
         });
 
         it("should omit properties of the wrong format when adding", () => {
-            const property = ref("value", { value: "splittermond" }, "value");
+            const property = ref("value", () => ({ value: "splittermond" }) as any, "value");
             const expression = times(scalarOf(4), property);
             expect(evaluate(expression)).to.deep.equal(CostModifier.zero);
         });
 
         it("should evaluate nested properties", () => {
-            const property = ref("first.second.third", { first: { second: { third: "-3V2" } } }, "first.second.third");
+            const property = ref("first.second.third", () => ({ first: { second: { third: "-3V2" } } }) as any, "first.second.third");
             expect(evaluate(property)).to.deep.equal(new Cost(-1, -2, false).asModifier());
         });
 
         it("should not condense property ", () => {
-            const property = ref("value", { value: "3" }, "value");
+            const property = ref("value", () => ({ value: "3" }) as any, "value");
             const expression = times(scalarMinus(scalarOf(4), scalarOf(3)), plus(of("3V3"), property));
             expect(condense(expression)).to.deep.equal(times(scalarOf(1), plus(of("3V3"), property)));
         });
 
         it("should stringify property ", () => {
-            const property = ref("value", { value: "K3" }, "value");
+            const property = ref("value", () => ({ value: "K3" }) as any, "value");
             const expression = times(scalarMinus(scalarOf(4), scalarOf(3)), plus(of("3"), property));
             expect(asString(expression)).to.deep.equal("(4 - 3) \u00D7 (3 + ${value})");
         });

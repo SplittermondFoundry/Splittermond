@@ -11,6 +11,7 @@ import {
     ReferenceExpression,
     RollExpression,
     SubtractExpression,
+    UnboundReferenceError,
 } from "./definitions";
 import { exhaustiveMatchGuard, PropertyResolver } from "module/modifiers/util";
 
@@ -22,7 +23,14 @@ function doEvaluate(expression: Expression): number | null {
     if (expression instanceof AmountExpression) {
         return expression.amount;
     } else if (expression instanceof ReferenceExpression) {
-        return new PropertyResolver().numberOrNull(expression.propertyPath, expression.source);
+        try {
+            return new PropertyResolver().numberOrNull(expression.propertyPath, expression.source);
+        } catch (e) {
+            if (e instanceof UnboundReferenceError) {
+                return null;
+            }
+            throw e;
+        }
     } else if (expression instanceof AddExpression) {
         return (doEvaluate(expression.left) ?? 0) + (doEvaluate(expression.right) ?? 0);
     } else if (expression instanceof SubtractExpression) {

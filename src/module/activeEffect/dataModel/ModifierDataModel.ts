@@ -15,6 +15,9 @@ import { serialize, deserialize } from "module/modifiers/expressions/scalar/seri
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import { modifierSchema } from "./modifierSchema";
 import type { EffectType } from "./effectTypes";
+import { resolveHostActor } from "./hostActor";
+import { foundryApi } from "module/api/foundryApi";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 
 export type ModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -29,11 +32,29 @@ export class ModifierDataModel extends SplittermondActiveEffectDataModel<Modifie
 
     readonly value: Expression;
     private readonly _explicitOrigin: object | null;
+    private _unboundWarningIssued = false;
 
     constructor(data: DataModelConstructorInput<ModifierDataModelType>, context: unknown) {
         super(data, context);
-        this.value = deserialize(this.serializedValue);
-        this._explicitOrigin = (context as any)?.origin ?? null;
+        const ctx = context as any;
+        const provider: ActorProvider = ctx?.actorProvider ?? (() => resolveHostActor(this.parent));
+        this.value = deserialize(
+            this.serializedValue,
+            provider,
+            () => {
+                if (!this._unboundWarningIssued) {
+                    this._unboundWarningIssued = true;
+                    const isOwnerOrGm = (this.parent as any)?.isOwner || foundryApi.currentUser?.isGM;
+                    if (isOwnerOrGm) {
+                        foundryApi.warnUser("splittermond.modifiers.parseMessages.unboundReference", {
+                            modifierName: this.attributes?.name ?? this.path,
+                            propertyPath: this.path,
+                        });
+                    }
+                }
+            }
+        );
+        this._explicitOrigin = ctx?.origin ?? null;
     }
 
     /**
@@ -45,8 +66,9 @@ export class ModifierDataModel extends SplittermondActiveEffectDataModel<Modifie
         attributes: ModifierAttributes,
         origin: object | null = null,
         selectable = false,
+        actorProvider?: ActorProvider,
     ): ModifierDataModel {
-        return new ModifierDataModel(ModifierDataModel.init(path, value, attributes, selectable), { origin });
+        return new ModifierDataModel(ModifierDataModel.init(path, value, attributes, selectable), { origin, actorProvider });
     }
 
     /**
