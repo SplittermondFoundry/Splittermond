@@ -131,7 +131,7 @@ describe("addModifier", () => {
                 groupId: "actor.speed.multiplier",
                 attributes: { name: "Test Item", type: "innate" },
                 value: expected,
-                origin: item,
+
                 selectable: false,
             });
         });
@@ -144,7 +144,7 @@ describe("addModifier", () => {
             groupId: "actor.healthregeneration.multiplier",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
     });
@@ -155,7 +155,7 @@ describe("addModifier", () => {
             path: "actor.healthregeneration.bonus",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
     });
@@ -166,7 +166,7 @@ describe("addModifier", () => {
             groupId: "actor.focusregeneration.multiplier",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
     });
@@ -177,7 +177,7 @@ describe("addModifier", () => {
             path: "actor.focusregeneration.bonus",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
     });
@@ -198,7 +198,7 @@ describe("addModifier", () => {
                 path: skill,
                 attributes: { emphasis: "emphasis", name: "emphasis", type: null },
                 value: of(2),
-                origin: item,
+
                 selectable: true,
             });
         });
@@ -216,7 +216,7 @@ describe("addModifier", () => {
             path: "npcattacks",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
     });
@@ -233,7 +233,7 @@ describe("addModifier", () => {
             groupId: "initiative",
             attributes: { name: "Test Item", type: null },
             value: of(1),
-            origin: item,
+
             selectable: false,
         });
     });
@@ -245,7 +245,7 @@ describe("addModifier", () => {
             path: "diplomacy",
             attributes: { emphasis: "emphasis", name: "emphasis", type: null },
             value: of(3),
-            origin: item,
+
             selectable: true,
         });
     });
@@ -258,7 +258,7 @@ describe("addModifier", () => {
                 path: fumbleResultPath,
                 attributes: { name: "Test Item", type: null },
                 value: of(3),
-                origin: item,
+
                 selectable: false,
             });
         });
@@ -270,7 +270,7 @@ describe("addModifier", () => {
             path: "lowerfumbleresult",
             attributes: { name: "Test Item", type: null, skill: "windmagic" },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
         expect(reportErrorStub.notCalled, "Output to console error").to.be.true;
@@ -287,7 +287,7 @@ describe("addModifier", () => {
                 path: splittermond.skillGroups[skillGroup].slice(-1)[0],
                 attributes: { emphasis: "Schwerpunkt", name: "Schwerpunkt", type: null },
                 value: of(3),
-                origin: item,
+
                 selectable: true,
             });
         });
@@ -305,7 +305,7 @@ describe("addModifier", () => {
                     type: null,
                     emphasis: "fire",
                 },
-                origin: item,
+
             });
         });
 
@@ -321,7 +321,7 @@ describe("addModifier", () => {
                     emphasis: "fire",
                     item: "Schwert",
                 },
-                origin: item,
+
             });
         });
 
@@ -332,7 +332,7 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, damageType: "fire" },
-                origin: item,
+
             });
         });
 
@@ -343,7 +343,7 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, damageType: undefined },
-                origin: item,
+
             });
         });
 
@@ -354,7 +354,7 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "spell" },
-                origin: item,
+
             });
         });
 
@@ -365,7 +365,7 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "blubb" },
-                origin: item,
+
             });
         });
 
@@ -376,7 +376,7 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "arcanelore" },
-                origin: item,
+
             });
         });
 
@@ -387,7 +387,7 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "blubb" },
-                origin: item,
+
             });
         });
 
@@ -407,7 +407,7 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null },
-                origin: item,
+
             });
         });
 
@@ -418,7 +418,7 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null },
-                origin: item,
+
             });
         });
 
@@ -429,7 +429,7 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, item: "Lanze" },
-                origin: item,
+
             });
         });
 
@@ -440,7 +440,7 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "weapon" },
-                origin: item,
+
             });
         });
 
@@ -451,7 +451,7 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "fern" },
-                origin: item,
+
             });
         });
 
@@ -462,7 +462,7 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "melee" },
-                origin: item,
+
             });
         });
 
@@ -473,7 +473,7 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "fern" },
-                origin: item,
+
             });
         });
 
@@ -493,7 +493,6 @@ describe("addModifier", () => {
                 path: "item.defenseTickCost",
                 value: of(1),
                 attributes: { name: "Test Item", type: null, itemType: "shield" },
-                origin: item,
             });
         });
 
@@ -504,7 +503,6 @@ describe("addModifier", () => {
                 path: "item.defenseTickCost",
                 value: of(1),
                 attributes: { name: "Test Item", type: null, item: "Rundschild", skill: "melee" },
-                origin: item,
             });
         });
         it("should normalize defense type filters in the item handler", () => {
@@ -514,7 +512,6 @@ describe("addModifier", () => {
                 path: "item.defenseTickCost",
                 value: of(-1),
                 attributes: { name: "Test Item", type: null, defenseType: "bodyresist" },
-                origin: item,
             });
         });
     });
@@ -527,7 +524,7 @@ describe("addModifier", () => {
                 path: "item.castDuration",
                 value: of(2),
                 attributes: { name: "Test Item", type: null, unit: "T" },
-                origin: item,
+
             });
         });
 
@@ -538,7 +535,7 @@ describe("addModifier", () => {
                 path: "item.castDuration.multiplier",
                 value: of(2),
                 attributes: { name: "Test Item", type: null },
-                origin: item,
+
             });
         });
     });
@@ -552,7 +549,7 @@ describe("addModifier", () => {
                     path,
                     value: of(2),
                     attributes: { name: "Test Item", type: null, feature: "robust" },
-                    origin: item,
+    
                 });
             });
 
@@ -563,7 +560,7 @@ describe("addModifier", () => {
                     path,
                     value: of(1),
                     attributes: { name: "Test Item", type: null, feature: "sharp", item: "Schwert" },
-                    origin: item,
+    
                 });
             });
 
@@ -574,7 +571,7 @@ describe("addModifier", () => {
                     path,
                     value: of(3),
                     attributes: { name: "Test Item", type: null, feature: "masterwork", itemType: "weapon" },
-                    origin: item,
+    
                 });
             });
 
@@ -585,7 +582,7 @@ describe("addModifier", () => {
                     path,
                     value: of(1),
                     attributes: { name: "Test Item", type: null, feature: "enchanted", itemType: "invalid" },
-                    origin: item,
+    
                 });
             });
 
@@ -596,7 +593,7 @@ describe("addModifier", () => {
                     path,
                     value: of(3),
                     attributes: { name: "Test Item", type: null, feature: "masterwork", skill: "blades" },
-                    origin: item,
+    
                 });
             });
 
@@ -607,7 +604,7 @@ describe("addModifier", () => {
                     path,
                     value: of(1),
                     attributes: { name: "Test Item", type: null, feature: "enchanted", skill: "invalid" },
-                    origin: item,
+    
                 });
             });
 
@@ -624,7 +621,7 @@ describe("addModifier", () => {
                         item: "Holy Sword",
                         itemType: "weapon",
                     },
-                    origin: item,
+    
                 });
             });
             [
@@ -651,7 +648,6 @@ describe("addModifier", () => {
             expect(createdModifier.attributes.name).to.equal("Test Item");
             expect(createdModifier.attributes.type).to.be.null;
             expect(createdModifier.value).to.deep.equal(of(2));
-            expect(createdModifier.origin).to.equal(item);
             expect(createdModifier.selectable).to.be.false;
         });
     });
@@ -682,7 +678,7 @@ describe("addModifier", () => {
             expect(result.modifiers[0].modifier).to.deep.contain({
                 path: "stealth",
                 attributes: { name: "Test Item", type: null },
-                origin: item,
+
                 selectable: false,
             });
             expect(await evaluate(result.modifiers[0].modifier.value)).to.equal(expected);

@@ -177,7 +177,6 @@ export default class Attack {
                     type: "innate",
                 },
                 of(minAttributeMalus),
-                this
             );
             this.actor.modifier.add(
                 "weaponspeed",
@@ -187,7 +186,6 @@ export default class Attack {
                     type: "innate",
                 },
                 of(minAttributeMalus),
-                this
             );
         }
 
@@ -200,7 +198,6 @@ export default class Attack {
                     type: "innate",
                 },
                 of(this.attackData.skillMod),
-                this
             );
         }
 
@@ -212,7 +209,6 @@ export default class Attack {
                     type: "innate",
                 },
                 of(-3),
-                this
             );
         }
     }

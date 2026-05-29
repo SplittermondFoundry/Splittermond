@@ -1,8 +1,7 @@
-import { DataModelSchemaType } from "../../data/SplittermondDataModel";
-import type { FoundryActiveEffect } from "../../api/ActiveEffect";
-import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
-import type { IModifier, ModifierAttributes } from "module/modifiers";
-import type { TooltipFormula } from "module/util/tooltip";
+import {DataModelSchemaType} from "../../data/SplittermondDataModel";
+import {SplittermondActiveEffectDataModel} from "../../data/SplittermondActiveEffectDataModel";
+import type {IModifier, ModifierAttributes} from "module/modifiers";
+import type {TooltipFormula} from "module/util/tooltip";
 import {
     abs,
     asString,
@@ -12,11 +11,13 @@ import {
     isLessThan,
     of,
 } from "module/modifiers/expressions/scalar";
-import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
-import type { DataModelConstructorInput } from "module/api/DataModel";
-import { modifierSchema } from "./modifierSchema";
-import type { EffectType } from "./effectTypes";
-import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import {deserialize, serialize} from "module/modifiers/expressions/scalar/serialization";
+import type {DataModelConstructorInput} from "module/api/DataModel";
+import {modifierSchema} from "./modifierSchema";
+import type {EffectType} from "./effectTypes";
+import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
+import {UnboundWarner} from "module/activeEffect/dataModel/UnboundWarner";
+import {SplittermondActiveEffect} from "module/activeEffect";
 
 export type MultiplicativeModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -34,7 +35,6 @@ export class MultiplicativeModifierDataModel
 
 
     readonly value: Expression;
-    private readonly _explicitOrigin: object | null;
 
     constructor(data: DataModelConstructorInput<MultiplicativeModifierDataModelType>, context: unknown) {
         super(data, context);
@@ -47,13 +47,12 @@ export class MultiplicativeModifierDataModel
         groupId: string,
         value: Expression,
         attributes: ModifierAttributes,
-        origin: object | null = null,
         selectable = false,
         actorProvider?: ActorProvider,
     ): MultiplicativeModifierDataModel {
         return new MultiplicativeModifierDataModel(
             MultiplicativeModifierDataModel.init(groupId, value, attributes, selectable),
-            { origin, actorProvider }
+            { actorProvider }
         );
     }
 
@@ -95,10 +94,6 @@ export class MultiplicativeModifierDataModel
 
     get selectable(): boolean {
         return (this as any).toObject().selectable;
-    }
-
-    get origin(): object | null {
-        return this._explicitOrigin ?? this.parent?.parent ?? null;
     }
 
     addTooltipFormulaElements(formula: TooltipFormula): void {

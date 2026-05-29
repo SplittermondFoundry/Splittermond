@@ -14,7 +14,6 @@ export function IndividualSkillHandlers(skill: SplittermondSkill) {
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
-                    mod.origin,
                     !!mod.attributes.emphasis,
                     this.actorProvider,
                 );
@@ -32,7 +31,6 @@ export function BasicModifierHandler(inputPath: string, groupId?: string) {
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
-                    mod.origin,
                     mod.selectable,
                     this.actorProvider,
                 );
@@ -49,7 +47,6 @@ export function InverseModifierHandler(inputPath: string, groupId?: Lowercase<st
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
-                    mod.origin,
                     mod.selectable,
                     this.actorProvider,
                 );
@@ -74,7 +71,6 @@ export function ProductModifierHandler(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.name },
-                    mod.origin,
                     !!mod.attributes.emphasis,
                     this.actorProvider,
                 );
@@ -97,7 +93,7 @@ export function TickHandicapHandler(inputPath: string) {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
                 const demoddedId = mod.groupId.replace(/\.mod$/i, "");
-                return Modifier.create(demoddedId, mod.value, mod.attributes, mod.origin, mod.selectable, this.actorProvider);
+                return Modifier.create(demoddedId, mod.value, mod.attributes, mod.selectable, this.actorProvider);
             });
         }
     };
@@ -117,7 +113,7 @@ export function SkillFilterHandler<CONFIG extends { topLevelPath: string }>(conf
                 if (mod.attributes.skill) {
                     mod.attributes.skill = this.commonNormalizers.normalizeSkill(mod.groupId, mod.attributes.skill);
                 }
-                return Modifier.create(mod.groupId, mod.value, mod.attributes, mod.origin, mod.selectable, this.actorProvider);
+                return Modifier.create(mod.groupId, mod.value, mod.attributes, mod.selectable, this.actorProvider);
             });
         }
     };

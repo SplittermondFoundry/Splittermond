@@ -16,10 +16,9 @@ export default class ModifierManager {
         path: string,
         attributes: ModifierAttributes,
         value: Expression,
-        origin: object | null = null,
         selectable = false
     ) {
-        this.addModifier(Modifier.create(path, value, attributes, origin, selectable));
+        this.addModifier(Modifier.create(path, value, attributes, selectable));
     }
 
     addModifier(modifier: IModifier) {
