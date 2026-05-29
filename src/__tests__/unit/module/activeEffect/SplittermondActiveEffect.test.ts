@@ -36,7 +36,6 @@ function mockModifier(overrides: Partial<IModifier> = {}): IModifier {
         groupId: "test.path",
         selectable: false,
         attributes: { name: "Test", type: "innate" },
-        origin: null,
         effectType: "modifier",
         addTooltipFormulaElements() {},
         ...overrides,

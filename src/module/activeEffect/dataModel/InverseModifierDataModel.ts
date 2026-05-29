@@ -1,8 +1,7 @@
-import { DataModelSchemaType } from "../../data/SplittermondDataModel";
-import type { FoundryActiveEffect } from "../../api/ActiveEffect";
-import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
-import type { IModifier, ModifierAttributes } from "module/modifiers";
-import type { TooltipFormula } from "module/util/tooltip";
+import {DataModelSchemaType} from "../../data/SplittermondDataModel";
+import {SplittermondActiveEffectDataModel} from "../../data/SplittermondActiveEffectDataModel";
+import type {IModifier, ModifierAttributes} from "module/modifiers";
+import type {TooltipFormula} from "module/util/tooltip";
 import {
     abs,
     asString,
@@ -11,11 +10,13 @@ import {
     isGreaterZero,
     isLessThanZero,
 } from "module/modifiers/expressions/scalar";
-import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
-import type { DataModelConstructorInput } from "module/api/DataModel";
-import { modifierSchema } from "./modifierSchema";
-import type { EffectType } from "./effectTypes";
-import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import {deserialize, serialize} from "module/modifiers/expressions/scalar/serialization";
+import type {DataModelConstructorInput} from "module/api/DataModel";
+import {modifierSchema} from "./modifierSchema";
+import type {EffectType} from "./effectTypes";
+import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
+import {SplittermondActiveEffect} from "module/activeEffect";
+
 
 export type InverseModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -32,24 +33,21 @@ export class InverseModifierDataModel
     }
 
     readonly value: Expression;
-    private readonly _explicitOrigin: object | null;
 
     constructor(data: DataModelConstructorInput<InverseModifierDataModelType>, context: unknown) {
         super(data, context);
         const actorProvider: ActorProvider | undefined = (context as any)?.actorProvider;
-        this.value = deserialize(this.serializedValue, actorProvider);
-        this._explicitOrigin = (context as any)?.origin ?? null;
+        this.value = deserialize(this.serializedValue, actorProvider, this.produceIssueWarning() );
     }
 
     static create(
         groupId: string,
         value: Expression,
         attributes: ModifierAttributes,
-        origin: object | null = null,
         selectable = false,
         actorProvider?: ActorProvider,
     ): InverseModifierDataModel {
-        return new InverseModifierDataModel(InverseModifierDataModel.init(groupId, value, attributes, selectable), { origin, actorProvider });
+        return new InverseModifierDataModel(InverseModifierDataModel.init(groupId, value, attributes, selectable), { actorProvider });
     }
 
     /**
@@ -90,10 +88,6 @@ export class InverseModifierDataModel
 
     get selectable(): boolean {
         return (this as any).toObject().selectable;
-    }
-
-    get origin(): object | null {
-        return this._explicitOrigin ?? this.parent?.parent ?? null;
     }
 
     addTooltipFormulaElements(formula: TooltipFormula): void {

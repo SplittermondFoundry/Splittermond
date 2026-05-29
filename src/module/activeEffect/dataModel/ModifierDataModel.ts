@@ -1,8 +1,7 @@
-import { DataModelSchemaType } from "../../data/SplittermondDataModel";
-import type { FoundryActiveEffect } from "../../api/ActiveEffect";
-import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
-import type { IModifier, ModifierAttributes } from "module/modifiers";
-import type { TooltipFormula } from "module/util/tooltip";
+import {DataModelSchemaType} from "../../data/SplittermondDataModel";
+import {SplittermondActiveEffectDataModel} from "../../data/SplittermondActiveEffectDataModel";
+import type {IModifier, ModifierAttributes} from "module/modifiers";
+import type {TooltipFormula} from "module/util/tooltip";
 import {
     abs,
     asString,
@@ -11,13 +10,13 @@ import {
     isGreaterZero,
     isLessThanZero,
 } from "module/modifiers/expressions/scalar";
-import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
-import type { DataModelConstructorInput } from "module/api/DataModel";
-import { modifierSchema } from "./modifierSchema";
-import type { EffectType } from "./effectTypes";
-import { resolveHostActor } from "./hostActor";
-import { foundryApi } from "module/api/foundryApi";
-import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import {deserialize, serialize} from "module/modifiers/expressions/scalar/serialization";
+import type {DataModelConstructorInput} from "module/api/DataModel";
+import {modifierSchema} from "./modifierSchema";
+import type {EffectType} from "./effectTypes";
+import {resolveHostActor} from "./hostActor";
+import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
+import {SplittermondActiveEffect} from "module/activeEffect";
 
 export type ModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -64,11 +63,10 @@ export class ModifierDataModel extends SplittermondActiveEffectDataModel<Modifie
         path: string,
         value: Expression,
         attributes: ModifierAttributes,
-        origin: object | null = null,
         selectable = false,
         actorProvider?: ActorProvider,
     ): ModifierDataModel {
-        return new ModifierDataModel(ModifierDataModel.init(path, value, attributes, selectable), { origin, actorProvider });
+        return new ModifierDataModel(ModifierDataModel.init(path, value, attributes, selectable), { actorProvider });
     }
 
     /**
@@ -110,10 +108,6 @@ export class ModifierDataModel extends SplittermondActiveEffectDataModel<Modifie
 
     get selectable(): boolean {
         return (this as any).toObject().selectable;
-    }
-
-    get origin(): object | null {
-        return this._explicitOrigin ?? this.parent?.parent ?? null;
     }
 
     addTooltipFormulaElements(formula: TooltipFormula): void {

@@ -43,7 +43,6 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
                         : modifier.path,
                     value,
                     attributes,
-                    origin: this.sourceItem,
                     selectable: false,
                     isBonus: isGreaterZero(value) ?? true,
                     effectType: "modifier" as const,
