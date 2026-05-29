@@ -13,7 +13,7 @@ import {
     SubtractExpression,
     UnboundReferenceError,
 } from "./definitions";
-import { exhaustiveMatchGuard, PropertyResolver } from "module/modifiers/util";
+import {exhaustiveMatchGuard, PropertyResolver} from "module/modifiers/util";
 
 export function evaluate(expression: Expression): number {
     return doEvaluate(expression) ?? 0;
@@ -23,14 +23,7 @@ function doEvaluate(expression: Expression): number | null {
     if (expression instanceof AmountExpression) {
         return expression.amount;
     } else if (expression instanceof ReferenceExpression) {
-        try {
-            return new PropertyResolver().numberOrNull(expression.propertyPath, expression.source);
-        } catch (e) {
-            if (e instanceof UnboundReferenceError) {
-                return null;
-            }
-            throw e;
-        }
+       return swallowReferenceError(()=>new PropertyResolver().numberOrNull(expression.propertyPath, expression.source));
     } else if (expression instanceof AddExpression) {
         return (doEvaluate(expression.left) ?? 0) + (doEvaluate(expression.right) ?? 0);
     } else if (expression instanceof SubtractExpression) {
@@ -47,4 +40,15 @@ function doEvaluate(expression: Expression): number | null {
         return Math.abs(evaluate(expression.arg));
     }
     exhaustiveMatchGuard(expression);
+}
+
+function swallowReferenceError(resolver:()=>number|null){
+    try {
+        return resolver();
+    } catch (e) {
+        if (e instanceof UnboundReferenceError) {
+            return null;
+        }
+        throw e;
+    }
 }
