@@ -828,7 +828,7 @@ export function modifierTest(context: QuenchBatchContext) {
             );
             expect(findAttack(weapon.id)?.skill.value, "unexpected weapon skill").to.equal(4);
         });
-
+""
         it("should modify npc attack values", async () => {
             const subject = await defaultActor("Attacking NPC", "npcattacks -1");
             const npcAttackDefinition = {
@@ -950,7 +950,7 @@ export function modifierTest(context: QuenchBatchContext) {
             //is (1*14 + |-4|/1) - (2*3 + 1)
             const expression = minus(
                 plus(times(roll(foundryApi.roll("1d1")), of(14)), dividedBy(abs(of(-4)), roll(foundryApi.roll("1d1")))),
-                plus(times(of(2), ref("value", { value: 3 }, "value")), ref("value", { value: 1 }, "value"))
+                plus(times(of(2), ref("value", () => ({ value: 3 }) as any, "value")), ref("value", () => ({ value: 1 }) as any, "value"))
             );
 
             const rollFormula = toRollFormula(expression);

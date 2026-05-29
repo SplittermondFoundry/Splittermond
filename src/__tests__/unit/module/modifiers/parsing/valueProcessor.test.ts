@@ -19,7 +19,8 @@ describe("Value Processor", () => {
         sandbox.restore();
         clearMappers();
     });
-    const mockSource = { existing: { path: "value" } };
+    const mockSource = { existing: { path: "value" } } as any;
+    const mockProvider = () => mockSource;
 
     it("should handle valid number attributes", () => {
         const modifier: ParsedModifier = {
@@ -32,7 +33,7 @@ describe("Value Processor", () => {
         };
 
         const errors = new MockParseErrors();
-        const result = withErrorLogger(errors).processScalarValue(modifier, mockSource);
+        const result = withErrorLogger(errors).processScalarValue(modifier, mockProvider);
 
         expect(errors).to.have.lengthOf(0);
         expect(result!.value).to.be.an.instanceOf(AmountExpression);
@@ -53,7 +54,7 @@ describe("Value Processor", () => {
         };
 
         const errors = new MockParseErrors();
-        const result = withErrorLogger(errors).processScalarValue(modifier, mockSource);
+        const result = withErrorLogger(errors).processScalarValue(modifier, mockProvider);
 
         expect(errors).to.have.lengthOf(0);
         const expr = result!.value as ReferenceExpression;
@@ -78,7 +79,7 @@ describe("Value Processor", () => {
         };
 
         const errors = new MockParseErrors();
-        const result = withErrorLogger(errors).processScalarValue(modifier, mockSource);
+        const result = withErrorLogger(errors).processScalarValue(modifier, mockProvider);
 
         expect(errors.length).to.equal(1);
         expect(result).to.be.null;
@@ -96,7 +97,7 @@ describe("Value Processor", () => {
         };
 
         const errors = new MockParseErrors();
-        const result = withErrorLogger(errors).processScalarValue(complexModifier, mockSource);
+        const result = withErrorLogger(errors).processScalarValue(complexModifier, mockProvider);
 
         expect(errors).to.have.lengthOf(0);
         expect(result!.value).to.be.instanceOf(MultiplyExpression);
@@ -116,14 +117,15 @@ describe("Value Processor", () => {
         };
 
         const errors = new MockParseErrors();
-        const result = withErrorLogger(errors).processCostValue(complexModifier, mockSource);
+        const result = withErrorLogger(errors).processCostValue(complexModifier, mockProvider);
 
         expect(errors).to.have.lengthOf(0);
         expect(result!.value).to.deep.equal(ofCost(new Cost(2, 5, true).asModifier()));
     });
 
     it("should provide references for cost expressions", () => {
-        const focusSource = { existing: { path: "1" } };
+        const focusSource = { existing: { path: "1" } } as any;
+        const focusProvider = () => focusSource;
         const complexModifier: ParsedModifier = {
             path: "focus.enhancedreduction skill=path",
             rawFragment: "focus.enhancedreduction skill=path -${existing.path}",
@@ -137,7 +139,7 @@ describe("Value Processor", () => {
         };
 
         const errors = new MockParseErrors();
-        const result = withErrorLogger(errors).processCostValue(complexModifier, focusSource);
+        const result = withErrorLogger(errors).processCostValue(complexModifier, focusProvider);
 
         expect(syncEvaluate(result!.value)).deep.equal(new Cost(-1, 0, false).asModifier());
     });
