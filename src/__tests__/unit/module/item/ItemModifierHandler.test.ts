@@ -68,7 +68,6 @@ describe("ItemModifierHandler", () => {
             expect(result).to.not.be.null;
             expect(result.path).to.equal("item.damage");
             expect(result.value).to.deep.equal(of(5));
-            expect(result.origin).to.equal(mockItem);
             expect(result.selectable).to.be.false;
         });
     });

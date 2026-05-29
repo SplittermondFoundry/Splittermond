@@ -273,8 +273,7 @@ describe("SplittermondActor", () => {
                         {
                             name: "Test",
                             type: "innate",
-                        },
-                        null
+                        }
                     )
                 );
 
@@ -296,8 +295,7 @@ describe("SplittermondActor", () => {
                     {
                         name: "Test",
                         type: "innate",
-                    },
-                    null
+                    }
                 )
             );
 
@@ -318,8 +316,7 @@ describe("SplittermondActor", () => {
                     {
                         name: "Test",
                         type: "innate",
-                    },
-                    null
+                    }
                 )
             );
 
@@ -340,8 +337,7 @@ describe("SplittermondActor", () => {
                     {
                         name: "Test",
                         type: "innate",
-                    },
-                    null
+                    }
                 )
             );
 

@@ -2,7 +2,6 @@ import { describe, it } from "mocha";
 import { expect } from "chai";
 import sinon from "sinon";
 import { Modifier } from "module/activeEffect";
-import SplittermondItem from "module/item/item";
 import { of } from "module/modifiers/expressions/scalar";
 import { TooltipFormula } from "module/util/tooltip";
 
@@ -10,10 +9,9 @@ describe("ModifierDataModel", () => {
     let sandbox: sinon.SinonSandbox;
     beforeEach(() => (sandbox = sinon.createSandbox()));
     afterEach(() => sandbox.restore());
-    const mockOrigin = {} as SplittermondItem;
 
     it("should initialize with correct values", () => {
-        const mod = Modifier.create("speed.multiplier", of(2), { name: "Speed Boost", type: "magic" }, mockOrigin, true);
+        const mod = Modifier.create("speed.multiplier", of(2), { name: "Speed Boost", type: "magic" }, true);
         expect(mod.value).to.deep.equal(of(2));
         expect(mod.path).to.equal("speed.multiplier");
         expect(mod.selectable).to.be.true;

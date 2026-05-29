@@ -1,12 +1,10 @@
 import { describe, it } from "mocha";
 import { expect } from "chai";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
-import SplittermondItem from "module/item/item";
 import { of } from "module/modifiers/expressions/scalar";
 
 describe("ModifierManager", () => {
     let manager: ModifierManager;
-    const mockItem = {} as SplittermondItem;
 
     beforeEach(() => {
         manager = new ModifierManager();
@@ -14,8 +12,8 @@ describe("ModifierManager", () => {
 
     it("should aggregate static modifiers", () => {
         manager.add("AUS", { name: "Base", type: "innate" }, of(2));
-        manager.add("AUS", { name: "Item Bonus", type: "equipment" }, of(1), mockItem);
-        manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), null, true);
+        manager.add("AUS", { name: "Item Bonus", type: "equipment" }, of(1));
+        manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), true);
 
         expect(manager.getForId("AUS").getModifiers().value).to.equal(3);
         expect(manager.getForId("bonuscap").getModifiers().value).to.equal(3);
@@ -85,8 +83,8 @@ describe("ModifierManager", () => {
         });
 
         it("should filter attributes for selectable modifiers", () => {
-            manager.add("melee", { name: "Talent", type: "innate" }, of(4), null, false);
-            manager.add("melee", { name: "Hellebarde", type: "innate" }, of(1), null, true);
+            manager.add("melee", { name: "Talent", type: "innate" }, of(4), false);
+            manager.add("melee", { name: "Hellebarde", type: "innate" }, of(1), true);
 
             const result = manager.getForId("melee").selectable().getModifiers();
             expect(result[0].value).to.deep.equal(of(1));
@@ -107,8 +105,8 @@ describe("ModifierManager", () => {
         });
 
         it("should filter attributes for non-selectable modifiers", () => {
-            manager.add("melee", { name: "Talent", type: "innate" }, of(4), null, false);
-            manager.add("melee", { name: "Hellebarde", type: "innate" }, of(1), null, true);
+            manager.add("melee", { name: "Talent", type: "innate" }, of(4), false);
+            manager.add("melee", { name: "Hellebarde", type: "innate" }, of(1), true);
 
             const result = manager.getForId("melee").notSelectable().getModifiers();
             expect(result[0].value).to.deep.equal(of(4));
@@ -116,8 +114,8 @@ describe("ModifierManager", () => {
         });
 
         it("should find several group ids at once", () => {
-            manager.add("AUS", { name: "Base", type: "innate" }, of(2), null, false);
-            manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), null, false);
+            manager.add("AUS", { name: "Base", type: "innate" }, of(2), false);
+            manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), false);
 
             const result = manager.getForIds("AUS", "bonuscap").getModifiers();
 
@@ -129,8 +127,8 @@ describe("ModifierManager", () => {
         });
 
         it("should deliver the value of several group ids at once", () => {
-            manager.add("AUS", { name: "Base", type: "innate" }, of(2), null, false);
-            manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), null, false);
+            manager.add("AUS", { name: "Base", type: "innate" }, of(2), false);
+            manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), false);
 
             const result = manager.getForIds("AUS", "bonuscap").getModifiers().value;
 
@@ -138,10 +136,10 @@ describe("ModifierManager", () => {
         });
 
         it("should filter mass group search for non-selectable items", () => {
-            manager.add("AUS", { name: "Base", type: "innate" }, of(2), null, false);
-            manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), null, false);
-            manager.add("AUS", { name: "MaybeBase", type: "innate" }, of(2), null, true);
-            manager.add("bonuscap", { name: "MaybeCap", type: "innate" }, of(3), null, true);
+            manager.add("AUS", { name: "Base", type: "innate" }, of(2), false);
+            manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), false);
+            manager.add("AUS", { name: "MaybeBase", type: "innate" }, of(2), true);
+            manager.add("bonuscap", { name: "MaybeCap", type: "innate" }, of(3), true);
 
             const result = manager.getForIds("AUS", "bonuscap").notSelectable().getModifiers();
 
@@ -152,10 +150,10 @@ describe("ModifierManager", () => {
     });
 
     it("should filter mass group search for non-selectable items", () => {
-        manager.add("AUS", { name: "Base", type: "innate" }, of(2), null, false);
-        manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), null, false);
-        manager.add("AUS", { name: "MaybeBase", type: "innate" }, of(2), null, true);
-        manager.add("bonuscap", { name: "MaybeCap", type: "innate" }, of(3), null, true);
+        manager.add("AUS", { name: "Base", type: "innate" }, of(2), false);
+        manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), false);
+        manager.add("AUS", { name: "MaybeBase", type: "innate" }, of(2), true);
+        manager.add("bonuscap", { name: "MaybeCap", type: "innate" }, of(3), true);
 
         const result = manager.getForIds("AUS", "bonuscap").selectable().getModifiers();
 

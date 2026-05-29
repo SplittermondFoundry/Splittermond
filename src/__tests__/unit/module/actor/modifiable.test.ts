@@ -478,7 +478,6 @@ describe("Modifiable", () => {
             groupId: props.groupId ?? "unknown",
             isBonus: !(props.value && isLessThanZero(props.value)),
             selectable: props.selectable ?? false,
-            origin: props.origin ?? null,
             value: props.value ?? of(1),
             effectType: props.effectType ?? "modifier",
             addTooltipFormulaElements: props.addTooltipFormulaElements ?? sandbox.stub(),

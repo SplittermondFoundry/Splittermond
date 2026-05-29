@@ -388,7 +388,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 actor.prepareBaseData();
                 actor.prepareEmbeddedDocuments();
                 actor.prepareDerivedData();
-                actor.modifier.add("actor.speed.multiplier", { name: "Haste", type: "magic" }, of(1.5), null, false);
+                actor.modifier.add("actor.speed.multiplier", { name: "Haste", type: "magic" }, of(1.5), false);
 
                 expect(actor.derivedValues.speed.value).to.equal(12);
             })
@@ -1195,11 +1195,10 @@ export function modifierTest(context: QuenchBatchContext) {
                     type: "magic",
                 },
                 of(1),
-                null,
                 false
             );
-            subject.modifier.add("item.damage", { name: "Mystery", type: "magic" }, of(2), null, false);
-            subject.modifier.add("item.weaponspeed", { name: "Mystery", type: "magic" }, of(2), null, false);
+            subject.modifier.add("item.damage", { name: "Mystery", type: "magic" }, of(2), false);
+            subject.modifier.add("item.weaponspeed", { name: "Mystery", type: "magic" }, of(2), false);
 
             expect(subject.attacks.find((a) => a.name === "Lance of Longinus")?.damage).to.equal("6");
             expect(subject.attacks.find((a) => a.name === "Lance of Longinus")?.weaponSpeed).to.equal(4);
@@ -1251,7 +1250,6 @@ export function modifierTest(context: QuenchBatchContext) {
                     type: "magic",
                 },
                 of(1),
-                null,
                 false
             );
             subject.modifier.add(
@@ -1263,7 +1261,6 @@ export function modifierTest(context: QuenchBatchContext) {
                     type: "magic",
                 },
                 of(2),
-                null,
                 false
             );
 
