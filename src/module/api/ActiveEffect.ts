@@ -12,16 +12,15 @@ declare class _FoundryActiveEffect extends FoundryDocument {
     readonly origin: string;
     readonly transfer: boolean;
     readonly disabled: boolean;
-    readonly changes: Array<{
-        key: string;
-        value: string;
-        mode: number;
-    }>;
+
 
     get isSuppressed(): boolean;
 
     /** The source item, if this effect was transferred from an item. */
-    get item(): Item | undefined;
+    get item(): Item | null;
+
+    /** The owning actor or parent of the owning item, if any */
+    get actor(): Actor |null;
 
     getFlag(scope: string, key: string): unknown;
     setFlag(scope: string, key: string, value: unknown): Promise<_FoundryActiveEffect>;
