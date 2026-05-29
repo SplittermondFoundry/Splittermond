@@ -11,7 +11,7 @@ describe("InverseModifier", () => {
     afterEach(() => sandbox.restore());
 
     it("should initialize with correct values", () => {
-        const mod = InverseModifier.create("initiative", of(-2), { name: "Tempo", type: "magic" }, null, true);
+        const mod = InverseModifier.create("initiative", of(-2), { name: "Tempo", type: "magic" }, true);
         expect(mod.value).to.deep.equal(of(-2));
         expect(mod.path).to.equal("initiative");
         expect(mod.selectable).to.be.true;

@@ -47,7 +47,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
             emphasis,
         };
         const totalValue = times(modifier.value, this.multiplier);
-        return [Modifier.create(modifier.path, totalValue, attributes, this.sourceItem, !!attributes.emphasis, () => this.sourceItem.actor)];
+        return [Modifier.create(modifier.path, totalValue, attributes, !!attributes.emphasis, () => this.sourceItem.actor)];
     }
 
     validateOutcomeCategory(category: Value): string | undefined {
