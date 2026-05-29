@@ -6,12 +6,16 @@ import { fields } from "module/data/SplittermondDataModel";
 import SplittermondCombat from "module/combat/combat";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import SplittermondCharacterSheet from "../../../module/actor/sheets/character-sheet";
-import { withActor, withPlayer, withUnlinkedToken } from "../fixtures";
+import { Modifier } from "module/activeEffect";
+import { of } from "module/modifiers/expressions/scalar";
+import { withActiveEffect, withActor, withPlayer, withUnlinkedToken } from "../fixtures";
 import { User } from "module/api/foundryTypes";
+import type SplittermondActor from "module/actor/actor";
 
 declare const game: any;
 declare const Combat: any;
 declare const Combatant: any;
+declare const ActiveEffect: any;
 
 export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     const { describe, it, expect, afterEach, before, after } = context;
@@ -116,7 +120,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     });
 
     describe("Actor", () => {
-        let actor: Actor;
+        let actor: SplittermondActor;
         before(async () => {
             actor = await actorCreator.createCharacter({
                 type: "character",
@@ -196,6 +200,75 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 `compendium collection prototype does not have getIndex`
             ).to.have.property("getIndex");
             expect(game.packs.find(() => true).getIndex).to.be.a("function");
+        });
+    });
+
+    describe("ActiveEffect", () => {
+        const activeEffectData = {
+            name: "Integration Test Effect",
+            type: "modifier",
+            system: Modifier.init("skills", of(1), {
+                name: "Integration Test",
+                type: "innate",
+                skill: "acrobatics",
+            }),
+        };
+
+        it("should be a class", () => {
+            expect(typeof ActiveEffect).to.equal("function");
+        });
+
+        it(
+            "should have declared properties",
+            withActiveEffect(activeEffectData, async (effect) => {
+                ["id", "uuid", "name", "origin", "transfer", "disabled", "changes"].forEach((property) => {
+                    expect(effect, `ActiveEffect does not have ${property}`).to.have.property(property);
+                });
+                expect(effect.transfer).to.be.a("boolean");
+                expect(effect.disabled).to.be.a("boolean");
+                expect(effect.changes).to.be.an("array");
+                expect(typeof effect.id).to.equal("string");
+                expect(typeof effect.uuid).to.equal("string");
+                expect(typeof effect.name).to.equal("string");
+            })
+        );
+
+        it(
+            "should expose declared accessors",
+            withActiveEffect(activeEffectData, async (effect) => {
+                expect(effect.isSuppressed).to.be.a("boolean");
+                expect(effect.item).to.be.null;
+                expect(effect.actor).to.be.instanceOf(Actor);
+            })
+        );
+
+        it(
+            "should have declared methods",
+            withActiveEffect(activeEffectData, async (effect) => {
+                ["getFlag", "setFlag", "update"].forEach((method) => {
+                    expect(effect, `ActiveEffect does not have ${method}`).to.have.property(method);
+                    expect(typeof effect[method as keyof typeof effect], `${method} is not a function`).to.equal("function");
+                });
+            })
+        );
+
+        it(
+            "should have inherited document methods",
+            withActiveEffect(activeEffectData, async (effect) => {
+                ["prepareBaseData", "prepareDerivedData", "updateSource", "toObject"].forEach((method) => {
+                    expect(effect, `ActiveEffect does not have ${method}`).to.have.property(method);
+                    expect(typeof effect[method as keyof typeof effect], `${method} is not a function`).to.equal("function");
+                });
+            })
+        );
+
+        it("should provide static defineSchema with expected keys", () => {
+            expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property("defineSchema");
+            expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a("function");
+            const schema = ActiveEffect.defineSchema();
+            ["disabled", "duration", "transfer"].forEach((key) => {
+                expect(schema, `ActiveEffect schema does not contain ${key}`).to.have.property(key);
+            });
         });
     });
 
