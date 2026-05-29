@@ -1,6 +1,7 @@
 import { ErrorMessage, Value } from "./index";
 import { foundryApi } from "module/api/foundryApi";
 import { PropertyResolver } from "module/modifiers/util";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 
 export function validateAllInputConsumed(
     modifier: string,
@@ -37,21 +38,25 @@ export function validateKeys(key: string): ErrorMessage[] {
     return errors;
 }
 
-export function validateReference(propertyPath: string, source: object): ErrorMessage[] {
+export function validateReference(propertyPath: string, actorProvider: ActorProvider): ErrorMessage[] {
+    const source = actorProvider();
+    if (!source) {
+        return [];
+    }
     const resolvedProperty = new PropertyResolver().resolve(propertyPath, source);
     if (!["string", "number", "boolean"].includes(typeof resolvedProperty) && resolvedProperty !== null) {
-        const objectName = hasName(source)
-            ? source.name
-            : hasId(source)
-              ? source.id
+        const sourceAsObject: object = source;
+        const objectName = hasName(sourceAsObject)
+            ? sourceAsObject.name
+            : hasId(sourceAsObject)
+              ? sourceAsObject.id
               : foundryApi.localize("splittermond.modifiers.parseMessages.unknownObject");
         return [
             foundryApi.format("splittermond.modifiers.parseMessages.referenceNotPrimitive", {
                 propertyPath,
                 objectName,
             }),
-        ];
-    }
+        ];    }
     return [];
 }
 
