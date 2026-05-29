@@ -69,6 +69,42 @@ describe("SplittermondActorSheet", () => {
             expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(2);
         });
 
+        it("should preserve cast duration while setting spell skill", async () => {
+            const itemData: any = {
+                type: "spell",
+                system: new SpellDataModel({
+                    availableIn: "illusionmagic 2",
+                    skill: "arcanelore",
+                    skillLevel: 0,
+                    castDuration: { value: 12, unit: "T" },
+                } as any),
+            };
+            itemData.updateSource = (data: any) => {
+                itemData.system.skill = data["system.skill"];
+                itemData.system.skillLevel = data["system.skillLevel"];
+                itemData.system.castDuration = { value: 1, unit: "T" };
+            };
+            itemData.clone = (data: any) => {
+                const copy: any = {
+                    type: itemData.type,
+                    system: new SpellDataModel(itemData.system.toObject() as any),
+                };
+                copy.system.skill = data["system.skill"];
+                copy.system.skillLevel = data["system.skillLevel"];
+                return copy;
+            };
+
+            await sheet._onDropDocument(mockEvent, itemData);
+
+            expect(superFunctionStub.called).to.be.true;
+            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("illusionmagic");
+            expect(superFunctionStub.lastCall.lastArg.system.skillLevel).to.equal(2);
+            expect(superFunctionStub.lastCall.lastArg.system.castDuration).to.deep.equal({ value: 12, unit: "T" });
+            expect(itemData.system.skill).to.equal("arcanelore");
+            expect(itemData.system.skillLevel).to.equal(0);
+            expect(itemData.system.castDuration).to.deep.equal({ value: 12, unit: "T" });
+        });
+
         it("should select only valid skill and skillLevel ", async () => {
             const itemData: any = {
                 type: "spell",

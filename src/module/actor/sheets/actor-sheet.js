@@ -669,7 +669,10 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
             if (!selectedSkill) return;
 
-            document.system.updateSource({ skill: selectedSkill.skill, skillLevel: selectedSkill.level });
+            document = cloneDocumentWithSourceChanges(document, {
+                "system.skill": selectedSkill.skill,
+                "system.skillLevel": selectedSkill.level,
+            });
         }
         if (document.type === "mastery") {
             const allowedSkills = splittermond.skillGroups.all;
@@ -704,6 +707,26 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     _hasValidItemType(itemType) {
         return true;
     }
+}
+
+function cloneDocumentWithSourceChanges(document, changes) {
+    if (typeof document.clone === "function") return document.clone(changes);
+
+    const copy = {
+        ...document,
+        system: typeof document.system?.toObject === "function" ? document.system.toObject() : { ...document.system },
+    };
+
+    for (const [path, value] of Object.entries(changes)) {
+        const parts = path.split(".");
+        const key = parts.pop();
+        const target = parts.reduce((obj, part) => {
+            if (!obj[part]) obj[part] = {};
+            return obj[part];
+        }, copy);
+        target[key] = value;
+    }
+    return copy;
 }
 
 /**
