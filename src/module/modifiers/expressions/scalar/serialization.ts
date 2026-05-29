@@ -13,6 +13,8 @@ import {
     roll,
 } from "module/modifiers/expressions/scalar/definitions";
 import { foundryApi } from "module/api/foundryApi";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import { bindReferenceProviders } from "./binder";
 
 type SerializedExpression = Record<string, unknown> & { type: string };
 
@@ -22,17 +24,10 @@ export function serialize(expression: Expression): SerializedExpression {
     } else if (expression instanceof RollExpression) {
         return { type: "roll", formula: expression.value.formula };
     } else if (expression instanceof ReferenceExpression) {
-        const uuid = expression.uuid;
-        if (!uuid) {
-            throw new Error(
-                `Splittermond | Cannot serialize ReferenceExpression: source object does not have a uuid property.`
-            );
-        }
         return {
             type: "reference",
             propertyPath: expression.propertyPath,
             stringRep: expression.stringRep,
-            uuid,
         };
     } else if (expression instanceof AddExpression) {
         return { type: "add", left: serialize(expression.left), right: serialize(expression.right) };
@@ -50,48 +45,53 @@ export function serialize(expression: Expression): SerializedExpression {
     throw new Error(`Splittermond | Cannot serialize unknown expression type: ${expression}`);
 }
 
-export function deserialize(data: SerializedExpression): Expression {
+export function deserialize(data: SerializedExpression, provider?: ActorProvider, onUnbound?: () => void): Expression {
+    const expression = deserializeInner(data);
+    if (provider) {
+        bindReferenceProviders(expression, provider, onUnbound);
+    }
+    return expression;
+}
+
+function deserializeInner(data: SerializedExpression): Expression {
     switch (data.type) {
         case "amount":
             return of(data.amount as number);
         case "roll":
             return roll(foundryApi.roll(data.formula as string));
         case "reference": {
-            const uuid = data.uuid as string;
             return new ReferenceExpression(
                 data.propertyPath as string,
-                null,
                 data.stringRep as string,
-                uuid,
             );
         }
         case "add":
             return new AddExpression(
-                deserialize(data.left as SerializedExpression),
-                deserialize(data.right as SerializedExpression),
+                deserializeInner(data.left as SerializedExpression),
+                deserializeInner(data.right as SerializedExpression),
             );
         case "subtract":
             return new SubtractExpression(
-                deserialize(data.left as SerializedExpression),
-                deserialize(data.right as SerializedExpression),
+                deserializeInner(data.left as SerializedExpression),
+                deserializeInner(data.right as SerializedExpression),
             );
         case "multiply":
             return new MultiplyExpression(
-                deserialize(data.left as SerializedExpression),
-                deserialize(data.right as SerializedExpression),
+                deserializeInner(data.left as SerializedExpression),
+                deserializeInner(data.right as SerializedExpression),
             );
         case "divide":
             return new DivideExpression(
-                deserialize(data.left as SerializedExpression),
-                deserialize(data.right as SerializedExpression),
+                deserializeInner(data.left as SerializedExpression),
+                deserializeInner(data.right as SerializedExpression),
             );
         case "power":
             return new PowerExpression(
-                deserialize(data.base as SerializedExpression),
-                deserialize(data.exponent as SerializedExpression),
+                deserializeInner(data.base as SerializedExpression),
+                deserializeInner(data.exponent as SerializedExpression),
             );
         case "abs":
-            return new AbsExpression(deserialize(data.arg as SerializedExpression));
+            return new AbsExpression(deserializeInner(data.arg as SerializedExpression));
         default:
             throw new Error(`Splittermond | Cannot deserialize unknown expression type: ${data.type}`);
     }

@@ -9,6 +9,7 @@ import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
 import type { IModifier, ModifierType } from "module/modifiers/index";
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 
 export interface TaggedModifier {
     modifier: IModifier;
@@ -47,22 +48,23 @@ export function initAddModifier(
         allErrors.push(...parsedResult.errors);
         const handlerCache = registry.getCache(allErrors.consumer, item, type, of(multiplier));
         const costHandlerCache = costRegistry.getCache(allErrors.consumer, item, type, of(multiplier));
+        const actorProvider: ActorProvider = () => item.actor;
 
         const unprocessedModifiers: Array<{ parsed: ScalarModifier; rawFragment: string }> = [];
         for (const parsedModifier of parsedResult.modifiers) {
             const rawFragment = parsedModifier.rawFragment;
             if (costHandlerCache.handles(parsedModifier.path)) {
-                const normalized = processCostValue(parsedModifier, item.actor);
+                const normalized = processCostValue(parsedModifier, actorProvider);
                 if (!normalized) continue;
                 const produced = costHandlerCache.getHandler(normalized.path).processModifier(normalized);
                 produced.forEach((modifier) => costModifiers.push({ modifier, rawFragment }));
             } else if (handlerCache.handles(parsedModifier.path)) {
-                const normalized = processScalarValue(parsedModifier, item.actor);
+                const normalized = processScalarValue(parsedModifier, actorProvider);
                 if (!normalized) continue;
                 const produced = handlerCache.getHandler(normalized.path).processModifier(normalized);
                 produced.forEach((modifier) => modifiers.push({ modifier, rawFragment }));
             } else {
-                const normalized = processScalarValue(parsedModifier, item.actor);
+                const normalized = processScalarValue(parsedModifier, actorProvider);
                 if (!normalized) continue;
                 unprocessedModifiers.push({ parsed: normalized, rawFragment });
             }
@@ -107,7 +109,7 @@ export function initAddModifier(
             const modifierLabel = modifier.path.toLowerCase();
                     //mainly for internal modifiers.
                     modifiers.push({
-                        modifier: createModifier(modifierLabel, times(of(multiplier), modifier.value), item, type),
+                        modifier: createModifier(modifierLabel, times(of(multiplier), modifier.value), item, type, {}, actorProvider),
                         rawFragment,
                     });
         });
@@ -123,7 +125,8 @@ function createModifier(
     value: ScalarExpression,
     item: IModifierSource,
     type: ModifierType,
-    attributes: Record<string, string> = {}
+    attributes: Record<string, string> = {},
+    actorProvider?: ActorProvider,
 ): IModifier {
     return Modifier.create(
         path,
@@ -133,6 +136,7 @@ function createModifier(
             type,
         },
         item,
-        !!attributes.emphasis
+        !!attributes.emphasis,
+        actorProvider,
     );
 }

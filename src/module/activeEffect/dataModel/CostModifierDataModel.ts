@@ -6,7 +6,10 @@ import { type CostExpression } from "module/modifiers/expressions/cost";
 import { serialize, deserialize } from "module/modifiers/expressions/cost/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import type { EffectType } from "./effectTypes";
-import {CostModifier} from "module/util/costs/Cost";
+import { CostModifier } from "module/util/costs/Cost";
+import { resolveHostActor } from "./hostActor";
+import { foundryApi } from "module/api/foundryApi";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 
 type SerializedCostExpression = Record<string, unknown> & { type: string };
 type CostModifierAttributes = { skill?: string; type?: string };
@@ -47,10 +50,28 @@ export class CostModifierDataModel
 
     readonly value: CostExpression;
     readonly effectType: EffectType = "costModifier";
+    private _unboundWarningIssued = false;
 
     constructor(data: DataModelConstructorInput<CostModifierDataModelType>, context: unknown) {
         super(data, context);
-        this.value = deserialize(this.serializedValue);
+        const ctx = context as any;
+        const provider: ActorProvider = ctx?.actorProvider ?? (() => resolveHostActor(this.parent));
+        this.value = deserialize(
+            this.serializedValue,
+            provider,
+            () => {
+                if (!this._unboundWarningIssued) {
+                    this._unboundWarningIssued = true;
+                    const isOwnerOrGm = (this.parent as any)?.isOwner || foundryApi.currentUser?.isGM;
+                    if (isOwnerOrGm) {
+                        foundryApi.warnUser("splittermond.modifiers.parseMessages.unboundReference", {
+                            modifierName: this.label,
+                            propertyPath: this.label,
+                        });
+                    }
+                }
+            }
+        );
     }
 
     /**

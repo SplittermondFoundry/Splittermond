@@ -227,29 +227,29 @@ describe("Expressions", () => {
 
     describe("Reference Expressions", () => {
         it("should evaluate to the value of the property", async () => {
-            const property = ref("value", { value: 3 }, "value");
+            const property = ref("value", () => ({ value: 3 }) as any, "value");
             expect(await evaluate(property)).to.equal(3);
         });
 
         it("should omit properties of the wrong format when multiplying", async () => {
-            const property = ref("value", { value: "splittermond" }, "value");
+            const property = ref("value", () => ({ value: "splittermond" }) as any, "value");
             const expression = times(plus(of(3), property), minus(of(4), of(3)));
             expect(await evaluate(expression)).to.deep.equal(3);
         });
 
         it("should omit properties of the wrong format when adding", async () => {
-            const property = ref("value", { value: "splittermond" }, "value");
+            const property = ref("value", () => ({ value: "splittermond" }) as any, "value");
             const expression = times(property, minus(of(4), of(3)));
             expect(await evaluate(expression)).to.deep.equal(1);
         });
 
         it("should evaluate nested properties", async () => {
-            const property = ref("first.second.third", { first: { second: { third: 3 } } }, "first.second.third");
+            const property = ref("first.second.third", () => ({ first: { second: { third: 3 } } }) as any, "first.second.third");
             expect(await evaluate(property)).to.equal(3);
         });
 
         it("should not condense unstable property ", () => {
-            const property = ref("value", { value: 3 }, "value");
+            const property = ref("value", () => ({ value: 3 }) as any, "value");
             const expression = times(plus(of(3), property), minus(of(4), of(3)));
             expect(condense(expression)).to.deep.equal(times(plus(of(3), property), of(1)));
         });
@@ -261,14 +261,14 @@ describe("Expressions", () => {
         });
 
         it("should stringify property ", () => {
-            const property = ref("value", { value: 3 }, "value");
+            const property = ref("value", () => ({ value: 3 }) as any, "value");
             const expression = times(plus(of(3), property), minus(of(4), of(3)));
             expect(asString(expression)).to.equal("(3 + ${value}) \u00D7 (4 - 3)");
         });
 
         it("should produce a unique identifier for each reference", () => {
-            const property1 = ref("value", { value: 3 }, "value");
-            const property2 = ref("value", { value: 4 }, "value");
+            const property1 = ref("value", () => ({ value: 3 }) as any, "value");
+            const property2 = ref("value", () => ({ value: 4 }) as any, "value");
             const expression = plus(property1, property2);
             expect(toRollFormula(expression)).to.deep.equal(["@value0 + @value1", { value0: "3", value1: "4" }]);
         });
