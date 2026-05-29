@@ -1,18 +1,18 @@
-import { describe, it } from "mocha";
-import { expect } from "chai";
+import {describe, it} from "mocha";
+import {expect} from "chai";
 import sinon from "sinon";
-import { initAddModifier } from "module/modifiers/modifierAddition";
-import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
-import { ItemModifierHandler } from "module/item/ItemModifierHandler";
-import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
-import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
-import { ref, ReferenceExpression, evaluate } from "module/modifiers/expressions/scalar";
-import { serialize, deserialize } from "module/modifiers/expressions/scalar/serialization";
-import { bindReferenceProviders } from "module/modifiers/expressions/scalar/binder";
-import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
-import { foundryApi } from "module/api/foundryApi";
-import { clearMappers } from "module/modifiers/parsing/normalizer";
-import { stubRollApi } from "../../RollMock";
+import {initAddModifier} from "module/modifiers/modifierAddition";
+import {ModifierRegistry} from "module/modifiers/ModifierRegistry";
+import {ItemModifierHandler} from "module/item/ItemModifierHandler";
+import {CostModifierHandler} from "module/util/costs/CostModifierHandler";
+import {registerActorModifiers} from "module/actor/modifiers/actorModifierRegistration";
+import {evaluate, ref, ReferenceExpression} from "module/modifiers/expressions/scalar";
+import {deserialize, serialize} from "module/modifiers/expressions/scalar/serialization";
+import {bindReferenceProviders} from "module/modifiers/expressions/scalar/binder";
+import {resolveHostActor} from "module/activeEffect/dataModel/hostActor";
+import {foundryApi} from "module/api/foundryApi";
+import {clearMappers} from "module/modifiers/parsing/normalizer";
+import {stubRollApi} from "../../RollMock";
 
 function setupAddModifierFunction() {
     const modifierRegistry = new ModifierRegistry();
@@ -117,31 +117,21 @@ describe("Deferred actor reference resolution", () => {
     });
 
     describe("resolveHostActor", () => {
-        it("should return null when effectDoc has no parent", () => {
-            expect(resolveHostActor({ parent: null })).to.be.null;
+        it("should return null when effectDoc is null", () => {
+            expect(resolveHostActor(null)).to.be.null;
         });
 
-        it("should return null when effectDoc has no documentName-bearing parent", () => {
-            expect(resolveHostActor({ parent: {} })).to.be.null;
+        it("should return null when effectDoc has no actor property", () => {
+            expect(resolveHostActor({})).to.be.null;
         });
 
-        it("should return parent when parent documentName is Actor", () => {
-            const mockActor = { documentName: "Actor", id: "actor1" } as any;
-            const effectDoc = { parent: mockActor };
-            expect(resolveHostActor(effectDoc)).to.equal(mockActor);
+        it("should return actor when effectDoc has actor property", () => {
+            const mockActor = { id: "actor1" } as any;
+            expect(resolveHostActor({ actor: mockActor })).to.equal(mockActor);
         });
 
-        it("should return item.actor when parent documentName is Item with actor", () => {
-            const mockActor = { documentName: "Actor", id: "actor1" } as any;
-            const mockItem = { documentName: "Item", actor: mockActor };
-            const effectDoc = { parent: mockItem };
-            expect(resolveHostActor(effectDoc)).to.equal(mockActor);
-        });
-
-        it("should return null when parent is Item with null actor", () => {
-            const mockItem = { documentName: "Item", actor: null };
-            const effectDoc = { parent: mockItem };
-            expect(resolveHostActor(effectDoc)).to.be.null;
+        it("should return null when effectDoc.actor is null", () => {
+            expect(resolveHostActor({ actor: null })).to.be.null;
         });
     });
 });
