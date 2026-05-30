@@ -7,6 +7,7 @@
 ### Fixes
 
 - Token Konfiguration hat jetzt eine Navigationsleiste in korrektem Stil.
+- Das Aktualisieren von `system.skillLevel` bei Zaubern setzt `castDuration` nicht mehr unerwartet auf `1 T` zurück.
 
 ## 14.0.4
 
