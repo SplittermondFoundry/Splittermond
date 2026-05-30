@@ -17,6 +17,7 @@ import type { FoundryCombat, FoundryCombatant } from "module/api/foundryTypes";
 import type SplittermondItem from "module/item/item";
 import { combatantIsPaused, CombatPauseType } from "module/combat";
 import type SplittermondCombat from "module/combat/combat";
+import { isFirstActiveGM } from "module/util/foundryUserUtils";
 
 export default class TickBarHud extends SplittermondApplication {
     viewed: SplittermondCombat | null = null;
@@ -189,6 +190,7 @@ export default class TickBarHud extends SplittermondApplication {
             }
 
             const activatedStatusTokens: (StatusEffectMessageData & { combatant: FoundryCombatant })[] = [];
+            const canEmitStatusEffectMessages = isFirstActiveGM(foundryApi.currentUser, foundryApi.users);
 
             statusOnCombatants.forEach((combatant) => {
                 combatant.virtualTokens.forEach((element) => {
@@ -200,7 +202,7 @@ export default class TickBarHud extends SplittermondApplication {
                                 lastTick <= onTick &&
                                 this.lastStatusTick != this.currentTick &&
                                 this.lastStatusTick != onTick &&
-                                combatant.combatant.isOwner
+                                canEmitStatusEffectMessages
                             ) {
                                 //this effect was activated in between the last tick and the current tick or we just got to that tick
                                 activatedStatusTokens.push({

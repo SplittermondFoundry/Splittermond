@@ -20,12 +20,33 @@ export function canEditMessageOf(userId) {
     return userId === foundryApi.currentUser.id || foundryApi.currentUser.isGM;
 }
 
+export function calculateDefenseTickCost(data, totalDegreeOfSuccess) {
+    const isOutstanding = totalDegreeOfSuccess >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold;
+    const baseTickCost = isOutstanding ? 2 : 3;
+
+    const actor = data.itemData?.actor;
+    const defenseTickCostModifier =
+        actor?.modifier
+            ?.getForId("item.defenseTickCost")
+            .withAttributeValuesOrAbsent("defenseType", ...validAttributeValues(data.defenseType))
+            .withAttributeValuesOrAbsent("item", ...validAttributeValues(data.itemData?.id, data.itemData?.name))
+            .withAttributeValuesOrAbsent("itemType", ...validAttributeValues(data.itemData?.itemType))
+            .withAttributeValuesOrAbsent("skill", ...validAttributeValues(data.itemData?.skill?.id))
+            .getModifiers().sum ?? 0;
+
+    return Math.max(1, baseTickCost + defenseTickCostModifier);
+}
+
+function validAttributeValues(...values) {
+    return values.filter((value) => typeof value === "string" && value !== "");
+}
+
 /**
  * @param {SplittermondActor} actor
  * @param {string} rollMode
- * @param {string} roll
- * @param {CheckReport} data
- * @returns {Promise<*>}
+ * @param {RollResultForSplittermond} roll
+ * @param {Record<string,unknown>} data
+ * @returns {Promise<Record<string,unknown>>}
  */
 export async function prepareCheckMessageData(actor, rollMode, roll, data) {
     const totalDegreeOfSuccess = data.degreeOfSuccess.fromRoll + data.degreeOfSuccess.modification;
@@ -96,7 +117,6 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                 game.i18n.localize(`splittermond.activeDefense`) +
                 " | " +
                 game.i18n.localize(`splittermond.rollType.${data.rollType}`);
-            let tickCost = 3;
             let defenseValue = data.baseDefense;
             if (data.succeeded) {
                 const itemFeatures =
@@ -111,7 +131,6 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
 
                 if (totalDegreeOfSuccess >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold) {
                     templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.outstanding")}</p>`;
-                    tickCost = 2;
                 }
             } else {
                 if (totalDegreeOfSuccess === 0) {
@@ -148,6 +167,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                 }
             }
 
+            const tickCost = calculateDefenseTickCost(data, totalDegreeOfSuccess);
             templateContext.actions.push({
                 name: `${tickCost} ` + game.i18n.localize(`splittermond.ticks`),
                 icon: "fa-stopwatch",

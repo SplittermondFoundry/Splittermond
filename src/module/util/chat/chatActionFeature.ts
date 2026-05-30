@@ -7,6 +7,7 @@ import { SpellRollMessage } from "./rollMessages/spellChatMessage/SpellRollMessa
 import { DamageMessage } from "./damageChatMessage/DamageMessage";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
 import { actorRetriever } from "../../data/EntityRetriever";
+import { isFirstActiveGM } from "module/util/foundryUserUtils";
 
 const socketEvent = "system.splittermond";
 
@@ -49,8 +50,7 @@ export function chatActionFeature(config: ChatMessageConfig) {
                 console.debug("Splittermond | Discarded chat action event, due to not being the GM", data);
                 return Promise.resolve();
             }
-            const connectedGMs = foundryApi.users.filter((u) => u.isGM && u.active);
-            const isResponsibleGM = !connectedGMs.some((other) => other.id < foundryApi.currentUser.id);
+            const isResponsibleGM = isFirstActiveGM(foundryApi.currentUser, foundryApi.users);
             if (!isResponsibleGM) {
                 console.debug("Splittermond | Discarded chatAction event, due to not being the responsible GM", data);
                 return Promise.resolve();

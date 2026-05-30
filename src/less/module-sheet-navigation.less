@@ -27,3 +27,24 @@
         text-align: center;
     }
 }
+.sheet.token-config {
+    //Style the nav bar from foundry
+    .sheet-tabs.tabs {
+        .sheet-navigation-style();
+        gap: 0; //override foundry gap for nav bar
+        margin: 2px;
+    }
+
+    //Style the nav bar items from foundry
+    .sheet-tabs.tabs a[data-action="tab"]:extend(.tabs-style .item all) {
+    }
+
+    .sheet-navigation {
+        .sheet-navigation-style();
+    }
+
+    .sheet-navigation-item:extend(.tabs-style .item all) {
+        flex: 1;
+        text-align: center;
+    }
+}

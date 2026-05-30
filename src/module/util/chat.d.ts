@@ -1,6 +1,13 @@
 import type { User } from "../api/foundryTypes";
 import type { VirtualToken } from "module/combat/VirtualToken";
 import type SplittermondActor from "module/actor/actor";
+import type { CheckReport } from "module/check";
+
+interface RollResultForSplittermond {
+    total: number;
+    getTooltip(): Promise<string>;
+    dice: { total: number }[];
+}
 
 export interface StatusEffectMessageData {
     virtualToken: VirtualToken;
@@ -25,10 +32,12 @@ export const Chat: {
 
 export function canEditMessageOf(userId: string): boolean {}
 
+export function calculateDefenseTickCost(data: CheckReport, totalDegreeOfSuccess: number): number {}
+
 export function prepareCheckMessageData(
     actor: SplittermondActor,
     rollMode: string,
-    roll: Roll,
+    roll: RollResultForSplittermond,
     data: Record<string, unknown>
 ): Promise<Record<string, unknown>> {}
 

@@ -1,3 +1,17 @@
+## 14.1.0
+
+### New features
+
+- Neuer Modifikator "item.defenseTickCost", welcher die Dauer der aktiven Abwehr modifiziert. Mit großem Dank an Pad-91
+
+### Fixes
+
+- Token Konfiguration hat jetzt eine Navigationsleiste in korrektem Stil.
+- Das Aktualisieren von `system.skillLevel` bei Zaubern setzt `castDuration` nicht mehr unerwartet auf `1 T` zurück.
+- Migrationen verhalten sich bei partiellen Update-Quellen robuster und überschreiben keine fehlenden Felder mehr implizit.
+- Die Wahl von Zauberschulen beim Hineinziehen eines Zaubers auf einen Akteur ändert nicht mehr Quell wie Zieldokument.
+- Nur noch der Verantwortliche Spielleiter (erster Nutzer mit GM Rolle) produziert Statusmeldungen.
+
 ## 14.0.4
 
 ### Fixes

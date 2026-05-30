@@ -24,7 +24,15 @@ export default class SplittermondNPCAttackItem extends AttackableItem(Splittermo
         this.attacks.forEach((attack) => {
             if (attack.range === 0) {
                 this.activeDefenses.push(
-                    new ActiveDefense(this.id, "defense", attack.name, attack.skill, attack.featuresAsRef, attack.img)
+                    new ActiveDefense(
+                        this.id,
+                        "defense",
+                        attack.name,
+                        attack.skill,
+                        attack.featuresAsRef,
+                        attack.img,
+                        this.type
+                    )
                 );
             }
         });

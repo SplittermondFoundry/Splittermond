@@ -640,12 +640,13 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             foundryApi.informUser("splittermond.applications.actorSheet.invalidItemType", { type: translatedType });
             return null;
         }
+        const newDocument = await super._onDropDocument(_e, document);
         /* Assume that the Spell was configured when it was brought on the actor. Therefore, if a document has an actor, there
          * is no need to ask again. This is important e.g. for scrolls. In the end, what we want to catch here are spells from
          * a compendium that come with the 'arcanelore' skill but are actually supposed to be from a specific school, given in
          * 'availableIn'
          */
-        if (document.type === "spell" && !document.actor) {
+        if (newDocument.type === "spell" && !document.actor) {
             const allowedSkills = splittermond.skillGroups.magic;
             const dialogTitle = foundryApi.localize("splittermond.chooseMagicSkill");
             const parsed = parseAvailableIn(document.system?.availableIn ?? "", allowedSkills);
@@ -669,9 +670,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
             if (!selectedSkill) return;
 
-            document.system.updateSource({ skill: selectedSkill.skill, skillLevel: selectedSkill.level });
+            await newDocument.update({ system: { skill: selectedSkill.skill, skillLevel: selectedSkill.level } });
         }
-        if (document.type === "mastery") {
+        if (newDocument.type === "mastery") {
             const allowedSkills = splittermond.skillGroups.all;
             const dialogTitle = foundryApi.localize("splittermond.chooseSkill");
             const parsed = parseAvailableIn(document.system?.availableIn ?? "", allowedSkills).map((s) => ({
@@ -690,10 +691,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             }
             if (!selectedSkill) return;
 
-            document.system.updateSource({ skill: selectedSkill.skill, level: selectedSkill.level });
+            await newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
         }
-
-        return super._onDropDocument(_e, document);
+        return newDocument;
     }
     /**
      * Overwrite to determine what Items can be dropped on this actor

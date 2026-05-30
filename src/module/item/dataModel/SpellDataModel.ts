@@ -61,27 +61,37 @@ export class SpellDataModel extends SplittermondDataModel<SpellDataModelType, Sp
     }
 }
 
-function from13_40_0_migrateCastDuration(source: any): any {
-    if (source && !source.castDuration) {
+export function from13_40_0_migrateCastDuration(source: unknown): unknown {
+    if (!source || typeof source !== "object") {
+        return source;
+    }
+    if (!("castDuration" in source)) {
+        return source;
+    }
+    if (!source.castDuration) {
         source.castDuration = { value: 1, unit: "T" };
-    }
-    if (source && typeof source.castDuration === "string") {
+    } else if (typeof source.castDuration === "string") {
         source.castDuration = parseCastDuration(source.castDuration);
-    }
-    if (source && typeof source.castDuration === "object" && !source.castDuration?.value) {
-        source.castDuration.value = 1;
-    }
-    if (source && typeof source.castDuration === "object" && typeof source.castDuration.value === "string") {
-        source.castDuration = parseCastDuration(source.castDuration.value);
+    } else if (
+        typeof source.castDuration === "object" &&
+        "value" in source.castDuration &&
+        !(source.castDuration as Record<string, unknown>).value
+    ) {
+        (source.castDuration as Record<string, unknown>).value = 1;
+    } else if (
+        typeof source.castDuration === "object" &&
+        typeof (source.castDuration as Record<string, unknown>).value === "string"
+    ) {
+        source.castDuration = parseCastDuration((source.castDuration as Record<string, string>).value);
     }
     return source;
 }
 
-function from13_7_2_initSkill<T = unknown>(source: T): T {
+export function from13_7_2_initSkill<T = unknown>(source: T): T {
     if (!source || !(typeof source === "object")) {
         return source;
     }
-    if ("skill" in source && !(source as any).skill) {
+    if ("skill" in source && !source.skill) {
         source.skill = "arcanelore";
     }
     return source;

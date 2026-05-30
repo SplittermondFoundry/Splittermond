@@ -1,6 +1,6 @@
-import SplittermondMasteryItem from "../../../../module/item/mastery.js";
+import SplittermondMasteryItem from "module/item/mastery.js";
 import { expect } from "chai";
-import { getMasteryAvailabilityParser } from "../../../../module/item/availabilityParser.ts";
+import { getMasteryAvailabilityParser } from "module/item/availabilityParser";
 
 describe("availableInList", () => {
     const mastery = new SplittermondMasteryItem(
