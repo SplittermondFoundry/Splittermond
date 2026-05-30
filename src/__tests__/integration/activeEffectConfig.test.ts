@@ -3,7 +3,7 @@ import sinon from "sinon";
 import { CostModifier, InverseModifier, Modifier, MultiplicativeModifier, SplittermondActiveEffect } from "module/activeEffect";
 import { foundryApi } from "module/api/foundryApi";
 import { SplittermondActiveEffectConfig } from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
-import { evaluate, of, plus, times } from "module/modifiers/expressions/scalar";
+import { evaluate, of, plus, ref, times } from "module/modifiers/expressions/scalar";
 import { of as costOf, evaluate as costEvaluate } from "module/modifiers/expressions/cost";
 import { CostModifier as Cost } from "module/util/costs/Cost";
 import { withActiveEffect, withActor } from "./fixtures";
@@ -200,6 +200,43 @@ export function activeEffectTest(context: QuenchBatchContext) {
 
                 const effect = actor.effects.contents[0];
                 expect(evaluate(effect.system.value)).to.equal(7);
+            }));
+
+            it("should persist and restore a reference expression through an ActiveEffect", withActor(async (actor) => {
+                actor.updateSource({ system: { attributes: { intuition: { initial: 3 } } } });
+
+                const expr = ref("attributes.intuition.value", () => null, "attributes.intuition.value");
+                const initData = Modifier.init("empathy", expr, { name: "RefTest", type: "innate" });
+                const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
+                    { name: "Ref Effect", type: "modifier", system: initData },
+                ]);
+
+                const restored = actor.effects.get(effect.id);
+                expect(evaluate(restored.system.value)).to.equal(3);
+            }));
+
+            it("should apply a reference modifier from an ActiveEffect to a skill", withActor(async (actor) => {
+                actor.updateSource({
+                    system: {
+                        attributes: {
+                            constitution: { initial: 2 },
+                            intuition: { initial: 2 },
+                            mind: { initial: 3 },
+                        },
+                    },
+                });
+
+                const expr = ref("attributes.intuition.value", () => null, "attributes.intuition.value");
+                const initData = Modifier.init("empathy", expr, { name: "EmpathyBoost", type: "innate" });
+                await actor.createEmbeddedDocuments("ActiveEffect", [
+                    { name: "Empathy Boost", type: "modifier", system: initData },
+                ]);
+
+                actor.prepareBaseData();
+                await actor.prepareEmbeddedDocuments();
+                actor.prepareDerivedData();
+
+                expect(actor.skills.empathy.value).to.equal(7);
             }));
         });
 
