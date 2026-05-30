@@ -670,8 +670,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
             if (!selectedSkill) return;
 
-
-            await newDocument.update({system:{ skill: selectedSkill.skill, skillLevel: selectedSkill.level }});
+            await newDocument.update({ system: { skill: selectedSkill.skill, skillLevel: selectedSkill.level } });
         }
         if (newDocument.type === "mastery") {
             const allowedSkills = splittermond.skillGroups.all;
@@ -692,7 +691,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             }
             if (!selectedSkill) return;
 
-            await newDocument.update({system:{ skill: selectedSkill.skill, level: selectedSkill.level }});
+            await newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
         }
         return newDocument;
     }

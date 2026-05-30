@@ -11,7 +11,7 @@ import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import { MasteryDataModel } from "module/item/dataModel/MasteryDataModel";
 import SplittermondActor from "module/actor/actor";
 import SplittermondItem from "module/item/item";
-import type {SplittermondItemDataModel} from "module/item";
+import type { SplittermondItemDataModel } from "module/item";
 
 declare const foundry: any;
 declare const global: any;
@@ -22,7 +22,11 @@ describe("SplittermondActorSheet", () => {
     let superFunctionStub: sinon.SinonStub;
     const mockEvent = null as unknown as DragEvent; //DragEvent is not used in the tests
 
-    function createDroppedItem(type: string, system: SplittermondItemDataModel, otherData: Record<string, unknown> = {}): any {
+    function createDroppedItem(
+        type: string,
+        system: SplittermondItemDataModel,
+        otherData: Record<string, unknown> = {}
+    ): any {
         const item = sandbox.createStubInstance(SplittermondItem) as any;
         item.type = type;
         item.system = system;
@@ -39,7 +43,7 @@ describe("SplittermondActorSheet", () => {
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
-        superFunctionStub = sandbox.mock().callsFake((_e,doc)=>doc);
+        superFunctionStub = sandbox.mock().callsFake((_e, doc) => doc);
         sandbox.stub(foundryApi.utils, "mergeObject").callsFake((a, b) => ({ ...a, ...b }));
         Object.defineProperty(SplittermondBaseActorSheet.prototype, "_onDropDocument", {
             value: superFunctionStub,
@@ -215,7 +219,10 @@ describe("SplittermondActorSheet", () => {
         });
 
         it("should set skill and level for valid single availableIn", async () => {
-            const itemData = createDroppedItem("mastery", new MasteryDataModel({ availableIn: "athletics", level: 3 } as any));
+            const itemData = createDroppedItem(
+                "mastery",
+                new MasteryDataModel({ availableIn: "athletics", level: 3 } as any)
+            );
             await sheet._onDropDocument(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;

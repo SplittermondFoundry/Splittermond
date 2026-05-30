@@ -65,21 +65,20 @@ export function from13_40_0_migrateCastDuration(source: unknown): unknown {
     if (!source || typeof source !== "object") {
         return source;
     }
-    if(!("castDuration" in source)){
+    if (!("castDuration" in source)) {
         return source;
     }
     if (!source.castDuration) {
         source.castDuration = { value: 1, unit: "T" };
     } else if (typeof source.castDuration === "string") {
         source.castDuration = parseCastDuration(source.castDuration);
-    }else if (
-
+    } else if (
         typeof source.castDuration === "object" &&
         "value" in source.castDuration &&
         !(source.castDuration as Record<string, unknown>).value
     ) {
         (source.castDuration as Record<string, unknown>).value = 1;
-    }else if (
+    } else if (
         typeof source.castDuration === "object" &&
         typeof (source.castDuration as Record<string, unknown>).value === "string"
     ) {
