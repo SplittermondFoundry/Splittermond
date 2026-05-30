@@ -39,6 +39,14 @@ describe("Modifier migration from 0.12.13", () => {
                 'FO -1, VTD +2, fightingSkill.melee emphasis="Hellebarde" -1, damage emphasis="Natürliche Waffe" +1',
         });
     });
+
+    it("does not coerce undefined booleans in partial sources", () => {
+        const source = { modifier: "VTD +1", prepared: undefined };
+
+        const result = migrateFrom0_12_13(source);
+
+        expect(result).to.deep.equal({ modifier: "VTD +1", prepared: undefined });
+    });
 });
 describe("Modifier migration from 0.12.20", () => {
     let sandbox: sinon.SinonSandbox;
@@ -138,6 +146,12 @@ describe("Modifier migration from 0.12.20", () => {
         const source = { secondaryAttack: { damage: "1W6 +    3" } };
         const replaced = from0_12_20_migrateDamage({ secondaryAttack: { ...source.secondaryAttack } });
         expect((replaced as any).secondaryAttack.damage.stringInput).to.deep.equal(source.secondaryAttack.damage);
+    });
+
+    it("does not inject damage for partial sources", () => {
+        const source = { skillMod: 3 };
+        const replaced = from0_12_20_migrateDamage({ ...source });
+        expect(replaced).to.deep.equal(source);
     });
 
     it("should not map migrated damage", () => {

@@ -20,7 +20,7 @@ export function migrateFrom0_12_13(source: unknown) {
     //We need to enforce that boolean values are actually boolean values. Otherwise they might behave weirdly when displayed
     ["equipped", "multiSelectable", "onCreationOnly", "isGrandmaster", "isManeuver", "prepared", "active"].forEach(
         (key) => {
-            if (key in source) {
+            if (key in source && source[key] !== undefined) {
                 source[key] = !!source[key];
             }
         }
