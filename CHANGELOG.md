@@ -4,6 +4,10 @@
 
 - Neuer Modifikator "item.defenseTickCost", welcher die Dauer der aktiven Abwehr modifiziert. Mit großem Dank an Pad-91
 
+### Fixes
+
+- Token Konfiguration hat jetzt eine Navigationsleiste in korrektem Stil.
+
 ## 14.0.4
 
 ### Fixes
