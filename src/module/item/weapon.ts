@@ -29,7 +29,15 @@ export default class SplittermondWeaponItem extends AttackableItem(SplittermondP
         this.attacks.forEach((attack) => {
             if (["melee", "slashing", "chains", "blades", "staffs"].includes(attack.skill.id)) {
                 this.activeDefense.push(
-                    new ActiveDefense(this.id, "defense", attack.name, attack.skill, attack.featuresAsRef, attack.img, this.type)
+                    new ActiveDefense(
+                        this.id,
+                        "defense",
+                        attack.name,
+                        attack.skill,
+                        attack.featuresAsRef,
+                        attack.img,
+                        this.type
+                    )
                 );
             }
         });
