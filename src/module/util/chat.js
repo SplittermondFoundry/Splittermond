@@ -44,9 +44,9 @@ function validAttributeValues(...values) {
 /**
  * @param {SplittermondActor} actor
  * @param {string} rollMode
- * @param {any} roll
- * @param {CheckReport} data
- * @returns {Promise<*>}
+ * @param {RollResultForSplittermond} roll
+ * @param {Record<string,unknown>} data
+ * @returns {Promise<Record<string,unknown>>}
  */
 export async function prepareCheckMessageData(actor, rollMode, roll, data) {
     const totalDegreeOfSuccess = data.degreeOfSuccess.fromRoll + data.degreeOfSuccess.modification;

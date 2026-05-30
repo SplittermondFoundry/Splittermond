@@ -1,3 +1,9 @@
+## 14.1.0
+
+### New features
+
+- Neuer Modifikator "item.defenseTickCost", welcher die Dauer der aktiven Abwehr modifiziert. Mit großem Dank an Pad-91
+
 ## 14.0.4
 
 ### Fixes

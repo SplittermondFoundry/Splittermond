@@ -1,4 +1,5 @@
 import { foundryApi } from "../api/foundryApi";
+import { splittermond } from "module/config/index.js";
 
 export default class SplittermondItem extends Item {
     constructor(data, context = {}) {
@@ -18,16 +19,17 @@ export default class SplittermondItem extends Item {
 
         const data = this.system;
 
+        //TODO: This stuff is NEVER active!
         if (data.id) {
             if (!data.description) {
                 const descriptionId = `${this.type}.${data.id}.desc`;
-                const descriptionText = game.i18n.localize(descriptionId);
+                const descriptionText = foundryApi.localize(descriptionId);
                 if (descriptionId !== descriptionText) {
                     data.description = descriptionText;
                 }
             }
 
-            if (CONFIG.splittermond.modifier[data.id]) {
+            if (splittermond.modifier[data.id]) {
                 data.modifier = CONFIG.splittermond.modifier[data.id];
             }
 
