@@ -17,6 +17,12 @@ import type { FoundryRoll, NumericTerm, OperatorTerm } from "./Roll";
 import { FoundryChatMessage } from "./ChatMessage";
 import { FoundryApplication } from "./Application";
 
+interface SheetRegistrationOptions {
+    types?: string[];
+    label?: string;
+    makeDefault?: boolean;
+}
+
 export const foundryApi = new (class FoundryApi {
     /**
      * @param messageKey the key to an entry in the localization file
@@ -304,33 +310,33 @@ export const foundryApi = new (class FoundryApi {
 
     sheets = {
         items: {
-            register(...args: any[]): void {
+            register(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return Items.registerSheet(...args);
+                return Items.registerSheet(scope, sheetClass, options);
             },
-            unregister(...args: any[]): void {
+            unregister(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return Items.unregisterSheet(...args);
+                return Items.unregisterSheet(scope, sheetClass, options);
             },
         },
         actors: {
-            register(...args: any[]): void {
+            register(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return Actors.registerSheet(...args);
+                return Actors.registerSheet(scope, sheetClass, options);
             },
-            unregister(...args: any[]): void {
+            unregister(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return Actors.unregisterSheet(...args);
+                return Actors.unregisterSheet(scope, sheetClass, options);
             },
         },
         activeEffects: {
-            register(...args: any[]): void {
+            register(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return foundry.applications.apps.DocumentSheetConfig.registerSheet(ActiveEffect, ...args);
+                return foundry.applications.apps.DocumentSheetConfig.registerSheet(ActiveEffect, scope, sheetClass, options);
             },
-            unregister(...args: any[]): void {
+            unregister(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return foundry.applications.apps.DocumentSheetConfig.unregisterSheet(ActiveEffect, ...args);
+                return foundry.applications.apps.DocumentSheetConfig.unregisterSheet(ActiveEffect, scope, sheetClass, options);
             },
         },
     };

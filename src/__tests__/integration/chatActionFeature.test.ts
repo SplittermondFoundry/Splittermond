@@ -134,7 +134,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 });
                 const spell: SplittermondSpellItem = (
                     await actor.createEmbeddedDocuments("Item", [{ type: "spell", name: "Test Spell" }])
-                )[0];
+                )[0] as SplittermondSpellItem;
                 await spell.update({ system: { costs: "4V1", skill: "lightmagic", enhancementCosts: "1EG/+1V1" } });
                 const chatMessage = createSpellChatMessage(actor, spell);
 
@@ -188,7 +188,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             withActor(async (actor) => {
                 const weapon: SplittermondWeaponItem = (
                     await actor.createEmbeddedDocuments("Item", [{ type: "weapon", name: "Test weapon" }])
-                )[0];
+                )[0] as SplittermondWeaponItem;
                 await weapon.update({
                     system: { skill: "longrange", attribute1: "agility", attribute2: "strength", equipped: true },
                 });
@@ -211,7 +211,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             withActor(async (actor) => {
                 const weapon: SplittermondWeaponItem = (
                     await actor.createEmbeddedDocuments("Item", [{ type: "weapon", name: "The Grindstone" }])
-                )[0];
+                )[0] as SplittermondWeaponItem;
                 await weapon.update({
                     system: {
                         skill: "longrange",

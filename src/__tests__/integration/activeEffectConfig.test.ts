@@ -1,13 +1,22 @@
-import { QuenchBatchContext } from "@ethaks/fvtt-quench";
+import {QuenchBatchContext} from "@ethaks/fvtt-quench";
 import sinon from "sinon";
-import { CostModifier, InverseModifier, Modifier, MultiplicativeModifier, SplittermondActiveEffect } from "module/activeEffect";
-import { foundryApi } from "module/api/foundryApi";
-import { SplittermondActiveEffectConfig } from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
-import { evaluate, of, plus, ref, times } from "module/modifiers/expressions/scalar";
-import { of as costOf, evaluate as costEvaluate } from "module/modifiers/expressions/cost";
-import { CostModifier as Cost } from "module/util/costs/Cost";
-import { withActiveEffect, withActor } from "./fixtures";
-import { passesEventually } from "../util";
+import {
+    CostModifier,
+    InverseModifier,
+    Modifier,
+    MultiplicativeModifier,
+    SplittermondActiveEffect
+} from "module/activeEffect";
+import {foundryApi} from "module/api/foundryApi";
+import {SplittermondActiveEffectConfig} from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
+import {evaluate, of, plus, ref, times} from "module/modifiers/expressions/scalar";
+import {evaluate as costEvaluate, of as costOf} from "module/modifiers/expressions/cost";
+import {CostModifier as Cost} from "module/util/costs/Cost";
+import {withActiveEffect, withActor} from "./fixtures";
+import {passesEventually} from "../util";
+import type {ModifierDataModel} from "module/activeEffect/dataModel/ModifierDataModel";
+import type {InverseModifierDataModel} from "module/activeEffect/dataModel/InverseModifierDataModel";
+import type {CostModifierDataModel} from "module/activeEffect/dataModel/CostModifierDataModel";
 
 async function enterInSheet(sheet: SplittermondActiveEffectConfig, inputName: string, value: string) {
     await sheet.render(true);
@@ -172,9 +181,9 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     { name: "Test Effect", type: "modifier", system: initData },
                 ]);
 
-                const restored = actor.effects.get(effect.id);
+                const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {system: ModifierDataModel};
                 expect(restored).to.exist;
-                expect(evaluate(restored.system.value)).to.equal(5);
+                expect(evaluate(restored.system.value )).to.equal(5);
                 expect(restored.system.groupId).to.equal("test.path");
                 expect(restored.system.attributes.name).to.equal("Test");
             }));
@@ -186,7 +195,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     { name: "Complex Effect", type: "modifier", system: initData },
                 ]);
 
-                const restored = actor.effects.get(effect.id);
+                const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {system: ModifierDataModel};
                 expect(evaluate(restored.system.value)).to.equal(11);
             }));
 
@@ -211,7 +220,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     { name: "Ref Effect", type: "modifier", system: initData },
                 ]);
 
-                const restored = actor.effects.get(effect.id);
+                const restored = actor.effects.get(effect.id) as any;
                 expect(evaluate(restored.system.value)).to.equal(3);
             }));
 
@@ -247,7 +256,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     { name: "Inverse Effect", type: "inverseModifier", system: initData },
                 ]);
 
-                const restored = actor.effects.get(effect.id);
+                const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {system: InverseModifierDataModel};
                 expect(evaluate(restored.system.value)).to.equal(-3);
                 expect(restored.system.isBonus).to.be.true;
             }));
@@ -263,7 +272,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     { name: "Mult Effect", type: "multiplicativeModifier", system: initData },
                 ]);
 
-                const restored = actor.effects.get(effect.id);
+                const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {system: InverseModifierDataModel};
                 expect(evaluate(restored.system.value)).to.equal(3);
                 expect(restored.system.isBonus).to.be.true;
             }));
@@ -277,7 +286,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     { name: "Cost Effect", type: "costModifier", system: initData },
                 ]);
 
-                const restored = actor.effects.get(effect.id);
+                const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {system: CostModifierDataModel};
                 const result = costEvaluate(restored.system.value);
                 expect(result.toObject()).to.deep.equal(costMod.toObject());
                 expect(restored.system.label).to.equal("focus.reduction");
