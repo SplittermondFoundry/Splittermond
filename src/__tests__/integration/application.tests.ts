@@ -207,10 +207,10 @@ export function applicationTests(context: QuenchBatchContext) {
                 getTestSpell(),
                 getTestWeapon(),
                 getTestShield(),
-            ]);
-            const spell = createdDocuments.find((d: SplittermondItem) => d.type == "spell")!;
-            const weapon = createdDocuments.find((d: SplittermondItem) => d.type == "weapon")!;
-            const shield = createdDocuments.find((d: SplittermondItem) => d.type == "shield")!;
+            ])as SplittermondItem[];
+            const spell = createdDocuments.find((d) => d.type == "spell")!;
+            const weapon = createdDocuments.find((d) => d.type == "weapon")!;
+            const shield = createdDocuments.find((d) => d.type == "shield")!;
 
             actor.prepareBaseData();
             await actor.prepareEmbeddedDocuments();

@@ -22,11 +22,6 @@ declare class _FoundryActiveEffect extends FoundryDocument {
     /** The owning actor or parent of the owning item, if any */
     get actor(): Actor |null;
 
-    getFlag(scope: string, key: string): unknown;
-    setFlag(scope: string, key: string, value: unknown): Promise<_FoundryActiveEffect>;
-
-    update(data: object, context?: any): Promise<_FoundryActiveEffect>;
-
     static defineSchema(): object;
 }
 
