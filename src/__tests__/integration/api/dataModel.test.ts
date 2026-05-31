@@ -3,6 +3,7 @@ import { foundryApi } from "module/api/foundryApi";
 import { ItemReference } from "module/data/references/ItemReference";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
+import type SplittermondItem from "module/item/item";
 import type SplittermondSpellItem from "module/item/spell";
 import { withActor, withUnlinkedToken } from "../fixtures";
 
@@ -157,7 +158,7 @@ export function dataModelTest(context: QuenchBatchContext) {
             withActor(async (sampleActor) => {
                 const itemOnActor = await sampleActor
                     .createEmbeddedDocuments("Item", [{ type: "spell", name: "Test Spell on Actor" }])
-                    .then((a: unknown[]) => a[0]);
+                    .then((a) => a[0] as SplittermondItem);
 
                 const underTest = ItemReference.initialize(itemOnActor);
 
