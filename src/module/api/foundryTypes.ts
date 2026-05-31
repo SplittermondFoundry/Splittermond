@@ -122,7 +122,6 @@ declare global {
         readonly folder: string;
         system: Record<string, any>;
         owner: User;
-        sheet: InstanceType<typeof FoundryApplication>; //true in the future, now we're still on AppV1
 
         get inCombat(): boolean;
         get isToken(): boolean;
@@ -174,10 +173,16 @@ declare global {
         readonly uuid: string;
         readonly metadata: foundry.abstract.types.DocumentClassMetadata;
         readonly type: string;
+        readonly effects: Collection<FoundryActiveEffect>;
+        get sheet(): InstanceType<typeof FoundryApplication>;
 
         updateSource(data: object): void;
 
-        update(data: object, context?: any): Promise<FoundryDocument>;
+        update(data: object, context?: object): Promise<FoundryDocument>;
+
+        createEmbeddedDocuments(embeddedName: string, data: object[], context?: object): Promise<FoundryDocument[]>;
+
+        deleteEmbeddedDocuments(embeddedName: string, ids: string[], context?: object): Promise<FoundryDocument[]>;
 
         prepareBaseData(): void;
 
