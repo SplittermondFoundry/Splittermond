@@ -508,7 +508,7 @@ export function actorTest(context: QuenchBatchContext) {
                         await source.createEmbeddedDocuments("Item", [
                             { type: "weapon", name: "Drag Test Weapon", system: { equipped: true } },
                         ])
-                    )[0];
+                    )[0] as SplittermondWeaponItem;
                     source.prepareBaseData();
                     source.prepareEmbeddedDocuments();
                     source.prepareDerivedData();
@@ -543,7 +543,7 @@ export function actorTest(context: QuenchBatchContext) {
                         await source.createEmbeddedDocuments("Item", [
                             { type: "weapon", name: "Drag Test Weapon", system: {} },
                         ])
-                    )[0];
+                    )[0] as SplittermondWeaponItem;
                     const sourceSheet = await new SplittermondCharacterSheet({ document: source }).render({
                         force: true,
                     });
