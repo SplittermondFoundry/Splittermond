@@ -139,9 +139,12 @@
                 "costFormula": "Cost Formula",
                 "skill": "Skill",
                 "baseHint": "Base effects use the default fields."
+            },
+            "edit": "Edit Effect"
             }
-        }
     },
+    "enable": "Enable",
+    "disable": "Disable",
     "bonusCap": "Bonus Limit",
     "message": {
         "itemImported": "The item \"{name}\" was imported as \"{type}\"!",

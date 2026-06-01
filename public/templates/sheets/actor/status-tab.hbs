@@ -113,21 +113,25 @@
                 </div>
                 <ol class="list-body">
                     {{#each activeEffects}}
-                        <li class="list-item effect{{#if this.disabled}} effect-disabled{{/if}}{{#if this.fromItem}} effect-from-item{{/if}}" data-effect-id="{{this.id}}">
+                        <li class="list-item effect{{#if this.disabled}} effect-disabled{{/if}}{{#if this.fromItem}} effect-from-item{{/if}}" data-effect-id="{{this.id}}" data-effect-uuid="{{this.uuid}}">
                             <span class="name">{{this.name}}</span>
                             <span class="source">({{this.sourceName}})</span>
-                            {{#unless this.fromItem}}
                             <div class="list-actions">
+                                <button class="button-inline" type="button" data-action="edit-effect"
+                                        title="{{localize 'splittermond.activeEffect.edit'}}">
+                                    <i class="fa fa-edit" aria-hidden="true"></i>
+                                </button>
                                 <button class="button-inline" type="button" data-action="toggle-effect"
-                                        title="{{#if this.disabled}}Enable{{else}}Disable{{/if}}">
+                                        title="{{#if this.disabled}}{{localize 'splittermond.enable'}}{{else}}{{localize 'splittermond.disable'}}{{/if}}">
                                     <i class="fa {{#if this.disabled}}fa-eye-slash{{else}}fa-eye{{/if}}"
                                        aria-hidden="true"></i>
                                 </button>
+                                {{#unless this.fromItem}}
                                 <button class="button-inline" type="button" data-action="delete-effect">
                                     <i class="fas fa-trash" aria-hidden="true"></i>
                                 </button>
+                                {{/unless}}
                             </div>
-                            {{/unless}}
                         </li>
                     {{/each}}
                 </ol>
