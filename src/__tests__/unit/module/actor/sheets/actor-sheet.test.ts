@@ -2,6 +2,7 @@ import "../../../foundryMocks";
 import { expect } from "chai";
 import { afterEach, beforeEach, describe, it } from "mocha";
 import sinon from "sinon";
+import { JSDOM } from "jsdom";
 import SplittermondActorSheet from "module/actor/sheets/actor-sheet.js";
 import { splittermond } from "module/config";
 import { foundryApi } from "module/api/foundryApi";
@@ -342,6 +343,117 @@ describe("SplittermondActorSheet", () => {
                         expect(superFunctionStub.lastCall.lastArg.system.level).to.equal(skillLevel);
                     });
                 });
+        });
+    });
+});
+
+describe("SplittermondActorSheet — effect handlers", () => {
+    let sandbox: sinon.SinonSandbox;
+    let sheet: SplittermondActorSheet;
+
+    function callAction(name: string, event: Event | null, target: Element): unknown {
+        const action = sheet.options.actions[name];
+        if (typeof action !== "function") throw new Error(`action "${name}" is not a function`);
+        return (action as (e: PointerEvent, t: HTMLElement) => unknown)(event as PointerEvent, target as HTMLElement);
+    }
+
+    function makeTarget(uuid: string): Element {
+        const dom = new JSDOM(`<div data-effect-uuid="${uuid}"></div>`);
+        return dom.window.document.querySelector("[data-effect-uuid]")!;
+    }
+
+    function makeEffectMock() {
+        return {
+            disabled: false,
+            update: sinon.stub().resolves(),
+            delete: sinon.stub().resolves(),
+            sheet: { render: sinon.stub() },
+        };
+    }
+
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(foundryApi.utils, "mergeObject").callsFake((a: object, b?: object) => ({ ...a, ...(b ?? {}) }));
+        (global as any).CONFIG = { splittermond: splittermond };
+        const actorMock = { name: "Test Actor", spells: [], items: [], id: "actor1" };
+        sheet = new SplittermondActorSheet({ document: actorMock });
+    });
+
+    afterEach(() => sandbox.restore());
+
+    describe("#handleEditEffect", () => {
+        it("renders the effect sheet when the effect is found", () => {
+            const effect = makeEffectMock();
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(effect as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.e1");
+
+            callAction("edit-effect", null, target);
+
+            expect((effect.sheet.render as sinon.SinonStub).calledOnce).to.be.true;
+        });
+
+        it("does not throw when fromUUIDSync returns null", () => {
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(null as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.missing");
+
+            expect(() => callAction("edit-effect", null, target)).not.to.throw();
+        });
+    });
+
+    describe("#handleToggleEffect", () => {
+        it("calls effect.update with the inverted disabled value", async () => {
+            const effect = { ...makeEffectMock(), disabled: false };
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(effect as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.e1");
+
+            await callAction("toggle-effect", null, target);
+
+            expect((effect.update as sinon.SinonStub).calledWith({ disabled: true })).to.be.true;
+        });
+
+        it("toggles a disabled effect back to enabled", async () => {
+            const effect = { ...makeEffectMock(), disabled: true };
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(effect as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.e1");
+
+            await callAction("toggle-effect", null, target);
+
+            expect((effect.update as sinon.SinonStub).calledWith({ disabled: false })).to.be.true;
+        });
+
+        it("does not call update when fromUUIDSync returns null", async () => {
+            const updateSpy = sinon.spy();
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(null as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.missing");
+
+            await callAction("toggle-effect", null, target);
+
+            expect(updateSpy.called).to.be.false;
+        });
+    });
+
+    describe("#handleDeleteEffect", () => {
+        it("calls effect.delete when the effect is found", async () => {
+            const effect = makeEffectMock();
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(effect as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.e1");
+
+            await callAction("delete-effect", null, target);
+
+            expect((effect.delete as sinon.SinonStub).calledOnce).to.be.true;
+        });
+
+        it("does not throw when fromUUIDSync returns null", async () => {
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(null as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.missing");
+
+            let threw = false;
+            try {
+                await (callAction("delete-effect", null, target) as Promise<unknown>);
+            } catch {
+                threw = true;
+            }
+            expect(threw).to.be.false;
         });
     });
 });
