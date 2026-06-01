@@ -134,6 +134,29 @@ declare namespace foundry {
         render?: (event: Event, dialog: DialogV2) => unknown;
     }
 
+    namespace abstract {
+        namespace types {
+            interface DatabaseUpdateOperation {
+                _result?: (string | object)[];
+                _updateData?: Record<string, object>;
+                action: "update";
+                broadcast: boolean;
+                diff?: boolean;
+                documentName: string;
+                dryRun?: boolean;
+                extractedImages?: Record<string, string>;
+                modifiedTime?: number;
+                noHook?: boolean;
+                pack: string | null;
+                parent?: FoundryDocument | null;
+                parentUuid?: string | null;
+                recursive?: boolean;
+                render?: boolean;
+                updates: object[];
+            }
+        }
+    }
+
     namespace applications {
         import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
         import ApplicationTab = foundry.applications.types.ApplicationTab;
@@ -339,6 +362,8 @@ declare namespace foundry {
 
             class FormDataExtended {
                 //This class is a stub. Doc found https://foundryvtt.com/api/classes/foundry.applications.ux.FormDataExtended.html
+                constructor(form: HTMLFormElement, options?: object);
+                object: Record<string, unknown>;
             }
         }
 
