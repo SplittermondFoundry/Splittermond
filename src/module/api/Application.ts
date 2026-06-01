@@ -7,11 +7,11 @@ export interface DialogV2ConstructorInput
         foundry.DialogV2Configuration {}
 
 export type ApplicationFormConfiguration = foundry.applications.types.ApplicationFormConfiguration;
+export type HandlebarsRenderOptions = HandlebarsApplicationMixinNS.RenderOptions
 
 export type FoundryDialogType = foundry.applications.api.DialogV2;
 export const FoundryDialog = foundry.applications.api.DialogV2;
 export const FoundryApplication = foundry.applications.api.ApplicationV2;
-export const FoundryDocumentSheetV2 = foundry.applications.api.DocumentSheetV2;
 export const FoundryItemSheet = foundry.applications.sheets.ItemSheetV2;
 export const FoundryActorSheet = foundry.applications.sheets.ActorSheetV2;
 export const FoundryActiveEffectConfig = foundry.applications.sheets.ActiveEffectConfig;
