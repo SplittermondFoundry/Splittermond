@@ -275,7 +275,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         const card = target.closest<HTMLElement>("[data-effect-id]");
         const effectId = card?.dataset.effectId;
         if (!effectId) return;
-        await (this.item as any).deleteEmbeddedDocuments("ActiveEffect", [effectId]);
+        await this.item.deleteEmbeddedDocuments("ActiveEffect", [effectId]);
         this.render();
     }
 
@@ -283,7 +283,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         const card = target.closest<HTMLElement>("[data-effect-id]");
         const effectId = card?.dataset.effectId;
         if (!effectId) return;
-        const effect = (this.item as any).effects.get(effectId);
+        const effect = this.item.effects.get(effectId);
         if (!effect) return;
         await effect.update({ disabled: !effect.disabled });
         this.render();
@@ -293,7 +293,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         const card = target.closest<HTMLElement>("[data-effect-id]");
         const effectId = card?.dataset.effectId;
         if (!effectId) return;
-        const effect = (this.item as any).effects.get(effectId);
+        const effect = this.item.effects.get(effectId);
         effect?.sheet?.render({ force: true });
     }
 
