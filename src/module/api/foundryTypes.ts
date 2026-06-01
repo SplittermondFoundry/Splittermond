@@ -62,6 +62,25 @@ export interface Socket {
     emit: (key: string, object: object) => void;
 }
 
+export interface DatabaseUpdateOperation {
+    _result?: (string | object)[];
+    _updateData?: Record<string, object>;
+    action: "update";
+    broadcast: boolean;
+    diff?: boolean;
+    documentName: string;
+    dryRun?: boolean;
+    extractedImages?: Record<string, string>;
+    modifiedTime?: number;
+    noHook?: boolean;
+    pack: string | null;
+    parent?: FoundryDocument | null;
+    parentUuid?: string | null;
+    recursive?: boolean;
+    render?: boolean;
+    updates: object[];
+}
+
 export interface Hooks {
     once: (key: string, callback: (...args: any[]) => void) => number;
     on: (key: string, callback: (...args: any[]) => void) => number;
@@ -178,7 +197,10 @@ declare global {
 
         updateSource(data: object): void;
 
-        update(data: object, context?: object): Promise<FoundryDocument>;
+        update(
+            data: object,
+            operation?: Partial<Omit<DatabaseUpdateOperation, "updates">>
+        ): Promise<FoundryDocument>;
 
         createEmbeddedDocuments(embeddedName: string, data: object[], context?: object): Promise<FoundryDocument[]>;
 
