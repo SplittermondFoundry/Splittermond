@@ -169,6 +169,19 @@ export function apiUtilsTest(context: QuenchBatchContext) {
         expect(value).to.equal("value");
     });
 
+    it("should build form data", () => {
+        const form = document.createElement("form");
+        const input = document.createElement("input");
+        input.name = "testKey";
+        input.value = "testValue";
+        form.appendChild(input);
+
+        const formData = foundryApi.utils.buildFormData(form);
+
+        expect(typeof formData).to.equal("object");
+        expect(formData.object).to.have.property("testKey", "testValue");
+    });
+
     describe("Sheet Registration", () => {
         class TestItemSheet extends SplittermondBaseItemSheet {}
         class TestActorSheet extends SplittermondBaseActorSheet {}
