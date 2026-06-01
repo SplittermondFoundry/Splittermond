@@ -287,6 +287,10 @@ export const foundryApi = new (class FoundryApi {
             // @ts-ignore
             return foundry.applications.ux.TextEditor.implementation.enrichHTML(content, options);
         },
+        buildFormData(form: HTMLFormElement, options?: object): foundry.applications.ux.FormDataExtended {
+            // @ts-ignore
+            return new foundry.applications.ux.FormDataExtended(form, options);
+        },
         resolveProperty(object: object, path: string): unknown {
             // @ts-ignore
             return foundry.utils.getProperty(object, path);
