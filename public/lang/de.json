@@ -93,6 +93,8 @@
         "bonusCap": "Bonusgrenze",
         "heroLevel": "Heldengrad",
         "name": "Name",
+        "enable": "Aktivieren",
+        "disable": "Deaktivieren",
         "sex": "Geschlecht",
         "species": "Spezies",
         "culture": "Kultur",
