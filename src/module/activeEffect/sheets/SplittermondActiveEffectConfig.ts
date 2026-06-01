@@ -54,6 +54,19 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
             foundryApi.warnUser(warningKey);
             return;
         }
+
+        if (event.currentTarget instanceof HTMLFormElement) {
+            const form = event.currentTarget;
+            const formData = foundryApi.utils.buildFormData(form);
+            const submitData = this._processFormData(event, form, { object: formData.object }) as Record<string, unknown>;
+            const submitType = this.#readString(submitData, "type");
+            if (submitType && submitType !== this.document.type) {
+                await this.document.update(submitData, { recursive: false });
+                await this.close();
+                return;
+            }
+        }
+
         await super._onSubmitForm(formConfig, event);
     }
 
