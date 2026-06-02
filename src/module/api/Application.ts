@@ -1,9 +1,3 @@
-
-
-export interface DialogV2RenderOptions {
-    force: boolean;
-}
-
 export interface DialogV2ConstructorInput
     extends foundry.applications.types.ApplicationConfiguration,
         foundry.DialogV2Configuration {}
