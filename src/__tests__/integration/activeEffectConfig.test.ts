@@ -174,6 +174,59 @@ export function activeEffectTest(context: QuenchBatchContext) {
     });
 
     describe("ActiveEffect DataModel serialization via Foundry persistence", () => {
+        describe("SplittermondActiveEffect type updates", () => {
+            it("should change type via update", withActor(async (actor) => {
+                const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Type Change",
+                        type: "modifier",
+                        system: Modifier.init("skills", of(1), { name: "Type Change", type: "innate", skill: "acrobatics" }),
+                    },
+                ]);
+
+                await effect.update({
+                    type: "inverseModifier",
+                    system: InverseModifier.init("skills", of(-1), {
+                        name: "Type Change",
+                        type: "innate",
+                        skill: "acrobatics",
+                    }),
+                });
+
+                const updated = actor.effects.get(effect.id) as SplittermondActiveEffect & {system: InverseModifierDataModel};
+                expect(updated.type).to.equal("inverseModifier");
+                expect(evaluate(updated.system.value)).to.equal(-1);
+            }));
+
+            it("should change type via updateSource", withActor(async (actor) => {
+                const [created] = await actor.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Type Change Source",
+                        type: "modifier",
+                        system: Modifier.init("skills", of(1), {
+                            name: "Type Change Source",
+                            type: "innate",
+                            skill: "acrobatics",
+                        }),
+                    },
+                ]);
+
+                const effect = created as SplittermondActiveEffect & {system: InverseModifierDataModel};
+                effect.updateSource({
+                    type: "inverseModifier",
+                    system: {...InverseModifier.init("skills", of(-2), {
+                        name: "Type Change Source",
+                        type: "innate",
+                        skill: "acrobatics",
+                    }),
+                        changes: []},
+                });
+
+                expect(effect.type).to.equal("inverseModifier");
+                expect(evaluate(effect.system.value)).to.equal(-2);
+            }));
+        });
+
         describe("ModifierDataModel", () => {
             it("should persist and restore a simple expression through an ActiveEffect", withActor(async (actor) => {
                 const initData = Modifier.init("test.path", of(5), { name: "Test", type: "innate" });
