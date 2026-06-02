@@ -1,3 +1,5 @@
+import DataModelUpdateOptions = foundry.abstract.types.DataModelUpdateOptions;
+
 declare const DynamicClass: new <_Computed extends object>(arg0: never, ...args: never[]) => _Computed;
 
 // @ts-expect-error - This is a workaround to allow for dynamic top level properties in a class.
@@ -20,7 +22,7 @@ export declare class DataModel<T extends object, PARENT> extends _InternalDataMo
 
     getFlag(scope: string, key: string): unknown;
 
-    updateSource(data: DeepPartial<T> | DeepPartial<DataModelConstructorInput<T>>): void;
+    updateSource(data: DeepPartial<T> | DeepPartial<DataModelConstructorInput<T>>, options?: DataModelUpdateOptions): object;
 
     constructor(data: DataModelConstructorInput<T>, options?: any);
 

@@ -1,3 +1,4 @@
+
 type AnyConstructor = abstract new (...args: never) => unknown;
 type AnyConcreteConstructor = new (...args: never) => unknown;
 
@@ -94,10 +95,8 @@ declare namespace HandlebarsApplicationMixinNS {
 }
 
 declare namespace foundry {
-    import ApplicationV2 = foundry.applications.api.ApplicationV2;
     import ApplicationFormConfiguration = foundry.applications.types.ApplicationFormConfiguration;
     import ApplicationRenderContext = foundry.applications.types.ApplicationRenderContext;
-    import ApplicationTabsConfiguration = foundry.applications.types.ApplicationTabsConfiguration;
     import DialogV2 = foundry.applications.api.DialogV2;
 
     interface DocumentSheetConfiguration {
@@ -136,6 +135,23 @@ declare namespace foundry {
 
     namespace abstract {
         namespace types {
+            interface DataModelCleaningOptions {
+                fields?: boolean;
+                joint?: boolean;
+                partial?: boolean;
+                source?: boolean;
+                strict?: boolean;
+            }
+
+            interface DataModelUpdateOptions {
+                clean?: boolean | Omit<DataModelCleaningOptions, "partial">;
+                dryRun?: boolean;
+                fallback?: boolean;
+                recursive?: boolean;
+                restoreDelta?: boolean;
+                user?: unknown;
+            }
+
             interface DatabaseUpdateOperation {
                 _result?: (string | object)[];
                 _updateData?: Record<string, object>;
@@ -154,12 +170,43 @@ declare namespace foundry {
                 render?: boolean;
                 updates: object[];
             }
+
+            interface DocumentClassMetadata {
+                    collection: string;
+                    compendiumIndexFields: string[];
+                    coreTypes: string[];
+                    embedded: Record<string, string>;
+                    hasTypeData: boolean;
+                    indexed: boolean;
+                    label: string;
+                    name: string;
+                    permissions: Record<
+                        "update" | "delete" | "view" | "create",
+                        | "INHERIT"
+                        | "NONE"
+                        | "LIMITED"
+                        | "OBSERVER"
+                        | "OWNER"
+                        | "PLAYER"
+                        | "TRUSTED"
+                        | "ASSISTANT"
+                        | "GAMEMASTER"
+                        | DocumentPermissionTest
+                    >;
+                    preserveOnImport: string[];
+                    schemaVersion?: string;
+                }
+
+            type DocumentPermissionTest = (
+                    user: unknown, //actually BaseUser but I did not want to continue typing
+                    document: Document,
+                    data?: object
+            ) => boolean;
         }
     }
 
     namespace applications {
-        import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
-        import ApplicationTab = foundry.applications.types.ApplicationTab;
+
         namespace types {
             type ApplicationClickAction = (event: PointerEvent, target: HTMLElement) => Promise<void>;
             /**
@@ -271,14 +318,14 @@ declare namespace foundry {
             import ApplicationRenderContext = foundry.applications.types.ApplicationRenderContext;
             import FormDataExtended = foundry.applications.ux.FormDataExtended;
             import ApplicationTab = foundry.applications.types.ApplicationTab;
+            type DialogV2REnderOptions = foundry.applications.types.ApplicationConfiguration & foundry.DialogV2Configuration
 
             /**
              * Type declarations for applications. incomplete, copied at V13
              * @see https://foundryvtt.com/api/classes/foundry.applications.api.DialogV2.html
              */
-            export class DialogV2 extends ApplicationV2<ApplicationConfiguration & foundry.DialogV2Configuration> {
-                constructor(config: Partial<foundry.applications.types.ApplicationConfiguration &
-            foundry.DialogV2Configuration>);
+            class DialogV2 extends ApplicationV2<ApplicationConfiguration & foundry.DialogV2Configuration> {
+                constructor(config: Partial<DialogV2RenderOptions>);
 
                 static confirm(config: { content: string; rejectClose: boolean; modal: true }): Promise<boolean>;
 
@@ -295,7 +342,7 @@ declare namespace foundry {
              * Type declarations for applications. incomplete, copied at V13
              * @see https://foundryvtt.com/api/classes/foundry.applications.api.ApplicationV2.html
              */
-            export class ApplicationV2<
+            class ApplicationV2<
                 CONFIGURATION extends ApplicationConfiguration = ApplicationConfiguration,
                 RENDER_OPTIONS = ApplicationRenderOptions,
             > {
@@ -338,7 +385,7 @@ declare namespace foundry {
                 protected _prepareTabs(group: string): Record<string, ApplicationTab>;
             }
 
-            export class DocumentSheetV2 extends foundry.applications.api.ApplicationV2 {
+            class DocumentSheetV2 extends foundry.applications.api.ApplicationV2 {
                 constructor(options: any, ...args: any[]);
                 options: ApplicationConfiguration & DocumentSheetConfiguration;
                 get document(): FoundryDocument;
@@ -350,7 +397,7 @@ declare namespace foundry {
                 ): object;
             }
 
-            export const HandlebarsApplicationMixin: typeof HandlebarsApplicationMixinTyped;
+            const HandlebarsApplicationMixin: typeof HandlebarsApplicationMixinTyped;
         }
 
         namespace ux {
@@ -395,6 +442,7 @@ declare namespace foundry {
                 _processFormData(event: Event, form: HTMLFormElement, formData: unknown): object;
             }
         }
+
     }
 
     interface DragDropConfiguration {
@@ -405,5 +453,58 @@ declare namespace foundry {
         dragSelector?: null | string;
         dropSelector?: null | string;
         permissions?: Record<"dragstart" | "drop", (selector: string) => boolean>;
+    }
+    namespace documents {
+        import CombatHistoryData = foundry.documents.types.CombatHistoryData;
+
+        class Scene extends FoundryDocument {}
+
+        class Combat extends FoundryDocument {
+            readonly turns: Combatant[];
+            readonly current: CombatHistoryData;
+            combatants: Collection<Combatant>; //defineSchema field. not actually part of the API
+            /**The scene this {@link Combat} is linked to. Is `null` when the combat is globally available */
+            readonly scene: Scene | null; //defineSchema field. not actually part of the API
+            readonly turn: number; //defineSchema field. not actually part of the API
+            readonly round: number; //defineSchema field. not actually part of the API
+            get isActive(): boolean;
+            get started(): boolean;
+
+            startCombat(): Promise<this>;
+        }
+
+        class Combatant extends FoundryDocument {
+            get isDefeated(): boolean;
+            get combat(): Combat;
+            get visible(): boolean;
+            get token(): TokenDocument | null;
+
+            initiative: number | null; //defineSchema field. not actually part of the API
+            tokenId: string | null; //defineSchema field. not actually part of the API
+            actorId: string | null; //defineSchema field. not actually part of the API
+            sceneId: string | null; //defineSchema field. not actually part of the API
+        }
+
+        namespace types {
+            interface CombatHistoryData {
+                combatantId: string | null;
+                round: number | null;
+                tokenId: string | null;
+                turn: number | null;
+            }
+        }
+        namespace collections {
+            class CompendiumCollection {
+                metadata: Record<string | symbol | number, unknown>;
+                /**
+                 * The index of the compendium collection. That is, the reduced data set
+                 */
+                index: Collection<Record<string | symbol | number, unknown>>;
+                documentName: string;
+                name: string;
+                getIndex<T extends string>(options?: { fields?: T[] }): Promise<Collection<Record<T, unknown>>>;
+                get visible(): boolean;
+            }
+        }
     }
 }
