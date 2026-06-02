@@ -112,6 +112,15 @@
         }
     }
 
+    section[data-tab="status"] {
+        overflow-y: hidden;
+
+        .list-body {
+            max-height: calc(4 * 28px);
+            overflow-y: auto;
+        }
+    }
+
     &.sheet.item header {
         align-items: center;
     }
