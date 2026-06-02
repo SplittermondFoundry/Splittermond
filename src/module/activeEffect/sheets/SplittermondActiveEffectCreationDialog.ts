@@ -70,6 +70,7 @@ export class SplittermondActiveEffectCreationDialog {
                     const createData: Record<string, unknown> = {
                         ...data,
                         name: name || defaultName,
+                        origin: parent?.uuid ?? data.origin ?? "",
                     };
                     createData.type = selectedType;
 
