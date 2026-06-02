@@ -1,11 +1,8 @@
 import type {IModifier} from "module/modifiers";
 import type {ICostModifier} from "module/util/costs/spellCostManagement";
-import type {ModifierDataModel} from "./dataModel/ModifierDataModel";
-import type {InverseModifierDataModel} from "./dataModel/InverseModifierDataModel";
-import type {MultiplicativeModifierDataModel} from "./dataModel/MultiplicativeModifierDataModel";
-import type {CostModifierDataModel} from "./dataModel/CostModifierDataModel";
 import {SplittermondBaseActiveEffect} from "module/data/SplittermondBaseActiveEffect";
 import {and, isMember} from "module/util/util";
+import type {DataModelUpdateOptions, DatabaseUpdateOperation} from "module/api/foundryTypes";
 import {COST_MODIFIER_TYPES, type EffectType, MODIFIER_TYPES} from "./dataModel/effectTypes";
 
 export type { EffectType };
@@ -53,10 +50,7 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
      */
     get asModifier(): IModifier | null {
         if (isMember(MODIFIER_TYPES, this.type)) {
-            return this.system as unknown as
-                | ModifierDataModel
-                | InverseModifierDataModel
-                | MultiplicativeModifierDataModel;
+            return this.system as IModifier;
         }
         return null;
     }
@@ -67,9 +61,41 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
      */
     get asCostModifier(): ICostModifier | null {
         if (isMember(COST_MODIFIER_TYPES, this.type)) {
-            return this.system as CostModifierDataModel;
+            return this.system as ICostModifier;
         }
         return null;
+    }
+
+    updateSource(
+        data: object,
+        operation: DataModelUpdateOptions = {}
+    ): object{
+       return super.updateSource(data, this.#withForcedReplacementOnTypeChange(data, operation));
+    }
+
+    update(
+        data: object,
+        operation: Partial<Omit<DatabaseUpdateOperation, "updates">> = {}
+    ): Promise<FoundryDocument> {
+        return super.update(data, this.#withForcedReplacementOnTypeChange(data, operation));
+    }
+
+    #withForcedReplacementOnTypeChange(
+        data: object,
+        operation: DataModelUpdateOptions
+    ): DataModelUpdateOptions {
+        const type = this.#readType(data);
+        if (!type || type === this.type) return operation;
+        return {
+            ...operation,
+            recursive: false,
+        };
+    }
+
+    #readType(data: object): string | null {
+        if (!("type" in data)) return null;
+        const type = data.type;
+        return typeof type === "string" ? type : null;
     }
 
     /**
