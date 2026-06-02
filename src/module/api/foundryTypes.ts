@@ -2,10 +2,15 @@ import { DataModel } from "./DataModel";
 import type { FoundryApplication } from "./Application";
 import { MessageModeKey } from "./ChatMessage";
 import type {FoundryActiveEffect} from "module/api/ActiveEffect";
+import {foundry} from "module/api/foundry-types";
 
 export type FoundryCombat = foundry.documents.Combat;
 export type FoundryCombatant = foundry.documents.Combatant;
 export type FoundryScene = foundry.documents.Scene;
+
+export type DataModelUpdateOptions = foundry.abstract.types.DataModelUpdateOptions;
+export type DatabaseUpdateOperation = foundry.abstract.types.DatabaseUpdateOperation;
+
 
 export interface KeybindingActionConfig {
     editable?: KeybindingActionBinding[];
@@ -60,25 +65,6 @@ export interface User {
 export interface Socket {
     on: (key: string, callback: (data: unknown) => void) => void;
     emit: (key: string, object: object) => void;
-}
-
-export interface DatabaseUpdateOperation {
-    _result?: (string | object)[];
-    _updateData?: Record<string, object>;
-    action: "update";
-    broadcast: boolean;
-    diff?: boolean;
-    documentName: string;
-    dryRun?: boolean;
-    extractedImages?: Record<string, string>;
-    modifiedTime?: number;
-    noHook?: boolean;
-    pack: string | null;
-    parent?: FoundryDocument | null;
-    parentUuid?: string | null;
-    recursive?: boolean;
-    render?: boolean;
-    updates: object[];
 }
 
 export interface Hooks {
@@ -195,8 +181,6 @@ declare global {
         readonly effects: Collection<FoundryActiveEffect>;
         get sheet(): InstanceType<typeof FoundryApplication>;
 
-        updateSource(data: object): void;
-
         update(
             data: object,
             operation?: Partial<Omit<DatabaseUpdateOperation, "updates">>
@@ -268,96 +252,6 @@ export interface MergeObjectOptions {
     recursive?: boolean;
 }
 export interface CompendiumPacks extends Collection<foundry.documents.collections.CompendiumCollection> {}
-
-declare namespace foundry {
-    namespace documents {
-        import CombatHistoryData = foundry.documents.types.CombatHistoryData;
-
-        class Scene extends FoundryDocument {}
-
-        class Combat extends FoundryDocument {
-            readonly turns: Combatant[];
-            readonly current: CombatHistoryData;
-            combatants: Collection<Combatant>; //defineSchema field. not actually part of the API
-            /**The scene this {@link Combat} is linked to. Is `null` when the combat is globally available */
-            readonly scene: Scene | null; //defineSchema field. not actually part of the API
-            readonly turn: number; //defineSchema field. not actually part of the API
-            readonly round: number; //defineSchema field. not actually part of the API
-            get isActive(): boolean;
-            get started(): boolean;
-
-            startCombat(): Promise<this>;
-        }
-
-        class Combatant extends FoundryDocument {
-            get isDefeated(): boolean;
-            get combat(): Combat;
-            get visible(): boolean;
-            get token(): TokenDocument | null;
-
-            initiative: number | null; //defineSchema field. not actually part of the API
-            tokenId: string | null; //defineSchema field. not actually part of the API
-            actorId: string | null; //defineSchema field. not actually part of the API
-            sceneId: string | null; //defineSchema field. not actually part of the API
-        }
-
-        namespace types {
-            interface CombatHistoryData {
-                combatantId: string | null;
-                round: number | null;
-                tokenId: string | null;
-                turn: number | null;
-            }
-        }
-        namespace collections {
-            class CompendiumCollection {
-                metadata: Record<string | symbol | number, unknown>;
-                /**
-                 * The index of the compendium collection. That is, the reduced data set
-                 */
-                index: Collection<Record<string | symbol | number, unknown>>;
-                documentName: string;
-                name: string;
-                getIndex<T extends string>(options?: { fields?: T[] }): Promise<Collection<Record<T, unknown>>>;
-                get visible(): boolean;
-            }
-        }
-    }
-    namespace abstract {
-        namespace types {
-            interface DocumentClassMetadata {
-                collection: string;
-                compendiumIndexFields: string[];
-                coreTypes: string[];
-                embedded: Record<string, string>;
-                hasTypeData: boolean;
-                indexed: boolean;
-                label: string;
-                name: string;
-                permissions: Record<
-                    "update" | "delete" | "view" | "create",
-                    | "INHERIT"
-                    | "NONE"
-                    | "LIMITED"
-                    | "OBSERVER"
-                    | "OWNER"
-                    | "PLAYER"
-                    | "TRUSTED"
-                    | "ASSISTANT"
-                    | "GAMEMASTER"
-                    | DocumentPermissionTest
-                >;
-                preserveOnImport: string[];
-                schemaVersion?: string;
-            }
-            type DocumentPermissionTest = (
-                user: unknown, //actually BaseUser but I did not want to continue typing
-                document: Document,
-                data?: object
-            ) => boolean;
-        }
-    }
-}
 
 export declare class DataModelValidationFailure {
     public message: string;
