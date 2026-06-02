@@ -1,8 +1,7 @@
-import { DataModel } from "./DataModel";
-import type { FoundryApplication } from "./Application";
-import { MessageModeKey } from "./ChatMessage";
+import {DataModel} from "./DataModel";
+import type {FoundryApplication} from "./Application";
+import {MessageModeKey} from "./ChatMessage";
 import type {FoundryActiveEffect} from "module/api/ActiveEffect";
-import {foundry} from "module/api/foundry-types";
 
 export type FoundryCombat = foundry.documents.Combat;
 export type FoundryCombatant = foundry.documents.Combatant;

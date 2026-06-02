@@ -318,22 +318,22 @@ declare namespace foundry {
             import ApplicationRenderContext = foundry.applications.types.ApplicationRenderContext;
             import FormDataExtended = foundry.applications.ux.FormDataExtended;
             import ApplicationTab = foundry.applications.types.ApplicationTab;
-            type DialogV2REnderOptions = foundry.applications.types.ApplicationConfiguration & foundry.DialogV2Configuration
+            type FullDialogV2Config= foundry.applications.types.ApplicationConfiguration & foundry.DialogV2Configuration
 
             /**
              * Type declarations for applications. incomplete, copied at V13
              * @see https://foundryvtt.com/api/classes/foundry.applications.api.DialogV2.html
              */
-            class DialogV2 extends ApplicationV2<ApplicationConfiguration & foundry.DialogV2Configuration> {
-                constructor(config: Partial<DialogV2RenderOptions>);
+            class DialogV2 extends ApplicationV2<FullDialogV2Config> {
+                constructor(config: Partial<FullDialogV2Config>);
 
                 static confirm(config: { content: string; rejectClose: boolean; modal: true }): Promise<boolean>;
 
                 static prompt(
-                    config: Partial<ApplicationConfiguration & DialogV2Configuration & DialogV2WaitOptions>,
+                    config: Partial<FullDialogV2Config & DialogV2WaitOptions>,
                 ): Promise<unknown>;
 
-                render(options?: DialogV2RenderOptions): Promise<this>;
+                render(options?: boolean | ApplicationRenderOptions): Promise<this>;
 
                 get form(): null | HTMLFormElement;
             }
