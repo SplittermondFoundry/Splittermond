@@ -113,7 +113,7 @@
                 </div>
                 <ol class="list-body">
                     {{#each activeEffects}}
-                        <li class="list-item effect{{#if this.disabled}} effect-disabled{{/if}}{{#if this.fromItem}} effect-from-item{{/if}}" data-effect-id="{{this.id}}" data-effect-uuid="{{this.uuid}}">
+                        <li class="list-item effect draggable{{#if this.disabled}} effect-disabled{{/if}}{{#if this.fromItem}} effect-from-item{{/if}}" data-effect-id="{{this.id}}" data-effect-uuid="{{this.uuid}}" data-uuid="{{this.uuid}}">
                             <span class="name">{{this.name}}</span>
                             <span class="source">({{this.sourceName}})</span>
                             <div class="list-actions">
