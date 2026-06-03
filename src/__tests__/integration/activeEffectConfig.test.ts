@@ -14,9 +14,13 @@ import {evaluate as costEvaluate, of as costOf} from "module/modifiers/expressio
 import {CostModifier as Cost} from "module/util/costs/Cost";
 import {withActiveEffect, withActor} from "./fixtures";
 import {passesEventually} from "../util";
+import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
+import SplittermondItemSheet from "module/item/sheets/item-sheet";
 import type {ModifierDataModel} from "module/activeEffect/dataModel/ModifierDataModel";
 import type {InverseModifierDataModel} from "module/activeEffect/dataModel/InverseModifierDataModel";
 import type {CostModifierDataModel} from "module/activeEffect/dataModel/CostModifierDataModel";
+
+declare const Item: any;
 
 async function enterInSheet(sheet: SplittermondActiveEffectConfig, inputName: string, value: string) {
     await sheet.render(true);
@@ -409,6 +413,65 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 expect(whileActive).to.have.length(1);
                 expect(evaluate(whileActive[0].value)).to.equal(1);
             }));
+        });
+    });
+
+    describe("Active effect drag/drop", () => {
+        it(
+            "should drag an active effect between two actors",
+            withActor(
+                withActor(async (source, target) => {
+                    const [effect] = await source.createEmbeddedDocuments("ActiveEffect", [
+                        { name: "Drag Test Effect" },
+                    ]);
+                    const sourceSheet = await new SplittermondCharacterSheet({ document: source }).render({
+                        force: true,
+                    });
+                    const targetSheet = await new SplittermondCharacterSheet({ document: target }).render({
+                        force: true,
+                    });
+
+                    const dataTransfer = new DataTransfer();
+                    const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                    const dragStop = new DragEvent("drop", { dataTransfer });
+                    sourceSheet.element.querySelector(`[data-effect-id='${effect.id}']`)?.dispatchEvent(dragStart);
+                    targetSheet.element.dispatchEvent(dragStop);
+
+                    await passesEventually(() => {
+                        expect(target.effects.map((e: { name: string }) => e.name)).to.include("Drag Test Effect");
+                    });
+
+                    sourceSheet.close();
+                    targetSheet.close();
+                })
+            )
+        );
+
+        it("should drag an active effect between two items", async () => {
+            const sourceItem = await Item.create({ type: "weapon", name: "Drag Source Item" });
+            const targetItem = await Item.create({ type: "weapon", name: "Drag Target Item" });
+            try {
+                const [effect] = await sourceItem.createEmbeddedDocuments("ActiveEffect", [
+                    { name: "Drag Test Effect" },
+                ]);
+                const sourceSheet = await new SplittermondItemSheet({ document: sourceItem }).render({ force: true });
+                const targetSheet = await new SplittermondItemSheet({ document: targetItem }).render({ force: true });
+
+                const dataTransfer = new DataTransfer();
+                const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                const dragStop = new DragEvent("drop", { dataTransfer });
+                sourceSheet.element.querySelector(`[data-effect-id='${effect.id}']`)?.dispatchEvent(dragStart);
+                targetSheet.element.dispatchEvent(dragStop);
+
+                await passesEventually(() => {
+                    expect(targetItem.effects.map((e: { name: string }) => e.name)).to.include("Drag Test Effect");
+                });
+
+                sourceSheet.close();
+                targetSheet.close();
+            } finally {
+                await Item.deleteDocuments([sourceItem.id, targetItem.id]);
+            }
         });
     });
 }
