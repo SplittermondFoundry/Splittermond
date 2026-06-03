@@ -234,6 +234,19 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return context;
     }
 
+   /* async _onDragStart(event: DragEvent): Promise<void> {
+        const target = event.target instanceof HTMLElement ? event.target : null;
+        const effectId = target?.closest<HTMLElement>("[data-effect-id]")?.dataset.effectId;
+        if (effectId) {
+            const effect = this.item.effects.get(effectId);
+            if (effect) {
+                event.dataTransfer?.setData("text/plain", JSON.stringify({ type: "ActiveEffect", uuid: effect.uuid }));
+                return;
+            }
+        }
+        return super._onDragStart(event);
+    }*/
+
     protected async _onRender(context: ApplicationRenderContext, options: ApplicationRenderOptions): Promise<void> {
         await super._onRender(context, options);
         autoExpandInputs(this.element);

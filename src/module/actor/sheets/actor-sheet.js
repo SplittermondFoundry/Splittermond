@@ -158,7 +158,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 disabled: e.disabled,
                 sourceName: e.sourceName,
                 fromItem: e.parent !== this.actor,
-            }));
+                sort: e.sort ?? 0,
+            }))
+            .sort((a, b) => a.sort - b.sort);
 
         sheetData.combatTabs = {
             tabs: [
@@ -633,6 +635,18 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 event.currentTarget.style.borderImage = "";
             });
         });
+
+        this.element.querySelectorAll(".active-effects .list-item.effect").forEach((el) => {
+            el.addEventListener("dragover", (event) => {
+                event.preventDefault();
+                event.currentTarget.style.borderTop = "1px solid black";
+                event.currentTarget.style.borderImage = "none";
+            });
+            el.addEventListener("dragleave", (event) => {
+                event.currentTarget.style.borderTop = "";
+                event.currentTarget.style.borderImage = "";
+            });
+        });
     }
 
     _canDragStart() {
@@ -671,13 +685,12 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             if (!sourceItem) return;
             return this._onDropDocument(event, sourceItem);
         }
-
         if (event.dataTransfer) return super._onDrop(event);
     }
 
     /**
      * @param {HTMLElement} element
-     * @return {{value:any[],address:string,?field:string}}
+     * @return {{value:any[],address:string,field?:string}}
      */
     #getArray(element) {
         /**@type string*/
@@ -691,13 +704,17 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
      * @param {FoundryDocument} document
      * @returns {Promise<null|FoundryDocument>}
      */
-    async _onDropDocument(_e, document) {
+    async _onDropDocument(event, document) {
+        if (document.documentName === "ActiveEffect") {
+            const newDocument = await super._onDropDocument(event, document);
+            return newDocument.update({origin: this.actor.uuid})
+        }
         if (!this._hasValidItemType(document.type)) {
             const translatedType = foundryApi.localize(`TYPES.Item.${document.type}`);
             foundryApi.informUser("splittermond.applications.actorSheet.invalidItemType", { type: translatedType });
             return null;
         }
-        const newDocument = await super._onDropDocument(_e, document);
+        const newDocument = await super._onDropDocument(event, document);
         /* Assume that the Spell was configured when it was brought on the actor. Therefore, if a document has an actor, there
          * is no need to ask again. This is important e.g. for scrolls. In the end, what we want to catch here are spells from
          * a compendium that come with the 'arcanelore' skill but are actually supposed to be from a specific school, given in
@@ -756,6 +773,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         }
         return newDocument;
     }
+
     /**
      * Overwrite to determine what Items can be dropped on this actor
      * @param {ItemType} itemType
