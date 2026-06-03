@@ -22,7 +22,7 @@
             {{#if effects.length}}
                 <ol class="effects-list">
                     {{#each effects}}
-                        <li class="effect-card{{#if this.disabled}} effect-disabled{{/if}}"
+                        <li class="effect-card{{#if this.disabled}} effect-disabled{{/if}} draggable"
                             data-effect-id="{{this.id}}">
                             <div class="effect-card-content">
                                 <span class="effect-name">{{this.name}}</span>
