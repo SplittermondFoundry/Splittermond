@@ -811,8 +811,10 @@ export function modifierTest(context: QuenchBatchContext) {
                     weaponSpeed: 6,
                 }
             }
-            const [npcAttack, weapon]= await subject.createEmbeddedDocuments("Item", [npcAttackDefinition, weaponDefinition ]);
+            const documents = await subject.createEmbeddedDocuments("Item", [npcAttackDefinition, weaponDefinition ]);
 
+            const npcAttack = documents.find(d => d.type === "npcattack")!;
+            const weapon = documents.find(d => d.type === "weapon")!;
             subject.prepareBaseData();
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
