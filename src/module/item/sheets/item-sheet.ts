@@ -7,7 +7,8 @@ import {
 import { foundryApi } from "module/api/foundryApi.js";
 import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.js";
 import { splittermond } from "module/config/index.js";
-import { getSpellAvailabilityParser } from "module/item/availabilityParser";
+import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "module/item/availabilityParser";
+import type { ItemType } from "module/config/itemTypes";
 
 interface ItemSheetData {
     cssClass: string;
@@ -99,6 +100,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
 
     protected readonly localizer: Localizer;
     private itemSheetProperties: any[];
+    private availabilityParser: AvailabilityParser;
 
     constructor(
         options: any = {},
@@ -106,7 +108,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         localizer: Localizer = foundryApi,
         config: any = splittermond,
         private htmlEnricher = foundryApi.utils.enrichHtml,
-        private availabilityParser = getSpellAvailabilityParser(foundryApi, splittermond.skillGroups.magic)
+        availabilityParser: AvailabilityParser | null = null
     ) {
         const item = options.document;
         const displayProperties =
@@ -119,6 +121,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         super(options);
         this.localizer = localizer;
         this.itemSheetProperties = config.itemSheetProperties[this.item.type] || [];
+        this.availabilityParser = this.resolveParser(availabilityParser, this.item.type);
     }
 
     protected async _prepareContext(options: any): Promise<ApplicationRenderContext & SplittermondItemSheetData> {
@@ -233,4 +236,15 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         }
         return super._prepareSubmitData(event, form, formData, submitObject);
     }
+
+    private resolveParser(userSet: AvailabilityParser | null, itemType: ItemType) {
+        if (userSet) return userSet;
+        return itemType === "spell"
+            ? getSpellAvailabilityParser(foundryApi, splittermond.skillGroups.magic)
+            : getMasteryAvailabilityParser(foundryApi, splittermond.skillGroups.all);
+    }
 }
+
+type AvailabilityParser =
+    | ReturnType<typeof getSpellAvailabilityParser>
+    | ReturnType<typeof getMasteryAvailabilityParser>;

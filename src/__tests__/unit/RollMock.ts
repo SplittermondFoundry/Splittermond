@@ -21,7 +21,7 @@ class MockDie implements Die {
     }
 }
 
-class MockOperatorTerm implements OperatorTerm {
+export class MockOperatorTerm implements OperatorTerm {
     constructor(
         public operator: string,
         public _evaluated = false
@@ -32,7 +32,7 @@ class MockOperatorTerm implements OperatorTerm {
     }
 }
 
-class MockNumericTerm implements NumericTerm {
+export class MockNumericTerm implements NumericTerm {
     constructor(
         public number: number,
         public _evaluated = false

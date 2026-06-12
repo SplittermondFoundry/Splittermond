@@ -6,11 +6,7 @@ import { MasteryDataModel } from "../../item/dataModel/MasteryDataModel";
 const defaultLevel = 0;
 type SkillOption = { skill: string; level: number | null };
 type SelectedOption = Omit<SkillOption, "level"> & { level: number };
-/**
- * Parses a normalized availableIn string into an array of { skill, level } objects.
- * @param availableIn e.g. "athletics 3, swords 1"
- * @param allowedSkills Array of valid skill ids
- */
+
 export function parseAvailableIn(availableIn: string, allowedSkills: string[]): SkillOption[] {
     if (!availableIn) {
         return [];

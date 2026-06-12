@@ -3,9 +3,16 @@ import { expect } from "chai";
 import sinon, { SinonStub } from "sinon";
 import { DamageRoll } from "module/util/damage/DamageRoll.js";
 import { Die, FoundryRoll } from "module/api/Roll";
-import { createTestRoll, MockRoll, stubFoundryRoll, stubRollApi } from "../../../RollMock";
+import {
+    createTestRoll,
+    MockNumericTerm,
+    MockOperatorTerm,
+    MockRoll,
+    stubFoundryRoll,
+    stubRollApi,
+} from "../../../RollMock";
 import { ItemFeatureDataModel, ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
-import { foundryApi } from "../../../../../module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 
 describe("DamageRoll input optimization", () => {
     let sandbox: sinon.SinonSandbox;
@@ -111,6 +118,23 @@ describe("DamageRoll feature string parsing and stringifying", () => {
         mock.resetFormula();
         const roll = new DamageRoll(mock, ItemFeaturesModel.emptyFeatures());
         expect(roll.getDamageFormula()).to.equal("1W6 + 2 + 1W10");
+    });
+
+    it("should preserve multiplication operator in damage formula", () => {
+        const mock = createTestRoll("1d6", [6]);
+        mock.terms.push(new MockOperatorTerm("*"), new MockNumericTerm(2));
+        mock.resetFormula();
+        const roll = new DamageRoll(mock, ItemFeaturesModel.emptyFeatures());
+        expect(roll.getDamageFormula()).to.equal("1W6 * 2");
+    });
+
+    it("should append additive modifier to multiplicative damage formula", () => {
+        const mock = createTestRoll("1d6", [6]);
+        mock.terms.push(new MockOperatorTerm("*"), new MockNumericTerm(2));
+        mock.resetFormula();
+        const roll = new DamageRoll(mock, ItemFeaturesModel.emptyFeatures());
+        roll.increaseDamage(3);
+        expect(roll.getDamageFormula()).to.equal("1W6 * 2 + 3");
     });
 });
 

@@ -27,17 +27,6 @@ export default class SplittermondMasteryItem extends SplittermondItem {
     }
 
     /**
-     * @override
-     */
-    update(data, context) {
-        if ("availableIn" in data) {
-            data["system.availableIn"] = this.availabilityParser.toInternalRepresentation(data.availableIn);
-            delete data.availableIn;
-        }
-        return super.update(data, context);
-    }
-
-    /**
      * a list of nicely formatted tags, based on the mastery's availability
      * @returns {MasteryAvailabilityTag[]}
      */

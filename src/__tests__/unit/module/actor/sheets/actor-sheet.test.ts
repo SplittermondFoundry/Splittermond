@@ -17,7 +17,8 @@ declare const foundry: any;
 declare const global: any;
 
 describe("SplittermondActorSheet", () => {
-    let sandbox: sinon.SinonSandbox;
+    const sandbox = sinon.createSandbox();
+    let deleteFunctionStub: sinon.SinonStub;
     let sheet: SplittermondActorSheet;
     let superFunctionStub: sinon.SinonStub;
     const mockEvent = null as unknown as DragEvent; //DragEvent is not used in the tests
@@ -42,8 +43,8 @@ describe("SplittermondActorSheet", () => {
     }
 
     beforeEach(() => {
-        sandbox = sinon.createSandbox();
         superFunctionStub = sandbox.mock().callsFake((_e, doc) => doc);
+        deleteFunctionStub = sandbox.mock();
         sandbox.stub(foundryApi.utils, "mergeObject").callsFake((a, b) => ({ ...a, ...b }));
         Object.defineProperty(SplittermondBaseActorSheet.prototype, "_onDropDocument", {
             value: superFunctionStub,
@@ -53,16 +54,20 @@ describe("SplittermondActorSheet", () => {
 
         global.CONFIG = { splittermond: splittermond };
     });
-    afterEach(() => {
-        sandbox.restore();
-    });
+    afterEach(() => sandbox.restore());
 
     describe("Addition of a spell to actor", () => {
         let actorMock: any;
 
         beforeEach(() => {
             // Mock actor and foundryApi
-            actorMock = { name: "Test Actor", spells: [], items: [], id: "actor1" };
+            actorMock = {
+                name: "Test Actor",
+                spells: [],
+                items: [],
+                id: "actor1",
+                deleteEmbeddedDocuments: deleteFunctionStub,
+            };
             sheet = new SplittermondActorSheet({ document: actorMock });
 
             sandbox.stub(foundryApi, "localize").callsFake((s: string) => s);
@@ -193,6 +198,7 @@ describe("SplittermondActorSheet", () => {
 
             await sheet._onDropDocument(mockEvent, itemData);
 
+            expect(actorMock.deleteEmbeddedDocuments.callCount, "deleteEmbeddedDocuments call count").to.equal(1);
             expect(itemData.update.called).to.be.false;
             expect(itemData.system.skill).to.be.undefined;
         });
@@ -202,7 +208,13 @@ describe("SplittermondActorSheet", () => {
         let actorMock: any;
 
         beforeEach(() => {
-            actorMock = { name: "Test Actor", spells: [], items: [], id: "actor1" };
+            actorMock = {
+                name: "Test Actor",
+                spells: [],
+                items: [],
+                id: "actor1",
+                deleteEmbeddedDocuments: deleteFunctionStub,
+            };
             sheet = new SplittermondActorSheet({ document: actorMock });
 
             sandbox.stub(foundryApi, "localize").callsFake((s: string) => s);
@@ -257,13 +269,34 @@ describe("SplittermondActorSheet", () => {
             };
             const itemData = createDroppedItem(
                 "mastery",
-                new MasteryDataModel({ availableIn: "athletics 2, acrobatics 1" } as any)
+                new MasteryDataModel({ availableIn: "athletics, acrobatics", level: 1 } as any)
             );
 
             await sheet._onDropDocument(mockEvent, itemData);
 
+            expect(deleteFunctionStub.callCount, "deleteEmbeddedDocuments call count").to.equal(1);
             expect(itemData.update.called).to.be.false;
-            expect(itemData.system.skill).to.be.undefined;
+        });
+        it("should not prompt for skill selection if valid skill exists with non-empty availableIn", async () => {
+            let invocationCount = 0;
+            foundry.applications.api.DialogV2.prototype.render = function () {
+                invocationCount += 1;
+                return this.options.buttons
+                    .find((b: { action: string; callback: Function }) => b.action === "athletics")
+                    .callback();
+            };
+
+            const itemData = createDroppedItem(
+                "mastery",
+                new MasteryDataModel({ availableIn: "athletics, acrobatics", skill: "athletics", level: 2 } as any)
+            );
+
+            await sheet._onDropDocument(mockEvent, itemData);
+
+            expect(invocationCount).to.equal(0);
+            expect(superFunctionStub.called).to.be.true;
+            expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("athletics");
+            expect(superFunctionStub.lastCall.lastArg.system.level).to.equal(2);
         });
         it("should not prompt for skill selection if valid skill exists at empty available in", async () => {
             let invocationCount = 0;
