@@ -4,6 +4,9 @@
 
 - Zustandsstufen resultieren bei Schadensmodifikatoren nicht mehr in einer adddition der Zustandsstue auf den Modifikator.
   Anmerkung: Es wird weiterhin der evaluierte Modifikatorwert mit der Zustandsstufe multipliziert.
+- Der Fertigkeitsdialog wird nicht mehr angezeigt, wenn eine Fertigkeit bereits der Meisterschaft / dem Zauber zugeordnet ist
+- Ziehen einer Meisterschaft / eines Zaubers auf einen Akteur mit anschließendem Abbruch des Dialogs hinterlässt kein defektes Objekt mehr
+- Bei Meisterschaften mit Schwelle wird selbige bei konfigurierter Fertigkeit nicht mehr überschrieben, wenn sie auf einen Akteur gezogen wird.
 
 ## 14.1.0
 

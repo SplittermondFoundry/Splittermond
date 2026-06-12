@@ -668,7 +668,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 selectedSkill = { skill: parsed[0].skill, level: parsed[0].level ?? 0 };
             }
 
-            if (!selectedSkill) return;
+            if (!selectedSkill) {
+                return this.actor.deleteEmbeddedDocuments("Item", [newDocument.id]);
+            }
 
             await newDocument.update({ system: { skill: selectedSkill.skill, skillLevel: selectedSkill.level } });
         }
@@ -677,11 +679,11 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             const dialogTitle = foundryApi.localize("splittermond.chooseSkill");
             const parsed = parseAvailableIn(document.system?.availableIn ?? "", allowedSkills).map((s) => ({
                 ...s,
-                level: document.system.level ?? 1,
+                level: s.level ?? document.system.level ?? 1,
             }));
             let selectedSkill;
-            if (parsed.length === 0 && allowedSkills.includes(document.system?.skill)) {
-                selectedSkill = { skill: document.system.skill, level: document.system.skillLevel ?? 0 };
+            if (allowedSkills.includes(document.system?.skill)) {
+                selectedSkill = { skill: document.system.skill, level: document.system.level ?? 1 };
             } else if (parsed.length > 1) {
                 selectedSkill = await selectFromParsedSkills(parsed, dialogTitle);
             } else if (parsed.length === 0) {
@@ -689,7 +691,9 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             } else if (parsed.length === 1) {
                 selectedSkill = { skill: parsed[0].skill, level: parsed[0].level ?? 0 };
             }
-            if (!selectedSkill) return;
+            if (!selectedSkill) {
+                return this.actor.deleteEmbeddedDocuments("Item", [newDocument.id]);
+            }
 
             await newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
         }
