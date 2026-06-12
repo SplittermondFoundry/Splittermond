@@ -1,3 +1,10 @@
+## 14.1.1
+
+### Fixes
+
+- Zustandsstufen resultieren bei Schadensmodifikatoren nicht mehr in einer adddition der Zustandsstue auf den Modifikator.
+  Anmerkung: Es wird weiterhin der evaluierte Modifikatorwert mit der Zustandsstufe multipliziert.
+
 ## 14.1.0
 
 ### New features

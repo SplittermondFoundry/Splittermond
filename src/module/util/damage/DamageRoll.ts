@@ -39,9 +39,29 @@ export class DamageRoll {
     constructor(roll: FoundryRoll, features: ItemFeaturesModel) {
         this.backingRoll = roll;
         this._damageModifier = 0;
-        this.hasFinalNumericTerm = isNumericTerm(this.getLastTerm(roll));
-        this.baseModifier = this.hasFinalNumericTerm ? (this.getLastTerm(roll) as NumericTerm).number : 0;
+        const lastTermInfo = this.getAdditiveLastTerm(roll);
+        this.hasFinalNumericTerm = lastTermInfo.isAdditiveNumeric;
+        this.baseModifier = lastTermInfo.isAdditiveNumeric ? lastTermInfo.value : 0;
         this._features = features;
+    }
+
+    private getAdditiveLastTerm(roll: FoundryRoll): { isAdditiveNumeric: boolean; value: number } {
+        const lastTerm = this.getLastTerm(roll);
+        if (!isNumericTerm(lastTerm) || roll.terms.length < 3) {
+            if (isNumericTerm(lastTerm) && roll.terms.length === 1) {
+                return { isAdditiveNumeric: true, value: lastTerm.number };
+            }
+            return { isAdditiveNumeric: false, value: 0 };
+        }
+        const precedingOperator = roll.terms[roll.terms.length - 2];
+        if (
+            isOperatorTerm(precedingOperator) &&
+            (precedingOperator.operator === "+" || precedingOperator.operator === "-")
+        ) {
+            const value = precedingOperator.operator === "-" ? -lastTerm.number : lastTerm.number;
+            return { isAdditiveNumeric: true, value };
+        }
+        return { isAdditiveNumeric: false, value: 0 };
     }
 
     private getLastTerm(roll: FoundryRoll) {
@@ -64,10 +84,12 @@ export class DamageRoll {
             const lastOperator = lastOperand[0];
             const lastNumericTerm = lastOperand[1];
             if (isOperatorTerm(lastOperator) && isNumericTerm(lastNumericTerm)) {
-                lastOperator.operator = finalModificationValue > 0 ? "+" : "-";
-                lastNumericTerm.number = Math.abs(finalModificationValue);
-                roll.resetFormula();
-                return roll;
+                if (lastOperator.operator === "+" || lastOperator.operator === "-") {
+                    lastOperator.operator = finalModificationValue > 0 ? "+" : "-";
+                    lastNumericTerm.number = Math.abs(finalModificationValue);
+                    roll.resetFormula();
+                    return roll;
+                }
             }
         } else if (this.hasFinalNumericTerm && roll.terms.length == 1) {
             (this.getLastTerm(roll) as NumericTerm) /*follows from condition*/.number = finalModificationValue;
