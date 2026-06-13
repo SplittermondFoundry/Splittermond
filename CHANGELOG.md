@@ -1,3 +1,9 @@
+## 14.2.1
+
+### Fixes
+
+- Keine Validierungsfehler beim Validieren von Dokumenttypen in Hooks.
+
 ## 14.2.0
 
 ### New Features

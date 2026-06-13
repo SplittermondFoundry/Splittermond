@@ -1,6 +1,6 @@
 import { DamageEvent, DamageImplement } from "./DamageEvent";
 import SplittermondActor from "../../actor/actor";
-import { registerHook } from "module/hooks";
+import { documentValidator, registerHook } from "module/hooks";
 import { fields } from "module/data/SplittermondDataModel";
 
 export interface Immunity {
@@ -10,12 +10,12 @@ export interface Immunity {
 const present = { required: true, nullable: false } as const;
 
 const implementImmunityHook = registerHook("splittermond.damage.onImplementImmunity", () => [
-    new fields.EmbeddedDataField(SplittermondActor, present),
+    documentValidator(SplittermondActor),
     new fields.EmbeddedDataField(DamageImplement, present),
     new fields.ArrayField(new fields.AnyField(present), present),
 ]);
 const eventImmunityHook = registerHook("splittermond.damage.onEventImmunity", () => [
-    new fields.EmbeddedDataField(SplittermondActor, present),
+    documentValidator(SplittermondActor),
     new fields.EmbeddedDataField(DamageEvent, present),
     new fields.ArrayField(new fields.AnyField(present), present),
 ]);

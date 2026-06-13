@@ -2,10 +2,12 @@ import { ItemFeatureDataModel, ItemFeaturesModel } from "module/item/dataModel/p
 import { registerHook } from "module/hooks/registration";
 import { fields } from "module/data/SplittermondDataModel";
 import { settings } from "module/settings";
+import { documentValidator } from "module/hooks";
 
 const present = { required: true, nullable: false } as const;
+
 const itemFeaturePropagation = registerHook("splittermond.damage.onItemFeatureTransfer", () => [
-    new fields.ObjectField(present),
+    documentValidator(Object),
     new fields.EmbeddedDataField(ItemFeatureDataModel, present),
     new fields.SchemaField({ shouldPass: new fields.BooleanField(present) }, present),
 ]);

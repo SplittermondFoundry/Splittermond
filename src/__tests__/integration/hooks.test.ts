@@ -1,6 +1,7 @@
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import { registerHook } from "module/hooks/registration";
 import { initializeHooks } from "module/hooks";
+import { fields } from "module/data/SplittermondDataModel";
 
 declare const Hooks: any;
 declare const foundry: any;
@@ -22,10 +23,9 @@ export function hooksTest(context: QuenchBatchContext) {
 
         describe("registerHook with real Foundry Hooks", () => {
             it("should call subscribed listeners", () => {
-                const hook = registerHook(
-                    "splittermond.integCall",
-                    new foundry.data.fields.StringField({ required: true, nullable: false })
-                );
+                const hook = registerHook("splittermond.integCall", () => [
+                    new fields.StringField({ required: true, nullable: false }),
+                ]);
                 let received = "";
                 hook.subscribe((val: any) => {
                     received = val;
@@ -36,10 +36,9 @@ export function hooksTest(context: QuenchBatchContext) {
             });
 
             it("should support unsubscribe", () => {
-                const hook = registerHook(
-                    "splittermond.integUnsub",
-                    new foundry.data.fields.StringField({ required: true, nullable: false })
-                );
+                const hook = registerHook("splittermond.integUnsub", () => [
+                    new fields.StringField({ required: true, nullable: false }),
+                ]);
                 let callCount = 0;
                 const sub = hook.subscribe(() => {
                     callCount++;
@@ -52,10 +51,9 @@ export function hooksTest(context: QuenchBatchContext) {
             });
 
             it("should fire once listener only once", () => {
-                const hook = registerHook(
-                    "splittermond.integOnce",
-                    new foundry.data.fields.StringField({ required: true, nullable: false })
-                );
+                const hook = registerHook("splittermond.integOnce", () => [
+                    new fields.StringField({ required: true, nullable: false }),
+                ]);
                 let callCount = 0;
                 hook.once(() => {
                     callCount++;
@@ -67,10 +65,9 @@ export function hooksTest(context: QuenchBatchContext) {
             });
 
             it("should reject invalid params with HookParamValidationError", () => {
-                const hook = registerHook(
-                    "splittermond.integValid",
-                    new foundry.data.fields.NumberField({ required: true, nullable: false })
-                );
+                const hook = registerHook("splittermond.integValid", () => [
+                    new fields.NumberField({ required: true, nullable: false }),
+                ]);
                 expect(() => hook.call("not-a-number" as any)).to.throw("Failed to validate candidate");
             });
 
@@ -86,8 +83,8 @@ export function hooksTest(context: QuenchBatchContext) {
 
             it("should pass multiple params to listeners", () => {
                 const hook = registerHook("splittermond.integMulti", () => [
-                    new foundry.data.fields.StringField({ required: true, nullable: false }),
-                    new foundry.data.fields.NumberField({ required: true, nullable: false }),
+                    new fields.StringField({ required: true, nullable: false }),
+                    new fields.NumberField({ required: true, nullable: false }),
                 ]);
                 let receivedP1: any;
                 let receivedP2: any;
