@@ -7,7 +7,8 @@
 - Es gibt ein globales Register aller Splittermond Hooks, welches unter `game.splittermond.API.hooks` zu finden ist.
 
 ### Fixes
-- Durchdringung wird jetzt nur noch auf expliziten Wunsch an Schadensmodifikatoren vererbt. 
+
+- Durchdringung wird jetzt nur noch auf expliziten Wunsch an Schadensmodifikatoren vererbt.
 
 ## 14.1.1
 

@@ -1,5 +1,11 @@
+import type { DataField } from "module/data/SplittermondDataModel";
+
 type Subscriber = (...args: any[]) => { unsubscribe: () => void; id: number };
-type Registry = Record<string, Subscriber>;
+interface RegistryEntry {
+    on: Subscriber;
+    defineSchema: () => DataField[];
+}
+type Registry = Record<string, RegistryEntry>;
 
 let preInitQueue: Registry = {};
 let globalRegistry: Registry | null = null;
@@ -20,11 +26,11 @@ export function setGlobalHookRegister(ref: Registry | null) {
     preInitQueue = {};
 }
 
-export function addToRegistry(name: string, subscriber: Subscriber): boolean {
+export function addToRegistry(name: string, entry: RegistryEntry): boolean {
     const target = globalRegistry ?? preInitQueue;
     const isNew = !Object.prototype.hasOwnProperty.call(target, name);
     if (isNew) {
-        target[name] = subscriber;
+        target[name] = entry;
     }
     return isNew;
 }

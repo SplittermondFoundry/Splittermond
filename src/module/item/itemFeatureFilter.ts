@@ -22,7 +22,7 @@ function filter(carrier: object, feature: ItemFeatureDataModel): boolean {
 }
 
 settings
-    .registerBoolean("splittermond.settings.noDamageReductionOverrideFromItem", {
+    .registerBoolean("noDamageReductionOverrideFromItem", {
         choices: undefined,
         config: true,
         default: true,

@@ -2,8 +2,13 @@ import { afterEach, beforeEach, describe, it } from "mocha";
 import { expect } from "chai";
 import sinon, { type SinonSandbox } from "sinon";
 import { addToRegistry, setGlobalHookRegister } from "module/hooks/globalHookRegister";
+import type { DataField } from "module/data/SplittermondDataModel";
 
 const mockSubscriber = () => ({ unsubscribe: () => {}, id: 1 });
+const defineSchema = () => {
+    return [] as DataField[];
+};
+const mockEntry = { on: mockSubscriber, defineSchema };
 
 describe("globalHookRegister", () => {
     let sandbox: SinonSandbox;
@@ -21,17 +26,17 @@ describe("globalHookRegister", () => {
 
     describe("addToRegistry", () => {
         it("should return true for a new entry", () => {
-            expect(addToRegistry("newHook", mockSubscriber)).to.be.true;
+            expect(addToRegistry("newHook", mockEntry)).to.be.true;
         });
 
         it("should return false for a duplicate entry", () => {
-            addToRegistry("existingHook", mockSubscriber);
-            expect(addToRegistry("existingHook", mockSubscriber)).to.be.false;
+            addToRegistry("existingHook", mockEntry);
+            expect(addToRegistry("existingHook", mockEntry)).to.be.false;
         });
 
         it("should add to preInitQueue when globalRegistry is null", () => {
             setGlobalHookRegister(null);
-            addToRegistry("queuedHook", mockSubscriber);
+            addToRegistry("queuedHook", mockEntry);
             const registry: Record<string, any> = {};
             setGlobalHookRegister(registry);
             expect(registry).to.have.property("queuedHook");
@@ -40,14 +45,14 @@ describe("globalHookRegister", () => {
         it("should add to globalRegistry when it is set", () => {
             const registry: Record<string, any> = {};
             setGlobalHookRegister(registry);
-            addToRegistry("directHook", mockSubscriber);
+            addToRegistry("directHook", mockEntry);
             expect(registry).to.have.property("directHook");
         });
 
         it("should store the subscriber function", () => {
             const registry: Record<string, any> = {};
             setGlobalHookRegister(registry);
-            const sub = mockSubscriber;
+            const sub = mockEntry;
             addToRegistry("storedHook", sub);
             expect(registry["storedHook"]).to.equal(sub);
         });
@@ -56,7 +61,7 @@ describe("globalHookRegister", () => {
     describe("setGlobalHookRegister", () => {
         it("should flush preInitQueue entries into the provided registry", () => {
             setGlobalHookRegister(null);
-            addToRegistry("flushedHook", mockSubscriber);
+            addToRegistry("flushedHook", mockEntry);
             const registry: Record<string, any> = {};
             setGlobalHookRegister(registry);
             expect(registry).to.have.property("flushedHook");
@@ -64,7 +69,7 @@ describe("globalHookRegister", () => {
 
         it("should clear preInitQueue after flushing", () => {
             setGlobalHookRegister(null);
-            addToRegistry("onceFlushed", mockSubscriber);
+            addToRegistry("onceFlushed", mockEntry);
             setGlobalHookRegister({});
             const secondRegistry: Record<string, any> = {};
             setGlobalHookRegister(secondRegistry);
@@ -74,7 +79,7 @@ describe("globalHookRegister", () => {
         it("should log error when flush encounters duplicate name", () => {
             const consoleErrorSpy = sandbox.spy(console, "error");
             setGlobalHookRegister(null);
-            addToRegistry("dupHook", mockSubscriber);
+            addToRegistry("dupHook", mockEntry);
             const registry: Record<string, any> = { dupHook: mockSubscriber };
             setGlobalHookRegister(registry);
             expect(consoleErrorSpy.calledOnce).to.be.true;
@@ -83,7 +88,7 @@ describe("globalHookRegister", () => {
 
         it("should clear preInitQueue when called with null", () => {
             setGlobalHookRegister(null);
-            addToRegistry("shouldBeCleared", mockSubscriber);
+            addToRegistry("shouldBeCleared", mockEntry);
             setGlobalHookRegister(null);
             const registry: Record<string, any> = {};
             setGlobalHookRegister(registry);
@@ -92,9 +97,9 @@ describe("globalHookRegister", () => {
 
         it("should flush multiple queued entries", () => {
             setGlobalHookRegister(null);
-            addToRegistry("hook1", mockSubscriber);
-            addToRegistry("hook2", mockSubscriber);
-            addToRegistry("hook3", mockSubscriber);
+            addToRegistry("hook1", mockEntry);
+            addToRegistry("hook2", mockEntry);
+            addToRegistry("hook3", mockEntry);
             const registry: Record<string, any> = {};
             setGlobalHookRegister(registry);
             expect(registry).to.have.property("hook1");

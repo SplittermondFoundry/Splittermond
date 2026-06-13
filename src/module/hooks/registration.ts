@@ -54,14 +54,14 @@ export function registerHook<
 ): ValidatedHook<InstancedType<P1>, InstancedType<P2>, InstancedType<P3>>;
 /**
  * @param hookName the ID under which the hook is registered. Must be scoped to this module.
- * @param defineValidators a generator for
+ * @param defineSchema a generator the types of the invocation arguments of the hook. Deferred, because types only work properly once foundry is ready
  */
 export function registerHook(
     hookName: `splittermond.${string}`,
-    defineValidators: () => (DataField<any, any, any> | undefined)[] = () => []
+    defineSchema: () => DataField<any, any, any>[] = () => []
 ) {
     function call(...args: unknown[]) {
-        defineValidators().forEach((v, i) => validate(args[i], v!));
+        defineSchema().forEach((v, i) => validate(args[i], v));
         return foundryApi.hooks.call(hookName, ...args);
     }
     function subscribe(listener: (...args: unknown[]) => boolean | void) {
@@ -74,7 +74,7 @@ export function registerHook(
     function once(listener: (...args: unknown[]) => boolean | void) {
         return foundryApi.hooks.once(hookName, listener);
     }
-    if (!addToRegistry(hookName.substring(hookName.indexOf(".") + 1), subscribe)) {
+    if (!addToRegistry(hookName.substring(hookName.indexOf(".") + 1), { on: subscribe, defineSchema })) {
         throw new Error(`${hookName} already registered`);
     }
     return { call, subscribe, once };
