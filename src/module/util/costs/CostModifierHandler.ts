@@ -1,13 +1,13 @@
-import {normalizeDescriptor} from "module/modifiers/parsing/normalizer";
-import {ICostModifier} from "module/util/costs/spellCostManagement";
-import {times as timesCost} from "module/modifiers/expressions/cost";
-import {type Expression, of, times} from "module/modifiers/expressions/scalar";
-import type {FocusModifier, Value} from "module/modifiers/parsing";
-import {ModifierHandler, type ModifierType} from "module/modifiers";
-import {makeConfig} from "module/modifiers/ModifierConfig";
-import type {IModifierSource} from "module/modifiers/IModifierSource";
-import {splittermond} from "module/config";
-import {isMember} from "module/util/util";
+import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
+import { ICostModifier } from "module/util/costs/spellCostManagement";
+import { times as timesCost } from "module/modifiers/expressions/cost";
+import { type Expression, of, times } from "module/modifiers/expressions/scalar";
+import type { FocusModifier, Value } from "module/modifiers/parsing";
+import { ModifierHandler, type ModifierType } from "module/modifiers";
+import { makeConfig } from "module/modifiers/ModifierConfig";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
+import { splittermond } from "module/config";
+import { isMember } from "module/util/util";
 
 type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
 
@@ -101,10 +101,10 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     }
 }
 
-function hasSystemSkill(input:object): input is {system:{skill:string}}{
+function hasSystemSkill(input: object): input is { system: { skill: string } } {
     return hasSystem(input) && hasSkill(input.system);
 }
-function hasSystem(input: object): input is {system:object}{
+function hasSystem(input: object): input is { system: object } {
     return "system" in input && typeof input.system == "object" && !Array.isArray(input.system);
 }
 

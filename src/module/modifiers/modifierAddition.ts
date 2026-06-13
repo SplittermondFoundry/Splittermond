@@ -107,11 +107,18 @@ export function initAddModifier(
 
             /**Deprecated*/
             const modifierLabel = modifier.path.toLowerCase();
-                    //mainly for internal modifiers.
-                    modifiers.push({
-                        modifier: createModifier(modifierLabel, times(of(multiplier), modifier.value), item, type, {}, actorProvider),
-                        rawFragment,
-                    });
+            //mainly for internal modifiers.
+            modifiers.push({
+                modifier: createModifier(
+                    modifierLabel,
+                    times(of(multiplier), modifier.value),
+                    item,
+                    type,
+                    {},
+                    actorProvider
+                ),
+                rawFragment,
+            });
         });
         // Only display errors to the GM or the owner of the item
         // Otherwise players might get spoilers
@@ -126,7 +133,7 @@ function createModifier(
     item: IModifierSource,
     type: ModifierType,
     attributes: Record<string, string> = {},
-    actorProvider?: ActorProvider,
+    actorProvider?: ActorProvider
 ): IModifier {
     return Modifier.create(
         path,
@@ -136,6 +143,6 @@ function createModifier(
             type,
         },
         !!attributes.emphasis,
-        actorProvider,
+        actorProvider
     );
 }

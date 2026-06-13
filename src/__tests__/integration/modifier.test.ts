@@ -814,23 +814,23 @@ export function modifierTest(context: QuenchBatchContext) {
                     attribute1: "strength",
                     attribute2: "agility",
                     weaponSpeed: 6,
-                }
-            }
-            const documents = await subject.createEmbeddedDocuments("Item", [npcAttackDefinition, weaponDefinition ]);
+                },
+            };
+            const documents = await subject.createEmbeddedDocuments("Item", [npcAttackDefinition, weaponDefinition]);
 
-            const npcAttack = documents.find(d => d.type === "npcattack")!;
-            const weapon = documents.find(d => d.type === "weapon")!;
+            const npcAttack = documents.find((d) => d.type === "npcattack")!;
+            const weapon = documents.find((d) => d.type === "weapon")!;
             subject.prepareBaseData();
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
-            const findAttack = (id: string)=> subject.attacks.find((a) => a.toObject().id === id);
+            const findAttack = (id: string) => subject.attacks.find((a) => a.toObject().id === id);
 
-            expect(findAttack(npcAttack.id)?.skill.value,"unexpected npc attack skill").to.equal(
+            expect(findAttack(npcAttack.id)?.skill.value, "unexpected npc attack skill").to.equal(
                 npcAttackDefinition.system.skillValue - 1
             );
             expect(findAttack(weapon.id)?.skill.value, "unexpected weapon skill").to.equal(4);
         });
-""
+        ("");
         it("should modify npc attack values", async () => {
             const subject = await defaultActor("Attacking NPC", "npcattacks -1");
             const npcAttackDefinition = {
@@ -952,7 +952,13 @@ export function modifierTest(context: QuenchBatchContext) {
             //is (1*14 + |-4|/1) - (2*3 + 1)
             const expression = minus(
                 plus(times(roll(foundryApi.roll("1d1")), of(14)), dividedBy(abs(of(-4)), roll(foundryApi.roll("1d1")))),
-                plus(times(of(2), ref("value", () => ({ value: 3 }) as any, "value")), ref("value", () => ({ value: 1 }) as any, "value"))
+                plus(
+                    times(
+                        of(2),
+                        ref("value", () => ({ value: 3 }) as any, "value")
+                    ),
+                    ref("value", () => ({ value: 1 }) as any, "value")
+                )
             );
 
             const rollFormula = toRollFormula(expression);
@@ -1163,23 +1169,24 @@ export function modifierTest(context: QuenchBatchContext) {
     describe("Item modifiers", () => {
         it("should account for modifications to weapons", async () => {
             const subject = await createActor("WeaponizedCharacter");
-            await subject.update({system: {
-                attributes: {
-                    agility: {
-                        initial: 2,
-                        advances: 0,
+            await subject.update({
+                system: {
+                    attributes: {
+                        agility: {
+                            initial: 2,
+                            advances: 0,
+                        },
+                        strength: {
+                            initial: 2,
+                            advances: 0,
+                        },
                     },
-                    strength: {
-                        initial: 2,
-                        advances: 0,
-                    }
+                    skills: {
+                        ...subject.system.skills,
+                        blades: { points: 2, value: 6 },
+                    },
                 },
-                skills: {
-                    ...subject.system.skills,
-                    blades: { points: 2, value: 6 },
-                }
-
-            }});
+            });
             await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "weapon",
@@ -1219,7 +1226,8 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should account for modifications to shields", async () => {
             const subject = await createActor("WeaponizedCharacter");
-            await subject.update({system: {
+            await subject.update({
+                system: {
                     attributes: {
                         agility: {
                             initial: 2,
@@ -1228,14 +1236,14 @@ export function modifierTest(context: QuenchBatchContext) {
                         strength: {
                             initial: 2,
                             advances: 0,
-                        }
+                        },
                     },
                     skills: {
                         ...subject.system.skills,
                         blades: { points: 2, value: 6 },
-                    }
-
-                }});
+                    },
+                },
+            });
             await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "weapon",
@@ -1284,9 +1292,11 @@ export function modifierTest(context: QuenchBatchContext) {
     });
 
     describe("Active effects from items are recognized exactly once", () => {
-        it("should apply a skill modifier",
+        it(
+            "should apply a skill modifier",
             withActor(async (subject) => {
-                await subject.update({system: {
+                await subject.update({
+                    system: {
                         attributes: {
                             intuition: {
                                 initial: 2,
@@ -1295,9 +1305,10 @@ export function modifierTest(context: QuenchBatchContext) {
                             mind: {
                                 initial: 3,
                                 advances: 0,
-                            }
+                            },
                         },
-                    }});
+                    },
+                });
                 // Base empathy = intuition(2) + charisma(3) + points(0) = 5; with +2 modifier → expected 7, not 9
                 const [item] = await subject.createEmbeddedDocuments("Item", [
                     { type: "statuseffect", name: "Begabung", system: { modifier: "", level: 1 } },
@@ -1320,9 +1331,11 @@ export function modifierTest(context: QuenchBatchContext) {
             })
         );
 
-        it("should apply a woundmalus.mod modifier",
+        it(
+            "should apply a woundmalus.mod modifier",
             withActor(async (subject) => {
-                await subject.update({system: {
+                await subject.update({
+                    system: {
                         attributes: {
                             constitution: {
                                 initial: 2,
@@ -1331,9 +1344,10 @@ export function modifierTest(context: QuenchBatchContext) {
                             agility: {
                                 initial: 3,
                                 advances: 0,
-                            }
+                            },
                         },
-                    }});
+                    },
+                });
                 // woundmalus.mod +2 shifts every wound threshold value by +2 (i.e. reduces severity)
                 // If applied twice, woundMalusMod would be 4 instead of 2
                 const [item] = await subject.createEmbeddedDocuments("Item", [
