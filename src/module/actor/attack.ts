@@ -24,6 +24,7 @@ import type { SplittermondAttribute } from "module/config/attributes";
 import type { DamageType } from "module/config/damageTypes";
 import type { CostType } from "module/util/costs/costTypes";
 import { isMember } from "module/util/util";
+import { filterFeatures } from "module/item/itemFeatureFilter";
 
 type Options<T extends object> = { [K in keyof T]+?: T[K] | null | undefined };
 
@@ -265,7 +266,10 @@ export default class Attack {
             .withAttributeValuesOrAbsent("skill", this.skill.id)
             .getModifiers()
             .map((m) => {
-                const features = mergeFeatures(ItemFeaturesModel.from(m.attributes.features ?? ""), this.featuresAsRef);
+                const features = mergeFeatures(
+                    ItemFeaturesModel.from(m.attributes.features ?? ""),
+                    filterFeatures(this.item, this.featuresAsRef)
+                );
                 return {
                     damageExpression: m.value,
                     features: features,

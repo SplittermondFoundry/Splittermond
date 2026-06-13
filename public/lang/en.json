@@ -124,6 +124,10 @@
             "name": "Reducable Spell Enhancement Costs",
             "hint": "Permits the reduction of enhancement costs by using degrees of success"
         },
+        "noDamageReductionOverrideFromItem": {
+            "name": "Uninheritable Penetration",
+            "hint": "Attacks and spell with feature 'Penetration' do not bequeath it to damage modifiers that affect the respective item."
+        },
         "HGMultiplier": {
             "name": "Hero level multiplier",
             "hint": "Multiplier for calculating skill points and attribute modifiers."
@@ -249,5 +253,4 @@
     "COMBAT": {
         "Round": "Tick {round}"
     }
-}
 }
