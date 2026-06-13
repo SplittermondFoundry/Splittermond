@@ -25,7 +25,12 @@ describe("ActorModifierHandlers", () => {
         const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate", of(1));
         item.name = "Test Item";
 
-        const result = underTest.processModifier({ path: "athletics", rawFragment: "athletics +3", attributes: {}, value: of(3) })[0];
+        const result = underTest.processModifier({
+            path: "athletics",
+            rawFragment: "athletics +3",
+            attributes: {},
+            value: of(3),
+        })[0];
         expect(result.groupId).to.equal("athletics");
         expect(condense(result.value)).to.deep.equal(of(3));
         expect(result.attributes.name).to.equal("Test Item");
@@ -58,7 +63,12 @@ describe("ActorModifierHandlers", () => {
         const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate", of(1));
         item.name = "Test Item";
 
-        const result = underTest.processModifier({ path: "athletics", rawFragment: "athletics +0", attributes: {}, value: of(0) });
+        const result = underTest.processModifier({
+            path: "athletics",
+            rawFragment: "athletics +0",
+            attributes: {},
+            value: of(0),
+        });
         expect(result).to.be.empty;
         expect(errorLogger.called).to.be.false;
     });
@@ -70,7 +80,12 @@ describe("ActorModifierHandlers", () => {
         const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate", of(2));
         item.name = "Test Item";
 
-        const result = underTest.processModifier({ path: "athletics", rawFragment: "athletics +3", attributes: {}, value: of(3) })[0];
+        const result = underTest.processModifier({
+            path: "athletics",
+            rawFragment: "athletics +3",
+            attributes: {},
+            value: of(3),
+        })[0];
         expect(result.groupId).to.equal("athletics");
         expect(condense(result.value)).to.deep.equal(of(6));
         expect(result.attributes.name).to.equal("Test Item");

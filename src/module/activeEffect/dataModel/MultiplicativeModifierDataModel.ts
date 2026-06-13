@@ -1,7 +1,7 @@
-import {DataModelSchemaType} from "../../data/SplittermondDataModel";
-import {SplittermondActiveEffectDataModel} from "../../data/SplittermondActiveEffectDataModel";
-import type {IModifier, ModifierAttributes} from "module/modifiers";
-import type {TooltipFormula} from "module/util/tooltip";
+import { DataModelSchemaType } from "../../data/SplittermondDataModel";
+import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
+import type { IModifier, ModifierAttributes } from "module/modifiers";
+import type { TooltipFormula } from "module/util/tooltip";
 import {
     abs,
     asString,
@@ -11,13 +11,13 @@ import {
     isLessThan,
     of,
 } from "module/modifiers/expressions/scalar";
-import {deserialize, serialize} from "module/modifiers/expressions/scalar/serialization";
-import type {DataModelConstructorInput} from "module/api/DataModel";
-import {modifierSchema} from "./modifierSchema";
-import type {EffectType} from "./effectTypes";
-import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
-import {UnboundWarner} from "module/activeEffect/dataModel/UnboundWarner";
-import {SplittermondActiveEffect} from "module/activeEffect";
+import { deserialize, serialize } from "module/modifiers/expressions/scalar/serialization";
+import type { DataModelConstructorInput } from "module/api/DataModel";
+import { modifierSchema } from "./modifierSchema";
+import type { EffectType } from "./effectTypes";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
+import { SplittermondActiveEffect } from "module/activeEffect";
 
 export type MultiplicativeModifierDataModelType = DataModelSchemaType<typeof modifierSchema>;
 
@@ -26,20 +26,21 @@ export type MultiplicativeModifierDataModelType = DataModelSchemaType<typeof mod
  * A bonus when value > 1, a malus when value < 1.
  */
 export class MultiplicativeModifierDataModel
-    extends UnboundWarner(SplittermondActiveEffectDataModel<MultiplicativeModifierDataModelType, SplittermondActiveEffect>)
+    extends UnboundWarner(
+        SplittermondActiveEffectDataModel<MultiplicativeModifierDataModelType, SplittermondActiveEffect>
+    )
     implements IModifier
 {
     static defineSchema() {
         return { ...super.defineSchema(), ...modifierSchema() };
     }
 
-
     readonly value: Expression;
 
     constructor(data: DataModelConstructorInput<MultiplicativeModifierDataModelType>, context: unknown) {
         super(data, context);
         const actorProvider: ActorProvider | undefined = (context as any)?.actorProvider;
-        this.value = deserialize(this.serializedValue, actorProvider, this.produceIssueWarning() );
+        this.value = deserialize(this.serializedValue, actorProvider, this.produceIssueWarning());
     }
 
     static create(
@@ -47,7 +48,7 @@ export class MultiplicativeModifierDataModel
         value: Expression,
         attributes: ModifierAttributes,
         selectable = false,
-        actorProvider?: ActorProvider,
+        actorProvider?: ActorProvider
     ): MultiplicativeModifierDataModel {
         return new MultiplicativeModifierDataModel(
             MultiplicativeModifierDataModel.init(groupId, value, attributes, selectable),

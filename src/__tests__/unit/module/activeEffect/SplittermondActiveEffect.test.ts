@@ -1,12 +1,11 @@
-import {describe, it} from "mocha";
-import {expect} from "chai";
-import {type EffectType, SplittermondActiveEffect} from "module/activeEffect/SplittermondActiveEffect";
-import type {IModifier} from "module/modifiers";
-import type {ICostModifier} from "module/util/costs/spellCostManagement";
-import sinon, {type SinonSandbox} from "sinon";
+import { describe, it } from "mocha";
+import { expect } from "chai";
+import { type EffectType, SplittermondActiveEffect } from "module/activeEffect/SplittermondActiveEffect";
+import type { IModifier } from "module/modifiers";
+import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import sinon, { type SinonSandbox } from "sinon";
 import SplittermondItem from "module/item/item";
-import {FoundryActiveEffect} from "module/api/ActiveEffect";
-
+import { FoundryActiveEffect } from "module/api/ActiveEffect";
 
 interface EffectOverrides {
     type: EffectType;
@@ -14,7 +13,7 @@ interface EffectOverrides {
     disabled?: boolean;
     isSuppressed?: boolean;
     item?: SplittermondItem | null;
-        }
+}
 
 function createEffect(sandbox: SinonSandbox, overrides: EffectOverrides) {
     const effect = sandbox.createStubInstance(SplittermondActiveEffect);
@@ -289,7 +288,9 @@ describe("SplittermondActiveEffect", () => {
                 system: mockModifier({ groupId: "blocked.path" }),
             });
 
-            const filtered = SplittermondActiveEffect.withFilter((effect) => effect.asModifier?.groupId !== "blocked.path");
+            const filtered = SplittermondActiveEffect.withFilter(
+                (effect) => effect.asModifier?.groupId !== "blocked.path"
+            );
             const result = filtered.getModifiers([allowed, blocked]);
 
             expect(result).to.have.length(1);
@@ -332,7 +333,9 @@ describe("SplittermondActiveEffect", () => {
                 system: mockCostModifier({ label: "blocked" }),
             });
 
-            const filtered = SplittermondActiveEffect.withFilter((effect) => effect.asCostModifier?.label !== "blocked");
+            const filtered = SplittermondActiveEffect.withFilter(
+                (effect) => effect.asCostModifier?.label !== "blocked"
+            );
             const result = filtered.getCostModifiers([allowed, blocked]);
 
             expect(result).to.have.length(1);

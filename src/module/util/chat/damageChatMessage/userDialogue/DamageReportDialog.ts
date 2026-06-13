@@ -4,7 +4,7 @@ import { Renderer } from "./Renderer";
 import { foundryApi } from "../../../../api/foundryApi";
 import { CostType, isCostType } from "../../../costs/costTypes";
 import SplittermondActor from "../../../../actor/actor";
-import type {RenderOptions} from "module/data/SplittermondApplication";
+import type { RenderOptions } from "module/data/SplittermondApplication";
 
 type UserAction = "cancel" | "apply" | "skip" | null;
 export type UserAdjustments = ReturnType<DamageReportDialog["getUserAdjustments"]>;
