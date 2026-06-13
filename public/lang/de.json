@@ -705,6 +705,10 @@
                 "name": "Reduzible Zauberverstärkungskosten",
                 "hint": "Erlaubt die Reduzierung der Verstärkungskosten durch die Verwendung von Erfolgsgraden."
             },
+            "noDamageReductionOverrideFromItem": {
+                "name": "Unvererbliche Durchdringung",
+                "hint": "Angriffe und Zauber mit Merkmal 'Durchdringend' vererben dieses nicht an Schadenswirkungen, die aus, das Objekt betreffenden Modifikatoren stammen."
+            },
             "theme": {
                 "name": "UI-Theme",
                 "hint": "Wähle eine UI-Design",

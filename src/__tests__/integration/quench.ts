@@ -14,6 +14,7 @@ import { foundryKeybindingsTest } from "./api/keybindings.test";
 import { combatTest } from "./combat.test";
 import { apiConstantsTest } from "./apiConstants.test";
 import { cssVariablesTest } from "./api/cssVariables.test";
+import { hooksTest } from "./hooks.test";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}
@@ -36,6 +37,7 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.modifier", modifierTest);
     quench.registerBatch("splittermond.keybindings", foundryKeybindingsTest);
     quench.registerBatch("splittermond.cssVariables", cssVariablesTest);
+    quench.registerBatch("splittermond.hooks", hooksTest);
 }
 
 export function init() {

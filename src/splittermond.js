@@ -31,6 +31,7 @@ import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel";
 import { getTimeUnitConversion } from "module/util/util.js";
 import { initializeChecks } from "module/check/index.js";
+import { initializeHooks, registerHook } from "module/hooks/index.ts";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -67,9 +68,10 @@ function handlePdf(links) {
 }
 
 Hooks.once("ready", async function () {
+    const readyHook = registerHook("splittermond.ready");
     return Promise.all([initTickBarHud(game.splittermond), initTokenActionBar(game.splittermond)]).then(() => {
         console.log("Splittermond | Ready");
-        foundryApi.hooks.call("splittermond.ready");
+        readyHook.call();
     });
 });
 
@@ -92,8 +94,10 @@ Hooks.once("init", async function () {
             modifierRegistry: modifierModule.modifierRegistry,
             costModifierRegistry: modifierModule.costModifierRegistry,
         },
+        hooks: {},
         addTicks,
     };
+    initializeHooks(game.splittermond.API.hooks);
     initializeActor(CONFIG.Actor, modifierModule);
     initializeItem(CONFIG, modifierModule.modifierRegistry);
     initializeCosts(modifierModule.costModifierRegistry);

@@ -22,6 +22,7 @@ import {
 } from "../modifiers/expressions/scalar/index.js";
 import { toDisplayFormula } from "../util/damage/util";
 import { foundryApi } from "module/api/foundryApi.ts";
+import { filterFeatures } from "module/item/itemFeatureFilter.ts";
 
 /**
  * @extends SplittermondItem
@@ -154,7 +155,7 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
             .map((m) => {
                 const features = mergeFeatures(
                     ItemFeaturesModel.from(m.attributes.features ?? ""),
-                    this.system.features
+                    filterFeatures(this, this.system.features)
                 );
                 return {
                     damageRoll: DamageRoll.fromExpression(m.value, features),

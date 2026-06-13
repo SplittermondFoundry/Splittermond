@@ -95,6 +95,26 @@ const foundryApplicationSheets = {
     },
 };
 
+class DataModelValidationFailure {
+    message = "";
+
+    static from(message) {
+        const failure = new DataModelValidationFailure();
+        failure.message = message;
+        return failure;
+    }
+}
+function typeValidation(type) {
+    return function validate(value) {
+        if (this.options?.required && (value === undefined || value === null)) {
+            return DataModelValidationFailure.from("required");
+        }
+        if (value !== undefined && value !== null && typeof value !== type) {
+            return DataModelValidationFailure.from(`not a ${type}`);
+        }
+    };
+}
+
 global.foundry = {
     data: {
         fields: {
@@ -104,6 +124,8 @@ global.foundry = {
                 constructor(options) {
                     this.options = options;
                 }
+
+                validate = typeValidation("string");
             },
             NumberField: class {
                 options = null;
@@ -111,6 +133,8 @@ global.foundry = {
                 constructor(options) {
                     this.options = options;
                 }
+
+                validate = typeValidation("number");
             },
             ObjectField: class {
                 options = null;
@@ -118,6 +142,8 @@ global.foundry = {
                 constructor(options) {
                     this.options = options;
                 }
+
+                validate = typeValidation("object");
             },
             SchemaField: class {
                 /**@type object */ schema = null;
@@ -127,6 +153,7 @@ global.foundry = {
                     this.schema = schema;
                     this.options = options;
                 }
+                validate = typeValidation("object");
             },
             BooleanField: class {
                 /**@type unknown */ options = null;
@@ -134,6 +161,8 @@ global.foundry = {
                 constructor(options) {
                     this.options = options;
                 }
+
+                validate = typeValidation("boolean");
             },
             EmbeddedDataField: class {
                 /**@type function*/ type = null;
@@ -142,6 +171,30 @@ global.foundry = {
                 constructor(type, options) {
                     this.type = type;
                     this.options = options;
+                }
+
+                validate = typeValidation("object");
+            },
+            ArrayField: class {
+                /**@type function*/ type = null;
+                /**@type unknown */ options = null;
+
+                constructor(type, options) {
+                    this.type = type;
+                    this.options = options;
+                }
+
+                validate = typeValidation("object");
+            },
+            AnyField: class {
+                /**@type unknown */ options = null;
+
+                constructor(options) {
+                    this.options = options;
+                }
+
+                validate() {
+                    return true;
                 }
             },
         },

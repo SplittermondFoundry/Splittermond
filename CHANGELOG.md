@@ -1,3 +1,15 @@
+## 14.2.0
+
+### New Features
+
+- Es gibt jetzt eine Reihe von Hooks in der zentralen Probenverarbeitungsroutine (skill.roll)
+- Bei Schadensberechunung kann mittels Hook entschieden werden, welches Merkmal für modifikatoren gelten.
+- Es gibt ein globales Register aller Splittermond Hooks, welches unter `game.splittermond.API.hooks` zu finden ist.
+
+### Fixes
+
+- Durchdringung wird jetzt nur noch auf expliziten Wunsch an Schadensmodifikatoren vererbt.
+
 ## 14.1.1
 
 ### Fixes
