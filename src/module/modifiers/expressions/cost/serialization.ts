@@ -35,7 +35,11 @@ export function serialize(expression: CostExpression): SerializedCostExpression 
     throw new Error(`Splittermond | Cannot serialize unknown cost expression type: ${expression}`);
 }
 
-export function deserialize(data: SerializedCostExpression, provider?: ActorProvider, onUnbound?: () => void): CostExpression {
+export function deserialize(
+    data: SerializedCostExpression,
+    provider?: ActorProvider,
+    onUnbound?: () => void
+): CostExpression {
     const expression = deserializeInner(data);
     if (provider) {
         bindReferenceProviders(expression, provider, onUnbound);
@@ -48,10 +52,7 @@ function deserializeInner(data: SerializedCostExpression): CostExpression {
         case "amount":
             return new AmountExpression(new CostModifier(data.amount as any));
         case "reference":
-            return new ReferenceExpression(
-                data.propertyPath as string,
-                data.stringRep as string,
-            );
+            return new ReferenceExpression(data.propertyPath as string, data.stringRep as string);
         case "add":
             return new AddExpression(
                 deserializeInner(data.left as SerializedCostExpression),

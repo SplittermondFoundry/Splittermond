@@ -1,22 +1,22 @@
-import {parseFeatures} from "../dataModel/propertyModels/ItemFeaturesModel";
+import { parseFeatures } from "../dataModel/propertyModels/ItemFeaturesModel";
 import {
     ApplicationRenderContext,
     SplittermondBaseItemSheet,
     TEMPLATE_BASE_PATH,
 } from "module/data/SplittermondApplication";
-import {foundryApi} from "module/api/foundryApi.js";
-import {autoExpandInputs, changeValue} from "module/util/commonHtmlHandlers.js";
-import {splittermond} from "module/config/index.js";
-import {getMasteryAvailabilityParser, getSpellAvailabilityParser} from "module/item/availabilityParser";
-import {addModifierEffects} from "module/activeEffect/effectBuilder";
-import type {ItemType} from "module/config/itemTypes";
-import {SplittermondActiveEffect } from "module/activeEffect";
+import { foundryApi } from "module/api/foundryApi.js";
+import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.js";
+import { splittermond } from "module/config/index.js";
+import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "module/item/availabilityParser";
+import { addModifierEffects } from "module/activeEffect/effectBuilder";
+import type { ItemType } from "module/config/itemTypes";
+import { SplittermondActiveEffect } from "module/activeEffect";
 import { SplittermondActiveEffectCreationDialog } from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog";
 import { getAddModifier } from "module/item/item";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { ModifierType } from "module/modifiers";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
-import type {HandlebarsRenderOptions} from "module/api/Application";
+import type { HandlebarsRenderOptions } from "module/api/Application";
 import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
 
 interface ItemSheetData {
@@ -189,7 +189,11 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return [];
     }
 
-    async _preparePartContext(partId: string, context: ApplicationRenderContext, options:Partial<HandlebarsRenderOptions> ): Promise<any> {
+    async _preparePartContext(
+        partId: string,
+        context: ApplicationRenderContext,
+        options: Partial<HandlebarsRenderOptions>
+    ): Promise<any> {
         const data = await super._preparePartContext(partId, context, options);
         switch (partId) {
             case "editor":
@@ -221,20 +225,17 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     }
 
     async #prepareEffectsPart(context: ApplicationRenderContext): Promise<ApplicationRenderContext> {
-        const effects = this.item.effects
-            .map((e: any) => ({
-                id: e.id,
-                name: e.name,
-                disabled: e.disabled,
-            }));
+        const effects = this.item.effects.map((e: any) => ({
+            id: e.id,
+            name: e.name,
+            disabled: e.disabled,
+        }));
         context.effects = effects;
-        context.modifierHelpText = await this.htmlEnricher(
-            this.localizer.localize("splittermond.modificatorHelpText"),
-        );
+        context.modifierHelpText = await this.htmlEnricher(this.localizer.localize("splittermond.modificatorHelpText"));
         return context;
     }
 
-   /* async _onDragStart(event: DragEvent): Promise<void> {
+    /* async _onDragStart(event: DragEvent): Promise<void> {
         const target = event.target instanceof HTMLElement ? event.target : null;
         const effectId = target?.closest<HTMLElement>("[data-effect-id]")?.dataset.effectId;
         if (effectId) {
@@ -277,7 +278,9 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         if (!input) return;
         const modifierString = input.value.trim();
         if (!modifierString) return;
-        const modifierFn = getAddModifier() as ((item: IModifierSource, str: string, type: ModifierType, multiplier: number) => AddModifierResult) | null;
+        const modifierFn = getAddModifier() as
+            | ((item: IModifierSource, str: string, type: ModifierType, multiplier: number) => AddModifierResult)
+            | null;
         if (!modifierFn) return;
         await addModifierEffects(modifierFn, this.item, modifierString);
         input.value = "";

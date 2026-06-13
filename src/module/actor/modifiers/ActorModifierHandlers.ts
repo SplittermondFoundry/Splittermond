@@ -15,7 +15,7 @@ export function IndividualSkillHandlers(skill: SplittermondSkill) {
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
                     !!mod.attributes.emphasis,
-                    this.actorProvider,
+                    this.actorProvider
                 );
             });
         }
@@ -32,7 +32,7 @@ export function BasicModifierHandler(inputPath: string, groupId?: string) {
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
                     mod.selectable,
-                    this.actorProvider,
+                    this.actorProvider
                 );
             });
         }
@@ -48,7 +48,7 @@ export function InverseModifierHandler(inputPath: string, groupId?: Lowercase<st
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
                     mod.selectable,
-                    this.actorProvider,
+                    this.actorProvider
                 );
             });
         }
@@ -72,7 +72,7 @@ export function ProductModifierHandler(
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.name },
                     !!mod.attributes.emphasis,
-                    this.actorProvider,
+                    this.actorProvider
                 );
             });
         }
