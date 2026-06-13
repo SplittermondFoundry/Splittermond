@@ -1,4 +1,4 @@
-import {foundryApi} from "module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 
 type Constructor = new (...args: any[]) => object;
 
@@ -17,8 +17,10 @@ export function UnboundWarner<TBase extends Constructor>(base: TBase) {
                 this._unboundWarningIssued = true;
                 const isOwnerOrGm = (this as any).parent?.isOwner || foundryApi.currentUser?.isGM;
                 if (isOwnerOrGm) {
-                    foundryApi.warnUser("splittermond.modifiers.parseMessages.unboundReference",
-                        this.unboundWarningContext());
+                    foundryApi.warnUser(
+                        "splittermond.modifiers.parseMessages.unboundReference",
+                        this.unboundWarningContext()
+                    );
                 }
             }
         }

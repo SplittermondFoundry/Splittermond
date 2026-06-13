@@ -7,7 +7,10 @@ import { evaluate, of } from "module/modifiers/expressions/cost";
 describe("CostModifier", () => {
     it("should initialize with correct values", () => {
         const cost = new Cost({ _channeled: 2, _channeledConsumed: 0, _exhausted: 1, _consumed: 0 });
-        const mod = new CostModifier(CostModifier.init("focus.reduction", of(cost), "fireMagic", { type: "magic" }), {});
+        const mod = new CostModifier(
+            CostModifier.init("focus.reduction", of(cost), "fireMagic", { type: "magic" }),
+            {}
+        );
 
         expect(mod.label).to.equal("focus.reduction");
         expect(mod.skill).to.equal("fireMagic");

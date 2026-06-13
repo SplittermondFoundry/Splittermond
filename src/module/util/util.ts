@@ -9,9 +9,9 @@ export function isMember<T>(collection: Readonly<T[]>, member: unknown): member 
     return collection.includes(member as T);
 }
 
-export function not<T>(func: (input:T)=>boolean) {
-    return (input:T)=>!func(input);
+export function not<T>(func: (input: T) => boolean) {
+    return (input: T) => !func(input);
 }
-export function and<T>(op1: (input:T)=>boolean, op2: (input:T)=>boolean) {
-    return (input:T)=>op1(input) && op2(input);
+export function and<T>(op1: (input: T) => boolean, op2: (input: T) => boolean) {
+    return (input: T) => op1(input) && op2(input);
 }

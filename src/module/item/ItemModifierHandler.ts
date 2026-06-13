@@ -55,7 +55,9 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
         const operator = modifier.path.endsWith("multiplier") ? pow : times;
         const adjustedValue = operator(modifier.value, this.multiplier);
 
-        return [Modifier.create(modifier.path, adjustedValue, normalizedAttributes, false, () => this.sourceItem.actor)];
+        return [
+            Modifier.create(modifier.path, adjustedValue, normalizedAttributes, false, () => this.sourceItem.actor),
+        ];
     }
 
     mapAttribute(path: string, attribute: string, value: Value): string | undefined {

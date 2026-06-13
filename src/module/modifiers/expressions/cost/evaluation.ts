@@ -9,9 +9,9 @@ import {
     SubtractExpression,
     UnboundReferenceError,
 } from "./definitions";
-import {exhaustiveMatchGuard, PropertyResolver} from "module/modifiers/util";
-import {evaluate as scalarEvaluate} from "module/modifiers/expressions/scalar";
-import {CostModifier} from "module/util/costs/Cost";
+import { exhaustiveMatchGuard, PropertyResolver } from "module/modifiers/util";
+import { evaluate as scalarEvaluate } from "module/modifiers/expressions/scalar";
+import { CostModifier } from "module/util/costs/Cost";
 
 export function evaluate(expression: CostExpression): CostModifier {
     return doEvaluate(expression);
@@ -21,7 +21,9 @@ function doEvaluate(expression: CostExpression): CostModifier {
     if (expression instanceof AmountExpression) {
         return expression.amount;
     } else if (expression instanceof ReferenceExpression) {
-        return swallowReferenceError(()=> new PropertyResolver().costModifier(expression.propertyPath, expression.source));
+        return swallowReferenceError(() =>
+            new PropertyResolver().costModifier(expression.propertyPath, expression.source)
+        );
     } else if (expression instanceof AddExpression) {
         return doEvaluate(expression.left).add(doEvaluate(expression.right));
     } else if (expression instanceof SubtractExpression) {
@@ -32,7 +34,7 @@ function doEvaluate(expression: CostExpression): CostModifier {
     exhaustiveMatchGuard(expression);
 }
 
-function swallowReferenceError(resolver:()=>CostModifier){
+function swallowReferenceError(resolver: () => CostModifier) {
     try {
         return resolver();
     } catch (e) {

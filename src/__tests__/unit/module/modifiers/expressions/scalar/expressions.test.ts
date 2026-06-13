@@ -193,7 +193,11 @@ describe("Expressions", () => {
         });
 
         it("should evaluate nested properties", () => {
-            const property = ref("first.second.third", () => ({ first: { second: { third: 3 } } }) as any, "first.second.third");
+            const property = ref(
+                "first.second.third",
+                () => ({ first: { second: { third: 3 } } }) as any,
+                "first.second.third"
+            );
             expect(evaluate(property)).to.equal(3);
         });
 

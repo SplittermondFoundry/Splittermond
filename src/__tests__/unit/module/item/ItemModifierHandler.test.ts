@@ -1,11 +1,11 @@
-import {expect} from "chai";
-import sinon, {SinonSandbox, SinonStubbedInstance} from "sinon";
-import {ItemModifierHandler} from "module/item/ItemModifierHandler";
+import { expect } from "chai";
+import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
+import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import SplittermondItem from "module/item/item";
-import {foundryApi} from "module/api/foundryApi";
-import {clearMappers} from "module/modifiers/parsing/normalizer";
-import {evaluate, of} from "module/modifiers/expressions/scalar";
-import type {ScalarModifier} from "module/modifiers/parsing";
+import { foundryApi } from "module/api/foundryApi";
+import { clearMappers } from "module/modifiers/parsing/normalizer";
+import { evaluate, of } from "module/modifiers/expressions/scalar";
+import type { ScalarModifier } from "module/modifiers/parsing";
 
 describe("ItemModifierHandler", () => {
     let sandbox: SinonSandbox;

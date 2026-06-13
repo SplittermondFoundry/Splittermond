@@ -17,14 +17,14 @@ import { addModifier } from "./addModifierAdapter";
 import { evaluate, of } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
-import { InverseModifier, SplittermondActiveEffect} from "module/activeEffect";
+import { InverseModifier, SplittermondActiveEffect } from "module/activeEffect";
 import { genesisSpellImport } from "./genesisImport/spellImport";
 import { addTicks } from "module/combat/addTicks";
 import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
 import { FoundryDialog } from "module/api/Application.js";
 import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
-import {isGenerated} from "module/activeEffect/effectBuilder.ts";
-import {not} from "module/util/util.ts";
+import { isGenerated } from "module/activeEffect/effectBuilder.ts";
+import { not } from "module/util/util.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -257,12 +257,15 @@ export default class SplittermondActor extends Actor {
         }
     }
 
-    applyActiveEffects(phase){
+    applyActiveEffects(phase) {
         super.applyActiveEffects(phase);
         if (phase !== "initial") return; //needs to be initial, b/c 'final' happens after derived value calculation.
-        SplittermondActiveEffect.withFilter(not(isGenerated)).getModifiers(this.allApplicableEffects())
-            .forEach((mod) => this.modifier.addModifier(mod))
-        const costModifiers = SplittermondActiveEffect.withFilter(not(isGenerated)).getCostModifiers(this.allApplicableEffects())
+        SplittermondActiveEffect.withFilter(not(isGenerated))
+            .getModifiers(this.allApplicableEffects())
+            .forEach((mod) => this.modifier.addModifier(mod));
+        const costModifiers = SplittermondActiveEffect.withFilter(not(isGenerated)).getCostModifiers(
+            this.allApplicableEffects()
+        );
         this.sortCostModifiersIntoManagers(costModifiers);
     }
 
@@ -270,7 +273,7 @@ export default class SplittermondActor extends Actor {
      * @param {ICostModifier[]} costModifiers
      */
     sortCostModifiersIntoManagers(costModifiers) {
-            costModifiers.forEach((mod) => {
+        costModifiers.forEach((mod) => {
             const modifierLabel = mod.label.toLowerCase();
             if (modifierLabel.startsWith("focus.reduction")) {
                 this.system.spellCostReduction.addCostModifier(mod);
@@ -564,7 +567,7 @@ export default class SplittermondActor extends Actor {
 
         // Apply cost modifiers to the appropriate spell cost reduction managers
         const data = asPreparedData(this.system);
-        this.sortCostModifiersIntoManagers(result.costModifiers.map(m => m.modifier));
+        this.sortCostModifiersIntoManagers(result.costModifiers.map((m) => m.modifier));
         return result;
     }
 
