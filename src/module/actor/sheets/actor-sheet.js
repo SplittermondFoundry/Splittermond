@@ -1,20 +1,18 @@
-import {splittermond} from "../../config";
-import {foundryApi} from "../../api/foundryApi";
-import {DamageInitializer} from "../../util/chat/damageChatMessage/initDamage";
-import {ItemFeaturesModel} from "../../item/dataModel/propertyModels/ItemFeaturesModel.js";
-import {DamageRoll} from "../../util/damage/DamageRoll.js";
-import {CostBase} from "../../util/costs/costTypes.js";
-import {parseAvailableIn, selectFromAllSkills, selectFromParsedSkills} from "./parseAvailableIn";
-import {userConfirmsItemDeletion} from "module/actor/sheets/askUserForItemDeletion.js";
-import {autoExpandInputs, changeValue} from "module/util/commonHtmlHandlers.ts";
-import {closestData} from "module/data/ClosestDataMixin.js";
-import {SplittermondBaseActorSheet, TEMPLATE_BASE_PATH} from "module/data/SplittermondApplication";
-import {TooltipConfigurer} from "module/actor/sheets/TooltipConfigurer.js";
-import {HoverStateTracker} from "module/actor/sheets/HoverStateTracker.ts";
-import {
-    SplittermondActiveEffectCreationDialog
-} from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog.ts";
-import {SplittermondActiveEffect} from "module/activeEffect/index.ts";
+import { splittermond } from "../../config";
+import { foundryApi } from "../../api/foundryApi";
+import { DamageInitializer } from "../../util/chat/damageChatMessage/initDamage";
+import { ItemFeaturesModel } from "../../item/dataModel/propertyModels/ItemFeaturesModel.js";
+import { DamageRoll } from "../../util/damage/DamageRoll.js";
+import { CostBase } from "../../util/costs/costTypes.js";
+import { parseAvailableIn, selectFromAllSkills, selectFromParsedSkills } from "./parseAvailableIn";
+import { userConfirmsItemDeletion } from "module/actor/sheets/askUserForItemDeletion.js";
+import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.ts";
+import { closestData } from "module/data/ClosestDataMixin.js";
+import { SplittermondBaseActorSheet, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import { TooltipConfigurer } from "module/actor/sheets/TooltipConfigurer.js";
+import { HoverStateTracker } from "module/actor/sheets/HoverStateTracker.ts";
+import { SplittermondActiveEffectCreationDialog } from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog.ts";
+import { SplittermondActiveEffect } from "module/activeEffect/index.ts";
 
 export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     static DEFAULT_OPTIONS = {
@@ -711,7 +709,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     async _onDropDocument(event, document) {
         if (document.documentName === "ActiveEffect") {
             const newDocument = await super._onDropDocument(event, document);
-            return newDocument.update({origin: this.actor.uuid})
+            return newDocument.update({ origin: this.actor.uuid });
         }
         if (!this._hasValidItemType(document.type)) {
             const translatedType = foundryApi.localize(`TYPES.Item.${document.type}`);

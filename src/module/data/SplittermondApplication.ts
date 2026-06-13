@@ -1,6 +1,6 @@
 import type SplittermondItem from "module/item/item";
-import {FoundryActorSheet, FoundryApplication, FoundryHandlebarsMixin, FoundryItemSheet} from "../api/Application";
-import {ClosestDataMixin} from "./ClosestDataMixin";
+import { FoundryActorSheet, FoundryApplication, FoundryHandlebarsMixin, FoundryItemSheet } from "../api/Application";
+import { ClosestDataMixin } from "./ClosestDataMixin";
 import type SplittermondActor from "module/actor/actor";
 
 export type ApplicationOptions = ConstructorParameters<typeof SplittermondApplication>[0];

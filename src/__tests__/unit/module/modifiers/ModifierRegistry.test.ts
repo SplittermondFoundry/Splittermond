@@ -19,16 +19,24 @@ describe("ModifierRegistry", () => {
         constructor(logErrors: (...messages: string[]) => void, _: IModifierSource, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "test" }));
         }
-        protected omitForValue(): boolean { return false; }
-        protected buildModifier() { return []; }
+        protected omitForValue(): boolean {
+            return false;
+        }
+        protected buildModifier() {
+            return [];
+        }
     }
 
     class AnotherTestHandler extends ModifierHandler<ScalarModifier> {
         constructor(logErrors: (...messages: string[]) => void, _: IModifierSource, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "another" }));
         }
-        protected omitForValue(): boolean { return false; }
-        protected buildModifier() { return []; }
+        protected omitForValue(): boolean {
+            return false;
+        }
+        protected buildModifier() {
+            return [];
+        }
     }
 
     beforeEach(() => {

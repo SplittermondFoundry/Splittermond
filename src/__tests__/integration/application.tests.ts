@@ -203,11 +203,11 @@ export function applicationTests(context: QuenchBatchContext) {
 
         it("should contain items in the action bar", async () => {
             const actor = await createActor();
-            const createdDocuments = await actor.createEmbeddedDocuments("Item", [
+            const createdDocuments = (await actor.createEmbeddedDocuments("Item", [
                 getTestSpell(),
                 getTestWeapon(),
                 getTestShield(),
-            ])as SplittermondItem[];
+            ])) as SplittermondItem[];
             const spell = createdDocuments.find((d) => d.type == "spell")!;
             const weapon = createdDocuments.find((d) => d.type == "weapon")!;
             const shield = createdDocuments.find((d) => d.type == "shield")!;

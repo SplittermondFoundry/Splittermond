@@ -305,7 +305,6 @@ describe("addModifier", () => {
                     type: null,
                     emphasis: "fire",
                 },
-
             });
         });
 
@@ -321,7 +320,6 @@ describe("addModifier", () => {
                     emphasis: "fire",
                     item: "Schwert",
                 },
-
             });
         });
 
@@ -332,7 +330,6 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, damageType: "fire" },
-
             });
         });
 
@@ -343,7 +340,6 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, damageType: undefined },
-
             });
         });
 
@@ -354,7 +350,6 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "spell" },
-
             });
         });
 
@@ -365,7 +360,6 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "blubb" },
-
             });
         });
 
@@ -376,7 +370,6 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "arcanelore" },
-
             });
         });
 
@@ -387,7 +380,6 @@ describe("addModifier", () => {
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "blubb" },
-
             });
         });
 
@@ -407,7 +399,6 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null },
-
             });
         });
 
@@ -418,7 +409,6 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null },
-
             });
         });
 
@@ -429,7 +419,6 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, item: "Lanze" },
-
             });
         });
 
@@ -440,7 +429,6 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "weapon" },
-
             });
         });
 
@@ -451,7 +439,6 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "fern" },
-
             });
         });
 
@@ -462,7 +449,6 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "melee" },
-
             });
         });
 
@@ -473,7 +459,6 @@ describe("addModifier", () => {
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "fern" },
-
             });
         });
 
@@ -524,7 +509,6 @@ describe("addModifier", () => {
                 path: "item.castDuration",
                 value: of(2),
                 attributes: { name: "Test Item", type: null, unit: "T" },
-
             });
         });
 
@@ -535,7 +519,6 @@ describe("addModifier", () => {
                 path: "item.castDuration.multiplier",
                 value: of(2),
                 attributes: { name: "Test Item", type: null },
-
             });
         });
     });
@@ -549,7 +532,6 @@ describe("addModifier", () => {
                     path,
                     value: of(2),
                     attributes: { name: "Test Item", type: null, feature: "robust" },
-    
                 });
             });
 
@@ -560,7 +542,6 @@ describe("addModifier", () => {
                     path,
                     value: of(1),
                     attributes: { name: "Test Item", type: null, feature: "sharp", item: "Schwert" },
-    
                 });
             });
 
@@ -571,7 +552,6 @@ describe("addModifier", () => {
                     path,
                     value: of(3),
                     attributes: { name: "Test Item", type: null, feature: "masterwork", itemType: "weapon" },
-    
                 });
             });
 
@@ -582,7 +562,6 @@ describe("addModifier", () => {
                     path,
                     value: of(1),
                     attributes: { name: "Test Item", type: null, feature: "enchanted", itemType: "invalid" },
-    
                 });
             });
 
@@ -593,7 +572,6 @@ describe("addModifier", () => {
                     path,
                     value: of(3),
                     attributes: { name: "Test Item", type: null, feature: "masterwork", skill: "blades" },
-    
                 });
             });
 
@@ -604,7 +582,6 @@ describe("addModifier", () => {
                     path,
                     value: of(1),
                     attributes: { name: "Test Item", type: null, feature: "enchanted", skill: "invalid" },
-    
                 });
             });
 
@@ -621,7 +598,6 @@ describe("addModifier", () => {
                         item: "Holy Sword",
                         itemType: "weapon",
                     },
-    
                 });
             });
             [

@@ -22,7 +22,10 @@ export declare class DataModel<T extends object, PARENT> extends _InternalDataMo
 
     getFlag(scope: string, key: string): unknown;
 
-    updateSource(data: DeepPartial<T> | DeepPartial<DataModelConstructorInput<T>>, options?: DataModelUpdateOptions): object;
+    updateSource(
+        data: DeepPartial<T> | DeepPartial<DataModelConstructorInput<T>>,
+        options?: DataModelUpdateOptions
+    ): object;
 
     constructor(data: DataModelConstructorInput<T>, options?: any);
 

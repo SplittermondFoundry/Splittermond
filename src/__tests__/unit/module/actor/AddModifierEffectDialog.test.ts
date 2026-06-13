@@ -1,14 +1,14 @@
-import {afterEach, beforeEach, describe, it} from "mocha";
-import {expect} from "chai";
-import sinon, {SinonSandbox, SinonStub} from "sinon";
-import {actualAddModifierFunction} from "module/actor/addModifierAdapter";
-import {buildCostEffectData, buildScalarEffectData} from "module/activeEffect/effectBuilder";
-import type {IModifierSource} from "module/modifiers/IModifierSource";
-import type {AddModifierResult} from "module/modifiers/modifierAddition";
-import {of} from "module/modifiers/expressions/scalar";
-import {of as ofCost} from "module/modifiers/expressions/cost";
-import {CostModifierDataModel} from "module/activeEffect/dataModel/CostModifierDataModel";
-import {parseCostString} from "module/util/costs/costParser";
+import { afterEach, beforeEach, describe, it } from "mocha";
+import { expect } from "chai";
+import sinon, { SinonSandbox, SinonStub } from "sinon";
+import { actualAddModifierFunction } from "module/actor/addModifierAdapter";
+import { buildCostEffectData, buildScalarEffectData } from "module/activeEffect/effectBuilder";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
+import type { AddModifierResult } from "module/modifiers/modifierAddition";
+import { of } from "module/modifiers/expressions/scalar";
+import { of as ofCost } from "module/modifiers/expressions/cost";
+import { CostModifierDataModel } from "module/activeEffect/dataModel/CostModifierDataModel";
+import { parseCostString } from "module/util/costs/costParser";
 
 describe("AddModifierEffectDialog — onConfirm logic", () => {
     let sandbox: SinonSandbox;
@@ -132,7 +132,6 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
         });
     });
 });
-
 
 describe("AddModifierEffectDialog — onConfirm logic", () => {
     let sandbox: SinonSandbox;
