@@ -23,11 +23,14 @@ const TYPE_OPTIONS: { value: ActiveEffectCreationType; label: string }[] = [
 
 export class SplittermondActiveEffectCreationDialog {
     static async show(
-        cls: { create: (data: object, options: object) => Promise<FoundryDocument>; defaultName?: (data: object) => string },
+        cls: {
+            create: (data: object, options: object) => Promise<FoundryDocument>;
+            defaultName?: (data: object) => string;
+        },
         data: Record<string, unknown> = {},
         createOptions: CreateDialogOptions = {},
         dialogOptions: Record<string, unknown> = {},
-        renderOptions: CreateDialogRenderOptions = {},
+        renderOptions: CreateDialogRenderOptions = {}
     ): Promise<unknown> {
         const type = this.#normalizeType(data.type);
         const parent = createOptions.parent;
@@ -66,7 +69,9 @@ export class SplittermondActiveEffectCreationDialog {
                     const form = button.form;
                     if (!form) return null;
                     const name = (form.elements.namedItem("name") as HTMLInputElement).value.trim();
-                    const selectedType = this.#normalizeType((form.elements.namedItem("type") as HTMLSelectElement).value);
+                    const selectedType = this.#normalizeType(
+                        (form.elements.namedItem("type") as HTMLSelectElement).value
+                    );
                     const createData: Record<string, unknown> = {
                         ...data,
                         name: name || defaultName,

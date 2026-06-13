@@ -1,18 +1,18 @@
-import {describe, it} from "mocha";
-import {expect} from "chai";
+import { describe, it } from "mocha";
+import { expect } from "chai";
 import sinon from "sinon";
-import {initAddModifier} from "module/modifiers/modifierAddition";
-import {ModifierRegistry} from "module/modifiers/ModifierRegistry";
-import {ItemModifierHandler} from "module/item/ItemModifierHandler";
-import {CostModifierHandler} from "module/util/costs/CostModifierHandler";
-import {registerActorModifiers} from "module/actor/modifiers/actorModifierRegistration";
-import {evaluate, ref, ReferenceExpression} from "module/modifiers/expressions/scalar";
-import {deserialize, serialize} from "module/modifiers/expressions/scalar/serialization";
-import {bindReferenceProviders} from "module/modifiers/expressions/scalar/binder";
-import {resolveHostActor} from "module/activeEffect/dataModel/hostActor";
-import {foundryApi} from "module/api/foundryApi";
-import {clearMappers} from "module/modifiers/parsing/normalizer";
-import {stubRollApi} from "../../RollMock";
+import { initAddModifier } from "module/modifiers/modifierAddition";
+import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
+import { ItemModifierHandler } from "module/item/ItemModifierHandler";
+import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
+import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
+import { evaluate, ref, ReferenceExpression } from "module/modifiers/expressions/scalar";
+import { deserialize, serialize } from "module/modifiers/expressions/scalar/serialization";
+import { bindReferenceProviders } from "module/modifiers/expressions/scalar/binder";
+import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
+import { foundryApi } from "module/api/foundryApi";
+import { clearMappers } from "module/modifiers/parsing/normalizer";
+import { stubRollApi } from "../../RollMock";
 
 function setupAddModifierFunction() {
     const modifierRegistry = new ModifierRegistry();
@@ -75,14 +75,22 @@ describe("Deferred actor reference resolution", () => {
 
     describe("bindReferenceProviders", () => {
         it("should bind provider so evaluate returns actor property value", () => {
-            const expr = deserialize({ type: "reference", propertyPath: "AUS", stringRep: "AUS" }) as ReferenceExpression;
+            const expr = deserialize({
+                type: "reference",
+                propertyPath: "AUS",
+                stringRep: "AUS",
+            }) as ReferenceExpression;
             const stubActor = { AUS: 3 } as any;
             bindReferenceProviders(expr, () => stubActor);
             expect(evaluate(expr)).to.equal(3);
         });
 
         it("should return 0 when provider returns null (unbound)", () => {
-            const expr = deserialize({ type: "reference", propertyPath: "AUS", stringRep: "AUS" }) as ReferenceExpression;
+            const expr = deserialize({
+                type: "reference",
+                propertyPath: "AUS",
+                stringRep: "AUS",
+            }) as ReferenceExpression;
             bindReferenceProviders(expr, () => null);
             expect(evaluate(expr)).to.equal(0);
         });
@@ -109,7 +117,10 @@ describe("Deferred actor reference resolution", () => {
         it("should walk into compound expressions and bind all ReferenceExpressions", () => {
             const inner1 = ref("AUS", () => null, "AUS");
             const inner2 = ref("MYS", () => null, "MYS");
-            const compound = new (require("module/modifiers/expressions/scalar/definitions").AddExpression)(inner1, inner2);
+            const compound = new (require("module/modifiers/expressions/scalar/definitions").AddExpression)(
+                inner1,
+                inner2
+            );
             const actor = { AUS: 2, MYS: 4 } as any;
             bindReferenceProviders(compound, () => actor);
             expect(evaluate(compound)).to.equal(6);

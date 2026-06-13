@@ -266,14 +266,10 @@ describe("SplittermondActor", () => {
                 actor.system.attributes.constitution.updateSource({ initial: 3, advances: 0 });
                 actor.prepareBaseData();
                 actor.modifier.addModifier(
-                    Modifier.create(
-                        "actor.healthregeneration.multiplier",
-                        of(multiplier),
-                        {
-                            name: "Test",
-                            type: "innate",
-                        }
-                    )
+                    Modifier.create("actor.healthregeneration.multiplier", of(multiplier), {
+                        name: "Test",
+                        type: "innate",
+                    })
                 );
 
                 await actor.longRest();
@@ -288,14 +284,10 @@ describe("SplittermondActor", () => {
             actor.system.attributes.constitution.updateSource({ initial: 3, advances: 0 });
             actor.prepareBaseData();
             actor.modifier.addModifier(
-                Modifier.create(
-                    "actor.healthregeneration.bonus",
-                    of(2),
-                    {
-                        name: "Test",
-                        type: "innate",
-                    }
-                )
+                Modifier.create("actor.healthregeneration.bonus", of(2), {
+                    name: "Test",
+                    type: "innate",
+                })
             );
 
             await actor.longRest();
@@ -309,14 +301,10 @@ describe("SplittermondActor", () => {
             actor.system.attributes.willpower.updateSource({ initial: 3, advances: 0 });
             actor.prepareBaseData();
             actor.modifier.addModifier(
-                Modifier.create(
-                    "actor.focusregeneration.multiplier",
-                    of(3),
-                    {
-                        name: "Test",
-                        type: "innate",
-                    }
-                )
+                Modifier.create("actor.focusregeneration.multiplier", of(3), {
+                    name: "Test",
+                    type: "innate",
+                })
             );
 
             await actor.longRest();
@@ -330,14 +318,10 @@ describe("SplittermondActor", () => {
             actor.system.attributes.constitution.updateSource({ initial: 3, advances: 0 });
             actor.prepareBaseData();
             actor.modifier.addModifier(
-                Modifier.create(
-                    "actor.focusregeneration.bonus",
-                    of(2),
-                    {
-                        name: "Test",
-                        type: "innate",
-                    }
-                )
+                Modifier.create("actor.focusregeneration.bonus", of(2), {
+                    name: "Test",
+                    type: "innate",
+                })
             );
 
             await actor.longRest();

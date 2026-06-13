@@ -60,35 +60,32 @@ function deserializeInner(data: SerializedExpression): Expression {
         case "roll":
             return roll(foundryApi.roll(data.formula as string));
         case "reference": {
-            return new ReferenceExpression(
-                data.propertyPath as string,
-                data.stringRep as string,
-            );
+            return new ReferenceExpression(data.propertyPath as string, data.stringRep as string);
         }
         case "add":
             return new AddExpression(
                 deserializeInner(data.left as SerializedExpression),
-                deserializeInner(data.right as SerializedExpression),
+                deserializeInner(data.right as SerializedExpression)
             );
         case "subtract":
             return new SubtractExpression(
                 deserializeInner(data.left as SerializedExpression),
-                deserializeInner(data.right as SerializedExpression),
+                deserializeInner(data.right as SerializedExpression)
             );
         case "multiply":
             return new MultiplyExpression(
                 deserializeInner(data.left as SerializedExpression),
-                deserializeInner(data.right as SerializedExpression),
+                deserializeInner(data.right as SerializedExpression)
             );
         case "divide":
             return new DivideExpression(
                 deserializeInner(data.left as SerializedExpression),
-                deserializeInner(data.right as SerializedExpression),
+                deserializeInner(data.right as SerializedExpression)
             );
         case "power":
             return new PowerExpression(
                 deserializeInner(data.base as SerializedExpression),
-                deserializeInner(data.exponent as SerializedExpression),
+                deserializeInner(data.exponent as SerializedExpression)
             );
         case "abs":
             return new AbsExpression(deserializeInner(data.arg as SerializedExpression));

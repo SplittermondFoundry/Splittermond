@@ -1,4 +1,3 @@
-
 type AnyConstructor = abstract new (...args: never) => unknown;
 type AnyConcreteConstructor = new (...args: never) => unknown;
 
@@ -26,11 +25,7 @@ declare namespace ApplicationV2 {
             [__ApplicationV2Brand]: never;
         };
 
-        interface Instance<
-            RenderContext extends object,
-            Configuration extends object,
-            RenderOptions extends object,
-        > {
+        interface Instance<RenderContext extends object, Configuration extends object, RenderOptions extends object> {
             readonly [__RenderContext]: RenderContext;
             readonly [__Configuration]: Configuration;
             readonly [__RenderOptions]: RenderOptions;
@@ -56,23 +51,23 @@ declare class HandlebarsApplication {
     static TABS: Record<string, foundry.applications.types.ApplicationTabsConfiguration>;
 
     protected _prepareContext(
-        options: HandlebarsApplicationMixinNS.RenderOptions,
+        options: HandlebarsApplicationMixinNS.RenderOptions
     ): Promise<foundry.applications.types.ApplicationRenderContext>;
 
     protected _preparePartContext(
         partId: string,
         context: ApplicationV2.RenderContextOf<this>,
-        options: DeepPartial<HandlebarsApplicationMixinNS.RenderOptions>,
+        options: DeepPartial<HandlebarsApplicationMixinNS.RenderOptions>
     ): Promise<ApplicationV2.RenderContextOf<this>>;
 
     protected _onRender(
         context: foundry.applications.types.ApplicationRenderContext,
-        options: HandlebarsApplicationMixinNS.RenderOptions,
+        options: HandlebarsApplicationMixinNS.RenderOptions
     ): Promise<void>;
 }
 
 declare function HandlebarsApplicationMixinTyped<BaseClass extends HandlebarsApplicationMixinNS.BaseClass>(
-    BaseApplication: BaseClass,
+    BaseApplication: BaseClass
 ): HandlebarsApplicationMixinNS.Mix<BaseClass>;
 
 declare namespace HandlebarsApplicationMixinNS {
@@ -123,7 +118,7 @@ declare namespace foundry {
         callback: (
             event: PointerEvent | SubmitEvent,
             button: HTMLButtonElement,
-            dialog: foundry.applications.api.DialogV2,
+            dialog: foundry.applications.api.DialogV2
         ) => Promise<unknown>;
     }
 
@@ -172,41 +167,40 @@ declare namespace foundry {
             }
 
             interface DocumentClassMetadata {
-                    collection: string;
-                    compendiumIndexFields: string[];
-                    coreTypes: string[];
-                    embedded: Record<string, string>;
-                    hasTypeData: boolean;
-                    indexed: boolean;
-                    label: string;
-                    name: string;
-                    permissions: Record<
-                        "update" | "delete" | "view" | "create",
-                        | "INHERIT"
-                        | "NONE"
-                        | "LIMITED"
-                        | "OBSERVER"
-                        | "OWNER"
-                        | "PLAYER"
-                        | "TRUSTED"
-                        | "ASSISTANT"
-                        | "GAMEMASTER"
-                        | DocumentPermissionTest
-                    >;
-                    preserveOnImport: string[];
-                    schemaVersion?: string;
-                }
+                collection: string;
+                compendiumIndexFields: string[];
+                coreTypes: string[];
+                embedded: Record<string, string>;
+                hasTypeData: boolean;
+                indexed: boolean;
+                label: string;
+                name: string;
+                permissions: Record<
+                    "update" | "delete" | "view" | "create",
+                    | "INHERIT"
+                    | "NONE"
+                    | "LIMITED"
+                    | "OBSERVER"
+                    | "OWNER"
+                    | "PLAYER"
+                    | "TRUSTED"
+                    | "ASSISTANT"
+                    | "GAMEMASTER"
+                    | DocumentPermissionTest
+                >;
+                preserveOnImport: string[];
+                schemaVersion?: string;
+            }
 
             type DocumentPermissionTest = (
-                    user: unknown, //actually BaseUser but I did not want to continue typing
-                    document: Document,
-                    data?: object
+                user: unknown, //actually BaseUser but I did not want to continue typing
+                document: Document,
+                data?: object
             ) => boolean;
         }
     }
 
     namespace applications {
-
         namespace types {
             type ApplicationClickAction = (event: PointerEvent, target: HTMLElement) => Promise<void>;
             /**
@@ -318,7 +312,8 @@ declare namespace foundry {
             import ApplicationRenderContext = foundry.applications.types.ApplicationRenderContext;
             import FormDataExtended = foundry.applications.ux.FormDataExtended;
             import ApplicationTab = foundry.applications.types.ApplicationTab;
-            type FullDialogV2Config= foundry.applications.types.ApplicationConfiguration & foundry.DialogV2Configuration
+            type FullDialogV2Config = foundry.applications.types.ApplicationConfiguration &
+                foundry.DialogV2Configuration;
 
             /**
              * Type declarations for applications. incomplete, copied at V13
@@ -329,9 +324,7 @@ declare namespace foundry {
 
                 static confirm(config: { content: string; rejectClose: boolean; modal: true }): Promise<boolean>;
 
-                static prompt(
-                    config: Partial<FullDialogV2Config & DialogV2WaitOptions>,
-                ): Promise<unknown>;
+                static prompt(config: Partial<FullDialogV2Config & DialogV2WaitOptions>): Promise<unknown>;
 
                 render(options?: boolean | ApplicationRenderOptions): Promise<this>;
 
@@ -379,7 +372,7 @@ declare namespace foundry {
 
                 protected _onSubmitForm(
                     formConfig: ApplicationFormConfiguration,
-                    event: Event | SubmitEvent,
+                    event: Event | SubmitEvent
                 ): Promise<void>;
 
                 protected _prepareTabs(group: string): Record<string, ApplicationTab>;
@@ -393,7 +386,7 @@ declare namespace foundry {
                     event: SubmitEvent,
                     form: HTMLFormElement,
                     formData: FormDataExtended,
-                    updateData?: object,
+                    updateData?: object
                 ): object;
             }
 
@@ -429,7 +422,7 @@ declare namespace foundry {
 
                 _onDropDocument<T extends FoundryDocument>(
                     event: DragEvent,
-                    document: FoundryDocument,
+                    document: FoundryDocument
                 ): Promise<null | T>;
 
                 _onDragStart(event: DragEvent): Promise<void>;
@@ -439,11 +432,14 @@ declare namespace foundry {
             }
 
             class ActiveEffectConfig extends HandlebarsApplicationMixin(DocumentSheetV2) {
-                _preparePartContext(partId: string, context: object, options: object): Promise<ApplicationRenderContext>;
+                _preparePartContext(
+                    partId: string,
+                    context: object,
+                    options: object
+                ): Promise<ApplicationRenderContext>;
                 _processFormData(event: Event, form: HTMLFormElement, formData: unknown): object;
             }
         }
-
     }
 
     interface DragDropConfiguration {

@@ -121,7 +121,6 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 expect((Item.defineSchema() as any)[name], `${name} is of correct type`).to.be.instanceOf(type);
             });
         });
-
     });
 
     describe("Actor", () => {
@@ -182,7 +181,6 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 expect(typeof actor[property], `actor property ${property} is not a function`).to.equal("function");
             });
         });
-
     });
 
     describe("Compendium Packs", () => {
@@ -252,7 +250,9 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             withActiveEffect(activeEffectData, async (effect) => {
                 ["getFlag", "setFlag", "update"].forEach((method) => {
                     expect(effect, `ActiveEffect does not have ${method}`).to.have.property(method);
-                    expect(typeof effect[method as keyof typeof effect], `${method} is not a function`).to.equal("function");
+                    expect(typeof effect[method as keyof typeof effect], `${method} is not a function`).to.equal(
+                        "function"
+                    );
                 });
             })
         );
@@ -262,7 +262,9 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             withActiveEffect(activeEffectData, async (effect) => {
                 ["prepareBaseData", "prepareDerivedData", "updateSource", "toObject"].forEach((method) => {
                     expect(effect, `ActiveEffect does not have ${method}`).to.have.property(method);
-                    expect(typeof effect[method as keyof typeof effect], `${method} is not a function`).to.equal("function");
+                    expect(typeof effect[method as keyof typeof effect], `${method} is not a function`).to.equal(
+                        "function"
+                    );
                 });
             })
         );

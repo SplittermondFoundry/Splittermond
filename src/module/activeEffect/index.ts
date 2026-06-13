@@ -6,7 +6,7 @@ import {
     type MultiplicativeModifierDataModelType,
 } from "./dataModel/MultiplicativeModifierDataModel";
 import { CostModifierDataModel, type CostModifierDataModelType } from "./dataModel/CostModifierDataModel";
-import {BaseActiveEffectConfig, SplittermondActiveEffectConfig } from "./sheets/SplittermondActiveEffectConfig";
+import { BaseActiveEffectConfig, SplittermondActiveEffectConfig } from "./sheets/SplittermondActiveEffectConfig";
 import { SplittermondActiveEffectCreationDialog } from "./sheets/SplittermondActiveEffectCreationDialog";
 import { foundryApi } from "module/api/foundryApi";
 
@@ -15,7 +15,7 @@ type ActiveEffectDocumentClass = typeof SplittermondActiveEffect & {
         data?: Record<string, unknown>,
         createOptions?: Record<string, unknown>,
         dialogOptions?: Record<string, unknown>,
-        renderOptions?: Record<string, unknown>,
+        renderOptions?: Record<string, unknown>
     ) => Promise<unknown>;
 };
 
@@ -41,7 +41,7 @@ export function initializeActiveEffects(config: typeof CONFIG) {
     };
 
     foundryApi.sheets.activeEffects.register("splittermond", BaseActiveEffectConfig, {
-        types: ["base",""],
+        types: ["base", ""],
         makeDefault: true,
     });
 
@@ -55,7 +55,7 @@ export function initializeActiveEffects(config: typeof CONFIG) {
         data: Record<string, unknown> = {},
         createOptions: Record<string, unknown> = {},
         dialogOptions: Record<string, unknown> = {},
-        renderOptions: Record<string, unknown> = {},
+        renderOptions: Record<string, unknown> = {}
     ) {
         return SplittermondActiveEffectCreationDialog.show(
             this as unknown as {
@@ -65,7 +65,7 @@ export function initializeActiveEffects(config: typeof CONFIG) {
             data,
             createOptions,
             dialogOptions,
-            renderOptions,
+            renderOptions
         );
     };
 }

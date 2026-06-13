@@ -10,11 +10,7 @@ import {
 } from "./definitions";
 import { type ActorProvider } from "module/modifiers/expressions/ActorProvider";
 
-export function bindReferenceProviders(
-    expression: Expression,
-    provider: ActorProvider,
-    onUnbound?: () => void
-): void {
+export function bindReferenceProviders(expression: Expression, provider: ActorProvider, onUnbound?: () => void): void {
     if (expression instanceof ReferenceExpression) {
         expression.bindProvider(provider, onUnbound);
     } else if (expression instanceof AddExpression || expression instanceof SubtractExpression) {
