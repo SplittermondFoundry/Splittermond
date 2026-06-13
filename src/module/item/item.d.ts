@@ -14,5 +14,7 @@ declare class SplittermondItem extends Item {
 export function setAddModifier(
     addModifierFn: (item: SplittermondItem, str: string, type: ModifierType, multiplier: number) => AddModifierResult
 ): void;
-export function getAddModifier(): ((item: SplittermondItem, str: string, type: ModifierType, multiplier: number) => AddModifierResult) | null;
+export function getAddModifier():
+    | ((item: SplittermondItem, str: string, type: ModifierType, multiplier: number) => AddModifierResult)
+    | null;
 export default SplittermondItem;

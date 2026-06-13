@@ -9,11 +9,11 @@ import {
     SubtractExpression,
     UnboundReferenceError,
 } from "./definitions";
-import {exhaustiveMatchGuard, PropertyResolver} from "module/modifiers/util";
-import {evaluate as scalarEvaluate,
+import { exhaustiveMatchGuard, PropertyResolver } from "module/modifiers/util";
+import { evaluate as scalarEvaluate ,
     type Expression,
     syncEvaluate as scalarSyncEvaluate,} from "module/modifiers/expressions/scalar";
-import {CostModifier} from "module/util/costs/Cost";
+import { CostModifier } from "module/util/costs/Cost";
 
 export async function evaluate(expression: CostExpression): Promise<CostModifier> {
     return doEvaluate(expression, scalarEvaluate);
@@ -26,7 +26,9 @@ async function doEvaluate(
     if (expression instanceof AmountExpression) {
         return expression.amount;
     } else if (expression instanceof ReferenceExpression) {
-        return swallowReferenceError(()=> new PropertyResolver().costModifier(expression.propertyPath, expression.source));
+        return swallowReferenceError(() =>
+            new PropertyResolver().costModifier(expression.propertyPath, expression.source)
+        );
     } else if (expression instanceof AddExpression) {
         return (await doEvaluate(expression.left, scalarEval)).add(await doEvaluate(expression.right, scalarEval));
     } else if (expression instanceof SubtractExpression) {
@@ -56,7 +58,7 @@ export function syncEvaluate(expression: CostExpression): CostModifier {
     exhaustiveMatchGuard(expression);
 }
 
-function swallowReferenceError(resolver:()=>CostModifier){
+function swallowReferenceError(resolver: () => CostModifier) {
     try {
         return resolver();
     } catch (e) {

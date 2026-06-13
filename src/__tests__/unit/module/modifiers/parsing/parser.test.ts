@@ -174,11 +174,19 @@ describe("Modifier Parser", () => {
             ],
             [
                 'item.defenseTickCost defenseType="vtd" -1',
-                { path: "item.defenseTickCost", attributes: { defenseType: "vtd", value: -1 },rawFragment: 'item.defenseTickCost defenseType="vtd" -1'  },
+                {
+                    path: "item.defenseTickCost",
+                    attributes: { defenseType: "vtd", value: -1 },
+                    rawFragment: 'item.defenseTickCost defenseType="vtd" -1',
+                },
             ],
             [
                 'item.defenseTickCost defenseType="br" -1',
-                { path: "item.defenseTickCost", attributes: { defenseType: "br", value: -1 }, rawFragment: 'item.defenseTickCost defenseType="br" -1'},
+                {
+                    path: "item.defenseTickCost",
+                    attributes: { defenseType: "br", value: -1 },
+                    rawFragment: 'item.defenseTickCost defenseType="br" -1',
+                },
             ],
         ] as const
     ).forEach(([input, expected]) => {

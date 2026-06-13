@@ -80,7 +80,7 @@ declare class SplittermondActor extends Actor {
     getVirtualStatusTokens(): VirtualToken[];
 
     get bonusCap(): ExpressionBundle;
-    allApplicableEffects():Generator<SplittermondActiveEffect,void,void>
+    allApplicableEffects(): Generator<SplittermondActiveEffect, void, void>;
 
     attacks: Attack[];
     type: "character" | "npc";

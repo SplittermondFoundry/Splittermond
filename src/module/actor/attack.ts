@@ -151,7 +151,7 @@ export default class Attack {
             this.attackData.skillValue
         );
         this.skill.addModifierPath(`skill.${this.id}`);
-        if (item.type == "npcattack" )this.skill.addModifierPath(`npcattacks`);
+        if (item.type == "npcattack") this.skill.addModifierPath(`npcattacks`);
         this.item = item;
 
         let minAttributeMalus = 0;
@@ -176,7 +176,7 @@ export default class Attack {
                     name: foundryApi.localize("splittermond.minAttributes"),
                     type: "innate",
                 },
-                of(minAttributeMalus),
+                of(minAttributeMalus)
             );
             this.actor.modifier.add(
                 "weaponspeed",
@@ -185,7 +185,7 @@ export default class Attack {
                     name: foundryApi.localize("splittermond.minAttributes"),
                     type: "innate",
                 },
-                of(minAttributeMalus),
+                of(minAttributeMalus)
             );
         }
 
@@ -197,7 +197,7 @@ export default class Attack {
                     name: foundryApi.localize("splittermond.skillMod"),
                     type: "innate",
                 },
-                of(this.attackData.skillMod),
+                of(this.attackData.skillMod)
             );
         }
 
@@ -208,7 +208,7 @@ export default class Attack {
                     name: foundryApi.localize("splittermond.damageLevel"),
                     type: "innate",
                 },
-                of(-3),
+                of(-3)
             );
         }
     }

@@ -50,7 +50,7 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
                 times(this.multiplier, modifier.value),
                 normalizedAttributes,
                 !!normalizedAttributes.emphasis,
-                () => this.sourceItem.actor,
+                () => this.sourceItem.actor
             ),
         ];
     }

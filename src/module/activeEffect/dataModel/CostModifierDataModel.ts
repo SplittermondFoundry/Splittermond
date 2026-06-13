@@ -1,15 +1,15 @@
-import {DataModelSchemaType, fieldExtensions, fields} from "../../data/SplittermondDataModel";
-import {SplittermondActiveEffectDataModel} from "../../data/SplittermondActiveEffectDataModel";
-import type {ICostModifier} from "module/util/costs/spellCostManagement";
-import {type CostExpression} from "module/modifiers/expressions/cost";
-import {deserialize, serialize} from "module/modifiers/expressions/cost/serialization";
-import type {DataModelConstructorInput} from "module/api/DataModel";
-import type {EffectType} from "./effectTypes";
-import {CostModifier} from "module/util/costs/Cost";
-import {resolveHostActor} from "./hostActor";
-import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
-import {UnboundWarner} from "module/activeEffect/dataModel/UnboundWarner";
-import {SplittermondActiveEffect} from "module/activeEffect";
+import { DataModelSchemaType, fieldExtensions, fields } from "../../data/SplittermondDataModel";
+import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
+import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import { type CostExpression } from "module/modifiers/expressions/cost";
+import { deserialize, serialize } from "module/modifiers/expressions/cost/serialization";
+import type { DataModelConstructorInput } from "module/api/DataModel";
+import type { EffectType } from "./effectTypes";
+import { CostModifier } from "module/util/costs/Cost";
+import { resolveHostActor } from "./hostActor";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
+import { SplittermondActiveEffect } from "module/activeEffect";
 
 type SerializedCostExpression = Record<string, unknown> & { type: string };
 type CostModifierAttributes = { skill?: string; type?: string };
@@ -21,7 +21,7 @@ function CostModifierDataModelSchema() {
             required: true,
             nullable: false,
             validate: (v: SerializedCostExpression) => typeof v === "object" && "type" in v,
-            initial: {type: "amount", amount: CostModifier.zero }
+            initial: { type: "amount", amount: CostModifier.zero },
         }),
         /** The skill attached to the item carrying this modifier */
         skill: new fields.StringField({ required: true, nullable: true, initial: null }),
@@ -55,7 +55,7 @@ export class CostModifierDataModel
         super(data, context);
         const ctx = context as any;
         const provider: ActorProvider = ctx?.actorProvider ?? (() => resolveHostActor(this.parent));
-        this.value = deserialize(this.serializedValue, provider, this.produceIssueWarning())
+        this.value = deserialize(this.serializedValue, provider, this.produceIssueWarning());
     }
 
     /**

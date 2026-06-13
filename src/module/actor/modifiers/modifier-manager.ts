@@ -12,12 +12,7 @@ interface AttributeSelector {
 export default class ModifierManager {
     private _modifier: Map<string, IModifier[]> = new Map();
 
-    add(
-        path: string,
-        attributes: ModifierAttributes,
-        value: Expression,
-        selectable = false
-    ) {
+    add(path: string, attributes: ModifierAttributes, value: Expression, selectable = false) {
         this.addModifier(Modifier.create(path, value, attributes, selectable));
     }
 

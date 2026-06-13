@@ -1,9 +1,8 @@
 export interface DialogV2ConstructorInput
-    extends foundry.applications.types.ApplicationConfiguration,
-        foundry.DialogV2Configuration {}
+    extends foundry.applications.types.ApplicationConfiguration, foundry.DialogV2Configuration {}
 
 export type ApplicationFormConfiguration = foundry.applications.types.ApplicationFormConfiguration;
-export type HandlebarsRenderOptions = HandlebarsApplicationMixinNS.RenderOptions
+export type HandlebarsRenderOptions = HandlebarsApplicationMixinNS.RenderOptions;
 
 export type FoundryDialogType = foundry.applications.api.DialogV2;
 export const FoundryDialog = foundry.applications.api.DialogV2;

@@ -87,7 +87,11 @@ describe("Expressions", () => {
         });
 
         it("should evaluate nested properties", async () => {
-            const property = ref("first.second.third", () => ({ first: { second: { third: "-3V2" } } }) as any, "first.second.third");
+            const property = ref(
+                "first.second.third",
+                () => ({ first: { second: { third: "-3V2" } } }) as any,
+                "first.second.third"
+            );
             expect(await evaluate(property)).to.deep.equal(new Cost(-1, -2, false).asModifier());
         });
 

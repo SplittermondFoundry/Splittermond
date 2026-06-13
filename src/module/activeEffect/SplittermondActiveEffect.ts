@@ -1,9 +1,9 @@
-import type {IModifier} from "module/modifiers";
-import type {ICostModifier} from "module/util/costs/spellCostManagement";
-import {SplittermondBaseActiveEffect} from "module/data/SplittermondBaseActiveEffect";
-import {and, isMember} from "module/util/util";
-import type {DataModelUpdateOptions, DatabaseUpdateOperation} from "module/api/foundryTypes";
-import {COST_MODIFIER_TYPES, type EffectType, MODIFIER_TYPES} from "./dataModel/effectTypes";
+import type { IModifier } from "module/modifiers";
+import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import { SplittermondBaseActiveEffect } from "module/data/SplittermondBaseActiveEffect";
+import { and, isMember } from "module/util/util";
+import type { DataModelUpdateOptions, DatabaseUpdateOperation } from "module/api/foundryTypes";
+import { COST_MODIFIER_TYPES, type EffectType, MODIFIER_TYPES } from "./dataModel/effectTypes";
 
 export type { EffectType };
 
@@ -43,7 +43,6 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
         }
     }
 
-
     /**
      * Returns the typed system data as an {@link IModifier} if this effect's type
      * is one of the scalar modifier types, otherwise `null`.
@@ -66,24 +65,15 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
         return null;
     }
 
-    updateSource(
-        data: object,
-        operation: DataModelUpdateOptions = {}
-    ): object{
-       return super.updateSource(data, this.#withForcedReplacementOnTypeChange(data, operation));
+    updateSource(data: object, operation: DataModelUpdateOptions = {}): object {
+        return super.updateSource(data, this.#withForcedReplacementOnTypeChange(data, operation));
     }
 
-    update(
-        data: object,
-        operation: Partial<Omit<DatabaseUpdateOperation, "updates">> = {}
-    ): Promise<FoundryDocument> {
+    update(data: object, operation: Partial<Omit<DatabaseUpdateOperation, "updates">> = {}): Promise<FoundryDocument> {
         return super.update(data, this.#withForcedReplacementOnTypeChange(data, operation));
     }
 
-    #withForcedReplacementOnTypeChange(
-        data: object,
-        operation: DataModelUpdateOptions
-    ): DataModelUpdateOptions {
+    #withForcedReplacementOnTypeChange(data: object, operation: DataModelUpdateOptions): DataModelUpdateOptions {
         const type = this.#readType(data);
         if (!type || type === this.type) return operation;
         return {
@@ -103,14 +93,14 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
      * filtering out suppressed and disabled effects.
      */
     static getModifiers(effects: Iterable<SplittermondActiveEffect>): IModifier[] {
-        return getModifiers(effects, ableAndUnsuppressed)
+        return getModifiers(effects, ableAndUnsuppressed);
     }
-    static withFilter(func: (e:SplittermondActiveEffect) => boolean){
-        const fullFilter= and(ableAndUnsuppressed, func)
+    static withFilter(func: (e: SplittermondActiveEffect) => boolean) {
+        const fullFilter = and(ableAndUnsuppressed, func);
         return {
-            getModifiers:(e:Iterable<SplittermondActiveEffect>)=> getModifiers(e,fullFilter),
-            getCostModifiers:(e:Iterable<SplittermondActiveEffect>)=> getCostModifiers(e, fullFilter),
-        }
+            getModifiers: (e: Iterable<SplittermondActiveEffect>) => getModifiers(e, fullFilter),
+            getCostModifiers: (e: Iterable<SplittermondActiveEffect>) => getCostModifiers(e, fullFilter),
+        };
     }
 
     /**
@@ -122,22 +112,21 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
     }
 }
 
-
 type EffectFilter = (effect: SplittermondActiveEffect) => boolean;
 function ableAndUnsuppressed(effect: SplittermondActiveEffect) {
-    return !effect.isSuppressed  && !effect.disabled
+    return !effect.isSuppressed && !effect.disabled;
 }
 
-function* filterEffects(effects: Iterable<SplittermondActiveEffect>, filter:EffectFilter) {
+function* filterEffects(effects: Iterable<SplittermondActiveEffect>, filter: EffectFilter) {
     for (const effect of effects) {
         if (!filter(effect)) continue;
         yield effect;
     }
 }
 
-function getModifiers(effects: Iterable<SplittermondActiveEffect>, filter:EffectFilter): IModifier[] {
+function getModifiers(effects: Iterable<SplittermondActiveEffect>, filter: EffectFilter): IModifier[] {
     const result: IModifier[] = [];
-    for (const effect of filterEffects(effects,(e)=> filter(e))) {
+    for (const effect of filterEffects(effects, (e) => filter(e))) {
         const modifier = effect.asModifier;
         if (modifier) result.push(modifier);
     }
@@ -148,9 +137,9 @@ function getModifiers(effects: Iterable<SplittermondActiveEffect>, filter:Effect
  * Collect all {@link ICostModifier} instances from a collection of active effects,
  * filtering out suppressed and disabled effects.
  */
-function getCostModifiers(effects: Iterable<SplittermondActiveEffect>,filter:EffectFilter): ICostModifier[] {
+function getCostModifiers(effects: Iterable<SplittermondActiveEffect>, filter: EffectFilter): ICostModifier[] {
     const result: ICostModifier[] = [];
-    for (const effect of filterEffects(effects,(e)=> filter(e))) {
+    for (const effect of filterEffects(effects, (e) => filter(e))) {
         const costModifier = effect.asCostModifier;
         if (costModifier) result.push(costModifier);
     }

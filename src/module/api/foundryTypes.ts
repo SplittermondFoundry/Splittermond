@@ -1,7 +1,7 @@
-import {DataModel} from "./DataModel";
-import type {FoundryApplication} from "./Application";
-import {MessageModeKey} from "./ChatMessage";
-import type {FoundryActiveEffect} from "module/api/ActiveEffect";
+import { DataModel } from "./DataModel";
+import type { FoundryApplication } from "./Application";
+import { MessageModeKey } from "./ChatMessage";
+import type { FoundryActiveEffect } from "module/api/ActiveEffect";
 
 export type FoundryCombat = foundry.documents.Combat;
 export type FoundryCombatant = foundry.documents.Combatant;
@@ -9,7 +9,6 @@ export type FoundryScene = foundry.documents.Scene;
 
 export type DataModelUpdateOptions = foundry.abstract.types.DataModelUpdateOptions;
 export type DatabaseUpdateOperation = foundry.abstract.types.DatabaseUpdateOperation;
-
 
 export interface KeybindingActionConfig {
     editable?: KeybindingActionBinding[];
@@ -130,8 +129,8 @@ declare global {
         get inCombat(): boolean;
         get isToken(): boolean;
 
-        applyActiveEffects(phase:string):void;
-        allApplicableEffects():Generator<FoundryActiveEffect,void,void>
+        applyActiveEffects(phase: string): void;
+        allApplicableEffects(): Generator<FoundryActiveEffect, void, void>;
     }
 
     class Item extends FoundryDocument {
@@ -180,10 +179,7 @@ declare global {
         readonly effects: Collection<FoundryActiveEffect>;
         get sheet(): InstanceType<typeof FoundryApplication>;
 
-        update(
-            data: object,
-            operation?: Partial<Omit<DatabaseUpdateOperation, "updates">>
-        ): Promise<FoundryDocument>;
+        update(data: object, operation?: Partial<Omit<DatabaseUpdateOperation, "updates">>): Promise<FoundryDocument>;
 
         createEmbeddedDocuments(embeddedName: string, data: object[], context?: object): Promise<FoundryDocument[]>;
 
