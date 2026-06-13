@@ -20,7 +20,7 @@ type ParamList<P1 = never, P2 = never, P3 = never> = [P1] extends [never]
 export function registerHook(hookName: `splittermond.${string}`): ValidatedHook<never, never, never>;
 export function registerHook<P1 extends DataField<T1, REQ1, NUL1>, T1, REQ1 extends boolean, NUL1 extends boolean>(
     hookName: `splittermond.${string}`,
-    param1: () => [P1]
+    defineSchema: () => [P1]
 ): ValidatedHook<InstancedType<DataField<T1, REQ1, NUL1>>, never, never>;
 export function registerHook<
     P1 extends DataField<T1, REQ1, NUL1>,
@@ -33,7 +33,7 @@ export function registerHook<
     NUL2 extends boolean,
 >(
     hookName: `splittermond.${string}`,
-    defineValidators: () => [P1, P2]
+    defineSchema: () => [P1, P2]
 ): ValidatedHook<InstancedType<DataField<T1, REQ1, NUL1>>, InstancedType<DataField<T2, REQ2, NUL2>>, never>;
 export function registerHook<
     P1 extends DataField<T1, REQ1, NUL1>,
@@ -50,7 +50,7 @@ export function registerHook<
     NUL3 extends boolean,
 >(
     hookName: `splittermond.${string}`,
-    defineValidators: () => [P1, P2, P3]
+    defineSchema: () => [P1, P2, P3]
 ): ValidatedHook<InstancedType<P1>, InstancedType<P2>, InstancedType<P3>>;
 /**
  * @param hookName the ID under which the hook is registered. Must be scoped to this module.
@@ -83,7 +83,22 @@ export function registerHook(
 function validate<T, REQ extends boolean, NUL extends boolean>(candidate: unknown, validator: DataField<T, REQ, NUL>) {
     const validationResult = validator.validate(candidate);
     if (!!validationResult) {
-        throw new HookParamValidationError(`Failed to validate candidate '${candidate}'`, validationResult);
+        const message = `Failed to validate candidate '${identifyCandiate(candidate)}'}:\nCause: ${validationResult.toString()}`;
+        throw new HookParamValidationError(message, validationResult);
+    }
+}
+
+function identifyCandiate(candidate: unknown): string {
+    if (!candidate) {
+        return "";
+    } else if (Array.isArray(candidate)) {
+        return candidate.map((v) => identifyCandiate(v)).join(", ");
+    } else if (typeof candidate === "object" && "name" in candidate && typeof candidate.name === "string") {
+        return candidate.name;
+    } else if (typeof candidate === "object" && "id" in candidate && typeof candidate.id === "string") {
+        return candidate.id;
+    } else {
+        return `${candidate}`;
     }
 }
 
@@ -93,9 +108,5 @@ export class HookParamValidationError extends Error {
         public readonly cause: DataModelValidationFailure
     ) {
         super(message);
-    }
-
-    toString() {
-        return `${super.toString()}:\nCause: ${this.cause.toString()}`;
     }
 }
