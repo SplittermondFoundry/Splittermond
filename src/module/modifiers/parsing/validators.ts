@@ -56,7 +56,8 @@ export function validateReference(propertyPath: string, actorProvider: ActorProv
                 propertyPath,
                 objectName,
             }),
-        ];    }
+        ];
+    }
     return [];
 }
 

@@ -86,7 +86,9 @@ const foundryApplicationsApi = {
         }
         render() {}
         _prepareContext() {}
-        _preparePartContext(_partId, context, _options) { return Promise.resolve(context); }
+        _preparePartContext(_partId, context, _options) {
+            return Promise.resolve(context);
+        }
         _onRender() {}
         addEventListener() {}
         close() {}

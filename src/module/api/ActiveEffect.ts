@@ -13,14 +13,13 @@ declare class _FoundryActiveEffect extends FoundryDocument {
     readonly transfer: boolean;
     readonly disabled: boolean;
 
-
     get isSuppressed(): boolean;
 
     /** The source item, if this effect was transferred from an item. */
     get item(): Item | null;
 
     /** The owning actor or parent of the owning item, if any */
-    get actor(): Actor |null;
+    get actor(): Actor | null;
 
     static defineSchema(): object;
 }

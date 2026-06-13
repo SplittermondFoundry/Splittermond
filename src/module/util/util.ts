@@ -29,9 +29,9 @@ export function fromExpression(expressionCalculator: () => Expression) {
 export type ExpressionBundle = ReturnType<typeof fromExpression>;
 export type ValueBundle = Omit<ExpressionBundle, "expression">;
 
-export function not<T>(func: (input:T)=>boolean) {
-    return (input:T)=>!func(input);
+export function not<T>(func: (input: T) => boolean) {
+    return (input: T) => !func(input);
 }
-export function and<T>(op1: (input:T)=>boolean, op2: (input:T)=>boolean) {
-    return (input:T)=>op1(input) && op2(input);
+export function and<T>(op1: (input: T) => boolean, op2: (input: T) => boolean) {
+    return (input: T) => op1(input) && op2(input);
 }

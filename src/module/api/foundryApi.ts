@@ -336,11 +336,21 @@ export const foundryApi = new (class FoundryApi {
         activeEffects: {
             register(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return foundry.applications.apps.DocumentSheetConfig.registerSheet(ActiveEffect, scope, sheetClass, options);
+                return foundry.applications.apps.DocumentSheetConfig.registerSheet(
+                    ActiveEffect,
+                    scope,
+                    sheetClass,
+                    options
+                );
             },
             unregister(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return foundry.applications.apps.DocumentSheetConfig.unregisterSheet(ActiveEffect, scope, sheetClass, options);
+                return foundry.applications.apps.DocumentSheetConfig.unregisterSheet(
+                    ActiveEffect,
+                    scope,
+                    sheetClass,
+                    options
+                );
             },
         },
     };
