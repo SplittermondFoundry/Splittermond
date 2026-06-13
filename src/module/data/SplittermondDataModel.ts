@@ -1,4 +1,5 @@
 import { DataModel } from "../api/DataModel";
+import type { DataModelValidationFailure } from "module/api/foundryTypes";
 
 //@ts-ignore
 const FoundryDataModelConstructor = foundry.abstract.DataModel as typeof DataModel;
@@ -35,28 +36,32 @@ type DataFieldOption<T, REQ extends boolean, NULL extends boolean> = {
  * The __brand key that these objects carry facilitates this, because it ensures that the individual types do not extend
  * one another.
  */
+interface CommonFieldFunctions<T> {
+    initial: undefined | T;
+    validate(value: unknown): DataModelValidationFailure | void;
+}
 // @ts-ignore: unused-parameters
-type ObjectField<REQ, NULL> = { __brand: "ObjectField" };
+type ObjectField<REQ, NULL> = { __brand: "ObjectField" } & CommonFieldFunctions<object>;
 // @ts-ignore: unused-parameters
-type BooleanField<REQ, NULL> = { __brand: "BooleanField" };
+type BooleanField<REQ, NULL> = { __brand: "BooleanField" } & CommonFieldFunctions<boolean>;
 // @ts-ignore: unused-parameters
-type StringField<REQ, NULL> = { __brand: "StringField" };
+type StringField<REQ, NULL> = { __brand: "StringField" } & CommonFieldFunctions<string>;
 // @ts-ignore: unused-parameters
-type HTMLField<REQ, NULL> = { __brand: "HtmlField" };
+type HTMLField<REQ, NULL> = { __brand: "HtmlField" } & CommonFieldFunctions<string>;
 // @ts-ignore: unused-parameters
-type NumberField<REQ, NULL> = { __brand: "NumberField" };
+type NumberField<REQ, NULL> = { __brand: "NumberField" } & CommonFieldFunctions<number>;
 // @ts-ignore: unused-parameters
-type ArrayField<A, REQ, NULL> = { __brand: "ArrayField" };
+type ArrayField<A, REQ, NULL> = { __brand: "ArrayField" } & CommonFieldFunctions<A[]>;
 // @ts-ignore: unused-parameters
-type EmbeddedDataField<E, REQ, NULL> = { __brand: "EmbeddedDataField" };
+type EmbeddedDataField<E, REQ, NULL> = { __brand: "EmbeddedDataField" } & CommonFieldFunctions<E[]>;
 // @ts-ignore: unused-parameters
-type SchemaField<S, REQ, NULL> = { __brand: "SchemaField" };
+type SchemaField<S, REQ, NULL> = { __brand: "SchemaField" } & CommonFieldFunctions<S>;
 
 //These are extensions of the above types. they don't exist as actual objects from foundy but allow us to type narrow
 // @ts-ignore: unused-parameters
-type StringEnumField<E, REQ, NULL> = { __brand: "StringEnumField" };
+type StringEnumField<E, REQ, NULL> = { __brand: "StringEnumField" } & CommonFieldFunctions<E>;
 // @ts-ignore: unused-parameters
-type TypedObjectField<T, REQ, NULL> = { __brand: "TypedObjectField" };
+type TypedObjectField<T, REQ, NULL> = { __brand: "TypedObjectField" } & CommonFieldFunctions<T>;
 
 type ValidatedOption<T, REQ extends boolean, NULL extends boolean> = Required<
     Pick<DataFieldOption<T, REQ, NULL>, "validate">
@@ -168,6 +173,6 @@ type FilterRequired<CONDITON, RETURN> = HasUndefined<CONDITON> extends false ? R
 type MakeUndefinedOptional<T> = {
     [OPTIONAL in keyof T as FilterOptional<T[OPTIONAL], OPTIONAL>]+?: Exclude<T[OPTIONAL], undefined>;
 } & { [REQUIRED in keyof T as FilterRequired<T[REQUIRED], REQUIRED>]: T[REQUIRED] };
-
+type InstancedType<T> = DataFieldMapper<T>;
 export { SplittermondDataModel, fields, fieldExtensions };
-export type { DataModelSchemaType };
+export type { DataModelSchemaType, InstancedType, DataField };

@@ -320,3 +320,7 @@ declare namespace foundry {
         }
     }
 }
+
+export declare class DataModelValidationFailure {
+    public message: string;
+}
