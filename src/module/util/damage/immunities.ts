@@ -1,10 +1,28 @@
 import { DamageEvent, DamageImplement } from "./DamageEvent";
 import SplittermondActor from "../../actor/actor";
-import { foundryApi } from "../../api/foundryApi";
+import { registerHook } from "module/hooks";
+import { fields } from "module/data/SplittermondDataModel";
 
 export interface Immunity {
     name: string;
 }
+
+const present = { required: true, nullable: false } as const;
+
+const implementImmunityHook = registerHook("splittermond.damage.onImplementImmunity", () => [
+    new fields.EmbeddedDataField(SplittermondActor, present),
+    new fields.EmbeddedDataField(DamageImplement, present),
+    new fields.ArrayField(new fields.AnyField(present), present),
+]);
+const eventImmunityHook = registerHook("splittermond.damage.onEventImmunity", () => [
+    new fields.EmbeddedDataField(SplittermondActor, present),
+    new fields.EmbeddedDataField(DamageEvent, present),
+    new fields.ArrayField(new fields.AnyField(present), present),
+]);
+export const hooks = {
+    eventImmunityHook: eventImmunityHook.subscribe,
+    implementImmunityHook: implementImmunityHook.subscribe,
+};
 
 export function evaluateImplementImmunities(
     implement: DamageImplement,
@@ -12,7 +30,7 @@ export function evaluateImplementImmunities(
 ): Immunity | undefined {
     initDefaultHooks();
     const immunities: unknown[] = [];
-    foundryApi.hooks.call(implementImmunityHook, target, implement, immunities);
+    implementImmunityHook.call(target, implement, immunities);
 
     return immunities.find((immunity) => isImmunity(immunity));
 }
@@ -20,13 +38,10 @@ export function evaluateImplementImmunities(
 export function evaluateEventImmunities(event: DamageEvent, target: SplittermondActor): Immunity | undefined {
     initDefaultHooks();
     const immunities: unknown[] = [];
-    foundryApi.hooks.call(eventImmunityHook, target, event, immunities);
+    eventImmunityHook.call(target, event, immunities);
 
     return immunities.find((immunity) => isImmunity(immunity));
 }
-
-export const implementImmunityHook = "splittermond.damage.onImplementImmunity";
-export const eventImmunityHook = "splittermond.damage.onEventImmunity";
 
 function isImmunity(immunity: unknown): immunity is Immunity {
     return (immunity as Immunity).name !== undefined;
@@ -38,7 +53,7 @@ function initDefaultHooks() {
         return;
     }
     isInitalized = true;
-    foundryApi.hooks.on(eventImmunityHook, (target: SplittermondActor, event: DamageEvent, immunities: unknown[]) => {
+    eventImmunityHook.subscribe((target: SplittermondActor, event: DamageEvent, immunities: unknown[]) => {
         const isStunDamage = event.costBase.costType === "E";
         const isStunImmunity = target.items.find((i) => i.name === "Betäubungsimmunität");
         if (isStunDamage && isStunImmunity) {

@@ -2,13 +2,7 @@ import { DamageRoll } from "module/util/damage/DamageRoll";
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
 import { DamageInitializer } from "module/util/chat/damageChatMessage/initDamage";
-import { foundryApi } from "module/api/foundryApi";
-import {
-    evaluateEventImmunities,
-    evaluateImplementImmunities,
-    eventImmunityHook,
-    implementImmunityHook,
-} from "module/util/damage/immunities";
+import { evaluateEventImmunities, evaluateImplementImmunities, hooks } from "module/util/damage/immunities";
 import { withActor } from "./fixtures";
 import { DamageEvent, DamageImplement } from "module/util/damage/DamageEvent";
 import { CostBase } from "module/util/costs/costTypes";
@@ -112,20 +106,20 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
             damageExplanation: "",
             _baseReductionOverride: 0,
         });
-        const implementIds: number[] = [];
-        const eventIds: number[] = [];
+        const implementUnsubscribers: Function[] = [];
+        const eventUnsubscribers: Function[] = [];
 
         afterEach(() => {
-            implementIds.forEach((id) => foundryApi.hooks.off(implementImmunityHook, id));
-            eventIds.forEach((id) => foundryApi.hooks.off(eventImmunityHook, id));
+            implementUnsubscribers.forEach((unsubscribers) => unsubscribers());
+            eventUnsubscribers.forEach((unsubscribers) => unsubscribers());
         });
         it(
             "should call the immunity handler for individual immunities",
             withActor(async (target) => {
-                const id = foundryApi.hooks.on(implementImmunityHook, (_, __, imms) => {
+                const { unsubscribe } = hooks.implementImmunityHook((_, __, imms) => {
                     imms.push({ name: "Test" });
                 });
-                implementIds.push(id);
+                implementUnsubscribers.push(unsubscribe);
 
                 const immunity = evaluateImplementImmunities(implement, target);
 
@@ -136,13 +130,13 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
         it(
             "should return the first immunity",
             withActor(async (target) => {
-                const id1 = foundryApi.hooks.on(implementImmunityHook, (_, __, imms) => {
+                const { unsubscribe } = hooks.implementImmunityHook((_, __, imms) => {
                     imms.push({ name: "Test" });
                 });
-                const id2 = foundryApi.hooks.on(implementImmunityHook, (_, __, imms) => {
+                const unsubscribe2 = hooks.implementImmunityHook((_, __, imms) => {
                     imms.push({ name: "Test2" });
-                });
-                implementIds.push(id1, id2);
+                }).unsubscribe;
+                implementUnsubscribers.push(unsubscribe, unsubscribe2);
 
                 const immunity = evaluateImplementImmunities(implement, target);
 
@@ -161,10 +155,10 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
                     grazingHitPenalty: 0,
                     implements: [implement],
                 });
-                const id = foundryApi.hooks.on(eventImmunityHook, (_, __, imms) => {
+                const { unsubscribe } = hooks.eventImmunityHook((_, __, imms) => {
                     imms.push({ name: "Test" });
                 });
-                eventIds.push(id);
+                eventUnsubscribers.push(unsubscribe);
 
                 const immunity = evaluateEventImmunities(event, target);
 
@@ -175,10 +169,10 @@ export function DamageProcessingTest(context: QuenchBatchContext) {
         it(
             "should return undefined for no handler",
             withActor(async (target) => {
-                const id = foundryApi.hooks.on(eventImmunityHook, (_, __, imms) => {
+                const { unsubscribe } = hooks.eventImmunityHook((_, __, imms) => {
                     imms.push({ name: "Test" });
                 });
-                eventIds.push(id);
+                eventUnsubscribers.push(unsubscribe);
 
                 const immunity = evaluateImplementImmunities(implement, target);
 

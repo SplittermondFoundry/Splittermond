@@ -86,9 +86,9 @@ export function hooksTest(context: QuenchBatchContext) {
 
             it("should pass multiple params to listeners", () => {
                 const hook = registerHook(
-                    "splittermond.integMulti",
+                    "splittermond.integMulti",()=>[
                     new foundry.data.fields.StringField({ required: true, nullable: false }),
-                    new foundry.data.fields.NumberField({ required: true, nullable: false })
+                    new foundry.data.fields.NumberField({ required: true, nullable: false })]
                 );
                 let receivedP1: any;
                 let receivedP2: any;

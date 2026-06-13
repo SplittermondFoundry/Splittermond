@@ -153,6 +153,7 @@ global.foundry = {
                     this.schema = schema;
                     this.options = options;
                 }
+                validate = typeValidation("object");
             },
             BooleanField: class {
                 /**@type unknown */ options = null;
@@ -173,6 +174,28 @@ global.foundry = {
                 }
 
                 validate = typeValidation("object");
+            },
+            ArrayField: class {
+                /**@type function*/ type = null;
+                /**@type unknown */ options = null;
+
+                constructor(type, options) {
+                    this.type = type;
+                    this.options = options;
+                }
+
+                validate = typeValidation("object");
+            },
+            AnyField: class {
+                /**@type unknown */ options = null;
+
+                constructor(options) {
+                    this.options = options;
+                }
+
+                validate() {
+                    return true;
+                }
             },
         },
     },

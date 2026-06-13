@@ -41,6 +41,8 @@ interface CommonFieldFunctions<T> {
     validate(value: unknown): DataModelValidationFailure | void;
 }
 // @ts-ignore: unused-parameters
+type AnyField = { __brand: "AnyField" } & CommonFieldFunctions<object>;
+// @ts-ignore: unused-parameters
 type ObjectField<REQ, NULL> = { __brand: "ObjectField" } & CommonFieldFunctions<object>;
 // @ts-ignore: unused-parameters
 type BooleanField<REQ, NULL> = { __brand: "BooleanField" } & CommonFieldFunctions<boolean>;
@@ -78,7 +80,8 @@ type DataField<T = unknown, REQ extends boolean = true, NULL extends boolean = f
     | EmbeddedDataField<T, REQ, NULL>
     | SchemaField<T, REQ, NULL>
     | StringEnumField<T, REQ, NULL>
-    | TypedObjectField<T, REQ, NULL>;
+    | TypedObjectField<T, REQ, NULL>
+    | AnyField;
 
 interface DataFields {
     ObjectField: new <REQ extends boolean, NULL extends boolean>(
@@ -108,6 +111,7 @@ interface DataFields {
     HTMLField: new <REQ extends boolean, NULL extends boolean>(
         x: DataFieldOption<string, REQ, NULL>
     ) => HTMLField<REQ, NULL>;
+    AnyField: new (x: DataFieldOption<string, boolean, boolean>) => AnyField;
 }
 
 //@ts-ignore
@@ -152,7 +156,9 @@ type DataFieldMapper<T> =
                         ? StringEnumFieldMap<E, REQ, NULL>
                         : T extends TypedObjectField<infer O, infer REQ, infer NULL>
                           ? TypedObjectFieldMap<O, REQ, NULL>
-                          : never;
+                          : T extends AnyField
+                            ? AnyFieldMapper
+                            : never;
 type ObjectFieldMap<REQ, NULL> = object | WithReq<REQ> | WithNull<NULL>;
 type BooleanFieldMap<REQ, NULL> = boolean | WithReq<REQ> | WithNull<NULL>;
 type StringFieldMap<REQ, NULL> = string | WithReq<REQ> | WithNull<NULL>;
@@ -160,6 +166,7 @@ type NumberFieldMap<REQ, NULL> = number | WithReq<REQ> | WithNull<NULL>;
 type ArrayFieldMap<A, REQ, NULL> = DataFieldMapper<A>[] | WithReq<REQ> | WithNull<NULL>;
 type EmbeddedDataFieldMap<E, REQ, NULL> = E | WithReq<REQ> | WithNull<NULL>;
 type SchemaFieldMap<S, REQ, NULL> = MemberDefinitionContainerMapper<S> | WithReq<REQ> | WithNull<NULL>;
+type AnyFieldMapper = any;
 
 type StringEnumFieldMap<E, REQ, NULL> = E extends string ? E | WithReq<REQ> | WithNull<NULL> : never;
 type TypedObjectFieldMap<O, REQ, NULL> = O extends object ? O | WithReq<REQ> | WithNull<NULL> : never;
