@@ -15,9 +15,10 @@ import type { IModifier } from "module/modifiers";
 import type { SplittermondAttribute } from "module/config/attributes";
 import { isMember } from "module/util/util";
 import Modifiable from "module/actor/modifiable";
-import { RollType } from "module/config/check";
-import { CheckReport } from "module/check";
+import { rollType, RollType } from "module/config/check";
+import { CheckReport, type GenericRollEvaluation } from "module/check";
 import { SplittermondSkill } from "module/config/skillGroups";
+import { registerHook } from "module/hooks";
 
 function newSkillAttribute() {
     const id = new fieldExtensions.StringEnumField({
@@ -252,6 +253,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         if (!checkData) {
             return false;
         }
+        beforeCheck.call(this, checkData);
         const principalTarget = Array.from(foundryApi.currentUser.targets)[0] as any;
         const rollDifficulty = parseRollDifficulty(checkData.difficulty);
         const hideDifficulty = rollDifficulty.isTargetDependentValue();
@@ -273,7 +275,15 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             };
         });
 
-        const immediateRollResult = await Dice.check(this, parsedDifficulty, checkData.rollType, condensedModifiers);
+        const transferObject = { parsedDifficulty, rollType: checkData.rollType, condensedModifiers };
+        beforeRoll.call(this, transferObject);
+        const immediateRollResult = await Dice.check(
+            this,
+            transferObject.parsedDifficulty,
+            transferObject.rollType,
+            transferObject.condensedModifiers
+        );
+        afterRoll.call(this, immediateRollResult);
         let rollResult = modifyEvaluation(
             {
                 ...immediateRollResult,
@@ -314,6 +324,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
                     description: item.system.description,
                 })),
             };
+            afterCheck.call(this, report);
             return {
                 rollOptions: ChatMessage.applyMode(
                     {
@@ -453,3 +464,31 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         return this.getFormula().render();
     }
 }
+
+const present = { required: true, nullable: false } as const;
+const beforeCheck = registerHook("splittermond.check.onBeforeCheck", () => [
+    new fields.EmbeddedDataField(Skill, present),
+    new fieldExtensions.TypedObjectField({ ...present, validate: (x: CheckDialogData) => typeof x === "object" }),
+]);
+const beforeRoll = registerHook("splittermond.check.onBeforeRoll", () => [
+    new fields.EmbeddedDataField(Skill, present),
+    new fields.SchemaField(
+        {
+            parsedDifficulty: new fields.NumberField(present),
+            rollType: new fieldExtensions.StringEnumField({
+                ...present,
+                validate: (x: RollType) => isMember(Object.keys(rollType), x),
+            }),
+            condensedModifiers: new fields.NumberField(present),
+        },
+        present
+    ),
+]);
+const afterRoll = registerHook("splittermond.check.onAfterRoll", () => [
+    new fields.EmbeddedDataField(Skill, present),
+    new fieldExtensions.TypedObjectField({ ...present, validate: (x: GenericRollEvaluation) => typeof x === "object" }),
+]);
+const afterCheck = registerHook("splittermond.check.onAfterCheck", () => [
+    new fields.EmbeddedDataField(Skill, present),
+    new fieldExtensions.TypedObjectField({ ...present, validate: (x: CheckReport) => typeof x === "object" }),
+]);

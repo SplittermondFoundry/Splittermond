@@ -1,3 +1,12 @@
+## 14.2.0
+
+### New Features
+
+- Es gibt jetzt eine Reihe von Hooks in der zentralen Probenverarbeitungsroutine (skill.roll)
+- Es gibt ein globales Register aller Splittermond Hooks, welches unter `game.splittermond.API.hooks` zu finden ist.
+
+### Fixes
+
 ## 14.1.1
 
 ### Fixes
