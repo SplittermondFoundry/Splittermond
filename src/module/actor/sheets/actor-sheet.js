@@ -754,7 +754,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 return this.actor.deleteEmbeddedDocuments("Item", [newDocument.id]);
             }
 
-            await newDocument.update({ system: { skill: selectedSkill.skill, skillLevel: selectedSkill.level } });
+            return newDocument.update({ system: { skill: selectedSkill.skill, skillLevel: selectedSkill.level } });
         }
         if (newDocument.type === "mastery") {
             const allowedSkills = splittermond.skillGroups.all;
@@ -777,9 +777,8 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 return this.actor.deleteEmbeddedDocuments("Item", [newDocument.id]);
             }
 
-            await newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
+            return newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
         }
-        return newDocument;
     }
 
     /**
