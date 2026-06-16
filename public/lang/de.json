@@ -160,6 +160,22 @@
                 "costFormula": "Kostenformel",
                 "skill": "Fertigkeit",
                 "baseHint": "Basis-Effekte verwenden die Standard-Felder."
+            },
+            "duration": {
+                "header": "Dauer",
+                "mode": "Typ",
+                "timed": "Zeitlich begrenzt",
+                "channelled": "Kanalisiert",
+                "permanent": "Dauerhaft",
+                "value": "Dauer",
+                "unit": "Einheit",
+                "startTick": "Start-Tick",
+                "unitTicks": "Ticks",
+                "unitMinutes": "Minuten",
+                "unitHours": "Stunden",
+                "unitDays": "Tage",
+                "unitWeeks": "Wochen",
+                "unitMonths": "Monate"
             }
         },
         "furtherActions": "Weitere Aktionen",
@@ -826,5 +842,20 @@
     },
     "COMBAT": {
         "Round": "Tick {round}"
+    },
+    "EFFECT": {
+        "DURATION": {
+            "ROUNDS": {
+                "one": "1 Tick",
+                "other": "{rounds} Ticks"
+            },
+            "ROUNDS_AGO": {
+                "one": "vor 1 Tick",
+                "other": "vor {rounds} Ticks"
+            },
+            "UNITS": {
+                "rounds": "Ticks"
+            }
+        }
     }
 }
