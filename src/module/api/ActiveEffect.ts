@@ -21,6 +21,16 @@ declare class _FoundryActiveEffect extends FoundryDocument {
     /** The owning actor or parent of the owning item, if any */
     get actor(): Actor | null;
 
+    duration: {
+        value: number | null;
+        units: string;
+        expiry: string | null;
+        expired: boolean;
+        remaining: number;
+        label: string;
+        start?: { round?: number; turn?: number; time?: number };
+    };
+
     static defineSchema(): object;
 }
 

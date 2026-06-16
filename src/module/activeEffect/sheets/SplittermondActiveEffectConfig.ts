@@ -7,33 +7,157 @@ import type { AddModifierResult } from "module/modifiers/modifierAddition";
 import { MODIFIER_TYPES } from "module/activeEffect/dataModel/effectTypes";
 import { buildCostEffectData, buildScalarEffectData } from "module/activeEffect/effectBuilder";
 import { type ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import type { SplittermondActiveEffect, DurationMode } from "module/activeEffect/SplittermondActiveEffect";
+import type { ICostModifier } from "module/util/costs/spellCostManagement";
 
-type ActiveEffectDocument = FoundryDocument & {
-    type: string;
-    uuid: string;
-    system: Record<string, unknown>;
-    parent?: FoundryDocument;
-    getFlag: (scope: string, key: string) => unknown;
-};
+type ActiveEffectDocument = SplittermondActiveEffect;
+
+const DURATION_MODE_PATH = "flags.splittermond.durationMode" as const;
+const DURATION_VALUE_PATH = "duration.value" as const;
+const DURATION_UNITS_PATH = "duration.units" as const;
+const DURATION_EXPIRY_PATH = "duration.expiry" as const;
+const TICK_EXPIRY = "roundEnd" as const;
+
+const DURATION_MODE_CHOICES = {
+    timed: "splittermond.activeEffect.duration.timed",
+    channelled: "splittermond.activeEffect.duration.channelled",
+    permanent: "splittermond.activeEffect.duration.permanent",
+} as const;
+
+const DURATION_UNIT_CHOICES = {
+    rounds: "splittermond.activeEffect.duration.unitTicks",
+    minutes: "splittermond.activeEffect.duration.unitMinutes",
+    hours: "splittermond.activeEffect.duration.unitHours",
+    days: "splittermond.activeEffect.duration.unitDays",
+    weeks: "splittermond.activeEffect.duration.unitWeeks",
+    months: "splittermond.activeEffect.duration.unitMonths",
+} as const;
+
+type DurationUnit = keyof typeof DURATION_UNIT_CHOICES;
+
+function prepareDurationContext(context: ApplicationRenderContext, document: ActiveEffectDocument): ApplicationRenderContext {
+    const durationMode = document.durationMode;
+    const duration = document.duration ?? {};
+    const durationUnits = readDurationUnits(duration.units);
+    const startRound = duration.start?.round;
+
+    context.durationMode = durationMode;
+    context.durationModeChoices = DURATION_MODE_CHOICES;
+    context.durationUnitChoices = DURATION_UNIT_CHOICES;
+    context.durationUnits = durationUnits;
+    context.durationValue = readTimedDurationValue(duration.value);
+    context.durationExpiry = durationUnits === "rounds" ? TICK_EXPIRY : "";
+    context.startTick = typeof startRound === "number" ? startRound : null;
+    return context;
+}
+
+function processDurationFormData(submitData: Record<string, unknown>): void {
+    const durationMode = readDurationMode(readPath(submitData, DURATION_MODE_PATH));
+    setPath(submitData, DURATION_MODE_PATH, durationMode);
+
+    if (durationMode !== "timed") {
+        setPath(submitData, DURATION_VALUE_PATH, null);
+        setPath(submitData, DURATION_UNITS_PATH, "seconds");
+        setPath(submitData, DURATION_EXPIRY_PATH, null);
+        return;
+    }
+
+    const durationUnits = readDurationUnits(readPath(submitData, DURATION_UNITS_PATH));
+    setPath(submitData, DURATION_VALUE_PATH, readTimedDurationValue(readPath(submitData, DURATION_VALUE_PATH)));
+    setPath(submitData, DURATION_UNITS_PATH, durationUnits);
+    setPath(submitData, DURATION_EXPIRY_PATH, durationUnits === "rounds" ? TICK_EXPIRY : null);
+}
+
+function readDurationMode(value: unknown): DurationMode {
+    if (value === "timed" || value === "channelled" || value === "permanent") return value;
+    return "permanent";
+}
+
+function readDurationUnits(value: unknown): DurationUnit {
+    if (typeof value !== "string") return "rounds";
+    return value in DURATION_UNIT_CHOICES ? (value as DurationUnit) : "rounds";
+}
+
+function readTimedDurationValue(value: unknown): number {
+    if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
+    if (typeof value === "string") {
+        const parsedValue = Number(value);
+        if (Number.isFinite(parsedValue) && parsedValue > 0) return parsedValue;
+    }
+    return 1;
+}
+
+function readPath(source: object, path: string): unknown {
+    return foundryApi.utils.resolveProperty(source, path);
+}
+
+function setPath(target: Record<string, unknown>, path: string, value: unknown): void {
+    const keys = path.split(".");
+    let current: Record<string, unknown> = target;
+    for (const key of keys.slice(0, -1)) {
+        const next = current[key];
+        if (typeof next !== "object" || next === null || Array.isArray(next)) {
+            current[key] = {};
+        }
+        current = current[key] as Record<string, unknown>;
+    }
+    const finalKey = keys[keys.length - 1];
+    current[finalKey] = value;
+}
 
 export class BaseActiveEffectConfig extends FoundryActiveEffectConfig {
     static DEFAULT_OPTIONS = {
         classes: ["splittermond"],
+        form: {
+            submitOnChange: true,
+            closeOnSubmit: false,
+        },
         position: {
             width: 562,
         },
     };
+
+    static PARTS = {
+        ...(FoundryActiveEffectConfig.PARTS ?? {}),
+        duration: {
+            template: `${TEMPLATE_BASE_PATH}/sheets/active-effect/duration.hbs`,
+        },
+    };
+
+    get document(): ActiveEffectDocument {
+        return super.document as ActiveEffectDocument;
+    }
+
+    async _preparePartContext(partId: string, context: ApplicationRenderContext, options?: object): Promise<ApplicationRenderContext> {
+        const partContext = (await super._preparePartContext(partId, context, options ?? {}));
+        if (partId !== "duration") return partContext;
+        return prepareDurationContext(partContext, this.document);
+    }
+
+    _processFormData(event: Event, form: HTMLFormElement, formData: { object: Record<string, unknown> }): object {
+        const submitData = super._processFormData(event, form, formData) as Record<string, unknown>;
+        processDurationFormData(submitData);
+        return submitData;
+    }
+
 }
 
 export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
     static DEFAULT_OPTIONS = {
         classes: ["splittermond"],
+        form: {
+            submitOnChange: true,
+            closeOnSubmit: false,
+        },
         position: {
             width: 562,
         },
     };
     static PARTS = {
         ...(FoundryActiveEffectConfig.PARTS ?? {}),
+        duration: {
+            template: `${TEMPLATE_BASE_PATH}/sheets/active-effect/duration.hbs`,
+        },
         changes: {
             template: `${TEMPLATE_BASE_PATH}/sheets/active-effect/effects.hbs`,
         },
@@ -59,6 +183,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
         options?: object
     ): Promise<ApplicationRenderContext> {
         const partContext = await super._preparePartContext(partId, context, options ?? {});
+        if (partId === "duration") return prepareDurationContext(partContext, this.document);
         if (partId !== "changes") return partContext;
         return this.#prepareEffectsContext(partContext);
     }
@@ -82,8 +207,9 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
 
         if (effectType === "costModifier") {
             context.effectsType = "costModifier";
-            context.costFormula = `${effect.system.label ?? ""}`;
-            const skill = effect.system.skill;
+            const costSystem = effect.system as ICostModifier;
+            context.costFormula = `${costSystem.label ?? ""}`;
+            const skill = costSystem.skill;
             context.costSkill = typeof skill === "string" ? skill : "";
             return context;
         }
@@ -94,6 +220,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
 
     _processFormData(event: Event, form: HTMLFormElement, formData: { object: Record<string, unknown> }): object {
         const submitData = super._processFormData(event, form, formData) as Record<string, unknown>;
+        processDurationFormData(submitData);
         if (this.#isModifierType(this.document.type)) {
             const rawInput = this.#readString(submitData, "splittermondRawInput");
             delete submitData.splittermondRawInput;
