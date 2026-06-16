@@ -1,0 +1,35 @@
+<section class="tab duration{{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+    <div class="splittermond-active-effect-duration">
+        <div class="form-group">
+            <label>{{localize "splittermond.activeEffect.duration.mode"}}</label>
+            <select name="flags.splittermond.durationMode">
+                {{selectOptions durationModeChoices selected=durationMode localize=true}}
+            </select>
+        </div>
+
+        {{#if (eq durationMode "timed")}}
+            <div class="form-group">
+                <label>{{localize "splittermond.activeEffect.duration.value"}}</label>
+                <input type="number" name="duration.value" value="{{durationValue}}" step="1" min="1" />
+            </div>
+            <div class="form-group">
+                <label>{{localize "splittermond.activeEffect.duration.unit"}}</label>
+                <select name="duration.units">
+                    {{selectOptions durationUnitChoices selected=durationUnits localize=true}}
+                </select>
+            </div>
+            <input type="hidden" name="duration.expiry" value="{{durationExpiry}}" />
+        {{else if (eq durationMode "channelled")}}
+            <p class="hint">{{localize "splittermond.activeEffect.duration.channelled"}}</p>
+        {{else}}
+            <p class="hint">{{localize "splittermond.activeEffect.duration.permanent"}}</p>
+        {{/if}}
+
+        {{#if (ne startTick null)}}
+            <div class="form-group">
+                <label>{{localize "splittermond.activeEffect.duration.startTick"}}</label>
+                <span>{{startTick}}</span>
+            </div>
+        {{/if}}
+    </div>
+</section>

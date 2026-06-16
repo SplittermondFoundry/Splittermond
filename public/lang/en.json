@@ -140,6 +140,22 @@
                 "skill": "Skill",
                 "baseHint": "Base effects use the default fields."
             },
+            "duration": {
+                "header": "Duration",
+                "mode": "Type",
+                "timed": "Timed",
+                "channelled": "Channelled",
+                "permanent": "Permanent",
+                "value": "Duration",
+                "unit": "Unit",
+                "startTick": "Start Tick",
+                "unitTicks": "Ticks",
+                "unitMinutes": "Minutes",
+                "unitHours": "Hours",
+                "unitDays": "Days",
+                "unitWeeks": "Weeks",
+                "unitMonths": "Months"
+            },
             "edit": "Edit Effect"
             }
     },
@@ -286,5 +302,20 @@
     },
     "COMBAT": {
         "Round": "Tick {round}"
+    },
+    "EFFECT": {
+        "DURATION": {
+            "ROUNDS": {
+                "one": "1 Tick",
+                "other": "{rounds} Ticks"
+            },
+            "ROUNDS_AGO": {
+                "one": "1 Tick Ago",
+                "other": "{rounds} Ticks Ago"
+            },
+            "UNITS": {
+                "rounds": "Ticks"
+            }
+        }
     }
 }
