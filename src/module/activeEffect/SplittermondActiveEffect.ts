@@ -3,9 +3,12 @@ import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import { SplittermondBaseActiveEffect } from "module/data/SplittermondBaseActiveEffect";
 import { and, isMember } from "module/util/util";
 import type { DataModelUpdateOptions, DatabaseUpdateOperation } from "module/api/foundryTypes";
+import { foundryApi } from "module/api/foundryApi";
 import { COST_MODIFIER_TYPES, type EffectType, MODIFIER_TYPES } from "./dataModel/effectTypes";
 
 export type { EffectType };
+
+export type DurationMode = "timed" | "channelled" | "permanent";
 
 /**
  * Splittermond system subclass of ActiveEffect.
@@ -63,6 +66,25 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
             return this.system as ICostModifier;
         }
         return null;
+    }
+
+    get durationMode(): DurationMode {
+        const value = this.getFlag("splittermond", "durationMode");
+        if (value === "timed" || value === "channelled" || value === "permanent") return value;
+        return "permanent";
+    }
+
+    set durationMode(mode: DurationMode) {
+        this.setFlag("splittermond", "durationMode", mode);
+    }
+
+    override prepareDerivedData(): void {
+        super.prepareDerivedData();
+        if (this.durationMode === "channelled") {
+            this.duration.label = foundryApi.localize("splittermond.activeEffect.duration.channelled");
+        } else if (this.durationMode === "permanent") {
+            this.duration.label = foundryApi.localize("splittermond.activeEffect.duration.permanent");
+        }
     }
 
     updateSource(data: object, operation: DataModelUpdateOptions = {}): object {

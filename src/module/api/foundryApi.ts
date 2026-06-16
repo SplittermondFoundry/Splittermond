@@ -337,6 +337,7 @@ export const foundryApi = new (class FoundryApi {
             register(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
                 return foundry.applications.apps.DocumentSheetConfig.registerSheet(
+                    // @ts-ignore
                     ActiveEffect,
                     scope,
                     sheetClass,
@@ -346,6 +347,7 @@ export const foundryApi = new (class FoundryApi {
             unregister(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
                 return foundry.applications.apps.DocumentSheetConfig.unregisterSheet(
+                    // @ts-ignore
                     ActiveEffect,
                     scope,
                     sheetClass,
