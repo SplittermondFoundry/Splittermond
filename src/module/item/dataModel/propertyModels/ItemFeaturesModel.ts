@@ -6,7 +6,7 @@ import { DataModelConstructorInput } from "module/api/DataModel";
 import { foundryApi } from "module/api/foundryApi";
 import { SplittermondItemDataModel } from "../../index";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
-import { evaluate } from "module/modifiers/expressions/scalar";
+import { syncEvaluate } from "module/modifiers/expressions/scalar";
 import { DocumentAccessMixin } from "module/data/AncestorDocumentMixin";
 
 function FeaturesSchema() {
@@ -71,7 +71,7 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
             .withAttributeValuesOrAbsent("skill", this.getItemSkill() ?? "")
             .getModifiers()
             .flatMap((m) => {
-                const value = `${evaluate(m.value)}` || "";
+                const value = `${syncEvaluate(m.value)}` || "";
                 return parseFeatures(`${m.attributes.feature} ${value}`);
             })
             .map((f) => new ItemFeatureDataModel(f));

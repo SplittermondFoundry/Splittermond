@@ -39,8 +39,8 @@ describe("Expressions", () => {
             [pow(of(3), of(2)), 9, of(9), "3 ^ 2", "pow(3,2)"],
         ] as const
     ).forEach(([input, evaluated, condensed, stringRepresentation, rollRepresentation]) => {
-        it(`simple expression ${stringRepresentation} should evaluate to ${evaluated}`, () => {
-            expect(evaluate(input)).to.equal(evaluated);
+        it(`simple expression ${stringRepresentation} should evaluate to ${evaluated}`, async () => {
+            expect(await evaluate(input)).to.equal(evaluated);
         });
 
         it(`simple expression ${stringRepresentation} should condense to ${stringRepresentation}`, () => {
@@ -83,8 +83,8 @@ describe("Expressions", () => {
             ],
         ] as const
     ).forEach(([input, evaluated, condensed, stringRepresentation, rollRepresentation]) => {
-        it(`braced expression ${stringRepresentation} should evaluate to ${evaluated}`, () => {
-            expect(evaluate(input)).to.equal(evaluated);
+        it(`braced expression ${stringRepresentation} should evaluate to ${evaluated}`, async () => {
+            expect(await evaluate(input)).to.equal(evaluated);
         });
 
         it(`braced expression ${stringRepresentation} should convert to roll representation`, () => {
@@ -121,9 +121,9 @@ describe("Expressions", () => {
         });
         afterEach(() => sandbox.restore());
 
-        it("should evaluate to the value of the property", () => {
+        it("should evaluate to the value of the property", async () => {
             const property = roll(createTestRoll("1d6", [3]));
-            expect(evaluate(property)).to.equal(3);
+            expect(await evaluate(property)).to.equal(3);
         });
 
         it("should not condense property ", () => {
@@ -175,26 +175,26 @@ describe("Expressions", () => {
     });
 
     describe("Reference Expressions", () => {
-        it("should evaluate to the value of the property", () => {
+        it("should evaluate to the value of the property", async () => {
             const property = ref("value", { value: 3 }, "value");
-            expect(evaluate(property)).to.equal(3);
+            expect(await evaluate(property)).to.equal(3);
         });
 
-        it("should omit properties of the wrong format when multiplying", () => {
+        it("should omit properties of the wrong format when multiplying", async () => {
             const property = ref("value", { value: "splittermond" }, "value");
             const expression = times(plus(of(3), property), minus(of(4), of(3)));
-            expect(evaluate(expression)).to.deep.equal(3);
+            expect(await evaluate(expression)).to.deep.equal(3);
         });
 
-        it("should omit properties of the wrong format when adding", () => {
+        it("should omit properties of the wrong format when adding", async () => {
             const property = ref("value", { value: "splittermond" }, "value");
             const expression = times(property, minus(of(4), of(3)));
-            expect(evaluate(expression)).to.deep.equal(1);
+            expect(await evaluate(expression)).to.deep.equal(1);
         });
 
-        it("should evaluate nested properties", () => {
+        it("should evaluate nested properties", async () => {
             const property = ref("first.second.third", { first: { second: { third: 3 } } }, "first.second.third");
-            expect(evaluate(property)).to.equal(3);
+            expect(await evaluate(property)).to.equal(3);
         });
 
         it("should not condense property ", () => {
@@ -629,28 +629,28 @@ describe("Roll mapping", () => {
     });
 
     describe("Mulitiplication included", () => {
-        it("should map a roll with a final multiplication term", () => {
+        it("should map a roll with a final multiplication term", async () => {
             const testRoll = createTestRoll("1d6", [6], -3);
             testRoll.terms.push(makeOperator("*"), makeNumeric(2));
             const rollTerm = mapRoll(testRoll);
-            expect(evaluate(rollTerm)).to.equal(0);
+            expect(await evaluate(rollTerm)).to.equal(0);
             expect(asString(rollTerm)).to.equal("1d6 - (3 \u00D7 2)");
         });
 
-        it("should map a roll with a multiplication term", () => {
+        it("should map a roll with a multiplication term", async () => {
             const testRoll = createTestRoll("1d6", [6]);
             testRoll.terms.push(makeOperator("*"), makeNumeric(2));
             const rollTerm = mapRoll(testRoll);
-            expect(evaluate(rollTerm)).to.equal(12);
+            expect(await evaluate(rollTerm)).to.equal(12);
             expect(asString(rollTerm)).to.equal("1d6 \u00D7 2");
         });
 
-        it("should map a roll with a leading multiplication term", () => {
+        it("should map a roll with a leading multiplication term", async () => {
             const testRoll = createTestRoll("1d6", [6]);
             testRoll.terms.push(makeOperator("*"), makeNumeric(2));
             testRoll.terms.push(makeOperator("+"), makeNumeric(1));
             const rollTerm = mapRoll(testRoll);
-            expect(evaluate(rollTerm)).to.equal(13);
+            expect(await evaluate(rollTerm)).to.equal(13);
             expect(asString(rollTerm)).to.equal("1d6 \u00D7 2 + 1");
         });
     });

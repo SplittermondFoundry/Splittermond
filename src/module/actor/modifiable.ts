@@ -20,6 +20,17 @@ export default function Modifiable<TBase extends Constructor<Object>>(base: TBas
             return others.sum + cappedEquipment + cappedMagic;
         }
 
+        async modAsync(): Promise<number> {
+            const equipmentModifiers = this.#equipmentModifiers();
+            const magicModifiers = this.#magicModifiers();
+            const others = this.collectModifiers()
+                .filter((m) => !equipmentModifiers.includes(m))
+                .filter((m) => !magicModifiers.includes(m));
+            const cappedEquipment = Math.min(await equipmentModifiers.sumAsync(), this.actor.bonusCap);
+            const cappedMagic = Math.min(await magicModifiers.sumAsync(), this.actor.bonusCap);
+            return (await others.sumAsync()) + cappedEquipment + cappedMagic;
+        }
+
         /**
          * @returns {Modifiers}
          * @final

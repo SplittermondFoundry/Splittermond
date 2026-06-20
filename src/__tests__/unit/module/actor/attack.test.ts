@@ -4,7 +4,7 @@ import Attack from "module/actor/attack";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import SplittermondActor from "module/actor/actor";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
-import { evaluate, of } from "module/modifiers/expressions/scalar";
+import { of, syncEvaluate } from "module/modifiers/expressions/scalar";
 import { expect } from "chai";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { foundryApi } from "module/api/foundryApi";
@@ -30,7 +30,7 @@ describe("Attack", () => {
     describe("damage calculation", () => {
         beforeEach(() => {
             sandbox.stub(DamageRoll, "fromExpression").callsFake((exp, features) => {
-                const parsed = evaluate(exp);
+                const parsed = syncEvaluate(exp);
                 return new DamageRoll(createTestRoll("", [], parsed), features);
             });
         });

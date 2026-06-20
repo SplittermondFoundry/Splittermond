@@ -10,7 +10,7 @@ import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { CharacterAttribute } from "module/actor/dataModel/CharacterAttribute";
 import Attribute from "module/actor/attribute";
 import { clearMappers } from "module/modifiers/parsing/normalizer";
-import { evaluate, of, pow } from "module/modifiers/expressions/scalar";
+import { of, pow, syncEvaluate } from "module/modifiers/expressions/scalar";
 import { of as ofCost, times } from "module/modifiers/expressions/cost";
 import { stubRollApi } from "../../RollMock";
 import { InverseModifier } from "module/modifiers/impl/InverseModifier";
@@ -677,7 +677,7 @@ describe("addModifier", () => {
                 origin: item,
                 selectable: false,
             });
-            expect(evaluate(result.modifiers[0].value)).to.equal(expected);
+            expect(syncEvaluate(result.modifiers[0].value)).to.equal(expected);
         });
     });
 

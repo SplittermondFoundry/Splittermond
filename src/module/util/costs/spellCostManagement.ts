@@ -1,5 +1,5 @@
 import { CostModifier } from "./Cost";
-import { type CostExpression, evaluate } from "../../modifiers/expressions/cost";
+import { type CostExpression, evaluate, syncEvaluate } from "../../modifiers/expressions/cost";
 
 interface SpellCostReductionManagement {
     spellCostReduction: SpellCostReductionManager;
@@ -61,7 +61,16 @@ class SpellCostReductionManager {
      * convenience method for adding retrieving a modifier without having to get the map first
      */
     getCostModifiers(skill: string, type: string): CostModifier[] {
-        return this.modifiersMap.get(skill, type).map((mod) => evaluate(mod));
+        return this.modifiersMap.get(skill, type).map((mod) => syncEvaluate(mod));
+    }
+
+    async getCostModifiersAsync(skill: string, type: string): Promise<CostModifier[]> {
+        const modifiers = this.modifiersMap.get(skill, type);
+        const results: CostModifier[] = [];
+        for (const mod of modifiers) {
+            results.push(await evaluate(mod));
+        }
+        return results;
     }
 }
 

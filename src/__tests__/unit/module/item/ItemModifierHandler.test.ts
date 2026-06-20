@@ -4,7 +4,7 @@ import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import SplittermondItem from "module/item/item";
 import { foundryApi } from "module/api/foundryApi";
 import { clearMappers } from "module/modifiers/parsing/normalizer";
-import { evaluate, of } from "module/modifiers/expressions/scalar";
+import { of, syncEvaluate } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier } from "module/modifiers/parsing";
 
 describe("ItemModifierHandler", () => {
@@ -236,7 +236,7 @@ describe("ItemModifierHandler", () => {
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(evaluate(result.value)).to.deep.equal(10);
+            expect(syncEvaluate(result.value)).to.deep.equal(10);
         });
 
         it("should take cast duration multiplier to the modifier multipliers power", () => {
@@ -251,7 +251,7 @@ describe("ItemModifierHandler", () => {
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(evaluate(result.value)).to.deep.equal(0.25);
+            expect(syncEvaluate(result.value)).to.deep.equal(0.25);
         });
 
         it("should omit modifier with zero value", () => {

@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { JSDOM } from "jsdom";
 import sinon, { SinonSandbox } from "sinon";
 import CheckDialog, { type CheckDialogInput } from "module/apps/dialog/check-dialog";
-import { evaluate, of, times } from "module/modifiers/expressions/scalar";
+import { of, syncEvaluate, times } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "module/api/foundryApi";
 import Skill from "module/actor/skill";
 
@@ -62,7 +62,7 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(1);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(5);
+            expect(syncEvaluate(result.modifierElements[0].value)).to.equal(5);
         });
 
         it("should read checked emphasis modifier by index", () => {
@@ -80,7 +80,7 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(1);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(2);
+            expect(syncEvaluate(result.modifierElements[0].value)).to.equal(2);
             expect(result.modifierElements[0].description).to.equal("Sichtprobe");
         });
 
@@ -117,7 +117,7 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(1);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(-6);
+            expect(syncEvaluate(result.modifierElements[0].value)).to.equal(-6);
         });
 
         it("should distinguish duplicate emphasis names by index", () => {
@@ -140,7 +140,7 @@ describe("CheckDialog", () => {
 
             // Only the second (index 1) is checked, so only its value should appear
             expect(result.modifierElements).to.have.lengthOf(1);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(5);
+            expect(syncEvaluate(result.modifierElements[0].value)).to.equal(5);
             expect(result.modifierElements[0].description).to.equal("Schwerpunkt");
         });
 
@@ -163,8 +163,8 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(2);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(2);
-            expect(evaluate(result.modifierElements[1].value)).to.equal(5);
+            expect(syncEvaluate(result.modifierElements[0].value)).to.equal(2);
+            expect(syncEvaluate(result.modifierElements[1].value)).to.equal(5);
         });
 
         it("should combine manual modifier with emphasis modifiers", () => {

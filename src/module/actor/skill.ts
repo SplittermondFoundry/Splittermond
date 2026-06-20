@@ -178,6 +178,16 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         return value;
     }
 
+    async valueAsync(): Promise<number> {
+        if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
+
+        let value = (this.attribute1?.value || 0) + (this.attribute2?.value || 0) + this.points;
+        value += await this.modAsync();
+
+        if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
+        return value;
+    }
+
     get selectableModifier(): IModifier[] {
         const fromPath = this.actor.modifier
             .getForIds(...(this._modifierPath as any))
@@ -265,15 +275,20 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             checkData.rollType = (checkData.rollType + "Grandmaster") as RollType;
         }
         let condensedModifiers = 0;
-        const mappedModifiers = checkData.modifierElements.map((mod) => {
-            const value = evaluate(mod.value);
+        const mappedModifiers: {
+            isMalus: boolean;
+            value: string;
+            description: string | undefined;
+        }[] = [];
+        for (const mod of checkData.modifierElements) {
+            const value = await evaluate(mod.value);
             condensedModifiers += value;
-            return {
+            mappedModifiers.push({
                 isMalus: value < 0,
                 value: `${Math.abs(value)}`,
                 description: mod.description,
-            };
-        });
+            });
+        }
 
         const transferObject = { parsedDifficulty, rollType: checkData.rollType, condensedModifiers };
         beforeRoll.call(this, transferObject);
@@ -340,7 +355,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         let checkMessageData = {
             type: options.type || "skill",
             skill: this.id,
-            skillValue: this.value,
+            skillValue: await this.valueAsync(),
             skillPoints: this.points,
             skillAttributes: skillAttributes,
             difficulty: rollResult.difficulty,

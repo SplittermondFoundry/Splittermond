@@ -33,4 +33,13 @@ export class Susceptibilities {
         });
         return susceptibilities;
     }
+
+    async calculateSusceptibilitiesAsync(): Promise<Record<DamageType, number>> {
+        const susceptibilities = { ...this.susceptibilities };
+        for (const type of damageTypes) {
+            susceptibilities[type] =
+                (await this.modifierManager.getForId(`${this.keyword}.${type}`).getModifiers().sumAsync()) ?? 0;
+        }
+        return susceptibilities;
+    }
 }

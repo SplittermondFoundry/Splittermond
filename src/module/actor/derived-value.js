@@ -1,6 +1,6 @@
 import * as Tooltip from "../util/tooltip.js";
 import Modifiable from "./modifiable.js";
-import { evaluate, of, plus, times } from "../modifiers/expressions/scalar/index.js";
+import { evaluate, of, plus, syncEvaluate, times } from "../modifiers/expressions/scalar/index.js";
 
 export default class DerivedValue extends Modifiable(Object) {
     /**@type string[]*/ _modifierPath;
@@ -143,7 +143,14 @@ export default class DerivedValue extends Modifiable(Object) {
 
     get value() {
         if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
-        let value = Math.ceil(evaluate(this.valueAsExpression()));
+        let value = Math.ceil(syncEvaluate(this.valueAsExpression()));
+        if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
+        return value;
+    }
+
+    async valueAsync() {
+        if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
+        let value = Math.ceil(await evaluate(this.valueAsExpression()));
         if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
         return value;
     }

@@ -14,7 +14,7 @@ import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { Susceptibilities } from "./Susceptibilities";
 import { addModifier } from "./addModifierAdapter";
-import { evaluate, of } from "../modifiers/expressions/scalar";
+import { of, syncEvaluate } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
 import { InverseModifier } from "module/modifiers/impl/InverseModifier";
@@ -290,7 +290,7 @@ export default class SplittermondActor extends Actor {
                 `Splittermond | Multiple wound malus level modifiers found on actor ${this.name}. The last one will be used.`
             );
         }
-        const nbrLevelFromMod = evaluate(nbrLevelMods[nbrLevelMods.length - 1]?.value ?? of(0));
+        const nbrLevelFromMod = syncEvaluate(nbrLevelMods[nbrLevelMods.length - 1]?.value ?? of(0));
         return nbrLevelFromMod > 0 ? nbrLevelFromMod : this.system.health.woundMalus.nbrLevels;
     }
 
@@ -1026,7 +1026,7 @@ export default class SplittermondActor extends Actor {
             .withAttributeValuesOrAbsent("skill", skillName)
             .notSelectable()
             .getModifiers()
-            .map((m) => evaluate(m.value));
+            .map((m) => syncEvaluate(m.value));
         const highestValue = Math.max(baseBonus, ...bonusFromModifiers);
         //Issue a warning when someone added a modifier that does not actually benefit them
         if (bonusFromModifiers.length > 0 && highestValue === baseBonus) {
@@ -1224,7 +1224,7 @@ export default class SplittermondActor extends Actor {
         } else if (multiplierFromModifiers.length === 0) {
             return 2;
         } else {
-            return Math.max(...multiplierFromModifiers.map((m) => evaluate(m.value)));
+            return Math.max(...multiplierFromModifiers.map((m) => syncEvaluate(m.value)));
         }
     }
 
@@ -1244,7 +1244,7 @@ export default class SplittermondActor extends Actor {
         } else if (multiplierFromModifiers.length === 0) {
             return 2;
         } else {
-            return Math.max(...multiplierFromModifiers.map((m) => evaluate(m.value)));
+            return Math.max(...multiplierFromModifiers.map((m) => syncEvaluate(m.value)));
         }
     }
 

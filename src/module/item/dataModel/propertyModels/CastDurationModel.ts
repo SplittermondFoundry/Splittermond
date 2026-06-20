@@ -2,7 +2,7 @@ import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } f
 import SplittermondItem from "module/item/item";
 import { foundryApi } from "module/api/foundryApi";
 import { DocumentAccessMixin } from "module/data/AncestorDocumentMixin";
-import { asString, condense, evaluate, isGreaterZero, of, plus, times } from "module/modifiers/expressions/scalar";
+import { asString, condense, evaluate, isGreaterZero, of, plus, syncEvaluate, times } from "module/modifiers/expressions/scalar";
 import type { TimeUnit } from "module/config/timeUnits";
 import { splittermond } from "module/config";
 import { getTimeUnitConversion } from "module/util/util";
@@ -42,7 +42,12 @@ export class CastDurationModel extends DocumentAccessMixin(CastDurationBase, Spl
      * Assuming 100-120 ticks per minute, we'll use 110 as average
      */
     get inTicks(): number {
-        const value = evaluate(this.getTotalDuration());
+        const value = syncEvaluate(this.getTotalDuration());
+        return Math.max(0, Math.floor(value * getTimeUnitConversion(this.unit, "T")));
+    }
+
+    async inTicksAsync(): Promise<number> {
+        const value = await evaluate(this.getTotalDuration());
         return Math.max(0, Math.floor(value * getTimeUnitConversion(this.unit, "T")));
     }
 

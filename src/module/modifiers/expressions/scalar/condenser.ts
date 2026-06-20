@@ -19,15 +19,19 @@ import {
     times,
 } from "./definitions";
 import { exhaustiveMatchGuard } from "module/modifiers/util";
-import { evaluate } from "./evaluation";
+import { syncEvaluate } from "./evaluation";
 
 export function isZero(expression: Expression): boolean {
     //straight forward eval would resolve references and rolls whose values are not constant and thus not reliably zero.
-    return canCondense(expression) && evaluate(expression) === 0;
+    if (!canCondense(expression)) {
+        return false;
+    }
+    const value = syncEvaluate(expression);
+    return Number.isNaN(value) ? false : value === 0;
 }
 export function condense(expression: Expression): Expression {
     if (canCondense(expression)) {
-        return of(evaluate(expression));
+        return of(syncEvaluate(expression));
     }
     if (expression instanceof AddExpression) {
         return condenseOperands(expression.left, expression.right, plus);

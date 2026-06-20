@@ -240,7 +240,7 @@ describe("Skill", () => {
             })) as SkillCheckReport;
 
             expect(result.report.degreeOfSuccess.fromRoll).to.equal(0);
-            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.modification).to.equal(await evaluate(mod.value));
         });
 
         it("should apply success roll modifiers to outstanding rolls", async () => {
@@ -260,7 +260,7 @@ describe("Skill", () => {
             })) as SkillCheckReport;
 
             expect(result.report.degreeOfSuccess.fromRoll).to.equal(8);
-            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.modification).to.equal(await evaluate(mod.value));
         });
 
         it("should apply failure roll modifiers to devastating rolls", async () => {
@@ -280,7 +280,7 @@ describe("Skill", () => {
             })) as SkillCheckReport;
 
             expect(result.report.degreeOfSuccess.fromRoll).to.equal(-9); //malus by Fumble
-            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.modification).to.equal(await evaluate(mod.value));
         });
 
         it("should ignore modifiers for wrong category", async () => {
@@ -323,7 +323,7 @@ describe("Skill", () => {
             })) as SkillCheckReport;
 
             expect(result.report.degreeOfSuccess.fromRoll).to.equal(0);
-            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.modification).to.equal(await evaluate(mod.value));
         });
 
         it("should ignore modifiers for wrong skill", async () => {
@@ -369,7 +369,7 @@ describe("Skill", () => {
             })) as SkillCheckReport;
 
             expect(result.report.degreeOfSuccess.fromRoll).to.equal(0);
-            expect(result.report.degreeOfSuccess.modification).to.equal(evaluate(mod.value));
+            expect(result.report.degreeOfSuccess.modification).to.equal(await evaluate(mod.value));
         });
 
         it("should ignore wrong check type filter", async () => {

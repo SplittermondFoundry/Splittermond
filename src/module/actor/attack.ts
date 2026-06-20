@@ -7,6 +7,7 @@ import {
     mapRoll,
     of,
     plus,
+    syncEvaluate,
 } from "../modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi.js";
 import SplittermondActor from "./actor";
@@ -311,7 +312,24 @@ export default class Attack {
             .withAttributeValuesOrAbsent("skill", this.skill.id)
             .getModifiers().sum;
 
-        this.getImproviationBonus().forEach((bonus) => (weaponSpeed -= evaluate(bonus.damageExpression)));
+        this.getImproviationBonus().forEach((bonus) => (weaponSpeed -= syncEvaluate(bonus.damageExpression)));
+        if (["melee", "slashing", "chains", "blades", "staffs"].includes(this.skill.id))
+            weaponSpeed += parseInt(this.actor.tickMalus);
+        return weaponSpeed;
+    }
+
+    async weaponSpeedAsync() {
+        let weaponSpeed = this.attackData.weaponSpeed;
+        weaponSpeed -= await this.actor.modifier
+            .getForId("item.weaponspeed")
+            .withAttributeValuesOrAbsent("item", this.item.id, this.item.name)
+            .withAttributeValuesOrAbsent("itemType", this.item.type)
+            .withAttributeValuesOrAbsent("skill", this.skill.id)
+            .getModifiers().sumAsync();
+
+        for (const bonus of this.getImproviationBonus()) {
+            weaponSpeed -= await evaluate(bonus.damageExpression);
+        }
         if (["melee", "slashing", "chains", "blades", "staffs"].includes(this.skill.id))
             weaponSpeed += parseInt(this.actor.tickMalus);
         return weaponSpeed;
