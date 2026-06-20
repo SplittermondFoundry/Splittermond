@@ -1,3 +1,10 @@
+## 14.2.2
+
+### Fixes
+
+- In Charakteren lassen sich attribute jetzt wieder setzen.
+- 
+
 ## 14.2.1
 
 ### Fixes
