@@ -5,7 +5,7 @@ import {
     AddExpression,
     AmountExpression,
     DivideExpression,
-    Expression,
+    Expression, MaxExpression, MinExpression,
     MultiplyExpression,
     PowerExpression,
     ReferenceExpression,
@@ -24,19 +24,23 @@ async function doEvaluate(expression: Expression): Promise<number | null> {
     } else if (expression instanceof ReferenceExpression) {
         return new PropertyResolver().numberOrNull(expression.propertyPath, expression.source);
     } else if (expression instanceof AddExpression) {
-        return (await doEvaluate(expression.left) ?? 0) + (await doEvaluate(expression.right) ?? 0);
+        return ((await doEvaluate(expression.left)) ?? 0) + ((await doEvaluate(expression.right)) ?? 0);
     } else if (expression instanceof SubtractExpression) {
-        return (await doEvaluate(expression.left) ?? 0) - (await doEvaluate(expression.right) ?? 0);
+        return ((await doEvaluate(expression.left)) ?? 0) - ((await doEvaluate(expression.right)) ?? 0);
     } else if (expression instanceof MultiplyExpression) {
-        return (await doEvaluate(expression.left) ?? 1) * (await doEvaluate(expression.right) ?? 1);
+        return ((await doEvaluate(expression.left)) ?? 1) * ((await doEvaluate(expression.right)) ?? 1);
     } else if (expression instanceof DivideExpression) {
-        return (await doEvaluate(expression.left) ?? 1) / (await doEvaluate(expression.right) ?? 1);
+        return ((await doEvaluate(expression.left)) ?? 1) / ((await doEvaluate(expression.right)) ?? 1);
     } else if (expression instanceof PowerExpression) {
-        return Math.pow(await doEvaluate(expression.base) ?? 0, await doEvaluate(expression.exponent) ?? 1);
+        return Math.pow((await doEvaluate(expression.base)) ?? 0, (await doEvaluate(expression.exponent)) ?? 1);
     } else if (expression instanceof RollExpression) {
         return expression.evaluate();
     } else if (expression instanceof AbsExpression) {
         return Math.abs(await evaluate(expression.arg));
+    } else if (expression instanceof MinExpression) {
+        return Math.min(...await Promise.all(expression.args.map(evaluate)))
+    } else if (expression instanceof MaxExpression) {
+        return Math.max(...await Promise.all(expression.args.map(evaluate)))
     }
     exhaustiveMatchGuard(expression);
 }
@@ -74,6 +78,10 @@ function syncDoEvaluate(expression: Expression): number | null {
         return Number.NaN;
     } else if (expression instanceof AbsExpression) {
         return Math.abs(syncEvaluate(expression.arg));
+    } else if (expression instanceof MinExpression) {
+        return Math.min(...expression.args.map(syncEvaluate))
+    } else if (expression instanceof MaxExpression) {
+        return Math.max(...expression.args.map(syncEvaluate))
     }
     exhaustiveMatchGuard(expression);
 }

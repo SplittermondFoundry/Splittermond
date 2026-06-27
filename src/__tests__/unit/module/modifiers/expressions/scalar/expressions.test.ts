@@ -9,7 +9,7 @@ import {
     isGreaterZero,
     isLessThan,
     isLessThanZero,
-    mapRoll,
+    mapRoll, max, min,
     minus,
     of,
     plus,
@@ -37,6 +37,8 @@ describe("Expressions", () => {
             [times(of(3), of(3)), 9, of(9), "3 \u00D7 3", "3 * 3"],
             [dividedBy(of(3), of(3)), 1, of(1), "3 / 3", "3 / 3"],
             [pow(of(3), of(2)), 9, of(9), "3 ^ 2", "pow(3,2)"],
+            [min(of(3),of(4),of(5)),3,of(3), "min(3, 4, 5)", "min(3,4,5)"],
+            [max(of(3),of(4),of(5)),5,of(5), "max(3, 4, 5)", "max(3,4,5)"],
         ] as const
     ).forEach(([input, evaluated, condensed, stringRepresentation, rollRepresentation]) => {
         it(`simple expression ${stringRepresentation} should evaluate to ${evaluated}`, async () => {
@@ -174,6 +176,49 @@ describe("Expressions", () => {
         });
     });
 
+    describe("Extremum Functions", ()=> {
+        let sandbox: sinon.SinonSandbox;
+        beforeEach(() => {
+            sandbox = sinon.createSandbox();
+            sandbox.stub(foundryApi, "rollInfra").get(() => {
+                return {
+                    numericTerm(value: number) {
+                        return {
+                            number: value,
+                            _evaluated: false,
+                            total: value,
+                        };
+                    },
+                    rollFromTerms(terms: (OperatorTerm | NumericTerm)[]) {
+                        return MockRoll.fromTerms(terms);
+                    },
+                };
+            });
+        });
+        afterEach(() => sandbox.restore());
+        const one = roll(new MockRoll("1d6+2"));
+        const other = roll(new MockRoll("1d6-2"));
+        ([[min,"min"],[max,"max"]]as const).forEach(([func,str])=>{
+
+            it(`should not condense with ${str} functions`, ()=>{
+                const original = min(one,other)
+                expect(condense(original)).to.be.deep.equal(original);
+            });
+
+            it(`should print ${str} function with arguments`, ()=> {
+                expect(asString(func(one,of(3),other))).to.equal(`${str}(1d6+2, 3, 1d6-2)`);
+            });
+        });
+        it("should not assume the lowest roll result for comparisons with min", ()=> {
+            expect(isLessThanZero(min(other,of(1)))).to.be.null;
+            expect(isGreaterZero(min(other,of(1)))).to.be.null;
+        });
+        it("should not assume the highest roll result for comparisons with max", ()=> {
+            expect(isLessThanZero(max(other,of(-1)))).to.be.null;
+            expect(isGreaterZero(max(other,of(-1)))).to.be.null;
+        });
+    })
+
     describe("Reference Expressions", () => {
         it("should evaluate to the value of the property", async () => {
             const property = ref("value", { value: 3 }, "value");
@@ -294,6 +339,13 @@ describe("Smart constructors", () => {
         expect((result as PowerExpression).base).to.deep.equal(of(2));
         expect((result as PowerExpression).exponent).to.deep.equal(of(3));
     });
+
+    it("should return input for single value in min", ()=>{
+        expect(min(of(3))).to.deep.equal(of(3));
+    })
+    it("should return input for single value in max",()=>{
+        expect(max(of(4))).to.deep.equal(of(4));
+    })
 });
 
 describe("Roll condensation", () => {
