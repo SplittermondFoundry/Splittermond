@@ -20,7 +20,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
             - name: Set up Node.js
               uses: actions/setup-node@v6
               with:
@@ -68,7 +68,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
               with:
                   fetch-depth: 0
             - name: Download versioned sources
@@ -90,7 +90,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
             - name: Download dist artifact
               uses: actions/download-artifact@v8
               with:
@@ -115,7 +115,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
             - name: Set up Node.js
               uses: actions/setup-node@v6
               with:
@@ -139,7 +139,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
             - name: Set up Node.js
               uses: actions/setup-node@v6
               with:
