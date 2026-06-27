@@ -16,7 +16,6 @@ import {
     SubtractExpression,
 } from "./definitions";
 import {condense} from "./condenser";
-import {syncEvaluate} from "./evaluation";
 import {exhaustiveMatchGuard} from "module/modifiers/util";
 import {mapRoll} from "./rollTermMapper";
 import {Die} from "module/api/Roll";
@@ -61,7 +60,7 @@ export function isLessThan(one: Expression, other: Expression): boolean | null {
 function tentativeEvaluate(expression: Expression): { min: number; max: number } {
     const condensed = condense(expression);
     if (condensed instanceof AmountExpression) {
-        const val = syncEvaluate(condensed);
+        const val = condensed.amount;
         return { min: val, max: val };
     } else if (condensed instanceof RollExpression) {
         return evalRolls(condensed);

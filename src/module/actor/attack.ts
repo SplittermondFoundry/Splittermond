@@ -357,22 +357,11 @@ export default class Attack {
         };
     }
 
-    async toObjectAsync() {
+    async makeSnapshot() {
         return {
-            id: this.id,
-            img: this.img,
-            name: this.name,
-            skill: await this.skill.toObjectAsync(),
-            range: this.range,
-            features: this.features,
-            damage: this.damage,
-            damageType: this.damageType,
-            costType: this.costType,
+            ...this.toObject(),
+            skill: await this.skill.makeSnapshot(),
             weaponSpeed: await this.weaponSpeed.calculate(),
-            editable: this.editable,
-            deletable: this.deletable,
-            isPrepared: this.isPrepared,
-            featureList: this.attackData.features.featuresAsStringList(),
         };
     }
 
@@ -387,7 +376,7 @@ export default class Attack {
             modifier: 0,
             checkMessageData: {
                 weapon: {
-                    ...(await this.toObjectAsync()),
+                    ...(await this.makeSnapshot()),
                     damageImplements: this.getForDamageRoll(),
                 },
             },

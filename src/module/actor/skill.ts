@@ -142,23 +142,18 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             ...superObject,
             id: this.id,
             label: this.label,
-            value: this.displayValue,
             attribute1: this.attribute1,
             attribute2: this.attribute2,
         };
     }
 
-    async toObjectAsync() {
-        const superObject = super.toObject();
+    async makeSnapshot() {
         return {
-            ...superObject,
-            id: this.id,
-            label: this.label,
+            ...this.toObject(),
             value: await this.value(),
-            attribute1: this.attribute1,
-            attribute2: this.attribute2,
         };
     }
+
     addModifierPath(...path: string[]) {
         this.updateSource({ _modifierPath: [...this._modifierPath, ...path] });
     }
