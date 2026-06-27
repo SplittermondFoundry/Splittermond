@@ -13,7 +13,10 @@ type ModifyEvaluationInput = GenericRollEvaluation & {
 export function totalDegreesOfSuccess(rollEval: DegreeOfSuccessContainer) {
     return rollEval.degreeOfSuccess.fromRoll + rollEval.degreeOfSuccess.modification;
 }
-export function modifyEvaluation(checkReport: ModifyEvaluationInput, actor: SplittermondActor): GenericRollEvaluation {
+export async function modifyEvaluation(
+    checkReport: ModifyEvaluationInput,
+    actor: SplittermondActor
+): Promise<GenericRollEvaluation> {
     const successState = getSuccessAttributes(checkReport);
     const checkModifiers = actor.modifier
         .getForId("check.result")
@@ -26,7 +29,7 @@ export function modifyEvaluation(checkReport: ModifyEvaluationInput, actor: Spli
         ...checkReport,
         degreeOfSuccess: {
             fromRoll: checkReport.degreeOfSuccess.fromRoll,
-            modification: checkReport.degreeOfSuccess.modification + checkModifiers.sum,
+            modification: checkReport.degreeOfSuccess.modification + (await checkModifiers.sumAsync()),
         },
     };
 }

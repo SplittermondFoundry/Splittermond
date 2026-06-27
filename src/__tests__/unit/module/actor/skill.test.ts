@@ -725,6 +725,11 @@ function setUpActor(sandbox: SinonSandbox) {
     Object.defineProperty(actor, "uuid", { value: "Actor.test-actor-uuid", enumerable: true, writable: false });
     Object.defineProperty(actor.system, "skills", { value: {}, enumerable: true, writable: true });
     Object.defineProperty(actor, "items", { value: [], enumerable: true, writable: true });
+    Object.defineProperty(actor, "bonusCap", {
+        value: { display: "99", expression: of(99), calculate: () => Promise.resolve(99) },
+        enumerable: true,
+        writable: false,
+    });
     actor.findItem.callThrough();
     actor.update.callThrough();
     dataModel.updateSource.callThrough();

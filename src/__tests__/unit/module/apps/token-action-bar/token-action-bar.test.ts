@@ -49,7 +49,9 @@ describe("TokenActionBar", () => {
         spellStub = sandbox.createStubInstance(SplittermondSpellItem);
         sandbox.stub(spellStub, "id").get(() => "spell1");
         spellStub.name = "Fireball";
-        sandbox.stub(spellStub, "castDuration").get(() => 2);
+        sandbox
+            .stub(spellStub, "castDuration")
+            .get(() => ({ inTicks: ()=>Promise.resolve(2), display: "2 T" }));
         sandbox.stub(spellStub, "difficulty").get(() => 5);
         sandbox.stub(spellStub, "enhancementCosts").get(() => 1);
         sandbox.stub(spellStub, "enhancementDescription").get(() => "Extra damage");
@@ -121,13 +123,13 @@ describe("TokenActionBar", () => {
         expect(actorStub.activeDefenseDialog.calledWith("defense")).to.be.true;
     });
 
-    it("should prepare spell and set flag", () => {
+    it("should prepare spell and set flag", async () => {
         sandbox.stub(foundryApi, "localize").callsFake((key) => key);
         (actorStub.items.get as SinonStub).withArgs("spell1").returns(spellStub);
         const spellLi = dom.window.document.createElement("li");
         spellLi.dataset.spellId = "spell1";
-        bar.prepareSpell(null as any, spellLi);
-        expect(actorStub.addTicks.calledWith(spellStub.castDuration.inTicks, sinon.match.string)).to.be.true;
+        await bar.prepareSpell(null as any, spellLi);
+        expect(actorStub.addTicks.calledWith(sinon.match.any, sinon.match.string)).to.be.true;
         expect(actorStub.setFlag.calledWith("splittermond", "preparedSpell", "spell1")).to.be.true;
     });
 

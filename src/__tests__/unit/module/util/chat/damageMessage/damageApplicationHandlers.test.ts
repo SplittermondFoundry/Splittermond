@@ -257,9 +257,9 @@ function createAgentReference(sandbox: SinonSandbox, id: number) {
 function createTargetActor(sandbox: SinonSandbox, id: number) {
     const actor = sandbox.createStubInstance(SplittermondActor);
     actor.name = `Victim${id}`;
-    sandbox.stub(actor, "resistances").get(() => ({ physical: 0 }));
-    sandbox.stub(actor, "weaknesses").get(() => ({ physical: 0 }));
-    sandbox.stub(actor, "damageReduction").get(() => 0);
-    sandbox.stub(actor, "protectedDamageReduction").get(() => 0);
+    sandbox.stub(actor, "resistances").get(() => ({ display: "", calculate: () => Promise.resolve({ physical: 0 }) }));
+    sandbox.stub(actor, "weaknesses").get(() => ({ display: "", calculate: () => Promise.resolve({ physical: 0 }) }));
+    sandbox.stub(actor, "damageReduction").get(() => ({ display: "0", calculate: () => Promise.resolve(0) }));
+    sandbox.stub(actor, "protectedDamageReduction").get(() => ({ display: "0", calculate: () => Promise.resolve(0) }));
     return actor;
 }

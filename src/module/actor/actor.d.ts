@@ -9,8 +9,10 @@ import ModifierManager from "./modifiers/modifier-manager";
 import type { VirtualToken } from "../combat/VirtualToken";
 import type { ItemType } from "module/config/itemTypes";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
+import type { ExpressionBundle, ValueBundle } from "module/util/util";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
+
 declare class SplittermondActor extends Actor {
     private _resistances: Susceptibilities;
     private _weaknesses: Susceptibilities;
@@ -24,16 +26,30 @@ declare class SplittermondActor extends Actor {
 
     get splinterpoints(): { value: number; max: number };
 
-    get weaknesses(): Record<DamageType, number>;
+    get weaknesses(): ValueBundle<Record<DamageType, number>>;
 
-    get resistances(): Record<DamageType, number>;
+    get resistances(): ValueBundle<Record<DamageType, number>>;
     addModifier(item: SplittermondItem, str: string, type: string, multiplier?: number): void;
 
-    get damageReduction(): number;
+    get damageReduction(): ExpressionBundle;
 
-    get protectedDamageReduction(): number;
+    get protectedDamageReduction(): ValueBundle;
 
-    spendSplinterpoint(): { pointSpent: boolean; getBonus(skillName: SplittermondSkill | "health"): number };
+    get tickMalus(): ExpressionBundle;
+
+    get handicap(): ValueBundle;
+
+    get woundMalusMod(): ExpressionBundle;
+
+    get healthRegenMultiplier(): ValueBundle;
+
+    get healthRegenBonus(): ExpressionBundle;
+
+    get focusRegenMultiplier(): ValueBundle;
+
+    get focusRegenBonus(): ExpressionBundle;
+
+    spendSplinterpoint(): { pointSpent: boolean; getBonus(skillName: SplittermondSkill | "health"): Promise<number> };
 
     async rollMagicFumble(eg: number, costs?: string, skill?: SplittermondSkill, askUser = true): Promise<void>;
     async rollAttackFumble(): Promise<FoundryChatMessage>;
@@ -50,6 +66,8 @@ declare class SplittermondActor extends Actor {
 
     attacks: Attack[];
     type: "character" | "npc";
+
+    get bonusCap(): ExpressionBundle;
 }
 
 interface FindOptions {

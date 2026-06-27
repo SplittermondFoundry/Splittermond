@@ -1,4 +1,12 @@
-import { asString, condense, isGreaterThan, isGreaterZero, minus, of } from "module/modifiers/expressions/scalar";
+import {
+    asString,
+    condense,
+    isGreaterThan,
+    isGreaterZero,
+    minus,
+    of,
+    syncEvaluate,
+} from "module/modifiers/expressions/scalar";
 import { Modifiers } from "module/actor/modifiers/Modifiers";
 import SplittermondActor from "./actor";
 
@@ -15,8 +23,9 @@ export default function Modifiable<TBase extends Constructor<Object>>(base: TBas
             const others = this.collectModifiers()
                 .filter((m) => !equipmentModifiers.includes(m))
                 .filter((m) => !magicModifiers.includes(m));
-            const cappedEquipment = Math.min(equipmentModifiers.sum, this.actor.bonusCap);
-            const cappedMagic = Math.min(magicModifiers.sum, this.actor.bonusCap);
+            const bonusCap = syncEvaluate(this.actor.bonusCap.expression);
+            const cappedEquipment = Math.min(equipmentModifiers.sum, bonusCap);
+            const cappedMagic = Math.min(magicModifiers.sum, bonusCap);
             return others.sum + cappedEquipment + cappedMagic;
         }
 
@@ -26,8 +35,9 @@ export default function Modifiable<TBase extends Constructor<Object>>(base: TBas
             const others = this.collectModifiers()
                 .filter((m) => !equipmentModifiers.includes(m))
                 .filter((m) => !magicModifiers.includes(m));
-            const cappedEquipment = Math.min(await equipmentModifiers.sumAsync(), this.actor.bonusCap);
-            const cappedMagic = Math.min(await magicModifiers.sumAsync(), this.actor.bonusCap);
+            const bonusCap = await this.actor.bonusCap.calculate();
+            const cappedEquipment = Math.min(await equipmentModifiers.sumAsync(), bonusCap);
+            const cappedMagic = Math.min(await magicModifiers.sumAsync(), bonusCap);
             return (await others.sumAsync()) + cappedEquipment + cappedMagic;
         }
 
@@ -68,7 +78,7 @@ export default function Modifiable<TBase extends Constructor<Object>>(base: TBas
         //So we calculate the bonus cap again here.
         addModifierTooltipFormulaElements(formula: any): void {
             this.collectModifiers().addTooltipFormulaElements(formula);
-            const bonusCap = of(this.actor.bonusCap);
+            const bonusCap = this.actor.bonusCap.expression;
             const grandTotal = this.#equipmentModifiers().sumExpressions();
             const equipment = minus(this.#equipmentModifiers().sumExpressions(), bonusCap);
             const magic = minus(this.#magicModifiers().sumExpressions(), bonusCap);

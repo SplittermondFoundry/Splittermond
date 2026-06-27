@@ -3,7 +3,7 @@
 ### Fixes
 
 - In Charakteren lassen sich attribute jetzt wieder setzen.
-- 
+-
 
 ## 14.2.1
 

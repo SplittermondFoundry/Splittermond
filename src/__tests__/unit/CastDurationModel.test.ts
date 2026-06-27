@@ -74,19 +74,19 @@ describe("CastDurationModel", () => {
     });
 
     describe("time unit conversion", () => {
-        it("converts ticks correctly", () => {
+        it("converts ticks correctly", async () => {
             const model = createModel(sandbox, { value: 10, unit: "T" });
-            expect(model.inTicks).to.equal(10);
+            expect(await model.inTicks()).to.equal(10);
         });
 
-        it("converts minutes to ticks correctly", () => {
+        it("converts minutes to ticks correctly", async () => {
             const model = createModel(sandbox, { value: 5, unit: "min" });
-            expect(model.inTicks).to.equal(600); // 5 * 120
+            expect(await model.inTicks()).to.equal(600); // 5 * 120
         });
 
-        it("handles fractional minutes", () => {
+        it("handles fractional minutes", async () => {
             const model = createModel(sandbox, { value: 2.5, unit: "min" });
-            expect(model.inTicks).to.equal(300); // 2.5 * 120
+            expect(await model.inTicks()).to.equal(300); // 2.5 * 120
         });
     });
 
@@ -162,7 +162,7 @@ describe("CastDurationModel", () => {
             expect(model.display).to.equal("5 T");
         });
 
-        it("applies multiplicative modifiers correctly", () => {
+        it("applies multiplicative modifiers correctly", async () => {
             const model = createModel(sandbox, { value: 10, unit: "T" });
             const modifierManager = model.document.actor.modifier;
             const attributes = { item: "Test Spell", itemType: "spell", name: "Test Spell", type: "innate" as const };
@@ -170,10 +170,10 @@ describe("CastDurationModel", () => {
             modifierManager.add("item.castDuration.multiplier", attributes, of(0.5));
 
             // Should calculate: 10 * (3 * 0.5) + 0 = 15
-            expect(model.inTicks).to.equal(15);
+            expect(await model.inTicks()).to.equal(15);
         });
 
-        it("applies additive modifiers with same unit", () => {
+        it("applies additive modifiers with same unit", async () => {
             const model = createModel(sandbox, { value: 10, unit: "T" });
             const modifierManager = model.document.actor.modifier;
             const attributes = {
@@ -187,10 +187,10 @@ describe("CastDurationModel", () => {
             modifierManager.add("item.castDuration", attributes, of(3));
 
             // Should calculate: 10 + 5 + 3 = 18
-            expect(model.inTicks).to.equal(18);
+            expect(await model.inTicks()).to.equal(18);
         });
 
-        it("converts additive modifiers with different units", () => {
+        it("converts additive modifiers with different units", async () => {
             const model = createModel(sandbox, { value: 10, unit: "T" });
             const modifierManager = model.document.actor.modifier;
             const attributesMin = {
@@ -211,10 +211,10 @@ describe("CastDurationModel", () => {
             modifierManager.add("item.castDuration", attributesTicks, of(30));
 
             // Should calculate: 10 + 120 + 30 = 160
-            expect(model.inTicks).to.equal(160);
+            expect(await model.inTicks()).to.equal(160);
         });
 
-        it("accepts global modifiers", () => {
+        it("accepts global modifiers", async () => {
             const model = createModel(sandbox, { value: 10, unit: "T" });
             const modifierManager = model.document.actor.modifier;
             const attributesMin = {
@@ -225,10 +225,10 @@ describe("CastDurationModel", () => {
             modifierManager.add("item.castDuration", attributesMin, of(1));
 
             // Should calculate: 10 + 120 = 130
-            expect(model.inTicks).to.equal(130);
+            expect(await model.inTicks()).to.equal(130);
         });
 
-        it("ignores additive modifiers without unit", () => {
+        it("ignores additive modifiers without unit", async () => {
             const model = createModel(sandbox, { value: 10, unit: "T" });
             const modifierManager = model.document.actor.modifier;
             const attributesMin = {
@@ -237,11 +237,11 @@ describe("CastDurationModel", () => {
             };
             modifierManager.add("item.castDuration", attributesMin, of(1));
 
-            expect(model.inTicks).to.equal(10);
+            expect(await model.inTicks()).to.equal(10);
         });
 
         [{ skill: "deathmagic" }, { itemType: "weapon" }, { item: "Some other spell" }].forEach((attrs) => {
-            it(`ignores modifiers with wrong value for ${Object.keys(attrs).pop()}`, () => {
+            it(`ignores modifiers with wrong value for ${Object.keys(attrs).pop()}`, async () => {
                 const model = createModel(sandbox, { value: 10, unit: "T" });
                 model.parent?.updateSource({ skill: "windmagic" });
                 const modifierManager = model.document.actor.modifier;
@@ -249,9 +249,11 @@ describe("CastDurationModel", () => {
                 modifierManager.add("item.castDuration.multiplier", attributes, of(2));
                 modifierManager.add("item.castDuration", { ...attributes, unit: "T" }, of(-5));
 
-                expect(model.inTicks).to.equal(10);
+                expect(await model.inTicks()).to.equal(10);
             });
         });
+
+        it("should handle cast duration multiplier", async ()=>{
         const model = createModel(sandbox, { value: 10, unit: "T" });
         const modifierManager = model.document.actor.modifier;
         const attributes = { item: "Test Spell", itemType: "spell", name: "Test Spell", type: "innate" as const };
@@ -259,13 +261,14 @@ describe("CastDurationModel", () => {
         modifierManager.add("item.castDuration.multiplier", attributes, of(0.5));
 
         // Should calculate: 10 * (3 * 0.5) + 0 = 15
-        expect(model.inTicks).to.equal(15);
+        expect(await model.inTicks()).to.equal(15);
+        });
     });
 
     describe("edge cases", () => {
-        it("handles large values correctly", () => {
+        it("handles large values correctly", async () => {
             const model = createModel(sandbox, { value: 9999, unit: "T" });
-            expect(model.inTicks).to.equal(9999);
+            expect(await model.inTicks()).to.equal(9999);
         });
 
         [
@@ -273,24 +276,24 @@ describe("CastDurationModel", () => {
             [1.5, 1],
             [2.9, 2],
         ].forEach(([input, expected]) => {
-            it(`returns only integer ticks for ${input}`, () => {
+            it(`returns only integer ticks for ${input}`, async () => {
                 const model = createModel(sandbox, { value: input, unit: "T" });
-                expect(model.inTicks).to.equal(expected);
+                expect(await model.inTicks()).to.equal(expected);
             });
         });
-        it(`does not return negative tick values`, () => {
+        it(`does not return negative tick values`, async () => {
             const model = createModel(sandbox, { value: -1, unit: "T" });
-            expect(model.inTicks).to.equal(0);
+            expect(await model.inTicks()).to.equal(0);
         });
 
-        it(`does not return negative minute values`, () => {
+        it(`does not return negative minute values`, async () => {
             const model = createModel(sandbox, { value: -5.2, unit: "min" });
-            expect(model.inTicks).to.equal(0);
+            expect(await model.inTicks()).to.equal(0);
         });
 
-        it("handles decimal values correctly", () => {
+        it("handles decimal values correctly", async () => {
             const model = createModel(sandbox, { value: 1.5, unit: "T" });
-            expect(model.inTicks).to.equal(1);
+            expect(await model.inTicks()).to.equal(1);
         });
     });
 });

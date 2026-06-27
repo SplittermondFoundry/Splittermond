@@ -1,31 +1,32 @@
-import Skill, { SpellOrAttackRollResult } from "./skill";
+import Skill, {SpellOrAttackRollResult} from "./skill";
 import {
     asString,
     condense,
     condenseCombineDamageWithModifiers,
     evaluate,
+    type Expression,
     mapRoll,
+    minus,
     of,
     plus,
-    syncEvaluate,
 } from "../modifiers/expressions/scalar";
-import { foundryApi } from "../api/foundryApi.js";
+import {foundryApi} from "../api/foundryApi.js";
 import SplittermondActor from "./actor";
-import { splittermond } from "../config";
-import { initMapper } from "../util/LanguageMapper";
-import { ItemFeaturesModel, mergeFeatures } from "../item/dataModel/propertyModels/ItemFeaturesModel";
-import { DamageRoll } from "../util/damage/DamageRoll";
-import { toDisplayFormula } from "../util/damage/util";
-import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
-import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
-import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
-import type { CheckReport } from "module/check";
-import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
-import type { SplittermondAttribute } from "module/config/attributes";
-import type { DamageType } from "module/config/damageTypes";
-import type { CostType } from "module/util/costs/costTypes";
-import { isMember } from "module/util/util";
-import { filterFeatures } from "module/item/itemFeatureFilter";
+import {splittermond} from "../config";
+import {initMapper} from "../util/LanguageMapper";
+import {ItemFeaturesModel, mergeFeatures} from "../item/dataModel/propertyModels/ItemFeaturesModel";
+import {DamageRoll} from "../util/damage/DamageRoll";
+import {toDisplayFormula} from "../util/damage/util";
+import {DamageModel} from "../item/dataModel/propertyModels/DamageModel";
+import {SplittermondChatCard} from "module/util/chat/SplittermondChatCard";
+import {AttackRollMessage} from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
+import type {CheckReport} from "module/check";
+import {totalDegreesOfSuccess} from "module/check/modifyEvaluation";
+import type {SplittermondAttribute} from "module/config/attributes";
+import type {DamageType} from "module/config/damageTypes";
+import type {CostType} from "module/util/costs/costTypes";
+import {fromExpression, isMember} from "module/util/util";
+import {filterFeatures} from "module/item/itemFeatureFilter";
 
 type Options<T extends object> = { [K in keyof T]+?: T[K] | null | undefined };
 
@@ -304,36 +305,31 @@ export default class Attack {
     }
 
     get weaponSpeed() {
-        let weaponSpeed = this.attackData.weaponSpeed;
-        weaponSpeed -= this.actor.modifier
-            .getForId("item.weaponspeed")
-            .withAttributeValuesOrAbsent("item", this.item.id, this.item.name)
-            .withAttributeValuesOrAbsent("itemType", this.item.type)
-            .withAttributeValuesOrAbsent("skill", this.skill.id)
-            .getModifiers().sum;
-
-        this.getImproviationBonus().forEach((bonus) => (weaponSpeed -= syncEvaluate(bonus.damageExpression)));
-        if (["melee", "slashing", "chains", "blades", "staffs"].includes(this.skill.id))
-            weaponSpeed += parseInt(this.actor.tickMalus);
-        return weaponSpeed;
+        return fromExpression(()=>this.weaponSpeedExpression());
     }
 
-    async weaponSpeedAsync() {
-        let weaponSpeed = this.attackData.weaponSpeed;
-        weaponSpeed -= await this.actor.modifier
+    async weaponSpeedAsync(){
+        return evaluate(this.weaponSpeedExpression())
+    }
+
+    private weaponSpeedExpression() {
+        let weaponSpeed:Expression = of(this.attackData.weaponSpeed);
+        const speedModifier = this.actor.modifier
             .getForId("item.weaponspeed")
             .withAttributeValuesOrAbsent("item", this.item.id, this.item.name)
             .withAttributeValuesOrAbsent("itemType", this.item.type)
             .withAttributeValuesOrAbsent("skill", this.skill.id)
-            .getModifiers().sumAsync();
-
+            .getModifiers().sumExpressions();
+        weaponSpeed = minus(weaponSpeed, speedModifier)
         for (const bonus of this.getImproviationBonus()) {
-            weaponSpeed -= await evaluate(bonus.damageExpression);
+            weaponSpeed = minus(weaponSpeed,bonus.damageExpression);
         }
-        if (["melee", "slashing", "chains", "blades", "staffs"].includes(this.skill.id))
-            weaponSpeed += parseInt(this.actor.tickMalus);
-        return weaponSpeed;
+        if (["melee", "slashing", "chains", "blades", "staffs"].includes(this.skill.id)){
+            weaponSpeed = plus(weaponSpeed, this.actor.tickMalus.expression);
+            }
+        return weaponSpeed
     }
+
     get isRanged() {
         return isMember(splittermond.skillGroups.ranged, this.skill.id);
     }
@@ -353,7 +349,26 @@ export default class Attack {
             damage: this.damage,
             damageType: this.damageType,
             costType: this.costType,
-            weaponSpeed: this.weaponSpeed,
+            weaponSpeed: this.weaponSpeed.display,
+            editable: this.editable,
+            deletable: this.deletable,
+            isPrepared: this.isPrepared,
+            featureList: this.attackData.features.featuresAsStringList(),
+        };
+    }
+
+    async toObjectAsync() {
+        return {
+            id: this.id,
+            img: this.img,
+            name: this.name,
+            skill: await this.skill.toObjectAsync(),
+            range: this.range,
+            features: this.features,
+            damage: this.damage,
+            damageType: this.damageType,
+            costType: this.costType,
+            weaponSpeed: await this.weaponSpeed.calculate(),
             editable: this.editable,
             deletable: this.deletable,
             isPrepared: this.isPrepared,
@@ -372,7 +387,7 @@ export default class Attack {
             modifier: 0,
             checkMessageData: {
                 weapon: {
-                    ...this.toObject(),
+                    ...(await this.toObjectAsync()),
                     damageImplements: this.getForDamageRoll(),
                 },
             },
@@ -383,7 +398,7 @@ export default class Attack {
             return false;
         }
         const checkReport = this.adaptForGrazingHit(result.report);
-        const tickCost = this.getAfterRollTickCost(checkReport);
+        const tickCost = await this.getAfterRollTickCost(checkReport);
         await SplittermondChatCard.create(this.actor, AttackRollMessage.initialize(this, checkReport, tickCost), {
             ...result.rollOptions,
             type: "attackRollMessage",
@@ -406,8 +421,8 @@ export default class Attack {
         };
     }
 
-    private getAfterRollTickCost(checkReport: CheckReport) {
-        const base = this.isRanged ? 3 : this.weaponSpeed;
+    private async getAfterRollTickCost(checkReport: CheckReport) {
+        const base = this.isRanged ? 3 : await this.weaponSpeedAsync();
         const isCritSuccess =
             totalDegreesOfSuccess(checkReport) >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold;
         const successReduction = isCritSuccess

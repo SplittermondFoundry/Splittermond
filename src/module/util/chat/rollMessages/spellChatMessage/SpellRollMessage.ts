@@ -145,7 +145,7 @@ export class SpellRollMessage extends RollMessage<
             .spendSplinterpoint()
             .getBonus(this.checkReport.skill.id);
         const checkReport = this.checkReport;
-        const newCheckReport = await addSplinterpointBonus(checkReport, splinterPointBonus);
+        const newCheckReport = await addSplinterpointBonus(checkReport, await splinterPointBonus);
         this.updateSource({ checkReport: newCheckReport, splinterPointUsed: true });
         this.updateSource({
             openDegreesOfSuccess:

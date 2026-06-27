@@ -14,7 +14,7 @@ import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { Susceptibilities } from "./Susceptibilities";
 import { addModifier } from "./addModifierAdapter";
-import { of, syncEvaluate } from "../modifiers/expressions/scalar";
+import { evaluate, max, of, plus, syncEvaluate } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
 import { InverseModifier } from "module/modifiers/impl/InverseModifier";
@@ -23,6 +23,7 @@ import { addTicks } from "module/combat/addTicks";
 import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
 import { FoundryDialog } from "module/api/Application.js";
 import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
+import { fromExpression } from "module/util/util.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -205,9 +206,13 @@ export default class SplittermondActor extends Actor {
     }
 
     get bonusCap() {
-        return this.type === "npc"
-            ? 6
-            : this.system.experience.heroLevel + 2 + this.modifier.getForId("bonuscap").getModifiers().value;
+        return fromExpression(() => {
+            if (this.type === "npc") return of(6);
+            return plus(
+                of(this.system.experience.heroLevel + 2),
+                this.modifier.getForId("bonuscap").getModifiers().sumExpressions()
+            );
+        });
     }
 
     /**@return {{value:number, max:number}}*/
@@ -295,7 +300,7 @@ export default class SplittermondActor extends Actor {
     }
 
     get woundMalusMod() {
-        return this.modifier.getForId("actor.woundmalus.mod").getModifiers().sum;
+       return this.modifier.getForId("actor.woundmalus.mod").getModifiers().asProperty().summed();
     }
 
     _prepareHealthFocus() {
@@ -304,7 +309,7 @@ export default class SplittermondActor extends Actor {
 
         data.health.woundMalus.levels = foundryApi.utils.duplicate(splittermond.woundMalus[healthNbrLevels]);
         data.health.woundMalus.levels = data.health.woundMalus.levels.map((i) => {
-            i.value = Math.min(i.value - this.woundMalusMod, 0);
+            i.value = Math.min(i.value - Number(this.woundMalusMod.display), 0);
             return i;
         });
 
@@ -314,7 +319,7 @@ export default class SplittermondActor extends Actor {
                     data[type].channeled.value = Math.max(
                         Math.min(
                             data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            healthNbrLevels * this.derivedValues[type + "points"].value
+                            healthNbrLevels * this.derivedValues[type + "points"].displayValue
                         ),
                         0
                     );
@@ -322,7 +327,7 @@ export default class SplittermondActor extends Actor {
                     data[type].channeled.value = Math.max(
                         Math.min(
                             data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            this.derivedValues[type + "points"].value
+                            this.derivedValues[type + "points"].displayValue
                         ),
                         0
                     );
@@ -353,11 +358,11 @@ export default class SplittermondActor extends Actor {
                 data[type].available = {
                     value: Math.max(
                         Math.min(
-                            healthNbrLevels * this.derivedValues[type + "points"].value -
+                            healthNbrLevels * this.derivedValues[type + "points"].displayValue -
                                 data[type].channeled.value -
                                 data[type].exhausted.value -
                                 data[type].consumed.value,
-                            healthNbrLevels * this.derivedValues[type + "points"].value
+                            healthNbrLevels * this.derivedValues[type + "points"].displayValue
                         ),
                         0
                     ),
@@ -366,31 +371,36 @@ export default class SplittermondActor extends Actor {
                 data[type].total = {
                     value: Math.max(
                         Math.min(
-                            healthNbrLevels * this.derivedValues[type + "points"].value - data[type].consumed.value,
-                            healthNbrLevels * this.derivedValues[type + "points"].value
+                            healthNbrLevels * this.derivedValues[type + "points"].displayValue -
+                                data[type].consumed.value,
+                            healthNbrLevels * this.derivedValues[type + "points"].displayValue
                         ),
                         0
                     ),
                 };
 
                 data[type].available.percentage =
-                    (100 * data[type].available.value) / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                    (100 * data[type].available.value) /
+                    (healthNbrLevels * this.derivedValues[type + "points"].displayValue);
                 data[type].exhausted.percentage =
-                    (100 * data[type].exhausted.value) / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                    (100 * data[type].exhausted.value) /
+                    (healthNbrLevels * this.derivedValues[type + "points"].displayValue);
                 data[type].channeled.percentage =
-                    (100 * data[type].channeled.value) / (healthNbrLevels * this.derivedValues[type + "points"].value);
+                    (100 * data[type].channeled.value) /
+                    (healthNbrLevels * this.derivedValues[type + "points"].displayValue);
                 data[type].total.percentage =
-                    (100 * data[type].total.value) / (healthNbrLevels * this.derivedValues[type + "points"].value);
-                data[type].max = healthNbrLevels * this.derivedValues.healthpoints.value;
+                    (100 * data[type].total.value) /
+                    (healthNbrLevels * this.derivedValues[type + "points"].displayValue);
+                data[type].max = healthNbrLevels * this.derivedValues.healthpoints.displayValue;
             } else {
                 data[type].available = {
                     value: Math.max(
                         Math.min(
-                            this.derivedValues[type + "points"].value -
+                            this.derivedValues[type + "points"].displayValue -
                                 data[type].channeled.value -
                                 data[type].exhausted.value -
                                 data[type].consumed.value,
-                            this.derivedValues[type + "points"].value
+                            this.derivedValues[type + "points"].displayValue
                         ),
                         0
                     ),
@@ -399,22 +409,22 @@ export default class SplittermondActor extends Actor {
                 data[type].total = {
                     value: Math.max(
                         Math.min(
-                            this.derivedValues[type + "points"].value - data[type].consumed.value,
-                            this.derivedValues[type + "points"].value
+                            this.derivedValues[type + "points"].displayValue - data[type].consumed.value,
+                            this.derivedValues[type + "points"].displayValue
                         ),
                         0
                     ),
                 };
-                if (this.derivedValues[type + "points"].value) {
+                if (this.derivedValues[type + "points"].displayValue) {
                     data[type].available.percentage =
-                        (100 * data[type].available.value) / this.derivedValues[type + "points"].value;
+                        (100 * data[type].available.value) / this.derivedValues[type + "points"].displayValue;
                     data[type].exhausted.percentage =
-                        (100 * data[type].exhausted.value) / this.derivedValues[type + "points"].value;
+                        (100 * data[type].exhausted.value) / this.derivedValues[type + "points"].displayValue;
                     data[type].channeled.percentage =
-                        (100 * data[type].channeled.value) / this.derivedValues[type + "points"].value;
+                        (100 * data[type].channeled.value) / this.derivedValues[type + "points"].displayValue;
                     data[type].total.percentage =
-                        (100 * data[type].total.value) / this.derivedValues[type + "points"].value;
-                    data[type].max = this.derivedValues.focuspoints.value;
+                        (100 * data[type].total.value) / this.derivedValues[type + "points"].displayValue;
+                    data[type].max = this.derivedValues.focuspoints.displayValue;
                 } else {
                     data[type].available.percentage = 0;
                     data[type].exhausted.percentage = 0;
@@ -424,7 +434,7 @@ export default class SplittermondActor extends Actor {
                 }
             }
         });
-        const currentLevel = Math.floor(data.health.total.value / this.derivedValues.healthpoints.value);
+        const currentLevel = Math.floor(data.health.total.value / this.derivedValues.healthpoints.displayValue);
         const baseLevel = Math.max(healthNbrLevels - currentLevel - 1, 0);
         data.health.woundMalus.level = Math.min(
             baseLevel + this.modifier.getForId("actor.woundMalus.levelMod").getModifiers().sum,
@@ -460,12 +470,12 @@ export default class SplittermondActor extends Actor {
 
         data.healthBar = {
             value: data.health.total.value,
-            max: healthNbrLevels * this.derivedValues.healthpoints.value,
+            max: healthNbrLevels * this.derivedValues.healthpoints.displayValue,
         };
 
         data.focusBar = {
             value: data.focus.available.value,
-            max: this.derivedValues.focuspoints.value,
+            max: this.derivedValues.focuspoints.displayValue,
         };
     }
 
@@ -578,7 +588,7 @@ export default class SplittermondActor extends Actor {
             }
         }
 
-        let stealthModifier = 5 - this.derivedValues.size.value;
+        let stealthModifier = 5 - this.derivedValues.size.displayValue;
         if (stealthModifier) {
             this.modifier.add(
                 "stealth",
@@ -591,7 +601,7 @@ export default class SplittermondActor extends Actor {
             );
         }
 
-        let handicap = this.handicap;
+        let handicap = Number(this.handicap.display);
         if (handicap) {
             let label = game.i18n.localize("splittermond.handicap");
             ["athletics", "acrobatics", "dexterity", "stealth", "locksntraps", "seafaring", "animals"].forEach(
@@ -620,19 +630,27 @@ export default class SplittermondActor extends Actor {
     }
 
     get tickMalus() {
-        return (
-            Math.max(this.modifier.getForId("tickmalus.shield").getModifiers().sum, 0) +
-            Math.max(this.modifier.getForId("tickmalus.armor").getModifiers().sum, 0) +
-            Math.max(this.modifier.getForId("tickmalus").getModifiers().sum, 0)
-        );
+        const sum = (getter) => max(getter().sumExpressions(), of(0));
+        const shield = () => this.modifier.getForId("tickmalus.shield").getModifiers();
+        const armor = () => this.modifier.getForId("tickmalus.armor").getModifiers();
+        const base = () => this.modifier.getForId("tickmalus").getModifiers();
+        return fromExpression(()=>plus(plus(sum(shield),sum(armor)), sum(base)))
     }
 
     get handicap() {
-        return (
-            Math.max(this.modifier.getForId("handicap.shield").getModifiers().sum, 0) +
-            Math.max(this.modifier.getForId("handicap.armor").getModifiers().sum, 0) +
-            Math.max(this.modifier.getForId("handicap").getModifiers().sum, 0)
-        );
+        const sum = (getter) => Math.max(getter().sum, 0);
+        const asyncSum = async (getter) => Math.max(await getter().sumAsync(), 0);
+        const shield = () => this.modifier.getForId("handicap.shield").getModifiers();
+        const armor = () => this.modifier.getForId("handicap.armor").getModifiers();
+        const base = () => this.modifier.getForId("handicap").getModifiers();
+        return {
+            get display() {
+                return String(sum(shield) + sum(armor) + sum(base));
+            },
+            async calculate() {
+                return (await asyncSum(shield)) + (await asyncSum(armor)) + (await asyncSum(base));
+            },
+        };
     }
 
     get typeList() {
@@ -643,41 +661,69 @@ export default class SplittermondActor extends Actor {
     }
 
     get damageReduction() {
-        return this.modifier.getForId("damagereduction").getModifiers().sum;
+        return this.modifier.getForId("damagereduction").getModifiers().asProperty().summed();
     }
 
     /**
      * Under certain circumstances the actor can be protected against overriding damage reduction. This value represents the protected amount
-     * @return {number} The actor's protected damage reduction
+     * @return {ValueBundle} The actor's protected damage reduction
      */
     get protectedDamageReduction() {
-        const itemsWithProtection = this.items
-            .filter((i) => "features" in i.system)
-            .filter((i) => i.system.features.hasFeature("Stabil"))
-            .filter((i) => i.system.equipped ?? false);
-        if (itemsWithProtection.length === 0) {
-            return 0;
-        } else if (getStableProtectsAllReduction()) {
-            return this.damageReduction;
-        } else {
-            return itemsWithProtection.reduce((acc, item) => acc + item.system.damageReduction, 0);
-        }
+        const actor = this;
+        const itemsWithProtection = () =>
+            actor.items
+                .filter((i) => "features" in i.system)
+                .filter((i) => i.system.features.hasFeature("Stabil"))
+                .filter((i) => i.system.equipped ?? false);
+        const itemsReduction = () => itemsWithProtection().reduce((acc, item) => acc + item.system.damageReduction, 0);
+        return {
+            get display() {
+                const items = itemsWithProtection();
+                if (items.length === 0) return "0";
+                if (getStableProtectsAllReduction()) return actor.damageReduction.display;
+                return String(itemsReduction());
+            },
+            async calculate() {
+                const items = itemsWithProtection();
+                if (items.length === 0) return 0;
+                if (getStableProtectsAllReduction()) return Number(await actor.damageReduction.calculate());
+                return itemsReduction();
+            },
+        };
     }
 
     /**
-     * @return {Record<DamageType, number>} The actor's linear resistance for each damage type. Positive values indicate a resistance,
+     * @return {ValueBundle} The actor's linear resistance for each damage type. Positive values indicate a resistance,
      * negative values (not actually in the ruleset) indicate a weakness.
      */
     get resistances() {
-        return this._resistances.calculateSusceptibilities();
+        const calc = () => this._resistances.calculateSusceptibilities();
+        const calcAsync = () => this._resistances.calculateSusceptibilitiesAsync();
+        return {
+            get display() {
+                return JSON.stringify(calc());
+            },
+            async calculate() {
+                return calcAsync();
+            },
+        };
     }
 
     /**
-     * @return {Record<DamageType, number>} The actor's linear resistance for each damage type. Positive values indicate a resistance,
+     * @return {ValueBundle} The actor's linear resistance for each damage type. Positive values indicate a resistance,
      * negative values (not actually in the ruleset) indicate a weakness.
      */
     get weaknesses() {
-        return this._weaknesses.calculateSusceptibilities();
+        const calc = () => this._weaknesses.calculateSusceptibilities();
+        const calcAsync = () => this._weaknesses.calculateSusceptibilitiesAsync();
+        return {
+            get display() {
+                return JSON.stringify(calc());
+            },
+            async calculate() {
+                return calcAsync();
+            },
+        };
     }
 
     async importFromJSON(json, updateActor) {
@@ -990,7 +1036,7 @@ export default class SplittermondActor extends Actor {
         return newData;
     }
 
-    /** @returns {{pointSpent:boolean, getBonus(skillName:SplittermondSkill): number}} splinterpoints spent */
+    /** @returns {{pointSpent:boolean, getBonus(skillName:SplittermondSkill): Promise<number>}} splinterpoints spent */
     spendSplinterpoint() {
         if (this.splinterpoints.value > 0) {
             //We can keep this function dangling. It is not integral to the spend splinterpoint flow to have this
@@ -1006,10 +1052,10 @@ export default class SplittermondActor extends Actor {
             });
             return {
                 pointSpent: true,
-                getBonus: (skillName) => this.#getSplinterpointBonus(skillName),
+                getBonus: async (skillName) => this.#getSplinterpointBonus(skillName),
             };
         }
-        return { pointSpent: false, getBonus: () => 0 };
+        return { pointSpent: false, getBonus: () => Promise.resolve(0) };
     }
 
     /**
@@ -1029,6 +1075,22 @@ export default class SplittermondActor extends Actor {
             .map((m) => syncEvaluate(m.value));
         const highestValue = Math.max(baseBonus, ...bonusFromModifiers);
         //Issue a warning when someone added a modifier that does not actually benefit them
+        if (bonusFromModifiers.length > 0 && highestValue === baseBonus) {
+            console.warn("Splittermond | Handed out minimum Splinterpoint bonus despite modifiers present");
+        }
+        return highestValue;
+    }
+
+    async #getSplinterpointBonusAsync(skillName) {
+        const baseBonus =
+            skillName === "health" ? splittermond.splinterpoints.healthBonus : splittermond.splinterpoints.skillBonus;
+        const modifiers = this.modifier
+            .getForId("actor.splinterpoints.bonus")
+            .withAttributeValuesOrAbsent("skill", skillName)
+            .notSelectable()
+            .getModifiers();
+        const bonusFromModifiers = await Promise.all(modifiers.map((m) => evaluate(m.value)));
+        const highestValue = Math.max(baseBonus, ...bonusFromModifiers);
         if (bonusFromModifiers.length > 0 && highestValue === baseBonus) {
             console.warn("Splittermond | Handed out minimum Splinterpoint bonus despite modifiers present");
         }
@@ -1151,9 +1213,9 @@ export default class SplittermondActor extends Actor {
         const data = this.system;
         let rollData = {};
 
-        rollData["initiative"] = this.derivedValues.initiative.value;
+        rollData["initiative"] = this.derivedValues.initiative.displayValue;
         rollData[game.i18n.localize(`splittermond.derivedAttribute.initiative.short`).toLowerCase()] =
-            this.derivedValues.initiative.value;
+            this.derivedValues.initiative.displayValue;
 
         return rollData;
     }
@@ -1184,16 +1246,19 @@ export default class SplittermondActor extends Actor {
         focusData.exhausted.value = 0;
         healthData.exhausted.value = 0;
 
+        const [focusRegenMultiplier, focusRegenBonus, healthRegenMultiplier, healthRegenBonus] = await Promise.all([
+            this.focusRegenMultiplier.calculate(),
+            this.focusRegenBonus.calculate(),
+            this.healthRegenMultiplier.calculate(),
+            this.healthRegenBonus.calculate(),
+        ]);
+
         focusData.consumed.value = Math.max(
-            focusData.consumed.value -
-                this.focusRegenMultiplier * this.attributes.willpower.value -
-                this.focusRegenBonus,
+            focusData.consumed.value - focusRegenMultiplier * this.attributes.willpower.value - focusRegenBonus,
             0
         );
         healthData.consumed.value = Math.max(
-            healthData.consumed.value -
-                this.healthRegenMultiplier * this.attributes.constitution.value -
-                this.healthRegenBonus,
+            healthData.consumed.value - healthRegenMultiplier * this.attributes.constitution.value - healthRegenBonus,
             0
         );
 
@@ -1213,43 +1278,55 @@ export default class SplittermondActor extends Actor {
     }
 
     get healthRegenMultiplier() {
-        const multiplierFromModifiers = this.modifier
-            .getForId("actor.healthregeneration.multiplier")
-            .notSelectable()
-            .getModifiers();
-        if (multiplierFromModifiers.length > 1) {
-            console.warn(
-                "Splittermond | Multiple modifiers for health regeneration multiplier found. Only the highest is applied."
-            );
-        } else if (multiplierFromModifiers.length === 0) {
-            return 2;
-        } else {
-            return Math.max(...multiplierFromModifiers.map((m) => syncEvaluate(m.value)));
-        }
+        const modifiers = () =>
+            this.modifier.getForId("actor.healthregeneration.multiplier").notSelectable().getModifiers();
+        return {
+            get display() {
+                const mods = modifiers();
+                if (mods.length > 1) {
+                    console.warn(
+                        "Splittermond | Multiple modifiers for health regeneration multiplier found. Only the highest is applied."
+                    );
+                }
+                if (mods.length === 0) return "2";
+                return String(Math.max(...mods.map((m) => syncEvaluate(m.value))));
+            },
+            async calculate() {
+                const mods = modifiers();
+                if (mods.length === 0) return 2;
+                return Math.max(...(await Promise.all(mods.map((m) => evaluate(m.value)))));
+            },
+        };
     }
 
     get healthRegenBonus() {
-        return this.modifier.getForId("actor.healthregeneration.bonus").notSelectable().getModifiers().sum;
+        return this.modifier.getForId("actor.healthregeneration.bonus").notSelectable().getModifiers().asProperty().summed();
     }
 
     get focusRegenMultiplier() {
-        const multiplierFromModifiers = this.modifier
-            .getForId("actor.focusregeneration.multiplier")
-            .notSelectable()
-            .getModifiers();
-        if (multiplierFromModifiers.length > 1) {
-            console.warn(
-                "Splittermond | Multiple modifiers for focus regeneration multiplier found. Only the highest is applied."
-            );
-        } else if (multiplierFromModifiers.length === 0) {
-            return 2;
-        } else {
-            return Math.max(...multiplierFromModifiers.map((m) => syncEvaluate(m.value)));
-        }
+        const modifiers = () =>
+            this.modifier.getForId("actor.focusregeneration.multiplier").notSelectable().getModifiers();
+        return {
+            get display() {
+                const mods = modifiers();
+                if (mods.length > 1) {
+                    console.warn(
+                        "Splittermond | Multiple modifiers for focus regeneration multiplier found. Only the highest is applied."
+                    );
+                }
+                if (mods.length === 0) return "2";
+                return String(Math.max(...mods.map((m) => syncEvaluate(m.value))));
+            },
+            async calculate() {
+                const mods = modifiers();
+                if (mods.length === 0) return 2;
+                return Math.max(...(await Promise.all(mods.map((m) => evaluate(m.value)))));
+            },
+        };
     }
 
     get focusRegenBonus() {
-        return this.modifier.getForId("actor.focusregeneration.bonus").notSelectable().getModifiers().sum;
+        return this.modifier.getForId("actor.focusregeneration.bonus").notSelectable().getModifiers().asProperty().summed();
     }
 
     /**

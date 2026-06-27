@@ -69,6 +69,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
     private _attribute2Cache: Attribute | null = null;
     private _cache = {
         enabled: false,
+        displayValue: null as number | null,
         value: null as number | null,
     };
 
@@ -141,7 +142,19 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             ...superObject,
             id: this.id,
             label: this.label,
-            value: this.value,
+            value: this.displayValue,
+            attribute1: this.attribute1,
+            attribute2: this.attribute2,
+        };
+    }
+
+    async toObjectAsync() {
+        const superObject = super.toObject();
+        return {
+            ...superObject,
+            id: this.id,
+            label: this.label,
+            value: await this.value(),
             attribute1: this.attribute1,
             attribute2: this.attribute2,
         };
@@ -167,21 +180,24 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             return this._skillValue - (this.attribute1?.value || 0) - (this.attribute2?.value || 0);
         }
     }
+    get baseValue() {
+        return (this.attribute1?.value || 0) + (this.attribute2?.value || 0) + this.points;
+    }
 
-    get value(): number {
-        if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
+    get displayValue(): number {
+        if (this._cache.enabled && this._cache.displayValue !== null) return this._cache.displayValue;
 
-        let value = (this.attribute1?.value || 0) + (this.attribute2?.value || 0) + this.points;
+        let value =this.baseValue;
         value += this.mod;
 
-        if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
+        if (this._cache.enabled && this._cache.displayValue === null) this._cache.displayValue = value;
         return value;
     }
 
-    async valueAsync(): Promise<number> {
+    async value(): Promise<number> {
         if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
 
-        let value = (this.attribute1?.value || 0) + (this.attribute2?.value || 0) + this.points;
+        let value =this.baseValue;
         value += await this.modAsync();
 
         if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
@@ -210,6 +226,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
 
     disableCaching() {
         this._cache.enabled = false;
+        this._cache.displayValue = null;
         this._cache.value = null;
     }
 
@@ -299,7 +316,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             transferObject.condensedModifiers
         );
         afterRoll.call(this, immediateRollResult);
-        let rollResult = modifyEvaluation(
+        let rollResult = await modifyEvaluation(
             {
                 ...immediateRollResult,
                 skill: this.id,
@@ -355,7 +372,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         let checkMessageData = {
             type: options.type || "skill",
             skill: this.id,
-            skillValue: await this.valueAsync(),
+            skillValue: await this.value(),
             skillPoints: this.points,
             skillAttributes: skillAttributes,
             difficulty: rollResult.difficulty,

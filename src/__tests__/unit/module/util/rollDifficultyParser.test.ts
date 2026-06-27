@@ -23,9 +23,9 @@ describe("roll difficulty parser", () => {
         rollDifficulty.evaluate({
             actor: {
                 derivedValues: {
-                    defense: { value: 18 },
-                    bodyresist: { value: 12 },
-                    mindresist: { value: 14 },
+                    defense: { displayValue: 18 },
+                    bodyresist: { displayValue: 12 },
+                    mindresist: { displayValue: 14 },
                 },
             },
         });
@@ -37,9 +37,9 @@ describe("roll difficulty parser", () => {
         rollDifficulty.evaluate({
             actor: {
                 derivedValues: {
-                    defense: { value: 18 },
-                    bodyresist: { value: 12 },
-                    mindresist: { value: 14 },
+                    defense: { displayValue: 18 },
+                    bodyresist: { displayValue: 12 },
+                    mindresist: { displayValue: 14 },
                 },
             },
         });
@@ -51,9 +51,9 @@ describe("roll difficulty parser", () => {
         rollDifficulty.evaluate({
             actor: {
                 derivedValues: {
-                    defense: { value: 18 },
-                    bodyresist: { value: 12 },
-                    mindresist: { value: 14 },
+                    defense: { displayValue: 18 },
+                    bodyresist: { displayValue: 12 },
+                    mindresist: { displayValue: 14 },
                 },
             },
         });

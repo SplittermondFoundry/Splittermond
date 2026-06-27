@@ -149,7 +149,7 @@ export class AttackRollMessage extends RollMessage<
             .spendSplinterpoint()
             .getBonus(this.checkReport.skill.id);
         const checkReport = this.checkReport;
-        const newCheckReport = await addSplinterpointBonus(checkReport, splinterPointBonus);
+        const newCheckReport = await addSplinterpointBonus(checkReport, await splinterPointBonus);
         const readaptedCheckReport = this.attackReference.get().adaptForGrazingHit(newCheckReport);
         this.updateSource({ checkReport: readaptedCheckReport, splinterPointUsed: true });
         this.updateSource({

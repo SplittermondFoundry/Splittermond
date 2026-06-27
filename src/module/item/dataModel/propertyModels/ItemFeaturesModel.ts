@@ -6,7 +6,7 @@ import { DataModelConstructorInput } from "module/api/DataModel";
 import { foundryApi } from "module/api/foundryApi";
 import { SplittermondItemDataModel } from "../../index";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
-import { syncEvaluate } from "module/modifiers/expressions/scalar";
+import { evaluate, syncEvaluate } from "module/modifiers/expressions/scalar";
 import { DocumentAccessMixin } from "module/data/AncestorDocumentMixin";
 
 function FeaturesSchema() {
@@ -63,6 +63,13 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
         return sumDataModels(mergedFeatures, modiferFeaturesToAdd);
     }
 
+    async featureListAsync() {
+        const modifierFeaturesToMerge = await this.getModifierFeaturesAsync("item.mergeFeature");
+        const modiferFeaturesToAdd = await this.getModifierFeaturesAsync("item.addFeature");
+        const mergedFeatures = mergeDataModels(this.internalFeatureList, modifierFeaturesToMerge);
+        return sumDataModels(mergedFeatures, modiferFeaturesToAdd);
+    }
+
     private getModifierFeatures(groupId: string) {
         return this.getModifierManager()
             .getForId(groupId)
@@ -75,6 +82,23 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
                 return parseFeatures(`${m.attributes.feature} ${value}`);
             })
             .map((f) => new ItemFeatureDataModel(f));
+    }
+
+    private async getModifierFeaturesAsync(groupId: string) {
+        const modifiers = this.getModifierManager()
+            .getForId(groupId)
+            .withAttributeValuesOrAbsent("item", this.getName() ?? "")
+            .withAttributeValuesOrAbsent("itemType", this.getItemType() ?? "")
+            .withAttributeValuesOrAbsent("skill", this.getItemSkill() ?? "")
+            .getModifiers();
+        const results: ItemFeatureDataModel[] = [];
+        for (const m of modifiers) {
+            const value = `${await evaluate(m.value)}` || "";
+            for (const f of parseFeatures(`${m.attributes.feature} ${value}`)) {
+                results.push(new ItemFeatureDataModel(f));
+            }
+        }
+        return results;
     }
 
     featuresAsStringList() {

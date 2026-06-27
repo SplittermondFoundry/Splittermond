@@ -430,10 +430,10 @@ export function actorTest(context: QuenchBatchContext) {
                 await actor.prepareDerivedData();
                 expect((actor.system as CharacterDataModel).experience.heroLevel).to.equal(2);
                 expect((actor.system as CharacterDataModel).experience.heroLevel).to.equal(2);
-                expect(actor.derivedValues.size.value, "Size value").to.equal(5);
-                expect(actor.derivedValues.defense.value, "Defense value").to.equal(19);
-                expect(actor.derivedValues.bodyresist.value, "Bodyresist value").to.equal(23);
-                expect(actor.derivedValues.mindresist.value, "Mindresist value").to.equal(19);
+                expect(actor.derivedValues.size.displayValue, "Size value").to.equal('5');
+                expect(actor.derivedValues.defense.displayValue, "Defense value").to.equal('19');
+                expect(actor.derivedValues.bodyresist.displayValue, "Bodyresist value").to.equal('23');
+                expect(actor.derivedValues.mindresist.displayValue, "Mindresist value").to.equal('19');
                 expect(actor.splinterpoints.max, "Splinterpoints max value").to.equal(4);
             })
         );

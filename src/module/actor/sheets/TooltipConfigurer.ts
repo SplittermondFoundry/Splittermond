@@ -11,6 +11,7 @@ import type { MasteryDataModel } from "module/item/dataModel/MasteryDataModel";
 import { splittermond } from "module/config";
 import type { SplittermondSkill } from "module/config/skillGroups";
 import { isMember } from "module/util/util";
+import { isZero } from "module/modifiers/expressions/scalar";
 
 enum TooltipPosition {
     // Position the tooltip below and to the left of the target
@@ -216,7 +217,7 @@ export class TooltipConfigurer {
     }
 
     private async displayDamageReductionTooltip(target: HTMLElement) {
-        if (this.actor.damageReduction === 0) return;
+        if (isZero(this.actor.damageReduction.expression)) return;
         let formula = new Tooltip.TooltipFormula();
         formula.addPart(0, "");
         this.actor.modifier.getForId("damagereduction").getModifiers().addTooltipFormulaElements(formula);

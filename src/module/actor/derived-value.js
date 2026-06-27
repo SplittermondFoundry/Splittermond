@@ -1,6 +1,6 @@
 import * as Tooltip from "../util/tooltip.js";
 import Modifiable from "./modifiable.js";
-import { evaluate, of, plus, syncEvaluate, times } from "../modifiers/expressions/scalar/index.js";
+import {asString, condense, evaluate, of, plus, syncEvaluate, times } from "../modifiers/expressions/scalar/index.js";
 
 export default class DerivedValue extends Modifiable(Object) {
     /**@type string[]*/ _modifierPath;
@@ -26,6 +26,7 @@ export default class DerivedValue extends Modifiable(Object) {
         this._cache = {
             enabled: false,
             baseValue: null,
+            displayValue: null,
             value: null,
         };
     }
@@ -34,7 +35,7 @@ export default class DerivedValue extends Modifiable(Object) {
         return {
             id: this.id,
             label: this.label,
-            value: this.value,
+            value: this.displayValue,
         };
     }
 
@@ -53,20 +54,23 @@ export default class DerivedValue extends Modifiable(Object) {
                         : parseInt(this.actor.system.species.size);
                 break;
             case "speed":
-                baseValue = attributes.agility.value + derivedValues.size.value;
+                baseValue = attributes.agility.value + Number(derivedValues.size.displayValue);
                 break;
             case "initiative":
                 baseValue = 10 - attributes.intuition.value;
                 break;
             case "healthpoints":
-                baseValue = derivedValues.size.value + attributes.constitution.value;
+                baseValue = Number(derivedValues.size.displayValue) + attributes.constitution.value;
                 break;
             case "focuspoints":
                 baseValue = 2 * (attributes.mystic.value + attributes.willpower.value);
                 break;
             case "defense":
                 baseValue =
-                    12 + attributes.agility.value + attributes.strength.value + 2 * (5 - derivedValues.size.value);
+                    12 +
+                    attributes.agility.value +
+                    attributes.strength.value +
+                    2 * (5 - Number(derivedValues.size.displayValue));
                 break;
             case "bodyresist":
                 baseValue = 12 + attributes.willpower.value + attributes.constitution.value;
@@ -93,7 +97,7 @@ export default class DerivedValue extends Modifiable(Object) {
             case "speed":
                 formula.addPart(attributes.agility.value, attributes.agility.label.short);
                 formula.addOperator("+");
-                formula.addPart(derivedValues.size.value, derivedValues.size.label.short);
+                formula.addPart(derivedValues.size.displayValue, derivedValues.size.label.short);
                 break;
             case "initiative":
                 formula.addPart("10");
@@ -101,7 +105,7 @@ export default class DerivedValue extends Modifiable(Object) {
                 formula.addPart(attributes.intuition.value, attributes.intuition.label.short);
                 break;
             case "healthpoints":
-                formula.addPart(derivedValues.size.value, derivedValues.size.label.short);
+                formula.addPart(derivedValues.size.displayValue, derivedValues.size.label.short);
                 formula.addOperator("+");
                 formula.addPart(attributes.constitution.value, attributes.constitution.label.short);
                 break;
@@ -119,7 +123,7 @@ export default class DerivedValue extends Modifiable(Object) {
                 formula.addPart(attributes.strength.value, attributes.strength.label.short);
                 formula.addOperator("+");
                 formula.addOperator("2 &times; ( 5 -");
-                formula.addPart(derivedValues.size.value, derivedValues.size.label.short);
+                formula.addPart(derivedValues.size.displayValue, derivedValues.size.label.short);
                 formula.addOperator(")");
                 break;
             case "bodyresist":
@@ -141,14 +145,14 @@ export default class DerivedValue extends Modifiable(Object) {
         return formula.render();
     }
 
-    get value() {
-        if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
-        let value = Math.ceil(syncEvaluate(this.valueAsExpression()));
-        if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
+    get displayValue() {
+        if (this._cache.enabled && this._cache.displayValue !== null) return this._cache.displayValue;
+        let value = asString(condense(this.valueAsExpression()));
+        if (this._cache.enabled && this._cache.displayValue === null) this._cache.displayValue = value;
         return value;
     }
 
-    async valueAsync() {
+    async value() {
         if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
         let value = Math.ceil(await evaluate(this.valueAsExpression()));
         if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
@@ -177,6 +181,7 @@ export default class DerivedValue extends Modifiable(Object) {
     disableCaching() {
         this._cache.enabled = false;
         this._cache.baseValue = null;
+        this._cache.displayValue = null;
         this._cache.value = null;
     }
 }

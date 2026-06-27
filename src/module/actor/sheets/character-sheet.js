@@ -130,8 +130,12 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         const input = event.currentTarget;
         const value = parseInt(input.value);
         const attrBaseName = input.name.split(".")[2];
-        const initialValue = parseInt(foundryApi.utils.resolveProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.initial`));
-        const speciesValue = parseInt(foundryApi.utils.resolveProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.species`));
+        const initialValue = parseInt(
+            foundryApi.utils.resolveProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.initial`)
+        );
+        const speciesValue = parseInt(
+            foundryApi.utils.resolveProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.species`)
+        );
         this.actor.update({
             [`system.attributes.${attrBaseName}.advances`]: value - initialValue - speciesValue,
         });

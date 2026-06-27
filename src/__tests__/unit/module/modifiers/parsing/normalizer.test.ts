@@ -62,7 +62,7 @@ describe("normalizeModifiers", () => {
             ["-AUS", { propertyPath: "attributes.charisma.value", sign: -1, original: "-AUS" }],
             [
                 "Geschichte und Mythen",
-                { propertyPath: "skills.history.value", sign: 1, original: "Geschichte und Mythen" },
+                { propertyPath: "skills.history.displayValue", sign: 1, original: "Geschichte und Mythen" },
             ],
         ] as const
     ).forEach(([value, expected]) => {

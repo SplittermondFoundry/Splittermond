@@ -46,6 +46,7 @@ export class UserReporterImpl implements UserReporter {
     public overriddenReduction: CostModifier = new Cost(0, 0, false).asModifier();
     public totalFromImplements: CostModifier = new Cost(0, 0, false).asModifier();
     public immunity: Immunity | undefined;
+    public resolvedDamageReduction: CostModifier = new Cost(0, 0, false).asModifier();
 
     set target(value: SplittermondActor) {
         this._target = value;
@@ -81,7 +82,7 @@ export class UserReporterImpl implements UserReporter {
         }
         return {
             target: this._target,
-            damageReduction: this._event.costBase.multiply(this._target.damageReduction),
+            damageReduction: this.resolvedDamageReduction,
             event: this._event,
             records: this.records.map((record) => {
                 record.immunity = this.immunity ?? record.immunity;

@@ -91,7 +91,7 @@ function replaceDerivedAttribute(value: string): string {
 }
 
 function replaceSkill(value: string): string {
-    return createReplace(splittermond.skillGroups.all, skillMapper(), (v) => `skills.${v}.value`)(value);
+    return createReplace(splittermond.skillGroups.all, skillMapper(), (v) => `skills.${v}.baseValue`)(value);
 }
 
 function createReplace<T extends string>(

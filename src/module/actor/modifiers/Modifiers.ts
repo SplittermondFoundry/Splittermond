@@ -1,6 +1,7 @@
 import type { IModifier } from "module/modifiers";
 import { evaluate, of, plus, syncEvaluate, times } from "module/modifiers/expressions/scalar";
 import { TooltipFormula } from "module/util/tooltip";
+import { fromExpression } from "module/util/util";
 
 export class Modifiers extends Array<IModifier> {
     constructor(...args: IModifier[]) {
@@ -62,6 +63,13 @@ export class Modifiers extends Array<IModifier> {
     }
     multiplyExpressions() {
         return this.map((mod) => mod.value).reduce((acc, value) => times(acc, value), of(1));
+    }
+
+    asProperty() {
+        return {
+            summed: () => fromExpression(() => this.sumExpressions()),
+            multiplied: () => fromExpression(() => this.multiplyExpressions()),
+        };
     }
 
     filter(predicate: (value: IModifier, index: number, array: IModifier[]) => boolean, thisArg?: any): Modifiers {

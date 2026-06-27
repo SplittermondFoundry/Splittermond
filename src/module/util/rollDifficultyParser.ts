@@ -45,21 +45,21 @@ class RollDifficulty {
     evaluate(target: {
         actor: {
             derivedValues: {
-                defense: { value: number };
-                bodyresist: { value: number };
-                mindresist: { value: number };
+                defense: { displayValue: number };
+                bodyresist: { displayValue: number };
+                mindresist: { displayValue: number };
             };
         };
     }) {
         switch (this._difficulty) {
             case "VTD":
-                this.evaluatedDifficulty = target.actor.derivedValues.defense.value;
+                this.evaluatedDifficulty = target.actor.derivedValues.defense.displayValue;
                 break;
             case "KW":
-                this.evaluatedDifficulty = target.actor.derivedValues.bodyresist.value;
+                this.evaluatedDifficulty = target.actor.derivedValues.bodyresist.displayValue;
                 break;
             case "GW":
-                this.evaluatedDifficulty = target.actor.derivedValues.mindresist.value;
+                this.evaluatedDifficulty = target.actor.derivedValues.mindresist.displayValue;
                 break;
             default:
                 this.evaluatedDifficulty = this.difficulty;

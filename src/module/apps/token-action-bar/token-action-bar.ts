@@ -195,7 +195,7 @@ export default class TokenActionBar extends SplittermondApplication {
                         if (!result[skillName]) {
                             result[skillName] = {
                                 label: `splittermond.skillLabel.${skillName}`,
-                                skillValue: item.skill.value,
+                                skillValue: item.skill.displayValue,
                                 spells: [],
                             };
                         }
@@ -240,7 +240,7 @@ export default class TokenActionBar extends SplittermondApplication {
             img: preparedItem.img,
             name: preparedItem.name,
             range: preparedItem.range,
-            skill: { label: preparedItem.skill.label, value: preparedItem.skill.value },
+            skill: { label: preparedItem.skill.label, value: preparedItem.skill.displayValue },
             spellTypeList: preparedItem.spellTypeList,
             description: preparedItem.system.description ?? "",
         };
@@ -280,7 +280,7 @@ export default class TokenActionBar extends SplittermondApplication {
             return;
         }
         this._currentActor?.addTicks(
-            attack.weaponSpeed,
+            await attack.weaponSpeedAsync(),
             `${foundryApi.localize("splittermond.attack")}: ${attack.name}`
         );
         this._currentActor?.setFlag("splittermond", "preparedAttack", attackId);
@@ -317,7 +317,7 @@ export default class TokenActionBar extends SplittermondApplication {
             return;
         }
         this._currentActor?.addTicks(
-            spell.castDuration.inTicks,
+            await spell.castDuration.inTicks(),
             `${foundryApi.localize("splittermond.castDuration")}: ${spell.name}`
         );
         await this._currentActor?.setFlag("splittermond", "preparedSpell", itemId);

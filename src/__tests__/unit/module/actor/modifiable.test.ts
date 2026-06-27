@@ -17,14 +17,14 @@ describe("Modifiable", () => {
 
     describe("Basics", () => {
         [[2], [-3, 6], [0, 6, 5]].forEach((values) => {
-            it(`should calculate over modifier values [${values.join(", ")}]`, () => {
+            it(`should calculate over modifier values [${values.join(", ")}]`, async () => {
                 const testActor = setUpActor();
                 values.forEach((value) => {
                     testActor.modifier.addModifier(modifierWith({ groupId: "endurance", value: of(value) }));
                 });
                 const underTest = new TestModifiable(testActor, "endurance");
 
-                expect(underTest.mod).to.equal(values.reduce((a, b) => a + b, 0));
+                expect(await underTest.modAsync()).to.equal(values.reduce((a, b) => a + b, 0));
             });
 
             it(`should add a tooltip element for each of [${values.join(", ")}]`, () => {
@@ -46,7 +46,7 @@ describe("Modifiable", () => {
         });
     });
     describe("Bonus cap calculation", () => {
-        it("should apply bonus cap of 3 for hero level 1", () => {
+        it("should apply bonus cap of 3 for hero level 1", async () => {
             const testActor = setUpActor(1);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -59,10 +59,10 @@ describe("Modifiable", () => {
 
             // Hero level 1 → bonusCap = 1 + 2 = 3
             // Equipment bonus = 5, capped to 3
-            expect(underTest.mod).to.equal(3);
+            expect(await underTest.modAsync()).to.equal(3);
         });
 
-        it("should apply bonus cap of 4 for hero level 2", () => {
+        it("should apply bonus cap of 4 for hero level 2", async () => {
             const testActor = setUpActor(2);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -75,10 +75,10 @@ describe("Modifiable", () => {
 
             // Hero level 2 → bonusCap = 2 + 2 = 4
             // Equipment bonus = 6, capped to 4
-            expect(underTest.mod).to.equal(4);
+            expect(await underTest.modAsync()).to.equal(4);
         });
 
-        it("should apply bonus cap of 5 for hero level 3", () => {
+        it("should apply bonus cap of 5 for hero level 3", async () => {
             const testActor = setUpActor(3);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -91,10 +91,10 @@ describe("Modifiable", () => {
 
             // Hero level 3 → bonusCap = 3 + 2 = 5
             // Equipment bonus = 7, capped to 5
-            expect(underTest.mod).to.equal(5);
+            expect(await underTest.modAsync()).to.equal(5);
         });
 
-        it("should apply bonus cap of 6 for hero level 4", () => {
+        it("should apply bonus cap of 6 for hero level 4", async () => {
             const testActor = setUpActor(4);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -107,10 +107,10 @@ describe("Modifiable", () => {
 
             // Hero level 4 → bonusCap = 4 + 2 = 6
             // Equipment bonus = 8, capped to 6
-            expect(underTest.mod).to.equal(6);
+            expect(await underTest.modAsync()).to.equal(6);
         });
 
-        it("should not cap equipment bonuses below the cap", () => {
+        it("should not cap equipment bonuses below the cap", async () => {
             const testActor = setUpActor(1);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -123,10 +123,10 @@ describe("Modifiable", () => {
 
             // Hero level 1 → bonusCap = 3
             // Equipment bonus = 2, not capped
-            expect(underTest.mod).to.equal(2);
+            expect(await underTest.modAsync()).to.equal(2);
         });
 
-        it("should cap magic bonuses separately from equipment bonuses", () => {
+        it("should cap magic bonuses separately from equipment bonuses", async () => {
             const testActor = setUpActor(1);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -148,10 +148,10 @@ describe("Modifiable", () => {
             // Equipment bonus = 5, capped to 3
             // Magic bonus = 4, capped to 3
             // Total = 3 + 3 = 6
-            expect(underTest.mod).to.equal(6);
+            expect(await underTest.modAsync()).to.equal(6);
         });
 
-        it("should not cap non-bonus (penalty) modifiers", () => {
+        it("should not cap non-bonus (penalty) modifiers", async () => {
             const testActor = setUpActor(1);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -173,10 +173,10 @@ describe("Modifiable", () => {
             // Equipment bonus = 5, capped to 3
             // Equipment penalty = -2, not capped
             // Total = 3 + (-2) = 1
-            expect(underTest.mod).to.equal(1);
+            expect(await underTest.modAsync()).to.equal(1);
         });
 
-        it("should not cap innate bonuses", () => {
+        it("should not cap innate bonuses", async () => {
             const testActor = setUpActor(1);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -198,10 +198,10 @@ describe("Modifiable", () => {
             // Equipment bonus = 5, capped to 3
             // Innate bonus = 4, not capped
             // Total = 3 + 4 = 7
-            expect(underTest.mod).to.equal(7);
+            expect(await underTest.modAsync()).to.equal(7);
         });
 
-        it("should handle multiple equipment and magic bonuses with cap", () => {
+        it("should handle multiple equipment and magic bonuses with cap", async () => {
             const testActor = setUpActor(2);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -237,10 +237,10 @@ describe("Modifiable", () => {
             // Equipment bonuses = 2 + 3 = 5, capped to 4
             // Magic bonuses = 2 + 2 = 4, not capped (exactly at cap)
             // Total = 4 + 4 = 8
-            expect(underTest.mod).to.equal(8);
+            expect(await underTest.modAsync()).to.equal(8);
         });
 
-        it("should handle zero equipment bonuses", () => {
+        it("should handle zero equipment bonuses", async () => {
             const testActor = setUpActor(1);
             testActor.modifier.addModifier(
                 modifierWith({
@@ -252,7 +252,7 @@ describe("Modifiable", () => {
             const underTest = new TestModifiable(testActor, "endurance");
 
             // No equipment/magic bonuses, so cap doesn't apply
-            expect(underTest.mod).to.equal(5);
+            expect(await underTest.modAsync()).to.equal(5);
         });
     });
     describe("Bonus cap presentation", () => {

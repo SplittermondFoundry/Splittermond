@@ -24,7 +24,7 @@
                             </a>
                         </label>
                         <div class="value">
-                            <input name="system.skills.{{skillId}}.value" type="text" value="{{skill.value}}"
+                            <input name="system.skills.{{skillId}}.value" type="text" value="{{skill.displayValue}}"
                                    data-dtype="Number">
                         </div>
                     </li>
@@ -77,7 +77,7 @@
                             <a class="rollable" data-action="roll-skill">{{localize skill.label}}</a>
                         </label>
                         <div class="value"><input name="system.skills.{{skillId}}.value" type="text"
-                                                  value="{{skill.value}}" data-dtype="Number">
+                                                  value="{{skill.displayValue}}" data-dtype="Number">
                         </div>
                     </li>
                 {{/each}}
