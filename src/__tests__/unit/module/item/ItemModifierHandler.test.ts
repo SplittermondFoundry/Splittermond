@@ -1,16 +1,26 @@
-import { expect } from "chai";
-import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
-import { ItemModifierHandler } from "module/item/ItemModifierHandler";
+import {expect} from "chai";
+import sinon, {SinonSandbox, SinonStubbedInstance} from "sinon";
+import {ItemModifierHandler} from "module/item/ItemModifierHandler";
 import SplittermondItem from "module/item/item";
-import { foundryApi } from "module/api/foundryApi";
-import { clearMappers } from "module/modifiers/parsing/normalizer";
-import { of, syncEvaluate } from "module/modifiers/expressions/scalar";
-import type { ScalarModifier } from "module/modifiers/parsing";
+import {foundryApi} from "module/api/foundryApi";
+import {clearMappers} from "module/modifiers/parsing/normalizer";
+import {type Expression, of, roll, syncEvaluate} from "module/modifiers/expressions/scalar";
+import type {ScalarModifier} from "module/modifiers/parsing";
+import {createTestRoll} from "../../RollMock";
+
+class TestItemModifierHandler extends ItemModifierHandler {
+    public buildModifier(modifier:ScalarModifier){
+        return super.buildModifier(modifier);
+    }
+    public omitForValue(v:Expression){
+        return super.omitForValue(v);
+    }
+}
 
 describe("ItemModifierHandler", () => {
     let sandbox: SinonSandbox;
     let allErrors: string[];
-    let handler: ItemModifierHandler;
+    let handler: TestItemModifierHandler ;
     let mockItem: SinonStubbedInstance<SplittermondItem>;
     let logErrorsStub: sinon.SinonStub;
 
@@ -25,7 +35,7 @@ describe("ItemModifierHandler", () => {
         mockItem = sandbox.createStubInstance(SplittermondItem);
         mockItem.name = "Test Item";
 
-        handler = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(1));
+        handler = new TestItemModifierHandler(logErrorsStub, mockItem, "equipment", of(1));
 
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => key);
         sandbox.stub(foundryApi, "format").callsFake((key: string, data?: any) => {
@@ -42,12 +52,12 @@ describe("ItemModifierHandler", () => {
 
     describe("omitForValue", () => {
         it("should return true for zero values", () => {
-            const result = (handler as any).omitForValue(of(0));
+            const result = handler.omitForValue(of(0));
             expect(result).to.be.true;
         });
 
         it("should return false for non-zero values", () => {
-            const result = (handler as any).omitForValue(of(5));
+            const result = handler.omitForValue(of(5));
             expect(result).to.be.false;
         });
     });
@@ -62,13 +72,38 @@ describe("ItemModifierHandler", () => {
                 },
             };
 
-            const result = (handler as any).buildModifier(scalarModifier)[0];
+            const result = handler.buildModifier(scalarModifier)[0];
 
             expect(result).to.not.be.null;
-            expect(result.path).to.equal("item.damage");
+            expect(result.groupId).to.equal("item.damage");
             expect(result.value).to.deep.equal(of(5));
             expect(result.origin).to.equal(mockItem);
             expect(result.selectable).to.be.false;
+        });
+
+        it("should prohibit rolls on merge feature",()=>{
+            const scalarModifier: ScalarModifier = {
+                path: "item.mergeFeature",
+                value: roll(createTestRoll("1d6",[2])),
+                attributes: {
+                },
+            };
+
+            const result = handler.buildModifier(scalarModifier);
+            expect(result).to.be.empty;
+            expect(allErrors).not.to.be.empty;
+        });
+        it("should prohibit rolls on add feature",()=>{
+            const scalarModifier: ScalarModifier = {
+                path: "item.addFeature",
+                value: roll(createTestRoll("1d6",[2])),
+                attributes: {
+                },
+            };
+
+            const result = handler.buildModifier(scalarModifier);
+            expect(result).to.be.empty;
+            expect(allErrors).not.to.be.empty;
         });
     });
 

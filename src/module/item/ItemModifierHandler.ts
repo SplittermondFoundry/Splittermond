@@ -3,7 +3,7 @@ import Modifier from "module/modifiers/impl/modifier";
 import { splittermond } from "../config";
 import type SplittermondItem from "./item";
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
-import { type Expression, pow, times } from "module/modifiers/expressions/scalar";
+import {asString, type Expression, pow, syncEvaluate, times } from "module/modifiers/expressions/scalar";
 import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
@@ -51,11 +51,22 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
     });
 
     protected buildModifier(modifier: ScalarModifier): IModifier[] {
+        if(this.featureModsHaveRollValue(modifier)){
+            this.reportInvalidDescriptor(modifier.path, "value", asString(modifier.value));
+            return [];
+        }
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
         const operator = modifier.path.endsWith("multiplier") ? pow : times;
         const adjustedValue = operator(modifier.value, this.multiplier);
 
         return [new Modifier(modifier.path, adjustedValue, normalizedAttributes, this.sourceItem, false)];
+    }
+
+    private featureModsHaveRollValue(modifier: ScalarModifier): boolean {
+        if(!modifier.path.endsWith("mergeFeature") && !modifier.path.endsWith("addFeature")) {
+           return false;
+        }
+        return Number.isNaN(syncEvaluate(modifier.value));
     }
 
     mapAttribute(path: string, attribute: string, value: Value): string | undefined {
