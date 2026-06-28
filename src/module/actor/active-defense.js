@@ -38,7 +38,7 @@ export default class ActiveDefense {
         options.title = `${foundryApi.localize(`splittermond.activeDefense`)}: ${game.i18n.localize(this.actor.derivedValues[this.type].label.long)} - ${this.name}`;
         options.checkMessageData = {
             defenseType: this.type,
-            baseDefense: this.actor.derivedValues[this.type].value,
+            baseDefense: await this.actor.derivedValues[this.type].value(),
             itemData: this,
         };
 

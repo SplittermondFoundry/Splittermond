@@ -10,6 +10,8 @@ import {
     isLessThan,
     isLessThanZero,
     mapRoll,
+    max,
+    min,
     minus,
     of,
     plus,
@@ -37,10 +39,12 @@ describe("Expressions", () => {
             [times(of(3), of(3)), 9, of(9), "3 \u00D7 3", "3 * 3"],
             [dividedBy(of(3), of(3)), 1, of(1), "3 / 3", "3 / 3"],
             [pow(of(3), of(2)), 9, of(9), "3 ^ 2", "pow(3,2)"],
+            [min(of(3), of(4), of(5)), 3, of(3), "min(3, 4, 5)", "min(3,4,5)"],
+            [max(of(3), of(4), of(5)), 5, of(5), "max(3, 4, 5)", "max(3,4,5)"],
         ] as const
     ).forEach(([input, evaluated, condensed, stringRepresentation, rollRepresentation]) => {
-        it(`simple expression ${stringRepresentation} should evaluate to ${evaluated}`, () => {
-            expect(evaluate(input)).to.equal(evaluated);
+        it(`simple expression ${stringRepresentation} should evaluate to ${evaluated}`, async () => {
+            expect(await evaluate(input)).to.equal(evaluated);
         });
 
         it(`simple expression ${stringRepresentation} should condense to ${stringRepresentation}`, () => {
@@ -83,8 +87,8 @@ describe("Expressions", () => {
             ],
         ] as const
     ).forEach(([input, evaluated, condensed, stringRepresentation, rollRepresentation]) => {
-        it(`braced expression ${stringRepresentation} should evaluate to ${evaluated}`, () => {
-            expect(evaluate(input)).to.equal(evaluated);
+        it(`braced expression ${stringRepresentation} should evaluate to ${evaluated}`, async () => {
+            expect(await evaluate(input)).to.equal(evaluated);
         });
 
         it(`braced expression ${stringRepresentation} should convert to roll representation`, () => {
@@ -121,9 +125,9 @@ describe("Expressions", () => {
         });
         afterEach(() => sandbox.restore());
 
-        it("should evaluate to the value of the property", () => {
+        it("should evaluate to the value of the property", async () => {
             const property = roll(createTestRoll("1d6", [3]));
-            expect(evaluate(property)).to.equal(3);
+            expect(await evaluate(property)).to.equal(3);
         });
 
         it("should not condense property ", () => {
@@ -174,27 +178,74 @@ describe("Expressions", () => {
         });
     });
 
+    describe("Extremum Functions", () => {
+        let sandbox: sinon.SinonSandbox;
+        beforeEach(() => {
+            sandbox = sinon.createSandbox();
+            sandbox.stub(foundryApi, "rollInfra").get(() => {
+                return {
+                    numericTerm(value: number) {
+                        return {
+                            number: value,
+                            _evaluated: false,
+                            total: value,
+                        };
+                    },
+                    rollFromTerms(terms: (OperatorTerm | NumericTerm)[]) {
+                        return MockRoll.fromTerms(terms);
+                    },
+                };
+            });
+        });
+        afterEach(() => sandbox.restore());
+        const one = roll(new MockRoll("1d6+2"));
+        const other = roll(new MockRoll("1d6-2"));
+        (
+            [
+                [min, "min"],
+                [max, "max"],
+            ] as const
+        ).forEach(([func, str]) => {
+            it(`should not condense with ${str} functions`, () => {
+                const original = min(one, other);
+                expect(condense(original)).to.be.deep.equal(original);
+            });
+
+            it(`should print ${str} function with arguments`, () => {
+                expect(asString(func(one, of(3), other))).to.equal(`${str}(1d6+2, 3, 1d6-2)`);
+            });
+        });
+        it("should not assume the lowest roll result for comparisons with min", () => {
+            expect(isLessThanZero(min(other, of(1)))).to.be.null;
+            expect(isGreaterZero(min(other, of(1)))).to.be.null;
+        });
+        it("should not assume the highest roll result for comparisons with max", () => {
+            expect(isLessThanZero(max(other, of(-1)))).to.be.null;
+            expect(isGreaterZero(max(other, of(-1)))).to.be.null;
+        });
+    });
+
     describe("Reference Expressions", () => {
-        it("should evaluate to the value of the property", () => {
+        it("should evaluate to the value of the property", async () => {
             const property = ref("value", { value: 3 }, "value");
-            expect(evaluate(property)).to.equal(3);
+            expect(await evaluate(property)).to.equal(3);
         });
 
-        it("should omit properties of the wrong format when multiplying", () => {
+        it("should omit properties of the wrong format when multiplying", async () => {
             const property = ref("value", { value: "splittermond" }, "value");
             const expression = times(plus(of(3), property), minus(of(4), of(3)));
-            expect(evaluate(expression)).to.deep.equal(3);
+            expect(await evaluate(expression)).to.deep.equal(3);
         });
 
-        it("should omit properties of the wrong format when adding", () => {
+        it("should omit properties of the wrong format when adding", async () => {
             const property = ref("value", { value: "splittermond" }, "value");
             const expression = times(property, minus(of(4), of(3)));
-            expect(evaluate(expression)).to.deep.equal(1);
+            expect(await evaluate(expression)).to.deep.equal(1);
         });
 
-        it("should evaluate nested properties", () => {
+        it("should evaluate nested properties", async () => {
             const property = ref("first.second.third", { first: { second: { third: 3 } } }, "first.second.third");
-            expect(evaluate(property)).to.equal(3);
+            expect(await evaluate(property)).to.equal(3);
         });
 
         it("should not condense property ", () => {
@@ -293,6 +344,13 @@ describe("Smart constructors", () => {
         expect(result).to.be.instanceOf(PowerExpression);
         expect((result as PowerExpression).base).to.deep.equal(of(2));
         expect((result as PowerExpression).exponent).to.deep.equal(of(3));
+    });
+
+    it("should return input for single value in min", () => {
+        expect(min(of(3))).to.deep.equal(of(3));
+    });
+    it("should return input for single value in max", () => {
+        expect(max(of(4))).to.deep.equal(of(4));
     });
 });
 
@@ -629,28 +687,28 @@ describe("Roll mapping", () => {
     });
 
     describe("Mulitiplication included", () => {
-        it("should map a roll with a final multiplication term", () => {
+        it("should map a roll with a final multiplication term", async () => {
             const testRoll = createTestRoll("1d6", [6], -3);
             testRoll.terms.push(makeOperator("*"), makeNumeric(2));
             const rollTerm = mapRoll(testRoll);
-            expect(evaluate(rollTerm)).to.equal(0);
+            expect(await evaluate(rollTerm)).to.equal(0);
             expect(asString(rollTerm)).to.equal("1d6 - (3 \u00D7 2)");
         });
 
-        it("should map a roll with a multiplication term", () => {
+        it("should map a roll with a multiplication term", async () => {
             const testRoll = createTestRoll("1d6", [6]);
             testRoll.terms.push(makeOperator("*"), makeNumeric(2));
             const rollTerm = mapRoll(testRoll);
-            expect(evaluate(rollTerm)).to.equal(12);
+            expect(await evaluate(rollTerm)).to.equal(12);
             expect(asString(rollTerm)).to.equal("1d6 \u00D7 2");
         });
 
-        it("should map a roll with a leading multiplication term", () => {
+        it("should map a roll with a leading multiplication term", async () => {
             const testRoll = createTestRoll("1d6", [6]);
             testRoll.terms.push(makeOperator("*"), makeNumeric(2));
             testRoll.terms.push(makeOperator("+"), makeNumeric(1));
             const rollTerm = mapRoll(testRoll);
-            expect(evaluate(rollTerm)).to.equal(13);
+            expect(await evaluate(rollTerm)).to.equal(13);
             expect(asString(rollTerm)).to.equal("1d6 \u00D7 2 + 1");
         });
     });

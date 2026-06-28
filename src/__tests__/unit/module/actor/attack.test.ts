@@ -4,7 +4,7 @@ import Attack from "module/actor/attack";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import SplittermondActor from "module/actor/actor";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
-import { evaluate, of } from "module/modifiers/expressions/scalar";
+import { of, syncEvaluate } from "module/modifiers/expressions/scalar";
 import { expect } from "chai";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { foundryApi } from "module/api/foundryApi";
@@ -16,6 +16,7 @@ import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessa
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { splittermond } from "module/config";
 import { AttackCheckReport } from "module/util/chat/rollMessages/attackChatMessage/interfaces";
+import { fromExpression } from "module/util/util";
 
 describe("Attack", () => {
     let sandbox: SinonSandbox;
@@ -30,7 +31,7 @@ describe("Attack", () => {
     describe("damage calculation", () => {
         beforeEach(() => {
             sandbox.stub(DamageRoll, "fromExpression").callsFake((exp, features) => {
-                const parsed = evaluate(exp);
+                const parsed = syncEvaluate(exp);
                 return new DamageRoll(createTestRoll("", [], parsed), features);
             });
         });
@@ -275,7 +276,7 @@ describe("Attack", () => {
         });
     });
 
-    it("should pass custom options to the roll method", () => {
+    it("should pass custom options to the roll method", async () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem();
         const underTest = Attack.initialize(actor, attackItem);
@@ -290,8 +291,8 @@ describe("Attack", () => {
             checkMessageData: { baz: 1 },
         };
 
-        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options as any));
-        underTest.roll(customOptions);
+        const rollSpy = sandbox.stub(Skill.prototype, "roll").resolves(false);
+        await underTest.roll(customOptions);
 
         expect(rollSpy.calledOnce).to.be.true;
         const passedOptions = rollSpy.firstCall.firstArg;
@@ -305,7 +306,7 @@ describe("Attack", () => {
         expect(passedOptions?.checkMessageData).to.deep.equal(customOptions.checkMessageData);
     });
 
-    it("should merge default options with custom options in the roll method", () => {
+    it("should merge default options with custom options in the roll method", async () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem();
         const underTest = Attack.initialize(actor, attackItem);
@@ -315,8 +316,8 @@ describe("Attack", () => {
             modifier: 5,
         };
 
-        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options as any));
-        underTest.roll(customOptions);
+        const rollSpy = sandbox.stub(Skill.prototype, "roll").resolves(false);
+        await underTest.roll(customOptions);
 
         expect(rollSpy.calledOnce).to.be.true;
         const passedOptions = rollSpy.firstCall.firstArg;
@@ -327,7 +328,6 @@ describe("Attack", () => {
         expect(passedOptions?.difficulty).to.equal(customOptions.difficulty);
         expect(passedOptions?.preSelectedModifier).to.deep.equal([attackItem.name]);
         expect(passedOptions?.modifier).to.equal(customOptions.modifier);
-        // checkMessageData contains a roll result, so a full deep equal comparison will fail most of the time
         expect(
             passedOptions?.checkMessageData ? Object.keys(passedOptions?.checkMessageData.weapon) : []
         ).to.deep.equal(
@@ -338,13 +338,13 @@ describe("Attack", () => {
         );
     });
 
-    it("should use default options when no custom options are provided", () => {
+    it("should use default options when no custom options are provided", async () => {
         const actor = setUpActor(sandbox);
         const attackItem = setUpAttackItem();
         const underTest = Attack.initialize(actor, attackItem);
 
-        const rollSpy = sandbox.stub(Skill.prototype, "roll").callsFake((options) => Promise.resolve(options as any));
-        underTest.roll();
+        const rollSpy = sandbox.stub(Skill.prototype, "roll").resolves(false);
+        await underTest.roll();
 
         expect(rollSpy.calledOnce).to.be.true;
         const passedOptions = rollSpy.firstCall.firstArg;
@@ -372,7 +372,7 @@ describe("Attack", () => {
         actor.modifier.add("item.weaponspeed", { type: "magic", name: attackItem?.name }, of(3), null, false);
         const underTest = Attack.initialize(actor, attackItem);
 
-        expect(underTest.weaponSpeed).to.equal(4);
+        expect(underTest.weaponSpeed.display).to.equal("4");
     });
 
     it("should filter out weapon speed modifiers by itemType", () => {
@@ -388,7 +388,7 @@ describe("Attack", () => {
         );
         const underTest = Attack.initialize(actor, attackItem);
 
-        expect(underTest.weaponSpeed).to.equal(7);
+        expect(underTest.weaponSpeed.display).to.equal("7");
     });
 
     it("should filter out weapon speed modifiers by item skill", () => {
@@ -403,7 +403,7 @@ describe("Attack", () => {
         );
         const underTest = Attack.initialize(actor, attackItem);
 
-        expect(underTest.weaponSpeed).to.equal(7);
+        expect(underTest.weaponSpeed.display).to.equal("7");
     });
 
     it("should filter out weapon speed modifiers if attack has no skill", () => {
@@ -418,7 +418,7 @@ describe("Attack", () => {
         );
         const underTest = Attack.initialize(actor, attackItem);
 
-        expect(underTest.weaponSpeed).to.equal(7);
+        expect(underTest.weaponSpeed.display).to.equal("7");
     });
     it("should account for improvisation in weapon speed", () => {
         const actor = setUpActor(sandbox);
@@ -426,7 +426,7 @@ describe("Attack", () => {
         const attackItem = setUpAttackItem({ weaponSpeed: 7, features: ItemFeaturesModel.from("Improvisiert") });
         const underTest = Attack.initialize(actor, attackItem);
 
-        expect(underTest.weaponSpeed).to.equal(5);
+        expect(underTest.weaponSpeed.display).to.equal("5");
     });
 
     it("should report prepared if attack represents a melee attack", () => {
@@ -538,6 +538,7 @@ describe("Attack", () => {
         });
         it("should serve weaponspeed for melee attacks", async () => {
             const actor = setUpActor(sandbox);
+            Object.defineProperty(actor, "tickMalus", { value: fromExpression(() => of(0)) });
             const attackItem = setUpAttackItem();
             attackItem.system.skill = "blades";
             const underTest = Attack.initialize(actor, attackItem);
@@ -556,6 +557,7 @@ describe("Attack", () => {
         });
         it("should reduce tickCost for critical successes", async () => {
             const actor = setUpActor(sandbox);
+            Object.defineProperty(actor, "tickMalus", { value: fromExpression(() => of(0)) });
             const attackItem = setUpAttackItem();
             attackItem.system.skill = "blades";
             const underTest = Attack.initialize(actor, attackItem);

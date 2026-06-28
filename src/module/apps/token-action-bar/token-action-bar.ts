@@ -15,6 +15,7 @@ import { closestData } from "module/data/ClosestDataMixin";
 import { TokenActionBarTemplateData } from "./templateInterface";
 import { ElementToggler } from "./ElementToggler";
 import { actorRetriever } from "module/data/EntityRetriever";
+import type Skill from "module/actor/skill";
 
 let theInstance: TokenActionBar | null = null;
 let showActionBarGetter = () => false;
@@ -136,6 +137,14 @@ export default class TokenActionBar extends SplittermondApplication {
         return new ElementToggler(hotbar);
     }
 
+    private toTokenBarSkill(skill: Skill) {
+        return {
+            id: skill.id,
+            value: skill.value.display,
+            label: skill.label,
+        };
+    }
+
     async _prepareContext(options: ApplicationContextOptions) {
         const data = (await super._prepareContext(options)) as ApplicationRenderContext &
             Partial<TokenActionBarTemplateData>;
@@ -150,12 +159,14 @@ export default class TokenActionBar extends SplittermondApplication {
                         (skillId) =>
                             ["acrobatics", "athletics", "determination", "stealth", "perception", "endurance"].includes(
                                 skillId
-                            ) || parseInt(currentActor.skills[skillId].points) > 0
+                            ) || currentActor.skills[skillId].points > 0
                     )
-                    .map((skillId) => currentActor.skills[skillId]),
+                    .map((skillId) => currentActor.skills[skillId])
+                    .map((skill) => this.toTokenBarSkill(skill)),
                 magic: splittermond.skillGroups.magic
-                    .filter((skillId) => parseInt(currentActor.skills[skillId].points) > 0)
-                    .map((skillId) => currentActor.skills[skillId]),
+                    .filter((skillId) => currentActor.skills[skillId].points > 0)
+                    .map((skillId) => currentActor.skills[skillId])
+                    .map((skill) => this.toTokenBarSkill(skill)),
             };
 
             data.attacks = this._currentActor.attacks
@@ -195,7 +206,7 @@ export default class TokenActionBar extends SplittermondApplication {
                         if (!result[skillName]) {
                             result[skillName] = {
                                 label: `splittermond.skillLabel.${skillName}`,
-                                skillValue: item.skill.value,
+                                skillValue: item.skill.displayValue,
                                 spells: [],
                             };
                         }
@@ -240,7 +251,7 @@ export default class TokenActionBar extends SplittermondApplication {
             img: preparedItem.img,
             name: preparedItem.name,
             range: preparedItem.range,
-            skill: { label: preparedItem.skill.label, value: preparedItem.skill.value },
+            skill: { label: preparedItem.skill.label, value: preparedItem.skill.displayValue },
             spellTypeList: preparedItem.spellTypeList,
             description: preparedItem.system.description ?? "",
         };
@@ -280,7 +291,7 @@ export default class TokenActionBar extends SplittermondApplication {
             return;
         }
         this._currentActor?.addTicks(
-            attack.weaponSpeed,
+            await attack.weaponSpeedAsync(),
             `${foundryApi.localize("splittermond.attack")}: ${attack.name}`
         );
         this._currentActor?.setFlag("splittermond", "preparedAttack", attackId);
@@ -317,7 +328,7 @@ export default class TokenActionBar extends SplittermondApplication {
             return;
         }
         this._currentActor?.addTicks(
-            spell.castDuration.inTicks,
+            await spell.castDuration.inTicks(),
             `${foundryApi.localize("splittermond.castDuration")}: ${spell.name}`
         );
         await this._currentActor?.setFlag("splittermond", "preparedSpell", itemId);

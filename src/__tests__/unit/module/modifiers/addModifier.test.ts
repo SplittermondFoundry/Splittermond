@@ -655,7 +655,7 @@ describe("addModifier", () => {
             ["INT", 4],
         ] as const
     ).forEach(([placeholder, expected]) => {
-        it("should replace attribute placeholders with their values", () => {
+        it("should replace attribute placeholders with their values", async () => {
             const system = sandbox.createStubInstance(CharacterDataModel);
             actor.attributes.intuition = new Attribute(actor, "intuition");
             actor.system = system;
@@ -677,7 +677,7 @@ describe("addModifier", () => {
                 origin: item,
                 selectable: false,
             });
-            expect(evaluate(result.modifiers[0].value)).to.equal(expected);
+            expect(await evaluate(result.modifiers[0].value)).to.equal(expected);
         });
     });
 

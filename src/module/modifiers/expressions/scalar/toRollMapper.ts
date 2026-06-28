@@ -6,6 +6,8 @@ import {
     AmountExpression,
     DivideExpression,
     Expression,
+    MaxExpression,
+    MinExpression,
     MultiplyExpression,
     PowerExpression,
     ReferenceExpression,
@@ -38,9 +40,24 @@ export function toRollFormula(expression: Expression): [string, Record<string, s
             return handleFactorExpressions(expression, "/");
         } else if (expression instanceof PowerExpression) {
             return handlePowerExpression(expression);
+        } else if (expression instanceof MinExpression) {
+            return handleExtrema(expression, "min");
+        } else if (expression instanceof MaxExpression) {
+            return handleExtrema(expression, "max");
         }
 
         exhaustiveMatchGuard(expression);
+    }
+
+    function handleExtrema(
+        expression: MinExpression | MaxExpression,
+        func: "min" | "max"
+    ): [string, Record<string, string>] {
+        const converted = expression.args.map(toRollFormula);
+        const strings = converted.map((c) => c[0]);
+        const refs = converted.map((c) => c[1]);
+        const mergedRefs = refs.reduce((acc, r) => ({ ...r, ...acc }), {});
+        return [`${func}(${strings.join(",")})`, mergedRefs];
     }
 
     function handleReferences(expression: ReferenceExpression): [string, Record<string, string>] {

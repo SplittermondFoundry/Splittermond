@@ -153,13 +153,13 @@ describe("SplittermondActor", () => {
             expect(splinterpoints).to.deep.equal({ value: 2, max: 3 });
         });
 
-        it("should spend a splinterpoint and return the correct bonus", () => {
+        it("should spend a splinterpoint and return the correct bonus", async () => {
             sandbox.stub(foundryApi, "localize").callsFake((key) => key);
             actor.prepareBaseData();
             asCharacter(actor).updateSource({ splinterpoints: { value: 1, max: 3 } });
             const result = actor.spendSplinterpoint();
             expect(result.pointSpent).to.be.true;
-            expect(result.getBonus("health")).to.equal(5);
+            expect(await result.getBonus("health")).to.equal(5);
             expect(asCharacter(actor).splinterpoints.value).to.equal(0);
         });
 
@@ -376,7 +376,7 @@ describe("SplittermondActor", () => {
             asMock(settings.registerBoolean).returnsSetting(true);
         });
 
-        it("returns 0 if no item protects damage reduction", () => {
+        it("returns 0 if no item protects damage reduction", async () => {
             actor.items = [
                 {
                     system: {
@@ -386,13 +386,13 @@ describe("SplittermondActor", () => {
                     },
                 },
             ] as any;
-            expect(actor.protectedDamageReduction).to.equal(0);
+            expect(await actor.protectedDamageReduction.calculate()).to.equal(0);
         });
 
-        it("returns damageReduction if item protects and getStableProtectsAllReduction is true", () => {
+        it("returns damageReduction if item protects and getStableProtectsAllReduction is true", async () => {
             asMock(settings.registerBoolean).returnsSetting(true);
             // Stub damageReduction getter
-            sandbox.stub(actor, "damageReduction").get(() => 7);
+            sandbox.stub(actor, "damageReduction").get(() => ({ display: "7", calculate: () => Promise.resolve(7) }));
             actor.items = [
                 {
                     system: {
@@ -402,12 +402,12 @@ describe("SplittermondActor", () => {
                     },
                 },
             ] as any;
-            expect(actor.protectedDamageReduction).to.equal(7);
+            expect(await actor.protectedDamageReduction.calculate()).to.equal(7);
         });
 
-        it("returns sum of protected items' damageReduction if getStableProtectsAllReduction is false", () => {
+        it("returns sum of protected items' damageReduction if getStableProtectsAllReduction is false", async () => {
             asMock(settings.registerBoolean).returnsSetting(false);
-            sandbox.stub(actor, "damageReduction").get(() => 15);
+            sandbox.stub(actor, "damageReduction").get(() => ({ display: "15", calculate: () => Promise.resolve(15) }));
             actor.items = [
                 {
                     system: {
@@ -424,10 +424,10 @@ describe("SplittermondActor", () => {
                     },
                 },
             ] as any;
-            expect(actor.protectedDamageReduction).to.equal(5);
+            expect(await actor.protectedDamageReduction.calculate()).to.equal(5);
         });
 
-        it("returns 0 if no equipped item has Stabil feature", () => {
+        it("returns 0 if no equipped item has Stabil feature", async () => {
             actor.items = [
                 {
                     system: {
@@ -437,7 +437,7 @@ describe("SplittermondActor", () => {
                     },
                 },
             ] as any;
-            expect(actor.protectedDamageReduction).to.equal(0);
+            expect(await actor.protectedDamageReduction.calculate()).to.equal(0);
         });
     });
 

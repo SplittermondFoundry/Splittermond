@@ -4,13 +4,22 @@ import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import SplittermondItem from "module/item/item";
 import { foundryApi } from "module/api/foundryApi";
 import { clearMappers } from "module/modifiers/parsing/normalizer";
-import { evaluate, of } from "module/modifiers/expressions/scalar";
+import { evaluate, type Expression, of } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier } from "module/modifiers/parsing";
+
+class TestItemModifierHandler extends ItemModifierHandler {
+    public buildModifier(modifier: ScalarModifier) {
+        return super.buildModifier(modifier);
+    }
+    public omitForValue(v: Expression) {
+        return super.omitForValue(v);
+    }
+}
 
 describe("ItemModifierHandler", () => {
     let sandbox: SinonSandbox;
     let allErrors: string[];
-    let handler: ItemModifierHandler;
+    let handler: TestItemModifierHandler;
     let mockItem: SinonStubbedInstance<SplittermondItem>;
     let logErrorsStub: sinon.SinonStub;
 
@@ -25,7 +34,7 @@ describe("ItemModifierHandler", () => {
         mockItem = sandbox.createStubInstance(SplittermondItem);
         mockItem.name = "Test Item";
 
-        handler = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(1));
+        handler = new TestItemModifierHandler(logErrorsStub, mockItem, "equipment", of(1));
 
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => key);
         sandbox.stub(foundryApi, "format").callsFake((key: string, data?: any) => {
@@ -42,12 +51,12 @@ describe("ItemModifierHandler", () => {
 
     describe("omitForValue", () => {
         it("should return true for zero values", () => {
-            const result = (handler as any).omitForValue(of(0));
+            const result = handler.omitForValue(of(0));
             expect(result).to.be.true;
         });
 
         it("should return false for non-zero values", () => {
-            const result = (handler as any).omitForValue(of(5));
+            const result = handler.omitForValue(of(5));
             expect(result).to.be.false;
         });
     });
@@ -62,10 +71,10 @@ describe("ItemModifierHandler", () => {
                 },
             };
 
-            const result = (handler as any).buildModifier(scalarModifier)[0];
+            const result = handler.buildModifier(scalarModifier)[0];
 
             expect(result).to.not.be.null;
-            expect(result.path).to.equal("item.damage");
+            expect(result.groupId).to.equal("item.damage");
             expect(result.value).to.deep.equal(of(5));
             expect(result.origin).to.equal(mockItem);
             expect(result.selectable).to.be.false;
@@ -224,7 +233,7 @@ describe("ItemModifierHandler", () => {
             });
         });
 
-        it("should multiply modifier values", () => {
+        it("should multiply modifier values", async () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration",
                 value: of(5),
@@ -236,10 +245,10 @@ describe("ItemModifierHandler", () => {
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(evaluate(result.value)).to.deep.equal(10);
+            expect(await evaluate(result.value)).to.deep.equal(10);
         });
 
-        it("should take cast duration multiplier to the modifier multipliers power", () => {
+        it("should take cast duration multiplier to the modifier multipliers power", async () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration.multiplier",
                 value: of(0.5),
@@ -251,7 +260,7 @@ describe("ItemModifierHandler", () => {
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(evaluate(result.value)).to.deep.equal(0.25);
+            expect(await evaluate(result.value)).to.deep.equal(0.25);
         });
 
         it("should omit modifier with zero value", () => {

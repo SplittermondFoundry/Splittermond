@@ -21,7 +21,7 @@ export async function check(skill, difficulty, rollType = "standard", skillModif
         rollFormula += " + @modifier";
     }
     let rollData = {
-        skillValue: skill.value,
+        skillValue: await skill.value.calculate(),
         modifier: skillModifier,
     };
     const roll = foundryApi.roll(rollFormula, rollData).evaluate();

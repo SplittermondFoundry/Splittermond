@@ -3,7 +3,7 @@ import { Dice } from "../check/dice";
 import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty, RollDifficultyType } from "../util/rollDifficultyParser";
-import { asString, condense, evaluate, of } from "module/modifiers/expressions/scalar";
+import { asString, condense, evaluate, type Expression, of, plus } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
 import { modifyEvaluation } from "module/check/modifyEvaluation";
@@ -13,7 +13,7 @@ import { ChatMessage, FoundryChatMessage } from "module/api/ChatMessage";
 import type Attribute from "module/actor/attribute";
 import type { IModifier } from "module/modifiers";
 import type { SplittermondAttribute } from "module/config/attributes";
-import { isMember } from "module/util/util";
+import { fromExpression, isMember } from "module/util/util";
 import Modifiable from "module/actor/modifiable";
 import { rollType, RollType } from "module/config/check";
 import { CheckReport, type GenericRollEvaluation } from "module/check";
@@ -69,7 +69,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
     private _attribute2Cache: Attribute | null = null;
     private _cache = {
         enabled: false,
-        value: null as number | null,
+        value: null as Expression | null,
     };
 
     /**
@@ -141,11 +141,19 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             ...superObject,
             id: this.id,
             label: this.label,
-            value: this.value,
             attribute1: this.attribute1,
             attribute2: this.attribute2,
+            value: this.value.display,
         };
     }
+
+    async makeSnapshot() {
+        return {
+            ...this.toObject(),
+            value: await this.value.calculate(),
+        };
+    }
+
     addModifierPath(...path: string[]) {
         this.updateSource({ _modifierPath: [...this._modifierPath, ...path] });
     }
@@ -167,12 +175,19 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             return this._skillValue - (this.attribute1?.value || 0) - (this.attribute2?.value || 0);
         }
     }
+    get baseValue() {
+        return (this.attribute1?.value || 0) + (this.attribute2?.value || 0) + this.points;
+    }
 
-    get value(): number {
+    get value() {
+        return fromExpression(() => this.valueExpression());
+    }
+
+    private valueExpression() {
         if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
 
-        let value = (this.attribute1?.value || 0) + (this.attribute2?.value || 0) + this.points;
-        value += this.mod;
+        let value: Expression = of(this.baseValue);
+        value = plus(value, this.mod.expression);
 
         if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
         return value;
@@ -265,15 +280,20 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             checkData.rollType = (checkData.rollType + "Grandmaster") as RollType;
         }
         let condensedModifiers = 0;
-        const mappedModifiers = checkData.modifierElements.map((mod) => {
-            const value = evaluate(mod.value);
+        const mappedModifiers: {
+            isMalus: boolean;
+            value: string;
+            description: string | undefined;
+        }[] = [];
+        for (const mod of checkData.modifierElements) {
+            const value = await evaluate(mod.value);
             condensedModifiers += value;
-            return {
+            mappedModifiers.push({
                 isMalus: value < 0,
                 value: `${Math.abs(value)}`,
                 description: mod.description,
-            };
-        });
+            });
+        }
 
         const transferObject = { parsedDifficulty, rollType: checkData.rollType, condensedModifiers };
         beforeRoll.call(this, transferObject);
@@ -284,7 +304,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             transferObject.condensedModifiers
         );
         afterRoll.call(this, immediateRollResult);
-        let rollResult = modifyEvaluation(
+        let rollResult = await modifyEvaluation(
             {
                 ...immediateRollResult,
                 skill: this.id,
@@ -340,7 +360,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         let checkMessageData = {
             type: options.type || "skill",
             skill: this.id,
-            skillValue: this.value,
+            skillValue: await this.value.calculate(),
             skillPoints: this.points,
             skillAttributes: skillAttributes,
             difficulty: rollResult.difficulty,

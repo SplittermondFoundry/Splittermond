@@ -6,7 +6,7 @@ import { DataModelConstructorInput } from "module/api/DataModel";
 import { foundryApi } from "module/api/foundryApi";
 import { SplittermondItemDataModel } from "../../index";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
-import { evaluate } from "module/modifiers/expressions/scalar";
+import { syncEvaluate } from "module/modifiers/expressions/scalar";
 import { DocumentAccessMixin } from "module/data/AncestorDocumentMixin";
 
 function FeaturesSchema() {
@@ -58,9 +58,9 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
 
     get featureList() {
         const modifierFeaturesToMerge = this.getModifierFeatures("item.mergeFeature");
-        const modiferFeaturesToAdd = this.getModifierFeatures("item.addFeature");
+        const modifierFeaturesToAdd = this.getModifierFeatures("item.addFeature");
         const mergedFeatures = mergeDataModels(this.internalFeatureList, modifierFeaturesToMerge);
-        return sumDataModels(mergedFeatures, modiferFeaturesToAdd);
+        return sumDataModels(mergedFeatures, modifierFeaturesToAdd);
     }
 
     private getModifierFeatures(groupId: string) {
@@ -71,7 +71,10 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
             .withAttributeValuesOrAbsent("skill", this.getItemSkill() ?? "")
             .getModifiers()
             .flatMap((m) => {
-                const value = `${evaluate(m.value)}` || "";
+                //For rolls we'd have to call evaluate, which would be async. But also, the Value is evaluated on every search
+                //for a feature, with different results. This will yield erratic behavior, so we just prohibit it in the modifier
+                //handler, which ensures we'll never get NaN here.
+                const value = syncEvaluate(m.value) || 1;
                 return parseFeatures(`${m.attributes.feature} ${value}`);
             })
             .map((f) => new ItemFeatureDataModel(f));

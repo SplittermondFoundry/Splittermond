@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import { ParsedModifier, withErrorLogger } from "module/modifiers/parsing";
 import { AmountExpression, MultiplyExpression, ReferenceExpression } from "module/modifiers/expressions/scalar";
-import { evaluate, of as ofCost } from "module/modifiers/expressions/cost";
+import { of as ofCost, syncEvaluate } from "module/modifiers/expressions/cost";
 import { foundryApi } from "module/api/foundryApi";
 import sinon, { type SinonSandbox } from "sinon";
 import { clearMappers } from "module/modifiers/parsing/normalizer";
@@ -134,7 +134,7 @@ describe("Value Processor", () => {
         const errors = new MockParseErrors();
         const result = withErrorLogger(errors).processCostValue(complexModifier, focusSource);
 
-        expect(evaluate(result!.value)).deep.equal(new Cost(-1, 0, false).asModifier());
+        expect(syncEvaluate(result!.value)).deep.equal(new Cost(-1, 0, false).asModifier());
     });
 });
 class MockParseErrors extends Array<string> implements IErrorConsumer {

@@ -41,8 +41,8 @@ export class CastDurationModel extends DocumentAccessMixin(CastDurationBase, Spl
      * Get the duration in ticks for comparison purposes
      * Assuming 100-120 ticks per minute, we'll use 110 as average
      */
-    get inTicks(): number {
-        const value = evaluate(this.getTotalDuration());
+    async inTicks(): Promise<number> {
+        const value = await evaluate(this.getTotalDuration());
         return Math.max(0, Math.floor(value * getTimeUnitConversion(this.unit, "T")));
     }
 

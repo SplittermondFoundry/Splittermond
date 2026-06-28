@@ -87,7 +87,7 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         const input = event.currentTarget;
         const value = parseInt(input.value);
         const attrBaseName = input.name.split(".")[1];
-        if (value - parseInt(this.actor.derivedValues[attrBaseName].value || 0) == 0 || input.value == "") {
+        if (value - parseInt(this.actor.derivedValues[attrBaseName].displayValue || 0) == 0 || input.value == "") {
             this.actor.update({
                 [`system.derivedAttributes.${attrBaseName}.value`]: 0,
             });
@@ -95,7 +95,7 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
             this.actor.update({
                 [`system.derivedAttributes.${attrBaseName}.value`]:
                     value -
-                    parseInt(this.actor.derivedValues[attrBaseName].value || 0) +
+                    parseInt(this.actor.derivedValues[attrBaseName].displayValue || 0) +
                     parseInt(this.actor.derivedValues[attrBaseName].baseValue || 0),
             });
         }
@@ -108,7 +108,9 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         const input = event.currentTarget;
         const value = parseInt(input.value);
         const newValue =
-            value - parseInt(this.actor.damageReduction || 0) + parseInt(this.actor.system.damageReduction.value || 0);
+            value -
+            parseInt(this.actor.damageReduction.display || 0) +
+            parseInt(this.actor.system.damageReduction.value || 0);
         this.actor.update({
             [`system.damageReduction.value`]: newValue,
         });
@@ -124,7 +126,9 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
             const value = parseInt(input.value);
 
             const newValue =
-                value - this.actor.skills[skillBaseName].value + parseInt(this.actor.skills[skillBaseName].points || 0);
+                value -
+                this.actor.skills[skillBaseName].displayValue +
+                parseInt(this.actor.skills[skillBaseName].points || 0);
             this.actor.update({
                 [`system.skills.${skillBaseName}.points`]: newValue,
                 [`system.skills.${skillBaseName}.value`]: 0,

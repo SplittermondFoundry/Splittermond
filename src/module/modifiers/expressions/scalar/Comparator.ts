@@ -6,6 +6,8 @@ import {
     AmountExpression,
     DivideExpression,
     Expression,
+    MaxExpression,
+    MinExpression,
     MultiplyExpression,
     of,
     PowerExpression,
@@ -14,7 +16,6 @@ import {
     SubtractExpression,
 } from "./definitions";
 import { condense } from "./condenser";
-import { evaluate } from "./evaluation";
 import { exhaustiveMatchGuard } from "module/modifiers/util";
 import { mapRoll } from "./rollTermMapper";
 import { Die } from "module/api/Roll";
@@ -59,7 +60,7 @@ export function isLessThan(one: Expression, other: Expression): boolean | null {
 function tentativeEvaluate(expression: Expression): { min: number; max: number } {
     const condensed = condense(expression);
     if (condensed instanceof AmountExpression) {
-        const val = evaluate(condensed);
+        const val = condensed.amount;
         return { min: val, max: val };
     } else if (condensed instanceof RollExpression) {
         return evalRolls(condensed);
@@ -79,6 +80,22 @@ function tentativeEvaluate(expression: Expression): { min: number; max: number }
         );
     } else if (condensed instanceof AbsExpression) {
         return evalAbs(condensed);
+    } else if (condensed instanceof MinExpression) {
+        const evaluated = condensed.args.map(tentativeEvaluate);
+        const smallest = Math.min(...evaluated.map((result) => result.min));
+        //rolls may evaluate to larger values. These could still be the smallest available though. Cover that case here.
+        const maxVariance = evaluated.filter((v) => v.min !== v.max).map((result) => result.max);
+        const invariant = evaluated.filter((v) => v.min === v.max).map((result) => result.max);
+        const largest = Math.min(...invariant, ...maxVariance);
+        return { min: smallest, max: largest };
+    } else if (condensed instanceof MaxExpression) {
+        const evaluated = condensed.args.map(tentativeEvaluate);
+        const mins = evaluated.map((result) => result.max);
+        const largest = Math.max(...mins);
+        const minVariance = evaluated.filter((v) => v.min !== v.max).map((result) => result.min);
+        const invariant = evaluated.filter((v) => v.min === v.max).map((result) => result.min);
+        const smallest = Math.max(...invariant, ...minVariance);
+        return { min: smallest, max: largest };
     }
     exhaustiveMatchGuard(condensed);
 }

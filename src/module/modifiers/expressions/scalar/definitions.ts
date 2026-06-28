@@ -14,7 +14,9 @@ export type Expression =
     | DivideExpression
     | ReferenceExpression
     | AbsExpression
-    | PowerExpression;
+    | PowerExpression
+    | MinExpression
+    | MaxExpression;
 
 export function isExpression(value: unknown): value is Expression {
     return (
@@ -26,7 +28,9 @@ export function isExpression(value: unknown): value is Expression {
         value instanceof ReferenceExpression ||
         value instanceof RollExpression ||
         value instanceof AbsExpression ||
-        value instanceof PowerExpression
+        value instanceof PowerExpression ||
+        value instanceof MinExpression ||
+        value instanceof MaxExpression
     );
 }
 
@@ -111,6 +115,18 @@ export function roll(roll: FoundryRoll) {
 export function ref(propertyPath: string, source: object, stringRepresentation: string) {
     return new ReferenceExpression(propertyPath, source, stringRepresentation);
 }
+export function min(...args: [Expression, ...Expression[]]) {
+    if (args.length == 1) {
+        return args[0];
+    }
+    return new MinExpression(args);
+}
+export function max(...args: [Expression, ...Expression[]]) {
+    if (args.length == 1) {
+        return args[0];
+    }
+    return new MaxExpression(args);
+}
 
 export class AmountExpression {
     constructor(public readonly amount: number) {}
@@ -173,4 +189,12 @@ export class PowerExpression {
 
 export class AbsExpression {
     constructor(public readonly arg: Expression) {}
+}
+
+export class MinExpression {
+    constructor(public readonly args: [Expression, ...Expression[]]) {}
+}
+
+export class MaxExpression {
+    constructor(public readonly args: [Expression, ...Expression[]]) {}
 }

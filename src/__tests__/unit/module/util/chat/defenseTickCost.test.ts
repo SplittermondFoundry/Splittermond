@@ -5,19 +5,19 @@ import { of } from "module/modifiers/expressions/scalar";
 import { calculateDefenseTickCost } from "module/util/chat";
 
 describe("defense tick cost", () => {
-    it("should use the default active defense tick cost", () => {
+    it("should use the default active defense tick cost", async () => {
         const data = makeActiveDefenseData();
 
-        expect(calculateDefenseTickCost(data, 1)).to.equal(3);
+        expect(await calculateDefenseTickCost(data, 1)).to.equal(3);
     });
 
-    it("should reduce default active defense tick cost for outstanding success", () => {
+    it("should reduce default active defense tick cost for outstanding success", async () => {
         const data = makeActiveDefenseData();
 
-        expect(calculateDefenseTickCost(data, 5)).to.equal(2);
+        expect(await calculateDefenseTickCost(data, 5)).to.equal(2);
     });
 
-    it("should increase active defense tick cost for positive modifiers", () => {
+    it("should increase active defense tick cost for positive modifiers", async () => {
         const data = makeActiveDefenseData();
         data.itemData.actor.modifier.add(
             "item.defenseTickCost",
@@ -25,10 +25,10 @@ describe("defense tick cost", () => {
             of(1)
         );
 
-        expect(calculateDefenseTickCost(data, 1)).to.equal(4);
+        expect(await calculateDefenseTickCost(data, 1)).to.equal(4);
     });
 
-    it("should reduce active defense tick cost for negative modifiers", () => {
+    it("should reduce active defense tick cost for negative modifiers", async () => {
         const data = makeActiveDefenseData();
         data.itemData.actor.modifier.add(
             "item.defenseTickCost",
@@ -36,10 +36,10 @@ describe("defense tick cost", () => {
             of(-1)
         );
 
-        expect(calculateDefenseTickCost(data, 1)).to.equal(2);
+        expect(await calculateDefenseTickCost(data, 1)).to.equal(2);
     });
 
-    it("should ignore shield defense tick cost modifiers for weapons", () => {
+    it("should ignore shield defense tick cost modifiers for weapons", async () => {
         const data = makeActiveDefenseData({ itemType: "weapon" });
         data.itemData.actor.modifier.add(
             "item.defenseTickCost",
@@ -47,10 +47,10 @@ describe("defense tick cost", () => {
             of(-1)
         );
 
-        expect(calculateDefenseTickCost(data, 1)).to.equal(3);
+        expect(await calculateDefenseTickCost(data, 1)).to.equal(3);
     });
 
-    it("should apply unfiltered defense tick cost modifiers to mind resistance active defenses", () => {
+    it("should apply unfiltered defense tick cost modifiers to mind resistance active defenses", async () => {
         const data = makeActiveDefenseData({
             id: "determination",
             name: "Entschlossenheit",
@@ -60,10 +60,10 @@ describe("defense tick cost", () => {
         });
         data.itemData.actor.modifier.add("item.defenseTickCost", { name: "Universal Defense", type: "innate" }, of(-1));
 
-        expect(calculateDefenseTickCost(data, 1)).to.equal(2);
+        expect(await calculateDefenseTickCost(data, 1)).to.equal(2);
     });
 
-    it("should apply unfiltered defense tick cost modifiers to body resistance active defenses", () => {
+    it("should apply unfiltered defense tick cost modifiers to body resistance active defenses", async () => {
         const data = makeActiveDefenseData({
             id: "endurance",
             name: "Zähigkeit",
@@ -73,10 +73,10 @@ describe("defense tick cost", () => {
         });
         data.itemData.actor.modifier.add("item.defenseTickCost", { name: "Universal Defense", type: "innate" }, of(-1));
 
-        expect(calculateDefenseTickCost(data, 1)).to.equal(2);
+        expect(await calculateDefenseTickCost(data, 1)).to.equal(2);
     });
 
-    it("should apply defense type scoped modifiers only to matching active defenses", () => {
+    it("should apply defense type scoped modifiers only to matching active defenses", async () => {
         const data = makeActiveDefenseData();
         data.itemData.actor.modifier.add(
             "item.defenseTickCost",
@@ -84,10 +84,10 @@ describe("defense tick cost", () => {
             of(-1)
         );
 
-        expect(calculateDefenseTickCost(data, 1)).to.equal(2);
+        expect(await calculateDefenseTickCost(data, 1)).to.equal(2);
     });
 
-    it("should ignore defense type scoped modifiers for other active defenses", () => {
+    it("should ignore defense type scoped modifiers for other active defenses", async () => {
         const data = makeActiveDefenseData({
             id: "determination",
             name: "Entschlossenheit",
@@ -101,10 +101,10 @@ describe("defense tick cost", () => {
             of(-1)
         );
 
-        expect(calculateDefenseTickCost(data, 1)).to.equal(3);
+        expect(await calculateDefenseTickCost(data, 1)).to.equal(3);
     });
 
-    it("should not reduce active defense tick cost below one tick", () => {
+    it("should not reduce active defense tick cost below one tick", async () => {
         const data = makeActiveDefenseData();
         data.itemData.actor.modifier.add(
             "item.defenseTickCost",
@@ -112,7 +112,7 @@ describe("defense tick cost", () => {
             of(-10)
         );
 
-        expect(calculateDefenseTickCost(data, 5)).to.equal(1);
+        expect(await calculateDefenseTickCost(data, 5)).to.equal(1);
     });
 });
 

@@ -84,7 +84,7 @@ async function applyDamageToTarget(
 ) {
     const userReporter = new UserReporterImpl();
 
-    calculateDamageOnTarget(event, target, userReporter);
+    await calculateDamageOnTarget(event, target, userReporter);
     const result = await userModifier.getUserAdjustedDamage(userReporter.getReport());
     if (result == "Aborted") {
         return;

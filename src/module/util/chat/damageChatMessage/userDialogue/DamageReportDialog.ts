@@ -168,10 +168,10 @@ export class DamageReportDialog extends FoundryDialog {
         return input as HTMLInputElement;
     }
 
-    private spendSplinterpoint() {
+    private async spendSplinterpoint() {
         const splinterpointAction = this.target.spendSplinterpoint();
         if (splinterpointAction.pointSpent) {
-            const splinterpointBonus = splinterpointAction.getBonus("health");
+            const splinterpointBonus = await splinterpointAction.getBonus("health");
             this.currentUserAdjustment -= splinterpointBonus;
             this.usedSplinterpointBonus = true;
             this.splinterpointBonus = splinterpointBonus;

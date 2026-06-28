@@ -32,8 +32,8 @@ describe("Expressions", () => {
             [times(scalarOf(3), of("-2V2")), mod(0, -6, false), of("-6V6"), "3 \u00D7 -2V2"],
         ] as const
     ).forEach(([input, evaluated, condensed, stringRepresentation]) => {
-        it(`simple expression ${stringRepresentation} should evaluate to ${evaluated}`, () => {
-            expect(evaluate(input)).to.deep.equal(evaluated);
+        it(`simple expression ${stringRepresentation} should evaluate to ${evaluated}`, async () => {
+            expect(await evaluate(input)).to.deep.equal(evaluated);
         });
 
         it(`simple expression ${stringRepresentation} should condense to ${stringRepresentation}`, () => {
@@ -55,8 +55,8 @@ describe("Expressions", () => {
             [times(scalarOf(2), minus(of("6V3"), of("2"))), mod(2, 6, false), of("8V6"), "2 \u00D7 (6V3 - 2)"],
         ] as const
     ).forEach(([input, evaluated, condensed, stringRepresentation]) => {
-        it(`braced expression ${stringRepresentation} should evaluate to ${evaluated}`, () => {
-            expect(evaluate(input)).to.deep.equal(evaluated);
+        it(`braced expression ${stringRepresentation} should evaluate to ${evaluated}`, async () => {
+            expect(await evaluate(input)).to.deep.equal(evaluated);
         });
 
         it(`braced expression ${stringRepresentation} should condense to ${asString(condensed)}`, () => {
@@ -69,26 +69,26 @@ describe("Expressions", () => {
     });
 
     describe("Reference Expressions", () => {
-        it("should evaluate to the value of the property", () => {
+        it("should evaluate to the value of the property", async () => {
             const property = ref("value", { value: "K3V3" }, "value");
-            expect(evaluate(property)).to.deep.equal(new Cost(0, 3, true, false).asModifier());
+            expect(await evaluate(property)).to.deep.equal(new Cost(0, 3, true, false).asModifier());
         });
 
-        it("should omit properties of the wrong format when multiplying", () => {
+        it("should omit properties of the wrong format when multiplying", async () => {
             const property = ref("value", { value: "splittermond" }, "value");
             const expression = times(scalarOf(1), minus(of("4"), property));
-            expect(evaluate(expression)).to.deep.equal(mod(4, 0, false));
+            expect(await evaluate(expression)).to.deep.equal(mod(4, 0, false));
         });
 
-        it("should omit properties of the wrong format when adding", () => {
+        it("should omit properties of the wrong format when adding", async () => {
             const property = ref("value", { value: "splittermond" }, "value");
             const expression = times(scalarOf(4), property);
-            expect(evaluate(expression)).to.deep.equal(CostModifier.zero);
+            expect(await evaluate(expression)).to.deep.equal(CostModifier.zero);
         });
 
-        it("should evaluate nested properties", () => {
+        it("should evaluate nested properties", async () => {
             const property = ref("first.second.third", { first: { second: { third: "-3V2" } } }, "first.second.third");
-            expect(evaluate(property)).to.deep.equal(new Cost(-1, -2, false).asModifier());
+            expect(await evaluate(property)).to.deep.equal(new Cost(-1, -2, false).asModifier());
         });
 
         it("should not condense property ", () => {

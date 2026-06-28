@@ -13,7 +13,7 @@ import {
     times,
 } from "./definitions";
 import { exhaustiveMatchGuard } from "module/modifiers/util";
-import { evaluate } from "./evaluation";
+import { syncEvaluate } from "./evaluation";
 import { Expression } from "module/modifiers/expressions/scalar/definitions";
 import {
     canCondense as scalarCanCondense,
@@ -23,12 +23,15 @@ import { CostModifier } from "../../../util/costs/Cost";
 
 export function isZero(expression: CostExpression): boolean {
     //straight forward eval would resolve references and rolls whose values are not constant and thus not reliably zero.
-    return canCondense(expression) && evaluate(expression) === CostModifier.zero;
+    if (!canCondense(expression)) {
+        return false;
+    }
+    return syncEvaluate(expression) === CostModifier.zero;
 }
 
 export function condense(expression: CostExpression): CostExpression {
     if (canCondense(expression)) {
-        return of(evaluate(expression));
+        return of(syncEvaluate(expression));
     }
     if (expression instanceof AddExpression) {
         return condenseOperands(expression.left, expression.right, plus);

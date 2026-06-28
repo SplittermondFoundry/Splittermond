@@ -14,7 +14,7 @@
             <div class="token-action-bar-popup">
                 <ul data-roll-type="skill">
                     {{#each skills.general}}
-                    <li class="rollable" data-action="rollSkill" data-skill="{{this.id}}"><label>{{localize this.label}}</label><div>{{this.value}}</div></li>
+                    <li class="rollable" data-action="rollSkill" data-skill="{{this.id}}"><label>{{localize this.label}}</label><div>{{this.displayValue}}</div></li>
                     {{/each}}
                 </ul>
             </div>
@@ -160,15 +160,15 @@
         <ul>
             <li class="rollable" data-roll-type="activeDefense" data-defense-type="defense" data-action="rollDefense">
                 <div>{{localize "splittermond.derivedAttribute.defense.short"}}</div>
-                <div class="value">{{derivedValues.defense.value}}</div>
+                <div class="value">{{derivedValues.defense.displayValue}}</div>
             </li>
             <li class="rollable" data-roll-type="activeDefense" data-defense-type="bodyresist" data-action="rollDefense">
                 <div>{{localize "splittermond.derivedAttribute.bodyresist.short"}}</div>
-                <div class="value">{{derivedValues.bodyresist.value}}</div>
+                <div class="value">{{derivedValues.bodyresist.displayValue}}</div>
             </li>
             <li class="rollable" data-roll-type="activeDefense" data-defense-type="mindresist" data-action="rollDefense">
                 <div>{{localize "splittermond.derivedAttribute.mindresist.short"}}</div>
-                <div class="value">{{derivedValues.mindresist.value}}</div>
+                <div class="value">{{derivedValues.mindresist.displayValue}}</div>
             </li>
         </ul>
         <div style="position: relative;">

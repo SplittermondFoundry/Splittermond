@@ -212,7 +212,7 @@ export function itemTest(this: any, context: QuenchBatchContext) {
 
             await enterInSheet(sheet, "system.castDuration.innateDuration", "20 T");
 
-            await passesEventually(() => expect(item.system.castDuration.inTicks).to.equal(20), 1000, 100);
+            await passesEventually(() => expect(item.system.castDuration.display).to.equal("20 T"), 1000, 100);
         });
 
         it("should save when numeric values are incremented", async () => {

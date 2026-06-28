@@ -54,7 +54,7 @@ describe("CheckDialog", () => {
     afterEach(() => sandbox.restore());
 
     describe("_prepareFormData", () => {
-        it("should read manual modifier from input", () => {
+        it("should read manual modifier from input", async () => {
             const dom = new JSDOM(buildCheckDialogHtml({ modifier: 5 }));
             const html = dom.window.document.querySelector("form")!;
             const checkData = buildCheckData();
@@ -62,10 +62,10 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(1);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(5);
+            expect(await evaluate(result.modifierElements[0].value)).to.equal(5);
         });
 
-        it("should read checked emphasis modifier by index", () => {
+        it("should read checked emphasis modifier by index", async () => {
             const emphasis: CheckDialogInput["emphasis"] = [
                 { name: "Sichtprobe", label: "Sichtprobe + 2", value: "2", numericValue: of(2), active: false },
             ];
@@ -80,7 +80,7 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(1);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(2);
+            expect(await evaluate(result.modifierElements[0].value)).to.equal(2);
             expect(result.modifierElements[0].description).to.equal("Sichtprobe");
         });
 
@@ -101,7 +101,7 @@ describe("CheckDialog", () => {
             expect(result.modifierElements).to.have.lengthOf(0);
         });
 
-        it("should correctly evaluate multiplied expressions from status effects with levels", () => {
+        it("should correctly evaluate multiplied expressions from status effects with levels", async () => {
             const multipliedValue = times(of(2), of(-3));
             const emphasis: CheckDialogInput["emphasis"] = [
                 { name: "test", label: "test - 6", value: "-6", numericValue: multipliedValue, active: false },
@@ -117,10 +117,10 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(1);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(-6);
+            expect(await evaluate(result.modifierElements[0].value)).to.equal(-6);
         });
 
-        it("should distinguish duplicate emphasis names by index", () => {
+        it("should distinguish duplicate emphasis names by index", async () => {
             const emphasis: CheckDialogInput["emphasis"] = [
                 { name: "Schwerpunkt", label: "Schwerpunkt + 2", value: "2", numericValue: of(2), active: false },
                 { name: "Schwerpunkt", label: "Schwerpunkt + 5", value: "5", numericValue: of(5), active: false },
@@ -140,11 +140,11 @@ describe("CheckDialog", () => {
 
             // Only the second (index 1) is checked, so only its value should appear
             expect(result.modifierElements).to.have.lengthOf(1);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(5);
+            expect(await evaluate(result.modifierElements[0].value)).to.equal(5);
             expect(result.modifierElements[0].description).to.equal("Schwerpunkt");
         });
 
-        it("should sum both duplicate emphasis entries when both are checked", () => {
+        it("should sum both duplicate emphasis entries when both are checked", async () => {
             const emphasis: CheckDialogInput["emphasis"] = [
                 { name: "Schwerpunkt", label: "Schwerpunkt + 2", value: "2", numericValue: of(2), active: false },
                 { name: "Schwerpunkt", label: "Schwerpunkt + 5", value: "5", numericValue: of(5), active: false },
@@ -163,8 +163,8 @@ describe("CheckDialog", () => {
             const result = CheckDialog._prepareFormData(html, checkData);
 
             expect(result.modifierElements).to.have.lengthOf(2);
-            expect(evaluate(result.modifierElements[0].value)).to.equal(2);
-            expect(evaluate(result.modifierElements[1].value)).to.equal(5);
+            expect(await evaluate(result.modifierElements[0].value)).to.equal(2);
+            expect(await evaluate(result.modifierElements[1].value)).to.equal(5);
         });
 
         it("should combine manual modifier with emphasis modifiers", () => {

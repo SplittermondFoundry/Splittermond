@@ -9,7 +9,7 @@ import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import SplittermondActor from "../../../../module/actor/actor";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
 import { createTestRoll, stubRollApi } from "../../RollMock";
-import { evaluate, of } from "module/modifiers/expressions/scalar";
+import { of, syncEvaluate } from "module/modifiers/expressions/scalar";
 import { of as ofCost } from "../../../../module/modifiers/expressions/cost";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageRoll } from "module/util/damage/DamageRoll";
@@ -185,7 +185,7 @@ describe("Spell item damage report", () => {
         sandbox = sinon.createSandbox();
         stubRollApi(sandbox);
         sandbox.stub(DamageRoll, "fromExpression").callsFake((exp, features) => {
-            const parsed = evaluate(exp);
+            const parsed = syncEvaluate(exp);
             return new DamageRoll(createTestRoll("", [], parsed), features);
         });
     });

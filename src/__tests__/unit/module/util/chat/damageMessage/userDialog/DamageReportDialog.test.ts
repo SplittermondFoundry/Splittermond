@@ -10,6 +10,7 @@ import { expect } from "chai";
 import { DOMWindow, JSDOM } from "jsdom";
 import { FoundryDialog } from "module/api/Application";
 import { CostBase } from "module/util/costs/costTypes";
+import { passesEventually } from "../../../../../../util";
 
 declare const foundry: any;
 
@@ -124,7 +125,7 @@ describe("DamageReportDialog", () => {
             newClickEvent(dialogStub.window)
         );
 
-        expect(dialogStub.getUserAdjustments().damageAdjustment).to.equal(-5);
+        await passesEventually(() => expect(dialogStub.getUserAdjustments().damageAdjustment).to.equal(-5));
         expect(dialogStub.getUserAdjustments().wasAdjusted).to.be.true;
         expect(dialogStub.getUserAdjustments().splinterpointBonus).to.equal(5);
         expect(dialogStub.getUserAdjustments().usedSplinterpointBonus).to.be.true;
@@ -177,7 +178,7 @@ function createAttacker(sandbox: SinonSandbox, props: { name?: string } = {}): A
 function createActor(sandbox: SinonSandbox, props: { name?: string } = {}): SplittermondActor {
     const actor = sandbox.createStubInstance(SplittermondActor);
     actor.name = props.name ?? "TestActor";
-    actor.spendSplinterpoint.callsFake(() => ({ pointSpent: true, getBonus: () => 5 }));
+    actor.spendSplinterpoint.callsFake(() => ({ pointSpent: true, getBonus: () => Promise.resolve(5) }));
     sandbox.stub(actor, "splinterpoints").get(() => ({ current: 1, max: 3 }));
     return actor;
 }

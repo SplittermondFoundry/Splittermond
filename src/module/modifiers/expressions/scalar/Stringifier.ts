@@ -6,6 +6,8 @@ import {
     AmountExpression,
     DivideExpression,
     Expression,
+    MaxExpression,
+    MinExpression,
     MultiplyExpression,
     PowerExpression,
     ReferenceExpression,
@@ -44,8 +46,20 @@ function do_toString(expression: Expression): string {
         return expression.arg instanceof AmountExpression
             ? do_toString(expression.arg).replace(/^-/, "")
             : `|${unbrace(do_toString(expression.arg))}|`;
+    } else if (expression instanceof MinExpression) {
+        return processMin(expression);
+    } else if (expression instanceof MaxExpression) {
+        return processMax(expression);
     }
     exhaustiveMatchGuard(expression);
+}
+
+function processMin(expression: MinExpression) {
+    return `min(${expression.args.map((e) => do_toString(e)).join(", ")})`;
+}
+
+function processMax(expression: MaxExpression) {
+    return `max(${expression.args.map((e) => do_toString(e)).join(", ")})`;
 }
 
 function asMultiplicationString(expression: MultiplyExpression): string {

@@ -164,7 +164,7 @@ describe("AttackRollMessage", () => {
                 underTest.actorReference.getAgent().spendSplinterpoint.returns({
                     pointSpent: true,
                     getBonus() {
-                        return splinterpointValue;
+                        return Promise.resolve(splinterpointValue);
                     },
                 });
                 underTest.updateSource({ checkReport: fullCheckReport() });
@@ -179,7 +179,7 @@ describe("AttackRollMessage", () => {
                 underTest.actorReference.getAgent().spendSplinterpoint.returns({
                     pointSpent: true,
                     getBonus() {
-                        return splinterpointValue;
+                        return Promise.resolve(splinterpointValue);
                     },
                 });
                 underTest.updateSource({ checkReport: fullCheckReport() });
@@ -198,7 +198,7 @@ describe("AttackRollMessage", () => {
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
-                    return 3;
+                    return Promise.resolve(3);
                 },
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
@@ -218,7 +218,7 @@ describe("AttackRollMessage", () => {
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
-                    return 3;
+                    return Promise.resolve(3);
                 },
             });
             const checkReport = fullCheckReport();
@@ -241,7 +241,7 @@ describe("AttackRollMessage", () => {
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
-                    return 3;
+                    return Promise.resolve(3);
                 },
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
@@ -258,7 +258,7 @@ describe("AttackRollMessage", () => {
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
-                    return 3;
+                    return Promise.resolve(3);
                 },
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
@@ -326,7 +326,7 @@ describe("AttackRollMessage", () => {
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
-                    return 3;
+                    return Promise.resolve(3);
                 },
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
@@ -367,7 +367,7 @@ describe("AttackRollMessage", () => {
             underTest.actorReference.getAgent().spendSplinterpoint.returns({
                 pointSpent: true,
                 getBonus() {
-                    return 3;
+                    return Promise.resolve(3);
                 },
             });
             underTest.updateSource({ checkReport: fullCheckReport() });

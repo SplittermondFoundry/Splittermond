@@ -7,6 +7,10 @@ import {
     dividedBy,
     DivideExpression,
     type Expression,
+    max,
+    MaxExpression,
+    min,
+    MinExpression,
     minus,
     MultiplyExpression,
     of,
@@ -19,15 +23,20 @@ import {
     times,
 } from "./definitions";
 import { exhaustiveMatchGuard } from "module/modifiers/util";
-import { evaluate } from "./evaluation";
+import { syncEvaluate } from "./evaluation";
+import { IllegalStateException } from "module/data/exceptions";
 
 export function isZero(expression: Expression): boolean {
     //straight forward eval would resolve references and rolls whose values are not constant and thus not reliably zero.
-    return canCondense(expression) && evaluate(expression) === 0;
+    if (!canCondense(expression)) {
+        return false;
+    }
+    const value = syncEvaluate(expression);
+    return Number.isNaN(value) ? false : value === 0;
 }
 export function condense(expression: Expression): Expression {
     if (canCondense(expression)) {
-        return of(evaluate(expression));
+        return of(syncEvaluate(expression));
     }
     if (expression instanceof AddExpression) {
         return condenseOperands(expression.left, expression.right, plus);
@@ -47,6 +56,10 @@ export function condense(expression: Expression): Expression {
         return expression;
     } else if (expression instanceof AbsExpression) {
         return expression;
+    } else if (expression instanceof MinExpression) {
+        return processMin(expression);
+    } else if (expression instanceof MaxExpression) {
+        return processMax(expression);
     }
     exhaustiveMatchGuard(expression);
 }
@@ -69,7 +82,33 @@ export function canCondense(expression: Expression): boolean {
         return canCondense(expression.arg);
     } else if (expression instanceof PowerExpression) {
         return canCondense(expression.base) && canCondense(expression.exponent);
+    } else if (expression instanceof MinExpression) {
+        return expression.args.every(canCondense);
+    } else if (expression instanceof MaxExpression) {
+        return expression.args.every(canCondense);
     } else {
         return canCondense(expression.left) && canCondense(expression.right);
     }
+}
+
+function processMin(expression: MinExpression) {
+    const condensed = expression.args.map(condense);
+    if (condensed.every((e) => e instanceof AmountExpression)) {
+        return of(Math.min(...condensed.map((e) => e.amount)));
+    }
+    if (condensed.length > 1) {
+        return min(...(condensed as [Expression, ...Expression[]]));
+    }
+    throw new IllegalStateException("Zero array when min length 1 array required by definition.");
+}
+
+function processMax(expression: MaxExpression) {
+    const condensed = expression.args.map(condense);
+    if (condensed.every((e) => e instanceof AmountExpression)) {
+        return of(Math.max(...condensed.map((e) => e.amount)));
+    }
+    if (condensed.length > 1) {
+        return max(...(condensed as [Expression, ...Expression[]]));
+    }
+    throw new IllegalStateException("Zero array when min length 1 array required by definition.");
 }

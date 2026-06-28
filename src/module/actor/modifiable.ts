@@ -1,6 +1,16 @@
-import { asString, condense, isGreaterThan, isGreaterZero, minus, of } from "module/modifiers/expressions/scalar";
+import {
+    asString,
+    condense,
+    isGreaterThan,
+    isGreaterZero,
+    min,
+    minus,
+    of,
+    plus,
+} from "module/modifiers/expressions/scalar";
 import { Modifiers } from "module/actor/modifiers/Modifiers";
 import SplittermondActor from "./actor";
+import { fromExpression } from "module/util/util";
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -9,15 +19,20 @@ export default function Modifiable<TBase extends Constructor<Object>>(base: TBas
         abstract get actor(): SplittermondActor;
         abstract _modifierPath: string[];
 
-        get mod(): number {
+        get mod() {
+            return fromExpression(() => this.modExpression());
+        }
+
+        private modExpression() {
             const equipmentModifiers = this.#equipmentModifiers();
             const magicModifiers = this.#magicModifiers();
             const others = this.collectModifiers()
                 .filter((m) => !equipmentModifiers.includes(m))
                 .filter((m) => !magicModifiers.includes(m));
-            const cappedEquipment = Math.min(equipmentModifiers.sum, this.actor.bonusCap);
-            const cappedMagic = Math.min(magicModifiers.sum, this.actor.bonusCap);
-            return others.sum + cappedEquipment + cappedMagic;
+            const bonusCap = this.actor.bonusCap.expression;
+            const cappedEquipment = min(equipmentModifiers.sumExpressions(), bonusCap);
+            const cappedMagic = min(magicModifiers.sumExpressions(), bonusCap);
+            return plus(plus(others.sumExpressions(), cappedEquipment), cappedMagic);
         }
 
         /**
@@ -57,7 +72,7 @@ export default function Modifiable<TBase extends Constructor<Object>>(base: TBas
         //So we calculate the bonus cap again here.
         addModifierTooltipFormulaElements(formula: any): void {
             this.collectModifiers().addTooltipFormulaElements(formula);
-            const bonusCap = of(this.actor.bonusCap);
+            const bonusCap = this.actor.bonusCap.expression;
             const grandTotal = this.#equipmentModifiers().sumExpressions();
             const equipment = minus(this.#equipmentModifiers().sumExpressions(), bonusCap);
             const magic = minus(this.#magicModifiers().sumExpressions(), bonusCap);
