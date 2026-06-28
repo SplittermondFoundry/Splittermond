@@ -4,10 +4,10 @@
         <label {{#if attributeId}}data-action="open-defense-dialog"
                 data-defense-type="{{attributeId}}"{{/if}}>{{localize attribute.label.short}}
         {{#if ../editable}}
-            <input class="value" name="derivedAttributes.{{attributeId}}" type="text" value="{{attribute.displayValue}}"
+            <input class="value" name="derivedAttributes.{{attributeId}}" type="text" value="{{attribute.value.display}}"
                    data-dtype="Number">
         {{else}}
-            <span class="value">{{attribute.displayValue}}</span>
+            <span class="value">{{attribute.value.display}}</span>
         {{/if}}
         </label>
     </div>

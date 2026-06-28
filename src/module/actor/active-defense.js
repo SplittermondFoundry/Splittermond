@@ -35,10 +35,10 @@ export default class ActiveDefense {
         options.type = "defense";
         options.preSelectedModifier = [];
         options.difficulty = splittermond.check.activeDefenseDifficulty;
-        options.title = `${foundryApi.localize(`splittermond.activeDefense`)}: ${game.i18n.localize(this.actor.derivedValues[this.type].label.long)} - ${this.name}`;
+        options.title = `${foundryApi.localize(`splittermond.activeDefense`)}: ${foundryApi.localize(this.actor.derivedValues[this.type].label.long)} - ${this.name}`;
         options.checkMessageData = {
             defenseType: this.type,
-            baseDefense: await this.actor.derivedValues[this.type].value(),
+            baseDefense: await this.actor.derivedValues[this.type].value.calculate(),
             itemData: this,
         };
 

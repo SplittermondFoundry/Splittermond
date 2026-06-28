@@ -1,6 +1,6 @@
 import * as Tooltip from "../util/tooltip.js";
 import Modifiable from "./modifiable.js";
-import { asString, condense, evaluate, of, plus, times } from "../modifiers/expressions/scalar/index.js";
+import { asString, condense, evaluate, of, plus, syncEvaluate, times } from "../modifiers/expressions/scalar/index.js";
 
 export default class DerivedValue extends Modifiable(Object) {
     /**@type string[]*/ _modifierPath;
@@ -53,13 +53,13 @@ export default class DerivedValue extends Modifiable(Object) {
                         : parseInt(this.actor.system.species.size);
                 break;
             case "speed":
-                baseValue = attributes.agility.value + Number(derivedValues.size.displayValue);
+                baseValue = attributes.agility.value + Number(derivedValues.size.value.display);
                 break;
             case "initiative":
                 baseValue = 10 - attributes.intuition.value;
                 break;
             case "healthpoints":
-                baseValue = Number(derivedValues.size.displayValue) + attributes.constitution.value;
+                baseValue = derivedValues.size.value.calculateSync() + attributes.constitution.value;
                 break;
             case "focuspoints":
                 baseValue = 2 * (attributes.mystic.value + attributes.willpower.value);
@@ -69,7 +69,7 @@ export default class DerivedValue extends Modifiable(Object) {
                     12 +
                     attributes.agility.value +
                     attributes.strength.value +
-                    2 * (5 - Number(derivedValues.size.displayValue));
+                    2 * (5 - derivedValues.size.value.calculateSync());
                 break;
             case "bodyresist":
                 baseValue = 12 + attributes.willpower.value + attributes.constitution.value;
@@ -96,7 +96,7 @@ export default class DerivedValue extends Modifiable(Object) {
             case "speed":
                 formula.addPart(attributes.agility.value, attributes.agility.label.short);
                 formula.addOperator("+");
-                formula.addPart(derivedValues.size.displayValue, derivedValues.size.label.short);
+                formula.addPart(derivedValues.size.value.display, derivedValues.size.label.short);
                 break;
             case "initiative":
                 formula.addPart("10");
@@ -104,7 +104,7 @@ export default class DerivedValue extends Modifiable(Object) {
                 formula.addPart(attributes.intuition.value, attributes.intuition.label.short);
                 break;
             case "healthpoints":
-                formula.addPart(derivedValues.size.displayValue, derivedValues.size.label.short);
+                formula.addPart(derivedValues.size.value.display, derivedValues.size.label.short);
                 formula.addOperator("+");
                 formula.addPart(attributes.constitution.value, attributes.constitution.label.short);
                 break;
@@ -122,7 +122,7 @@ export default class DerivedValue extends Modifiable(Object) {
                 formula.addPart(attributes.strength.value, attributes.strength.label.short);
                 formula.addOperator("+");
                 formula.addOperator("2 &times; ( 5 -");
-                formula.addPart(derivedValues.size.displayValue, derivedValues.size.label.short);
+                formula.addPart(derivedValues.size.value.display, derivedValues.size.label.short);
                 formula.addOperator(")");
                 break;
             case "bodyresist":
@@ -144,12 +144,16 @@ export default class DerivedValue extends Modifiable(Object) {
         return formula.render();
     }
 
-    get displayValue() {
-        return asString(condense(this.valueAsExpression()));
-    }
-
-    async value() {
-        return Math.ceil(await evaluate(this.valueAsExpression()));
+    get value() {
+        const display = () => asString(condense(this.valueAsExpression()));
+        return {
+            calculate: async () => Math.ceil(await evaluate(this.valueAsExpression())),
+            calculateSync: () => Math.ceil(syncEvaluate(this.valueAsExpression())),
+            get display() {
+                return display();
+            },
+            expression: () => this.valueAsExpression(),
+        };
     }
 
     valueAsExpression() {

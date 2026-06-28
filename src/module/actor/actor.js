@@ -309,7 +309,7 @@ export default class SplittermondActor extends Actor {
 
         data.health.woundMalus.levels = foundryApi.utils.duplicate(splittermond.woundMalus[healthNbrLevels]);
         data.health.woundMalus.levels = data.health.woundMalus.levels.map((i) => {
-            i.value = Math.min(i.value - Number(this.woundMalusMod.display), 0);
+            i.value = Math.min(i.value - this.woundMalusMod.calculateSync(), 0);
             return i;
         });
 
@@ -319,7 +319,7 @@ export default class SplittermondActor extends Actor {
                     data[type].channeled.value = Math.max(
                         Math.min(
                             data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            healthNbrLevels * this.derivedValues[type + "points"].displayValue
+                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync()
                         ),
                         0
                     );
@@ -327,7 +327,7 @@ export default class SplittermondActor extends Actor {
                     data[type].channeled.value = Math.max(
                         Math.min(
                             data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            this.derivedValues[type + "points"].displayValue
+                            this.derivedValues[type + "points"].value.calculateSync()
                         ),
                         0
                     );
@@ -358,11 +358,11 @@ export default class SplittermondActor extends Actor {
                 data[type].available = {
                     value: Math.max(
                         Math.min(
-                            healthNbrLevels * this.derivedValues[type + "points"].displayValue -
+                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync() -
                                 data[type].channeled.value -
                                 data[type].exhausted.value -
                                 data[type].consumed.value,
-                            healthNbrLevels * this.derivedValues[type + "points"].displayValue
+                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync()
                         ),
                         0
                     ),
@@ -371,9 +371,9 @@ export default class SplittermondActor extends Actor {
                 data[type].total = {
                     value: Math.max(
                         Math.min(
-                            healthNbrLevels * this.derivedValues[type + "points"].displayValue -
+                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync() -
                                 data[type].consumed.value,
-                            healthNbrLevels * this.derivedValues[type + "points"].displayValue
+                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync()
                         ),
                         0
                     ),
@@ -381,26 +381,26 @@ export default class SplittermondActor extends Actor {
 
                 data[type].available.percentage =
                     (100 * data[type].available.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].displayValue);
+                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
                 data[type].exhausted.percentage =
                     (100 * data[type].exhausted.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].displayValue);
+                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
                 data[type].channeled.percentage =
                     (100 * data[type].channeled.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].displayValue);
+                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
                 data[type].total.percentage =
                     (100 * data[type].total.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].displayValue);
-                data[type].max = healthNbrLevels * this.derivedValues.healthpoints.displayValue;
+                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
+                data[type].max = healthNbrLevels * this.derivedValues.healthpoints.value.calculateSync();
             } else {
                 data[type].available = {
                     value: Math.max(
                         Math.min(
-                            this.derivedValues[type + "points"].displayValue -
+                            this.derivedValues[type + "points"].value.calculateSync() -
                                 data[type].channeled.value -
                                 data[type].exhausted.value -
                                 data[type].consumed.value,
-                            this.derivedValues[type + "points"].displayValue
+                            this.derivedValues[type + "points"].value.calculateSync()
                         ),
                         0
                     ),
@@ -409,22 +409,22 @@ export default class SplittermondActor extends Actor {
                 data[type].total = {
                     value: Math.max(
                         Math.min(
-                            this.derivedValues[type + "points"].displayValue - data[type].consumed.value,
-                            this.derivedValues[type + "points"].displayValue
+                            this.derivedValues[type + "points"].value.calculateSync() - data[type].consumed.value,
+                            this.derivedValues[type + "points"].value.calculateSync()
                         ),
                         0
                     ),
                 };
-                if (this.derivedValues[type + "points"].displayValue) {
+                if (this.derivedValues[type + "points"].value.calculateSync()) {
                     data[type].available.percentage =
-                        (100 * data[type].available.value) / this.derivedValues[type + "points"].displayValue;
+                        (100 * data[type].available.value) / this.derivedValues[type + "points"].value.calculateSync();
                     data[type].exhausted.percentage =
-                        (100 * data[type].exhausted.value) / this.derivedValues[type + "points"].displayValue;
+                        (100 * data[type].exhausted.value) / this.derivedValues[type + "points"].value.calculateSync();
                     data[type].channeled.percentage =
-                        (100 * data[type].channeled.value) / this.derivedValues[type + "points"].displayValue;
+                        (100 * data[type].channeled.value) / this.derivedValues[type + "points"].value.calculateSync();
                     data[type].total.percentage =
-                        (100 * data[type].total.value) / this.derivedValues[type + "points"].displayValue;
-                    data[type].max = this.derivedValues.focuspoints.displayValue;
+                        (100 * data[type].total.value) / this.derivedValues[type + "points"].value.calculateSync();
+                    data[type].max = this.derivedValues.focuspoints.value.display;
                 } else {
                     data[type].available.percentage = 0;
                     data[type].exhausted.percentage = 0;
@@ -434,7 +434,9 @@ export default class SplittermondActor extends Actor {
                 }
             }
         });
-        const currentLevel = Math.floor(data.health.total.value / this.derivedValues.healthpoints.displayValue);
+        const currentLevel = Math.floor(
+            data.health.total.value / this.derivedValues.healthpoints.value.calculateSync()
+        );
         const baseLevel = Math.max(healthNbrLevels - currentLevel - 1, 0);
         data.health.woundMalus.level = syncEvaluate(
             min(
@@ -475,12 +477,12 @@ export default class SplittermondActor extends Actor {
 
         data.healthBar = {
             value: data.health.total.value,
-            max: healthNbrLevels * this.derivedValues.healthpoints.displayValue,
+            max: healthNbrLevels * this.derivedValues.healthpoints.value.calculateSync(),
         };
 
         data.focusBar = {
             value: data.focus.available.value,
-            max: this.derivedValues.focuspoints.displayValue,
+            max: this.derivedValues.focuspoints.value.calculateSync(),
         };
     }
 
@@ -593,7 +595,7 @@ export default class SplittermondActor extends Actor {
             }
         }
 
-        let stealthModifier = 5 - this.derivedValues.size.displayValue;
+        let stealthModifier = 5 - this.derivedValues.size.value.display;
         if (stealthModifier) {
             this.modifier.add(
                 "stealth",
@@ -1192,9 +1194,9 @@ export default class SplittermondActor extends Actor {
         const data = this.system;
         let rollData = {};
 
-        rollData["initiative"] = this.derivedValues.initiative.displayValue;
+        rollData["initiative"] = this.derivedValues.initiative.value.display;
         rollData[game.i18n.localize(`splittermond.derivedAttribute.initiative.short`).toLowerCase()] =
-            this.derivedValues.initiative.displayValue;
+            this.derivedValues.initiative.value.display;
 
         return rollData;
     }

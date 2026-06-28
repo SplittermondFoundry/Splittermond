@@ -1,6 +1,8 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { parseRollDifficulty } from "module/util/rollDifficultyParser";
+import { fromExpression } from "module/util/util";
+import { of } from "module/modifiers/expressions/scalar";
 
 describe("roll difficulty parser", () => {
     it("should return the difficulty as number if initialized with a number", () => {
@@ -18,45 +20,33 @@ describe("roll difficulty parser", () => {
         expect(rollDifficulty.difficulty).to.equal(15);
     });
 
-    it("should evaluate VTD based on target's defense value", () => {
+    it("should evaluate VTD based on target's defense value", async () => {
         const rollDifficulty = parseRollDifficulty("VTD");
-        rollDifficulty.evaluate({
-            actor: {
-                derivedValues: {
-                    defense: { displayValue: 18 },
-                    bodyresist: { displayValue: 12 },
-                    mindresist: { displayValue: 14 },
-                },
-            },
-        });
+        await rollDifficulty.evaluate(createTokenStub());
         expect(rollDifficulty.difficulty).to.equal(18);
     });
 
-    it("should evaluate KW based on target's bodyresist value", () => {
+    it("should evaluate KW based on target's bodyresist value", async () => {
         const rollDifficulty = parseRollDifficulty("KW");
-        rollDifficulty.evaluate({
-            actor: {
-                derivedValues: {
-                    defense: { displayValue: 18 },
-                    bodyresist: { displayValue: 12 },
-                    mindresist: { displayValue: 14 },
-                },
-            },
-        });
+        await rollDifficulty.evaluate(createTokenStub());
         expect(rollDifficulty.difficulty).to.equal(12);
     });
 
-    it("should evaluate GW based on target's mindresist value", () => {
+    it("should evaluate GW based on target's mindresist value", async () => {
         const rollDifficulty = parseRollDifficulty("GW");
-        rollDifficulty.evaluate({
-            actor: {
-                derivedValues: {
-                    defense: { displayValue: 18 },
-                    bodyresist: { displayValue: 12 },
-                    mindresist: { displayValue: 14 },
-                },
-            },
-        });
+        await rollDifficulty.evaluate(createTokenStub());
         expect(rollDifficulty.difficulty).to.equal(14);
     });
 });
+
+function createTokenStub() {
+    return {
+        actor: {
+            derivedValues: {
+                defense: { value: fromExpression(() => of(18)) },
+                bodyresist: { value: fromExpression(() => of(12)) },
+                mindresist: { value: fromExpression(() => of(14)) },
+            },
+        },
+    };
+}

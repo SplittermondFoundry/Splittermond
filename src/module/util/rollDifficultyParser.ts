@@ -1,5 +1,6 @@
 import { splittermond } from "module/config";
 import type { DefenseType } from "module/actor/actor";
+import type { ExpressionBundle } from "module/util/util";
 
 type RollDifficultyDefense = "VTD" | "KW" | "GW";
 export type RollDifficultyType = RollDifficultyDefense | number;
@@ -42,24 +43,24 @@ class RollDifficulty {
         return ["VTD", "KW", "GW"].includes(candidate);
     }
 
-    evaluate(target: {
+    async evaluate(target: {
         actor: {
             derivedValues: {
-                defense: { displayValue: number };
-                bodyresist: { displayValue: number };
-                mindresist: { displayValue: number };
+                defense: { value: ExpressionBundle };
+                bodyresist: { value: ExpressionBundle };
+                mindresist: { value: ExpressionBundle };
             };
         };
     }) {
         switch (this._difficulty) {
             case "VTD":
-                this.evaluatedDifficulty = target.actor.derivedValues.defense.displayValue;
+                this.evaluatedDifficulty = await target.actor.derivedValues.defense.value.calculate();
                 break;
             case "KW":
-                this.evaluatedDifficulty = target.actor.derivedValues.bodyresist.displayValue;
+                this.evaluatedDifficulty = await target.actor.derivedValues.bodyresist.value.calculate();
                 break;
             case "GW":
-                this.evaluatedDifficulty = target.actor.derivedValues.mindresist.displayValue;
+                this.evaluatedDifficulty = await target.actor.derivedValues.mindresist.value.calculate();
                 break;
             default:
                 this.evaluatedDifficulty = this.difficulty;
