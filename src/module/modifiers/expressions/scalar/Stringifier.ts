@@ -5,7 +5,8 @@ import {
     AddExpression,
     AmountExpression,
     DivideExpression,
-    Expression, MaxExpression,
+    Expression,
+    MaxExpression,
     MinExpression,
     MultiplyExpression,
     PowerExpression,
@@ -13,7 +14,7 @@ import {
     RollExpression,
     SubtractExpression,
 } from "./definitions";
-import {exhaustiveMatchGuard} from "module/modifiers/util";
+import { exhaustiveMatchGuard } from "module/modifiers/util";
 
 export function asString(expression: Expression): string {
     return unbrace(do_toString(expression)).replace(/\s*\+\s*-\s*/g, " - ");
@@ -53,14 +54,13 @@ function do_toString(expression: Expression): string {
     exhaustiveMatchGuard(expression);
 }
 
-function processMin(expression:MinExpression){
-    return `min(${expression.args.map(e => do_toString(e)).join(", ")})`;
+function processMin(expression: MinExpression) {
+    return `min(${expression.args.map((e) => do_toString(e)).join(", ")})`;
 }
 
-function processMax(expression:MaxExpression){
-    return `max(${expression.args.map(e => do_toString(e)).join(", ")})`;
+function processMax(expression: MaxExpression) {
+    return `max(${expression.args.map((e) => do_toString(e)).join(", ")})`;
 }
-
 
 function asMultiplicationString(expression: MultiplyExpression): string {
     if (expression.left instanceof AmountExpression && expression.left.amount == -1) {

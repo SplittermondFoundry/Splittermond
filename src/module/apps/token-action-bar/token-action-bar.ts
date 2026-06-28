@@ -1,20 +1,20 @@
-import {foundryApi} from "module/api/foundryApi";
-import {settings} from "module/settings";
+import { foundryApi } from "module/api/foundryApi";
+import { settings } from "module/settings";
 import {
     ApplicationContextOptions,
     ApplicationRenderContext,
     SplittermondApplication,
     TEMPLATE_BASE_PATH,
 } from "module/data/SplittermondApplication";
-import SplittermondActor, {type DefenseType} from "module/actor/actor";
-import {splittermond} from "module/config";
+import SplittermondActor, { type DefenseType } from "module/actor/actor";
+import { splittermond } from "module/config";
 import SplittermondItem from "module/item/item";
 import SplittermondSpellItem from "module/item/spell";
-import {SplittermondSkill} from "module/config/skillGroups";
-import {closestData} from "module/data/ClosestDataMixin";
-import {TokenActionBarTemplateData} from "./templateInterface";
-import {ElementToggler} from "./ElementToggler";
-import {actorRetriever} from "module/data/EntityRetriever";
+import { SplittermondSkill } from "module/config/skillGroups";
+import { closestData } from "module/data/ClosestDataMixin";
+import { TokenActionBarTemplateData } from "./templateInterface";
+import { ElementToggler } from "./ElementToggler";
+import { actorRetriever } from "module/data/EntityRetriever";
 import type Skill from "module/actor/skill";
 
 let theInstance: TokenActionBar | null = null;
@@ -137,12 +137,12 @@ export default class TokenActionBar extends SplittermondApplication {
         return new ElementToggler(hotbar);
     }
 
-    private toTokenBarSkill(skill:Skill){
+    private toTokenBarSkill(skill: Skill) {
         return {
-           id: skill.id,
-           value: skill.value.display,
-           label: skill.label
-        }
+            id: skill.id,
+            value: skill.value.display,
+            label: skill.label,
+        };
     }
 
     async _prepareContext(options: ApplicationContextOptions) {
@@ -162,11 +162,11 @@ export default class TokenActionBar extends SplittermondApplication {
                             ) || currentActor.skills[skillId].points > 0
                     )
                     .map((skillId) => currentActor.skills[skillId])
-                    .map((skill)=> this.toTokenBarSkill(skill)),
+                    .map((skill) => this.toTokenBarSkill(skill)),
                 magic: splittermond.skillGroups.magic
                     .filter((skillId) => currentActor.skills[skillId].points > 0)
                     .map((skillId) => currentActor.skills[skillId])
-                    .map((skill)=> this.toTokenBarSkill(skill)),
+                    .map((skill) => this.toTokenBarSkill(skill)),
             };
 
             data.attacks = this._currentActor.attacks

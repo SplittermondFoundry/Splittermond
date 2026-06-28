@@ -1,13 +1,13 @@
-import {DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel} from "module/data/SplittermondDataModel";
+import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import SplittermondItem from "module/item/item";
-import {ItemFeature, itemFeatures} from "module/config/itemFeatures";
-import {splittermond} from "module/config";
-import {DataModelConstructorInput} from "module/api/DataModel";
-import {foundryApi} from "module/api/foundryApi";
-import {SplittermondItemDataModel} from "../../index";
+import { ItemFeature, itemFeatures } from "module/config/itemFeatures";
+import { splittermond } from "module/config";
+import { DataModelConstructorInput } from "module/api/DataModel";
+import { foundryApi } from "module/api/foundryApi";
+import { SplittermondItemDataModel } from "../../index";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
-import {syncEvaluate} from "module/modifiers/expressions/scalar";
-import {DocumentAccessMixin} from "module/data/AncestorDocumentMixin";
+import { syncEvaluate } from "module/modifiers/expressions/scalar";
+import { DocumentAccessMixin } from "module/data/AncestorDocumentMixin";
 
 function FeaturesSchema() {
     return {
@@ -75,7 +75,7 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
                 //for a feature, with different results. This will yield erratic behavior, so we just prohibit it in the modifier
                 //handler, which ensures we'll never get NaN here.
                 const value = syncEvaluate(m.value) || 1;
-                return parseFeatures(`${m.attributes.feature} ${value}`)
+                return parseFeatures(`${m.attributes.feature} ${value}`);
             })
             .map((f) => new ItemFeatureDataModel(f));
     }

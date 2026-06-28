@@ -1,7 +1,7 @@
-import type {IModifier} from "module/modifiers";
-import {evaluate, of, plus, times} from "module/modifiers/expressions/scalar";
-import {TooltipFormula} from "module/util/tooltip";
-import {fromExpression} from "module/util/util";
+import type { IModifier } from "module/modifiers";
+import { evaluate, of, plus, times } from "module/modifiers/expressions/scalar";
+import { TooltipFormula } from "module/util/tooltip";
+import { fromExpression } from "module/util/util";
 
 export class Modifiers extends Array<IModifier> {
     constructor(...args: IModifier[]) {
@@ -37,7 +37,7 @@ export class Modifiers extends Array<IModifier> {
         return evaluate(this.sumExpressions());
     }
 
-    async multiply(){
+    async multiply() {
         return evaluate(this.multiplyExpressions());
     }
 

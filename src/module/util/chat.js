@@ -26,13 +26,14 @@ export async function calculateDefenseTickCost(data, totalDegreeOfSuccess) {
 
     const actor = data.itemData?.actor;
     const defenseTickCostModifier =
-        await actor?.modifier
+        (await actor?.modifier
             ?.getForId("item.defenseTickCost")
             .withAttributeValuesOrAbsent("defenseType", ...validAttributeValues(data.defenseType))
             .withAttributeValuesOrAbsent("item", ...validAttributeValues(data.itemData?.id, data.itemData?.name))
             .withAttributeValuesOrAbsent("itemType", ...validAttributeValues(data.itemData?.itemType))
             .withAttributeValuesOrAbsent("skill", ...validAttributeValues(data.itemData?.skill?.id))
-            .getModifiers().sum() ?? 0;
+            .getModifiers()
+            .sum()) ?? 0;
 
     return Math.max(1, baseTickCost + defenseTickCostModifier);
 }

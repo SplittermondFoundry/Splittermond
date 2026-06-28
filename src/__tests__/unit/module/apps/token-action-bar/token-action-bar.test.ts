@@ -49,9 +49,7 @@ describe("TokenActionBar", () => {
         spellStub = sandbox.createStubInstance(SplittermondSpellItem);
         sandbox.stub(spellStub, "id").get(() => "spell1");
         spellStub.name = "Fireball";
-        sandbox
-            .stub(spellStub, "castDuration")
-            .get(() => ({ inTicks: ()=>Promise.resolve(2), display: "2 T" }));
+        sandbox.stub(spellStub, "castDuration").get(() => ({ inTicks: () => Promise.resolve(2), display: "2 T" }));
         sandbox.stub(spellStub, "difficulty").get(() => 5);
         sandbox.stub(spellStub, "enhancementCosts").get(() => 1);
         sandbox.stub(spellStub, "enhancementDescription").get(() => "Extra damage");

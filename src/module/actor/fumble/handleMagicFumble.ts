@@ -12,7 +12,8 @@ export async function rollMagicFumble(actor: SplittermondActor, data: FumbledChe
         .getForId("lowerfumbleresult")
         .notSelectable()
         .withAttributeValuesOrAbsent("skill", skill)
-        .getModifiers().sum()
+        .getModifiers()
+        .sum();
 
     const confirmedData = await enrichFumbleData({ ...data, eg: Math.abs(eg) }, lowerFumbleResult, isPriest);
     const handler = isPriest ? priestFumbleHandler : sorcererFumbleHandler;

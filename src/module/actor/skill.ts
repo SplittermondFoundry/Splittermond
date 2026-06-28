@@ -3,7 +3,7 @@ import { Dice } from "../check/dice";
 import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty, RollDifficultyType } from "../util/rollDifficultyParser";
-import { asString, condense, evaluate, type Expression, of, plus} from "module/modifiers/expressions/scalar";
+import { asString, condense, evaluate, type Expression, of, plus } from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
 import { modifyEvaluation } from "module/check/modifyEvaluation";
@@ -13,7 +13,7 @@ import { ChatMessage, FoundryChatMessage } from "module/api/ChatMessage";
 import type Attribute from "module/actor/attribute";
 import type { IModifier } from "module/modifiers";
 import type { SplittermondAttribute } from "module/config/attributes";
-import {fromExpression, isMember } from "module/util/util";
+import { fromExpression, isMember } from "module/util/util";
 import Modifiable from "module/actor/modifiable";
 import { rollType, RollType } from "module/config/check";
 import { CheckReport, type GenericRollEvaluation } from "module/check";
@@ -180,13 +180,13 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
     }
 
     get value() {
-        return fromExpression(()=>this.valueExpression())
+        return fromExpression(() => this.valueExpression());
     }
 
-    private valueExpression(){
+    private valueExpression() {
         if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
 
-        let value:Expression= of(this.baseValue);
+        let value: Expression = of(this.baseValue);
         value = plus(value, this.mod.expression);
 
         if (this._cache.enabled && this._cache.value === null) this._cache.value = value;

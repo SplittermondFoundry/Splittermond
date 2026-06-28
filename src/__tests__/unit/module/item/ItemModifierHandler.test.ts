@@ -1,17 +1,17 @@
-import {expect} from "chai";
-import sinon, {SinonSandbox, SinonStubbedInstance} from "sinon";
-import {ItemModifierHandler} from "module/item/ItemModifierHandler";
+import { expect } from "chai";
+import sinon, { SinonSandbox, SinonStubbedInstance } from "sinon";
+import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import SplittermondItem from "module/item/item";
-import {foundryApi} from "module/api/foundryApi";
-import {clearMappers} from "module/modifiers/parsing/normalizer";
-import {evaluate, type Expression, of} from "module/modifiers/expressions/scalar";
-import type {ScalarModifier} from "module/modifiers/parsing";
+import { foundryApi } from "module/api/foundryApi";
+import { clearMappers } from "module/modifiers/parsing/normalizer";
+import { evaluate, type Expression, of } from "module/modifiers/expressions/scalar";
+import type { ScalarModifier } from "module/modifiers/parsing";
 
 class TestItemModifierHandler extends ItemModifierHandler {
-    public buildModifier(modifier:ScalarModifier){
+    public buildModifier(modifier: ScalarModifier) {
         return super.buildModifier(modifier);
     }
-    public omitForValue(v:Expression){
+    public omitForValue(v: Expression) {
         return super.omitForValue(v);
     }
 }
@@ -19,7 +19,7 @@ class TestItemModifierHandler extends ItemModifierHandler {
 describe("ItemModifierHandler", () => {
     let sandbox: SinonSandbox;
     let allErrors: string[];
-    let handler: TestItemModifierHandler ;
+    let handler: TestItemModifierHandler;
     let mockItem: SinonStubbedInstance<SplittermondItem>;
     let logErrorsStub: sinon.SinonStub;
 

@@ -58,7 +58,8 @@ describe("ModifierManager", () => {
             const result = await manager
                 .getForId("damage")
                 .withAttributeValues("type", "magic", "equipment")
-                .getModifiers().sum();
+                .getModifiers()
+                .sum();
             expect(result).to.equal(5);
         });
 
@@ -69,7 +70,8 @@ describe("ModifierManager", () => {
             const result = await manager
                 .getForId("damage")
                 .withAttributeValues("damageType", "physical")
-                .getModifiers().sum();
+                .getModifiers()
+                .sum();
             expect(result).to.equal(3);
         });
 
@@ -80,7 +82,8 @@ describe("ModifierManager", () => {
             const result = await manager
                 .getForId("damage")
                 .withAttributeValuesOrAbsent("damageType", "physical")
-                .getModifiers().sum();
+                .getModifiers()
+                .sum();
             expect(result).to.equal(5);
         });
 

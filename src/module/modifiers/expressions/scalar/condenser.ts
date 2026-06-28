@@ -6,7 +6,11 @@ import {
     AmountExpression,
     dividedBy,
     DivideExpression,
-    type Expression, max, MaxExpression, min, MinExpression,
+    type Expression,
+    max,
+    MaxExpression,
+    min,
+    MinExpression,
     minus,
     MultiplyExpression,
     of,
@@ -20,7 +24,7 @@ import {
 } from "./definitions";
 import { exhaustiveMatchGuard } from "module/modifiers/util";
 import { syncEvaluate } from "./evaluation";
-import {IllegalStateException} from "module/data/exceptions";
+import { IllegalStateException } from "module/data/exceptions";
 
 export function isZero(expression: Expression): boolean {
     //straight forward eval would resolve references and rolls whose values are not constant and thus not reliably zero.
@@ -53,9 +57,9 @@ export function condense(expression: Expression): Expression {
     } else if (expression instanceof AbsExpression) {
         return expression;
     } else if (expression instanceof MinExpression) {
-        return processMin(expression)
+        return processMin(expression);
     } else if (expression instanceof MaxExpression) {
-        return processMax(expression)
+        return processMax(expression);
     }
     exhaustiveMatchGuard(expression);
 }
@@ -79,30 +83,32 @@ export function canCondense(expression: Expression): boolean {
     } else if (expression instanceof PowerExpression) {
         return canCondense(expression.base) && canCondense(expression.exponent);
     } else if (expression instanceof MinExpression) {
-       return expression.args.every(canCondense)
+        return expression.args.every(canCondense);
     } else if (expression instanceof MaxExpression) {
-        return expression.args.every(canCondense)
+        return expression.args.every(canCondense);
     } else {
         return canCondense(expression.left) && canCondense(expression.right);
     }
 }
 
-function processMin(expression:MinExpression){
+function processMin(expression: MinExpression) {
     const condensed = expression.args.map(condense);
-    if(condensed.every(e => e instanceof AmountExpression)){
-        return of(Math.min(...condensed.map(e=> e.amount)));
-    }if( condensed.length > 1){
-        return min(...condensed as [Expression,...Expression[]])
+    if (condensed.every((e) => e instanceof AmountExpression)) {
+        return of(Math.min(...condensed.map((e) => e.amount)));
     }
-    throw new IllegalStateException("Zero array when min length 1 array required by definition.")
+    if (condensed.length > 1) {
+        return min(...(condensed as [Expression, ...Expression[]]));
+    }
+    throw new IllegalStateException("Zero array when min length 1 array required by definition.");
 }
 
-function processMax(expression:MaxExpression){
+function processMax(expression: MaxExpression) {
     const condensed = expression.args.map(condense);
-    if(condensed.every(e => e instanceof AmountExpression)){
-        return of(Math.max(...condensed.map(e=> e.amount)));
-    }if( condensed.length > 1){
-        return max(...condensed as [Expression,...Expression[]])
+    if (condensed.every((e) => e instanceof AmountExpression)) {
+        return of(Math.max(...condensed.map((e) => e.amount)));
     }
-    throw new IllegalStateException("Zero array when min length 1 array required by definition.")
+    if (condensed.length > 1) {
+        return max(...(condensed as [Expression, ...Expression[]]));
+    }
+    throw new IllegalStateException("Zero array when min length 1 array required by definition.");
 }

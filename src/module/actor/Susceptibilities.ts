@@ -1,6 +1,6 @@
 import { DamageType, damageTypes } from "../config/damageTypes";
 import ModifierManager from "./modifiers/modifier-manager";
-import  {type Expression, of} from "module/modifiers/expressions/scalar";
+import { type Expression, of } from "module/modifiers/expressions/scalar";
 
 export class Susceptibilities {
     private susceptibilities: Record<DamageType, Expression> = {
@@ -30,7 +30,10 @@ export class Susceptibilities {
     calculateSusceptibilities(): Record<DamageType, Expression> {
         const susceptibilities = { ...this.susceptibilities };
         damageTypes.forEach((type) => {
-            susceptibilities[type] = this.modifierManager.getForId(`${this.keyword}.${type}`).getModifiers().sumExpressions();
+            susceptibilities[type] = this.modifierManager
+                .getForId(`${this.keyword}.${type}`)
+                .getModifiers()
+                .sumExpressions();
         });
         return susceptibilities;
     }

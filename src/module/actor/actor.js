@@ -254,7 +254,9 @@ export default class SplittermondActor extends Actor {
         this._prepareActiveDefense();
 
         if (this.type === "character") {
-            this.system.splinterpoints.max += syncEvaluate(this.modifier.getForId("actor.splinterpoints").getModifiers().sumExpressions());
+            this.system.splinterpoints.max += syncEvaluate(
+                this.modifier.getForId("actor.splinterpoints").getModifiers().sumExpressions()
+            );
         }
     }
 
@@ -298,7 +300,7 @@ export default class SplittermondActor extends Actor {
     }
 
     get woundMalusMod() {
-       return this.modifier.getForId("actor.woundmalus.mod").getModifiers().asProperty().summed();
+        return this.modifier.getForId("actor.woundmalus.mod").getModifiers().asProperty().summed();
     }
 
     _prepareHealthFocus() {
@@ -434,10 +436,15 @@ export default class SplittermondActor extends Actor {
         });
         const currentLevel = Math.floor(data.health.total.value / this.derivedValues.healthpoints.displayValue);
         const baseLevel = Math.max(healthNbrLevels - currentLevel - 1, 0);
-        data.health.woundMalus.level = syncEvaluate(min(
-            plus(of(baseLevel), this.modifier.getForId("actor.woundMalus.levelMod").getModifiers().sumExpressions()),
-            minus(of(healthNbrLevels),  of(1))
-        ));
+        data.health.woundMalus.level = syncEvaluate(
+            min(
+                plus(
+                    of(baseLevel),
+                    this.modifier.getForId("actor.woundMalus.levelMod").getModifiers().sumExpressions()
+                ),
+                minus(of(healthNbrLevels), of(1))
+            )
+        );
 
         let woundMalusValue = data.health.woundMalus.levels[data.health.woundMalus.level];
         data.health.woundMalus.value = woundMalusValue?.value ?? 0;
@@ -632,7 +639,7 @@ export default class SplittermondActor extends Actor {
         const shield = () => this.modifier.getForId("tickmalus.shield").getModifiers();
         const armor = () => this.modifier.getForId("tickmalus.armor").getModifiers();
         const base = () => this.modifier.getForId("tickmalus").getModifiers();
-        return fromExpression(()=>plus(plus(sum(shield),sum(armor)), sum(base)))
+        return fromExpression(() => plus(plus(sum(shield), sum(armor)), sum(base)));
     }
 
     get handicap() {
@@ -640,7 +647,7 @@ export default class SplittermondActor extends Actor {
         const shield = () => this.modifier.getForId("handicap.shield").getModifiers();
         const armor = () => this.modifier.getForId("handicap.armor").getModifiers();
         const base = () => this.modifier.getForId("handicap").getModifiers();
-        return fromExpression(()=> plus(plus(sum(shield),sum(armor)), sum(base)))
+        return fromExpression(() => plus(plus(sum(shield), sum(armor)), sum(base)));
     }
 
     get typeList() {
@@ -687,7 +694,7 @@ export default class SplittermondActor extends Actor {
      * negative values (not actually in the ruleset) indicate a weakness.
      */
     get resistances() {
-        fromExpression(()=>this._resistances.calculateSusceptibilities());
+        fromExpression(() => this._resistances.calculateSusceptibilities());
     }
 
     /**
@@ -695,7 +702,7 @@ export default class SplittermondActor extends Actor {
      * negative values (not actually in the ruleset) indicate a weakness.
      */
     get weaknesses() {
-        fromExpression(()=>this._weaknesses.calculateSusceptibilities());
+        fromExpression(() => this._weaknesses.calculateSusceptibilities());
     }
 
     async importFromJSON(json, updateActor) {
@@ -1256,12 +1263,17 @@ export default class SplittermondActor extends Actor {
                 "Splittermond | Multiple modifiers for health regeneration multiplier found. Only the highest is applied."
             );
         }
-        const highestMod = modifiers.length === 0 ? of(2) : max(...modifiers.map(m=> m.value))
-        return fromExpression(()=>highestMod)
+        const highestMod = modifiers.length === 0 ? of(2) : max(...modifiers.map((m) => m.value));
+        return fromExpression(() => highestMod);
     }
 
     get healthRegenBonus() {
-        return this.modifier.getForId("actor.healthregeneration.bonus").notSelectable().getModifiers().asProperty().summed();
+        return this.modifier
+            .getForId("actor.healthregeneration.bonus")
+            .notSelectable()
+            .getModifiers()
+            .asProperty()
+            .summed();
     }
 
     get focusRegenMultiplier() {
@@ -1271,12 +1283,17 @@ export default class SplittermondActor extends Actor {
                 "Splittermond | Multiple modifiers for health regeneration multiplier found. Only the highest is applied."
             );
         }
-        const highestMod = modifiers.length === 0 ? of(2) : max(...modifiers.map(m=> m.value))
-        return fromExpression(()=>highestMod)
+        const highestMod = modifiers.length === 0 ? of(2) : max(...modifiers.map((m) => m.value));
+        return fromExpression(() => highestMod);
     }
 
     get focusRegenBonus() {
-        return this.modifier.getForId("actor.focusregeneration.bonus").notSelectable().getModifiers().asProperty().summed();
+        return this.modifier
+            .getForId("actor.focusregeneration.bonus")
+            .notSelectable()
+            .getModifiers()
+            .asProperty()
+            .summed();
     }
 
     /**

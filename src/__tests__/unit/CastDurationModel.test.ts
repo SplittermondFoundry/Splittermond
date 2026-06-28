@@ -253,15 +253,15 @@ describe("CastDurationModel", () => {
             });
         });
 
-        it("should handle cast duration multiplier", async ()=>{
-        const model = createModel(sandbox, { value: 10, unit: "T" });
-        const modifierManager = model.document.actor.modifier;
-        const attributes = { item: "Test Spell", itemType: "spell", name: "Test Spell", type: "innate" as const };
-        modifierManager.add("item.castDuration.multiplier", attributes, of(3));
-        modifierManager.add("item.castDuration.multiplier", attributes, of(0.5));
+        it("should handle cast duration multiplier", async () => {
+            const model = createModel(sandbox, { value: 10, unit: "T" });
+            const modifierManager = model.document.actor.modifier;
+            const attributes = { item: "Test Spell", itemType: "spell", name: "Test Spell", type: "innate" as const };
+            modifierManager.add("item.castDuration.multiplier", attributes, of(3));
+            modifierManager.add("item.castDuration.multiplier", attributes, of(0.5));
 
-        // Should calculate: 10 * (3 * 0.5) + 0 = 15
-        expect(await model.inTicks()).to.equal(15);
+            // Should calculate: 10 * (3 * 0.5) + 0 = 15
+            expect(await model.inTicks()).to.equal(15);
         });
     });
 

@@ -8,9 +8,9 @@ import {
     of,
     plus,
 } from "module/modifiers/expressions/scalar";
-import {Modifiers} from "module/actor/modifiers/Modifiers";
+import { Modifiers } from "module/actor/modifiers/Modifiers";
 import SplittermondActor from "./actor";
-import {fromExpression} from "module/util/util";
+import { fromExpression } from "module/util/util";
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -19,20 +19,20 @@ export default function Modifiable<TBase extends Constructor<Object>>(base: TBas
         abstract get actor(): SplittermondActor;
         abstract _modifierPath: string[];
 
-        get mod(){
-            return fromExpression(()=>this.modExpression())
+        get mod() {
+            return fromExpression(() => this.modExpression());
         }
 
-        private modExpression(){
+        private modExpression() {
             const equipmentModifiers = this.#equipmentModifiers();
             const magicModifiers = this.#magicModifiers();
             const others = this.collectModifiers()
                 .filter((m) => !equipmentModifiers.includes(m))
                 .filter((m) => !magicModifiers.includes(m));
-            const bonusCap = this.actor.bonusCap.expression
+            const bonusCap = this.actor.bonusCap.expression;
             const cappedEquipment = min(equipmentModifiers.sumExpressions(), bonusCap);
             const cappedMagic = min(magicModifiers.sumExpressions(), bonusCap);
-            return plus(plus(others.sumExpressions(),cappedEquipment), cappedMagic);
+            return plus(plus(others.sumExpressions(), cappedEquipment), cappedMagic);
         }
 
         /**

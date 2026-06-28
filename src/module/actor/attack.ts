@@ -1,4 +1,4 @@
-import Skill, {SpellOrAttackRollResult} from "./skill";
+import Skill, { SpellOrAttackRollResult } from "./skill";
 import {
     asString,
     condense,
@@ -10,23 +10,23 @@ import {
     of,
     plus,
 } from "../modifiers/expressions/scalar";
-import {foundryApi} from "../api/foundryApi.js";
+import { foundryApi } from "../api/foundryApi.js";
 import SplittermondActor from "./actor";
-import {splittermond} from "../config";
-import {initMapper} from "../util/LanguageMapper";
-import {ItemFeaturesModel, mergeFeatures} from "../item/dataModel/propertyModels/ItemFeaturesModel";
-import {DamageRoll} from "../util/damage/DamageRoll";
-import {toDisplayFormula} from "../util/damage/util";
-import {DamageModel} from "../item/dataModel/propertyModels/DamageModel";
-import {SplittermondChatCard} from "module/util/chat/SplittermondChatCard";
-import {AttackRollMessage} from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
-import type {CheckReport} from "module/check";
-import {totalDegreesOfSuccess} from "module/check/modifyEvaluation";
-import type {SplittermondAttribute} from "module/config/attributes";
-import type {DamageType} from "module/config/damageTypes";
-import type {CostType} from "module/util/costs/costTypes";
-import {fromExpression, isMember} from "module/util/util";
-import {filterFeatures} from "module/item/itemFeatureFilter";
+import { splittermond } from "../config";
+import { initMapper } from "../util/LanguageMapper";
+import { ItemFeaturesModel, mergeFeatures } from "../item/dataModel/propertyModels/ItemFeaturesModel";
+import { DamageRoll } from "../util/damage/DamageRoll";
+import { toDisplayFormula } from "../util/damage/util";
+import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
+import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
+import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
+import type { CheckReport } from "module/check";
+import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
+import type { SplittermondAttribute } from "module/config/attributes";
+import type { DamageType } from "module/config/damageTypes";
+import type { CostType } from "module/util/costs/costTypes";
+import { fromExpression, isMember } from "module/util/util";
+import { filterFeatures } from "module/item/itemFeatureFilter";
 
 type Options<T extends object> = { [K in keyof T]+?: T[K] | null | undefined };
 
@@ -305,29 +305,30 @@ export default class Attack {
     }
 
     get weaponSpeed() {
-        return fromExpression(()=>this.weaponSpeedExpression());
+        return fromExpression(() => this.weaponSpeedExpression());
     }
 
-    async weaponSpeedAsync(){
-        return evaluate(this.weaponSpeedExpression())
+    async weaponSpeedAsync() {
+        return evaluate(this.weaponSpeedExpression());
     }
 
     private weaponSpeedExpression() {
-        let weaponSpeed:Expression = of(this.attackData.weaponSpeed);
+        let weaponSpeed: Expression = of(this.attackData.weaponSpeed);
         const speedModifier = this.actor.modifier
             .getForId("item.weaponspeed")
             .withAttributeValuesOrAbsent("item", this.item.id, this.item.name)
             .withAttributeValuesOrAbsent("itemType", this.item.type)
             .withAttributeValuesOrAbsent("skill", this.skill.id)
-            .getModifiers().sumExpressions();
-        weaponSpeed = minus(weaponSpeed, speedModifier)
+            .getModifiers()
+            .sumExpressions();
+        weaponSpeed = minus(weaponSpeed, speedModifier);
         for (const bonus of this.getImproviationBonus()) {
-            weaponSpeed = minus(weaponSpeed,bonus.damageExpression);
+            weaponSpeed = minus(weaponSpeed, bonus.damageExpression);
         }
-        if (["melee", "slashing", "chains", "blades", "staffs"].includes(this.skill.id)){
+        if (["melee", "slashing", "chains", "blades", "staffs"].includes(this.skill.id)) {
             weaponSpeed = plus(weaponSpeed, this.actor.tickMalus.expression);
-            }
-        return weaponSpeed
+        }
+        return weaponSpeed;
     }
 
     get isRanged() {

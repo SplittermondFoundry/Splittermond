@@ -16,7 +16,7 @@ import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessa
 import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { splittermond } from "module/config";
 import { AttackCheckReport } from "module/util/chat/rollMessages/attackChatMessage/interfaces";
-import {fromExpression} from "module/util/util";
+import { fromExpression } from "module/util/util";
 
 describe("Attack", () => {
     let sandbox: SinonSandbox;
@@ -538,7 +538,7 @@ describe("Attack", () => {
         });
         it("should serve weaponspeed for melee attacks", async () => {
             const actor = setUpActor(sandbox);
-            Object.defineProperty(actor, "tickMalus", { value: fromExpression(()=>of(0)) });
+            Object.defineProperty(actor, "tickMalus", { value: fromExpression(() => of(0)) });
             const attackItem = setUpAttackItem();
             attackItem.system.skill = "blades";
             const underTest = Attack.initialize(actor, attackItem);
@@ -557,7 +557,7 @@ describe("Attack", () => {
         });
         it("should reduce tickCost for critical successes", async () => {
             const actor = setUpActor(sandbox);
-            Object.defineProperty(actor, "tickMalus", { value: fromExpression(()=>of(0)) });
+            Object.defineProperty(actor, "tickMalus", { value: fromExpression(() => of(0)) });
             const attackItem = setUpAttackItem();
             attackItem.system.skill = "blades";
             const underTest = Attack.initialize(actor, attackItem);

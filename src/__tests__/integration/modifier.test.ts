@@ -27,7 +27,7 @@ import { withActor } from "./fixtures";
 import Attack from "module/actor/attack";
 import { passesEventually } from "../util";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
-import type {SplittermondSkill} from "module/config/skillGroups";
+import type { SplittermondSkill } from "module/config/skillGroups";
 
 export function modifierTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
@@ -228,7 +228,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 await actor.prepareEmbeddedDocuments();
                 actor.prepareDerivedData();
 
-                expect(await actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.calculate()).to.equal(6);
+                expect(
+                    await actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.calculate()
+                ).to.equal(6);
             })
         );
 
@@ -629,7 +631,9 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.empathy.value.calculate()).to.be.above(6).below(18);
+            expect(await subject.skills.empathy.value.calculate())
+                .to.be.above(6)
+                .below(18);
         });
 
         it("should add a attribute value to a skill", async () => {
@@ -952,9 +956,11 @@ export function modifierTest(context: QuenchBatchContext) {
                         await actor.prepareEmbeddedDocuments();
                         actor.prepareDerivedData();
 
-                        await Promise.all(splittermond.skillGroups[skillGroup].map(async (skill) => {
-                            expect(await actor.skills[skill].value.calculate(), `Modified ${skill}`).to.equal(6);
-                        }));
+                        await Promise.all(
+                            splittermond.skillGroups[skillGroup].map(async (skill) => {
+                                expect(await actor.skills[skill].value.calculate(), `Modified ${skill}`).to.equal(6);
+                            })
+                        );
                     })
                 );
             });
@@ -981,7 +987,9 @@ export function modifierTest(context: QuenchBatchContext) {
                     await actor.prepareEmbeddedDocuments();
                     actor.prepareDerivedData();
 
-                    expect(actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.display).to.equal('6');
+                    expect(actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.display).to.equal(
+                        "6"
+                    );
                 })
             );
         });
@@ -1059,7 +1067,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await actor.prepareEmbeddedDocuments();
             actor.prepareDerivedData();
 
-            (await Promise.all(Object.entries(splittermond.skillAttributes)) as [[SplittermondSkill, string[]]])
+            ((await Promise.all(Object.entries(splittermond.skillAttributes))) as [[SplittermondSkill, string[]]])
                 .filter(([_, value]) => value.includes("mystic"))
                 .map(([skill, _]) => skill)
                 .map(async (skill) => {
@@ -1159,8 +1167,10 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.modifier.add("item.weaponspeed", { name: "Mystery", type: "magic" }, of(2), null, false);
 
             expect(subject.attacks.find((a) => a.name === "Lance of Longinus")?.damage).to.equal("6");
-            expect(await subject.attacks.find((a) => a.name === "Lance of Longinus")?.weaponSpeed.calculate()).to.equal(4);
-        })
+            expect(await subject.attacks.find((a) => a.name === "Lance of Longinus")?.weaponSpeed.calculate()).to.equal(
+                4
+            );
+        });
 
         it("should account for modifications to shields", async () => {
             const subject = await createActor("WeaponizedCharacter");

@@ -1,5 +1,5 @@
-import {FoundryRoll} from "module/api/Roll";
-import {RollExpression} from "./rollExpressions";
+import { FoundryRoll } from "module/api/Roll";
+import { RollExpression } from "./rollExpressions";
 
 export * from "./rollExpressions";
 
@@ -18,7 +18,6 @@ export type Expression =
     | MinExpression
     | MaxExpression;
 
-
 export function isExpression(value: unknown): value is Expression {
     return (
         value instanceof AmountExpression ||
@@ -30,8 +29,8 @@ export function isExpression(value: unknown): value is Expression {
         value instanceof RollExpression ||
         value instanceof AbsExpression ||
         value instanceof PowerExpression ||
-            value instanceof MinExpression ||
-            value instanceof MaxExpression
+        value instanceof MinExpression ||
+        value instanceof MaxExpression
     );
 }
 
@@ -117,16 +116,16 @@ export function ref(propertyPath: string, source: object, stringRepresentation: 
     return new ReferenceExpression(propertyPath, source, stringRepresentation);
 }
 export function min(...args: [Expression, ...Expression[]]) {
-    if(args.length == 1) {
+    if (args.length == 1) {
         return args[0];
     }
-    return new MinExpression(args)
+    return new MinExpression(args);
 }
 export function max(...args: [Expression, ...Expression[]]) {
-    if(args.length == 1) {
+    if (args.length == 1) {
         return args[0];
     }
-    return new MaxExpression(args)
+    return new MaxExpression(args);
 }
 
 export class AmountExpression {
@@ -199,4 +198,3 @@ export class MinExpression {
 export class MaxExpression {
     constructor(public readonly args: [Expression, ...Expression[]]) {}
 }
-

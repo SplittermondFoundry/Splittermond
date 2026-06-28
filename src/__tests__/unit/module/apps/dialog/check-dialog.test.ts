@@ -1,9 +1,9 @@
-import {expect} from "chai";
-import {JSDOM} from "jsdom";
-import sinon, {SinonSandbox} from "sinon";
-import CheckDialog, {type CheckDialogInput} from "module/apps/dialog/check-dialog";
-import {evaluate, of, times} from "module/modifiers/expressions/scalar";
-import {foundryApi} from "module/api/foundryApi";
+import { expect } from "chai";
+import { JSDOM } from "jsdom";
+import sinon, { SinonSandbox } from "sinon";
+import CheckDialog, { type CheckDialogInput } from "module/apps/dialog/check-dialog";
+import { evaluate, of, times } from "module/modifiers/expressions/scalar";
+import { foundryApi } from "module/api/foundryApi";
 import Skill from "module/actor/skill";
 
 function buildCheckDialogHtml(options: {

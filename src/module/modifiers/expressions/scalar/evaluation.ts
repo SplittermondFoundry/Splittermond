@@ -5,7 +5,9 @@ import {
     AddExpression,
     AmountExpression,
     DivideExpression,
-    Expression, MaxExpression, MinExpression,
+    Expression,
+    MaxExpression,
+    MinExpression,
     MultiplyExpression,
     PowerExpression,
     ReferenceExpression,
@@ -38,9 +40,9 @@ async function doEvaluate(expression: Expression): Promise<number | null> {
     } else if (expression instanceof AbsExpression) {
         return Math.abs(await evaluate(expression.arg));
     } else if (expression instanceof MinExpression) {
-        return Math.min(...await Promise.all(expression.args.map(evaluate)))
+        return Math.min(...(await Promise.all(expression.args.map(evaluate))));
     } else if (expression instanceof MaxExpression) {
-        return Math.max(...await Promise.all(expression.args.map(evaluate)))
+        return Math.max(...(await Promise.all(expression.args.map(evaluate))));
     }
     exhaustiveMatchGuard(expression);
 }
@@ -69,13 +71,13 @@ function syncDoEvaluate(expression: Expression): number | null {
     } else if (expression instanceof PowerExpression) {
         return Math.pow(syncDoEvaluate(expression.base) ?? 0, syncDoEvaluate(expression.exponent) ?? 1);
     } else if (expression instanceof RollExpression) {
-        return expression.evaluateSync()
+        return expression.evaluateSync();
     } else if (expression instanceof AbsExpression) {
         return Math.abs(syncEvaluate(expression.arg));
     } else if (expression instanceof MinExpression) {
-        return Math.min(...expression.args.map(syncEvaluate))
+        return Math.min(...expression.args.map(syncEvaluate));
     } else if (expression instanceof MaxExpression) {
-        return Math.max(...expression.args.map(syncEvaluate))
+        return Math.max(...expression.args.map(syncEvaluate));
     }
     exhaustiveMatchGuard(expression);
 }

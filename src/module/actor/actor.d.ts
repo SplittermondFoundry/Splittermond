@@ -1,6 +1,6 @@
 import SplittermondItem from "../item/item";
 import type { SplittermondSkill } from "../config/skillGroups";
-import type Skill from "./skill"
+import type Skill from "./skill";
 import Attack from "./attack";
 import { DamageType } from "../config/damageTypes";
 import { CharacterDataModel } from "./dataModel/CharacterDataModel";
@@ -11,7 +11,7 @@ import type { VirtualToken } from "../combat/VirtualToken";
 import type { ItemType } from "module/config/itemTypes";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { ExpressionBundle, ValueBundle } from "module/util/util";
-import type {Expression} from "module/modifiers/expressions/scalar";
+import type { Expression } from "module/modifiers/expressions/scalar";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 
@@ -25,9 +25,8 @@ declare class SplittermondActor extends Actor {
 
     system: CharacterDataModel | NpcDataModel;
 
-    public readonly skills: Record<SplittermondSkill,Skill>;
+    public readonly skills: Record<SplittermondSkill, Skill>;
     public readonly attacks: Attack[];
-
 
     async activeDefenseDialog(type?: DefenseType): Promise<void>;
 

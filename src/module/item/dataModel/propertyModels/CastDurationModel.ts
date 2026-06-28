@@ -1,13 +1,13 @@
-import {DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel} from "module/data/SplittermondDataModel";
+import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
 import SplittermondItem from "module/item/item";
-import {foundryApi} from "module/api/foundryApi";
-import {DocumentAccessMixin} from "module/data/AncestorDocumentMixin";
-import {asString, condense, evaluate, isGreaterZero, of, plus, times,} from "module/modifiers/expressions/scalar";
-import type {TimeUnit} from "module/config/timeUnits";
-import {splittermond} from "module/config";
-import {getTimeUnitConversion} from "module/util/util";
+import { foundryApi } from "module/api/foundryApi";
+import { DocumentAccessMixin } from "module/data/AncestorDocumentMixin";
+import { asString, condense, evaluate, isGreaterZero, of, plus, times } from "module/modifiers/expressions/scalar";
+import type { TimeUnit } from "module/config/timeUnits";
+import { splittermond } from "module/config";
+import { getTimeUnitConversion } from "module/util/util";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
-import type {SpellDataModel} from "module/item/dataModel/SpellDataModel";
+import type { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 
 function CastDurationSchema() {
     return {
