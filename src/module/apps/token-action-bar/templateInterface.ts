@@ -63,10 +63,11 @@ export interface TokenActionBarSpellsBySkill {
 
 export interface TokenActionBarPreparedSpell extends TokenActionBarSpell {}
 
+type Display = { display: string };
 export interface TokenActionBarDerivedValues {
-    defense: { value: string };
-    bodyresist: { value: string };
-    mindresist: { value: string };
+    defense: { value: Display };
+    bodyresist: { value: Display };
+    mindresist: { value: Display };
 }
 
 export interface TokenActionBarTemplateData {
