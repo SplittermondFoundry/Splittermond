@@ -1,5 +1,5 @@
 import type {IModifier} from "module/modifiers";
-import {evaluate, of, plus, syncEvaluate, times} from "module/modifiers/expressions/scalar";
+import {evaluate, of, plus, times} from "module/modifiers/expressions/scalar";
 import {TooltipFormula} from "module/util/tooltip";
 import {fromExpression} from "module/util/util";
 
@@ -33,22 +33,12 @@ export class Modifiers extends Array<IModifier> {
         return Array.from(types);
     }
 
-    /**@deprecated use sum instead */
-    get value() {
-        return this.sumSync;
-    }
-
     async sum() {
         return evaluate(this.sumExpressions());
     }
 
     async multiply(){
         return evaluate(this.multiplyExpressions());
-    }
-
-    /**@deprecated */
-    get sumSync() {
-        return syncEvaluate(this.sumExpressions());
     }
 
     sumExpressions() {

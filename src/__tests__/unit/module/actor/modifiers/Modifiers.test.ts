@@ -18,22 +18,22 @@ describe("Modifiers", () => {
         expect(modifiers[1]).to.equal(other);
     });
 
-    it("should calculate the total value correctly", () => {
+    it("should calculate the total value correctly", async () => {
         const one = new Modifier("path", of(2), { name: "One", type: "innate" });
         const other = new Modifier("path", of(3), { name: "Two", type: "innate" });
 
         const modifiers = new Modifiers(one, other);
 
-        expect(modifiers.value).to.equal(5);
+        expect(await modifiers.sum()).to.equal(5);
     });
 
-    it("should calculate the total value correctly", () => {
+    it("should calculate the total value correctly", async () => {
         const one = new Modifier("path", of(2), { name: "One", type: "innate" });
         const other = new Modifier("path", of(3), { name: "Two", type: "innate" });
 
         const modifiers = new Modifiers(one, other).filter((mod) => mod.attributes.name === "One");
 
-        expect(modifiers.value).to.equal(2);
+        expect(await modifiers.sum()).to.equal(2);
     });
     describe("modifier tooltips", () => {
         let sandbox: sinon.SinonSandbox;

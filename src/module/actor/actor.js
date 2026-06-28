@@ -254,7 +254,7 @@ export default class SplittermondActor extends Actor {
         this._prepareActiveDefense();
 
         if (this.type === "character") {
-            this.system.splinterpoints.max += this.modifier.getForId("actor.splinterpoints").getModifiers().sumSync;
+            this.system.splinterpoints.max += syncEvaluate(this.modifier.getForId("actor.splinterpoints").getModifiers().sumExpressions());
         }
     }
 

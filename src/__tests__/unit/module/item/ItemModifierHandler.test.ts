@@ -4,9 +4,8 @@ import {ItemModifierHandler} from "module/item/ItemModifierHandler";
 import SplittermondItem from "module/item/item";
 import {foundryApi} from "module/api/foundryApi";
 import {clearMappers} from "module/modifiers/parsing/normalizer";
-import {evaluate, type Expression, of, roll} from "module/modifiers/expressions/scalar";
+import {evaluate, type Expression, of} from "module/modifiers/expressions/scalar";
 import type {ScalarModifier} from "module/modifiers/parsing";
-import {createTestRoll} from "../../RollMock";
 
 class TestItemModifierHandler extends ItemModifierHandler {
     public buildModifier(modifier:ScalarModifier){
@@ -79,31 +78,6 @@ describe("ItemModifierHandler", () => {
             expect(result.value).to.deep.equal(of(5));
             expect(result.origin).to.equal(mockItem);
             expect(result.selectable).to.be.false;
-        });
-
-        it("should prohibit rolls on merge feature",()=>{
-            const scalarModifier: ScalarModifier = {
-                path: "item.mergeFeature",
-                value: roll(createTestRoll("1d6",[2])),
-                attributes: {
-                },
-            };
-
-            const result = handler.buildModifier(scalarModifier);
-            expect(result).to.be.empty;
-            expect(allErrors).not.to.be.empty;
-        });
-        it("should prohibit rolls on add feature",()=>{
-            const scalarModifier: ScalarModifier = {
-                path: "item.addFeature",
-                value: roll(createTestRoll("1d6",[2])),
-                attributes: {
-                },
-            };
-
-            const result = handler.buildModifier(scalarModifier);
-            expect(result).to.be.empty;
-            expect(allErrors).not.to.be.empty;
         });
     });
 

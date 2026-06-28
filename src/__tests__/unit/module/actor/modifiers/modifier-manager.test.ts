@@ -12,13 +12,13 @@ describe("ModifierManager", () => {
         manager = new ModifierManager();
     });
 
-    it("should aggregate static modifiers", () => {
+    it("should aggregate static modifiers", async () => {
         manager.add("AUS", { name: "Base", type: "innate" }, of(2));
         manager.add("AUS", { name: "Item Bonus", type: "equipment" }, of(1), mockItem);
         manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), null, true);
 
-        expect(manager.getForId("AUS").getModifiers().value).to.equal(3);
-        expect(manager.getForId("bonuscap").getModifiers().value).to.equal(3);
+        expect(await manager.getForId("AUS").getModifiers().sum()).to.equal(3);
+        expect(await manager.getForId("bonuscap").getModifiers().sum()).to.equal(3);
     });
 
     it("should merge multiple paths", () => {
@@ -30,16 +30,16 @@ describe("ModifierManager", () => {
         expect(result[0].value).to.deep.equal(of(3));
     });
 
-    it("should handle empty groups", () => {
-        expect(manager.getForId("nonexistent").getModifiers().value).to.equal(0);
+    it("should handle empty groups", async () => {
+        expect(await manager.getForId("nonexistent").getModifiers().sum()).to.equal(0);
         expect(manager.getForIds("missing").getModifiers()).to.deep.equal([]);
     });
 
-    it("should combine modifiers with same groupId", () => {
+    it("should combine modifiers with same groupId", async () => {
         manager.add("melee", { name: "Spell", type: "magic" }, of(1));
         manager.add("melee", { name: "Trait", type: "innate" }, of(2));
 
-        expect(manager.getForId("melee").getModifiers().value).to.equal(3);
+        expect(await manager.getForId("melee").getModifiers().sum()).to.equal(3);
     });
 
     describe("Selector Build API", () => {
@@ -51,36 +51,36 @@ describe("ModifierManager", () => {
             expect(result[0].value).to.deep.equal(of(2));
         });
 
-        it("should cover multiple values in selector", () => {
+        it("should cover multiple values in selector", async () => {
             manager.add("damage", { name: "Sword", type: "equipment" }, of(3));
             manager.add("damage", { name: "Enchantment", type: "magic" }, of(2));
 
-            const result = manager
+            const result = await manager
                 .getForId("damage")
                 .withAttributeValues("type", "magic", "equipment")
-                .getModifiers().value;
+                .getModifiers().sum();
             expect(result).to.equal(5);
         });
 
-        it("should filter for absent attributes", () => {
+        it("should filter for absent attributes", async () => {
             manager.add("damage", { name: "Sword", type: "equipment", damageType: "physical" }, of(3));
             manager.add("damage", { name: "Enchantment", type: "magic" }, of(2));
 
-            const result = manager
+            const result = await manager
                 .getForId("damage")
                 .withAttributeValues("damageType", "physical")
-                .getModifiers().value;
+                .getModifiers().sum();
             expect(result).to.equal(3);
         });
 
-        it("should not filter for absent attributes if set to permissive", () => {
+        it("should not filter for absent attributes if set to permissive", async () => {
             manager.add("damage", { name: "Sword", type: "equipment", damageType: "physical" }, of(3));
             manager.add("damage", { name: "Enchantment", type: "magic" }, of(2));
 
-            const result = manager
+            const result = await manager
                 .getForId("damage")
                 .withAttributeValuesOrAbsent("damageType", "physical")
-                .getModifiers().value;
+                .getModifiers().sum();
             expect(result).to.equal(5);
         });
 
@@ -128,11 +128,11 @@ describe("ModifierManager", () => {
             expect(result[1].attributes.name).to.deep.equal("Cap");
         });
 
-        it("should deliver the value of several group ids at once", () => {
+        it("should deliver the value of several group ids at once", async () => {
             manager.add("AUS", { name: "Base", type: "innate" }, of(2), null, false);
             manager.add("bonuscap", { name: "Cap", type: "innate" }, of(3), null, false);
 
-            const result = manager.getForIds("AUS", "bonuscap").getModifiers().value;
+            const result = await manager.getForIds("AUS", "bonuscap").getModifiers().sum();
 
             expect(result).to.deep.equal(5);
         });

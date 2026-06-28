@@ -46,11 +46,8 @@ async function doEvaluate(expression: Expression): Promise<number | null> {
 }
 
 /**
- * Synchronously evaluates an expression, never rolling dice. Returns the deterministic value
- * when there is one, and {@link Number.NaN} for any sub-expression that contains a
- * non-deterministic {@link RollExpression}. Intended only for boolean guards (e.g. {@link isZero},
- * {@link isGreaterZero}) that already tolerate an "unknown" outcome. Never use this for a value
- * that will be displayed to the user or used in a roll result.
+ * Synchronously evaluates an expression, using a pre-rolled value for {@link RollExpression}
+ * If possible, prefer to use {@link evaluate}
  */
 export function syncEvaluate(expression: Expression): number {
     return syncDoEvaluate(expression) ?? 0;
@@ -72,10 +69,7 @@ function syncDoEvaluate(expression: Expression): number | null {
     } else if (expression instanceof PowerExpression) {
         return Math.pow(syncDoEvaluate(expression.base) ?? 0, syncDoEvaluate(expression.exponent) ?? 1);
     } else if (expression instanceof RollExpression) {
-        console.debug(
-            `Splittermond | syncEvaluate encountered a RollExpression (${expression.value.formula}); returning NaN.`
-        );
-        return Number.NaN;
+        return expression.evaluateSync()
     } else if (expression instanceof AbsExpression) {
         return Math.abs(syncEvaluate(expression.arg));
     } else if (expression instanceof MinExpression) {
