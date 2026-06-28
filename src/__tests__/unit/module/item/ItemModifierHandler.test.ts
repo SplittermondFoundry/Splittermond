@@ -4,7 +4,7 @@ import {ItemModifierHandler} from "module/item/ItemModifierHandler";
 import SplittermondItem from "module/item/item";
 import {foundryApi} from "module/api/foundryApi";
 import {clearMappers} from "module/modifiers/parsing/normalizer";
-import {type Expression, of, roll, syncEvaluate} from "module/modifiers/expressions/scalar";
+import {evaluate, type Expression, of, roll} from "module/modifiers/expressions/scalar";
 import type {ScalarModifier} from "module/modifiers/parsing";
 import {createTestRoll} from "../../RollMock";
 
@@ -259,7 +259,7 @@ describe("ItemModifierHandler", () => {
             });
         });
 
-        it("should multiply modifier values", () => {
+        it("should multiply modifier values", async () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration",
                 value: of(5),
@@ -271,10 +271,10 @@ describe("ItemModifierHandler", () => {
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(syncEvaluate(result.value)).to.deep.equal(10);
+            expect(await evaluate(result.value)).to.deep.equal(10);
         });
 
-        it("should take cast duration multiplier to the modifier multipliers power", () => {
+        it("should take cast duration multiplier to the modifier multipliers power", async () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration.multiplier",
                 value: of(0.5),
@@ -286,7 +286,7 @@ describe("ItemModifierHandler", () => {
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(syncEvaluate(result.value)).to.deep.equal(0.25);
+            expect(await evaluate(result.value)).to.deep.equal(0.25);
         });
 
         it("should omit modifier with zero value", () => {

@@ -1,23 +1,23 @@
-import { expect } from "chai";
-import sinon, { SinonSandbox, SinonStub, SinonStubbedInstance } from "sinon";
+import {expect} from "chai";
+import sinon, {SinonSandbox, SinonStub, SinonStubbedInstance} from "sinon";
 import SplittermondActor from "module/actor/actor";
 import SplittermondItem from "module/item/item";
-import { foundryApi } from "module/api/foundryApi";
-import { Cost } from "module/util/costs/Cost";
-import { initAddModifier } from "module/modifiers/modifierAddition";
-import { splittermond } from "module/config";
-import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
-import { CharacterAttribute } from "module/actor/dataModel/CharacterAttribute";
+import {foundryApi} from "module/api/foundryApi";
+import {Cost} from "module/util/costs/Cost";
+import {initAddModifier} from "module/modifiers/modifierAddition";
+import {splittermond} from "module/config";
+import {CharacterDataModel} from "module/actor/dataModel/CharacterDataModel";
+import {CharacterAttribute} from "module/actor/dataModel/CharacterAttribute";
 import Attribute from "module/actor/attribute";
-import { clearMappers } from "module/modifiers/parsing/normalizer";
-import { of, pow, syncEvaluate } from "module/modifiers/expressions/scalar";
-import { of as ofCost, times } from "module/modifiers/expressions/cost";
-import { stubRollApi } from "../../RollMock";
-import { InverseModifier } from "module/modifiers/impl/InverseModifier";
-import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
-import { ItemModifierHandler } from "module/item/ItemModifierHandler";
-import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
-import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
+import {clearMappers} from "module/modifiers/parsing/normalizer";
+import {evaluate, of, pow} from "module/modifiers/expressions/scalar";
+import {of as ofCost, times} from "module/modifiers/expressions/cost";
+import {stubRollApi} from "../../RollMock";
+import {InverseModifier} from "module/modifiers/impl/InverseModifier";
+import {ModifierRegistry} from "module/modifiers/ModifierRegistry";
+import {ItemModifierHandler} from "module/item/ItemModifierHandler";
+import {CostModifierHandler} from "module/util/costs/CostModifierHandler";
+import {registerActorModifiers} from "module/actor/modifiers/actorModifierRegistration";
 
 function setupAddModifierFunction() {
     const modifierRegistry = new ModifierRegistry();
@@ -655,7 +655,7 @@ describe("addModifier", () => {
             ["INT", 4],
         ] as const
     ).forEach(([placeholder, expected]) => {
-        it("should replace attribute placeholders with their values", () => {
+        it("should replace attribute placeholders with their values", async () => {
             const system = sandbox.createStubInstance(CharacterDataModel);
             actor.attributes.intuition = new Attribute(actor, "intuition");
             actor.system = system;
@@ -677,7 +677,7 @@ describe("addModifier", () => {
                 origin: item,
                 selectable: false,
             });
-            expect(syncEvaluate(result.modifiers[0].value)).to.equal(expected);
+            expect(await evaluate(result.modifiers[0].value)).to.equal(expected);
         });
     });
 
