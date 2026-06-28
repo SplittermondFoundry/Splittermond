@@ -206,7 +206,7 @@ export default class TokenActionBar extends SplittermondApplication {
                         if (!result[skillName]) {
                             result[skillName] = {
                                 label: `splittermond.skillLabel.${skillName}`,
-                                skillValue: item.skill.displayValue,
+                                skillValue: item.skill.value.display,
                                 spells: [],
                             };
                         }
@@ -251,7 +251,7 @@ export default class TokenActionBar extends SplittermondApplication {
             img: preparedItem.img,
             name: preparedItem.name,
             range: preparedItem.range,
-            skill: { label: preparedItem.skill.label, value: preparedItem.skill.displayValue },
+            skill: { label: preparedItem.skill.label, value: preparedItem.skill.value.display },
             spellTypeList: preparedItem.spellTypeList,
             description: preparedItem.system.description ?? "",
         };

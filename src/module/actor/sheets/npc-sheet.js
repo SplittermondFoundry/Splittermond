@@ -80,23 +80,22 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
             el.addEventListener("change", this._onChangeSkill.bind(this));
         });
     }
-    _onChangeDerivedAttribute(event) {
+    async _onChangeDerivedAttribute(event) {
         event.preventDefault();
         event.stopPropagation();
 
         const input = event.currentTarget;
         const value = parseInt(input.value);
         const attrBaseName = input.name.split(".")[1];
-        if (value - parseInt(this.actor.derivedValues[attrBaseName].displayValue || 0) == 0 || input.value == "") {
-            this.actor.update({
+        const oldValue = await this.actor.derivedValues[attrBaseName].value.calculate();
+        if (value - oldValue === 0 || input.value === "") {
+            return this.actor.update({
                 [`system.derivedAttributes.${attrBaseName}.value`]: 0,
             });
         } else {
-            this.actor.update({
+            return this.actor.update({
                 [`system.derivedAttributes.${attrBaseName}.value`]:
-                    value -
-                    parseInt(this.actor.derivedValues[attrBaseName].displayValue || 0) +
-                    parseInt(this.actor.derivedValues[attrBaseName].baseValue || 0),
+                    value - oldValue + parseInt(this.actor.derivedValues[attrBaseName].baseValue || 0),
             });
         }
     }
