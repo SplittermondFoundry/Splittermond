@@ -1,7 +1,7 @@
-import type { IModifier } from "module/modifiers";
-import { evaluate, of, plus, syncEvaluate, times } from "module/modifiers/expressions/scalar";
-import { TooltipFormula } from "module/util/tooltip";
-import { fromExpression } from "module/util/util";
+import type {IModifier} from "module/modifiers";
+import {evaluate, of, plus, syncEvaluate, times} from "module/modifiers/expressions/scalar";
+import {TooltipFormula} from "module/util/tooltip";
+import {fromExpression} from "module/util/util";
 
 export class Modifiers extends Array<IModifier> {
     constructor(...args: IModifier[]) {
@@ -35,27 +35,20 @@ export class Modifiers extends Array<IModifier> {
 
     /**@deprecated use sum instead */
     get value() {
-        return this.sum;
+        return this.sumSync;
     }
 
-    /**
-     * Synchronous sum using {@link syncEvaluate}. Returns {@link Number.NaN} if any modifier contains a
-     * non-deterministic roll. Use {@link sumAsync} when the real roll total is required.
-     */
-    get sum() {
-        return syncEvaluate(this.sumExpressions());
-    }
-
-    async sumAsync() {
+    async sum() {
         return evaluate(this.sumExpressions());
     }
 
-    get product() {
-        return syncEvaluate(this.multiplyExpressions());
+    async multiply(){
+        return evaluate(this.multiplyExpressions());
     }
 
-    async productAsync() {
-        return evaluate(this.multiplyExpressions());
+    /**@deprecated */
+    get sumSync() {
+        return syncEvaluate(this.sumExpressions());
     }
 
     sumExpressions() {

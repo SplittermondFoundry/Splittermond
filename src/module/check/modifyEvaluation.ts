@@ -29,7 +29,7 @@ export async function modifyEvaluation(
         ...checkReport,
         degreeOfSuccess: {
             fromRoll: checkReport.degreeOfSuccess.fromRoll,
-            modification: checkReport.degreeOfSuccess.modification + (await checkModifiers.sumAsync()),
+            modification: checkReport.degreeOfSuccess.modification + (await checkModifiers.sum()),
         },
     };
 }

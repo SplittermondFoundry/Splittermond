@@ -8,11 +8,11 @@ import { foundryApi } from "module/api/foundryApi";
 export async function rollMagicFumble(actor: SplittermondActor, data: FumbledCheckData) {
     let { eg, skill } = data;
     const isPriest = !!actor.findItem().withType("strength").withName("priester");
-    const lowerFumbleResult = actor.modifier
+    const lowerFumbleResult = await actor.modifier
         .getForId("lowerfumbleresult")
         .notSelectable()
         .withAttributeValuesOrAbsent("skill", skill)
-        .getModifiers().sum;
+        .getModifiers().sum()
 
     const confirmedData = await enrichFumbleData({ ...data, eg: Math.abs(eg) }, lowerFumbleResult, isPriest);
     const handler = isPriest ? priestFumbleHandler : sorcererFumbleHandler;

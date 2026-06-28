@@ -32,7 +32,7 @@ export const Chat: {
 
 export function canEditMessageOf(userId: string): boolean {}
 
-export function calculateDefenseTickCost(data: CheckReport, totalDegreeOfSuccess: number): number {}
+export async function calculateDefenseTickCost(data: CheckReport, totalDegreeOfSuccess: number): number {}
 
 export function prepareCheckMessageData(
     actor: SplittermondActor,

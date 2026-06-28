@@ -1,24 +1,25 @@
 import { DamageType, damageTypes } from "../config/damageTypes";
 import ModifierManager from "./modifiers/modifier-manager";
+import  {type Expression, of} from "module/modifiers/expressions/scalar";
 
 export class Susceptibilities {
-    private susceptibilities: Record<DamageType, number> = {
-        physical: 0,
-        mental: 0,
-        electric: 0,
-        acid: 0,
-        rock: 0,
-        fire: 0,
-        heat: 0,
-        cold: 0,
-        poison: 0,
-        bleeding: 0,
-        disease: 0,
-        light: 0,
-        shadow: 0,
-        wind: 0,
-        water: 0,
-        nature: 0,
+    private susceptibilities: Record<DamageType, Expression> = {
+        physical: of(0),
+        mental: of(0),
+        electric: of(0),
+        acid: of(0),
+        rock: of(0),
+        fire: of(0),
+        heat: of(0),
+        cold: of(0),
+        poison: of(0),
+        bleeding: of(0),
+        disease: of(0),
+        light: of(0),
+        shadow: of(0),
+        wind: of(0),
+        water: of(0),
+        nature: of(0),
     };
 
     constructor(
@@ -26,20 +27,11 @@ export class Susceptibilities {
         private modifierManager: ModifierManager
     ) {}
 
-    calculateSusceptibilities(): Record<DamageType, number> {
+    calculateSusceptibilities(): Record<DamageType, Expression> {
         const susceptibilities = { ...this.susceptibilities };
         damageTypes.forEach((type) => {
-            susceptibilities[type] = this.modifierManager.getForId(`${this.keyword}.${type}`).getModifiers().sum ?? 0;
+            susceptibilities[type] = this.modifierManager.getForId(`${this.keyword}.${type}`).getModifiers().sumExpressions();
         });
-        return susceptibilities;
-    }
-
-    async calculateSusceptibilitiesAsync(): Promise<Record<DamageType, number>> {
-        const susceptibilities = { ...this.susceptibilities };
-        for (const type of damageTypes) {
-            susceptibilities[type] =
-                (await this.modifierManager.getForId(`${this.keyword}.${type}`).getModifiers().sumAsync()) ?? 0;
-        }
         return susceptibilities;
     }
 }

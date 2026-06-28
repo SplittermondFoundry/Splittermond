@@ -20,19 +20,19 @@ export function canEditMessageOf(userId) {
     return userId === foundryApi.currentUser.id || foundryApi.currentUser.isGM;
 }
 
-export function calculateDefenseTickCost(data, totalDegreeOfSuccess) {
+export async function calculateDefenseTickCost(data, totalDegreeOfSuccess) {
     const isOutstanding = totalDegreeOfSuccess >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold;
     const baseTickCost = isOutstanding ? 2 : 3;
 
     const actor = data.itemData?.actor;
     const defenseTickCostModifier =
-        actor?.modifier
+        await actor?.modifier
             ?.getForId("item.defenseTickCost")
             .withAttributeValuesOrAbsent("defenseType", ...validAttributeValues(data.defenseType))
             .withAttributeValuesOrAbsent("item", ...validAttributeValues(data.itemData?.id, data.itemData?.name))
             .withAttributeValuesOrAbsent("itemType", ...validAttributeValues(data.itemData?.itemType))
             .withAttributeValuesOrAbsent("skill", ...validAttributeValues(data.itemData?.skill?.id))
-            .getModifiers().sum ?? 0;
+            .getModifiers().sum() ?? 0;
 
     return Math.max(1, baseTickCost + defenseTickCostModifier);
 }
@@ -167,7 +167,7 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                 }
             }
 
-            const tickCost = calculateDefenseTickCost(data, totalDegreeOfSuccess);
+            const tickCost = await calculateDefenseTickCost(data, totalDegreeOfSuccess);
             templateContext.actions.push({
                 name: `${tickCost} ` + game.i18n.localize(`splittermond.ticks`),
                 icon: "fa-stopwatch",

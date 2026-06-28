@@ -11,6 +11,7 @@ import type { VirtualToken } from "../combat/VirtualToken";
 import type { ItemType } from "module/config/itemTypes";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { ExpressionBundle, ValueBundle } from "module/util/util";
+import type {Expression} from "module/modifiers/expressions/scalar";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 
@@ -32,9 +33,9 @@ declare class SplittermondActor extends Actor {
 
     get splinterpoints(): { value: number; max: number };
 
-    get weaknesses(): ValueBundle<Record<DamageType, number>>;
+    get weaknesses(): ExpressionBundle<Record<DamageType, Expression>>;
 
-    get resistances(): ValueBundle<Record<DamageType, number>>;
+    get resistances(): ExpressionBundle<Record<DamageType, Expression>>;
     addModifier(item: SplittermondItem, str: string, type: string, multiplier?: number): void;
 
     get damageReduction(): ExpressionBundle;

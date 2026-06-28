@@ -14,7 +14,7 @@ import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { Susceptibilities } from "./Susceptibilities";
 import { addModifier } from "./addModifierAdapter";
-import { evaluate, max, of, plus, syncEvaluate } from "../modifiers/expressions/scalar";
+import { evaluate, max, min, minus, of, plus, syncEvaluate } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
 import { InverseModifier } from "module/modifiers/impl/InverseModifier";
@@ -234,8 +234,6 @@ export default class SplittermondActor extends Actor {
     }
 
     prepareDerivedData() {
-        //console.log(`prepareDerivedData() - ${this.type}: ${this.name}`);
-
         super.prepareDerivedData();
 
         this.spells = this.items.filter((i) => i.type === "spell") || [];
@@ -256,7 +254,7 @@ export default class SplittermondActor extends Actor {
         this._prepareActiveDefense();
 
         if (this.type === "character") {
-            this.system.splinterpoints.max += this.modifier.getForId("actor.splinterpoints").getModifiers().sum;
+            this.system.splinterpoints.max += this.modifier.getForId("actor.splinterpoints").getModifiers().sumSync;
         }
     }
 
@@ -436,10 +434,10 @@ export default class SplittermondActor extends Actor {
         });
         const currentLevel = Math.floor(data.health.total.value / this.derivedValues.healthpoints.displayValue);
         const baseLevel = Math.max(healthNbrLevels - currentLevel - 1, 0);
-        data.health.woundMalus.level = Math.min(
-            baseLevel + this.modifier.getForId("actor.woundMalus.levelMod").getModifiers().sum,
-            healthNbrLevels - 1
-        );
+        data.health.woundMalus.level = syncEvaluate(min(
+            plus(of(baseLevel), this.modifier.getForId("actor.woundMalus.levelMod").getModifiers().sumExpressions()),
+            minus(of(healthNbrLevels),  of(1))
+        ));
 
         let woundMalusValue = data.health.woundMalus.levels[data.health.woundMalus.level];
         data.health.woundMalus.value = woundMalusValue?.value ?? 0;
@@ -638,19 +636,11 @@ export default class SplittermondActor extends Actor {
     }
 
     get handicap() {
-        const sum = (getter) => Math.max(getter().sum, 0);
-        const asyncSum = async (getter) => Math.max(await getter().sumAsync(), 0);
+        const sum = (getter) => max(getter().sumExpressions(), of(0));
         const shield = () => this.modifier.getForId("handicap.shield").getModifiers();
         const armor = () => this.modifier.getForId("handicap.armor").getModifiers();
         const base = () => this.modifier.getForId("handicap").getModifiers();
-        return {
-            get display() {
-                return String(sum(shield) + sum(armor) + sum(base));
-            },
-            async calculate() {
-                return (await asyncSum(shield)) + (await asyncSum(armor)) + (await asyncSum(base));
-            },
-        };
+        return fromExpression(()=> plus(plus(sum(shield),sum(armor)), sum(base)))
     }
 
     get typeList() {
@@ -697,16 +687,7 @@ export default class SplittermondActor extends Actor {
      * negative values (not actually in the ruleset) indicate a weakness.
      */
     get resistances() {
-        const calc = () => this._resistances.calculateSusceptibilities();
-        const calcAsync = () => this._resistances.calculateSusceptibilitiesAsync();
-        return {
-            get display() {
-                return JSON.stringify(calc());
-            },
-            async calculate() {
-                return calcAsync();
-            },
-        };
+        fromExpression(()=>this._resistances.calculateSusceptibilities());
     }
 
     /**
@@ -714,16 +695,7 @@ export default class SplittermondActor extends Actor {
      * negative values (not actually in the ruleset) indicate a weakness.
      */
     get weaknesses() {
-        const calc = () => this._weaknesses.calculateSusceptibilities();
-        const calcAsync = () => this._weaknesses.calculateSusceptibilitiesAsync();
-        return {
-            get display() {
-                return JSON.stringify(calc());
-            },
-            async calculate() {
-                return calcAsync();
-            },
-        };
+        fromExpression(()=>this._weaknesses.calculateSusceptibilities());
     }
 
     async importFromJSON(json, updateActor) {

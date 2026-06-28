@@ -12,7 +12,7 @@ describe("Susceptibilities", () => {
 
             modifierManager.add(`susceptibility.${sus}`, { name: "", type: "innate" }, of(5));
 
-            expect(underTest.calculateSusceptibilities()[sus]).to.equal(5);
+            expect(underTest.calculateSusceptibilities()[sus]).to.deep.equal(of(5));
         });
 
         it(`should deliver susceptibility of 0 for ${sus} if modifier is absent`, () => {
@@ -21,7 +21,7 @@ describe("Susceptibilities", () => {
 
             modifierManager.add(`susceptibility.${sus}`, { name: "", type: "innate" }, of(5));
 
-            expect(underTest.calculateSusceptibilities()[sus]).to.equal(5);
+            expect(underTest.calculateSusceptibilities()[sus]).to.deep.equal(of(5));
         });
     });
 
@@ -32,7 +32,7 @@ describe("Susceptibilities", () => {
 
             modifierManager.add(`susceptibility.light`, { name: "", type: "innate" }, of(value));
 
-            expect(underTest.calculateSusceptibilities().light).to.equal(value);
+            expect(underTest.calculateSusceptibilities().light).to.deep.equal(of(value));
         });
     });
 });
