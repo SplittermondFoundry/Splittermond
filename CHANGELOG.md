@@ -3,7 +3,7 @@
 ### Fixes
 
 - In Charakteren lassen sich attribute jetzt wieder setzen.
--
+- Würfelwürfe für Schaden und in Modifikatoren werden jetzt erst zum Wurf ausgwertet.
 
 ## 14.2.1
 
