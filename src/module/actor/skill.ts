@@ -273,7 +273,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         const rollDifficulty = parseRollDifficulty(checkData.difficulty);
         const hideDifficulty = rollDifficulty.isTargetDependentValue();
         if (principalTarget) {
-            rollDifficulty.evaluate(principalTarget);
+            await rollDifficulty.evaluate(principalTarget);
         }
         const parsedDifficulty = rollDifficulty.difficulty;
         if (this.isGrandmaster) {

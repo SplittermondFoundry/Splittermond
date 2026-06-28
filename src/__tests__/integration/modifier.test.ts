@@ -127,7 +127,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 await subject.prepareEmbeddedDocuments();
                 subject.prepareDerivedData();
 
-                expect(await subject.derivedValues[derivedValue].value()).to.equal(expected);
+                expect(await subject.derivedValues[derivedValue].value.calculate()).to.equal(expected);
             });
         });
 
@@ -160,7 +160,7 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.prepareDerivedData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(5);
-            expect(await subject.derivedValues.defense.value()).to.equal(17);
+            expect(await subject.derivedValues.defense.value.calculate()).to.equal(17);
             expect(await subject.attacks.find((a) => a.name === "waffenlos")?.weaponSpeed.calculate()).to.equal(6);
         });
 
@@ -193,7 +193,7 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.prepareDerivedData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(5);
-            expect(await subject.derivedValues.defense.value()).to.equal(17);
+            expect(await subject.derivedValues.defense.value.calculate()).to.equal(17);
             expect(await subject.damageReduction.calculate()).to.equal(1);
             expect(await subject.attacks.find((a) => a.name === "waffenlos")?.weaponSpeed.calculate()).to.equal(6);
         });
@@ -392,7 +392,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 actor.prepareDerivedData();
                 actor.modifier.add("actor.speed.multiplier", { name: "Haste", type: "magic" }, of(1.5), null, false);
 
-                expect(Number(actor.derivedValues.speed.displayValue)).to.equal(12);
+                expect(Number(actor.derivedValues.speed.value.display)).to.equal(12);
             })
         );
     });
@@ -561,7 +561,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await subject.prepareEmbeddedDocuments();
                         subject.prepareDerivedData();
 
-                        expect(await subject.derivedValues.initiative.value()).to.equal(8 + reduction);
+                        expect(await subject.derivedValues.initiative.value.calculate()).to.equal(8 + reduction);
                     });
 
                     it(`should apply initiative penalty with 1hp missing`, async () => {
@@ -573,7 +573,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await subject.prepareEmbeddedDocuments();
                         subject.prepareDerivedData();
 
-                        expect(await subject.derivedValues.initiative.value()).to.equal(8 + reduction);
+                        expect(await subject.derivedValues.initiative.value.calculate()).to.equal(8 + reduction);
                     });
 
                     it(`should apply initiative penalty with full bar missing`, async () => {
@@ -585,7 +585,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await subject.prepareEmbeddedDocuments();
                         subject.prepareDerivedData();
 
-                        expect(await subject.derivedValues.initiative.value()).to.equal(8 + reduction);
+                        expect(await subject.derivedValues.initiative.value.calculate()).to.equal(8 + reduction);
                     });
                 });
             });
