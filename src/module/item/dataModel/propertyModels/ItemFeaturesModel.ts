@@ -74,8 +74,8 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
                 //For rolls we'd have to call evaluate, which would be async. But also, the Value is evaluated on every search
                 //for a feature, with different results. This will yield erratic behavior, so we just prohibit it in the modifier
                 //handler, which ensures we'll never get NaN here.
-                const value = syncEvaluate(m.value) || 1;
-                return parseFeatures(`${m.attributes.feature} ${value}`);
+                const value = syncEvaluate(m.value);
+                return parseFeatures(`${m.attributes.eature} ${value}`);
             })
             .map((f) => new ItemFeatureDataModel(f));
     }
