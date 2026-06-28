@@ -213,7 +213,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             if (!result[item.skill.id]) {
                 result[item.skill.id] = {
                     label: `splittermond.skillLabel.${item.skill.id}`,
-                    skillValue: item.skill.displayValue,
+                    skillValue: item.skill.value.display,
                     spells: [],
                 };
             }

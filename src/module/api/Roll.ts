@@ -49,7 +49,7 @@ export type NumericTerm = foundry.dice.terms.NumericTerm;
 export type RollTerm = Die | OperatorTerm | NumericTerm | ParentheticTerm;
 
 export declare class Roll {
-    evaluate: () => Promise<Roll>;
+    evaluate: (options?: { allowInteractive?: boolean }) => Promise<Roll>;
     /** Can only be used to evaluate deterministic roll will otherwise it throws an error
      * or returns 0 if not strict.
      */
