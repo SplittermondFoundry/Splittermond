@@ -31,9 +31,12 @@ export class RollExpression {
         }
 
         this.evaluating = true;
-        this.evaluate().then((result) => {
-            this.result = result;
-            this.evaluating = false;
-        });
+        this.value
+            .clone()
+            .evaluate({ allowInteractive: false })
+            .then((result) => {
+                this.result = result.total;
+                this.evaluating = false;
+            });
     }
 }

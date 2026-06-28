@@ -75,7 +75,7 @@ export class ItemFeaturesModel extends DocumentAccessMixin(ItemFeaturesBase, Spl
                 //for a feature, with different results. This will yield erratic behavior, so we just prohibit it in the modifier
                 //handler, which ensures we'll never get NaN here.
                 const value = syncEvaluate(m.value);
-                return parseFeatures(`${m.attributes.eature} ${value}`);
+                return parseFeatures(`${m.attributes.feature} ${value}`);
             })
             .map((f) => new ItemFeatureDataModel(f));
     }

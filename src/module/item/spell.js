@@ -191,7 +191,7 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
                 degreeOfSuccessOptions: this.degreeOfSuccessOptions,
                 costs: this.costs,
                 enhancementCosts: this.enhancementCosts,
-                skill: await this.skill.toObjectAsync(),
+                skill: await this.skill.makeSnapshot(),
                 difficulty: this.difficulty,
                 castDuration: this.castDuration,
                 range: this.range,

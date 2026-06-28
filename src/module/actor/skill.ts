@@ -434,7 +434,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
 
         let skillFormula = this.getFormula();
         skillFormula.addOperator("=");
-        skillFormula.addPart(this.value, foundryApi.localize("splittermond.skillValueAbbrev"));
+        skillFormula.addPart(this.value.display, foundryApi.localize("splittermond.skillValueAbbrev"));
 
         return CheckDialog.create({
             difficulty: difficulty || splittermond.check.defaultDifficulty,
