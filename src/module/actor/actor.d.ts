@@ -44,15 +44,15 @@ declare class SplittermondActor extends Actor {
 
     get tickMalus(): ExpressionBundle;
 
-    get handicap(): ValueBundle;
+    get handicap(): ExpressionBundle;
 
     get woundMalusMod(): ExpressionBundle;
 
-    get healthRegenMultiplier(): ValueBundle;
+    get healthRegenMultiplier(): ExpressionBundle;
 
     get healthRegenBonus(): ExpressionBundle;
 
-    get focusRegenMultiplier(): ValueBundle;
+    get focusRegenMultiplier(): ExpressionBundle;
 
     get focusRegenBonus(): ExpressionBundle;
 

@@ -14,7 +14,7 @@ import {
     type Expression,
     syncEvaluate as scalarSyncEvaluate,
 } from "module/modifiers/expressions/scalar";
-import { CostModifier } from "../../../util/costs/Cost";
+import { CostModifier } from "module/util/costs/Cost";
 
 export async function evaluate(expression: CostExpression): Promise<CostModifier> {
     return doEvaluate(expression, scalarEvaluate);
