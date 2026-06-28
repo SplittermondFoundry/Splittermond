@@ -26,7 +26,6 @@ export default class DerivedValue extends Modifiable(Object) {
         this._cache = {
             enabled: false,
             baseValue: null,
-            displayValue: null,
             value: null,
         };
     }
@@ -146,24 +145,21 @@ export default class DerivedValue extends Modifiable(Object) {
     }
 
     get displayValue() {
-        if (this._cache.enabled && this._cache.displayValue !== null) return this._cache.displayValue;
-        let value = asString(condense(this.valueAsExpression()));
-        if (this._cache.enabled && this._cache.displayValue === null) this._cache.displayValue = value;
-        return value;
+        return asString(condense(this.valueAsExpression()));
     }
 
     async value() {
-        if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
-        let value = Math.ceil(await evaluate(this.valueAsExpression()));
-        if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
-        return value;
+        return Math.ceil(await evaluate(this.valueAsExpression()));
     }
 
     valueAsExpression() {
+        if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
         const base = of(this.baseValue);
         const multiplier = this.multiplierAsExpression();
         const modifier = this.mod.expression;
-        return times(multiplier, plus(base, modifier));
+        const finalValue = times(multiplier, plus(base, modifier));
+        if (this._cache.enabled && this._cache.value === null) this._cache.value = finalValue;
+        return finalValue;
     }
 
     multiplierAsExpression() {
@@ -181,7 +177,6 @@ export default class DerivedValue extends Modifiable(Object) {
     disableCaching() {
         this._cache.enabled = false;
         this._cache.baseValue = null;
-        this._cache.displayValue = null;
         this._cache.value = null;
     }
 }
