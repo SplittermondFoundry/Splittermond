@@ -3,12 +3,14 @@ import {
     condense,
     isGreaterThan,
     isGreaterZero,
+    min,
     minus,
     of,
-    syncEvaluate,
+    plus,
 } from "module/modifiers/expressions/scalar";
-import { Modifiers } from "module/actor/modifiers/Modifiers";
+import {Modifiers} from "module/actor/modifiers/Modifiers";
 import SplittermondActor from "./actor";
+import {fromExpression} from "module/util/util";
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -17,28 +19,20 @@ export default function Modifiable<TBase extends Constructor<Object>>(base: TBas
         abstract get actor(): SplittermondActor;
         abstract _modifierPath: string[];
 
-        get mod(): number {
-            const equipmentModifiers = this.#equipmentModifiers();
-            const magicModifiers = this.#magicModifiers();
-            const others = this.collectModifiers()
-                .filter((m) => !equipmentModifiers.includes(m))
-                .filter((m) => !magicModifiers.includes(m));
-            const bonusCap = syncEvaluate(this.actor.bonusCap.expression);
-            const cappedEquipment = Math.min(equipmentModifiers.sum, bonusCap);
-            const cappedMagic = Math.min(magicModifiers.sum, bonusCap);
-            return others.sum + cappedEquipment + cappedMagic;
+        get mod(){
+            return fromExpression(()=>this.modExpression())
         }
 
-        async modAsync(): Promise<number> {
+        private modExpression(){
             const equipmentModifiers = this.#equipmentModifiers();
             const magicModifiers = this.#magicModifiers();
             const others = this.collectModifiers()
                 .filter((m) => !equipmentModifiers.includes(m))
                 .filter((m) => !magicModifiers.includes(m));
-            const bonusCap = await this.actor.bonusCap.calculate();
-            const cappedEquipment = Math.min(await equipmentModifiers.sumAsync(), bonusCap);
-            const cappedMagic = Math.min(await magicModifiers.sumAsync(), bonusCap);
-            return (await others.sumAsync()) + cappedEquipment + cappedMagic;
+            const bonusCap = this.actor.bonusCap.expression
+            const cappedEquipment = min(equipmentModifiers.sumExpressions(), bonusCap);
+            const cappedMagic = min(magicModifiers.sumExpressions(), bonusCap);
+            return plus(plus(others.sumExpressions(),cappedEquipment), cappedMagic);
         }
 
         /**

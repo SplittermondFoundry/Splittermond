@@ -27,6 +27,7 @@ import { withActor } from "./fixtures";
 import Attack from "module/actor/attack";
 import { passesEventually } from "../util";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
+import type {SplittermondSkill} from "module/config/skillGroups";
 
 export function modifierTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
@@ -64,7 +65,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.stealth.value()).to.equal(7);
+            expect(await subject.skills.stealth.value.calculate()).to.equal(7);
         });
 
         it("should set number of healthlevels", async () => {
@@ -158,7 +159,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.acrobatics.value()).to.equal(5);
+            expect(await subject.skills.acrobatics.value.calculate()).to.equal(5);
             expect(await subject.derivedValues.defense.value()).to.equal(17);
             expect(await subject.attacks.find((a) => a.name === "waffenlos")?.weaponSpeed.calculate()).to.equal(6);
         });
@@ -191,7 +192,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.acrobatics.value()).to.equal(5);
+            expect(await subject.skills.acrobatics.value.calculate()).to.equal(5);
             expect(await subject.derivedValues.defense.value()).to.equal(17);
             expect(await subject.damageReduction.calculate()).to.equal(1);
             expect(await subject.attacks.find((a) => a.name === "waffenlos")?.weaponSpeed.calculate()).to.equal(6);
@@ -227,7 +228,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 await actor.prepareEmbeddedDocuments();
                 actor.prepareDerivedData();
 
-                expect(await actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value()).to.equal(6);
+                expect(await actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.calculate()).to.equal(6);
             })
         );
 
@@ -282,7 +283,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.empathy.value()).to.equal(8);
+            expect(await subject.skills.empathy.value.calculate()).to.equal(8);
         });
     });
 
@@ -443,7 +444,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.acrobatics.value()).to.equal(6 - 2);
+            expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - 2);
         });
 
         it("should apply LP wound malus when more than full bar missing", async () => {
@@ -454,7 +455,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.acrobatics.value()).to.equal(6 - 1);
+            expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - 1);
         });
 
         describe("With 3 levels of health", () => {
@@ -474,7 +475,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await subject.prepareEmbeddedDocuments();
                         subject.prepareDerivedData();
 
-                        expect(await subject.skills.acrobatics.value()).to.equal(6 - reduction);
+                        expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
                     it(`should apply wound malus with 1hp missing`, async () => {
                         const subject = await setUpActor();
@@ -486,7 +487,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await subject.prepareEmbeddedDocuments();
                         subject.prepareDerivedData();
 
-                        expect(await subject.skills.acrobatics.value()).to.equal(6 - reduction);
+                        expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
 
                     it(`should apply wound malus with full bar missing`, async () => {
@@ -499,7 +500,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await subject.prepareEmbeddedDocuments();
                         subject.prepareDerivedData();
 
-                        expect(await subject.skills.acrobatics.value()).to.equal(6 - reduction);
+                        expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
                 });
             });
@@ -523,7 +524,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await subject.prepareEmbeddedDocuments();
                         subject.prepareDerivedData();
 
-                        expect(await subject.skills.acrobatics.value()).to.equal(6 - reduction);
+                        expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
 
                     it(`should apply with 1hp missing`, async () => {
@@ -535,7 +536,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await subject.prepareEmbeddedDocuments();
                         subject.prepareDerivedData();
 
-                        expect(await subject.skills.acrobatics.value()).to.equal(6 - reduction);
+                        expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
 
                     it(`should apply with full bar missing`, async () => {
@@ -547,7 +548,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await subject.prepareEmbeddedDocuments();
                         subject.prepareDerivedData();
 
-                        expect(await subject.skills.acrobatics.value()).to.equal(6 - reduction);
+                        expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
 
                     it(`should apply initiative penalty at perfect health`, async () => {
@@ -618,7 +619,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.empathy.value()).to.equal(6);
+            expect(await subject.skills.empathy.value.calculate()).to.equal(6);
         });
 
         it("should add a roll to a skill", async () => {
@@ -628,7 +629,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.empathy.value()).to.be.above(6).below(18);
+            expect(await subject.skills.empathy.value.calculate()).to.be.above(6).below(18);
         });
 
         it("should add a attribute value to a skill", async () => {
@@ -638,7 +639,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.empathy.value()).to.equal(7);
+            expect(await subject.skills.empathy.value.calculate()).to.equal(7);
         });
 
         it("should add a skill value to a skill", async () => {
@@ -648,7 +649,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.empathy.value()).to.equal(10);
+            expect(await subject.skills.empathy.value.calculate()).to.equal(10);
         });
 
         it("should add a random numeric attribute to", async () => {
@@ -658,7 +659,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(await subject.skills.empathy.value()).to.equal(40);
+            expect(await subject.skills.empathy.value.calculate()).to.equal(40);
         });
 
         it("should handle foreduction correctly for a reduction of 2V1", async () => {
@@ -805,8 +806,8 @@ export function modifierTest(context: QuenchBatchContext) {
             await subject.prepareEmbeddedDocuments();
             subject.prepareDerivedData();
 
-            expect(subject.attacks.find((a) => a.toObject().id === npcAttack.id)?.skill.displayValue).to.equal(
-                npcAttackDefinition.system.skillValue - 1
+            expect(subject.attacks.find((a) => a.toObject().id === npcAttack.id)?.skill.value.display).to.equal(
+                `${npcAttackDefinition.system.skillValue - 1}`
             );
         });
 
@@ -952,7 +953,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         actor.prepareDerivedData();
 
                         await Promise.all(splittermond.skillGroups[skillGroup].map(async (skill) => {
-                            expect(await actor.skills[skill].value(), `Modified ${skill}`).to.equal(6);
+                            expect(await actor.skills[skill].value.calculate(), `Modified ${skill}`).to.equal(6);
                         }));
                     })
                 );
@@ -980,7 +981,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     await actor.prepareEmbeddedDocuments();
                     actor.prepareDerivedData();
 
-                    expect(actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.displayValue).to.equal(6);
+                    expect(actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.display).to.equal('6');
                 })
             );
         });
@@ -994,7 +995,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 it(
                     `should modify skill ${skill}`,
                     withActor(async (actor) => {
-                        const originalValue = await actor.skills[skill].value();
+                        const originalValue = await actor.skills[skill].value.calculate();
                         await actor.createEmbeddedDocuments("Item", [
                             {
                                 type: "strength",
@@ -1006,7 +1007,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await actor.prepareEmbeddedDocuments();
                         actor.prepareDerivedData();
 
-                        expect(await actor.skills[skill].value()).to.equal(originalValue + 2);
+                        expect(await actor.skills[skill].value.calculate()).to.equal(originalValue + 2);
                     })
                 );
             });
@@ -1016,7 +1017,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 it(
                     `should modify skill ${skill}`,
                     withActor(async (actor) => {
-                        const originalValue = await actor.skills[skill].value();
+                        const originalValue = await actor.skills[skill].value.calculate();
                         const localizedSkill = foundryApi.localize(`splittermond.skillLabel.${skill}`);
                         await actor.createEmbeddedDocuments("Item", [
                             {
@@ -1029,7 +1030,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await actor.prepareEmbeddedDocuments();
                         actor.prepareDerivedData();
 
-                        expect(await actor.skills[skill].value()).to.equal(originalValue + 2);
+                        expect(await actor.skills[skill].value.calculate()).to.equal(originalValue + 2);
                     })
                 );
             });
@@ -1058,12 +1059,12 @@ export function modifierTest(context: QuenchBatchContext) {
             await actor.prepareEmbeddedDocuments();
             actor.prepareDerivedData();
 
-            await Promise.all(Object.entries(splittermond.skillAttributes)
+            (await Promise.all(Object.entries(splittermond.skillAttributes)) as [[SplittermondSkill, string[]]])
                 .filter(([_, value]) => value.includes("mystic"))
                 .map(([skill, _]) => skill)
                 .map(async (skill) => {
-                    expect(await actor.skills[skill].value(), `Skill ${skill} is modified`).to.be.at.least(6);
-                }));
+                    expect(await actor.skills[skill].value.calculate(), `Skill ${skill} is modified`).to.be.at.least(6);
+                });
         }
     });
 

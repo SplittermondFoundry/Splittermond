@@ -160,10 +160,10 @@ export default class DerivedValue extends Modifiable(Object) {
     }
 
     valueAsExpression() {
-        const base = this.baseValue;
+        const base = of(this.baseValue);
         const multiplier = this.multiplierAsExpression();
-        const modifier = of(this.mod);
-        return times(multiplier, plus(of(base), modifier));
+        const modifier = this.mod.expression;
+        return times(multiplier, plus(base, modifier));
     }
 
     multiplierAsExpression() {

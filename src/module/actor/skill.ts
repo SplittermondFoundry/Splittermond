@@ -3,7 +3,7 @@ import { Dice } from "../check/dice";
 import { Chat } from "../util/chat";
 import * as Tooltip from "../util/tooltip";
 import { parseRollDifficulty, RollDifficultyType } from "../util/rollDifficultyParser";
-import { asString, condense, evaluate, of } from "module/modifiers/expressions/scalar";
+import { asString, condense, evaluate, type Expression, of, plus} from "module/modifiers/expressions/scalar";
 import { foundryApi } from "../api/foundryApi";
 import { splittermond } from "../config";
 import { modifyEvaluation } from "module/check/modifyEvaluation";
@@ -13,7 +13,7 @@ import { ChatMessage, FoundryChatMessage } from "module/api/ChatMessage";
 import type Attribute from "module/actor/attribute";
 import type { IModifier } from "module/modifiers";
 import type { SplittermondAttribute } from "module/config/attributes";
-import { isMember } from "module/util/util";
+import {fromExpression, isMember } from "module/util/util";
 import Modifiable from "module/actor/modifiable";
 import { rollType, RollType } from "module/config/check";
 import { CheckReport, type GenericRollEvaluation } from "module/check";
@@ -69,8 +69,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
     private _attribute2Cache: Attribute | null = null;
     private _cache = {
         enabled: false,
-        displayValue: null as number | null,
-        value: null as number | null,
+        value: null as Expression | null,
     };
 
     /**
@@ -144,13 +143,14 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             label: this.label,
             attribute1: this.attribute1,
             attribute2: this.attribute2,
+            value: this.value.display,
         };
     }
 
     async makeSnapshot() {
         return {
             ...this.toObject(),
-            value: await this.value(),
+            value: await this.value.calculate(),
         };
     }
 
@@ -179,21 +179,15 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         return (this.attribute1?.value || 0) + (this.attribute2?.value || 0) + this.points;
     }
 
-    get displayValue(): number {
-        if (this._cache.enabled && this._cache.displayValue !== null) return this._cache.displayValue;
-
-        let value =this.baseValue;
-        value += this.mod;
-
-        if (this._cache.enabled && this._cache.displayValue === null) this._cache.displayValue = value;
-        return value;
+    get value() {
+        return fromExpression(()=>this.valueExpression())
     }
 
-    async value(): Promise<number> {
+    private valueExpression(){
         if (this._cache.enabled && this._cache.value !== null) return this._cache.value;
 
-        let value =this.baseValue;
-        value += await this.modAsync();
+        let value:Expression= of(this.baseValue);
+        value = plus(value, this.mod.expression);
 
         if (this._cache.enabled && this._cache.value === null) this._cache.value = value;
         return value;
@@ -221,7 +215,6 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
 
     disableCaching() {
         this._cache.enabled = false;
-        this._cache.displayValue = null;
         this._cache.value = null;
     }
 
@@ -367,7 +360,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         let checkMessageData = {
             type: options.type || "skill",
             skill: this.id,
-            skillValue: await this.value(),
+            skillValue: await this.value.calculate(),
             skillPoints: this.points,
             skillAttributes: skillAttributes,
             difficulty: rollResult.difficulty,

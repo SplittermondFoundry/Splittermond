@@ -1,5 +1,6 @@
 import SplittermondItem from "../item/item";
 import type { SplittermondSkill } from "../config/skillGroups";
+import type Skill from "./skill"
 import Attack from "./attack";
 import { DamageType } from "../config/damageTypes";
 import { CharacterDataModel } from "./dataModel/CharacterDataModel";
@@ -17,10 +18,15 @@ declare class SplittermondActor extends Actor {
     private _resistances: Susceptibilities;
     private _weaknesses: Susceptibilities;
     public readonly modifier: ModifierManager;
+    public readonly type: "character" | "npc";
 
     items: Collection<SplittermondItem>;
 
     system: CharacterDataModel | NpcDataModel;
+
+    public readonly skills: Record<SplittermondSkill,Skill>;
+    public readonly attacks: Attack[];
+
 
     async activeDefenseDialog(type?: DefenseType): Promise<void>;
 
@@ -63,9 +69,6 @@ declare class SplittermondActor extends Actor {
     findItem(): FindOptions;
 
     getVirtualStatusTokens(): VirtualToken[];
-
-    attacks: Attack[];
-    type: "character" | "npc";
 
     get bonusCap(): ExpressionBundle;
 }

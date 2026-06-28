@@ -1,20 +1,21 @@
-import { foundryApi } from "module/api/foundryApi";
-import { settings } from "module/settings";
+import {foundryApi} from "module/api/foundryApi";
+import {settings} from "module/settings";
 import {
     ApplicationContextOptions,
     ApplicationRenderContext,
     SplittermondApplication,
     TEMPLATE_BASE_PATH,
 } from "module/data/SplittermondApplication";
-import SplittermondActor, { type DefenseType } from "module/actor/actor";
-import { splittermond } from "module/config";
+import SplittermondActor, {type DefenseType} from "module/actor/actor";
+import {splittermond} from "module/config";
 import SplittermondItem from "module/item/item";
 import SplittermondSpellItem from "module/item/spell";
-import { SplittermondSkill } from "module/config/skillGroups";
-import { closestData } from "module/data/ClosestDataMixin";
-import { TokenActionBarTemplateData } from "./templateInterface";
-import { ElementToggler } from "./ElementToggler";
-import { actorRetriever } from "module/data/EntityRetriever";
+import {SplittermondSkill} from "module/config/skillGroups";
+import {closestData} from "module/data/ClosestDataMixin";
+import {TokenActionBarTemplateData} from "./templateInterface";
+import {ElementToggler} from "./ElementToggler";
+import {actorRetriever} from "module/data/EntityRetriever";
+import type Skill from "module/actor/skill";
 
 let theInstance: TokenActionBar | null = null;
 let showActionBarGetter = () => false;
@@ -136,6 +137,14 @@ export default class TokenActionBar extends SplittermondApplication {
         return new ElementToggler(hotbar);
     }
 
+    private toTokenBarSkill(skill:Skill){
+        return {
+           id: skill.id,
+           value: skill.value.display,
+           label: skill.label
+        }
+    }
+
     async _prepareContext(options: ApplicationContextOptions) {
         const data = (await super._prepareContext(options)) as ApplicationRenderContext &
             Partial<TokenActionBarTemplateData>;
@@ -150,12 +159,14 @@ export default class TokenActionBar extends SplittermondApplication {
                         (skillId) =>
                             ["acrobatics", "athletics", "determination", "stealth", "perception", "endurance"].includes(
                                 skillId
-                            ) || parseInt(currentActor.skills[skillId].points) > 0
+                            ) || currentActor.skills[skillId].points > 0
                     )
-                    .map((skillId) => currentActor.skills[skillId]),
+                    .map((skillId) => currentActor.skills[skillId])
+                    .map((skill)=> this.toTokenBarSkill(skill)),
                 magic: splittermond.skillGroups.magic
-                    .filter((skillId) => parseInt(currentActor.skills[skillId].points) > 0)
-                    .map((skillId) => currentActor.skills[skillId]),
+                    .filter((skillId) => currentActor.skills[skillId].points > 0)
+                    .map((skillId) => currentActor.skills[skillId])
+                    .map((skill)=> this.toTokenBarSkill(skill)),
             };
 
             data.attacks = this._currentActor.attacks
