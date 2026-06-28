@@ -1036,7 +1036,7 @@ export default class SplittermondActor extends Actor {
      * @param {SplittermondSkill} skillName
      * @return {number}
      */
-    #getSplinterpointBonus(skillName) {
+    async #getSplinterpointBonus(skillName) {
         const baseBonus =
             skillName === "health" ? splittermond.splinterpoints.healthBonus : splittermond.splinterpoints.skillBonus;
         const bonusFromModifiers = this.modifier
@@ -1044,8 +1044,8 @@ export default class SplittermondActor extends Actor {
             .withAttributeValuesOrAbsent("skill", skillName)
             .notSelectable()
             .getModifiers()
-            .map((m) => syncEvaluate(m.value));
-        const highestValue = Math.max(baseBonus, ...bonusFromModifiers);
+            .map((m) => m.value);
+        const highestValue = await evaluate(max(of(baseBonus), ...bonusFromModifiers));
         //Issue a warning when someone added a modifier that does not actually benefit them
         if (bonusFromModifiers.length > 0 && highestValue === baseBonus) {
             console.warn("Splittermond | Handed out minimum Splinterpoint bonus despite modifiers present");
