@@ -692,19 +692,19 @@ export default class SplittermondActor extends Actor {
     }
 
     /**
-     * @return {ValueBundle} The actor's linear resistance for each damage type. Positive values indicate a resistance,
+     * The actor's linear resistance for each damage type. Positive values indicate a resistance,
      * negative values (not actually in the ruleset) indicate a weakness.
      */
     get resistances() {
-        fromExpression(() => this._resistances.calculateSusceptibilities());
+        return this._resistances.calculateSusceptibilities();
     }
 
     /**
-     * @return {ValueBundle} The actor's linear resistance for each damage type. Positive values indicate a resistance,
-     * negative values (not actually in the ruleset) indicate a weakness.
+     * The actor's multiplicative weakness to each damage type. Positive values indicate an exponential weakness,
+     * negative values (not actually in the ruleset) indicate an exponential resistance.
      */
     get weaknesses() {
-        fromExpression(() => this._weaknesses.calculateSusceptibilities());
+        return this._weaknesses.calculateSusceptibilities();
     }
 
     async importFromJSON(json, updateActor) {

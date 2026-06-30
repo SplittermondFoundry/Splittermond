@@ -26,8 +26,7 @@ import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegi
 declare const global: any;
 
 describe("SplittermondActor", () => {
-    let sandbox: sinon.SinonSandbox;
-    beforeEach(() => (sandbox = sinon.createSandbox()));
+    const sandbox = sinon.createSandbox();
     afterEach(() => sandbox.restore());
 
     let actor: SplittermondActor;
@@ -514,6 +513,22 @@ describe("SplittermondActor", () => {
             await actor.rollMagicFumble(3, "4V2", "firemagic", true);
 
             expect(rollStub.firstCall.lastArg).to.deep.contain({ eg: "4" });
+        });
+    });
+
+    describe("Susceptibilities", () => {
+        beforeEach(() => {
+            sandbox.stub(foundryApi, "localize");
+        });
+        it("should return weaknesses", async () => {
+            actor.prepareBaseData();
+            actor.modifier.add("weakness.light", { name: "Vampirism", type: "innate" }, of(3));
+            expect(await actor.weaknesses.calculate()).to.contain({ light: 3, shadow: 0 });
+        });
+        it("should return resistance", async () => {
+            actor.prepareBaseData();
+            actor.modifier.add("resistance.light", { name: "Dark skinned", type: "innate" }, of(3));
+            expect(await actor.resistances.calculate()).to.contain({ light: 3, shadow: 0 });
         });
     });
 });

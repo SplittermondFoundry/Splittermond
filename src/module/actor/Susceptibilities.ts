@@ -1,6 +1,6 @@
 import { DamageType, damageTypes } from "../config/damageTypes";
 import ModifierManager from "./modifiers/modifier-manager";
-import { type Expression, of } from "module/modifiers/expressions/scalar";
+import { asString, condense, evaluate, type Expression, of, syncEvaluate } from "module/modifiers/expressions/scalar";
 
 export class Susceptibilities {
     private susceptibilities: Record<DamageType, Expression> = {
@@ -27,7 +27,7 @@ export class Susceptibilities {
         private modifierManager: ModifierManager
     ) {}
 
-    calculateSusceptibilities(): Record<DamageType, Expression> {
+    calculateSusceptibilities() {
         const susceptibilities = { ...this.susceptibilities };
         damageTypes.forEach((type) => {
             susceptibilities[type] = this.modifierManager
@@ -35,6 +35,37 @@ export class Susceptibilities {
                 .getModifiers()
                 .sumExpressions();
         });
-        return susceptibilities;
+        return new RecordedSusceptibilities(susceptibilities);
+    }
+}
+
+class RecordedSusceptibilities {
+    constructor(private readonly susceptibilities: Record<DamageType, Expression>) {}
+
+    async calculate() {
+        const evaluated = JSON.parse(JSON.stringify(this.susceptibilities));
+        for (const key in this.susceptibilities) {
+            evaluated[key] = await evaluate(this.susceptibilities[key as DamageType]);
+        }
+        return evaluated;
+    }
+
+    get display() {
+        return this.syncMap((e) => asString(condense(e)));
+    }
+    get expression() {
+        return this.syncMap((e) => e);
+    }
+
+    calculateSync() {
+        return this.syncMap(syncEvaluate);
+    }
+
+    private syncMap<T>(operation: (x: Expression) => T): Record<DamageType, T> {
+        const evaluated = JSON.parse(JSON.stringify(this.susceptibilities));
+        for (const key in this.susceptibilities) {
+            evaluated[key] = operation(this.susceptibilities[key as DamageType]);
+        }
+        return evaluated;
     }
 }
