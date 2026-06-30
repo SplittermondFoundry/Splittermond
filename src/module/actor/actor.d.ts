@@ -15,6 +15,13 @@ import type { Expression } from "module/modifiers/expressions/scalar";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 
+interface SusceptibilityBundle {
+    get display(): Record<DamageType, string>;
+    get expression(): Record<DamageType, Expression>;
+    calculate(): Promise<Record<DamageType, number>>;
+    calculateSync(): Record<DamageType, number>;
+}
+
 declare class SplittermondActor extends Actor {
     private _resistances: Susceptibilities;
     private _weaknesses: Susceptibilities;
@@ -32,9 +39,9 @@ declare class SplittermondActor extends Actor {
 
     get splinterpoints(): { value: number; max: number };
 
-    get weaknesses(): ExpressionBundle<Record<DamageType, Expression>>;
+    get weaknesses(): SusceptibilityBundle;
 
-    get resistances(): ExpressionBundle<Record<DamageType, Expression>>;
+    get resistances(): SusceptibilityBundle;
     addModifier(item: SplittermondItem, str: string, type: string, multiplier?: number): void;
 
     get damageReduction(): ExpressionBundle;
