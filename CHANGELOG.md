@@ -2,6 +2,12 @@
 
 ### Fixes
 
+- Allgemeine Fertigkeitswerte bei NSC können wieder geändert werden
+
+## 14.2.2
+
+### Fixes
+
 - In Charakteren lassen sich attribute jetzt wieder setzen.
 - Würfelwürfe für Schaden und in Modifikatoren werden jetzt erst zum Wurf ausgwertet.
 

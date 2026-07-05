@@ -115,7 +115,7 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         });
     }
 
-    _onChangeSkill(event) {
+    async _onChangeSkill(event) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -126,7 +126,7 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
 
             const newValue =
                 value -
-                this.actor.skills[skillBaseName].displayValue +
+                (await this.actor.skills[skillBaseName].value.calculate()) +
                 parseInt(this.actor.skills[skillBaseName].points || 0);
             this.actor.update({
                 [`system.skills.${skillBaseName}.points`]: newValue,
