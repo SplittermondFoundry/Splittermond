@@ -1,4 +1,4 @@
-import { FocusModifier, ParsedModifier, ScalarModifier, Value } from "./index";
+import { FocusModifier, type ParsedExpression, ParsedModifier, ScalarModifier, Value } from "./index";
 import { Expression, ref as scalarRef, roll, times } from "module/modifiers/expressions/scalar/definitions";
 import { normalizeValue } from "./normalizer";
 import { isRoll } from "module/api/Roll";
@@ -8,6 +8,9 @@ import { of } from "../expressions/scalar";
 import { CostExpression, of as ofCost, ref as costRef, times as timesCost } from "../expressions/cost";
 import { Cost } from "module/util/costs/Cost";
 import type { IErrorConsumer } from "module/modifiers/parsing/ParseErrors";
+
+type NormalizedExpression = ParsedExpression & { isStable: boolean };
+type NormalizedValue = Exclude<Value, ParsedExpression> | NormalizedExpression;
 
 export function withErrorLogger(errorLogger: IErrorConsumer) {
     return {
@@ -52,7 +55,7 @@ export function withErrorLogger(errorLogger: IErrorConsumer) {
         return valueProcessedModifier;
     }
 
-    function setUpExpression(expression: Value, source: object): Expression | null {
+    function setUpExpression(expression: NormalizedValue, source: object): Expression | null {
         if (typeof expression === "number") {
             return of(expression);
         } else if (isRoll(expression)) {
@@ -63,7 +66,7 @@ export function withErrorLogger(errorLogger: IErrorConsumer) {
                 errorLogger.push(...validationFailures);
                 return null;
             }
-            const reference = scalarRef(expression.propertyPath, source, expression.original);
+            const reference = scalarRef(expression.propertyPath, source, expression.original, expression.isStable);
             return times(of(expression.sign), reference);
         } else {
             errorLogger.pushKey("splittermond.modifiers.parseMessages.notANumber", { expression });
@@ -71,7 +74,7 @@ export function withErrorLogger(errorLogger: IErrorConsumer) {
         }
     }
 
-    function setUpCostExpression(expression: Value, source: object): CostExpression | null {
+    function setUpCostExpression(expression: NormalizedValue, source: object): CostExpression | null {
         if (typeof expression === "number") {
             return ofCost(new Cost(expression, 0, false).asModifier());
         } else if (isRoll(expression)) {
@@ -83,7 +86,7 @@ export function withErrorLogger(errorLogger: IErrorConsumer) {
                 errorLogger.push(...validationFailures);
                 return null;
             }
-            const reference = costRef(expression.propertyPath, source, expression.original);
+            const reference = costRef(expression.propertyPath, source, expression.original, expression.isStable);
             return timesCost(of(expression.sign), reference);
         } else {
             return ofCost(parseCostString(expression).asModifier());

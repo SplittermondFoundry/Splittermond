@@ -51,25 +51,46 @@ describe("normalizeModifiers", () => {
     (
         [
             [
+                { propertyPath: "system.health.available", sign: 1, original: "system.health.available" },
+                {
+                    propertyPath: "system.health.available",
+                    sign: 1,
+                    original: "system.health.available",
+                    isStable: false,
+                },
+            ],
+            [
                 { propertyPath: "AUS", sign: 1, original: "AUS" },
                 {
                     propertyPath: "attributes.charisma.value",
                     sign: 1,
                     original: "AUS",
+                    isStable: true,
                 },
             ],
-            ["+AUS", { propertyPath: "attributes.charisma.value", sign: 1, original: "+AUS" }],
-            ["-AUS", { propertyPath: "attributes.charisma.value", sign: -1, original: "-AUS" }],
+            ["+AUS", { propertyPath: "attributes.charisma.value", sign: 1, original: "+AUS", isStable: true }],
+            ["-AUS", { propertyPath: "attributes.charisma.value", sign: -1, original: "-AUS", isStable: true }],
             [
                 "Geschichte und Mythen",
-                { propertyPath: "skills.history.baseValue", sign: 1, original: "Geschichte und Mythen" },
+                {
+                    propertyPath: "skills.history.baseValue",
+                    sign: 1,
+                    original: "Geschichte und Mythen",
+                    isStable: true,
+                },
             ],
         ] as const
-    ).forEach(([value, expected]) => {
-        it(`should replace value'${value}'`, () => {
-            expect(normalizeValue(value)).to.deep.equal(expected);
+    )
+        .map(([value, expected]) => [
+            typeof value === "object" && "original" in value ? value.original : value,
+            value,
+            expected,
+        ])
+        .forEach(([title, value, expected]) => {
+            it(`should replace value '${title}'`, () => {
+                expect(normalizeValue(value)).to.deep.equal(expected);
+            });
         });
-    });
 
     ["K2V2", "-K4V2", "-12V8", "12V8"].forEach((value) => {
         it(`should not replace value '${value}'`, () => {

@@ -137,7 +137,7 @@ export default class DerivedValue extends Modifiable(Object) {
     }
 
     get value() {
-        const display = () => asString(condense(this.valueAsExpression()));
+        const display = () => asString(condense(this.valueAsExpression(), true));
         return {
             calculate: async () => Math.ceil(await evaluate(this.valueAsExpression())),
             calculateSync: () => Math.ceil(syncEvaluate(this.valueAsExpression())),

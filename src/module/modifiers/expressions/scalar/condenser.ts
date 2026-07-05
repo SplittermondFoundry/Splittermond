@@ -28,14 +28,14 @@ import { IllegalStateException } from "module/data/exceptions";
 
 export function isZero(expression: Expression): boolean {
     //straight forward eval would resolve references and rolls whose values are not constant and thus not reliably zero.
-    if (!canCondense(expression)) {
+    if (!canCondense(expression, false)) {
         return false;
     }
     const value = syncEvaluate(expression);
     return Number.isNaN(value) ? false : value === 0;
 }
-export function condense(expression: Expression): Expression {
-    if (canCondense(expression)) {
+export function condense(expression: Expression, evalStableRef: boolean = false): Expression {
+    if (canCondense(expression, evalStableRef)) {
         return of(syncEvaluate(expression));
     }
     if (expression instanceof AddExpression) {
@@ -49,7 +49,7 @@ export function condense(expression: Expression): Expression {
     } else if (expression instanceof PowerExpression) {
         return condenseOperands(expression.base, expression.exponent, pow);
     } else if (expression instanceof ReferenceExpression) {
-        return expression;
+        return evalStableRef && expression.isStable ? of(syncEvaluate(expression)) : expression;
     } else if (expression instanceof AmountExpression) {
         return expression;
     } else if (expression instanceof RollExpression) {
@@ -57,9 +57,9 @@ export function condense(expression: Expression): Expression {
     } else if (expression instanceof AbsExpression) {
         return expression;
     } else if (expression instanceof MinExpression) {
-        return processMin(expression);
+        return processMin(expression, evalStableRef);
     } else if (expression instanceof MaxExpression) {
-        return processMax(expression);
+        return processMax(expression, evalStableRef);
     }
     exhaustiveMatchGuard(expression);
 }
@@ -73,26 +73,28 @@ function condenseOperands(
     return constructor(condensedLeft, condensedRight);
 }
 
-export function canCondense(expression: Expression): boolean {
+export function canCondense(expression: Expression, evalStableRef: boolean): boolean {
     if (expression instanceof AmountExpression) {
         return true;
-    } else if (expression instanceof ReferenceExpression || expression instanceof RollExpression) {
+    } else if (expression instanceof ReferenceExpression) {
+        return evalStableRef && expression.isStable;
+    } else if (expression instanceof RollExpression) {
         return false;
     } else if (expression instanceof AbsExpression) {
-        return canCondense(expression.arg);
+        return canCondense(expression.arg, evalStableRef);
     } else if (expression instanceof PowerExpression) {
-        return canCondense(expression.base) && canCondense(expression.exponent);
+        return canCondense(expression.base, evalStableRef) && canCondense(expression.exponent, evalStableRef);
     } else if (expression instanceof MinExpression) {
-        return expression.args.every(canCondense);
+        return expression.args.every((arg) => canCondense(arg, evalStableRef));
     } else if (expression instanceof MaxExpression) {
-        return expression.args.every(canCondense);
+        return expression.args.every((arg) => canCondense(arg, evalStableRef));
     } else {
-        return canCondense(expression.left) && canCondense(expression.right);
+        return canCondense(expression.left, evalStableRef) && canCondense(expression.right, evalStableRef);
     }
 }
 
-function processMin(expression: MinExpression) {
-    const condensed = expression.args.map(condense);
+function processMin(expression: MinExpression, evalStableRef: boolean) {
+    const condensed = expression.args.map((arg) => condense(arg, evalStableRef));
     if (condensed.every((e) => e instanceof AmountExpression)) {
         return of(Math.min(...condensed.map((e) => e.amount)));
     }
@@ -102,8 +104,8 @@ function processMin(expression: MinExpression) {
     throw new IllegalStateException("Zero array when min length 1 array required by definition.");
 }
 
-function processMax(expression: MaxExpression) {
-    const condensed = expression.args.map(condense);
+function processMax(expression: MaxExpression, evalStableRef: boolean) {
+    const condensed = expression.args.map((arg) => condense(arg, evalStableRef));
     if (condensed.every((e) => e instanceof AmountExpression)) {
         return of(Math.max(...condensed.map((e) => e.amount)));
     }

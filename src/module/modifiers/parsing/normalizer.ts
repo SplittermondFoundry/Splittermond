@@ -70,13 +70,15 @@ export function normalizeValue(value: Value) {
         const replacement = replacer.tryReplace(unsignedValue);
         //Assume the string is a reference only if we managed to replace it! (It could, for instance, also be focus.)
         if (replacement !== unsignedValue) {
-            return { propertyPath: replacement, sign, original: value };
+            return { propertyPath: replacement, sign, original: value, isStable: true };
         }
     } else if (typeof value === "object" && !isRoll(value)) {
         const replacement = replacer.tryReplace(value.propertyPath);
         if (replacement !== value.propertyPath) {
             value.propertyPath = replacement;
-            return value;
+            return { ...value, isStable: true };
+        } else {
+            return { ...value, isStable: false };
         }
     }
     return value;

@@ -19,18 +19,18 @@ import {
     canCondense as scalarCanCondense,
     condense as scalarCondense,
 } from "module/modifiers/expressions/scalar/condenser";
-import { CostModifier } from "../../../util/costs/Cost";
+import { CostModifier } from "module/util/costs/Cost";
 
 export function isZero(expression: CostExpression): boolean {
     //straight forward eval would resolve references and rolls whose values are not constant and thus not reliably zero.
-    if (!canCondense(expression)) {
+    if (!canCondense(expression, false)) {
         return false;
     }
     return syncEvaluate(expression) === CostModifier.zero;
 }
 
-export function condense(expression: CostExpression): CostExpression {
-    if (canCondense(expression)) {
+export function condense(expression: CostExpression, evalStableRef: boolean = false): CostExpression {
+    if (canCondense(expression, evalStableRef)) {
         return of(syncEvaluate(expression));
     }
     if (expression instanceof AddExpression) {
@@ -40,7 +40,7 @@ export function condense(expression: CostExpression): CostExpression {
     } else if (expression instanceof MultiplyExpression) {
         return condenseMultiply(expression.scalar, expression.cost);
     } else if (expression instanceof ReferenceExpression) {
-        return expression;
+        return evalStableRef && expression.isStable ? of(syncEvaluate(expression)) : expression;
     } else if (expression instanceof AmountExpression) {
         return expression;
     }
@@ -63,14 +63,14 @@ function condenseMultiply(scalar: Expression, cost: CostExpression) {
     return times(condensedScalar, condensedCost);
 }
 
-function canCondense(expression: CostExpression): boolean {
+function canCondense(expression: CostExpression, evalStableRef: boolean): boolean {
     if (expression instanceof AmountExpression) {
         return true;
     } else if (expression instanceof ReferenceExpression) {
-        return false;
+        return evalStableRef && expression.isStable;
     } else if (expression instanceof MultiplyExpression) {
-        return scalarCanCondense(expression.scalar) && canCondense(expression.cost);
+        return scalarCanCondense(expression.scalar, evalStableRef) && canCondense(expression.cost, evalStableRef);
     } else {
-        return canCondense(expression.left) && canCondense(expression.right);
+        return canCondense(expression.left, evalStableRef) && canCondense(expression.right, evalStableRef);
     }
 }
