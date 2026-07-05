@@ -30,14 +30,6 @@ export default class DerivedValue extends Modifiable(Object) {
         };
     }
 
-    get sheetData() {
-        return {
-            id: this.id,
-            label: this.label,
-            value: this.displayValue,
-        };
-    }
-
     get baseValue() {
         if (this.actor.type !== "character" && this.actor.system.derivedAttributes[this.id].value > 0)
             return this.actor.system.derivedAttributes[this.id].value;
