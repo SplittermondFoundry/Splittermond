@@ -2,12 +2,7 @@ import { CostModifier } from "module/util/costs/Cost";
 import { AmountExpression as ScalarAmount, Expression, of as scalarOf } from "../scalar/definitions";
 
 export type CostExpression =
-    | AmountExpression
-    | ZeroExpression
-    | AddExpression
-    | SubtractExpression
-    | MultiplyExpression
-    | ReferenceExpression;
+    AmountExpression | ZeroExpression | AddExpression | SubtractExpression | MultiplyExpression | ReferenceExpression;
 
 export function isExpression(value: unknown): value is CostExpression {
     return (

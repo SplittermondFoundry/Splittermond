@@ -246,5 +246,4 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
 }
 
 type AvailabilityParser =
-    | ReturnType<typeof getSpellAvailabilityParser>
-    | ReturnType<typeof getMasteryAvailabilityParser>;
+    ReturnType<typeof getSpellAvailabilityParser> | ReturnType<typeof getMasteryAvailabilityParser>;
