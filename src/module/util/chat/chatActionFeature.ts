@@ -32,16 +32,14 @@ export function chatActionFeature(config: ChatMessageConfig) {
     );
 
     foundryApi.socket.on(socketEvent, (data) => {
-        if (
-            !(
-                data &&
-                typeof data === "object" &&
-                "type" in data &&
-                "messageId" in data &&
-                typeof data.messageId === "string" &&
-                "userId" in data
-            )
-        ) {
+        if (!(
+            data &&
+            typeof data === "object" &&
+            "type" in data &&
+            "messageId" in data &&
+            typeof data.messageId === "string" &&
+            "userId" in data
+        )) {
             console.debug("Splittermond | Received invalid socket event data", data);
             return Promise.resolve();
         }

@@ -279,7 +279,11 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             };
             return SplittermondChatCard.create(
                 actor,
-                AttackRollMessage.initialize(actor.attacks.find((a) => a.id === weapon.id)!, checkReport, 3),
+                AttackRollMessage.initialize(
+                    actor.attacks.find((a) => a.id === weapon.id)!,
+                    checkReport,
+                    3
+                ),
                 getMessageConfig({ type: "attackRollMessage" })
             );
         }

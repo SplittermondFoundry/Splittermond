@@ -221,9 +221,7 @@ export default class TokenActionBar extends SplittermondApplication {
             }
 
             const preparedItemId = this._currentActor.getFlag("splittermond", "preparedSpell") as
-                | string
-                | null
-                | undefined;
+                string | null | undefined;
             data.preparedSpell = preparedItemId ? this.getPreparedSpell(preparedItemId) : null;
 
             data.derivedValues = this._currentActor.derivedValues;

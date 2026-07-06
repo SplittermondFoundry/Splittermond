@@ -248,10 +248,16 @@ describe("Expressions", () => {
             expect(await evaluate(property)).to.equal(3);
         });
 
-        it("should not condense property ", () => {
+        it("should not condense unstable property ", () => {
             const property = ref("value", { value: 3 }, "value");
             const expression = times(plus(of(3), property), minus(of(4), of(3)));
             expect(condense(expression)).to.deep.equal(times(plus(of(3), property), of(1)));
+        });
+
+        it("should condense stable property ", () => {
+            const property = ref("value", { value: 3 }, "value", true);
+            const expression = times(plus(of(3), property), minus(of(4), of(3)));
+            expect(condense(expression, true)).to.deep.equal(of(6));
         });
 
         it("should stringify property ", () => {

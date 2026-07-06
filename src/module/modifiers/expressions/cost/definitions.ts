@@ -1,13 +1,8 @@
-import { CostModifier } from "../../../util/costs/Cost";
+import { CostModifier } from "module/util/costs/Cost";
 import { AmountExpression as ScalarAmount, Expression, of as scalarOf } from "../scalar/definitions";
 
 export type CostExpression =
-    | AmountExpression
-    | ZeroExpression
-    | AddExpression
-    | SubtractExpression
-    | MultiplyExpression
-    | ReferenceExpression;
+    AmountExpression | ZeroExpression | AddExpression | SubtractExpression | MultiplyExpression | ReferenceExpression;
 
 export function isExpression(value: unknown): value is CostExpression {
     return (
@@ -59,8 +54,8 @@ export function times(scalar: Expression, cost: CostExpression) {
     }
 }
 
-export function ref(propertyPath: string, source: object, stringRepresentation: string) {
-    return new ReferenceExpression(propertyPath, source, stringRepresentation);
+export function ref(propertyPath: string, source: object, stringRepresentation: string, isStable: boolean = false) {
+    return new ReferenceExpression(propertyPath, source, stringRepresentation, isStable);
 }
 
 export class AmountExpression {
@@ -77,7 +72,8 @@ export class ReferenceExpression {
     constructor(
         public readonly propertyPath: string,
         public readonly source: object,
-        public readonly stringRep: string
+        public readonly stringRep: string,
+        public readonly isStable: boolean
     ) {}
 }
 

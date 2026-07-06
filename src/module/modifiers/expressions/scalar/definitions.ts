@@ -112,8 +112,8 @@ export function roll(roll: FoundryRoll) {
     return new RollExpression(roll);
 }
 
-export function ref(propertyPath: string, source: object, stringRepresentation: string) {
-    return new ReferenceExpression(propertyPath, source, stringRepresentation);
+export function ref(propertyPath: string, source: object, stringRepresentation: string, isStable: boolean = false) {
+    return new ReferenceExpression(propertyPath, source, stringRepresentation, isStable);
 }
 export function min(...args: [Expression, ...Expression[]]) {
     if (args.length == 1) {
@@ -148,7 +148,9 @@ export class ReferenceExpression {
     constructor(
         public readonly propertyPath: string,
         public readonly source: object,
-        public readonly stringRep: string
+        public readonly stringRep: string,
+        /** reference who's recipient is known to change little (skills, attributes, etc) */
+        public readonly isStable: boolean
     ) {}
 }
 

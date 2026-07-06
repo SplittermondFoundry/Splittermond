@@ -97,6 +97,19 @@ describe("Expressions", () => {
             expect(condense(expression)).to.deep.equal(times(scalarOf(1), plus(of("3V3"), property)));
         });
 
+        it("should condense stable property ", () => {
+            const property = ref("value", { value: "3" }, "value", true);
+            const expression = times(scalarMinus(scalarOf(4), scalarOf(3)), plus(of("3V3"), property));
+            expect(condense(expression, true)).to.deep.equal({
+                amount: {
+                    _channeled: 3,
+                    _channeledConsumed: 0,
+                    _exhausted: 3,
+                    _consumed: 3,
+                },
+            });
+        });
+
         it("should stringify property ", () => {
             const property = ref("value", { value: "K3" }, "value");
             const expression = times(scalarMinus(scalarOf(4), scalarOf(3)), plus(of("3"), property));

@@ -60,6 +60,7 @@ describe("Value Processor", () => {
             propertyPath: "existing.path",
             source: mockSource,
             stringRep: "existing.path",
+            isStable: false,
         });
     });
 

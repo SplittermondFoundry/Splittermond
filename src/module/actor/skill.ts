@@ -180,7 +180,13 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
     }
 
     get value() {
-        return fromExpression(() => this.valueExpression());
+        const getExpression = () => this.valueExpression();
+        return {
+            ...fromExpression(getExpression),
+            get display() {
+                return asString(condense(getExpression(), true));
+            },
+        };
     }
 
     private valueExpression() {
