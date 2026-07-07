@@ -55,7 +55,12 @@ export function times(scalar: Expression, cost: CostExpression) {
     }
 }
 
-export function ref(propertyPath: string,provider: ActorProvider, stringRepresentation: string, isStable: boolean = false) {
+export function ref(
+    propertyPath: string,
+    provider: ActorProvider,
+    stringRepresentation: string,
+    isStable: boolean = false
+) {
     return new ReferenceExpression(propertyPath, stringRepresentation, isStable, provider);
 }
 

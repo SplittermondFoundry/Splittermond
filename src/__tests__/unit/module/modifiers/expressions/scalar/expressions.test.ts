@@ -259,7 +259,7 @@ describe("Expressions", () => {
         });
 
         it("should condense stable property ", () => {
-            const property = ref("value", { value: 3 }, "value", true);
+            const property = ref("value", () => ({ value: 3 }) as any, "value", true);
             const expression = times(plus(of(3), property), minus(of(4), of(3)));
             expect(condense(expression, true)).to.deep.equal(of(6));
         });

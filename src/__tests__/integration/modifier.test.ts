@@ -795,7 +795,7 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("3V2");
         });
 
-        it("should only modifiy npcattacks with npcattacks", async () => {
+        it("should only modify npcattacks with npcattacks", async () => {
             const subject = await defaultActor("Attacking NPC", "npcattacks -1");
             const npcAttackDefinition = {
                 type: "npcattack",
@@ -825,10 +825,10 @@ export function modifierTest(context: QuenchBatchContext) {
             subject.prepareDerivedData();
             const findAttack = (id: string) => subject.attacks.find((a) => a.toObject().id === id);
 
-            expect(findAttack(npcAttack.id)?.skill.value, "unexpected npc attack skill").to.equal(
+            expect(await findAttack(npcAttack.id)?.skill.value.calculate(), "unexpected npc attack skill").to.equal(
                 npcAttackDefinition.system.skillValue - 1
             );
-            expect(findAttack(weapon.id)?.skill.value, "unexpected weapon skill").to.equal(4);
+            expect(await findAttack(weapon.id)?.skill.value.calculate(), "unexpected weapon skill").to.equal(4);
         });
         ("");
         it("should modify npc attack values", async () => {
@@ -1327,7 +1327,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 await subject.prepareEmbeddedDocuments();
                 subject.prepareDerivedData();
 
-                expect(subject.skills.empathy.value).to.equal(7);
+                expect(await subject.skills.empathy.value.calculate()).to.equal(7);
             })
         );
 
@@ -1367,7 +1367,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 await subject.prepareEmbeddedDocuments();
                 subject.prepareDerivedData();
 
-                expect((subject as any).woundMalusMod).to.equal(2);
+                expect(await subject.woundMalusMod.calculate()).to.equal(2);
             })
         );
     });
