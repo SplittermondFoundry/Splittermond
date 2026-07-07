@@ -113,8 +113,13 @@ export function roll(roll: FoundryRoll) {
     return new RollExpression(roll);
 }
 
-export function ref(propertyPath: string, provider: ActorProvider, stringRepresentation: string, isStable: boolean = false) {
-    return new ReferenceExpression(propertyPath, source, stringRepresentation, isStable, provider);
+export function ref(
+    propertyPath: string,
+    provider: ActorProvider,
+    stringRepresentation: string,
+    isStable: boolean = false
+) {
+    return new ReferenceExpression(propertyPath, stringRepresentation, isStable, provider);
 }
 export function min(...args: [Expression, ...Expression[]]) {
     if (args.length == 1) {
