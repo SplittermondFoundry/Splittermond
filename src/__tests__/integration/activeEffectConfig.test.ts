@@ -143,7 +143,13 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     try {
                         const warnSpy = sandbox.spy(foundryApi, "warnUser");
                         const sheet = effect.sheet as SplittermondActiveEffectConfig;
-                        await enterInSheet(sheet, "splittermondRawInput", "focus.reduction -K1V1");
+                        await sheet.render(true);
+                        const input = sheet.element.querySelector(
+                            "input[name='splittermondRawInput']"
+                        ) as HTMLInputElement;
+                        input.value = "focus.reduction -K1V1";
+                        input.dispatchEvent(new Event("input", { bubbles: true }));
+                        input.dispatchEvent(new Event("change", { bubbles: true }));
 
                         expect(warnSpy.callCount, "UI Warnings emitted").to.equal(1);
                         expect(effect.type).to.equal("modifier");
@@ -188,15 +194,6 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         formulaInput.value = "skills skill=acrobatics +2";
                         formulaInput.dispatchEvent(new Event("input", { bubbles: true }));
                         formulaInput.dispatchEvent(new Event("change", { bubbles: true }));
-                        const submitButton = sheet.element.querySelector(
-                            "button[type='submit'], button[data-action='submit']"
-                        ) as HTMLButtonElement | null;
-                        if (submitButton) {
-                            submitButton.dispatchEvent(new PointerEvent("click", { bubbles: true }));
-                        } else {
-                            const form = sheet.element.querySelector("form") as HTMLFormElement | null;
-                            form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-                        }
 
                         expect(warnSpy.callCount, "UI Warnings emitted").to.equal(1);
                         expect(effect.type).to.equal("costModifier");
@@ -239,7 +236,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         system: InverseModifierDataModel;
                     };
                     expect(updated.type).to.equal("inverseModifier");
-                    expect(evaluate(updated.system.value)).to.equal(-1);
+                    expect(await evaluate(updated.system.value)).to.equal(-1);
                 })
             );
 
@@ -272,7 +269,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     });
 
                     expect(effect.type).to.equal("inverseModifier");
-                    expect(evaluate(effect.system.value)).to.equal(-2);
+                    expect(await evaluate(effect.system.value)).to.equal(-2);
                 })
             );
         });
@@ -290,7 +287,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         system: ModifierDataModel;
                     };
                     expect(restored).to.exist;
-                    expect(evaluate(restored.system.value)).to.equal(5);
+                    expect(await evaluate(restored.system.value)).to.equal(5);
                     expect(restored.system.groupId).to.equal("test.path");
                     expect(restored.system.attributes.name).to.equal("Test");
                 })
@@ -308,7 +305,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {
                         system: ModifierDataModel;
                     };
-                    expect(evaluate(restored.system.value)).to.equal(11);
+                    expect(await evaluate(restored.system.value)).to.equal(11);
                 })
             );
 
@@ -323,7 +320,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     actor.prepareData();
 
                     const effect = actor.effects.contents[0];
-                    expect(evaluate(effect.system.value)).to.equal(7);
+                    expect(await evaluate(effect.system.value)).to.equal(7);
                 })
             );
 
@@ -339,7 +336,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     ]);
 
                     const restored = actor.effects.get(effect.id) as any;
-                    expect(evaluate(restored.system.value)).to.equal(3);
+                    expect(await evaluate(restored.system.value)).to.equal(3);
                 })
             );
 
@@ -366,7 +363,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     await actor.prepareEmbeddedDocuments();
                     actor.prepareDerivedData();
 
-                    expect(actor.skills.empathy.value).to.equal(7);
+                    expect(await actor.skills.empathy.value.calculate()).to.equal(7);
                 })
             );
         });
@@ -383,7 +380,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {
                         system: InverseModifierDataModel;
                     };
-                    expect(evaluate(restored.system.value)).to.equal(-3);
+                    expect(await evaluate(restored.system.value)).to.equal(-3);
                     expect(restored.system.isBonus).to.be.true;
                 })
             );
@@ -404,13 +401,13 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {
                         system: InverseModifierDataModel;
                     };
-                    expect(evaluate(restored.system.value)).to.equal(3);
+                    expect(await evaluate(restored.system.value)).to.equal(3);
                     expect(restored.system.isBonus).to.be.true;
                 })
             );
         });
 
-        describe("CostModifierDataModel", () => {
+        describe("CostModifierDataModel", async () => {
             it(
                 "should persist and restore through an ActiveEffect",
                 withActor(async (actor) => {
@@ -423,7 +420,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {
                         system: CostModifierDataModel;
                     };
-                    const result = costEvaluate(restored.system.value);
+                    const result = await costEvaluate(restored.system.value);
                     expect(result.toObject()).to.deep.equal(costMod.toObject());
                     expect(restored.system.label).to.equal("focus.reduction");
                     expect(restored.system.skill).to.equal("fireMagic");
@@ -466,7 +463,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     actor.prepareData();
                     const whileEquipped = SplittermondActiveEffect.getModifiers(actor.allApplicableEffects());
                     expect(whileEquipped).to.have.length(1);
-                    expect(evaluate(whileEquipped[0].value)).to.equal(2);
+                    expect(await evaluate(whileEquipped[0].value)).to.equal(2);
                 })
             );
 
@@ -500,7 +497,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     actor.prepareData();
                     const whileActive = SplittermondActiveEffect.getModifiers(actor.allApplicableEffects());
                     expect(whileActive).to.have.length(1);
-                    expect(evaluate(whileActive[0].value)).to.equal(1);
+                    expect(await evaluate(whileActive[0].value)).to.equal(1);
                 })
             );
         });

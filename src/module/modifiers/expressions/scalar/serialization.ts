@@ -28,6 +28,7 @@ export function serialize(expression: Expression): SerializedExpression {
             type: "reference",
             propertyPath: expression.propertyPath,
             stringRep: expression.stringRep,
+            isStable: expression.isStable,
         };
     } else if (expression instanceof AddExpression) {
         return { type: "add", left: serialize(expression.left), right: serialize(expression.right) };
@@ -60,7 +61,11 @@ function deserializeInner(data: SerializedExpression): Expression {
         case "roll":
             return roll(foundryApi.roll(data.formula as string));
         case "reference": {
-            return new ReferenceExpression(data.propertyPath as string, data.stringRep as string);
+            return new ReferenceExpression(
+                data.propertyPath as string,
+                data.stringRep as string,
+                data.isStable as boolean
+            );
         }
         case "add":
             return new AddExpression(

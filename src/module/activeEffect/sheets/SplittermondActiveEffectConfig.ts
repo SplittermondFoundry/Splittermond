@@ -35,7 +35,10 @@ const DURATION_UNIT_CHOICES = {
 
 type DurationUnit = keyof typeof DURATION_UNIT_CHOICES;
 
-function prepareDurationContext(context: ApplicationRenderContext, document: ActiveEffectDocument): ApplicationRenderContext {
+function prepareDurationContext(
+    context: ApplicationRenderContext,
+    document: ActiveEffectDocument
+): ApplicationRenderContext {
     const durationMode = document.durationMode;
     const duration = document.duration ?? {};
     const durationUnits = readDurationUnits(duration.units);
@@ -128,8 +131,12 @@ export class BaseActiveEffectConfig extends FoundryActiveEffectConfig {
         return super.document as ActiveEffectDocument;
     }
 
-    async _preparePartContext(partId: string, context: ApplicationRenderContext, options?: object): Promise<ApplicationRenderContext> {
-        const partContext = (await super._preparePartContext(partId, context, options ?? {}));
+    async _preparePartContext(
+        partId: string,
+        context: ApplicationRenderContext,
+        options?: object
+    ): Promise<ApplicationRenderContext> {
+        const partContext = await super._preparePartContext(partId, context, options ?? {});
         if (partId !== "duration") return partContext;
         return prepareDurationContext(partContext, this.document);
     }
@@ -139,7 +146,6 @@ export class BaseActiveEffectConfig extends FoundryActiveEffectConfig {
         processDurationFormData(submitData);
         return submitData;
     }
-
 }
 
 export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
