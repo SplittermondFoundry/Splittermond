@@ -125,6 +125,7 @@ describe("Expression Serialization", () => {
                     type: "reference",
                     propertyPath: "value",
                     stringRep: "value",
+                    isStable: false,
                 });
             });
         });
@@ -289,7 +290,7 @@ describe("Expression Serialization", () => {
 
     describe("ReferenceExpression provider binding", () => {
         it("should throw UnboundReferenceError when no provider is set", () => {
-            const expr = new ReferenceExpression("value", "value");
+            const expr = new ReferenceExpression("value", "value", false);
             expect(() => expr.source).to.throw(/no actor context/);
         });
 
@@ -305,7 +306,7 @@ describe("Expression Serialization", () => {
         });
 
         it("should allow rebinding via bindProvider", () => {
-            const expr = new ReferenceExpression("value", "value");
+            const expr = new ReferenceExpression("value", "value", false);
             const stubActor = { value: 7 } as any;
             expr.bindProvider(() => stubActor);
             expect(expr.source).to.equal(stubActor);

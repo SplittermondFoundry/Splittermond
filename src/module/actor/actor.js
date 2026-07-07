@@ -24,8 +24,8 @@ import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
 import { FoundryDialog } from "module/api/Application.js";
 import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 import { fromExpression } from "module/util/util.ts";
-import {isGenerated} from "module/activeEffect/effectBuilder.ts";
-import {not} from "module/util/util.ts";
+import { isGenerated } from "module/activeEffect/effectBuilder.ts";
+import { not } from "module/util/util.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;

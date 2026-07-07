@@ -10,9 +10,11 @@ import {
     UnboundReferenceError,
 } from "./definitions";
 import { exhaustiveMatchGuard, PropertyResolver } from "module/modifiers/util";
-import { evaluate as scalarEvaluate ,
+import {
+    evaluate as scalarEvaluate,
     type Expression,
-    syncEvaluate as scalarSyncEvaluate,} from "module/modifiers/expressions/scalar";
+    syncEvaluate as scalarSyncEvaluate,
+} from "module/modifiers/expressions/scalar";
 import { CostModifier } from "module/util/costs/Cost";
 
 export async function evaluate(expression: CostExpression): Promise<CostModifier> {
