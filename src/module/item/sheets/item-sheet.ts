@@ -279,8 +279,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         const modifierString = input.value.trim();
         if (!modifierString) return;
         const modifierFn = getAddModifier() as
-            | ((item: IModifierSource, str: string, type: ModifierType, multiplier: number) => AddModifierResult)
-            | null;
+            ((item: IModifierSource, str: string, type: ModifierType, multiplier: number) => AddModifierResult) | null;
         if (!modifierFn) return;
         await addModifierEffects(modifierFn, this.item, modifierString);
         input.value = "";
