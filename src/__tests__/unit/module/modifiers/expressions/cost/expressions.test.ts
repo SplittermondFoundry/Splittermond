@@ -102,7 +102,7 @@ describe("Expressions", () => {
         });
 
         it("should condense stable property ", () => {
-            const property = ref("value", { value: "3" }, "value", true);
+            const property = ref("value", () => ({ value: "3" }) as any, "value", true);
             const expression = times(scalarMinus(scalarOf(4), scalarOf(3)), plus(of("3V3"), property));
             expect(condense(expression, true)).to.deep.equal({
                 amount: {

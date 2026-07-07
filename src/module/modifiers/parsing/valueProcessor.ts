@@ -69,7 +69,12 @@ export function withErrorLogger(errorLogger: IErrorConsumer) {
                 errorLogger.push(...validationFailures);
                 return null;
             }
-            const reference = scalarRef(expression.propertyPath, actorProvider, expression.original, expression.isStable);
+            const reference = scalarRef(
+                expression.propertyPath,
+                actorProvider,
+                expression.original,
+                expression.isStable
+            );
             return times(of(expression.sign), reference);
         } else {
             errorLogger.pushKey("splittermond.modifiers.parseMessages.notANumber", { expression });

@@ -24,6 +24,7 @@ export function serialize(expression: CostExpression): SerializedCostExpression 
             type: "reference",
             propertyPath: expression.propertyPath,
             stringRep: expression.stringRep,
+            isStable: expression.isStable,
         };
     } else if (expression instanceof AddExpression) {
         return { type: "add", left: serialize(expression.left), right: serialize(expression.right) };
@@ -52,7 +53,11 @@ function deserializeInner(data: SerializedCostExpression): CostExpression {
         case "amount":
             return new AmountExpression(new CostModifier(data.amount as any));
         case "reference":
-            return new ReferenceExpression(data.propertyPath as string, data.stringRep as string);
+            return new ReferenceExpression(
+                data.propertyPath as string,
+                data.stringRep as string,
+                data.isStable as boolean
+            );
         case "add":
             return new AddExpression(
                 deserializeInner(data.left as SerializedCostExpression),

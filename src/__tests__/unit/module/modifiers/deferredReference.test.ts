@@ -54,7 +54,12 @@ describe("Deferred actor reference resolution", () => {
         it("should serialize without a uuid field", () => {
             const expr = ref("AUS", () => null, "AUS");
             const serialized = serialize(expr);
-            expect(serialized).to.deep.equal({ type: "reference", propertyPath: "AUS", stringRep: "AUS" });
+            expect(serialized).to.deep.equal({
+                type: "reference",
+                propertyPath: "AUS",
+                stringRep: "AUS",
+                isStable: false,
+            });
             expect(serialized).not.to.have.property("uuid");
         });
 
@@ -74,7 +79,7 @@ describe("Deferred actor reference resolution", () => {
     });
 
     describe("bindReferenceProviders", () => {
-        it("should bind provider so evaluate returns actor property value", () => {
+        it("should bind provider so evaluate returns actor property value", async () => {
             const expr = deserialize({
                 type: "reference",
                 propertyPath: "AUS",
@@ -82,17 +87,17 @@ describe("Deferred actor reference resolution", () => {
             }) as ReferenceExpression;
             const stubActor = { AUS: 3 } as any;
             bindReferenceProviders(expr, () => stubActor);
-            expect(evaluate(expr)).to.equal(3);
+            expect(await evaluate(expr)).to.equal(3);
         });
 
-        it("should return 0 when provider returns null (unbound)", () => {
+        it("should return 0 when provider returns null (unbound)", async () => {
             const expr = deserialize({
                 type: "reference",
                 propertyPath: "AUS",
                 stringRep: "AUS",
             }) as ReferenceExpression;
             bindReferenceProviders(expr, () => null);
-            expect(evaluate(expr)).to.equal(0);
+            expect(await evaluate(expr)).to.equal(0);
         });
 
         it("should call onUnbound exactly once across multiple evaluations when provider returns null", () => {
@@ -114,7 +119,7 @@ describe("Deferred actor reference resolution", () => {
             expect(onUnbound.callCount).to.equal(0);
         });
 
-        it("should walk into compound expressions and bind all ReferenceExpressions", () => {
+        it("should walk into compound expressions and bind all ReferenceExpressions", async () => {
             const inner1 = ref("AUS", () => null, "AUS");
             const inner2 = ref("MYS", () => null, "MYS");
             const compound = new (require("module/modifiers/expressions/scalar/definitions").AddExpression)(
@@ -123,7 +128,7 @@ describe("Deferred actor reference resolution", () => {
             );
             const actor = { AUS: 2, MYS: 4 } as any;
             bindReferenceProviders(compound, () => actor);
-            expect(evaluate(compound)).to.equal(6);
+            expect(await evaluate(compound)).to.equal(6);
         });
     });
 
