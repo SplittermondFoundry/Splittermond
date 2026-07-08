@@ -1,3 +1,10 @@
+## 14.2.4
+
+### Fixes
+
+- Darstellung von Aktiver Abwehr funktioniert wieder
+- Abzug von Splitterpunkten funktioniert wieder
+
 ## 14.2.3
 
 ### Fixes

@@ -50,6 +50,9 @@ export default class SplittermondNPCSheet extends SplittermondActorSheet {
         inventory: super.INVENTORY_TAB,
         status: super.STATUS_TAB,
     };
+    /**
+     * @returns {Promise<import("./combatActionsTemplateInterface").CombatActionsTemplateData & ApplicationRenderContext & Record<string, unknown>>}
+     */
     async _prepareContext() {
         const sheetData = await super._prepareContext();
 

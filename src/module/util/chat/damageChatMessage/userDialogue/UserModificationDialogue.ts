@@ -77,7 +77,7 @@ export class UserModificationDialogue {
         }
 
         this.storedCostBase = CostBase.create(userResult.costBase);
-        const adjustmentToStore = userResult.damageAdjustment - userResult.splinterpointBonus;
+        const adjustmentToStore = userResult.damageAdjustment + userResult.splinterpointBonus;
         const adjustmentToUse = this.storedCostBase.multiply(userResult.damageAdjustment);
         this.storedUserAdjustment = this.storedCostBase.multiply(adjustmentToStore);
         return this.calculateNewDamage(userReport.totalDamage, adjustmentToUse);

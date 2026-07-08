@@ -61,6 +61,9 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         status: super.STATUS_TAB,
     };
 
+    /**
+     * @returns {Promise<import("./combatActionsTemplateInterface").CombatActionsTemplateData & ApplicationRenderContext & Record<string, unknown>>}
+     */
     async _prepareContext() {
         const sheetData = await super._prepareContext();
 
