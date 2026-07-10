@@ -6,9 +6,11 @@ import { createHtml } from "../../../../handlebarHarness";
 import TokenActionBar from "../../../../../module/apps/token-action-bar/token-action-bar";
 import SplittermondActor from "../../../../../module/actor/actor";
 import SplittermondSpellItem from "../../../../../module/item/spell";
-import { foundryApi } from "../../../../../module/api/foundryApi";
-import { SpellDataModel } from "../../../../../module/item/dataModel/SpellDataModel";
+import { foundryApi } from "module/api/foundryApi";
+import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import Attack from "../../../../../module/actor/attack";
+import { SplittermondApplication } from "module/data/SplittermondApplication";
+import { splittermond } from "module/config";
 
 describe("TokenActionBar", () => {
     let sandbox: SinonSandbox;
@@ -143,5 +145,40 @@ describe("TokenActionBar", () => {
         itemLi.dataset.itemId = "item1";
         await bar.toogleEquipped(null as any, itemLi);
         expect(itemStub.update.calledWith({ "system.equipped": true })).to.be.true;
+    });
+
+    it("should pass attack skill value as a string in prepared context", async () => {
+        sandbox
+            .stub(SplittermondApplication.prototype as unknown as { _prepareContext: () => unknown }, "_prepareContext")
+            .resolves({});
+        sandbox.stub(splittermond, "skillGroups").get(() => ({ general: [], magic: [], all: [] }));
+        (actorStub.items as unknown as { filter: sinon.SinonStub }).filter = sandbox.stub().returns([]);
+        Object.defineProperty(actorStub, "spells", { value: [], enumerable: true });
+        const attackStub = sandbox.createStubInstance(Attack);
+        sandbox.define(attackStub, "id", "attack1");
+        const toObjectResult = {
+            id: "attack1",
+            img: "sword.png",
+            name: "Sword",
+            skill: { id: "melee", label: "Melee", value: "12", attribute1: {}, attribute2: {} },
+            range: "short",
+            features: "",
+            damage: "2W+4",
+            damageType: "physical",
+            costType: "V",
+            weaponSpeed: "5",
+            editable: true,
+            deletable: true,
+            isPrepared: true,
+            featureList: [],
+        };
+        attackStub.toObject.returns(toObjectResult as unknown as ReturnType<Attack["toObject"]>);
+        actorStub.attacks.push(attackStub);
+
+        const data = await bar._prepareContext({ parts: [] });
+
+        expect(data.attacks).to.have.lengthOf(1);
+        expect(data.attacks![0].skill.value).to.equal("12");
+        expect(data.attacks![0].skill.value).to.not.equal("[object Object]");
     });
 });

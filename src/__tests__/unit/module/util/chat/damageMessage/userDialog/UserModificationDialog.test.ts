@@ -149,7 +149,7 @@ describe("UserModificationDialog", () => {
             createMockDialog(sandbox, {
                 wasAdjusted: true,
                 damageAdjustment: -5,
-                splinterpointBonus: -5,
+                splinterpointBonus: 5,
                 usedSplinterpointBonus: true,
             });
             const underTest = UserModificationDialogue.create();

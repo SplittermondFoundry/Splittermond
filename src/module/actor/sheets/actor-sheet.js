@@ -81,6 +81,10 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         this._hoverStateTracker = options.hoverStateTracker ?? new HoverStateTracker();
     }
 
+    /**
+     * @param {object} options
+     * @returns {Promise<import("./combatActionsTemplateInterface").CombatActionsTemplateData & ApplicationRenderContext & Record<string, unknown>>}
+     */
     async _prepareContext(options) {
         const sheetData = {
             ...(await super._prepareContext(options)),

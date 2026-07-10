@@ -5,10 +5,15 @@ import type ActiveDefense from "module/actor/active-defense";
 import { IllegalStateException } from "module/data/exceptions";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
+interface ActiveDefenseDialogTemplateData {
+    activeDefense: ActiveDefense[];
+}
+
 export async function showActiveDefenseDialog(actor: SplittermondActor) {
-    let content = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/apps/dialog/active-defense.hbs`, {
+    const templateData: ActiveDefenseDialogTemplateData = {
         activeDefense: actor.activeDefense.defense,
-    });
+    };
+    const content = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/apps/dialog/active-defense.hbs`, templateData);
     const dialog = new ActiveDefenseDialog(actor, content);
     return dialog.render({ force: true });
 }

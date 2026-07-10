@@ -110,14 +110,14 @@ export class DamageReportDialog extends FoundryDialog {
         });
         result.element
             .querySelector("button.dialog-buttons[data-action='useSplinterpoint']")
-            ?.addEventListener("click", () => {
+            ?.addEventListener("click", async () => {
                 const button = result.element.querySelector(
                     "button.dialog-buttons[data-action='useSplinterpoint']"
                 ) as HTMLButtonElement;
                 if (button) {
                     button.disabled = true;
                 }
-                this.spendSplinterpoint();
+                await this.spendSplinterpoint();
                 this.operateOnInput((value) => value - this.splinterpointBonus);
             });
         result.element.querySelector("select[name='costTypeSelect']")?.addEventListener("change", (event) => {
