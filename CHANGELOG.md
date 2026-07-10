@@ -1,3 +1,9 @@
+## 14.2.5
+
+### Fixes
+
+- Magiefertigkeiten werden wieder angezeigt.
+
 ## 14.2.4
 
 ### Fixes
