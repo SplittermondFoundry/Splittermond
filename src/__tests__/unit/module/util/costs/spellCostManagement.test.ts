@@ -28,7 +28,6 @@ describe("Spell cost Management addition of reductions", () => {
                 value: mod("K2V1"),
                 skill: null,
                 attributes: {},
-                effectType: "costModifier",
             });
             const reductions = manager.getCostModifiers("deathmagic", "conjuration");
             expect(reductions).to.deep.contain(new Cost(1, 1, true).asModifier());
@@ -41,7 +40,6 @@ describe("Spell cost Management addition of reductions", () => {
                 value: mod("K2V1"),
                 skill: "deathmagic",
                 attributes: {},
-                effectType: "costModifier",
             });
             const reductions = manager.getCostModifiers("deathmagic", "");
             expect(reductions).to.deep.contain(new Cost(1, 1, true).asModifier());
@@ -55,7 +53,6 @@ describe("Spell cost Management addition of reductions", () => {
                 value: mod("4V2"),
                 skill: "deathmagic",
                 attributes: { skill: "deathmagic" },
-                effectType: "costModifier",
             });
             const reductions = manager.getCostModifiers("deathmagic", "conjuration");
             expect(reductions).to.deep.contain(new Cost(2, 2, false).asModifier());
@@ -68,7 +65,6 @@ describe("Spell cost Management addition of reductions", () => {
                 value: mod("6V3"),
                 skill: "deathmagic",
                 attributes: { skill: "deathmagic", type: "conjuration" },
-                effectType: "costModifier",
             });
             const reductions = manager.getCostModifiers("deathmagic", "conjuration");
             expect(reductions).to.deep.contain(new Cost(3, 3, false).asModifier());
@@ -81,7 +77,6 @@ describe("Spell cost Management addition of reductions", () => {
                 value: mod("8V4"),
                 skill: "deathmagic",
                 attributes: {},
-                effectType: "costModifier",
             });
             const reductions = manager.getCostModifiers("deathmagic", "conjuration");
             expect(reductions).to.deep.contain(new Cost(4, 4, false).asModifier());
@@ -104,7 +99,6 @@ describe("Spell cost Management multiple reductions", () => {
                 value: mod("K2V1"),
                 skill: null,
                 attributes: {},
-                effectType: "costModifier",
             });
             manager.modifiers.put(of(new Cost(2, 2, true).asModifier()), null, null);
 

@@ -5,9 +5,9 @@ import {
     MultiplicativeModifierDataModel,
     type MultiplicativeModifierDataModelType,
 } from "./dataModel/MultiplicativeModifierDataModel";
-import { CostModifierDataModel, type CostModifierDataModelType } from "./dataModel/CostModifierDataModel";
 import { BaseActiveEffectConfig, SplittermondActiveEffectConfig } from "./sheets/SplittermondActiveEffectConfig";
 import { SplittermondActiveEffectCreationDialog } from "./sheets/SplittermondActiveEffectCreationDialog";
+import { ActionEffectDataModel } from "./dataModel/ActionEffectDataModel";
 import { foundryApi } from "module/api/foundryApi";
 
 type ActiveEffectDocumentClass = typeof SplittermondActiveEffect & {
@@ -23,7 +23,7 @@ export { SplittermondActiveEffect };
 export { ModifierDataModel as Modifier, type ModifierDataModelType };
 export { InverseModifierDataModel as InverseModifier, type InverseModifierDataModelType };
 export { MultiplicativeModifierDataModel as MultiplicativeModifier, type MultiplicativeModifierDataModelType };
-export { CostModifierDataModel as CostModifier, type CostModifierDataModelType };
+export { ActionEffectDataModel, type ActionEffectSchemaType } from "./dataModel/ActionEffectDataModel";
 
 /**
  * Register the custom ActiveEffect subclass with Foundry.
@@ -34,10 +34,10 @@ export function initializeActiveEffects(config: typeof CONFIG) {
     config.ActiveEffect.documentClass = SplittermondActiveEffect;
     config.ActiveEffect.dataModels = {
         ...(config.ActiveEffect.dataModels ?? {}),
-        modifier: ModifierDataModel,
-        inverseModifier: InverseModifierDataModel,
-        multiplicativeModifier: MultiplicativeModifierDataModel,
-        costModifier: CostModifierDataModel,
+        modifier: ActionEffectDataModel,
+        spellEffect: ActionEffectDataModel,
+        spellEnhancedEffect: ActionEffectDataModel,
+        attackEffect: ActionEffectDataModel,
     };
 
     foundryApi.sheets.activeEffects.register("splittermond", BaseActiveEffectConfig, {
@@ -46,7 +46,7 @@ export function initializeActiveEffects(config: typeof CONFIG) {
     });
 
     foundryApi.sheets.activeEffects.register("splittermond", SplittermondActiveEffectConfig, {
-        types: ["modifier", "inverseModifier", "multiplicativeModifier", "costModifier"],
+        types: ["modifier", "spellEffect", "spellEnhancedEffect", "attackEffect"],
         makeDefault: true,
         label: "splittermond.activeEffects",
     });
