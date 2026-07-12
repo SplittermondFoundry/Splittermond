@@ -1,15 +1,23 @@
 import { describe, it } from "mocha";
 import { expect } from "chai";
-import { type EffectType, SplittermondActiveEffect } from "module/activeEffect/SplittermondActiveEffect";
+import { SplittermondActiveEffect } from "module/activeEffect/SplittermondActiveEffect";
 import type { IModifier } from "module/modifiers";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import sinon, { type SinonSandbox } from "sinon";
 import SplittermondItem from "module/item/item";
 import { FoundryActiveEffect } from "module/api/ActiveEffect";
 
+interface CostModifierSystem {
+    readonly asCostModifiers: ICostModifier[];
+}
+
+interface ModifierSystem {
+    readonly asModifiers: IModifier[];
+}
+
 interface EffectOverrides {
-    type: EffectType;
-    system: IModifier | ICostModifier;
+    type: string;
+    system: ModifierSystem | CostModifierSystem | IModifier;
     disabled?: boolean;
     isSuppressed?: boolean;
     item?: SplittermondItem | null;
@@ -17,8 +25,9 @@ interface EffectOverrides {
 
 function createEffect(sandbox: SinonSandbox, overrides: EffectOverrides) {
     const effect = sandbox.createStubInstance(SplittermondActiveEffect);
-    effect.type = overrides.type;
-    effect.system = overrides.system;
+    const writable = effect as unknown as { type: string; system: unknown };
+    writable.type = overrides.type;
+    writable.system = overrides.system;
     sandbox.stub(effect, "disabled").value(overrides.disabled ?? false);
     sandbox.stub(effect, "item").get(() => overrides.item ?? null);
     if (overrides.isSuppressed !== undefined) {
@@ -35,7 +44,6 @@ function mockModifier(overrides: Partial<IModifier> = {}): IModifier {
         groupId: "test.path",
         selectable: false,
         attributes: { name: "Test", type: "innate" },
-        effectType: "modifier",
         addTooltipFormulaElements() {},
         ...overrides,
     };
@@ -48,84 +56,73 @@ function mockCostModifier(overrides: Partial<ICostModifier> = {}): ICostModifier
         value: { amount: { _channeled: 0, _channeledConsumed: 0, _exhausted: 1, _consumed: 0 } } as any,
         skill: null,
         attributes: {},
-        effectType: "costModifier",
         ...overrides,
     };
+}
+
+function mockCostModifierSystem(costModifiers: ICostModifier[] = [mockCostModifier()]): CostModifierSystem {
+    return { asCostModifiers: costModifiers };
+}
+
+function mockModifierSystem(modifiers: IModifier[] = [mockModifier()]): ModifierSystem {
+    return { asModifiers: modifiers };
 }
 
 describe("SplittermondActiveEffect", () => {
     const sandbox = sinon.createSandbox();
     afterEach(() => sandbox.restore());
-    describe("asModifier", () => {
-        it("should return system as IModifier for type 'modifier'", () => {
-            const system = mockModifier();
+    describe("asModifiers", () => {
+        it("should return system.asModifiers for type 'modifier'", () => {
+            const modifier = mockModifier();
+            const system = mockModifierSystem([modifier]);
             const effect = createEffect(sandbox, { type: "modifier", system });
-            expect(effect.asModifier).to.equal(system);
+            expect(effect.asModifiers).to.deep.equal([modifier]);
         });
 
-        it("should return system as IModifier for type 'inverseModifier'", () => {
-            const system = mockModifier();
-            const effect = createEffect(sandbox, { type: "inverseModifier", system });
-            expect(effect.asModifier).to.equal(system);
+        it("should return empty array for base type", () => {
+            const system = mockModifierSystem();
+            const effect = createEffect(sandbox, { type: "base", system });
+            expect(effect.asModifiers).to.deep.equal([]);
         });
 
-        it("should return system as IModifier for type 'multiplicativeModifier'", () => {
-            const system = mockModifier();
-            const effect = createEffect(sandbox, { type: "multiplicativeModifier", system });
-            expect(effect.asModifier).to.equal(system);
-        });
-
-        it("should return null for type 'costModifier'", () => {
-            const system = mockCostModifier();
-            const effect = createEffect(sandbox, { type: "costModifier", system });
-            expect(effect.asModifier).to.be.null;
-        });
-    });
-
-    describe("asCostModifier", () => {
-        it("should return system as ICostModifier for type 'costModifier'", () => {
-            const system = mockCostModifier();
-            const effect = createEffect(sandbox, { type: "costModifier", system });
-            expect(effect.asCostModifier).to.equal(system);
-        });
-
-        it("should return null for type 'modifier'", () => {
-            const system = mockModifier();
-            const effect = createEffect(sandbox, { type: "modifier", system });
-            expect(effect.asCostModifier).to.be.null;
+        it("should return modifiers for non-base action types like spellEffect", () => {
+            const modifier = mockModifier();
+            const system = mockModifierSystem([modifier]);
+            const effect = createEffect(sandbox, { type: "spellEffect", system });
+            expect(effect.asModifiers).to.deep.equal([modifier]);
         });
     });
 
     describe("getModifiers", () => {
         it("should collect modifiers from active, non-suppressed effects", () => {
-            const system1 = mockModifier();
-            const system2 = mockModifier();
+            const modifier1 = mockModifier();
+            const modifier2 = mockModifier();
             const effects = [
-                createEffect(sandbox, { type: "modifier", system: system1 }),
-                createEffect(sandbox, { type: "inverseModifier", system: system2 }),
+                createEffect(sandbox, { type: "modifier", system: mockModifierSystem([modifier1]) }),
+                createEffect(sandbox, { type: "modifier", system: mockModifierSystem([modifier2]) }),
             ];
             const result = SplittermondActiveEffect.getModifiers(effects);
             expect(result).to.have.length(2);
-            expect(result[0]).to.equal(system1);
-            expect(result[1]).to.equal(system2);
+            expect(result[0]).to.equal(modifier1);
+            expect(result[1]).to.equal(modifier2);
         });
 
         it("should skip disabled effects", () => {
-            const system = mockModifier();
+            const system = mockModifierSystem();
             const effects = [createEffect(sandbox, { type: "modifier", system, disabled: true })];
             const result = SplittermondActiveEffect.getModifiers(effects);
             expect(result).to.have.length(0);
         });
 
         it("should skip suppressed effects", () => {
-            const system = mockModifier();
+            const system = mockModifierSystem();
             const effects = [createEffect(sandbox, { type: "modifier", system, isSuppressed: true })];
             const result = SplittermondActiveEffect.getModifiers(effects);
             expect(result).to.have.length(0);
         });
 
-        it("should skip cost modifier types", () => {
-            const effects = [createEffect(sandbox, { type: "costModifier", system: mockCostModifier() })];
+        it("should skip base type effects", () => {
+            const effects = [createEffect(sandbox, { type: "base", system: mockModifierSystem() })];
             const result = SplittermondActiveEffect.getModifiers(effects);
             expect(result).to.have.length(0);
         });
@@ -133,31 +130,39 @@ describe("SplittermondActiveEffect", () => {
 
     describe("getCostModifiers", () => {
         it("should collect cost modifiers from active, non-suppressed effects", () => {
-            const system = mockCostModifier();
-            const effects = [createEffect(sandbox, { type: "costModifier", system })];
+            const system = mockCostModifierSystem();
+            const effects = [createEffect(sandbox, { type: "modifier", system })];
             const result = SplittermondActiveEffect.getCostModifiers(effects);
             expect(result).to.have.length(1);
-            expect(result[0]).to.equal(system);
         });
 
         it("should skip disabled effects", () => {
-            const system = mockCostModifier();
-            const effects = [createEffect(sandbox, { type: "costModifier", system, disabled: true })];
+            const system = mockCostModifierSystem();
+            const effects = [createEffect(sandbox, { type: "modifier", system, disabled: true })];
             const result = SplittermondActiveEffect.getCostModifiers(effects);
             expect(result).to.have.length(0);
         });
 
         it("should skip suppressed effects", () => {
-            const system = mockCostModifier();
-            const effects = [createEffect(sandbox, { type: "costModifier", system, isSuppressed: true })];
+            const system = mockCostModifierSystem();
+            const effects = [createEffect(sandbox, { type: "modifier", system, isSuppressed: true })];
             const result = SplittermondActiveEffect.getCostModifiers(effects);
             expect(result).to.have.length(0);
         });
 
-        it("should skip scalar modifier types", () => {
+        it("should skip effects without asCostModifiers", () => {
             const effects = [createEffect(sandbox, { type: "modifier", system: mockModifier() })];
             const result = SplittermondActiveEffect.getCostModifiers(effects);
             expect(result).to.have.length(0);
+        });
+
+        it("should collect cost modifiers from non-modifier action types like spellEffect", () => {
+            const costModifier = mockCostModifier();
+            const system = mockCostModifierSystem([costModifier]);
+            const effect = createEffect(sandbox, { type: "spellEffect", system });
+            const result = SplittermondActiveEffect.getCostModifiers([effect]);
+            expect(result).to.have.length(1);
+            expect(result[0]).to.equal(costModifier);
         });
     });
 
@@ -281,15 +286,15 @@ describe("SplittermondActiveEffect", () => {
         it("should apply custom filter to scalar modifiers", () => {
             const allowed = createEffect(sandbox, {
                 type: "modifier",
-                system: mockModifier(),
+                system: mockModifierSystem([mockModifier()]),
             });
             const blocked = createEffect(sandbox, {
                 type: "modifier",
-                system: mockModifier({ groupId: "blocked.path" }),
+                system: mockModifierSystem([mockModifier({ groupId: "blocked.path" })]),
             });
 
             const filtered = SplittermondActiveEffect.withFilter(
-                (effect) => effect.asModifier?.groupId !== "blocked.path"
+                (effect) => !effect.asModifiers.some((m) => m.groupId === "blocked.path")
             );
             const result = filtered.getModifiers([allowed, blocked]);
 
@@ -300,7 +305,7 @@ describe("SplittermondActiveEffect", () => {
         it("should still exclude disabled effects even when filter accepts", () => {
             const disabled = createEffect(sandbox, {
                 type: "modifier",
-                system: mockModifier(),
+                system: mockModifierSystem(),
                 disabled: true,
             });
 
@@ -313,7 +318,7 @@ describe("SplittermondActiveEffect", () => {
         it("should still exclude suppressed effects even when filter accepts", () => {
             const suppressed = createEffect(sandbox, {
                 type: "modifier",
-                system: mockModifier(),
+                system: mockModifierSystem(),
                 isSuppressed: true,
             });
 
@@ -325,17 +330,17 @@ describe("SplittermondActiveEffect", () => {
 
         it("should apply custom filter to cost modifiers", () => {
             const allowed = createEffect(sandbox, {
-                type: "costModifier",
-                system: mockCostModifier({ label: "allowed" }),
+                type: "modifier",
+                system: mockCostModifierSystem([mockCostModifier({ label: "allowed" })]),
             });
             const blocked = createEffect(sandbox, {
-                type: "costModifier",
-                system: mockCostModifier({ label: "blocked" }),
+                type: "modifier",
+                system: mockCostModifierSystem([mockCostModifier({ label: "blocked" })]),
             });
 
-            const filtered = SplittermondActiveEffect.withFilter(
-                (effect) => effect.asCostModifier?.label !== "blocked"
-            );
+            const filtered = SplittermondActiveEffect.withFilter((effect) => {
+                return !effect.asCostModifiers.some((c) => c.label === "blocked");
+            });
             const result = filtered.getCostModifiers([allowed, blocked]);
 
             expect(result).to.have.length(1);
@@ -344,8 +349,8 @@ describe("SplittermondActiveEffect", () => {
 
         it("should return no cost modifiers when custom filter rejects", () => {
             const cost = createEffect(sandbox, {
-                type: "costModifier",
-                system: mockCostModifier({ label: "forbidden" }),
+                type: "modifier",
+                system: mockCostModifierSystem([mockCostModifier({ label: "forbidden" })]),
             });
 
             const filtered = SplittermondActiveEffect.withFilter(() => false);

@@ -28,11 +28,6 @@ describe("InverseModifier", () => {
         expect(neutral.isMalus).to.be.false;
     });
 
-    it("should expose inverse modifier effectType", () => {
-        const mod = InverseModifier.create("path", of(-1), { name: "Inverse", type: "magic" });
-        expect(mod.effectType).to.equal("inverseModifier");
-    });
-
     it("should format tooltip correctly", () => {
         const bonus = InverseModifier.create("path", of(-2), { name: "Bonus", type: "innate" });
         const malus = InverseModifier.create("path", of(3), { name: "Malus", type: "innate" });
