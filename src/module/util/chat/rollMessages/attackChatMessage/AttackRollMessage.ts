@@ -24,7 +24,7 @@ import { TickCostActionHandler } from "module/util/chat/rollMessages/attackChatM
 import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
 import { AttackReference } from "module/util/chat/rollMessages/attackChatMessage/AttackReference";
 
-const constructorRegistryKey = "attackRollMessage";
+const classIdentifier = "attackRollMessage";
 
 function AttackRollMessageSchema() {
     return {
@@ -40,7 +40,7 @@ function AttackRollMessageSchema() {
         }),
         splinterPointUsed: new fields.BooleanField({ required: true, nullable: false }),
         openDegreesOfSuccess: new fields.NumberField({ required: true, nullable: false }),
-        constructorKey: new fields.StringField({ required: true, trim: true, blank: false, nullable: false }),
+        classIdentifier: new fields.StringField({ required: true, trim: true, blank: false, nullable: false }),
         damageHandler: new fields.EmbeddedDataField(DamageActionHandler, { required: true, nullable: false }),
         tickCostHandler: new fields.EmbeddedDataField(TickCostActionHandler, { required: true, nullable: false }),
         noActionOptionsHandler: new fields.EmbeddedDataField(NoActionOptionsHandler, {
@@ -65,7 +65,7 @@ export class AttackRollMessage extends RollMessage<
 
     static initialize(attack: Attack, checkReport: AttackCheckReport, tickCost: number) {
         const reportReference = OnAncestorReference.for(AttackRollMessage)
-            .identifiedBy("constructorKey", constructorRegistryKey)
+            .identifiedBy("classIdentifier", classIdentifier)
             .references("checkReport");
 
         const actorReference = AgentReference.initialize(attack.actor);
@@ -74,7 +74,7 @@ export class AttackRollMessage extends RollMessage<
             checkReport: checkReport,
             actorReference,
             attackReference,
-            constructorKey: constructorRegistryKey,
+            classIdentifier,
             splinterPointUsed: false,
             damageHandler: DamageActionHandler.initialize(actorReference, attackReference, reportReference).toObject(),
             tickCostHandler: TickCostActionHandler.initialize(actorReference, tickCost),
