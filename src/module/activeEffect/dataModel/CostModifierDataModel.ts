@@ -4,7 +4,6 @@ import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import { type CostExpression } from "module/modifiers/expressions/cost";
 import { deserialize, serialize } from "module/modifiers/expressions/cost/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
-import type { EffectType } from "./effectTypes";
 import { CostModifier } from "module/util/costs/Cost";
 import { resolveHostActor } from "./hostActor";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
@@ -49,7 +48,6 @@ export class CostModifierDataModel
     }
 
     readonly value: CostExpression;
-    readonly effectType: EffectType = "costModifier";
 
     constructor(data: DataModelConstructorInput<CostModifierDataModelType>, context: unknown) {
         super(data, context);

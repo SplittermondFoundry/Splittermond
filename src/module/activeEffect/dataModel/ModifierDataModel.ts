@@ -13,7 +13,6 @@ import {
 import { deserialize, serialize } from "module/modifiers/expressions/scalar/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import { modifierSchema } from "./modifierSchema";
-import type { EffectType } from "./effectTypes";
 import { resolveHostActor } from "./hostActor";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import { SplittermondActiveEffect } from "module/activeEffect";
@@ -93,8 +92,6 @@ export class ModifierDataModel
     get groupId(): string {
         return this.path;
     }
-
-    readonly effectType: EffectType = "modifier";
 
     get selectable(): boolean {
         return (this as any).toObject().selectable;

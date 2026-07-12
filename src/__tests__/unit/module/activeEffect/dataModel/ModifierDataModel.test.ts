@@ -28,11 +28,6 @@ describe("ModifierDataModel", () => {
         expect(neutral.isMalus).to.be.false;
     });
 
-    it("should expose modifier effectType", () => {
-        const mod = Modifier.create("path", of(1), { name: "Bonus", type: "magic" });
-        expect(mod.effectType).to.equal("modifier");
-    });
-
     it("should format tooltip correctly", () => {
         const bonus = Modifier.create("path", of(2), { name: "Bonus", type: "innate" });
         const malus = Modifier.create("path", of(-3), { name: "Malus", type: "innate" });

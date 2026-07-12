@@ -1,6 +1,5 @@
 import { CostModifier } from "./Cost";
 import { type CostExpression, evaluate, syncEvaluate } from "../../modifiers/expressions/cost";
-import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
 
 interface SpellCostReductionManagement {
     spellCostReduction: SpellCostReductionManager;
@@ -34,7 +33,6 @@ export interface ICostModifier {
         skill?: string;
         type?: string;
     };
-    readonly effectType: EffectType;
 }
 
 class SpellCostReductionManager {
