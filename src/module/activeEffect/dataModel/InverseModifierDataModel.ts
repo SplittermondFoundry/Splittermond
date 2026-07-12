@@ -13,7 +13,6 @@ import {
 import { deserialize, serialize } from "module/modifiers/expressions/scalar/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import { modifierSchema } from "./modifierSchema";
-import type { EffectType } from "./effectTypes";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import { SplittermondActiveEffect } from "module/activeEffect";
 import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
@@ -89,8 +88,6 @@ export class InverseModifierDataModel
     get groupId(): string {
         return this.path;
     }
-
-    readonly effectType: EffectType = "inverseModifier";
 
     get selectable(): boolean {
         return (this as any).toObject().selectable;

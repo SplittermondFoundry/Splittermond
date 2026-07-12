@@ -1,24 +1,13 @@
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
-import sinon from "sinon";
-import {
-    CostModifier,
-    InverseModifier,
-    Modifier,
-    MultiplicativeModifier,
-    SplittermondActiveEffect,
-} from "module/activeEffect";
-import { foundryApi } from "module/api/foundryApi";
+import { Modifier, SplittermondActiveEffect } from "module/activeEffect";
 import { SplittermondActiveEffectConfig } from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
 import { evaluate, of, plus, ref, times } from "module/modifiers/expressions/scalar";
-import { evaluate as costEvaluate, of as costOf } from "module/modifiers/expressions/cost";
-import { CostModifier as Cost } from "module/util/costs/Cost";
 import { withActiveEffect, withActor } from "./fixtures";
 import { passesEventually } from "../util";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import SplittermondItemSheet from "module/item/sheets/item-sheet";
 import type { ModifierDataModel } from "module/activeEffect/dataModel/ModifierDataModel";
-import type { InverseModifierDataModel } from "module/activeEffect/dataModel/InverseModifierDataModel";
-import type { CostModifierDataModel } from "module/activeEffect/dataModel/CostModifierDataModel";
+import { serialize as serializeScalar } from "module/modifiers/expressions/scalar/serialization";
 
 declare const Item: any;
 
@@ -69,138 +58,37 @@ export function activeEffectTest(context: QuenchBatchContext) {
         );
 
         it(
-            "should update cost modifier formula and skill",
+            "should persist and restore a cost modifier through a modifier-type effect",
             withActiveEffect(
                 {
                     name: "Kosten",
-                    type: "costModifier",
-                    system: {
-                        label: "kosten -1",
-                        serializedValue: {
-                            type: "amount",
-                            amount: {
-                                _channeled: 0,
-                                _channeledConsumed: 0,
-                                _exhausted: 1,
-                                _consumed: 0,
-                            },
-                        },
-                        skill: null,
-                        attributes: {},
-                    },
-                },
-                async (effect) => {
-                    const sheet = effect.sheet as SplittermondActiveEffectConfig;
-                    await sheet.render(true);
-                    const formulaInput = sheet.element.querySelector(
-                        "input[name='splittermondCostFormula']"
-                    ) as HTMLInputElement;
-                    const skillInput = sheet.element.querySelector(
-                        "input[name='splittermondCostSkill']"
-                    ) as HTMLInputElement;
-
-                    formulaInput.value = "focus.addition 2";
-                    skillInput.value = "fireMagic";
-                    formulaInput.dispatchEvent(new Event("input", { bubbles: true }));
-                    formulaInput.dispatchEvent(new Event("change", { bubbles: true }));
-                    skillInput.dispatchEvent(new Event("input", { bubbles: true }));
-                    skillInput.dispatchEvent(new Event("change", { bubbles: true }));
-                    const submitButton = sheet.element.querySelector(
-                        "button[type='submit'], button[data-action='submit']"
-                    ) as HTMLButtonElement | null;
-                    if (submitButton) {
-                        submitButton.dispatchEvent(new PointerEvent("click", { bubbles: true }));
-                    } else {
-                        const form = sheet.element.querySelector("form") as HTMLFormElement | null;
-                        form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-                    }
-
-                    await passesEventually(
-                        () => {
-                            expect(effect.system.label, "label value").to.equal("focus.reduction");
-                            expect(effect.system.skill, "skill value").to.equal("fireMagic");
-                            expect(effect.getFlag("splittermond", "rawInput"), "raw Input").to.equal(
-                                "focus.addition 2"
-                            );
-                        },
-                        1500,
-                        100
-                    );
-                }
-            )
-        );
-
-        it(
-            "should warn and block scalar effect when entering cost formula",
-            withActiveEffect(
-                {
-                    name: "Start",
                     type: "modifier",
-                    system: Modifier.init("skills", of(1), { name: "Test", type: "innate", skill: "acrobatics" }),
-                },
-                async (effect) => {
-                    const sandbox = sinon.createSandbox();
-                    try {
-                        const warnSpy = sandbox.spy(foundryApi, "warnUser");
-                        const sheet = effect.sheet as SplittermondActiveEffectConfig;
-                        await sheet.render(true);
-                        const input = sheet.element.querySelector(
-                            "input[name='splittermondRawInput']"
-                        ) as HTMLInputElement;
-                        input.value = "focus.reduction -K1V1";
-                        input.dispatchEvent(new Event("input", { bubbles: true }));
-                        input.dispatchEvent(new Event("change", { bubbles: true }));
-
-                        expect(warnSpy.callCount, "UI Warnings emitted").to.equal(1);
-                        expect(effect.type).to.equal("modifier");
-                        expect(effect.system.path).to.equal("skills");
-                    } finally {
-                        sandbox.restore();
-                    }
-                }
-            )
-        );
-
-        it(
-            "should warn and block cost effect when entering scalar modifier",
-            withActiveEffect(
-                {
-                    name: "Kosten",
-                    type: "costModifier",
                     system: {
-                        label: "kosten -1",
-                        serializedValue: {
-                            type: "amount",
-                            amount: {
-                                _channeled: 0,
-                                _channeledConsumed: 0,
-                                _exhausted: 1,
-                                _consumed: 0,
+                        modifiers: [],
+                        costModifiers: [
+                            {
+                                label: "kosten -1",
+                                serializedValue: {
+                                    type: "amount",
+                                    amount: {
+                                        _channeled: 0,
+                                        _channeledConsumed: 0,
+                                        _exhausted: 1,
+                                        _consumed: 0,
+                                    },
+                                },
+                                skill: null,
+                                attributes: {},
                             },
-                        },
-                        skill: null,
-                        attributes: {},
+                        ],
                     },
                 },
                 async (effect) => {
-                    const sandbox = sinon.createSandbox();
-                    try {
-                        const warnSpy = sandbox.spy(foundryApi, "warnUser");
-                        const sheet = effect.sheet as SplittermondActiveEffectConfig;
-                        await sheet.render(true);
-                        const formulaInput = sheet.element.querySelector(
-                            "input[name='splittermondCostFormula']"
-                        ) as HTMLInputElement;
-                        formulaInput.value = "skills skill=acrobatics +2";
-                        formulaInput.dispatchEvent(new Event("input", { bubbles: true }));
-                        formulaInput.dispatchEvent(new Event("change", { bubbles: true }));
-
-                        expect(warnSpy.callCount, "UI Warnings emitted").to.equal(1);
-                        expect(effect.type).to.equal("costModifier");
-                        expect(effect.system.label).to.equal("kosten -1");
-                    } finally {
-                        sandbox.restore();
-                    }
+                    const costModifiers = SplittermondActiveEffect.getCostModifiers([
+                        effect as SplittermondActiveEffect,
+                    ]);
+                    expect(costModifiers).to.have.length(1);
+                    expect(costModifiers[0].label).to.equal("kosten -1");
                 }
             )
         );
@@ -209,67 +97,93 @@ export function activeEffectTest(context: QuenchBatchContext) {
     describe("ActiveEffect DataModel serialization via Foundry persistence", () => {
         describe("SplittermondActiveEffect type updates", () => {
             it(
-                "should change type via update",
+                "should update modifier kind via update",
                 withActor(async (actor) => {
                     const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
                         {
-                            name: "Type Change",
+                            name: "Kind Change",
                             type: "modifier",
-                            system: Modifier.init("skills", of(1), {
-                                name: "Type Change",
-                                type: "innate",
-                                skill: "acrobatics",
-                            }),
+                            system: {
+                                modifiers: [
+                                    {
+                                        path: "skills",
+                                        serializedValue: serializeScalar(of(1)),
+                                        modifierKind: "additive",
+                                        selectable: false,
+                                        attributes: { name: "Kind Change", type: "innate" },
+                                    },
+                                ],
+                                costModifiers: [],
+                            },
                         },
                     ]);
 
                     await effect.update({
-                        type: "inverseModifier",
-                        system: InverseModifier.init("skills", of(-1), {
-                            name: "Type Change",
-                            type: "innate",
-                            skill: "acrobatics",
-                        }),
+                        system: {
+                            modifiers: [
+                                {
+                                    path: "skills",
+                                    serializedValue: serializeScalar(of(-1)),
+                                    modifierKind: "inverse",
+                                    selectable: false,
+                                    attributes: { name: "Kind Change", type: "innate" },
+                                },
+                            ],
+                            costModifiers: [],
+                        },
                     });
 
-                    const updated = actor.effects.get(effect.id) as SplittermondActiveEffect & {
-                        system: InverseModifierDataModel;
-                    };
-                    expect(updated.type).to.equal("inverseModifier");
-                    expect(await evaluate(updated.system.value)).to.equal(-1);
+                    const updated = actor.effects.get(effect.id) as SplittermondActiveEffect;
+                    expect(updated.type).to.equal("modifier");
+                    const modifiers = SplittermondActiveEffect.getModifiers([updated]);
+                    expect(modifiers).to.have.length(1);
+                    expect(await evaluate(modifiers[0].value)).to.equal(-1);
+                    expect(modifiers[0].isBonus).to.be.true;
                 })
             );
 
             it(
-                "should change type via updateSource",
+                "should update modifier kind via updateSource",
                 withActor(async (actor) => {
                     const [created] = await actor.createEmbeddedDocuments("ActiveEffect", [
                         {
-                            name: "Type Change Source",
+                            name: "Kind Change Source",
                             type: "modifier",
-                            system: Modifier.init("skills", of(1), {
-                                name: "Type Change Source",
-                                type: "innate",
-                                skill: "acrobatics",
-                            }),
+                            system: {
+                                modifiers: [
+                                    {
+                                        path: "skills",
+                                        serializedValue: serializeScalar(of(1)),
+                                        modifierKind: "additive",
+                                        selectable: false,
+                                        attributes: { name: "Kind Change Source", type: "innate" },
+                                    },
+                                ],
+                                costModifiers: [],
+                            },
                         },
                     ]);
 
-                    const effect = created as SplittermondActiveEffect & { system: InverseModifierDataModel };
+                    const effect = created as SplittermondActiveEffect;
                     effect.updateSource({
-                        type: "inverseModifier",
                         system: {
-                            ...InverseModifier.init("skills", of(-2), {
-                                name: "Type Change Source",
-                                type: "innate",
-                                skill: "acrobatics",
-                            }),
-                            changes: [],
+                            modifiers: [
+                                {
+                                    path: "skills",
+                                    serializedValue: serializeScalar(of(-2)),
+                                    modifierKind: "inverse",
+                                    selectable: false,
+                                    attributes: { name: "Kind Change Source", type: "innate" },
+                                },
+                            ],
+                            costModifiers: [],
                         },
                     });
 
-                    expect(effect.type).to.equal("inverseModifier");
-                    expect(await evaluate(effect.system.value)).to.equal(-2);
+                    expect(effect.type).to.equal("modifier");
+                    const modifiers = SplittermondActiveEffect.getModifiers([effect]);
+                    expect(modifiers).to.have.length(1);
+                    expect(await evaluate(modifiers[0].value)).to.equal(-2);
                 })
             );
         });
@@ -372,16 +286,30 @@ export function activeEffectTest(context: QuenchBatchContext) {
             it(
                 "should persist and restore through an ActiveEffect",
                 withActor(async (actor) => {
-                    const initData = InverseModifier.init("inv.path", of(-3), { name: "Inverse", type: "innate" });
                     const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
-                        { name: "Inverse Effect", type: "inverseModifier", system: initData },
+                        {
+                            name: "Inverse Effect",
+                            type: "modifier",
+                            system: {
+                                modifiers: [
+                                    {
+                                        path: "inv.path",
+                                        serializedValue: serializeScalar(of(-3)),
+                                        modifierKind: "inverse",
+                                        selectable: false,
+                                        attributes: { name: "Inverse", type: "innate" },
+                                    },
+                                ],
+                                costModifiers: [],
+                            },
+                        },
                     ]);
 
-                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {
-                        system: InverseModifierDataModel;
-                    };
-                    expect(await evaluate(restored.system.value)).to.equal(-3);
-                    expect(restored.system.isBonus).to.be.true;
+                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect;
+                    const modifiers = SplittermondActiveEffect.getModifiers([restored]);
+                    expect(modifiers).to.have.length(1);
+                    expect(await evaluate(modifiers[0].value)).to.equal(-3);
+                    expect(modifiers[0].isBonus).to.be.true;
                 })
             );
         });
@@ -390,40 +318,30 @@ export function activeEffectTest(context: QuenchBatchContext) {
             it(
                 "should persist and restore through an ActiveEffect",
                 withActor(async (actor) => {
-                    const initData = MultiplicativeModifier.init("mult.path", of(3), {
-                        name: "Mult",
-                        type: "innate",
-                    });
                     const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
-                        { name: "Mult Effect", type: "multiplicativeModifier", system: initData },
+                        {
+                            name: "Mult Effect",
+                            type: "modifier",
+                            system: {
+                                modifiers: [
+                                    {
+                                        path: "mult.path",
+                                        serializedValue: serializeScalar(of(3)),
+                                        modifierKind: "multiplicative",
+                                        selectable: false,
+                                        attributes: { name: "Mult", type: "innate" },
+                                    },
+                                ],
+                                costModifiers: [],
+                            },
+                        },
                     ]);
 
-                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {
-                        system: InverseModifierDataModel;
-                    };
-                    expect(await evaluate(restored.system.value)).to.equal(3);
-                    expect(restored.system.isBonus).to.be.true;
-                })
-            );
-        });
-
-        describe("CostModifierDataModel", async () => {
-            it(
-                "should persist and restore through an ActiveEffect",
-                withActor(async (actor) => {
-                    const costMod = new Cost({ _channeled: 3, _channeledConsumed: 0, _exhausted: 2, _consumed: 0 });
-                    const initData = CostModifier.init("focus.reduction", costOf(costMod), "fireMagic");
-                    const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
-                        { name: "Cost Effect", type: "costModifier", system: initData },
-                    ]);
-
-                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {
-                        system: CostModifierDataModel;
-                    };
-                    const result = await costEvaluate(restored.system.value);
-                    expect(result.toObject()).to.deep.equal(costMod.toObject());
-                    expect(restored.system.label).to.equal("focus.reduction");
-                    expect(restored.system.skill).to.equal("fireMagic");
+                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect;
+                    const modifiers = SplittermondActiveEffect.getModifiers([restored]);
+                    expect(modifiers).to.have.length(1);
+                    expect(await evaluate(modifiers[0].value)).to.equal(3);
+                    expect(modifiers[0].isBonus).to.be.true;
                 })
             );
         });

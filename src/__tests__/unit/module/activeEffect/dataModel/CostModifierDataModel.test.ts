@@ -1,6 +1,6 @@
 import { describe, it } from "mocha";
 import { expect } from "chai";
-import { CostModifier } from "module/activeEffect";
+import { CostModifierDataModel as CostModifier } from "module/activeEffect/dataModel/CostModifierDataModel";
 import { CostModifier as Cost } from "module/util/costs/Cost";
 import { evaluate, of } from "module/modifiers/expressions/cost";
 
@@ -14,7 +14,6 @@ describe("CostModifier", () => {
 
         expect(mod.label).to.equal("focus.reduction");
         expect(mod.skill).to.equal("fireMagic");
-        expect(mod.effectType).to.equal("costModifier");
         expect((await evaluate(mod.value)).toObject()).to.deep.equal(cost.toObject());
     });
 

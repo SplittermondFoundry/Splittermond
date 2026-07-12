@@ -41,9 +41,9 @@
     },
     "ActiveEffect": {
       "modifier": {},
-      "inverseModifier": {},
-      "multiplicativeModifier": {},
-      "costModifier": {}
+      "spellEffect": {},
+      "spellEnhancedEffect": {},
+      "attackEffect": {}
     },
     "Item": {
       "ancestry": {
