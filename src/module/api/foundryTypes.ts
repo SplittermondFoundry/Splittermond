@@ -169,6 +169,7 @@ declare global {
         readonly parent: FoundryDocument | undefined;
         readonly uuid: string;
         readonly metadata: foundry.abstract.types.DocumentClassMetadata;
+        readonly type: string;
 
         updateSource(data: object): void;
 
