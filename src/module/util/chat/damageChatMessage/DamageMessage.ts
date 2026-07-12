@@ -1,18 +1,14 @@
-import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
-import { DamageMessageData } from "./interfaces";
-import { addToRegistry } from "../chatMessageRegistry";
-import { DamageEvent } from "../../damage/DamageEvent";
-import { foundryApi } from "module/api/foundryApi";
-import { DamageFeature, DamageFeatureSchema } from "../../damage/DamageFeature";
-import { damageHandlers } from "./damageApplicationHandlers";
-import { ChatMessageModel } from "module/data/SplittermondChatMessage";
-import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
-
-const constructorRegistryKey = "DamageMessage";
+import {DataModelSchemaType, fields, SplittermondDataModel} from "module/data/SplittermondDataModel";
+import {DamageMessageData} from "./interfaces";
+import {DamageEvent} from "../../damage/DamageEvent";
+import {foundryApi} from "module/api/foundryApi";
+import {DamageFeature, DamageFeatureSchema} from "../../damage/DamageFeature";
+import {damageHandlers} from "./damageApplicationHandlers";
+import {ChatMessageModel} from "module/data/SplittermondChatMessage";
+import {TEMPLATE_BASE_PATH} from "module/data/SplittermondApplication";
 
 function DamageMessageSchema() {
     return {
-        constructorKey: new fields.StringField({ required: true, nullable: false, initial: constructorRegistryKey }),
         featuresToDisplay: new fields.ArrayField(
             new fields.SchemaField(DamageFeatureSchema(), { required: true, nullable: false }),
             { required: true, nullable: false }
@@ -30,7 +26,6 @@ export class DamageMessage extends SplittermondDataModel<DamageMessageType> impl
         return new DamageMessage({
             damageEvent,
             featuresToDisplay,
-            constructorKey: constructorRegistryKey,
         });
     }
 
@@ -117,5 +112,3 @@ function reportError(e: Error) {
     console.error(e);
     foundryApi.reportError("Unknown error occurred");
 }
-
-addToRegistry(constructorRegistryKey, DamageMessage);

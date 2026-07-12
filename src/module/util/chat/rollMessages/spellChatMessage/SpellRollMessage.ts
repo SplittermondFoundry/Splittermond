@@ -21,7 +21,7 @@ import { getRollResultClass } from "../ChatMessageUtils";
 import { RollMessage } from "module/util/chat/rollMessages/RollMessage";
 import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
 
-const constructorRegistryKey = "SpellRollMessage";
+const classIdentifier = "SpellRollMessage";
 
 function SpellRollMessageSchema() {
     return {
@@ -33,7 +33,7 @@ function SpellRollMessageSchema() {
         }),
         splinterPointUsed: new fields.BooleanField({ required: true, nullable: false }),
         openDegreesOfSuccess: new fields.NumberField({ required: true, nullable: false }),
-        constructorKey: new fields.StringField({ required: true, trim: true, blank: false, nullable: false }),
+        classIdentifier: new fields.StringField({ required: true, trim: true, blank: false, nullable: false }),
         focusCostHandler: new fields.EmbeddedDataField(FocusCostHandler, { required: true, nullable: false }),
         tickCostHandler: new fields.EmbeddedDataField(TickCostActionHandler, { required: true, nullable: false }),
         damageHandler: new fields.EmbeddedDataField(DamageActionHandler, { required: true, nullable: false }),
@@ -61,7 +61,7 @@ export class SpellRollMessage extends RollMessage<
 
     static initialize(spell: SplittermondSpellItem, checkReport: CheckReport) {
         const reportReference = OnAncestorReference.for(SpellRollMessage)
-            .identifiedBy("constructorKey", constructorRegistryKey)
+            .identifiedBy("classIdentifier", classIdentifier)
             .references("checkReport");
         const spellReference = ItemReference.initialize(spell);
         const actorReference = AgentReference.initialize(spell.actor);
@@ -69,7 +69,7 @@ export class SpellRollMessage extends RollMessage<
             checkReport: checkReport,
             actorReference,
             spellReference: spellReference,
-            constructorKey: constructorRegistryKey,
+            classIdentifier: classIdentifier,
             splinterPointUsed: false,
             focusCostHandler: FocusCostHandler.initialize(actorReference, reportReference, spellReference).toObject(),
             tickCostHandler: TickCostActionHandler.initialize(actorReference, spellReference, 3).toObject(),
