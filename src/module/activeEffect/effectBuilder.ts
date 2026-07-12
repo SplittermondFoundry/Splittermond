@@ -3,9 +3,9 @@ import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import type SplittermondItem from "module/item/item";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
+import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
 import { ModifierDataModel } from "./dataModel/ModifierDataModel";
 import { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
-import type { EffectType } from "./dataModel/effectTypes";
 
 type AddModifierFn = (item: IModifierSource, str: string, type: ModifierType, multiplier: number) => AddModifierResult;
 
@@ -24,7 +24,7 @@ export function buildScalarEffectData(modifier: IModifier, rawFragment: string, 
     return {
         name: rawFragment,
         origin,
-        type: modifier.effectType,
+        type: "modifier",
         transfer: true,
         disabled: false,
         system,
@@ -38,11 +38,20 @@ export function buildScalarEffectData(modifier: IModifier, rawFragment: string, 
 }
 
 export function buildCostEffectData(modifier: ICostModifier, rawFragment: string, origin: string): EffectCreationData {
-    const system = CostModifierDataModel.init(modifier.label, modifier.value, modifier.skill, modifier.attributes);
+    const costModifierEntry = CostModifierDataModel.init(
+        modifier.label,
+        modifier.value,
+        modifier.skill,
+        modifier.attributes
+    );
+    const system = {
+        modifiers: [],
+        costModifiers: [costModifierEntry],
+    };
     return {
         name: rawFragment,
         origin,
-        type: modifier.effectType,
+        type: "modifier",
         transfer: true,
         disabled: false,
         system,
