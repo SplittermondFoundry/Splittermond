@@ -108,7 +108,12 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             }
         );
 
-        ([["sort", fields.NumberField]] as const).forEach(([name, type]) => {
+        (
+            [
+                ["sort", fields.NumberField],
+                ["type", fields.StringField],
+            ] as const
+        ).forEach(([name, type]) => {
             it("should have a schema property ${name}", () => {
                 expect(Item.defineSchema(), `Item schema contains ${name}`).to.have.property(name);
                 expect((Item.defineSchema() as any)[name], `${name} is of correct type`).to.be.instanceOf(type);

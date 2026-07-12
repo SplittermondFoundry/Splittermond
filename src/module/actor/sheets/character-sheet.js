@@ -91,8 +91,7 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
     async _onDropDocument(_e, itemData) {
         if (itemData.type === "species") {
             let wizard = new SplittermondSpeciesWizard(this.actor, itemData);
-            wizard.render(true);
-            return;
+            return wizard.render(true);
         }
 
         if (itemData.type === "moonsign") {
@@ -114,11 +113,12 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         this.element.querySelectorAll('.attribute input[name$="start"]').forEach((el) => {
             el.addEventListener("change", (event) => {
                 event.preventDefault();
+                /** @type HTMLInputElement */
                 const input = event.currentTarget;
                 const value = parseInt(input.value);
                 const attrBaseName = input.name.split(".")[2];
                 const speciesValue = parseInt(
-                    foundryApi.resolveProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.species`)
+                    foundryApi.utils.resolveProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.species`)
                 );
                 this.actor.update({
                     [`system.attributes.${attrBaseName}.initial`]: value - speciesValue,
@@ -139,7 +139,7 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
         const speciesValue = parseInt(
             foundryApi.utils.resolveProperty(this.actor.toObject(), `system.attributes.${attrBaseName}.species`)
         );
-        this.actor.update({
+        return this.actor.update({
             [`system.attributes.${attrBaseName}.advances`]: value - initialValue - speciesValue,
         });
     }
