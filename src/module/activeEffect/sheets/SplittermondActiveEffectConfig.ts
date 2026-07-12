@@ -4,11 +4,9 @@ import { addModifier } from "module/actor/addModifierAdapter";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { ModifierType } from "module/modifiers";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
-import { MODIFIER_TYPES } from "module/activeEffect/dataModel/effectTypes";
 import { buildCostEffectData, buildScalarEffectData } from "module/activeEffect/effectBuilder";
 import { type ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import type { SplittermondActiveEffect, DurationMode } from "module/activeEffect/SplittermondActiveEffect";
-import type { ICostModifier } from "module/util/costs/spellCostManagement";
 
 type ActiveEffectDocument = SplittermondActiveEffect;
 
@@ -211,15 +209,6 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
             return context;
         }
 
-        if (effectType === "costModifier") {
-            context.effectsType = "costModifier";
-            const costSystem = effect.system as ICostModifier;
-            context.costFormula = `${costSystem.label ?? ""}`;
-            const skill = costSystem.skill;
-            context.costSkill = typeof skill === "string" ? skill : "";
-            return context;
-        }
-
         context.effectsType = "base";
         return context;
     }
@@ -233,12 +222,13 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
             if (!rawInput) return submitData;
             const parsed = this.#parse(rawInput);
             const taggedModifier = parsed.modifiers[0] ?? null;
-            if (!taggedModifier) return submitData;
-            const effectData = buildScalarEffectData(
-                taggedModifier.modifier,
-                taggedModifier.rawFragment,
-                this.document.uuid
-            );
+            const taggedCostModifier = parsed.costModifiers[0] ?? null;
+            const effectData = taggedModifier
+                ? buildScalarEffectData(taggedModifier.modifier, taggedModifier.rawFragment, this.document.uuid)
+                : taggedCostModifier
+                  ? buildCostEffectData(taggedCostModifier.modifier, taggedCostModifier.rawFragment, this.document.uuid)
+                  : null;
+            if (!effectData) return submitData;
             submitData.type = effectData.type;
             submitData.system = effectData.system;
             submitData.flags = foundryApi.utils.mergeObject((submitData.flags as object) ?? {}, {
@@ -247,33 +237,6 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
                 },
             });
             return submitData;
-        }
-
-        if (this.document.type === "costModifier") {
-            const label = this.#readString(submitData, "splittermondCostFormula");
-            const skill = this.#readString(submitData, "splittermondCostSkill");
-            delete submitData.splittermondCostFormula;
-            delete submitData.splittermondCostSkill;
-            if (!label) return submitData;
-            const parsed = this.#parse(label);
-            const taggedCostModifier = parsed.costModifiers[0] ?? null;
-            if (!taggedCostModifier) return submitData;
-            const effectData = buildCostEffectData(
-                taggedCostModifier.modifier,
-                taggedCostModifier.rawFragment,
-                this.document.uuid
-            );
-            const system = {
-                ...effectData.system,
-                skill: skill || null,
-            };
-            submitData.type = effectData.type;
-            submitData.system = system;
-            submitData.flags = foundryApi.utils.mergeObject((submitData.flags as object) ?? {}, {
-                splittermond: {
-                    rawInput: label,
-                },
-            });
         }
 
         return submitData;
@@ -299,22 +262,9 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
             const rawInput = this.#readInputValue(submitTarget, "splittermondRawInput");
             if (!rawInput) return null;
             const parsed = this.#parse(rawInput);
-            const hasScalar = parsed.modifiers.length > 0;
-            const hasCost = parsed.costModifiers.length > 0;
             if (parsed.modifiers.length + parsed.costModifiers.length > 1) {
                 return "splittermond.activeEffect.error.singleModifierOnly";
             }
-            if (!hasScalar && hasCost) return "splittermond.activeEffect.error.wrongModifierType";
-        } else if (this.document.type === "costModifier") {
-            const label = this.#readInputValue(submitTarget, "splittermondCostFormula");
-            if (!label) return null;
-            const parsed = this.#parse(label);
-            const hasCost = parsed.costModifiers.length > 0;
-            const hasScalar = parsed.modifiers.length > 0;
-            if (parsed.modifiers.length + parsed.costModifiers.length > 1) {
-                return "splittermond.activeEffect.error.singleCostModifierOnly";
-            }
-            if (!hasCost && hasScalar) return "splittermond.activeEffect.error.wrongCostModifierType";
         }
         return null;
     }
@@ -331,6 +281,6 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
     }
 
     #isModifierType(effectType: string): boolean {
-        return MODIFIER_TYPES.includes(effectType as (typeof MODIFIER_TYPES)[number]);
+        return effectType === "modifier";
     }
 }

@@ -479,7 +479,6 @@ describe("Modifiable", () => {
             isBonus: !(props.value && isLessThanZero(props.value)),
             selectable: props.selectable ?? false,
             value: props.value ?? of(1),
-            effectType: props.effectType ?? "modifier",
             addTooltipFormulaElements: props.addTooltipFormulaElements ?? sandbox.stub(),
             attributes: {
                 name: props.attributes?.name ?? "Test Modifier",

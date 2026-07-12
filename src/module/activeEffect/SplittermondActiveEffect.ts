@@ -1,12 +1,12 @@
 import type { IModifier } from "module/modifiers";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import type { HasCostModifiers, HasModifiers } from "module/activeEffect/dataModel/ActionEffectDataModel";
 import { SplittermondBaseActiveEffect } from "module/data/SplittermondBaseActiveEffect";
-import { and, isMember } from "module/util/util";
-import type { DataModelUpdateOptions, DatabaseUpdateOperation } from "module/api/foundryTypes";
+import { and } from "module/util/util";
+import type { DatabaseUpdateOperation, DataModelUpdateOptions } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
-import { COST_MODIFIER_TYPES, type EffectType, MODIFIER_TYPES } from "./dataModel/effectTypes";
-
-export type { EffectType };
+import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
+import type { ActionEffectDataModel } from "module/activeEffect/dataModel/ActionEffectDataModel";
 
 export type DurationMode = "timed" | "channelled" | "permanent";
 
@@ -18,8 +18,8 @@ export type DurationMode = "timed" | "channelled" | "permanent";
  * NOT yet consumed by the modifier system — the old pipeline still handles application.
  */
 export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
-    declare system: IModifier | ICostModifier;
-    declare type: EffectType;
+    declare type: EffectType | "base";
+    declare system: ActionEffectDataModel | {};
     /**
      * Determine whether this effect is suppressed based on the source item's state.
      * For example, weapon effects are suppressed when the weapon is not equipped.
@@ -47,25 +47,25 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
     }
 
     /**
-     * Returns the typed system data as an {@link IModifier} if this effect's type
-     * is one of the scalar modifier types, otherwise `null`.
+     * Returns the {@link IModifier} collection from this effect's system data
+     * if it is backed by an {@link ActionEffectDataModel},
+     * otherwise an empty array.
      */
-    get asModifier(): IModifier | null {
-        if (isMember(MODIFIER_TYPES, this.type)) {
-            return this.system as IModifier;
-        }
-        return null;
+    get asModifiers(): IModifier[] {
+        if (this.type === "base") return [];
+        const system = this.system as HasModifiers;
+        return system.asModifiers ?? [];
     }
 
     /**
-     * Returns the typed system data as an {@link ICostModifier} if this effect's type
-     * is a cost modifier type, otherwise `null`.
+     * Returns the {@link ICostModifier} collection from this effect's system data
+     * if this effect is backed by an {@link ActionEffectDataModel},
+     * otherwise an empty array.
      */
-    get asCostModifier(): ICostModifier | null {
-        if (isMember(COST_MODIFIER_TYPES, this.type)) {
-            return this.system as ICostModifier;
-        }
-        return null;
+    get asCostModifiers(): ICostModifier[] {
+        if (this.type === "base") return [];
+        const system = this.system as HasCostModifiers;
+        return system.asCostModifiers ?? [];
     }
 
     get durationMode(): DurationMode {
@@ -149,21 +149,15 @@ function* filterEffects(effects: Iterable<SplittermondActiveEffect>, filter: Eff
 function getModifiers(effects: Iterable<SplittermondActiveEffect>, filter: EffectFilter): IModifier[] {
     const result: IModifier[] = [];
     for (const effect of filterEffects(effects, (e) => filter(e))) {
-        const modifier = effect.asModifier;
-        if (modifier) result.push(modifier);
+        result.push(...effect.asModifiers);
     }
     return result;
 }
 
-/**
- * Collect all {@link ICostModifier} instances from a collection of active effects,
- * filtering out suppressed and disabled effects.
- */
 function getCostModifiers(effects: Iterable<SplittermondActiveEffect>, filter: EffectFilter): ICostModifier[] {
     const result: ICostModifier[] = [];
     for (const effect of filterEffects(effects, (e) => filter(e))) {
-        const costModifier = effect.asCostModifier;
-        if (costModifier) result.push(costModifier);
+        result.push(...effect.asCostModifiers);
     }
     return result;
 }

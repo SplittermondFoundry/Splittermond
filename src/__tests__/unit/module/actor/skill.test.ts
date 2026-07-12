@@ -748,7 +748,6 @@ function getModifier(mod: ModifierPartial = {}): IModifier {
         selectable: mod.selectable ?? false,
         isBonus: (mod.value && isGreaterZero(mod.value)) ?? true,
         value: mod.value ?? of(1),
-        effectType: mod.effectType ?? "modifier",
         addTooltipFormulaElements: () => {},
     };
 }

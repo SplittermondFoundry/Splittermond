@@ -678,7 +678,6 @@ describe("addModifier", () => {
                 value: ofCost(expected),
                 skill: null,
                 attributes: { skill: "protectionmagic", type: undefined },
-                effectType: "costModifier",
             });
         });
         it(`should return added focus costs of ${cost} for spell manager`, () => {
@@ -689,7 +688,6 @@ describe("addModifier", () => {
                 value: times(of(-1), ofCost(expected)),
                 skill: null,
                 attributes: { skill: "protectionmagic", type: undefined },
-                effectType: "costModifier",
             });
         });
 
@@ -701,7 +699,6 @@ describe("addModifier", () => {
                 value: ofCost(expected),
                 skill: null,
                 attributes: { skill: "combatmagic", type: undefined },
-                effectType: "costModifier",
             });
         });
     });

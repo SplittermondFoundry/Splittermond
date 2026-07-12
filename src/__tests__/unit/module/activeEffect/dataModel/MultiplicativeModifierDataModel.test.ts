@@ -28,11 +28,6 @@ describe("MultiplicativeModifier", () => {
         expect(neutral.isMalus).to.be.false;
     });
 
-    it("should expose multiplicative modifier effectType", () => {
-        const mod = MultiplicativeModifier.create("path", of(2), { name: "Mult", type: "magic" });
-        expect(mod.effectType).to.equal("multiplicativeModifier");
-    });
-
     it("should format tooltip correctly", () => {
         const bonus = MultiplicativeModifier.create("path", of(2), { name: "Bonus", type: "innate" });
         const malus = MultiplicativeModifier.create("path", of(0.5), { name: "Malus", type: "innate" });
