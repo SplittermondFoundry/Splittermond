@@ -1,9 +1,7 @@
 {
     "TYPES": {
         "ActiveEffect": {
-            "modifier": "Modifier",
-            "inverseModifier": "Modifier",
-            "multiplicativeModifier": "Modifier"
+            "modifier": "Modifier"
         }
     },
     "splittermond": {
@@ -120,24 +118,18 @@
         "activeEffect": {
             "type": {
                 "base": "Base",
-                "modifier": "Modifier",
-                "costModifier": "Focus Modifier"
+                "modifier": "Modifier"
             },
             "creation": {
                 "title": "Create Active Effect",
                 "type": "Type"
             },
             "error": {
-                "wrongModifierType": "This field expects a regular modifier, not a cost modifier.",
-                "wrongCostModifierType": "This field expects a cost modifier, not a regular modifier.",
-                "singleModifierOnly": "Only a single modifier expression is allowed.",
-                "singleCostModifierOnly": "Only a single cost modifier expression is allowed."
+                "singleModifierOnly": "Only a single modifier expression is allowed."
             },
             "effects": {
                 "rawInput": "Modifier",
                 "modifierHelpText": "A single modifier expression, see @Compendium[splittermond.journal-entries.Modifikatoren]{Modifiers}.",
-                "costFormula": "Cost Formula",
-                "skill": "Skill",
                 "baseHint": "Base effects use the default fields."
             },
             "duration": {

@@ -1,7 +1,7 @@
 import { FoundryDialog } from "module/api/Application";
 import { foundryApi } from "module/api/foundryApi";
 
-type ActiveEffectCreationType = "base" | "modifier" | "costModifier";
+type ActiveEffectCreationType = "base" | "modifier";
 
 interface CreateDialogOptions {
     parent?: FoundryDocument;
@@ -18,7 +18,6 @@ interface CreateDialogRenderOptions {
 const TYPE_OPTIONS: { value: ActiveEffectCreationType; label: string }[] = [
     { value: "base", label: "splittermond.activeEffect.type.base" },
     { value: "modifier", label: "splittermond.activeEffect.type.modifier" },
-    { value: "costModifier", label: "splittermond.activeEffect.type.costModifier" },
 ];
 
 export class SplittermondActiveEffectCreationDialog {
@@ -93,7 +92,7 @@ export class SplittermondActiveEffectCreationDialog {
     }
 
     static #normalizeType(value: unknown): ActiveEffectCreationType {
-        if (value === "modifier" || value === "costModifier" || value === "base") return value;
+        if (value === "modifier" || value === "base") return value;
         return "base";
     }
 
