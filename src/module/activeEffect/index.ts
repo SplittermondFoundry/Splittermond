@@ -1,10 +1,4 @@
 import { SplittermondActiveEffect } from "./SplittermondActiveEffect";
-import { ModifierDataModel, type ModifierDataModelType } from "./dataModel/ModifierDataModel";
-import { InverseModifierDataModel, type InverseModifierDataModelType } from "./dataModel/InverseModifierDataModel";
-import {
-    MultiplicativeModifierDataModel,
-    type MultiplicativeModifierDataModelType,
-} from "./dataModel/MultiplicativeModifierDataModel";
 import { BaseActiveEffectConfig, SplittermondActiveEffectConfig } from "./sheets/SplittermondActiveEffectConfig";
 import { SplittermondActiveEffectCreationDialog } from "./sheets/SplittermondActiveEffectCreationDialog";
 import { ActionEffectDataModel } from "./dataModel/ActionEffectDataModel";
@@ -20,9 +14,9 @@ type ActiveEffectDocumentClass = typeof SplittermondActiveEffect & {
 };
 
 export { SplittermondActiveEffect };
-export { ModifierDataModel as Modifier, type ModifierDataModelType };
-export { InverseModifierDataModel as InverseModifier, type InverseModifierDataModelType };
-export { MultiplicativeModifierDataModel as MultiplicativeModifier, type MultiplicativeModifierDataModelType };
+export { Modifier } from "module/modifiers/impl/modifier";
+export { InverseModifier } from "module/modifiers/impl/InverseModifier";
+export { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
 export { ActionEffectDataModel, type ActionEffectSchemaType } from "./dataModel/ActionEffectDataModel";
 
 /**
