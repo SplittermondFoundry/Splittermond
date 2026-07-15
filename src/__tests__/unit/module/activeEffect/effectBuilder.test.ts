@@ -32,7 +32,7 @@ function makeCostModifier(overrides: Partial<ICostModifier> = {}): ICostModifier
 }
 
 function makeTagged(modifier: IModifier, rawFragment = "skills.acrobatics +2"): TaggedModifier {
-    return { modifier, rawFragment };
+    return { modifier, rawFragment, implementation: "additive" };
 }
 
 function makeTaggedCost(modifier: ICostModifier, rawFragment = "focus.reduction 1"): TaggedCostModifier {
