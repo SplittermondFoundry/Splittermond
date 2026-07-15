@@ -497,7 +497,6 @@ export default class SplittermondActor extends Actor {
                         name: foundryApi.localize("splittermond.woundMalus"),
                         type: "innate",
                     },
-                    this,
                     false
                 )
             );

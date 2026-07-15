@@ -1,6 +1,7 @@
 import { describe, it } from "mocha";
 import { expect } from "chai";
 import sinon from "sinon";
+import "module/activeEffect";
 import {
     ActionEffectDataModel,
     type ActionEffectSchemaType,
@@ -18,14 +19,14 @@ type CostModifierEntry = ActionEffectSchemaType["costModifiers"][number];
 
 function modifierEntry(
     path: string,
-    value: ReturnType<typeof of>,
-    kind: "additive" | "inverse" | "multiplicative",
-    attributes: { name: string; type: "magic" | "equipment" | "innate" | null } = { name: "Test", type: "innate" }
+    value: Expression
+    "additive" | "inverse" | "multiplicative",
+    attributes: { string; "magic" | "equipment" | "innate" | null } = { name: "Test", type: "innate" }
 ): ModifierEntry {
     return {
         path,
         serializedValue: serializeScalar(value),
-        modifierKind: kind,
+        implementation: kind,
         selectable: false,
         attributes,
     };
