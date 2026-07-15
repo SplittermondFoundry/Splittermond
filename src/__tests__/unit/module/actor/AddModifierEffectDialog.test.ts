@@ -45,7 +45,10 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
                 selectable: false,
             };
 
-            const result = buildScalarEffectData(modifier as any, "skills +2", "Actor.abc");
+            const result = buildScalarEffectData(
+                { modifier: modifier as any, rawFragment: "skills +2", implementation: "additive" },
+                "Actor.abc"
+            );
 
             expect(result.name).to.equal("skills +2");
             expect(result.origin).to.equal("Actor.abc");
@@ -97,7 +100,7 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
                 const { modifiers, costModifiers } = addModifierStub(source, modifierString, null, 1);
                 const effectDataArray = [
                     ...modifiers.map(({ modifier, rawFragment }: any) =>
-                        buildScalarEffectData(modifier, rawFragment, source.uuid)
+                        buildScalarEffectData({ modifier, rawFragment, implementation: "additive" }, source.uuid)
                     ),
                     ...costModifiers.map(({ modifier, rawFragment }: any) =>
                         buildCostEffectData(modifier, rawFragment, source.uuid)
@@ -119,7 +122,7 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
             const { modifiers, costModifiers } = addModifierStub(source, modifierString, null, 1);
             const effectDataArray = [
                 ...modifiers.map(({ modifier, rawFragment }: any) =>
-                    buildScalarEffectData(modifier, rawFragment, source.uuid)
+                    buildScalarEffectData({ modifier, rawFragment, implementation: "additive" }, source.uuid)
                 ),
                 ...costModifiers.map(({ modifier, rawFragment }: any) =>
                     buildCostEffectData(modifier, rawFragment, source.uuid)
@@ -169,7 +172,10 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
                 selectable: false,
             };
 
-            const result = buildScalarEffectData(modifier as any, "skills +2", "Actor.abc");
+            const result = buildScalarEffectData(
+                { modifier: modifier as any, rawFragment: "skills +2", implementation: "additive" },
+                "Actor.abc"
+            );
 
             expect(result.name).to.equal("skills +2");
             expect(result.origin).to.equal("Actor.abc");
@@ -221,7 +227,7 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
                 const { modifiers, costModifiers } = addModifierStub(source, modifierString, null, 1);
                 const effectDataArray = [
                     ...modifiers.map(({ modifier, rawFragment }: any) =>
-                        buildScalarEffectData(modifier, rawFragment, source.uuid)
+                        buildScalarEffectData({ modifier, rawFragment, implementation: "additive" }, source.uuid)
                     ),
                     ...costModifiers.map(({ modifier, rawFragment }: any) =>
                         buildCostEffectData(modifier, rawFragment, source.uuid)
@@ -243,7 +249,7 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
             const { modifiers, costModifiers } = addModifierStub(source, modifierString, null, 1);
             const effectDataArray = [
                 ...modifiers.map(({ modifier, rawFragment }: any) =>
-                    buildScalarEffectData(modifier, rawFragment, source.uuid)
+                    buildScalarEffectData({ modifier, rawFragment, implementation: "additive" }, source.uuid)
                 ),
                 ...costModifiers.map(({ modifier, rawFragment }: any) =>
                     buildCostEffectData(modifier, rawFragment, source.uuid)

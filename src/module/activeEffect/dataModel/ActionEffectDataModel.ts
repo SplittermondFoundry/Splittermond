@@ -8,20 +8,22 @@ import { deserialize as deserializeCostExpression } from "module/modifiers/expre
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import type { CostExpression } from "module/modifiers/expressions/cost";
 import type { Expression } from "module/modifiers/expressions/scalar";
-import {
-    abs,
-    asString,
-    condense,
-    isGreaterThan,
-    isGreaterZero,
-    isLessThan,
-    isLessThanZero,
-    of,
-} from "module/modifiers/expressions/scalar";
 import { SplittermondActiveEffect } from "module/activeEffect";
 import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
 import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
 import { CostModifier as CostValue } from "module/util/costs/Cost";
+import { getFromRegistry } from "module/data/dataModelRegistry";
+import {IllegalStateException} from "module/data/exceptions";
+
+interface ModifierConstructor {
+    new (
+        path: string,
+        value: Expression,
+        attributes: ModifierAttributes,
+        selectable: boolean,
+        provider: ActorProvider
+    ): IModifier;
+}
 
 type SerializedExpression = Record<string, unknown> & { type: string };
 type SerializedCostExpression = Record<string, unknown> & { type: string };
@@ -57,9 +59,6 @@ function validateCostAttributes(v: CostModifierAttributes): boolean {
     return typeof v === "object";
 }
 
-export type ModifierKind = (typeof MODIFIER_KINDS)[number];
-const MODIFIER_KINDS = ["additive", "inverse", "multiplicative"] as const;
-
 export function ActionEffectSchema() {
     return {
         modifiers: new fields.ArrayField(
@@ -72,11 +71,11 @@ export function ActionEffectSchema() {
                         validate: validateSerializedExpression,
                         initial: initalSerializedExpression,
                     }),
-                    modifierKind: new fieldExtensions.StringEnumField({
+                    implementation: new fields.StringField({
                         required: true,
                         nullable: false,
                         initial: "additive",
-                        validate: (x: ModifierKind) => MODIFIER_KINDS.includes(x),
+                        validate: (x: string) => typeof x === "string" && getFromRegistry(x) !== undefined,
                     }),
                     selectable: new fields.BooleanField({ required: true, nullable: false, initial: false }),
                     attributes: new fieldExtensions.TypedObjectField<ModifierAttributes, true, false>({
@@ -120,7 +119,7 @@ export type ActionEffectSchemaType = DataModelSchemaType<typeof ActionEffectSche
 export interface ModifierEntry {
     path: string;
     serializedValue: SerializedExpression;
-    modifierKind: ModifierKind;
+    implementation: string;
     selectable: boolean;
     attributes: ModifierAttributes;
 }
@@ -147,7 +146,7 @@ function asModifierEntry(entry: ModifierEntryInput[number]): ModifierEntry {
     return {
         path: entry.path,
         serializedValue: entry.serializedValue,
-        modifierKind: entry.modifierKind,
+        implementation: entry.implementation,
         selectable: entry.selectable,
         attributes: entry.attributes,
     };
@@ -205,95 +204,6 @@ function readName(model: object): string {
     return typeof name === "string" ? name : "";
 }
 
-class AdditiveModifierWrapper implements IModifier {
-    readonly value: Expression;
-    readonly groupId: string;
-    readonly selectable: boolean;
-    readonly attributes: ModifierAttributes;
-
-    constructor(groupId: string, value: Expression, attributes: ModifierAttributes, selectable: boolean) {
-        this.value = value;
-        this.groupId = groupId;
-        this.attributes = attributes;
-        this.selectable = selectable;
-    }
-
-    get isBonus(): boolean {
-        return isGreaterZero(this.value) ?? true;
-    }
-
-    get isMalus(): boolean {
-        return isLessThanZero(this.value) ?? false;
-    }
-
-    addTooltipFormulaElements(formula: import("module/util/tooltip").TooltipFormula): void {
-        if (this.isBonus) {
-            const term = `+${asString(abs(condense(this.value)))}`;
-            formula.addBonus(term, this.attributes.name);
-        } else {
-            const term = `-${asString(abs(condense(this.value)))}`;
-            formula.addMalus(term, this.attributes.name);
-        }
-    }
-}
-
-class InverseModifierWrapper implements IModifier {
-    readonly value: Expression;
-    readonly groupId: string;
-    readonly selectable: boolean;
-    readonly attributes: ModifierAttributes;
-
-    constructor(groupId: string, value: Expression, attributes: ModifierAttributes, selectable: boolean) {
-        this.value = value;
-        this.groupId = groupId;
-        this.attributes = attributes;
-        this.selectable = selectable;
-    }
-
-    get isBonus(): boolean {
-        return isLessThanZero(this.value) ?? true;
-    }
-
-    get isMalus(): boolean {
-        return isGreaterZero(this.value) ?? false;
-    }
-
-    addTooltipFormulaElements(formula: import("module/util/tooltip").TooltipFormula): void {
-        const partClass = this.isBonus ? "bonus" : "malus";
-        const operator = this.isBonus ? "-" : "+";
-        formula.addOperator(operator);
-        formula.addPart(asString(abs(condense(this.value))), this.attributes.name, partClass);
-    }
-}
-
-class MultiplicativeModifierWrapper implements IModifier {
-    readonly value: Expression;
-    readonly groupId: string;
-    readonly selectable: boolean;
-    readonly attributes: ModifierAttributes;
-
-    constructor(groupId: string, value: Expression, attributes: ModifierAttributes, selectable: boolean) {
-        this.value = value;
-        this.groupId = groupId;
-        this.attributes = attributes;
-        this.selectable = selectable;
-    }
-
-    get isBonus(): boolean {
-        return isGreaterThan(this.value, of(1)) ?? true;
-    }
-
-    get isMalus(): boolean {
-        return isLessThan(this.value, of(1)) ?? false;
-    }
-
-    addTooltipFormulaElements(formula: import("module/util/tooltip").TooltipFormula): void {
-        const partClass = this.isBonus ? "bonus" : "malus";
-        formula.addOperator("*");
-        formula.addPart(asString(abs(condense(this.value))), this.attributes.name, partClass);
-    }
-}
-
 class CostModifierWrapper implements ICostModifier {
     readonly value: CostExpression;
     readonly label: string;
@@ -309,15 +219,12 @@ class CostModifierWrapper implements ICostModifier {
 }
 
 function buildModifierWrapper(entry: ModifierEntry, provider: ActorProvider, onUnbound: () => void): IModifier {
-    const value = deserializeScalar(entry.serializedValue, provider, onUnbound);
-    switch (entry.modifierKind) {
-        case "additive":
-            return new AdditiveModifierWrapper(entry.path, value, entry.attributes, entry.selectable);
-        case "inverse":
-            return new InverseModifierWrapper(entry.path, value, entry.attributes, entry.selectable);
-        case "multiplicative":
-            return new MultiplicativeModifierWrapper(entry.path, value, entry.attributes, entry.selectable);
+    const Impl = getFromRegistry(entry.implementation) as ModifierConstructor | undefined;
+    if (!Impl) {
+        throw new IllegalStateException(`Unknown modifier implementation: ${entry.implementation}`);
     }
+    const value = deserializeScalar(entry.serializedValue, provider, onUnbound);
+    return new Impl(entry.path, value, entry.attributes, entry.selectable, provider);
 }
 
 function buildCostModifierWrapper(

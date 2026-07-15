@@ -1,9 +1,17 @@
-const dataModelRegistry = new Map();
+export type Constructor<T = unknown> = new (...args: any[]) => T;
 
-export function addToRegistry(key: string, constructor: new (...args: any[]) => any) {
-    dataModelRegistry.set(key, constructor);
+const dataModelRegistry = new Map<string, Constructor>();
+const reverseRegistry = new WeakMap<Constructor, string>();
+
+export function addToRegistry(key: string, ctor: Constructor): void {
+    dataModelRegistry.set(key, ctor);
+    reverseRegistry.set(ctor, key);
 }
 
-export function getFromRegistry(key: string): new (...args: any[]) => any {
+export function getFromRegistry(key: string): Constructor | undefined {
     return dataModelRegistry.get(key);
+}
+
+export function getKeyByConstructor(ctor: Constructor): string | undefined {
+    return reverseRegistry.get(ctor);
 }

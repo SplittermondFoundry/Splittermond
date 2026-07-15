@@ -6,7 +6,6 @@ import { withActiveEffect, withActor } from "./fixtures";
 import { passesEventually } from "../util";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import SplittermondItemSheet from "module/item/sheets/item-sheet";
-import type { ModifierDataModel } from "module/activeEffect/dataModel/ModifierDataModel";
 import { serialize as serializeScalar } from "module/modifiers/expressions/scalar/serialization";
 
 declare const Item: any;
@@ -108,7 +107,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                                     {
                                         path: "skills",
                                         serializedValue: serializeScalar(of(1)),
-                                        modifierKind: "additive",
+                                        implementation: "additive",
                                         selectable: false,
                                         attributes: { name: "Kind Change", type: "innate" },
                                     },
@@ -124,7 +123,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                                 {
                                     path: "skills",
                                     serializedValue: serializeScalar(of(-1)),
-                                    modifierKind: "inverse",
+                                    implementation: "inverse",
                                     selectable: false,
                                     attributes: { name: "Kind Change", type: "innate" },
                                 },
@@ -154,7 +153,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                                     {
                                         path: "skills",
                                         serializedValue: serializeScalar(of(1)),
-                                        modifierKind: "additive",
+                                        implementation: "additive",
                                         selectable: false,
                                         attributes: { name: "Kind Change Source", type: "innate" },
                                     },
@@ -171,7 +170,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                                 {
                                     path: "skills",
                                     serializedValue: serializeScalar(of(-2)),
-                                    modifierKind: "inverse",
+                                    implementation: "inverse",
                                     selectable: false,
                                     attributes: { name: "Kind Change Source", type: "innate" },
                                 },
@@ -197,13 +196,12 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         { name: "Test Effect", type: "modifier", system: initData },
                     ]);
 
-                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {
-                        system: ModifierDataModel;
-                    };
+                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect;
                     expect(restored).to.exist;
-                    expect(await evaluate(restored.system.value)).to.equal(5);
-                    expect(restored.system.groupId).to.equal("test.path");
-                    expect(restored.system.attributes.name).to.equal("Test");
+                    const restoredModifier = SplittermondActiveEffect.getModifiers([restored])[0];
+                    expect(await evaluate(restoredModifier.value)).to.equal(5);
+                    expect(restoredModifier.groupId).to.equal("test.path");
+                    expect(restoredModifier.attributes.name).to.equal("Test");
                 })
             );
 
@@ -216,10 +214,9 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         { name: "Complex Effect", type: "modifier", system: initData },
                     ]);
 
-                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect & {
-                        system: ModifierDataModel;
-                    };
-                    expect(await evaluate(restored.system.value)).to.equal(11);
+                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect;
+                    const restoredModifier = SplittermondActiveEffect.getModifiers([restored])[0];
+                    expect(await evaluate(restoredModifier.value)).to.equal(11);
                 })
             );
 
@@ -233,8 +230,9 @@ export function activeEffectTest(context: QuenchBatchContext) {
 
                     actor.prepareData();
 
-                    const effect = actor.effects.contents[0];
-                    expect(await evaluate(effect.system.value)).to.equal(7);
+                    const effect = actor.effects.contents[0] as SplittermondActiveEffect;
+                    const effectModifier = SplittermondActiveEffect.getModifiers([effect])[0];
+                    expect(await evaluate(effectModifier.value)).to.equal(7);
                 })
             );
 
@@ -249,8 +247,9 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         { name: "Ref Effect", type: "modifier", system: initData },
                     ]);
 
-                    const restored = actor.effects.get(effect.id) as any;
-                    expect(await evaluate(restored.system.value)).to.equal(3);
+                    const restored = actor.effects.get(effect.id) as SplittermondActiveEffect;
+                    const restoredModifier = SplittermondActiveEffect.getModifiers([restored])[0];
+                    expect(await evaluate(restoredModifier.value)).to.equal(3);
                 })
             );
 
@@ -295,7 +294,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                                     {
                                         path: "inv.path",
                                         serializedValue: serializeScalar(of(-3)),
-                                        modifierKind: "inverse",
+                                        implementation: "inverse",
                                         selectable: false,
                                         attributes: { name: "Inverse", type: "innate" },
                                     },
@@ -327,7 +326,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                                     {
                                         path: "mult.path",
                                         serializedValue: serializeScalar(of(3)),
-                                        modifierKind: "multiplicative",
+                                        implementation: "multiplicative",
                                         selectable: false,
                                         attributes: { name: "Mult", type: "innate" },
                                     },

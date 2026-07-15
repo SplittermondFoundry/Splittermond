@@ -10,10 +10,12 @@ import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
 import type { IModifier, ModifierType } from "module/modifiers/index";
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import { getKeyByConstructor, type Constructor } from "module/data/dataModelRegistry";
 
 export interface TaggedModifier {
     modifier: IModifier;
     rawFragment: string;
+    implementation: string;
 }
 
 export interface TaggedCostModifier {
@@ -62,7 +64,13 @@ export function initAddModifier(
                 const normalized = processScalarValue(parsedModifier, actorProvider);
                 if (!normalized) continue;
                 const produced = handlerCache.getHandler(normalized.path).processModifier(normalized);
-                produced.forEach((modifier) => modifiers.push({ modifier, rawFragment }));
+                produced.forEach((modifier) =>
+                    modifiers.push({
+                        modifier,
+                        rawFragment,
+                        implementation: getKeyByConstructor(modifier.constructor as Constructor) ?? "additive",
+                    })
+                );
             } else {
                 const normalized = processScalarValue(parsedModifier, actorProvider);
                 if (!normalized) continue;
@@ -101,23 +109,31 @@ export function initAddModifier(
             if (handlerCache.handles(modifier.path)) {
                 const handler = handlerCache.getHandler(modifier.path);
                 const produced = handler.processModifier(modifier);
-                produced.forEach((m) => modifiers.push({ modifier: m, rawFragment }));
+                produced.forEach((m) =>
+                    modifiers.push({
+                        modifier: m,
+                        rawFragment,
+                        implementation: getKeyByConstructor(m.constructor as Constructor) ?? "additive",
+                    })
+                );
                 return;
             }
 
             /**Deprecated*/
             const modifierLabel = modifier.path.toLowerCase();
             //mainly for internal modifiers.
+            const mod = createModifier(
+                modifierLabel,
+                times(of(multiplier), modifier.value),
+                item,
+                type,
+                {},
+                actorProvider
+            );
             modifiers.push({
-                modifier: createModifier(
-                    modifierLabel,
-                    times(of(multiplier), modifier.value),
-                    item,
-                    type,
-                    {},
-                    actorProvider
-                ),
+                modifier: mod,
                 rawFragment,
+                implementation: getKeyByConstructor(mod.constructor as Constructor) ?? "additive",
             });
         });
         // Only display errors to the GM or the owner of the item

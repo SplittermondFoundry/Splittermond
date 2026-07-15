@@ -5,7 +5,7 @@ import { Modifier } from "module/activeEffect";
 import { of } from "module/modifiers/expressions/scalar";
 import { TooltipFormula } from "module/util/tooltip";
 
-describe("ModifierDataModel", () => {
+describe("Modifier", () => {
     let sandbox: sinon.SinonSandbox;
     beforeEach(() => (sandbox = sinon.createSandbox()));
     afterEach(() => sandbox.restore());
