@@ -1,11 +1,11 @@
-import {DataModelSchemaType, fields, SplittermondDataModel} from "module/data/SplittermondDataModel";
-import {DamageMessageData} from "./interfaces";
-import {DamageEvent} from "../../damage/DamageEvent";
-import {foundryApi} from "module/api/foundryApi";
-import {DamageFeature, DamageFeatureSchema} from "../../damage/DamageFeature";
-import {damageHandlers} from "./damageApplicationHandlers";
-import {ChatMessageModel} from "module/data/SplittermondChatMessage";
-import {TEMPLATE_BASE_PATH} from "module/data/SplittermondApplication";
+import { DataModelSchemaType, fields, SplittermondDataModel } from "module/data/SplittermondDataModel";
+import { DamageMessageData } from "./interfaces";
+import { DamageEvent } from "../../damage/DamageEvent";
+import { foundryApi } from "module/api/foundryApi";
+import { DamageFeature, DamageFeatureSchema } from "../../damage/DamageFeature";
+import { damageHandlers } from "./damageApplicationHandlers";
+import { ChatMessageModel } from "module/data/SplittermondChatMessage";
+import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
 function DamageMessageSchema() {
     return {
