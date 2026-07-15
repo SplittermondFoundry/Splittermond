@@ -224,7 +224,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
             const taggedModifier = parsed.modifiers[0] ?? null;
             const taggedCostModifier = parsed.costModifiers[0] ?? null;
             const effectData = taggedModifier
-                ? buildScalarEffectData(taggedModifier.modifier, taggedModifier.rawFragment, this.document.uuid)
+                ? buildScalarEffectData(taggedModifier, this.document.uuid)
                 : taggedCostModifier
                   ? buildCostEffectData(taggedCostModifier.modifier, taggedCostModifier.rawFragment, this.document.uuid)
                   : null;
