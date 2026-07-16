@@ -486,8 +486,7 @@ export default class SplittermondActor extends Actor {
                     name: foundryApi.localize("splittermond.woundMalus"),
                     type: "innate",
                 },
-                of(data.health.woundMalus.value),
-                this
+                of(data.health.woundMalus.value)
             );
             this.modifier.addModifier(
                 InverseModifier.create(
@@ -598,8 +597,7 @@ export default class SplittermondActor extends Actor {
                             name: foundryApi.localize(`splittermond.heroLevels.${data.experience.heroLevel}`),
                             type: "innate",
                         },
-                        of(2 * (data.experience.heroLevel - 1)),
-                        this
+                        of(2 * (data.experience.heroLevel - 1))
                     );
                 });
                 this.modifier.add(
@@ -608,8 +606,7 @@ export default class SplittermondActor extends Actor {
                         name: foundryApi.localize(`splittermond.heroLevels.${data.experience.heroLevel}`),
                         type: "innate",
                     },
-                    of(data.experience.heroLevel - 1),
-                    this
+                    of(data.experience.heroLevel - 1)
                 );
             }
         }
@@ -622,8 +619,7 @@ export default class SplittermondActor extends Actor {
                     name: foundryApi.localize("splittermond.derivedAttribute.size.short"),
                     type: "innate",
                 },
-                of(stealthModifier),
-                this
+                of(stealthModifier)
             );
         }
 
@@ -638,8 +634,7 @@ export default class SplittermondActor extends Actor {
                             name: label,
                             type: "equipment",
                         },
-                        of(-handicap),
-                        this
+                        of(-handicap)
                     );
                 }
             );
@@ -649,8 +644,7 @@ export default class SplittermondActor extends Actor {
                     name: label,
                     type: "innate",
                 },
-                of(-Math.floor(handicap / 2)),
-                this
+                of(-Math.floor(handicap / 2))
             );
         }
     }
