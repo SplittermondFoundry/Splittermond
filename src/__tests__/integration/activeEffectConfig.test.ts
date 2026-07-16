@@ -38,7 +38,12 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 {
                     name: "Start",
                     type: "modifier",
-                    system: Modifier.init("skills", of(1), { name: "Test", type: "innate", skill: "acrobatics" }),
+                    system: {
+                        modifiers: [
+                            Modifier.init("skills", of(1), { name: "Test", type: "innate", skill: "acrobatics" }),
+                        ],
+                        costModifiers: [],
+                    },
                 },
                 async (effect) => {
                     const sheet = effect.sheet as SplittermondActiveEffectConfig;
@@ -46,7 +51,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
 
                     await passesEventually(
                         () => {
-                            expect(effect.system.path).to.equal("actor.skills");
+                            expect(effect.system.modifiers[0].path).to.equal("actor.skills");
                             expect(effect.getFlag("splittermond", "rawInput")).to.equal("skills skill=acrobatics +2");
                         },
                         1500,
@@ -191,7 +196,10 @@ export function activeEffectTest(context: QuenchBatchContext) {
             it(
                 "should persist and restore a simple expression through an ActiveEffect",
                 withActor(async (actor) => {
-                    const initData = Modifier.init("test.path", of(5), { name: "Test", type: "innate" });
+                    const initData = {
+                        modifiers: [Modifier.init("test.path", of(5), { name: "Test", type: "innate" })],
+                        costModifiers: [],
+                    };
                     const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
                         { name: "Test Effect", type: "modifier", system: initData },
                     ]);
@@ -209,7 +217,10 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 "should persist and restore a complex expression",
                 withActor(async (actor) => {
                     const expr = plus(of(3), times(of(2), of(4)));
-                    const initData = Modifier.init("complex.path", expr, { name: "Complex", type: "magic" });
+                    const initData = {
+                        modifiers: [Modifier.init("complex.path", expr, { name: "Complex", type: "magic" })],
+                        costModifiers: [],
+                    };
                     const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
                         { name: "Complex Effect", type: "modifier", system: initData },
                     ]);
@@ -223,7 +234,10 @@ export function activeEffectTest(context: QuenchBatchContext) {
             it(
                 "should survive actor re-preparation",
                 withActor(async (actor) => {
-                    const initData = Modifier.init("prep.path", of(7), { name: "Prep", type: "innate" });
+                    const initData = {
+                        modifiers: [Modifier.init("prep.path", of(7), { name: "Prep", type: "innate" })],
+                        costModifiers: [],
+                    };
                     await actor.createEmbeddedDocuments("ActiveEffect", [
                         { name: "Prep Effect", type: "modifier", system: initData },
                     ]);
@@ -242,7 +256,10 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     actor.updateSource({ system: { attributes: { intuition: { initial: 3 } } } });
 
                     const expr = ref("attributes.intuition.value", () => null, "attributes.intuition.value");
-                    const initData = Modifier.init("empathy", expr, { name: "RefTest", type: "innate" });
+                    const initData = {
+                        modifiers: [Modifier.init("empathy", expr, { name: "RefTest", type: "innate" })],
+                        costModifiers: [],
+                    };
                     const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
                         { name: "Ref Effect", type: "modifier", system: initData },
                     ]);
@@ -267,7 +284,10 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     });
 
                     const expr = ref("attributes.intuition.value", () => null, "attributes.intuition.value");
-                    const initData = Modifier.init("empathy", expr, { name: "EmpathyBoost", type: "innate" });
+                    const initData = {
+                        modifiers: [Modifier.init("empathy", expr, { name: "EmpathyBoost", type: "innate" })],
+                        costModifiers: [],
+                    };
                     await actor.createEmbeddedDocuments("ActiveEffect", [
                         { name: "Empathy Boost", type: "modifier", system: initData },
                     ]);
@@ -364,11 +384,16 @@ export function activeEffectTest(context: QuenchBatchContext) {
                             type: "modifier",
                             transfer: true,
                             disabled: false,
-                            system: Modifier.init("actor.skills", of(2), {
-                                name: "Training Sword",
-                                type: "innate",
-                                skill: "acrobatics",
-                            }),
+                            system: {
+                                modifiers: [
+                                    Modifier.init("actor.skills", of(2), {
+                                        name: "Training Sword",
+                                        type: "innate",
+                                        skill: "acrobatics",
+                                    }),
+                                ],
+                                costModifiers: [],
+                            },
                         },
                     ]);
 
@@ -402,7 +427,12 @@ export function activeEffectTest(context: QuenchBatchContext) {
                             type: "modifier",
                             transfer: true,
                             disabled: false,
-                            system: Modifier.init("skills.mysticism", of(1), { name: "Arcane Focus", type: "magic" }),
+                            system: {
+                                modifiers: [
+                                    Modifier.init("skills.mysticism", of(1), { name: "Arcane Focus", type: "magic" }),
+                                ],
+                                costModifiers: [],
+                            },
                         },
                     ]);
 

@@ -7,7 +7,8 @@ import {
     type ActionEffectSchemaType,
 } from "module/activeEffect/dataModel/ActionEffectDataModel";
 import { serialize as serializeScalar } from "module/modifiers/expressions/scalar/serialization";
-import { of } from "module/modifiers/expressions/scalar";
+import { type Expression, of } from "module/modifiers/expressions/scalar";
+import type { ModifierAttributes } from "module/modifiers";
 import { serialize as serializeCost } from "module/modifiers/expressions/cost/serialization";
 import { of as ofCost } from "module/modifiers/expressions/cost";
 import { CostModifier } from "module/util/costs/Cost";
@@ -19,9 +20,9 @@ type CostModifierEntry = ActionEffectSchemaType["costModifiers"][number];
 
 function modifierEntry(
     path: string,
-    value: Expression
-    "additive" | "inverse" | "multiplicative",
-    attributes: { string; "magic" | "equipment" | "innate" | null } = { name: "Test", type: "innate" }
+    value: Expression,
+    kind: "additive" | "inverse" | "multiplicative",
+    attributes: ModifierAttributes = { name: "Test", type: "innate" }
 ): ModifierEntry {
     return {
         path,
