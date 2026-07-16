@@ -13,7 +13,7 @@ import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
 import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
 import { CostModifier as CostValue } from "module/util/costs/Cost";
 import { getFromRegistry } from "module/data/dataModelRegistry";
-import {IllegalStateException} from "module/data/exceptions";
+import { IllegalStateException } from "module/data/exceptions";
 
 interface ModifierConstructor {
     new (
