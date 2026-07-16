@@ -210,11 +210,16 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         const activeEffectData = {
             name: "Integration Test Effect",
             type: "modifier",
-            system: Modifier.init("skills", of(1), {
-                name: "Integration Test",
-                type: "innate",
-                skill: "acrobatics",
-            }),
+            system: {
+                modifiers: [
+                    Modifier.init("skills", of(1), {
+                        name: "Integration Test",
+                        type: "innate",
+                        skill: "acrobatics",
+                    }),
+                ],
+                costModifiers: [],
+            },
         };
 
         it("should be a class", () => {
