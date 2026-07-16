@@ -1319,7 +1319,10 @@ export function modifierTest(context: QuenchBatchContext) {
                         type: "modifier",
                         transfer: true,
                         disabled: false,
-                        system: Modifier.init("empathy", of(2), { name: "Begabung", type: "innate" }),
+                        system: {
+                            modifiers: [Modifier.init("empathy", of(2), { name: "Begabung", type: "innate" })],
+                            costModifiers: [],
+                        },
                     },
                 ]);
 
@@ -1359,7 +1362,12 @@ export function modifierTest(context: QuenchBatchContext) {
                         type: "modifier",
                         transfer: true,
                         disabled: false,
-                        system: Modifier.init("actor.woundmalus.mod", of(2), { name: "Eiserne Haut", type: "innate" }),
+                        system: {
+                            modifiers: [
+                                Modifier.init("actor.woundmalus.mod", of(2), { name: "Eiserne Haut", type: "innate" }),
+                            ],
+                            costModifiers: [],
+                        },
                     },
                 ]);
 
