@@ -1,6 +1,7 @@
 import { foundryApi } from "module/api/foundryApi";
 
-type Constructor = new (...args: any[]) => object;
+// any[] required: TS2545 forces mixin base constructors to use any[].
+type Constructor = new (...args: any[]) => { parent?: FoundryDocument | null };
 
 export function UnboundWarner<TBase extends Constructor>(base: TBase) {
     abstract class UnboundWarner extends base {
@@ -15,7 +16,7 @@ export function UnboundWarner<TBase extends Constructor>(base: TBase) {
         private issueUnboundWarning() {
             if (!this._unboundWarningIssued) {
                 this._unboundWarningIssued = true;
-                const isOwnerOrGm = (this as any).parent?.isOwner || foundryApi.currentUser?.isGM;
+                const isOwnerOrGm = this.parent?.isOwner || foundryApi.currentUser?.isGM;
                 if (isOwnerOrGm) {
                     foundryApi.warnUser(
                         "splittermond.modifiers.parseMessages.unboundReference",

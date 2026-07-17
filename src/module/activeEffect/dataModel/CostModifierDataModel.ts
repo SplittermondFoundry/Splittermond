@@ -13,6 +13,10 @@ import { SplittermondActiveEffect } from "module/activeEffect";
 type SerializedCostExpression = Record<string, unknown> & { type: string };
 type CostModifierAttributes = { skill?: string; type?: string };
 
+interface CostModifierContext {
+    actorProvider?: ActorProvider;
+}
+
 function CostModifierDataModelSchema() {
     return {
         label: new fields.StringField({ required: true, nullable: false }),
@@ -43,17 +47,21 @@ export class CostModifierDataModel
     extends UnboundWarner(SplittermondActiveEffectDataModel<CostModifierDataModelType, SplittermondActiveEffect>)
     implements ICostModifier
 {
+    // Method form: ActiveEffectTypeDataModel.defineSchema contributes the `changes` field.
     static defineSchema() {
         return { ...super.defineSchema(), ...CostModifierDataModelSchema() };
     }
 
-    readonly value: CostExpression;
+    readonly #injectedProvider: ActorProvider | undefined;
 
     constructor(data: DataModelConstructorInput<CostModifierDataModelType>, context: unknown) {
         super(data, context);
-        const ctx = context as any;
-        const provider: ActorProvider = ctx?.actorProvider ?? (() => resolveHostActor(this.parent));
-        this.value = deserialize(this.serializedValue, provider, this.produceIssueWarning());
+        this.#injectedProvider = (context as CostModifierContext)?.actorProvider;
+    }
+
+    get value(): CostExpression {
+        const provider = this.#injectedProvider ?? (() => resolveHostActor(this.parent));
+        return deserialize(this.serializedValue, provider, this.produceIssueWarning());
     }
 
     /**
@@ -79,7 +87,7 @@ export class CostModifierDataModel
     }
 
     get attributes(): { skill?: string; type?: string } {
-        return (this as any).toObject().attributes;
+        return this.toObject().attributes;
     }
 
     protected unboundWarningContext() {

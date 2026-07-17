@@ -9,6 +9,10 @@ import { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
 
 type AddModifierFn = (item: IModifierSource, str: string, type: ModifierType, multiplier: number) => AddModifierResult;
 
+interface HasModifierString {
+    system: { modifier: string | null };
+}
+
 interface EffectCreationData {
     name: string;
     origin: string;
@@ -115,7 +119,7 @@ export async function rebuildModifierEffects(
     modifierType: ModifierType,
     multiplier: number = 1
 ): Promise<void> {
-    const modifierString: string = (item.system as any).modifier ?? "";
+    const modifierString: string = (item as HasModifierString).system.modifier ?? "";
 
     const existingAutoEffects = item.effects.filter(isGenerated);
     const idsToDelete: string[] = existingAutoEffects.map((e) => e.id);
