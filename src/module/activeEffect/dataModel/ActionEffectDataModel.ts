@@ -31,7 +31,7 @@ type CostModifierAttributes = { skill?: string; type?: string };
 
 const present = { required: true, nullable: false } as const;
 
-const initalSerializedExpression = {
+const initialSerializedExpression = {
     type: "amount",
     amount: 0,
 } as const;
@@ -69,7 +69,7 @@ export function ActionEffectSchema() {
                         required: true,
                         nullable: false,
                         validate: validateSerializedExpression,
-                        initial: initalSerializedExpression,
+                        initial: initialSerializedExpression,
                     }),
                     implementation: new fields.StringField({
                         required: true,
@@ -165,6 +165,7 @@ export class ActionEffectDataModel
     extends UnboundWarner(SplittermondActiveEffectDataModel<ActionEffectSchemaType, SplittermondActiveEffect>)
     implements HasModifiers, HasCostModifiers
 {
+    // Method form: ActiveEffectTypeDataModel.defineSchema contributes the `changes` field.
     static defineSchema() {
         return { ...super.defineSchema(), ...ActionEffectSchema() };
     }

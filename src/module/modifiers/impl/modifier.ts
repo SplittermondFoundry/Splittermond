@@ -1,4 +1,4 @@
-import { addToRegistry } from "module/data/dataModelRegistry";
+import { addToRegistry, type Constructor } from "module/data/dataModelRegistry";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import type { IModifier, ModifierAttributes } from "module/modifiers";
 import type { Expression } from "module/modifiers/expressions/scalar";
@@ -65,4 +65,4 @@ export class Modifier implements IModifier {
     }
 }
 
-addToRegistry(Modifier.key, Modifier);
+addToRegistry(Modifier.key, Modifier as Constructor);

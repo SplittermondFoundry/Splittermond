@@ -78,13 +78,15 @@ export class SplittermondActiveEffectCreationDialog {
                     };
                     createData.type = selectedType;
 
-                    const doc = await cls.create(createData, { renderSheet: false, ...createOptions });
+                    const doc: FoundryDocument & {
+                        sheet?: { render(force?: boolean, options?: object): unknown };
+                    } = await cls.create(createData, { renderSheet: false, ...createOptions });
                     const finalRenderOptions = {
                         renderContext: renderOptions.renderContext ?? "createActiveEffect",
                         renderData: renderOptions.renderData ?? createData,
                         ...renderOptions,
                     };
-                    (doc as any).sheet?.render(true, finalRenderOptions);
+                    doc.sheet?.render(true, finalRenderOptions);
                     return doc;
                 },
             },
