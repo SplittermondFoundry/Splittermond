@@ -1,4 +1,4 @@
-export type Constructor<T = unknown> = new (...args: any[]) => T;
+export type Constructor<T = unknown> = new (...args: unknown[]) => T;
 
 const dataModelRegistry = new Map<string, Constructor>();
 const reverseRegistry = new WeakMap<Constructor, string>();

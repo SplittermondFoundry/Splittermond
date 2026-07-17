@@ -1,4 +1,4 @@
-import { addToRegistry } from "module/data/dataModelRegistry";
+import { addToRegistry, type Constructor } from "module/data/dataModelRegistry";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import type { IModifier, ModifierAttributes } from "module/modifiers";
 import type { Expression } from "module/modifiers/expressions/scalar";
@@ -62,4 +62,4 @@ export class InverseModifier implements IModifier {
     }
 }
 
-addToRegistry(InverseModifier.key, InverseModifier);
+addToRegistry(InverseModifier.key, InverseModifier as Constructor);

@@ -216,29 +216,30 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
     _processFormData(event: Event, form: HTMLFormElement, formData: { object: Record<string, unknown> }): object {
         const submitData = super._processFormData(event, form, formData) as Record<string, unknown>;
         processDurationFormData(submitData);
-        if (this.#isModifierType(this.document.type)) {
-            const rawInput = this.#readString(submitData, "splittermondRawInput");
-            delete submitData.splittermondRawInput;
-            if (!rawInput) return submitData;
-            const parsed = this.#parse(rawInput);
-            const taggedModifier = parsed.modifiers[0] ?? null;
-            const taggedCostModifier = parsed.costModifiers[0] ?? null;
-            const effectData = taggedModifier
-                ? buildScalarEffectData(taggedModifier, this.document.uuid)
-                : taggedCostModifier
-                  ? buildCostEffectData(taggedCostModifier.modifier, taggedCostModifier.rawFragment, this.document.uuid)
-                  : null;
-            if (!effectData) return submitData;
-            submitData.type = effectData.type;
-            submitData.system = effectData.system;
-            submitData.flags = foundryApi.utils.mergeObject((submitData.flags as object) ?? {}, {
-                splittermond: {
-                    rawInput,
-                },
-            });
-            return submitData;
-        }
+        return this.#processModifierFormData(submitData);
+    }
 
+    #processModifierFormData(submitData: Record<string, unknown>): Record<string, unknown> {
+        if (!this.#isModifierType(this.document.type)) return submitData;
+        const rawInput = this.#readString(submitData, "splittermondRawInput");
+        delete submitData.splittermondRawInput;
+        if (!rawInput) return submitData;
+        const parsed = this.#parse(rawInput);
+        const taggedModifier = parsed.modifiers[0] ?? null;
+        const taggedCostModifier = parsed.costModifiers[0] ?? null;
+        const effectData = taggedModifier
+            ? buildScalarEffectData(taggedModifier, this.document.uuid)
+            : taggedCostModifier
+              ? buildCostEffectData(taggedCostModifier.modifier, taggedCostModifier.rawFragment, this.document.uuid)
+              : null;
+        if (!effectData) return submitData;
+        submitData.type = effectData.type;
+        submitData.system = effectData.system;
+        submitData.flags = foundryApi.utils.mergeObject((submitData.flags as object) ?? {}, {
+            splittermond: {
+                rawInput,
+            },
+        });
         return submitData;
     }
 
