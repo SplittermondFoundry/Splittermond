@@ -1,7 +1,10 @@
 {
     "TYPES": {
         "ActiveEffect": {
-            "modifier": "Modifikator"
+            "modifier": "Modifikator",
+            "spellEffect": "Zauberwirkung",
+            "spellEnhancedEffect": "Verstärkte Zauberwirkung",
+            "attackEffect": "Angriffswirkung"
         },
         "Item": {
             "weapon": "Waffe",
@@ -139,7 +142,10 @@
         "activeEffect": {
             "type": {
                 "base": "Foundry nativ",
-                "modifier": "Modifikator"
+                "modifier": "Modifikator",
+                "spellEffect": "Zauberwirkung",
+                "spellEnhancedEffect": "Verstärkte Zauberwirkung",
+                "attackEffect": "Angriffswirkung"
             },
             "creation": {
                 "title": "Aktiven Effekt erstellen",
