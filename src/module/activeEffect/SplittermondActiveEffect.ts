@@ -7,25 +7,25 @@ import type { DatabaseUpdateOperation, DataModelUpdateOptions } from "module/api
 import { foundryApi } from "module/api/foundryApi";
 import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
 import type { ActionEffectDataModel } from "module/activeEffect/dataModel/ActionEffectDataModel";
+import type SplittermondWeaponItem from "module/item/weapon";
+import type SplittermondShieldItem from "module/item/shield";
+import type SplittermondArmorItem from "module/item/armor";
+
+interface HasActiveFlag {
+    system: { active: boolean };
+}
 
 export type DurationMode = "timed" | "channelled" | "permanent";
 
 /**
  * Splittermond system subclass of ActiveEffect.
- *
- * This is a test balloon: for now, status effect items propagate their parsed modifiers
- * as ActiveEffect documents. The effects are displayed in the actor's status tab but are
- * NOT yet consumed by the modifier system — the old pipeline still handles application.
  */
 export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
     declare type: EffectType | "base";
     declare system: ActionEffectDataModel | {};
     /**
-     * Determine whether this effect is suppressed based on the source item's state.
-     * For example, weapon effects are suppressed when the weapon is not equipped.
-     *
-     * Currently only statuseffect items create effects, so this is mostly a no-op,
-     * but it lays the groundwork for equipped/active suppression later.
+     * Whether this effect is suppressed based on the source item's state
+     * (e.g. a weapon effect is suppressed when the weapon is not equipped).
      */
     get isSuppressed(): boolean {
         if (super.isSuppressed) return true;
@@ -36,11 +36,13 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
 
         switch (sourceItem.type) {
             case "weapon":
+                return !(sourceItem as SplittermondWeaponItem).system.equipped;
             case "shield":
+                return !(sourceItem as SplittermondShieldItem).system.equipped;
             case "armor":
-                return !(sourceItem.system as any).equipped;
+                return !(sourceItem as SplittermondArmorItem).system.equipped;
             case "spelleffect":
-                return !(sourceItem.system as any).active;
+                return !(sourceItem as unknown as HasActiveFlag).system.active;
             default:
                 return false;
         }
