@@ -265,13 +265,12 @@ export default class SplittermondActor extends Actor {
     applyActiveEffects(phase) {
         super.applyActiveEffects(phase);
         if (phase !== "initial") return; //needs to be initial, b/c 'final' happens after derived value calculation.
-        SplittermondActiveEffect.withFilter(not(isGenerated))
-            .getModifiers(this.allApplicableEffects())
-            .forEach((mod) => this.modifier.addModifier(mod));
-        const costModifiers = SplittermondActiveEffect.withFilter(not(isGenerated)).getCostModifiers(
-            this.allApplicableEffects()
-        );
-        this.sortCostModifiersIntoManagers(costModifiers);
+        SplittermondActiveEffect.withFilter();
+        for (/**@type SplittermondActiveEffect*/ const effect of this.allApplicableEffects()) {
+            if (isGenerated(effect)) continue;
+            SplittermondActiveEffect.getModifiers([effect]).forEach((mod) => this.modifier.addModifier(mod));
+            this.sortCostModifiersIntoManagers(SplittermondActiveEffect.getCostModifiers([effect]));
+        }
     }
 
     /**
