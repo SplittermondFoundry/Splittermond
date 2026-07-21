@@ -250,6 +250,33 @@ describe("effectBuilder", () => {
 
             expect(item.deleteEmbeddedDocuments.called).to.be.false;
         });
+
+        it("uses the explicit modifierString argument instead of system.modifier when provided", async () => {
+            const modifier = makeScalarModifier();
+            const addModifier = makeAddModifierFn({
+                modifiers: [makeTagged(modifier, "skills.acrobatics +2")],
+                costModifiers: [],
+            });
+            const item = makeItem();
+            item.system.modifier = "skills.acrobatics +4";
+
+            await rebuildModifierEffects(addModifier, item, "magic", 1, "skills.acrobatics +2");
+
+            expect(addModifier.calledWith(item, "skills.acrobatics +2", "magic", 1)).to.be.true;
+            const [, effects] = item.createEmbeddedDocuments.firstCall.args;
+            expect(effects[0].flags.splittermond.rawInput).to.equal("skills.acrobatics +2");
+        });
+
+        it("skips creation when the explicit modifierString is empty even if system.modifier is set", async () => {
+            const addModifier = makeAddModifierFn({ modifiers: [], costModifiers: [] });
+            const item = makeItem();
+            item.system.modifier = "skills.acrobatics +2";
+
+            await rebuildModifierEffects(addModifier, item, "magic", 1, "   ");
+
+            expect(addModifier.called).to.be.false;
+            expect(item.createEmbeddedDocuments.called).to.be.false;
+        });
     });
 
     describe("addModifierEffects — mixed scalar and cost", () => {

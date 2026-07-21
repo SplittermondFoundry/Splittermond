@@ -121,25 +121,92 @@ export default class SplittermondItem extends Item {
     /** @override */
     async _onCreate(data, options, userId) {
         await super._onCreate(data, options, userId);
-        if (this.type === "statuseffect" && game.user.id === userId) {
-            await this.#rebuildStatusEffectModifiers();
+        if (game.user.id !== userId) return;
+        const config = this.#modifierRebuildConfig();
+        if (config) {
+            await this.#rebuildItemModifierEffects(config);
         }
     }
 
     /** @override */
     async _onUpdate(changed, options, userId) {
         await super._onUpdate(changed, options, userId);
-        if (this.type === "statuseffect" && game.user.id === userId) {
-            const modifierChanged = "modifier" in (changed.system ?? {});
-            const levelChanged = "level" in (changed.system ?? {});
-            if (modifierChanged || levelChanged) {
-                await this.#rebuildStatusEffectModifiers();
-            }
+        if (game.user.id !== userId) return;
+        const config = this.#modifierRebuildConfig();
+        if (!config) return;
+        const system = changed.system ?? {};
+        if (!config.rebuildTrigger(system)) return;
+        await this.#rebuildItemModifierEffects(config);
+    }
+
+    /**
+     * Per-type rebuild configuration mirroring prepareActorData's switch.
+     * Returns null for item types that do not carry a `system.modifier` field.
+     */
+    #modifierRebuildConfig() {
+        switch (this.type) {
+            case "weapon":
+            case "shield":
+            case "armor":
+            case "equipment":
+                return {
+                    modifierType: "equipment",
+                    multiplier: 1,
+                    rebuildTrigger: (system) => "modifier" in system,
+                };
+            case "strength":
+                return {
+                    modifierType: "innate",
+                    multiplier: this.system.quantity ?? 1,
+                    rebuildTrigger: (system) => "modifier" in system || "quantity" in system,
+                };
+            case "statuseffect":
+                return {
+                    modifierType: "innate",
+                    multiplier: this.system.level ?? 1,
+                    rebuildTrigger: (system) => "modifier" in system || "level" in system,
+                };
+            case "spelleffect":
+                return {
+                    modifierType: "magic",
+                    multiplier: 1,
+                    rebuildTrigger: (system) => "modifier" in system,
+                };
+            case "mastery":
+                return {
+                    modifierType: "innate",
+                    multiplier: 1,
+                    rebuildTrigger: (system) => "modifier" in system || "skill" in system,
+                };
+            case "npcfeature":
+            case "culturelore":
+                return {
+                    modifierType: "innate",
+                    multiplier: 1,
+                    rebuildTrigger: (system) => "modifier" in system,
+                };
+            default:
+                return null;
         }
     }
 
-    async #rebuildStatusEffectModifiers() {
-        const level = this.system.level ?? 1;
-        await rebuildModifierEffects(_addModifier, this, "magic", level);
+    async #rebuildItemModifierEffects(config) {
+        let modifierString = this.system.modifier ?? "";
+        if (this.type === "mastery") {
+            let name = this.name;
+            if (name.startsWith("Schwerpunkt")) {
+                name = this.name.substring(12).trim();
+            }
+            modifierString = modifierString
+                .replaceAll("${skill}", this.system.skill ?? "")
+                .replaceAll("${name}", name);
+        }
+        await rebuildModifierEffects(
+            _addModifier,
+            this,
+            config.modifierType,
+            config.multiplier,
+            modifierString
+        );
     }
 }
