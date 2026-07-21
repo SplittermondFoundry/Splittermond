@@ -26,6 +26,7 @@ import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 import { fromExpression } from "module/util/util.ts";
 import { isGenerated } from "module/activeEffect/effectBuilder.ts";
 import { not } from "module/util/util.ts";
+import { getFromRegistry } from "module/data/dataModelRegistry";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -573,15 +574,35 @@ export default class SplittermondActor extends Actor {
     //this function is used in item.js to add modifiers to the actor
     addModifier(item, str = "", type = "", multiplier = 1) {
         const result = addModifier(item, str, type, multiplier);
+        const multiplied = of(multiplier);
 
-        // Apply scalar modifiers to the actor's modifier manager
-        result.modifiers.forEach(({ modifier }) => {
-            this.modifier.addModifier(modifier);
+        // Apply scalar modifiers to the actor's modifier manager.
+        // Handlers no longer bake the multiplier (S4); re-wrap each modifier with the multiplied value here.
+        result.modifiers.forEach(({ modifier, implementation }) => {
+            const Impl = getFromRegistry(implementation);
+            if (!Impl) {
+                this.modifier.addModifier(modifier);
+                return;
+            }
+            const value = modifier.applyMultiplier(multiplied);
+            const rewrapped = Impl.create(
+                modifier.groupId,
+                value,
+                modifier.attributes,
+                modifier.selectable,
+                modifier.actorProvider
+            );
+            this.modifier.addModifier(rewrapped);
         });
 
-        // Apply cost modifiers to the appropriate spell cost reduction managers
+        // Apply cost modifiers to the appropriate spell cost reduction managers.
+        // Same re-wrap as for scalar modifiers: handlers no longer bake, so apply the multiplier here.
         const data = asPreparedData(this.system);
-        this.sortCostModifiersIntoManagers(result.costModifiers.map((m) => m.modifier));
+        const rewrappedCostModifiers = result.costModifiers.map(({ modifier }) => ({
+            ...modifier,
+            value: modifier.applyMultiplier(multiplied),
+        }));
+        this.sortCostModifiersIntoManagers(rewrappedCostModifiers);
         return result;
     }
 

@@ -7,7 +7,7 @@ import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
 import { serialize } from "module/modifiers/expressions/scalar/serialization";
 import { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
 
-type AddModifierFn = (item: IModifierSource, str: string, type: ModifierType, multiplier: number) => AddModifierResult;
+type AddModifierFn = (item: IModifierSource, str: string, type: ModifierType) => AddModifierResult;
 
 interface HasModifierString {
     system: { modifier: string | null };
@@ -86,12 +86,11 @@ export async function addModifierEffects(
     addModifier: AddModifierFn,
     item: IModifierSource,
     modifierString: string,
-    modifierType: ModifierType = "magic" as ModifierType,
-    multiplier: number = 1
+    modifierType: ModifierType = "magic" as ModifierType
 ): Promise<void> {
     if (!modifierString.trim()) return;
 
-    const { modifiers, costModifiers } = addModifier(item, modifierString, modifierType, multiplier);
+    const { modifiers, costModifiers } = addModifier(item, modifierString, modifierType);
 
     const effectDataArray: EffectCreationData[] = [
         ...modifiers.map((tagged) => buildScalarEffectData(tagged, item.uuid)),
@@ -121,11 +120,9 @@ export async function rebuildModifierEffects(
     addModifier: AddModifierFn,
     item: SplittermondItem,
     modifierType: ModifierType,
-    multiplier: number = 1,
     modifierString?: string
 ): Promise<void> {
-    const resolvedModifierString: string =
-        modifierString ?? (item as HasModifierString).system.modifier ?? "";
+    const resolvedModifierString: string = modifierString ?? (item as HasModifierString).system.modifier ?? "";
 
     const existingAutoEffects = item.effects.filter(isGenerated);
     const idsToDelete: string[] = existingAutoEffects.map((e) => e.id);
@@ -135,7 +132,7 @@ export async function rebuildModifierEffects(
 
     if (!resolvedModifierString.trim()) return;
 
-    const { modifiers, costModifiers } = addModifier(item, resolvedModifierString, modifierType, multiplier);
+    const { modifiers, costModifiers } = addModifier(item, resolvedModifierString, modifierType);
 
     const effectDataArray: EffectCreationData[] = [
         ...modifiers.map((tagged) => buildScalarEffectData(tagged, item.uuid)),

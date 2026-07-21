@@ -30,8 +30,7 @@ import { WeaponDataModel, type WeaponDataModelType } from "./dataModel/WeaponDat
 import { type ScalarRegistry } from "module/modifiers";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { registerSheets } from "module/item/sheets/registration";
-import type { AddModifierResult } from "module/modifiers/modifierAddition";
-import type { ModifierType } from "module/modifiers";
+import type { IAddModifier } from "module/actor/addModifierAdapter";
 import { setAddModifier } from "module/item/item";
 
 type SplittermondItemDataModel =
@@ -105,11 +104,7 @@ export type {
     SplittermondItemDataModel,
 };
 
-export function initializeItem(
-    config: typeof CONFIG,
-    modifierRegistry: ScalarRegistry,
-    addModifier: (item: SplittermondItem, str: string, type: ModifierType, multiplier: number) => AddModifierResult
-) {
+export function initializeItem(config: typeof CONFIG, modifierRegistry: ScalarRegistry, addModifier: IAddModifier) {
     console.log("Splittermond | Initializing Item feature");
     setAddModifier(addModifier);
     config.Item.documentClass = SplittermondItem;
