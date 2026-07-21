@@ -15,14 +15,16 @@ import { settings } from "module/settings";
 import { JSDOM } from "jsdom";
 import { StrengthDataModel } from "module/item/dataModel/StrengthDataModel";
 import { Modifier } from "module/activeEffect";
-import { of } from "module/modifiers/expressions/scalar";
+import { evaluate, of } from "module/modifiers/expressions/scalar";
+import { evaluate as evaluateCost } from "module/modifiers/expressions/cost";
 import { actualAddModifierFunction } from "module/actor/addModifierAdapter";
 import { initializeModifiers } from "module/modifiers";
 import { createTestRoll, stubFoundryRoll } from "../../RollMock";
 import type { User } from "module/api/foundryTypes";
 import { createHtml } from "../../../handlebarHarness";
 import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
-
+import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
+import { initAddModifier } from "module/modifiers/modifierAddition";
 declare const global: any;
 
 describe("SplittermondActor", () => {
@@ -181,6 +183,50 @@ describe("SplittermondActor", () => {
             actor.addModifier(item, "bonuscap +2", "innate");
             const modifiers = actor.modifier.getForId("bonuscap").getModifiers();
             expect(modifiers).to.not.be.empty;
+        });
+
+        it("should apply the multiplier to scalar modifiers at the addModifier call site (legacy path)", async () => {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            sandbox.stub(foundryApi, "format").callsFake((key) => key);
+            sandbox.stub(foundryApi, "reportError").callsFake(() => {});
+            const item = sandbox.createStubInstance(SplittermondItem);
+            actor.prepareBaseData();
+            actor.addModifier(item, "bonuscap +3", "innate", 2);
+            const modifiers = actor.modifier.getForId("bonuscap").getModifiers();
+            expect(modifiers).to.have.length(1);
+            expect(await evaluate(modifiers[0].value)).to.equal(6);
+        });
+
+        it("should apply the multiplier to cost modifiers at the addModifier call site (legacy path)", async () => {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            sandbox.stub(foundryApi, "format").callsFake((key) => key);
+            sandbox.stub(foundryApi, "reportError").callsFake(() => {});
+            const modifiers = initializeModifiers();
+            registerActorModifiers(modifiers.modifierRegistry);
+            modifiers.costModifierRegistry.addHandler(CostModifierHandler.config.topLevelPath, CostModifierHandler);
+            const previousSelf = actualAddModifierFunction.self;
+            actualAddModifierFunction.self = initAddModifier(
+                modifiers.modifierRegistry,
+                modifiers.costModifierRegistry
+            );
+            try {
+                const item = sandbox.createStubInstance(SplittermondItem);
+                actor.prepareBaseData();
+                const addCostModifierSpy = sandbox.spy(
+                    (actor.system as unknown as { spellCostReduction: { addCostModifier: (m: unknown) => void } })
+                        .spellCostReduction,
+                    "addCostModifier"
+                );
+                actor.addModifier(item, "focus.reduction 3", "innate", 2);
+                expect(addCostModifierSpy.calledOnce).to.be.true;
+                const stored = addCostModifierSpy.firstCall.args[0] as {
+                    value: import("module/modifiers/expressions/cost").CostExpression;
+                };
+                const evaluated = await evaluateCost(stored.value);
+                expect(evaluated._exhausted).to.equal(6);
+            } finally {
+                actualAddModifierFunction.self = previousSelf;
+            }
         });
     });
 

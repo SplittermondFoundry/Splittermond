@@ -1,5 +1,5 @@
 import { type Config, IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
-import { Expression, isZero, times } from "module/modifiers/expressions/scalar";
+import { Expression, isZero } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import { Modifier } from "module/activeEffect";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
@@ -24,7 +24,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
         logErrors: (...message: string[]) => void,
         private readonly sourceItem: IModifierSource,
         private readonly modifierType: ModifierType,
-        private readonly multiplier: Expression
+        _multiplier: Expression
     ) {
         super(logErrors, CheckModifierHandler.config);
         this.commonNormalizers = new CommonNormalizers(
@@ -46,7 +46,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
             type: this.modifierType,
             emphasis,
         };
-        const totalValue = times(modifier.value, this.multiplier);
+        const totalValue = modifier.value;
         return [
             Modifier.create(modifier.path, totalValue, attributes, !!attributes.emphasis, () => this.sourceItem.actor),
         ];

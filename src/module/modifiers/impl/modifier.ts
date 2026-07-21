@@ -2,7 +2,7 @@ import { addToRegistry, type Constructor } from "module/data/dataModelRegistry";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import type { IModifier, ModifierAttributes } from "module/modifiers";
 import type { Expression } from "module/modifiers/expressions/scalar";
-import { abs, asString, condense, isGreaterZero, isLessThanZero } from "module/modifiers/expressions/scalar";
+import { abs, asString, condense, isGreaterZero, isLessThanZero, times } from "module/modifiers/expressions/scalar";
 import { serialize } from "module/modifiers/expressions/scalar/serialization";
 import type { TooltipFormula } from "module/util/tooltip";
 
@@ -42,6 +42,10 @@ export class Modifier implements IModifier {
             const term = `-${asString(abs(condense(this.value)))}`;
             formula.addMalus(term, this.attributes.name);
         }
+    }
+
+    applyMultiplier(multiplier: Expression): Expression {
+        return times(this.value, multiplier);
     }
 
     static create(
