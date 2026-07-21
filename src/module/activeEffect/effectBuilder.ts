@@ -112,14 +112,20 @@ export function isGenerated(effect: { getFlag(scope: string, key: string): unkno
 /**
  * Rebuild the auto-generated ActiveEffects on an item from its modifier string.
  * Deletes existing auto-generated effects, then creates new ones from the current string.
+ *
+ * If `modifierString` is omitted, the item's `system.modifier` field is used. Callers that
+ * need to substitute template placeholders (e.g. masteries' `${skill}`/`${name}`) must pass
+ * the already-substituted string explicitly.
  */
 export async function rebuildModifierEffects(
     addModifier: AddModifierFn,
     item: SplittermondItem,
     modifierType: ModifierType,
-    multiplier: number = 1
+    multiplier: number = 1,
+    modifierString?: string
 ): Promise<void> {
-    const modifierString: string = (item as HasModifierString).system.modifier ?? "";
+    const resolvedModifierString: string =
+        modifierString ?? (item as HasModifierString).system.modifier ?? "";
 
     const existingAutoEffects = item.effects.filter(isGenerated);
     const idsToDelete: string[] = existingAutoEffects.map((e) => e.id);
@@ -127,9 +133,9 @@ export async function rebuildModifierEffects(
         await item.deleteEmbeddedDocuments("ActiveEffect", idsToDelete);
     }
 
-    if (!modifierString.trim()) return;
+    if (!resolvedModifierString.trim()) return;
 
-    const { modifiers, costModifiers } = addModifier(item, modifierString, modifierType, multiplier);
+    const { modifiers, costModifiers } = addModifier(item, resolvedModifierString, modifierType, multiplier);
 
     const effectDataArray: EffectCreationData[] = [
         ...modifiers.map((tagged) => buildScalarEffectData(tagged, item.uuid)),
