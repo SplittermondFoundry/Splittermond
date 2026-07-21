@@ -38,24 +38,30 @@ function createEffect(sandbox: SinonSandbox, overrides: EffectOverrides) {
 
 /** Minimal mock implementing IModifier shape */
 function mockModifier(overrides: Partial<IModifier> = {}): IModifier {
+    const value = { amount: 2 } as IModifier["value"];
     return {
-        value: { amount: 2 } as any,
+        value,
         isBonus: true,
         groupId: "test.path",
         selectable: false,
         attributes: { name: "Test", type: "innate" },
         addTooltipFormulaElements() {},
+        applyMultiplier: () => value,
         ...overrides,
     };
 }
 
 /** Minimal mock implementing ICostModifier shape */
 function mockCostModifier(overrides: Partial<ICostModifier> = {}): ICostModifier {
+    const value = {
+        amount: { _channeled: 0, _channeledConsumed: 0, _exhausted: 1, _consumed: 0 },
+    } as ICostModifier["value"];
     return {
         label: "focus.reduction",
-        value: { amount: { _channeled: 0, _channeledConsumed: 0, _exhausted: 1, _consumed: 0 } } as any,
+        value,
         skill: null,
         attributes: {},
+        applyMultiplier: () => value,
         ...overrides,
     };
 }
@@ -163,6 +169,82 @@ describe("SplittermondActiveEffect", () => {
             const result = SplittermondActiveEffect.getCostModifiers([effect]);
             expect(result).to.have.length(1);
             expect(result[0]).to.equal(costModifier);
+        });
+    });
+
+    describe("multiplier", () => {
+        it("should return 1 when no source item is present", () => {
+            const effect = createEffect(sandbox, {
+                type: "modifier",
+                system: mockModifier(),
+                item: null,
+            });
+            expect(effect.multiplier).to.equal(1);
+        });
+
+        it("should return strength.quantity for a strength item", () => {
+            const item = sandbox.createStubInstance(SplittermondItem);
+            item.type = "strength";
+            Object.assign(item, { system: { quantity: 3 } });
+
+            const effect = createEffect(sandbox, {
+                type: "modifier",
+                system: mockModifier(),
+                item,
+            });
+            expect(effect.multiplier).to.equal(3);
+        });
+
+        it("should default to 1 for a strength item without quantity", () => {
+            const item = sandbox.createStubInstance(SplittermondItem);
+            item.type = "strength";
+            Object.assign(item, { system: {} });
+
+            const effect = createEffect(sandbox, {
+                type: "modifier",
+                system: mockModifier(),
+                item,
+            });
+            expect(effect.multiplier).to.equal(1);
+        });
+
+        it("should return statuseffect.level for a statuseffect item", () => {
+            const item = sandbox.createStubInstance(SplittermondItem);
+            item.type = "statuseffect";
+            Object.assign(item, { system: { level: 4 } });
+
+            const effect = createEffect(sandbox, {
+                type: "modifier",
+                system: mockModifier(),
+                item,
+            });
+            expect(effect.multiplier).to.equal(4);
+        });
+
+        it("should default to 1 for a statuseffect item without level", () => {
+            const item = sandbox.createStubInstance(SplittermondItem);
+            item.type = "statuseffect";
+            Object.assign(item, { system: {} });
+
+            const effect = createEffect(sandbox, {
+                type: "modifier",
+                system: mockModifier(),
+                item,
+            });
+            expect(effect.multiplier).to.equal(1);
+        });
+
+        it("should return 1 for an unrelated item type (weapon)", () => {
+            const item = sandbox.createStubInstance(SplittermondItem);
+            item.type = "weapon";
+            Object.assign(item, { system: { equipped: true } });
+
+            const effect = createEffect(sandbox, {
+                type: "modifier",
+                system: mockModifier(),
+                item,
+            });
+            expect(effect.multiplier).to.equal(1);
         });
     });
 

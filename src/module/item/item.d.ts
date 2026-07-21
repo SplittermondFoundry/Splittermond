@@ -1,8 +1,7 @@
 import { ItemType } from "module/config/itemTypes";
 import SplittermondActor from "../actor/actor";
 import type { SplittermondItemDataModelType } from "./index";
-import type { AddModifierResult } from "module/modifiers/modifierAddition";
-import type { ModifierType } from "module/modifiers";
+import type { IAddModifier } from "module/actor/addModifierAdapter";
 
 declare class SplittermondItem extends Item {
     readonly actor: SplittermondActor;
@@ -11,9 +10,6 @@ declare class SplittermondItem extends Item {
     system: SplittermondItemDataModelType;
 }
 
-export function setAddModifier(
-    addModifierFn: (item: SplittermondItem, str: string, type: ModifierType, multiplier: number) => AddModifierResult
-): void;
-export function getAddModifier():
-    ((item: SplittermondItem, str: string, type: ModifierType, multiplier: number) => AddModifierResult) | null;
+export function setAddModifier(addModifierFn: IAddModifier): void;
+export function getAddModifier(): IAddModifier | null;
 export default SplittermondItem;

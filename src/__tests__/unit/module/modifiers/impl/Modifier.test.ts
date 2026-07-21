@@ -2,7 +2,7 @@ import { describe, it } from "mocha";
 import { expect } from "chai";
 import sinon from "sinon";
 import { Modifier } from "module/activeEffect";
-import { of } from "module/modifiers/expressions/scalar";
+import { evaluate, of } from "module/modifiers/expressions/scalar";
 import { TooltipFormula } from "module/util/tooltip";
 
 describe("Modifier", () => {
@@ -38,5 +38,11 @@ describe("Modifier", () => {
 
         expect(formula.addBonus.calledWith("+2", "Bonus")).to.be.true;
         expect(formula.addMalus.calledWith("-3", "Malus")).to.be.true;
+    });
+
+    it("should multiply its value via applyMultiplier (times operator)", async () => {
+        const mod = Modifier.create("path", of(3), { name: "Bonus", type: "innate" });
+        const multiplied = mod.applyMultiplier(of(2));
+        expect(await evaluate(multiplied)).to.equal(6);
     });
 });

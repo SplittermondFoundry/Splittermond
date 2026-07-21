@@ -73,7 +73,7 @@ describe("ActorModifierHandlers", () => {
         expect(errorLogger.called).to.be.false;
     });
 
-    it("should account for multiplier in value", () => {
+    it("should not bake the multiplier into the value", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
         const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
@@ -87,7 +87,7 @@ describe("ActorModifierHandlers", () => {
             value: of(3),
         })[0];
         expect(result.groupId).to.equal("athletics");
-        expect(condense(result.value)).to.deep.equal(of(6));
+        expect(condense(result.value)).to.deep.equal(of(3));
         expect(result.attributes.name).to.equal("Test Item");
         expect(result.attributes.type).to.equal("innate");
         expect(errorLogger.called).to.be.false;

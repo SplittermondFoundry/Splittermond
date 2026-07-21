@@ -2,7 +2,7 @@ import { type Config, type IModifier, makeConfig, ModifierHandler, type Modifier
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import type { SplittermondSkill } from "module/config/skillGroups";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
-import { type Expression, isZero, times } from "module/modifiers/expressions/scalar";
+import { type Expression, isZero } from "module/modifiers/expressions/scalar";
 import { splittermond } from "module/config";
 import { Modifier } from "module/activeEffect";
 import { isMember } from "module/util/util";
@@ -28,7 +28,7 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
         config: Config,
         sourceItem: IModifierSource,
         modifierType: ModifierType,
-        private readonly multiplier: Expression
+        _multiplier: Expression
     ) {
         super(logErrors, config, sourceItem, modifierType);
     }
@@ -47,7 +47,7 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
         return [
             Modifier.create(
                 groupId,
-                times(this.multiplier, modifier.value),
+                modifier.value,
                 normalizedAttributes,
                 !!normalizedAttributes.emphasis,
                 () => this.sourceItem.actor
@@ -61,7 +61,7 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
 
     private unwrapModifiers(skillGroup: readonly SplittermondSkill[], modifier: ScalarModifier) {
         return skillGroup.map((skill) => {
-            const value = times(this.multiplier, modifier.value);
+            const value = modifier.value;
             const emphasis = this.commonNormalizers.validatedAttribute(modifier.attributes.emphasis);
             const attributes = { name: emphasis ?? this.sourceItem.name, type: this.modifierType, emphasis };
             return Modifier.create(skill, value, attributes, !!emphasis, () => this.sourceItem.actor);

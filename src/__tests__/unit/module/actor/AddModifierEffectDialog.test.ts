@@ -196,6 +196,7 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
                 value: ofCost(parseCostString("-1").asModifier()),
                 skill: null,
                 attributes: {},
+                applyMultiplier: () => ofCost(parseCostString("-1").asModifier()),
             };
 
             const result = buildCostEffectData(modifier, "kosten -1", "Actor.abc");

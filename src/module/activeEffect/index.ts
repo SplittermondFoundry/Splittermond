@@ -3,6 +3,7 @@ import { BaseActiveEffectConfig, SplittermondActiveEffectConfig } from "./sheets
 import { SplittermondActiveEffectCreationDialog } from "./sheets/SplittermondActiveEffectCreationDialog";
 import { ActionEffectDataModel } from "./dataModel/ActionEffectDataModel";
 import { foundryApi } from "module/api/foundryApi";
+import { regenerateBakedMultiplierEffects } from "./migrations/regenerateBakedMultiplierEffects";
 
 type ActiveEffectDocumentClass = typeof SplittermondActiveEffect & {
     createDialog?: (
@@ -62,4 +63,15 @@ export function initializeActiveEffects(config: typeof CONFIG) {
             renderOptions
         );
     };
+
+    foundryApi.settings.register("splittermond", "bakedMultiplierV1MigrationDone", {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: false,
+    });
+
+    foundryApi.hooks.once("ready", () => {
+        void regenerateBakedMultiplierEffects();
+    });
 }

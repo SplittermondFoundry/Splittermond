@@ -7,13 +7,15 @@ import {
     type ActionEffectSchemaType,
 } from "module/activeEffect/dataModel/ActionEffectDataModel";
 import { serialize as serializeScalar } from "module/modifiers/expressions/scalar/serialization";
-import { type Expression, of } from "module/modifiers/expressions/scalar";
+import { evaluate, type Expression, of } from "module/modifiers/expressions/scalar";
 import type { ModifierAttributes } from "module/modifiers";
 import { serialize as serializeCost } from "module/modifiers/expressions/cost/serialization";
-import { of as ofCost } from "module/modifiers/expressions/cost";
+import { of as ofCost, times as timesCost } from "module/modifiers/expressions/cost";
 import { CostModifier } from "module/util/costs/Cost";
 import { TooltipFormula } from "module/util/tooltip";
 import { injectParent } from "__tests__/unit/testUtils";
+import { SplittermondActiveEffect } from "module/activeEffect/SplittermondActiveEffect";
+import { evaluate as evaluateCost } from "module/modifiers/expressions/cost";
 
 type ModifierEntry = ActionEffectSchemaType["modifiers"][number];
 type CostModifierEntry = ActionEffectSchemaType["costModifiers"][number];
@@ -42,7 +44,7 @@ function costModifierEntry(label: string, cost: CostModifier, skill: string | nu
     };
 }
 
-function createModel(data: Partial<ActionEffectSchemaType>): ActionEffectDataModel {
+function createModel(data: Partial<ActionEffectSchemaType>, multiplier?: number): ActionEffectDataModel {
     const model = new ActionEffectDataModel(
         {
             modifiers: data.modifiers ?? [],
@@ -51,6 +53,11 @@ function createModel(data: Partial<ActionEffectSchemaType>): ActionEffectDataMod
         {}
     );
     injectParent(model);
+    if (multiplier !== undefined) {
+        const effect = sinon.createStubInstance(SplittermondActiveEffect);
+        Object.defineProperty(effect, "multiplier", { get: () => multiplier });
+        Object.defineProperty(model, "parent", { value: effect, writable: true, configurable: true });
+    }
     return model;
 }
 
@@ -232,6 +239,77 @@ describe("ActionEffectDataModel", () => {
             const attrs = model.asCostModifiers[0].attributes;
             expect(attrs.skill).to.equal("fireMagic");
             expect(attrs.type).to.equal("magic");
+        });
+    });
+
+    describe("asModifiers applies effect.multiplier at read time", () => {
+        it("applies additive multiplier (times): base 3, multiplier 2 -> 6", async () => {
+            const model = createModel(
+                {
+                    modifiers: [modifierEntry("path", of(3), "additive")],
+                },
+                2
+            );
+            const value = model.asModifiers[0].value;
+            expect(await evaluate(value)).to.equal(6);
+        });
+
+        it("applies multiplicative multiplier (pow): base 0.5, multiplier 2 -> 0.25", async () => {
+            const model = createModel(
+                {
+                    modifiers: [modifierEntry("path", of(0.5), "multiplicative")],
+                },
+                2
+            );
+            const value = model.asModifiers[0].value;
+            expect(await evaluate(value)).to.equal(0.25);
+        });
+
+        it("applies inverse multiplier (times): base -3, multiplier 2 -> -6", async () => {
+            const model = createModel(
+                {
+                    modifiers: [modifierEntry("path", of(-3), "inverse")],
+                },
+                2
+            );
+            const value = model.asModifiers[0].value;
+            expect(await evaluate(value)).to.equal(-6);
+        });
+
+        it("returns the base unchanged when no effect parent is present (multiplier 1)", async () => {
+            const model = createModel({
+                modifiers: [modifierEntry("path", of(3), "additive")],
+            });
+            const value = model.asModifiers[0].value;
+            expect(await evaluate(value)).to.equal(3);
+        });
+    });
+
+    describe("asCostModifiers applies effect.multiplier at read time", () => {
+        it("applies multiplier to a reduction cost modifier: base {exhausted:3}, multiplier 2 -> {exhausted:6}", async () => {
+            const cost = new CostModifier({ _channeled: 0, _channeledConsumed: 0, _exhausted: 3, _consumed: 0 });
+            const model = createModel(
+                {
+                    costModifiers: [costModifierEntry("focus.reduction", cost)],
+                },
+                2
+            );
+            const evaluated = await evaluateCost(model.asCostModifiers[0].value);
+            expect(evaluated._exhausted).to.equal(6);
+        });
+
+        it("preserves sign and applies magnitude to an addition cost modifier: base {exhausted:3}, multiplier 2 -> {exhausted:6}", async () => {
+            const baseCost = new CostModifier({ _channeled: 0, _channeledConsumed: 0, _exhausted: 3, _consumed: 0 });
+            const serialized = serializeCost(timesCost(of(-1), ofCost(baseCost)));
+            const entry: CostModifierEntry = {
+                label: "focus.addition",
+                serializedValue: serialized,
+                skill: null,
+                attributes: {},
+            };
+            const model = createModel({ costModifiers: [entry] }, 2);
+            const evaluated = await evaluateCost(model.asCostModifiers[0].value);
+            expect(evaluated._exhausted).to.equal(-6);
         });
     });
 
