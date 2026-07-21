@@ -2,7 +2,7 @@ import { addToRegistry, type Constructor } from "module/data/dataModelRegistry";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import type { IModifier, ModifierAttributes } from "module/modifiers";
 import type { Expression } from "module/modifiers/expressions/scalar";
-import { abs, asString, condense, isGreaterThan, isLessThan, of } from "module/modifiers/expressions/scalar";
+import { abs, asString, condense, isGreaterThan, isLessThan, of, pow } from "module/modifiers/expressions/scalar";
 import { serialize } from "module/modifiers/expressions/scalar/serialization";
 import type { TooltipFormula } from "module/util/tooltip";
 
@@ -38,6 +38,10 @@ export class MultiplicativeModifier implements IModifier {
         const partClass = this.isBonus ? "bonus" : "malus";
         formula.addOperator("*");
         formula.addPart(asString(abs(condense(this.value))), this.attributes.name, partClass);
+    }
+
+    applyMultiplier(multiplier: Expression): Expression {
+        return pow(this.value, multiplier);
     }
 
     static create(

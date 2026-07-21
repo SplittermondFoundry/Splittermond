@@ -10,7 +10,7 @@ import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { CharacterAttribute } from "module/actor/dataModel/CharacterAttribute";
 import Attribute from "module/actor/attribute";
 import { clearMappers } from "module/modifiers/parsing/normalizer";
-import { evaluate, of, pow } from "module/modifiers/expressions/scalar";
+import { evaluate, of } from "module/modifiers/expressions/scalar";
 import { of as ofCost, times } from "module/modifiers/expressions/cost";
 import { stubRollApi } from "../../RollMock";
 import { InverseModifier } from "module/activeEffect";
@@ -120,7 +120,7 @@ describe("addModifier", () => {
 
     (
         [
-            ["speed.multiplier 2", pow(of(2), of(2))],
+            ["speed.multiplier 2", of(2)],
             ["gsw.mult 0", of(0)],
         ] as const
     ).forEach(([modifier, expected]) => {
@@ -673,7 +673,7 @@ describe("addModifier", () => {
         it(`should return reduced focus costs of ${cost} for spell manager`, () => {
             const result = addModifier(item, `focus.reduction skill="protectionmagic" ${cost}`);
             expect(result.costModifiers).to.have.length(1);
-            expect(result.costModifiers[0].modifier).to.deep.equal({
+            expect(result.costModifiers[0].modifier).to.deep.contain({
                 label: "focus.reduction",
                 value: ofCost(expected),
                 skill: null,
@@ -683,7 +683,7 @@ describe("addModifier", () => {
         it(`should return added focus costs of ${cost} for spell manager`, () => {
             const result = addModifier(item, `focus.addition skill="protectionmagic" ${cost}`);
             expect(result.costModifiers).to.have.length(1);
-            expect(result.costModifiers[0].modifier).to.deep.equal({
+            expect(result.costModifiers[0].modifier).to.deep.contain({
                 label: "focus.reduction",
                 value: times(of(-1), ofCost(expected)),
                 skill: null,
@@ -694,7 +694,7 @@ describe("addModifier", () => {
         it(`should return focus costs of ${cost} for spell enhancement manager`, () => {
             const result = addModifier(item, `focus.enhancedreduction skill="combatmagic" ${cost}`);
             expect(result.costModifiers).to.have.length(1);
-            expect(result.costModifiers[0].modifier).to.deep.equal({
+            expect(result.costModifiers[0].modifier).to.deep.contain({
                 label: "focus.enhancedreduction",
                 value: ofCost(expected),
                 skill: null,

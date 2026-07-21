@@ -13,9 +13,6 @@ import type { ItemType } from "module/config/itemTypes";
 import { SplittermondActiveEffect } from "module/activeEffect";
 import { SplittermondActiveEffectCreationDialog } from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog";
 import { getAddModifier } from "module/item/item";
-import type { IModifierSource } from "module/modifiers/IModifierSource";
-import type { ModifierType } from "module/modifiers";
-import type { AddModifierResult } from "module/modifiers/modifierAddition";
 import type { HandlebarsRenderOptions } from "module/api/Application";
 import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
 
@@ -278,8 +275,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         if (!input) return;
         const modifierString = input.value.trim();
         if (!modifierString) return;
-        const modifierFn = getAddModifier() as
-            ((item: IModifierSource, str: string, type: ModifierType, multiplier: number) => AddModifierResult) | null;
+        const modifierFn = getAddModifier();
         if (!modifierFn) return;
         await addModifierEffects(modifierFn, this.item, modifierString);
         input.value = "";

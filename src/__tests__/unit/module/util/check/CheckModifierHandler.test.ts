@@ -41,7 +41,7 @@ describe("CheckModifierHandler", () => {
         expect(errorLogger.called).to.be.false;
     });
 
-    it("should correct value by multiplier", () => {
+    it("should not bake the multiplier into the value", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
         const underTest = new CheckModifierHandler(errorLogger, item, "innate", of(3));
@@ -53,7 +53,7 @@ describe("CheckModifierHandler", () => {
             value: of(2),
         });
 
-        expect(condense(result[0].value)).to.deep.equal(of(6));
+        expect(condense(result[0].value)).to.deep.equal(of(2));
         expect(errorLogger.called).to.be.false;
     });
 
