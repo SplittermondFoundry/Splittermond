@@ -67,7 +67,7 @@ describe("SkillHandler", () => {
         expect(errorLogger.called).to.be.false;
     });
 
-    it("should correct value by multiplier", () => {
+    it("should not bake the multiplier into the value", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
         const underTest = new SkillHandler(errorLogger, item, "innate", of(2));
@@ -79,7 +79,7 @@ describe("SkillHandler", () => {
             value: of(3),
         });
 
-        expect(condense(result[0].value)).to.deep.equal(of(6));
+        expect(condense(result[0].value)).to.deep.equal(of(3));
         expect(errorLogger.called).to.be.false;
     });
 

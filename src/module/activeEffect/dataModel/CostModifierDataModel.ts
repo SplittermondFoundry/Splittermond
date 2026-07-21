@@ -2,6 +2,7 @@ import { DataModelSchemaType, fieldExtensions, fields } from "../../data/Splitte
 import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import { type CostExpression } from "module/modifiers/expressions/cost";
+import { times as timesCost } from "module/modifiers/expressions/cost";
 import { deserialize, serialize } from "module/modifiers/expressions/cost/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import { CostModifier } from "module/util/costs/Cost";
@@ -9,6 +10,7 @@ import { resolveHostActor } from "./hostActor";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
 import { SplittermondActiveEffect } from "module/activeEffect";
+import type { Expression } from "module/modifiers/expressions/scalar";
 
 type SerializedCostExpression = Record<string, unknown> & { type: string };
 type CostModifierAttributes = { skill?: string; type?: string };
@@ -62,6 +64,10 @@ export class CostModifierDataModel
     get value(): CostExpression {
         const provider = this.#injectedProvider ?? (() => resolveHostActor(this.parent));
         return deserialize(this.serializedValue, provider, this.produceIssueWarning());
+    }
+
+    applyMultiplier(multiplier: Expression): CostExpression {
+        return timesCost(multiplier, this.value);
     }
 
     /**

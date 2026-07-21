@@ -151,38 +151,32 @@ export default class SplittermondItem extends Item {
             case "equipment":
                 return {
                     modifierType: "equipment",
-                    multiplier: 1,
                     rebuildTrigger: (system) => "modifier" in system,
                 };
             case "strength":
                 return {
                     modifierType: "innate",
-                    multiplier: this.system.quantity ?? 1,
                     rebuildTrigger: (system) => "modifier" in system || "quantity" in system,
                 };
             case "statuseffect":
                 return {
                     modifierType: "innate",
-                    multiplier: this.system.level ?? 1,
                     rebuildTrigger: (system) => "modifier" in system || "level" in system,
                 };
             case "spelleffect":
                 return {
                     modifierType: "magic",
-                    multiplier: 1,
                     rebuildTrigger: (system) => "modifier" in system,
                 };
             case "mastery":
                 return {
                     modifierType: "innate",
-                    multiplier: 1,
                     rebuildTrigger: (system) => "modifier" in system || "skill" in system,
                 };
             case "npcfeature":
             case "culturelore":
                 return {
                     modifierType: "innate",
-                    multiplier: 1,
                     rebuildTrigger: (system) => "modifier" in system,
                 };
             default:
@@ -197,16 +191,8 @@ export default class SplittermondItem extends Item {
             if (name.startsWith("Schwerpunkt")) {
                 name = this.name.substring(12).trim();
             }
-            modifierString = modifierString
-                .replaceAll("${skill}", this.system.skill ?? "")
-                .replaceAll("${name}", name);
+            modifierString = modifierString.replaceAll("${skill}", this.system.skill ?? "").replaceAll("${name}", name);
         }
-        await rebuildModifierEffects(
-            _addModifier,
-            this,
-            config.modifierType,
-            config.multiplier,
-            modifierString
-        );
+        await rebuildModifierEffects(_addModifier, this, config.modifierType, modifierString);
     }
 }

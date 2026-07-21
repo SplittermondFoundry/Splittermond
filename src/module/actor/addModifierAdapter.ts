@@ -6,7 +6,7 @@ export type IAddModifier = (
     item: IModifierSource,
     modifier: string,
     type: ModifierType,
-    multiplier: number
+    multiplier?: number
 ) => AddModifierResult;
 export const actualAddModifierFunction = { self: null as IAddModifier | null };
 

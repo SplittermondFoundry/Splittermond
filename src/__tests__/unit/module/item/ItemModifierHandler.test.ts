@@ -236,7 +236,7 @@ describe("ItemModifierHandler", () => {
             });
         });
 
-        it("should multiply modifier values", async () => {
+        it("should not bake the multiplier into modifier values", async () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration",
                 rawFragment: 'item.castDuration unit="T" +5',
@@ -249,10 +249,10 @@ describe("ItemModifierHandler", () => {
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(await evaluate(result.value)).to.deep.equal(10);
+            expect(await evaluate(result.value)).to.deep.equal(5);
         });
 
-        it("should take cast duration multiplier to the modifier multipliers power", async () => {
+        it("should not bake the multiplier into cast duration multiplier values", async () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration.multiplier",
                 rawFragment: 'item.castDuration.multiplier unit="T" 0.5',
@@ -265,7 +265,7 @@ describe("ItemModifierHandler", () => {
             const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(await evaluate(result.value)).to.deep.equal(0.25);
+            expect(await evaluate(result.value)).to.deep.equal(0.5);
         });
 
         it("should omit modifier with zero value", () => {

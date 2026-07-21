@@ -474,16 +474,18 @@ describe("Modifiable", () => {
     function modifierWith(
         props: Omit<Partial<IModifier>, "attributes"> & { attributes?: Partial<IModifier["attributes"]> }
     ): IModifier {
+        const value = props.value ?? of(1);
         return {
             groupId: props.groupId ?? "unknown",
             isBonus: !(props.value && isLessThanZero(props.value)),
             selectable: props.selectable ?? false,
-            value: props.value ?? of(1),
+            value,
             addTooltipFormulaElements: props.addTooltipFormulaElements ?? sandbox.stub(),
             attributes: {
                 name: props.attributes?.name ?? "Test Modifier",
                 type: props.attributes?.type ?? "innate",
             },
+            applyMultiplier: () => value,
         };
     }
 });

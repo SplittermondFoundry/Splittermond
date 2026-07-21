@@ -1,7 +1,7 @@
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
 import { ICostModifier } from "module/util/costs/spellCostManagement";
 import { times as timesCost } from "module/modifiers/expressions/cost";
-import { type Expression, of, times } from "module/modifiers/expressions/scalar";
+import { type Expression, of } from "module/modifiers/expressions/scalar";
 import type { FocusModifier, Value } from "module/modifiers/parsing";
 import { ModifierHandler, type ModifierType } from "module/modifiers";
 import { makeConfig } from "module/modifiers/ModifierConfig";
@@ -16,7 +16,7 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
         logErrors: (...message: string[]) => void,
         private readonly sourceItem: IModifierSource,
         _: ModifierType,
-        private readonly multiplier: Expression
+        _multiplier: Expression
     ) {
         super(logErrors, CostModifierHandler.config);
     }
@@ -41,15 +41,17 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     protected buildModifier(modifier: FocusModifier): ICostModifier[] {
         const group = this.normalizeSkill(modifier.path, modifier.attributes.skill);
         const type = this.validatedAttribute(modifier.attributes.type);
+        const value = timesCost(this.getSign(modifier.path), modifier.value);
         return [
             {
                 label: this.normalizePath(modifier.path),
-                value: timesCost(this.getMultiplier(modifier.path), modifier.value),
+                value,
                 skill: hasSystemSkill(this.sourceItem) ? this.sourceItem.system.skill : null,
                 attributes: {
                     skill: group ?? undefined,
                     type: type ?? undefined,
                 },
+                applyMultiplier: (multiplier) => timesCost(multiplier, value),
             },
         ];
     }
@@ -81,12 +83,12 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
         return normalized;
     }
 
-    private getMultiplier(groupId: string): Expression {
+    private getSign(groupId: string): Expression {
         const lowerCaseId = groupId.toLowerCase();
         if (lowerCaseId.endsWith("reduction") || lowerCaseId.endsWith("enhancedreduction")) {
-            return this.multiplier;
+            return of(1);
         } else {
-            return times(this.multiplier, of(-1));
+            return of(-1);
         }
     }
 

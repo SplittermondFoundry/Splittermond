@@ -738,6 +738,7 @@ function setUpActor(sandbox: SinonSandbox) {
 
 type ModifierPartial = Omit<Partial<IModifier>, "attributes"> & { attributes?: Partial<IModifier["attributes"]> };
 function getModifier(mod: ModifierPartial = {}): IModifier {
+    const value = mod.value ?? of(1);
     return {
         groupId: mod.groupId ?? "test.modifier",
         attributes: {
@@ -747,7 +748,8 @@ function getModifier(mod: ModifierPartial = {}): IModifier {
         },
         selectable: mod.selectable ?? false,
         isBonus: (mod.value && isGreaterZero(mod.value)) ?? true,
-        value: mod.value ?? of(1),
+        value,
         addTooltipFormulaElements: () => {},
+        applyMultiplier: () => value,
     };
 }

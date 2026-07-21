@@ -7,7 +7,8 @@ import { deserialize as deserializeScalar } from "module/modifiers/expressions/s
 import { deserialize as deserializeCostExpression } from "module/modifiers/expressions/cost/serialization";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import type { CostExpression } from "module/modifiers/expressions/cost";
-import type { Expression } from "module/modifiers/expressions/scalar";
+import { times as timesCost } from "module/modifiers/expressions/cost";
+import { of, type Expression } from "module/modifiers/expressions/scalar";
 import { SplittermondActiveEffect } from "module/activeEffect";
 import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
 import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
@@ -174,7 +175,7 @@ export class ActionEffectDataModel
         const provider: ActorProvider = () => resolveHostActor(this.parent);
         const entries = readArray<ModifierEntryInput>(this, "modifiers");
         return entries.map((entry) =>
-            buildModifierWrapper(asModifierEntry(entry), provider, this.produceIssueWarning())
+            buildModifierWrapper(asModifierEntry(entry), provider, this.produceIssueWarning(), this.parent)
         );
     }
 
@@ -182,7 +183,7 @@ export class ActionEffectDataModel
         const provider: ActorProvider = () => resolveHostActor(this.parent);
         const entries = readArray<CostModifierEntryInput>(this, "costModifiers");
         return entries.map((entry) =>
-            buildCostModifierWrapper(asCostModifierEntry(entry), provider, this.produceIssueWarning())
+            buildCostModifierWrapper(asCostModifierEntry(entry), provider, this.produceIssueWarning(), this.parent)
         );
     }
 
@@ -217,22 +218,40 @@ class CostModifierWrapper implements ICostModifier {
         this.skill = skill;
         this.attributes = attributes;
     }
+
+    applyMultiplier(multiplier: Expression): CostExpression {
+        return timesCost(multiplier, this.value);
+    }
 }
 
-function buildModifierWrapper(entry: ModifierEntry, provider: ActorProvider, onUnbound: () => void): IModifier {
+function buildModifierWrapper(
+    entry: ModifierEntry,
+    provider: ActorProvider,
+    onUnbound: () => void,
+    effect: SplittermondActiveEffect | null
+): IModifier {
     const Impl = getFromRegistry(entry.implementation) as ModifierConstructor | undefined;
     if (!Impl) {
         throw new IllegalStateException(`Unknown modifier implementation: ${entry.implementation}`);
     }
-    const value = deserializeScalar(entry.serializedValue, provider, onUnbound);
+    const baseValue = deserializeScalar(entry.serializedValue, provider, onUnbound);
+    const multiplier = effect?.multiplier ?? 1;
+    const value = new Impl(entry.path, baseValue, entry.attributes, entry.selectable, provider).applyMultiplier(
+        of(multiplier)
+    );
     return new Impl(entry.path, value, entry.attributes, entry.selectable, provider);
 }
 
 function buildCostModifierWrapper(
     entry: CostModifierEntry,
     provider: ActorProvider,
-    onUnbound: () => void
+    onUnbound: () => void,
+    effect: SplittermondActiveEffect | null
 ): ICostModifier {
-    const value = deserializeCostExpression(entry.serializedValue, provider, onUnbound);
+    const baseValue = deserializeCostExpression(entry.serializedValue, provider, onUnbound);
+    const multiplier = effect?.multiplier ?? 1;
+    const value = new CostModifierWrapper(entry.label, baseValue, entry.skill, entry.attributes).applyMultiplier(
+        of(multiplier)
+    );
     return new CostModifierWrapper(entry.label, value, entry.skill, entry.attributes);
 }

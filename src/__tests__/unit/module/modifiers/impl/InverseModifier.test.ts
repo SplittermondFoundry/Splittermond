@@ -2,7 +2,7 @@ import { describe, it } from "mocha";
 import { expect } from "chai";
 import sinon from "sinon";
 import { InverseModifier } from "module/activeEffect";
-import { of } from "module/modifiers/expressions/scalar";
+import { evaluate, of } from "module/modifiers/expressions/scalar";
 import { TooltipFormula } from "module/util/tooltip";
 
 describe("InverseModifier", () => {
@@ -40,5 +40,11 @@ describe("InverseModifier", () => {
         expect(formula.addOperator.calledWith("+")).to.be.true;
         expect(formula.addPart.calledWith("2", "Bonus", "bonus")).to.be.true;
         expect(formula.addPart.calledWith("3", "Malus", "malus")).to.be.true;
+    });
+
+    it("should multiply its value via applyMultiplier (times operator)", async () => {
+        const mod = InverseModifier.create("path", of(-3), { name: "Bonus", type: "innate" });
+        const multiplied = mod.applyMultiplier(of(2));
+        expect(await evaluate(multiplied)).to.equal(-6);
     });
 });

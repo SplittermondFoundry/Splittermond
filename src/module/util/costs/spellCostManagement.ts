@@ -1,5 +1,6 @@
 import { CostModifier } from "./Cost";
 import { type CostExpression, evaluate, syncEvaluate } from "../../modifiers/expressions/cost";
+import type { Expression } from "module/modifiers/expressions/scalar";
 
 interface SpellCostReductionManagement {
     spellCostReduction: SpellCostReductionManager;
@@ -33,6 +34,8 @@ export interface ICostModifier {
         skill?: string;
         type?: string;
     };
+
+    applyMultiplier(multiplier: Expression): CostExpression;
 }
 
 class SpellCostReductionManager {
