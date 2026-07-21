@@ -23,6 +23,19 @@ export type DurationMode = "timed" | "channelled" | "permanent";
 export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
     declare type: EffectType | "base";
     declare system: ActionEffectDataModel | {};
+    get multiplier(): number {
+        const item = this.item;
+        if (!item) return 1;
+        switch (item.type) {
+            case "strength":
+                return (item.system as { quantity?: number }).quantity ?? 1;
+            case "statuseffect":
+                return (item.system as { level?: number }).level ?? 1;
+            default:
+                return 1;
+        }
+    }
+
     /**
      * Whether this effect is suppressed based on the source item's state
      * (e.g. a weapon effect is suppressed when the weapon is not equipped).

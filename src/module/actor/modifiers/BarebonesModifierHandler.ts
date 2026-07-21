@@ -17,7 +17,7 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
             logErrors: (...message: string[]) => void,
             private readonly sourceItem: IModifierSource,
             private readonly modifierType: ModifierType,
-            private readonly multiplier: Expression
+            _multiplier: Expression
         ) {
             super(logErrors, config);
             this.commonNormalizers = new CommonNormalizers(
@@ -35,19 +35,19 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
                 name: this.sourceItem.name,
                 type: this.modifierType,
             };
-            const value = operator(modifier.value, this.multiplier);
-            return [
-                {
-                    groupId: groupId
-                        ? modifier.path.replace(new RegExp(inputConfig.topLevelPath, "i"), groupId)
-                        : modifier.path,
-                    value,
-                    attributes,
-                    selectable: false,
-                    isBonus: isGreaterZero(value) ?? true,
-                    addTooltipFormulaElements() {},
-                },
-            ];
+            const value = modifier.value;
+            const result: IModifier = {
+                groupId: groupId
+                    ? modifier.path.replace(new RegExp(inputConfig.topLevelPath, "i"), groupId)
+                    : modifier.path,
+                value,
+                attributes,
+                selectable: false,
+                isBonus: isGreaterZero(value) ?? true,
+                addTooltipFormulaElements() {},
+                applyMultiplier: (multiplier) => operator(value, multiplier),
+            };
+            return [result];
         }
         private mapAttribute([key, value]: [string, Value]): [string, string | undefined] {
             return [key, this.commonNormalizers.validatedAttribute(value)];

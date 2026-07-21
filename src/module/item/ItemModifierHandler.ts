@@ -3,7 +3,7 @@ import { Modifier } from "module/activeEffect";
 import { splittermond } from "../config";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
-import { type Expression, pow, times } from "module/modifiers/expressions/scalar";
+import { type Expression } from "module/modifiers/expressions/scalar";
 import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
@@ -13,7 +13,7 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
         logErrors: (...message: string[]) => void,
         sourceItem: IModifierSource,
         modifierType: ModifierType,
-        private readonly multiplier: Expression
+        _multiplier: Expression
     ) {
         super(logErrors, ItemModifierHandler.config, sourceItem, modifierType);
     }
@@ -52,11 +52,9 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
 
     protected buildModifier(modifier: ScalarModifier): IModifier[] {
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
-        const operator = modifier.path.endsWith("multiplier") ? pow : times;
-        const adjustedValue = operator(modifier.value, this.multiplier);
 
         return [
-            Modifier.create(modifier.path, adjustedValue, normalizedAttributes, false, () => this.sourceItem.actor),
+            Modifier.create(modifier.path, modifier.value, normalizedAttributes, false, () => this.sourceItem.actor),
         ];
     }
 

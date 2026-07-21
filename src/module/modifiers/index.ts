@@ -52,4 +52,6 @@ export interface IModifier {
     readonly groupId: string;
     readonly selectable: boolean;
     readonly attributes: ModifierAttributes;
+
+    applyMultiplier(multiplier: Expression): Expression;
 }
