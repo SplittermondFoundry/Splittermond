@@ -23,8 +23,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
     constructor(
         logErrors: (...message: string[]) => void,
         private readonly sourceItem: IModifierSource,
-        private readonly modifierType: ModifierType,
-        _multiplier: Expression
+        private readonly modifierType: ModifierType
     ) {
         super(logErrors, CheckModifierHandler.config);
         this.commonNormalizers = new CommonNormalizers(
@@ -46,9 +45,14 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
             type: this.modifierType,
             emphasis,
         };
-        const totalValue = modifier.value;
         return [
-            Modifier.create(modifier.path, totalValue, attributes, !!attributes.emphasis, () => this.sourceItem.actor),
+            Modifier.create(
+                modifier.path,
+                modifier.value,
+                attributes,
+                !!attributes.emphasis,
+                () => this.sourceItem.actor
+            ),
         ];
     }
 

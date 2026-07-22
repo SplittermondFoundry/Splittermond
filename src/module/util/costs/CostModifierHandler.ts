@@ -15,8 +15,7 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     constructor(
         logErrors: (...message: string[]) => void,
         private readonly sourceItem: IModifierSource,
-        _: ModifierType,
-        _multiplier: Expression
+        _: ModifierType
     ) {
         super(logErrors, CostModifierHandler.config);
     }

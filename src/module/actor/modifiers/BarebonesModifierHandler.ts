@@ -16,8 +16,7 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
         constructor(
             logErrors: (...message: string[]) => void,
             private readonly sourceItem: IModifierSource,
-            private readonly modifierType: ModifierType,
-            _multiplier: Expression
+            private readonly modifierType: ModifierType
         ) {
             super(logErrors, config);
             this.commonNormalizers = new CommonNormalizers(
@@ -58,6 +57,7 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
             };
             return [base];
         }
+
         private mapAttribute([key, value]: [string, Value]): [string, string | undefined] {
             return [key, this.commonNormalizers.validatedAttribute(value)];
         }

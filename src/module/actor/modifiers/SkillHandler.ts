@@ -27,8 +27,7 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
         logErrors: (...message: string[]) => void,
         config: Config,
         sourceItem: IModifierSource,
-        modifierType: ModifierType,
-        _multiplier: Expression
+        modifierType: ModifierType
     ) {
         super(logErrors, config, sourceItem, modifierType);
     }
@@ -106,13 +105,8 @@ export class SkillHandler extends CommonSkillHandler {
         topLevelPath: "skills",
         ...commonConfig,
     });
-    constructor(
-        logErrors: (...message: string[]) => void,
-        sourceItem: IModifierSource,
-        modifierType: ModifierType,
-        multiplier: Expression
-    ) {
-        super(logErrors, SkillHandler.config, sourceItem, modifierType, multiplier);
+    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+        super(logErrors, SkillHandler.config, sourceItem, modifierType);
     }
 }
 export class ActorSkillHandler extends CommonSkillHandler {
@@ -120,12 +114,7 @@ export class ActorSkillHandler extends CommonSkillHandler {
         topLevelPath: "actor.skills",
         ...commonConfig,
     });
-    constructor(
-        logErrors: (...message: string[]) => void,
-        sourceItem: IModifierSource,
-        modifierType: ModifierType,
-        multiplier: Expression
-    ) {
-        super(logErrors, ActorSkillHandler.config, sourceItem, modifierType, multiplier);
+    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+        super(logErrors, ActorSkillHandler.config, sourceItem, modifierType);
     }
 }

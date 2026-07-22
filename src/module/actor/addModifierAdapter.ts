@@ -2,12 +2,7 @@ import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { ModifierType } from "module/modifiers";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
 
-export type IAddModifier = (
-    item: IModifierSource,
-    modifier: string,
-    type: ModifierType,
-    multiplier?: number
-) => AddModifierResult;
+export type IAddModifier = (item: IModifierSource, modifier: string, type: ModifierType) => AddModifierResult;
 export const actualAddModifierFunction = { self: null as IAddModifier | null };
 
 export function addModifier(...args: Parameters<IAddModifier>): AddModifierResult {
