@@ -1,8 +1,6 @@
 import { DataModelSchemaType, fieldExtensions, fields } from "../../data/SplittermondDataModel";
 import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
-import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import { type CostExpression } from "module/modifiers/expressions/cost";
-import { times as timesCost } from "module/modifiers/expressions/cost";
 import { deserialize, serialize } from "module/modifiers/expressions/cost/serialization";
 import type { DataModelConstructorInput } from "module/api/DataModel";
 import { CostModifier } from "module/util/costs/Cost";
@@ -10,7 +8,6 @@ import { resolveHostActor } from "./hostActor";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
 import { SplittermondActiveEffect } from "module/activeEffect";
-import type { Expression } from "module/modifiers/expressions/scalar";
 
 type SerializedCostExpression = Record<string, unknown> & { type: string };
 type CostModifierAttributes = { skill?: string; type?: string };
@@ -42,13 +39,12 @@ function CostModifierDataModelSchema() {
 export type CostModifierDataModelType = DataModelSchemaType<typeof CostModifierDataModelSchema>;
 
 /**
- * DataModel for spell cost modifiers implementing {@link ICostModifier}.
+ * DataModel for spell cost modifiers.
  * Captures the cost reduction/addition data that the {@link CostModifierHandler} produces.
  */
-export class CostModifierDataModel
-    extends UnboundWarner(SplittermondActiveEffectDataModel<CostModifierDataModelType, SplittermondActiveEffect>)
-    implements ICostModifier
-{
+export class CostModifierDataModel extends UnboundWarner(
+    SplittermondActiveEffectDataModel<CostModifierDataModelType, SplittermondActiveEffect>
+) {
     // Method form: ActiveEffectTypeDataModel.defineSchema contributes the `changes` field.
     static defineSchema() {
         return { ...super.defineSchema(), ...CostModifierDataModelSchema() };
@@ -64,10 +60,6 @@ export class CostModifierDataModel
     get value(): CostExpression {
         const provider = this.#injectedProvider ?? (() => resolveHostActor(this.parent));
         return deserialize(this.serializedValue, provider, this.produceIssueWarning());
-    }
-
-    applyMultiplier(multiplier: Expression): CostExpression {
-        return timesCost(multiplier, this.value);
     }
 
     /**

@@ -26,7 +26,6 @@ import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 import { fromExpression } from "module/util/util.ts";
 import { isGenerated } from "module/activeEffect/effectBuilder.ts";
 import { not } from "module/util/util.ts";
-import { getFromRegistry } from "module/data/dataModelRegistry";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -576,32 +575,11 @@ export default class SplittermondActor extends Actor {
         const result = addModifier(item, str, type, multiplier);
         const multiplied = of(multiplier);
 
-        // Apply scalar modifiers to the actor's modifier manager.
-        // Handlers no longer bake the multiplier (S4); re-wrap each modifier with the multiplied value here.
-        result.modifiers.forEach(({ modifier, implementation }) => {
-            const Impl = getFromRegistry(implementation);
-            if (!Impl) {
-                this.modifier.addModifier(modifier);
-                return;
-            }
-            const value = modifier.applyMultiplier(multiplied);
-            const rewrapped = Impl.create(
-                modifier.groupId,
-                value,
-                modifier.attributes,
-                modifier.selectable,
-                modifier.actorProvider
-            );
-            this.modifier.addModifier(rewrapped);
+        result.modifiers.forEach(({ modifier }) => {
+            this.modifier.addModifier(modifier.applyMultiplier(multiplied));
         });
 
-        // Apply cost modifiers to the appropriate spell cost reduction managers.
-        // Same re-wrap as for scalar modifiers: handlers no longer bake, so apply the multiplier here.
-        const data = asPreparedData(this.system);
-        const rewrappedCostModifiers = result.costModifiers.map(({ modifier }) => ({
-            ...modifier,
-            value: modifier.applyMultiplier(multiplied),
-        }));
+        const rewrappedCostModifiers = result.costModifiers.map(({ modifier }) => modifier.applyMultiplier(multiplied));
         this.sortCostModifiersIntoManagers(rewrappedCostModifiers);
         return result;
     }
@@ -1460,15 +1438,6 @@ async function askUser({ titleKey, contentKey, yesKey, noKey }) {
         });
         return dialog.render(true);
     });
-}
-
-function asPreparedData(system) {
-    const qualifies = "spellCostReduction" in system && "spellEnhancedCostReduction" in system;
-    if (qualifies) {
-        return system; //There's not really much chance for error with the type of Spell cost reduction.
-    } else {
-        throw new Error("System not prepared for modifiers");
-    }
 }
 
 /**

@@ -35,7 +35,7 @@ export interface ICostModifier {
         type?: string;
     };
 
-    applyMultiplier(multiplier: Expression): CostExpression;
+    applyMultiplier(multiplier: Expression): ICostModifier;
 }
 
 class SpellCostReductionManager {
