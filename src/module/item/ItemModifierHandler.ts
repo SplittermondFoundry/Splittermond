@@ -1,20 +1,14 @@
 import type { ScalarModifier, Value } from "../modifiers/parsing";
-import { Modifier } from "module/activeEffect";
+import { Modifier, MultiplicativeModifier } from "module/activeEffect";
 import { splittermond } from "../config";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
-import { type Expression } from "module/modifiers/expressions/scalar";
 import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
 export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
-    constructor(
-        logErrors: (...message: string[]) => void,
-        sourceItem: IModifierSource,
-        modifierType: ModifierType,
-        _multiplier: Expression
-    ) {
+    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
         super(logErrors, ItemModifierHandler.config, sourceItem, modifierType);
     }
 
@@ -52,10 +46,12 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
 
     protected buildModifier(modifier: ScalarModifier): IModifier[] {
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
+        const constructor = this.getConstructor(modifier.path);
+        return [constructor(modifier.path, modifier.value, normalizedAttributes, false, () => this.sourceItem.actor)];
+    }
 
-        return [
-            Modifier.create(modifier.path, modifier.value, normalizedAttributes, false, () => this.sourceItem.actor),
-        ];
+    private getConstructor(path: string) {
+        return path.endsWith("multiplier") ? MultiplicativeModifier.create : Modifier.create;
     }
 
     mapAttribute(path: string, attribute: string, value: Value): string | undefined {
