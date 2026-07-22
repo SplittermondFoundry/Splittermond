@@ -385,7 +385,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         type: "spelleffect",
                         name: "Haste",
                         //all three must take effect to achieve an overall modifier of 1.5
-                        system: { modifier: "actor.speed.multiplier 1.25, gsw.mult 0.6, speed.multiplier: 2" },
+                        system: { modifier: "actor.speed.multiplier 1.25, gsw.mult 0.6, speed.multiplier 2" },
                     },
                 ]);
                 actor.prepareBaseData();
