@@ -42,18 +42,17 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
         const group = this.normalizeSkill(modifier.path, modifier.attributes.skill);
         const type = this.validatedAttribute(modifier.attributes.type);
         const value = timesCost(this.getSign(modifier.path), modifier.value);
-        return [
-            {
-                label: this.normalizePath(modifier.path),
-                value,
-                skill: hasSystemSkill(this.sourceItem) ? this.sourceItem.system.skill : null,
-                attributes: {
-                    skill: group ?? undefined,
-                    type: type ?? undefined,
-                },
-                applyMultiplier: (multiplier) => timesCost(multiplier, value),
+        const base: ICostModifier = {
+            label: this.normalizePath(modifier.path),
+            value,
+            skill: hasSystemSkill(this.sourceItem) ? this.sourceItem.system.skill : null,
+            attributes: {
+                skill: group ?? undefined,
+                type: type ?? undefined,
             },
-        ];
+            applyMultiplier: (multiplier) => ({ ...base, value: timesCost(multiplier, value) }),
+        };
+        return [base];
     }
 
     protected omitForValue(): boolean {

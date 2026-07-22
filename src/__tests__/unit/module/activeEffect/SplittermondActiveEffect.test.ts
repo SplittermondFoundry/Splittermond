@@ -39,16 +39,18 @@ function createEffect(sandbox: SinonSandbox, overrides: EffectOverrides) {
 /** Minimal mock implementing IModifier shape */
 function mockModifier(overrides: Partial<IModifier> = {}): IModifier {
     const value = { amount: 2 } as IModifier["value"];
-    return {
+    const mock: IModifier = {
         value,
         isBonus: true,
+        isMalus: false,
         groupId: "test.path",
         selectable: false,
         attributes: { name: "Test", type: "innate" },
         addTooltipFormulaElements() {},
-        applyMultiplier: () => value,
         ...overrides,
+        applyMultiplier: () => mock,
     };
+    return mock;
 }
 
 /** Minimal mock implementing ICostModifier shape */
@@ -56,14 +58,14 @@ function mockCostModifier(overrides: Partial<ICostModifier> = {}): ICostModifier
     const value = {
         amount: { _channeled: 0, _channeledConsumed: 0, _exhausted: 1, _consumed: 0 },
     } as ICostModifier["value"];
-    return {
+    const mock: ICostModifier = {
         label: "focus.reduction",
         value,
         skill: null,
         attributes: {},
-        applyMultiplier: () => value,
-        ...overrides,
+        applyMultiplier: () => mock,
     };
+    return { ...mock, ...overrides };
 }
 
 function mockCostModifierSystem(costModifiers: ICostModifier[] = [mockCostModifier()]): CostModifierSystem {

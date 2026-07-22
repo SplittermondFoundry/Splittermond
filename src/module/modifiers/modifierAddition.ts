@@ -83,16 +83,17 @@ export function initAddModifier(
         unprocessedModifiers.forEach(({ parsed: modifier, rawFragment }) => {
             if (["damage", "weaponspeed"].includes(modifier.path.toLowerCase().split(".")[0])) {
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                    old: modifier.path,
-                    new: `item.${modifier.path}`,
+                    oldPath: modifier.path,
+                    newPath: `item.${modifier.path}`,
                     itemName: item.name,
                 });
                 modifier.path = `item.${modifier.path}`;
             } else if ("gsw.mult" === modifier.path.toLowerCase()) {
                 const newGroupId = "actor.speed.multiplier";
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                    old: modifier.path,
-                    new: newGroupId,
+                    oldPath: modifier.path,
+                    newPath: newGroupId,
+                    itemName: item.name,
                 });
                 modifier.path = newGroupId;
             } else {
