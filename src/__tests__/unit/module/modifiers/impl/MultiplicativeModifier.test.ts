@@ -42,8 +42,33 @@ describe("MultiplicativeModifier", () => {
     });
 
     it("should raise its value to the multiplier via applyMultiplier (pow operator)", async () => {
+        const mod = MultiplicativeModifier.create("path", of(0.5), { name: "Malus", type: "innate" }, true);
+        const multiplied = mod.applyMultiplier(of(2));
+        expect(await evaluate(multiplied.value)).to.equal(0.25);
+    });
+
+    it("should retain non value attributes when using applyMultiplier", () => {
+        const mod = MultiplicativeModifier.create("path", of(0.5), { name: "Malus", type: "innate" }, true);
+        const multiplied = mod.applyMultiplier(of(2));
+        expect(multiplied).to.be.instanceOf(MultiplicativeModifier);
+        expect(multiplied.path).to.equal(mod.path);
+        expect(multiplied.attributes).to.deep.equal(mod.attributes);
+        expect(multiplied.selectable).to.equal(mod.selectable);
+    });
+
+    it("should return a new instance and leave the original value unchanged", async () => {
         const mod = MultiplicativeModifier.create("path", of(0.5), { name: "Malus", type: "innate" });
         const multiplied = mod.applyMultiplier(of(2));
-        expect(await evaluate(multiplied)).to.equal(0.25);
+        expect(multiplied).to.not.equal(mod);
+        expect(await evaluate(mod.value)).to.equal(0.5);
+        expect(await evaluate(multiplied.value)).to.equal(0.25);
+    });
+
+    it("should recompute isBonus/isMalus on the multiplied instance", async () => {
+        const mod = MultiplicativeModifier.create("path", of(0.5), { name: "Malus", type: "innate" });
+        const multiplied = mod.applyMultiplier(of(2));
+        expect(await evaluate(multiplied.value)).to.equal(0.25);
+        expect(multiplied.isBonus).to.be.false;
+        expect(multiplied.isMalus).to.be.true;
     });
 });
