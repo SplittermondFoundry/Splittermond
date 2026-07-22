@@ -39,13 +39,13 @@ describe("Deferred actor reference resolution", () => {
     describe("addModifier with null actor", () => {
         it("should produce a modifier when actor is null and modifier contains a ${...} reference", () => {
             const source = { name: "TestItem", actor: null, uuid: "Item.test", isOwner: true };
-            const result = addModifier(source, 'skills skill="eloquence" +${AUS}', null as any, 1);
+            const result = addModifier(source, 'skills skill="eloquence" +${AUS}', null as any);
             expect(result.modifiers.length).to.equal(1);
         });
 
         it("should produce zero modifiers when actor is null and no ${...} reference (numeric)", () => {
             const source = { name: "TestItem", actor: null, uuid: "Item.test", isOwner: true };
-            const result = addModifier(source, "skills +3", null as any, 1);
+            const result = addModifier(source, "skills +3", null as any);
             expect(result.modifiers.length).to.equal(1);
         });
     });

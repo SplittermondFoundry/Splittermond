@@ -2,7 +2,7 @@ import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
 import { type FocusModifier, parseModifiers, type ScalarModifier } from "./parsing";
-import { Expression as ScalarExpression, of, times } from "./expressions/scalar";
+import { Expression as ScalarExpression } from "./expressions/scalar";
 import { Modifier } from "module/activeEffect";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
@@ -10,7 +10,7 @@ import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
 import type { IModifier, ModifierType } from "module/modifiers/index";
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
-import { getKeyByConstructor, type Constructor } from "module/data/dataModelRegistry";
+import { type Constructor, getKeyByConstructor } from "module/data/dataModelRegistry";
 
 export interface TaggedModifier {
     modifier: IModifier;
@@ -32,12 +32,7 @@ export function initAddModifier(
     registry: ModifierRegistry<ScalarModifier>,
     costRegistry: ModifierRegistry<FocusModifier>
 ) {
-    return function addModifier(
-        item: IModifierSource,
-        str = "",
-        type: ModifierType = null,
-        multiplier = 1
-    ): AddModifierResult {
+    return function addModifier(item: IModifierSource, str = "", type: ModifierType = null): AddModifierResult {
         const modifiers: TaggedModifier[] = [];
         const costModifiers: TaggedCostModifier[] = [];
 
@@ -48,8 +43,8 @@ export function initAddModifier(
         const { processCostValue, processScalarValue } = withErrorLogger(allErrors);
         const parsedResult = parseModifiers(str);
         allErrors.push(...parsedResult.errors);
-        const handlerCache = registry.getCache(allErrors.consumer, item, type, of(multiplier));
-        const costHandlerCache = costRegistry.getCache(allErrors.consumer, item, type, of(multiplier));
+        const handlerCache = registry.getCache(allErrors.consumer, item, type);
+        const costHandlerCache = costRegistry.getCache(allErrors.consumer, item, type);
         const actorProvider: ActorProvider = () => item.actor;
 
         const unprocessedModifiers: Array<{ parsed: ScalarModifier; rawFragment: string }> = [];
@@ -123,14 +118,7 @@ export function initAddModifier(
             /**Deprecated*/
             const modifierLabel = modifier.path.toLowerCase();
             //mainly for internal modifiers.
-            const mod = createModifier(
-                modifierLabel,
-                times(of(multiplier), modifier.value),
-                item,
-                type,
-                {},
-                actorProvider
-            );
+            const mod = createModifier(modifierLabel, modifier.value, item, type, {}, actorProvider);
             modifiers.push({
                 modifier: mod,
                 rawFragment,
