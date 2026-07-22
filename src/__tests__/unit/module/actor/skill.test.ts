@@ -12,7 +12,7 @@ import { Dice } from "module/check/dice";
 import { Chat } from "module/util/chat";
 import CheckDialog from "module/apps/dialog/check-dialog";
 import type { IModifier } from "module/modifiers";
-import { evaluate, isGreaterZero, of, times } from "module/modifiers/expressions/scalar";
+import { evaluate, isGreaterZero, isLessThanZero, of, times } from "module/modifiers/expressions/scalar";
 
 type SkillCheckReport = Exclude<Awaited<ReturnType<Skill["roll"]>>, false | typeof ChatMessage>;
 describe("Skill", () => {
@@ -739,7 +739,7 @@ function setUpActor(sandbox: SinonSandbox) {
 type ModifierPartial = Omit<Partial<IModifier>, "attributes"> & { attributes?: Partial<IModifier["attributes"]> };
 function getModifier(mod: ModifierPartial = {}): IModifier {
     const value = mod.value ?? of(1);
-    return {
+    const mock: IModifier = {
         groupId: mod.groupId ?? "test.modifier",
         attributes: {
             ...mod.attributes,
@@ -748,8 +748,10 @@ function getModifier(mod: ModifierPartial = {}): IModifier {
         },
         selectable: mod.selectable ?? false,
         isBonus: (mod.value && isGreaterZero(mod.value)) ?? true,
+        isMalus: (mod.value && isLessThanZero(mod.value)) ?? false,
         value,
         addTooltipFormulaElements: () => {},
-        applyMultiplier: () => value,
+        applyMultiplier: () => mock,
     };
+    return { ...mock, ...mod, attributes: { ...mock.attributes, ...mod.attributes } };
 }

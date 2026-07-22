@@ -475,9 +475,10 @@ describe("Modifiable", () => {
         props: Omit<Partial<IModifier>, "attributes"> & { attributes?: Partial<IModifier["attributes"]> }
     ): IModifier {
         const value = props.value ?? of(1);
-        return {
+        const mock: IModifier = {
             groupId: props.groupId ?? "unknown",
             isBonus: !(props.value && isLessThanZero(props.value)),
+            isMalus: (props.value && isLessThanZero(props.value)) ?? false,
             selectable: props.selectable ?? false,
             value,
             addTooltipFormulaElements: props.addTooltipFormulaElements ?? sandbox.stub(),
@@ -485,8 +486,9 @@ describe("Modifiable", () => {
                 name: props.attributes?.name ?? "Test Modifier",
                 type: props.attributes?.type ?? "innate",
             },
-            applyMultiplier: () => value,
+            applyMultiplier: () => mock,
         };
+        return { ...mock, ...props, attributes: { ...mock.attributes, ...props.attributes } };
     }
 });
 

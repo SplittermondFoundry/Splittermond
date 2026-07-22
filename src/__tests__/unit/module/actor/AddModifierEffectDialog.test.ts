@@ -7,6 +7,7 @@ import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
 import { of } from "module/modifiers/expressions/scalar";
 import { of as ofCost } from "module/modifiers/expressions/cost";
+import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import { CostModifierDataModel } from "module/activeEffect/dataModel/CostModifierDataModel";
 import { parseCostString } from "module/util/costs/costParser";
 
@@ -191,12 +192,12 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
 
     describe("buildCostEffectData", () => {
         it("produces an object with the correct top-level shape for a cost modifier", () => {
-            const modifier = {
+            const modifier: ICostModifier = {
                 label: "kosten -1",
                 value: ofCost(parseCostString("-1").asModifier()),
                 skill: null,
                 attributes: {},
-                applyMultiplier: () => ofCost(parseCostString("-1").asModifier()),
+                applyMultiplier: () => modifier,
             };
 
             const result = buildCostEffectData(modifier, "kosten -1", "Actor.abc");

@@ -193,6 +193,6 @@ export default class SplittermondItem extends Item {
             }
             modifierString = modifierString.replaceAll("${skill}", this.system.skill ?? "").replaceAll("${name}", name);
         }
-        await rebuildModifierEffects(_addModifier, this, config.modifierType, modifierString);
+        return rebuildModifierEffects(_addModifier, this, config.modifierType, modifierString);
     }
 }
