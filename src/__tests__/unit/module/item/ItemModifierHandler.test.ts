@@ -34,7 +34,7 @@ describe("ItemModifierHandler", () => {
         mockItem = sandbox.createStubInstance(SplittermondItem);
         mockItem.name = "Test Item";
 
-        handler = new TestItemModifierHandler(logErrorsStub, mockItem, "equipment", of(1));
+        handler = new TestItemModifierHandler(logErrorsStub, mockItem, "equipment");
 
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => key);
         sandbox.stub(foundryApi, "format").callsFake((key: string, data?: any) => {
@@ -246,7 +246,7 @@ describe("ItemModifierHandler", () => {
                 },
             };
 
-            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
+            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment");
             const result = underTest.processModifier(scalarModifier)![0];
 
             expect(await evaluate(result.value)).to.deep.equal(5);
@@ -262,7 +262,7 @@ describe("ItemModifierHandler", () => {
                 },
             };
 
-            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
+            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment");
             const result = underTest.processModifier(scalarModifier)![0];
 
             expect(await evaluate(result.value)).to.deep.equal(0.5);

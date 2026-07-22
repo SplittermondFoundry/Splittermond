@@ -125,7 +125,7 @@ describe("addModifier", () => {
         ] as const
     ).forEach(([modifier, expected]) => {
         it(`should handle multiplier modifier ${modifier}`, () => {
-            const result = addModifier(item, modifier, "innate", 2);
+            const result = addModifier(item, modifier, "innate");
             expect(result.modifiers).to.have.length(1);
             expect(result.modifiers[0].modifier).to.deep.contain({
                 groupId: "actor.speed.multiplier",
