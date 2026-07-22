@@ -192,5 +192,6 @@ function mod(input: string): CostExpression {
 }
 
 function costModifier(label: string, value: CostExpression, skill: string | null, attributes: {}): ICostModifier {
-    return { label, value, skill, attributes, applyMultiplier: () => value };
+    const mock: ICostModifier = { label, value, skill, attributes, applyMultiplier: () => mock };
+    return mock;
 }

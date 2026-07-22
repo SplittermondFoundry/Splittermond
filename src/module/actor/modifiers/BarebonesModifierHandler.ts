@@ -1,6 +1,6 @@
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
-import { type Expression, isGreaterZero, isZero, times } from "module/modifiers/expressions/scalar";
+import { type Expression, isGreaterZero, isLessThanZero, isZero, times } from "module/modifiers/expressions/scalar";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 
@@ -36,7 +36,7 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
                 type: this.modifierType,
             };
             const value = modifier.value;
-            const result: IModifier = {
+            const base: IModifier = {
                 groupId: groupId
                     ? modifier.path.replace(new RegExp(inputConfig.topLevelPath, "i"), groupId)
                     : modifier.path,
@@ -44,10 +44,19 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
                 attributes,
                 selectable: false,
                 isBonus: isGreaterZero(value) ?? true,
+                isMalus: isLessThanZero(value) ?? false,
                 addTooltipFormulaElements() {},
-                applyMultiplier: (multiplier) => operator(value, multiplier),
+                applyMultiplier: (multiplier) => {
+                    const multiplied = operator(value, multiplier);
+                    return {
+                        ...base,
+                        value: multiplied,
+                        isBonus: isGreaterZero(multiplied) ?? true,
+                        isMalus: isLessThanZero(multiplied) ?? false,
+                    };
+                },
             };
-            return [result];
+            return [base];
         }
         private mapAttribute([key, value]: [string, Value]): [string, string | undefined] {
             return [key, this.commonNormalizers.validatedAttribute(value)];

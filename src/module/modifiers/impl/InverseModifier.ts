@@ -41,8 +41,14 @@ export class InverseModifier implements IModifier {
         formula.addPart(asString(abs(condense(this.value))), this.attributes.name, partClass);
     }
 
-    applyMultiplier(multiplier: Expression): Expression {
-        return times(this.value, multiplier);
+    applyMultiplier(multiplier: Expression): InverseModifier {
+        return new InverseModifier(
+            this.path,
+            times(this.value, multiplier),
+            this.attributes,
+            this.selectable,
+            this.actorProvider
+        );
     }
 
     static create(

@@ -49,9 +49,10 @@ export interface IModifier {
     addTooltipFormulaElements(formula: TooltipFormula): void;
 
     readonly isBonus: boolean;
+    readonly isMalus: boolean;
     readonly groupId: string;
     readonly selectable: boolean;
     readonly attributes: ModifierAttributes;
 
-    applyMultiplier(multiplier: Expression): Expression;
+    applyMultiplier(multiplier: Expression): IModifier;
 }

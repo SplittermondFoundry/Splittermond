@@ -219,8 +219,8 @@ class CostModifierWrapper implements ICostModifier {
         this.attributes = attributes;
     }
 
-    applyMultiplier(multiplier: Expression): CostExpression {
-        return timesCost(multiplier, this.value);
+    applyMultiplier(multiplier: Expression): CostModifierWrapper {
+        return new CostModifierWrapper(this.label, timesCost(multiplier, this.value), this.skill, this.attributes);
     }
 }
 
@@ -235,11 +235,8 @@ function buildModifierWrapper(
         throw new IllegalStateException(`Unknown modifier implementation: ${entry.implementation}`);
     }
     const baseValue = deserializeScalar(entry.serializedValue, provider, onUnbound);
-    const multiplier = effect?.multiplier ?? 1;
-    const value = new Impl(entry.path, baseValue, entry.attributes, entry.selectable, provider).applyMultiplier(
-        of(multiplier)
-    );
-    return new Impl(entry.path, value, entry.attributes, entry.selectable, provider);
+    const multiplier = of(effect?.multiplier ?? 1);
+    return new Impl(entry.path, baseValue, entry.attributes, entry.selectable, provider).applyMultiplier(multiplier);
 }
 
 function buildCostModifierWrapper(
@@ -249,9 +246,6 @@ function buildCostModifierWrapper(
     effect: SplittermondActiveEffect | null
 ): ICostModifier {
     const baseValue = deserializeCostExpression(entry.serializedValue, provider, onUnbound);
-    const multiplier = effect?.multiplier ?? 1;
-    const value = new CostModifierWrapper(entry.label, baseValue, entry.skill, entry.attributes).applyMultiplier(
-        of(multiplier)
-    );
-    return new CostModifierWrapper(entry.label, value, entry.skill, entry.attributes);
+    const multiplier = of(effect?.multiplier ?? 1);
+    return new CostModifierWrapper(entry.label, baseValue, entry.skill, entry.attributes).applyMultiplier(multiplier);
 }

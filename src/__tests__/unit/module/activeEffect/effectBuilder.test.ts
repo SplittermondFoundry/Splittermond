@@ -10,27 +10,28 @@ import { of as costOf } from "module/modifiers/expressions/cost";
 import { CostModifier } from "module/util/costs/Cost";
 
 function makeScalarModifier(overrides: Partial<IModifier> = {}): IModifier {
-    return {
+    const mock: IModifier = {
         value: of(2),
         isBonus: true,
+        isMalus: false,
         groupId: "skills.acrobatics",
         selectable: false,
         attributes: { name: "Test Item", type: "innate" },
         addTooltipFormulaElements() {},
-        applyMultiplier: () => of(2),
-        ...overrides,
+        applyMultiplier: () => mock,
     };
+    return { ...mock, ...overrides };
 }
 
 function makeCostModifier(overrides: Partial<ICostModifier> = {}): ICostModifier {
-    return {
+    const mock: ICostModifier = {
         label: "focus.reduction",
         value: costOf(CostModifier.zero),
         skill: null,
         attributes: {},
-        applyMultiplier: () => costOf(CostModifier.zero),
-        ...overrides,
+        applyMultiplier: () => mock,
     };
+    return { ...mock, ...overrides };
 }
 
 function makeTagged(modifier: IModifier, rawFragment = "skills.acrobatics +2"): TaggedModifier {

@@ -44,8 +44,14 @@ export class Modifier implements IModifier {
         }
     }
 
-    applyMultiplier(multiplier: Expression): Expression {
-        return times(this.value, multiplier);
+    applyMultiplier(multiplier: Expression): Modifier {
+        return new Modifier(
+            this.path,
+            times(this.value, multiplier),
+            this.attributes,
+            this.selectable,
+            this.actorProvider
+        );
     }
 
     static create(
