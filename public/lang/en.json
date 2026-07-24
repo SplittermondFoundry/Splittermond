@@ -118,6 +118,21 @@
             "distributed": "{amount} Free XP distributed to {count} character(s).",
             "noneUpdated": "No characters updated – see console for details."
         },
+        "combatEffect": {
+            "label": "Combat Event",
+            "macroRef": "Macro",
+            "macroRefUuid": "Macro UUID",
+            "postDescription": "Show description after trigger",
+            "statusEffectActivated": {
+                "subtitle": "in tick {onTick} ({activationNo} of {maxActivation})",
+                "remove": "End status effect"
+            },
+            "statusEffect": {
+                "startTick": "Start Tick",
+                "interval": "Trigger Interval",
+                "times": "Number of Triggers"
+            }
+        },
         "activeEffect": {
             "type": {
                 "base": "Base",
@@ -155,7 +170,7 @@
                 "unitMonths": "Months"
             },
             "edit": "Edit Effect"
-            }
+        }
     },
     "enable": "Enable",
     "disable": "Disable",

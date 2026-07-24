@@ -7,6 +7,7 @@ import type { AddModifierResult } from "module/modifiers/modifierAddition";
 import { buildCostEffectData, buildScalarEffectData } from "module/activeEffect/effectBuilder";
 import { type ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import type { SplittermondActiveEffect, DurationMode } from "module/activeEffect/SplittermondActiveEffect";
+import type {ItemType} from "module/config/itemTypes";
 
 type ActiveEffectDocument = SplittermondActiveEffect;
 
@@ -244,7 +245,24 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
     }
 
     #parse(rawInput: string): AddModifierResult {
-        return addModifier(this.#buildModifierSource(rawInput), rawInput, null as unknown as ModifierType, 1);
+        return addModifier(this.#buildModifierSource(rawInput), rawInput, this.getModifierType());
+    }
+
+    private getModifierType():ModifierType|null{
+        if(!this.document.item)return null;
+        switch (this.document.item.type as ItemType) {
+            case "equipment":
+            case "weapon":
+            case "projectile":
+            case "armor":
+            case "shield":
+                return "equipment";
+            case "spell":
+            case "spelleffect":
+                return "magic";
+            default:
+                return "innate"
+        }
     }
 
     #buildModifierSource(name: string): IModifierSource {

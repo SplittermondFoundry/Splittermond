@@ -18,6 +18,7 @@ import type SplittermondItem from "module/item/item";
 import { combatantIsPaused, CombatPauseType } from "module/combat";
 import type SplittermondCombat from "module/combat/combat";
 import { isFirstActiveGM } from "module/util/foundryUserUtils";
+import { executeFiredMacros, type FiredMacroPair } from "module/util/combatEventMacroExecution";
 
 export default class TickBarHud extends SplittermondApplication {
     viewed: SplittermondCombat | null = null;
@@ -190,6 +191,7 @@ export default class TickBarHud extends SplittermondApplication {
             }
 
             const activatedStatusTokens: (StatusEffectMessageData & { combatant: FoundryCombatant })[] = [];
+            const firedMacroPairs: FiredMacroPair[] = [];
             const canEmitStatusEffectMessages = isFirstActiveGM(foundryApi.currentUser, foundryApi.users);
 
             statusOnCombatants.forEach((combatant) => {
@@ -212,6 +214,13 @@ export default class TickBarHud extends SplittermondApplication {
                                     activationNo: index + 1,
                                     combatant: combatant.combatant,
                                 });
+                                const macroUuid = element.macroRef?.uuid;
+                                if (macroUuid !== null && macroUuid !== undefined) {
+                                    firedMacroPairs.push({
+                                        virtualToken: element,
+                                        combatant: combatant.combatant,
+                                    });
+                                }
                             }
                             if (onTick < this.minTick) {
                                 continue;
@@ -237,8 +246,13 @@ export default class TickBarHud extends SplittermondApplication {
             }
             for (let index = 0; index < activatedStatusTokens.length; index++) {
                 const element = activatedStatusTokens[index];
+                if (!element.virtualToken.postDescription) continue;
                 // noinspection ES6MissingAwait Chat message is info for the user, we don't need to await it.
                 foundryApi.createChatMessage(await Chat.prepareStatusEffectMessage(element.combatant.actor, element));
+            }
+
+            if (canEmitStatusEffectMessages) {
+                executeFiredMacros(firedMacroPairs);
             }
         }
 
