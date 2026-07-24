@@ -294,23 +294,27 @@ export default class SplittermondActor extends Actor {
                 return e.type === "statuseffect";
             })
             .filter((e) => {
-                return (
-                    e.system.startTick != null &&
-                    e.system.startTick > 0 &&
-                    e.system.interval != null &&
-                    e.system.interval > 0
-                );
+                const combatEvent = e.system.combatEvent;
+                const startTick = combatEvent?.startTick ?? e.system.startTick;
+                const interval = combatEvent?.interval ?? e.system.interval;
+                return startTick != null && startTick > 0 && interval != null && interval > 0;
             })
             .map((e) => {
+                const event = e.system.combatEvent;
+                const startTick = event?.startTick ?? e.system.startTick;
+                const interval = event?.interval ?? e.system.interval;
+
                 return {
                     name: e.name,
-                    startTick: parseInt(e.system.startTick),
-                    interval: parseInt(e.system.interval),
-                    times: e.system.times ? parseInt(e.system.times) : 90,
+                    startTick: parseInt(startTick),
+                    interval: parseInt(interval),
+                    times: (event?.repeats ?? e.system.times) != null ? parseInt(event?.repeats ?? e.system.times) : 90,
                     description: e.system.description,
                     img: e.img,
                     level: e.system.level,
                     statusId: e.id,
+                    macroRef: event?.macroRef ?? null,
+                    postDescription: event?.postDescription ?? true,
                 };
             });
     }

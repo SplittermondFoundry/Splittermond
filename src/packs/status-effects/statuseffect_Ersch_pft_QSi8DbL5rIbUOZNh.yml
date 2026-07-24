@@ -27,9 +27,14 @@ system:
     source: ""
     modifier: skills.fighting -1, skills.general -1, GSW -1, INI +1, npcattacks -1
     level: "1"
-    startTick: 0
-    interval: 0
-    times: 0
+    combatEvent:
+        startTick: 0
+        interval: 0
+        repeats: 0
+        macroRef:
+            name: null
+            uuid: null
+        postDescription: true
 folder: null
 sort: 0
 _key: "!items!QSi8DbL5rIbUOZNh"

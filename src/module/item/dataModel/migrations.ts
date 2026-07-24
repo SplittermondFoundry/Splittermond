@@ -185,3 +185,28 @@ function hasStringKey(source: unknown, key: string): source is { [key]: string |
 function hasKey(source: unknown, key: string): source is { [key]: unknown } {
     return !!source && typeof source === "object" && key in source;
 }
+
+export function from14_2_6_migrateCombatEvent(source: unknown) {
+    if (!source || typeof source !== "object") return source;
+    if ("combatEvent" in source) return source;
+
+    const hasStartTick = hasKey(source, "startTick") && typeof source.startTick === "number";
+    const hasInterval = hasKey(source, "interval") && typeof source.interval === "number";
+    const hasTimes = hasKey(source, "times") && typeof source.times === "number";
+
+    if (hasStartTick && hasInterval && hasTimes) {
+        const { startTick, interval, times } = source as Record<string, number>;
+        source.combatEvent = {
+            startTick,
+            interval,
+            repeats: times,
+            macroRef: { name: null, uuid: null },
+            postDescription: true,
+        };
+        delete (source as Record<string, unknown>).startTick;
+        delete (source as Record<string, unknown>).interval;
+        delete (source as Record<string, unknown>).times;
+    }
+
+    return source;
+}

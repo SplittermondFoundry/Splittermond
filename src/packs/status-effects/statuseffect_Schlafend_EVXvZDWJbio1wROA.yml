@@ -28,9 +28,14 @@ system:
     source: ""
     modifier: ""
     level: "1"
-    startTick: 0
-    interval: 0
-    times: 0
+    combatEvent:
+        startTick: 0
+        interval: 0
+        repeats: 0
+        macroRef:
+            name: null
+            uuid: null
+        postDescription: true
 folder: null
 sort: 0
 _key: "!items!EVXvZDWJbio1wROA"

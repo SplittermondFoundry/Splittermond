@@ -349,6 +349,7 @@ describe("TickBarHud", () => {
                     interval: 1,
                     times: 1,
                     startTick: 10,
+                    postDescription: true,
                 },
             ]);
             sandbox.stub(foundryApi, "combats").get(() => [combat]);
@@ -367,6 +368,200 @@ describe("TickBarHud", () => {
             await tickBarHud._prepareContext({ parts: [] });
 
             expect(createChatMessageStub.called).to.be.true;
+        });
+
+        it("should not create chat messages when postDescription is false", async () => {
+            // Setup: postDescription: false should skip the chat message post (guard at line 249)
+            const combat = createCombat(sandbox, { isActive: true, started: true, turn: 0 });
+            const combatant = addNewCombatant(sandbox, combat, { initiative: 15, isOwner: true });
+            addToCombatTurns(combat, combatant);
+            combatant.actor.getVirtualStatusTokens.returns([
+                {
+                    statusId: "x64isg3",
+                    img: "status-icon.png",
+                    name: "Poison",
+                    level: 1,
+                    description: "Poisoned",
+                    interval: 1,
+                    times: 1,
+                    startTick: 10,
+                    postDescription: false,
+                    macroRef: { name: "Apply Poison", uuid: "macro.uuid.1" },
+                },
+            ]);
+            sandbox.stub(foundryApi, "combats").get(() => [combat]);
+            sandbox.stub(foundryApi, "currentUser").get(() => ({ id: "userId", isGM: true, active: true }));
+            sandbox.stub(foundryApi, "users").get(() => [{ id: "userId", isGM: true, active: true }]);
+            sandbox.stub(foundryApi, "chatMessageStyles").get(() => ({ OTHER: 0 }));
+            sandbox.stub(foundryApi, "getSpeaker").returns({ scene: "", actor: "", token: "", alias: "" });
+            sandbox.stub(foundryApi, "renderer").get(() => () => Promise.resolve(""));
+            CONFIG.sounds = { notification: "" };
+
+            const createChatMessageStub = sandbox.stub(foundryApi, "createChatMessage");
+
+            const tickBarHud = new TickBarHud();
+            tickBarHud.lastStatusTick = 5;
+            tickBarHud.currentTick = 15;
+
+            await tickBarHud._prepareContext({ parts: [] });
+
+            expect(createChatMessageStub.called).to.be.false;
+        });
+
+        it("should create chat messages when postDescription is true", async () => {
+            // Setup: postDescription: true should trigger the chat message post
+            const combat = createCombat(sandbox, { isActive: true, started: true, turn: 0 });
+            const combatant = addNewCombatant(sandbox, combat, { initiative: 15, isOwner: true });
+            addToCombatTurns(combat, combatant);
+            combatant.actor.getVirtualStatusTokens.returns([
+                {
+                    statusId: "x64isg3",
+                    img: "status-icon.png",
+                    name: "Poison",
+                    level: 1,
+                    description: "Poisoned",
+                    interval: 1,
+                    times: 1,
+                    startTick: 10,
+                    postDescription: true,
+                },
+            ]);
+            sandbox.stub(foundryApi, "combats").get(() => [combat]);
+            sandbox.stub(foundryApi, "currentUser").get(() => ({ id: "userId", isGM: true, active: true }));
+            sandbox.stub(foundryApi, "users").get(() => [{ id: "userId", isGM: true, active: true }]);
+            sandbox.stub(foundryApi, "chatMessageStyles").get(() => ({ OTHER: 0 }));
+            sandbox.stub(foundryApi, "getSpeaker").returns({ scene: "", actor: "", token: "", alias: "" });
+            sandbox.stub(foundryApi, "renderer").get(() => () => Promise.resolve(""));
+            CONFIG.sounds = { notification: "" };
+
+            const createChatMessageStub = sandbox.stub(foundryApi, "createChatMessage");
+
+            const tickBarHud = new TickBarHud();
+            tickBarHud.lastStatusTick = 5;
+            tickBarHud.currentTick = 15;
+
+            await tickBarHud._prepareContext({ parts: [] });
+
+            expect(createChatMessageStub.called).to.be.true;
+        });
+
+        it("should fire macros for activated status effects with a macroRef.uuid on the active GM", async () => {
+            const combat = createCombat(sandbox, { isActive: true, started: true, turn: 0 });
+            const combatant = addNewCombatant(sandbox, combat, { initiative: 15, isOwner: true });
+            addToCombatTurns(combat, combatant);
+            combatant.actor.getVirtualStatusTokens.returns([
+                {
+                    statusId: "x64isg3",
+                    img: "status-icon.png",
+                    name: "Poison",
+                    level: 1,
+                    description: "Poisoned",
+                    interval: 1,
+                    times: 1,
+                    startTick: 10,
+                    macroRef: { name: "Apply Poison", uuid: "macro.uuid.1" },
+                },
+            ]);
+            sandbox.stub(foundryApi, "combats").get(() => [combat]);
+            sandbox.stub(foundryApi, "currentUser").get(() => ({ id: "userId", isGM: true, active: true }));
+            sandbox.stub(foundryApi, "users").get(() => [{ id: "userId", isGM: true, active: true }]);
+            sandbox.stub(foundryApi, "chatMessageStyles").get(() => ({ OTHER: 0 }));
+            sandbox.stub(foundryApi, "getSpeaker").returns({ scene: "", actor: "", token: "", alias: "" });
+            sandbox.stub(foundryApi, "renderer").get(() => () => Promise.resolve(""));
+            CONFIG.sounds = { notification: "" };
+            sandbox.stub(foundryApi, "createChatMessage");
+            const executeStub = sandbox.stub().resolves();
+            const macro = { canExecute: true, execute: executeStub };
+            const fromUuidStub = sandbox
+                .stub(foundryApi.utils, "fromUUID")
+                .resolves(macro as unknown as Awaited<ReturnType<typeof foundryApi.utils.fromUUID>>);
+
+            const tickBarHud = new TickBarHud();
+            tickBarHud.lastStatusTick = 5;
+            tickBarHud.currentTick = 15;
+
+            await tickBarHud._prepareContext({ parts: [] });
+
+            expect(fromUuidStub.calledOnce).to.be.true;
+            expect(fromUuidStub.firstCall.args[0]).to.equal("macro.uuid.1");
+            await new Promise((resolve) => setTimeout(resolve, 10));
+            expect(executeStub.calledOnce).to.be.true;
+            const scope = executeStub.firstCall.args[0] as { actor: unknown; speaker: unknown };
+            expect(scope.actor).to.equal(combatant.actor);
+        });
+
+        it("should not fire macros on a non-GM client", async () => {
+            const combat = createCombat(sandbox, { isActive: true, started: true, turn: 0 });
+            const combatant = addNewCombatant(sandbox, combat, { initiative: 15, isOwner: true });
+            addToCombatTurns(combat, combatant);
+            combatant.actor.getVirtualStatusTokens.returns([
+                {
+                    statusId: "x64isg3",
+                    img: "status-icon.png",
+                    name: "Poison",
+                    level: 1,
+                    description: "Poisoned",
+                    interval: 1,
+                    times: 1,
+                    startTick: 10,
+                    macroRef: { name: "Apply Poison", uuid: "macro.uuid.1" },
+                },
+            ]);
+            sandbox.stub(foundryApi, "combats").get(() => [combat]);
+            sandbox.stub(foundryApi, "currentUser").get(() => ({ id: "userId", isGM: false, active: true }));
+            sandbox.stub(foundryApi, "users").get(() => [
+                { id: "gmId", isGM: true, active: true },
+                { id: "userId", isGM: false, active: true },
+            ]);
+            sandbox.stub(foundryApi, "chatMessageStyles").get(() => ({ OTHER: 0 }));
+            sandbox.stub(foundryApi, "renderer").get(() => () => Promise.resolve(""));
+            CONFIG.sounds = { notification: "" };
+            sandbox.stub(foundryApi, "createChatMessage");
+            const fromUuidStub = sandbox.stub(foundryApi.utils, "fromUUID");
+
+            const tickBarHud = new TickBarHud();
+            tickBarHud.lastStatusTick = 5;
+            tickBarHud.currentTick = 15;
+
+            await tickBarHud._prepareContext({ parts: [] });
+
+            expect(fromUuidStub.called).to.be.false;
+        });
+
+        it("should not fire macros for status effects without a macroRef.uuid", async () => {
+            const combat = createCombat(sandbox, { isActive: true, started: true, turn: 0 });
+            const combatant = addNewCombatant(sandbox, combat, { initiative: 15, isOwner: true });
+            addToCombatTurns(combat, combatant);
+            combatant.actor.getVirtualStatusTokens.returns([
+                {
+                    statusId: "x64isg3",
+                    img: "status-icon.png",
+                    name: "Poison",
+                    level: 1,
+                    description: "Poisoned",
+                    interval: 1,
+                    times: 1,
+                    startTick: 10,
+                    macroRef: { name: "No Macro", uuid: null },
+                },
+            ]);
+            sandbox.stub(foundryApi, "combats").get(() => [combat]);
+            sandbox.stub(foundryApi, "currentUser").get(() => ({ id: "userId", isGM: true, active: true }));
+            sandbox.stub(foundryApi, "users").get(() => [{ id: "userId", isGM: true, active: true }]);
+            sandbox.stub(foundryApi, "chatMessageStyles").get(() => ({ OTHER: 0 }));
+            sandbox.stub(foundryApi, "getSpeaker").returns({ scene: "", actor: "", token: "", alias: "" });
+            sandbox.stub(foundryApi, "renderer").get(() => () => Promise.resolve(""));
+            CONFIG.sounds = { notification: "" };
+            sandbox.stub(foundryApi, "createChatMessage");
+            const fromUuidStub = sandbox.stub(foundryApi.utils, "fromUUID");
+
+            const tickBarHud = new TickBarHud();
+            tickBarHud.lastStatusTick = 5;
+            tickBarHud.currentTick = 15;
+
+            await tickBarHud._prepareContext({ parts: [] });
+
+            expect(fromUuidStub.called).to.be.false;
         });
     });
 

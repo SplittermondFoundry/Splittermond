@@ -16,7 +16,9 @@ function setInitialTick(item: SplittermondItem) {
     const activeCombat = foundryApi.combat as SplittermondCombat | null;
     if (!activeCombat || activeCombat.currentTick === null) return;
     if (!activeCombat.combatants.some((c) => c.actor?.id === item.actor?.id)) return;
-    if (!item.system.interval) {
+
+    const interval = item.system.combatEvent.interval;
+    if (!interval) {
         foundryApi.warnUser("splittermond.message.invalidStatusEffectInterval", { name: item.name });
         return;
     }
@@ -24,7 +26,9 @@ function setInitialTick(item: SplittermondItem) {
     console.log("Splittermond | Adapting status effect to account for current combat.");
     const systemDataToUpdate = {
         system: {
-            startTick: activeCombat.currentTick + item.system.interval,
+            combatEvent: {
+                startTick: activeCombat.currentTick + interval,
+            },
         },
     };
     //The function is used in a preCreate hook, updateSource will modify the data used for creation
