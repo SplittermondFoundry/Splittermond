@@ -27,9 +27,14 @@ system:
     source: ""
     modifier: skills -3, VTD -3, GSW.mult 0, npcattacks -3
     level: "1"
-    startTick: 0
-    interval: 0
-    times: 0
+    combatEvent:
+        startTick: 0
+        interval: 0
+        repeats: 0
+        macroRef:
+            name: null
+            uuid: null
+        postDescription: true
 folder: null
 sort: 0
 _key: "!items!DJduCV3PngSp5H86"

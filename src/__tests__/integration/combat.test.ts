@@ -95,10 +95,10 @@ export function combatTest(context: QuenchBatchContext) {
             await combat.setInitiative(combatant.id, 15);
 
             const statusEffect = await actor.createEmbeddedDocuments("Item", [
-                { name: "Brennend", system: { interval: 5 }, type: "statuseffect" },
+                { name: "Brennend", system: { combatEvent: { interval: 5 } }, type: "statuseffect" },
             ]);
 
-            expect(statusEffect[0].system.startTick, "Start tick was set").to.equal((combat.currentTick ?? 0) + 5);
+            expect(statusEffect[0].system.combatEvent.startTick, "Start tick was set").to.equal((combat.currentTick ?? 0) + 5);
         });
 
         it(
@@ -109,10 +109,10 @@ export function combatTest(context: QuenchBatchContext) {
                 await combat.setInitiative(combatant.id, 15);
 
                 const statusEffect = await nonCombatant.createEmbeddedDocuments("Item", [
-                    { name: "Brennend", system: { interval: 5 }, type: "statuseffect" },
+                    { name: "Brennend", system: { combatEvent: { interval: 5 } }, type: "statuseffect" },
                 ]);
 
-                expect(statusEffect[0].system.startTick, "Start tick was not set").to.equal(0);
+                expect(statusEffect[0].system.combatEvent.startTick, "Start tick was not set").to.be.null;
             })
         );
 

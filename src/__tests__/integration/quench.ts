@@ -18,6 +18,7 @@ import { hooksTest } from "./hooks.test";
 import { activeEffectTest } from "./activeEffectConfig.test";
 import { activeEffectMultiplierTest } from "./activeEffectMultiplier.test";
 import { bakedMultiplierMigrationTest } from "./bakedMultiplierMigration.test";
+import { macroApiTest } from "./api/Macro.test";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}
@@ -44,6 +45,7 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.activeEffectConfig", activeEffectTest);
     quench.registerBatch("splittermond.activeEffectMultiplier", activeEffectMultiplierTest);
     quench.registerBatch("splittermond.bakedMultiplierMigration", bakedMultiplierMigrationTest);
+    quench.registerBatch("splittermond.macro", macroApiTest);
 }
 
 export function init() {

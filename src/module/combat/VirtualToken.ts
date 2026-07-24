@@ -8,4 +8,6 @@ export interface VirtualToken {
     img: string;
     level: number;
     statusId: string;
+    macroRef?: { name: string | null; uuid: string | null };
+    postDescription?: boolean;
 }

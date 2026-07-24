@@ -16,6 +16,7 @@ declare const game: any;
 declare const Combat: any;
 declare const Combatant: any;
 declare const ActiveEffect: any;
+declare const Macro: any;
 
 export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     const { describe, it, expect, afterEach, before, after } = context;
@@ -660,6 +661,56 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 expect(pack, `Pack ${pack.name} does not have a 'visible' property`).to.have.property("visible");
                 expect(pack.visible).to.be.a("boolean");
             });
+        });
+    });
+
+    describe("Macro", () => {
+        const createdMacros: any[] = [];
+
+        afterEach(() => {
+            if (createdMacros.length) {
+                Macro.deleteDocuments(createdMacros.map((m: any) => m.id));
+                createdMacros.length = 0;
+            }
+        });
+
+        async function createTestMacro() {
+            const macro = (await Macro.create({
+                name: "Test Macro",
+                type: "script",
+                command: "() => {}",
+            })) as any;
+            createdMacros.push(macro);
+            return macro;
+        }
+
+        it("should create a macro document", async () => {
+            const macro = await createTestMacro();
+            expect(macro).to.not.be.null;
+        });
+
+        it("should have a string property name", async () => {
+            const macro = await createTestMacro();
+            expect(macro, "Macro does not have name").to.have.property("name");
+            expect(typeof macro.name, "Macro name is not a string").to.equal("string");
+        });
+
+        it("should have a boolean property canExecute", async () => {
+            const macro = await createTestMacro();
+            expect(macro, "Macro does not have canExecute").to.have.property("canExecute");
+            expect(typeof macro.canExecute, "Macro canExecute is not a boolean").to.equal("boolean");
+        });
+
+        it("should have a function property execute", async () => {
+            const macro = await createTestMacro();
+            expect(macro, "Macro does not have execute").to.have.property("execute");
+            expect(typeof macro.execute, "Macro execute is not a function").to.equal("function");
+        });
+
+        it("should have a string property uuid", async () => {
+            const macro = await createTestMacro();
+            expect(macro, "Macro does not have uuid").to.have.property("uuid");
+            expect(typeof macro.uuid, "Macro uuid is not a string").to.equal("string");
         });
     });
 }

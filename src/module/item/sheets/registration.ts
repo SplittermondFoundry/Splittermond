@@ -5,6 +5,7 @@ import SplittermondWeaponSheet from "module/item/sheets/weapon-sheet";
 import SplittermondShieldSheet from "module/item/sheets/shield-sheet";
 import SplittermondArmorSheet from "module/item/sheets/armor-sheet";
 import SplittermondAttackSheet from "module/item/sheets/attack-sheet";
+import StatusEffectItemSheet from "module/item/sheets/StatusEffectItemSheet";
 
 export function registerSheets() {
     [
@@ -30,6 +31,10 @@ export function registerSheets() {
         {
             type: "npcattack",
             class: SplittermondAttackSheet,
+        },
+        {
+            type: "statuseffect",
+            class: StatusEffectItemSheet,
         },
     ].forEach((config) => registerSheet(config.class, config.type));
 }
