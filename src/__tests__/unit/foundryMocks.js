@@ -90,6 +90,7 @@ const foundryApplicationsApi = {
             return Promise.resolve(context);
         }
         _onRender() {}
+        _onSubmitForm() {}
         addEventListener() {}
         close() {}
         static prompt() {}
@@ -100,6 +101,7 @@ const foundryApplicationSheets = {
         get item() {
             return this.options.document;
         }
+        _onDrop() {}
     },
     ActorSheetV2: class extends foundryApplicationsApi.ApplicationV2 {
         get actor() {
@@ -183,6 +185,15 @@ global.foundry = {
                 }
 
                 validate = typeValidation("boolean");
+            },
+            HTMLField: class {
+                /**@type unknown */ options = null;
+
+                constructor(options) {
+                    this.options = options;
+                }
+
+                validate = typeValidation("string");
             },
             EmbeddedDataField: class {
                 /**@type function*/ type = null;

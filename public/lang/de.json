@@ -118,6 +118,10 @@
         "statuseffect": "Zustand",
         "npcattack": "Angriff",
         "combatEffect": {
+            "label": "Kampf-Ereignis",
+            "macroRef": "Makro",
+            "macroRefUuid": "Makro-UUID",
+            "postDescription": "Beschreibung nach Auslösung anzeigen",
             "statusEffectActivated": {
                 "subtitle": "in Tick {onTick} ({activationNo} von {maxActivation})",
                 "remove": "Status Effekt beenden"

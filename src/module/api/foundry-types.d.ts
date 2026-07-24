@@ -415,6 +415,7 @@ declare namespace foundry {
                 get actor(): Actor | null;
                 get item(): Item;
                 _onDragStart(event: DragEvent): Promise<void>;
+                _onDrop(event: DragEvent): Promise<void>;
             }
 
             class ActorSheetV2 extends DocumentSheetV2 {
