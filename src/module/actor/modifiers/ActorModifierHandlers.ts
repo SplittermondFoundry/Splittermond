@@ -3,7 +3,6 @@ import { BarebonesModifierHandler } from "module/actor/modifiers/BarebonesModifi
 import type { ScalarModifier } from "module/modifiers/parsing";
 import type { IModifier } from "module/modifiers";
 import { Modifier, InverseModifier, MultiplicativeModifier } from "module/activeEffect";
-import type { Expression } from "module/modifiers/expressions/scalar";
 
 export function IndividualSkillHandlers(skill: SplittermondSkill) {
     return class extends BarebonesModifierHandler({ topLevelPath: skill, optionalAttributes: ["emphasis"] }) {
@@ -55,12 +54,8 @@ export function InverseModifierHandler(inputPath: string, groupId?: Lowercase<st
     };
 }
 
-export function ProductModifierHandler(
-    inputPath: string,
-    groupId?: string,
-    operator?: (a: Expression, b: Expression) => Expression
-) {
-    return class extends BarebonesModifierHandler({ topLevelPath: inputPath }, groupId, operator) {
+export function ProductModifierHandler(inputPath: string, groupId?: string) {
+    return class extends BarebonesModifierHandler({ topLevelPath: inputPath }, groupId) {
         protected omitForValue(): boolean {
             return false;
         }

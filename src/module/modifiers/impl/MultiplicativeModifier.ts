@@ -40,10 +40,10 @@ export class MultiplicativeModifier implements IModifier {
         formula.addPart(asString(abs(condense(this.value))), this.attributes.name, partClass);
     }
 
-    applyMultiplier(multiplier: Expression): MultiplicativeModifier {
+    applyMultiplier(multiplier: number): MultiplicativeModifier {
         return new MultiplicativeModifier(
             this.path,
-            pow(this.value, multiplier),
+            pow(this.value, of(multiplier)),
             this.attributes,
             this.selectable,
             this.actorProvider

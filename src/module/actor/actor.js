@@ -577,13 +577,12 @@ export default class SplittermondActor extends Actor {
     //this function is used in item.js to add modifiers to the actor
     addModifier(item, str = "", type = "", multiplier = 1) {
         const result = addModifier(item, str, type, multiplier);
-        const multiplied = of(multiplier);
 
         result.modifiers.forEach(({ modifier }) => {
-            this.modifier.addModifier(modifier.applyMultiplier(multiplied));
+            this.modifier.addModifier(modifier.applyMultiplier(multiplier));
         });
 
-        const rewrappedCostModifiers = result.costModifiers.map(({ modifier }) => modifier.applyMultiplier(multiplied));
+        const rewrappedCostModifiers = result.costModifiers.map(({ modifier }) => modifier.applyMultiplier(multiplier));
         this.sortCostModifiersIntoManagers(rewrappedCostModifiers);
         return result;
     }

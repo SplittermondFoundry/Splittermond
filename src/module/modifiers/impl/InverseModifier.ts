@@ -1,10 +1,11 @@
-import { addToRegistry, type Constructor } from "module/data/dataModelRegistry";
-import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
-import type { IModifier, ModifierAttributes } from "module/modifiers";
-import type { Expression } from "module/modifiers/expressions/scalar";
-import { abs, asString, condense, isGreaterZero, isLessThanZero, times } from "module/modifiers/expressions/scalar";
-import { serialize } from "module/modifiers/expressions/scalar/serialization";
-import type { TooltipFormula } from "module/util/tooltip";
+import {addToRegistry, type Constructor} from "module/data/dataModelRegistry";
+import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
+import type {IModifier, ModifierAttributes} from "module/modifiers";
+import type {Expression} from "module/modifiers/expressions/scalar";
+import {abs, asString, condense, isGreaterZero, isLessThanZero} from "module/modifiers/expressions/scalar";
+import {serialize} from "module/modifiers/expressions/scalar/serialization";
+import type {TooltipFormula} from "module/util/tooltip";
+import {apply} from "module/modifiers/expressions/scalar/application";
 
 export class InverseModifier implements IModifier {
     static readonly key = "inverse";
@@ -41,10 +42,10 @@ export class InverseModifier implements IModifier {
         formula.addPart(asString(abs(condense(this.value))), this.attributes.name, partClass);
     }
 
-    applyMultiplier(multiplier: Expression): InverseModifier {
+    applyMultiplier(multiplier: number): InverseModifier {
         return new InverseModifier(
             this.path,
-            times(this.value, multiplier),
+            apply(this.value, multiplier),
             this.attributes,
             this.selectable,
             this.actorProvider
