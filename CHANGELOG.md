@@ -1,3 +1,12 @@
+## 14.x.x
+
+### Features
+
+- Multiplikatoren sorgen bei additiven Modifikatoren jetzt für Mehrfachanwendung statt Multiplikation.
+  D.h. ein Statuseffekt Stufe 2 mit einem Schadensmodifikator produziert jetzt eval(2W6) statt 2 * eval(1W6)
+- Modifikatoren können jetzt über aktive Effekte gehandhabt werden
+- Statuseffekte lösen nach Wahl ein Makro nach einem bestimmten Intervall aus.
+
 ## 14.2.6
 
 ### Fixes

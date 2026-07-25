@@ -222,8 +222,20 @@ export class AbsExpression {
 
 export class MinExpression {
     constructor(public readonly args: [Expression, ...Expression[]]) {}
+
+    map<T>(func:(ex: Expression, index:number)=>T):[T,...T[]]{
+        const first = this.args[0]
+        const rest = this.args.slice(1);
+        return [func(first,0), ...rest.map((ex,i)=>func(ex, i+1))]
+    }
 }
 
 export class MaxExpression {
     constructor(public readonly args: [Expression, ...Expression[]]) {}
+
+    map<T>(func:(ex: Expression, index:number)=>T):[T,...T[]]{
+        const first = this.args[0]
+        const rest = this.args.slice(1);
+        return [func(first,0), ...rest.map((ex,i)=>func(ex, i+1))]
+    }
 }
