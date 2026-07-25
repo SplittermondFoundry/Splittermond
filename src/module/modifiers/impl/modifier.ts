@@ -1,10 +1,11 @@
-import { addToRegistry, type Constructor } from "module/data/dataModelRegistry";
-import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
-import type { IModifier, ModifierAttributes } from "module/modifiers";
-import type { Expression } from "module/modifiers/expressions/scalar";
-import { abs, asString, condense, isGreaterZero, isLessThanZero, times } from "module/modifiers/expressions/scalar";
-import { serialize } from "module/modifiers/expressions/scalar/serialization";
-import type { TooltipFormula } from "module/util/tooltip";
+import {addToRegistry, type Constructor} from "module/data/dataModelRegistry";
+import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
+import type {IModifier, ModifierAttributes} from "module/modifiers";
+import type {Expression} from "module/modifiers/expressions/scalar";
+import {abs, asString, condense, isGreaterZero, isLessThanZero} from "module/modifiers/expressions/scalar";
+import {serialize} from "module/modifiers/expressions/scalar/serialization";
+import type {TooltipFormula} from "module/util/tooltip";
+import {apply} from "module/modifiers/expressions/scalar/application";
 
 export class Modifier implements IModifier {
     static readonly key = "additive";
@@ -44,10 +45,10 @@ export class Modifier implements IModifier {
         }
     }
 
-    applyMultiplier(multiplier: Expression): Modifier {
+    applyMultiplier(multiplier: number): Modifier {
         return new Modifier(
             this.path,
-            times(this.value, multiplier),
+            apply(this.value, multiplier),
             this.attributes,
             this.selectable,
             this.actorProvider

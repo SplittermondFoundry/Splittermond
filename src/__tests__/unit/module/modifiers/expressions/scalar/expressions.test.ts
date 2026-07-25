@@ -212,7 +212,7 @@ describe("Expressions", () => {
             });
 
             it(`should print ${str} function with arguments`, () => {
-                expect(asString(func(one, of(3), other))).to.equal(`${str}(1d6+2, 3, 1d6-2)`);
+                expect(asString(func(one, of(3), other))).to.equal(`${str}(1d6 + 2, 3, 1d6 - 2)`);
             });
         });
         it("should not assume the lowest roll result for comparisons with min", () => {

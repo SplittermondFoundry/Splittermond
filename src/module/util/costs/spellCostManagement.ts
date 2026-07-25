@@ -1,6 +1,5 @@
-import { CostModifier } from "./Cost";
-import { type CostExpression, evaluate, syncEvaluate } from "../../modifiers/expressions/cost";
-import type { Expression } from "module/modifiers/expressions/scalar";
+import {CostModifier} from "./Cost";
+import {type CostExpression, evaluate, syncEvaluate} from "../../modifiers/expressions/cost";
 
 interface SpellCostReductionManagement {
     spellCostReduction: SpellCostReductionManager;
@@ -35,7 +34,7 @@ export interface ICostModifier {
         type?: string;
     };
 
-    applyMultiplier(multiplier: Expression): ICostModifier;
+    applyMultiplier(multiplier: number): ICostModifier;
 }
 
 class SpellCostReductionManager {
