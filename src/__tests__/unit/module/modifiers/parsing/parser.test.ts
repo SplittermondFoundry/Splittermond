@@ -218,6 +218,7 @@ describe("Modifier Parser", () => {
             expect(result.modifiers).to.be.empty;
         });
     });
+
     it("split modifiers by comma", () => {
         const input = "npcattacks +1, generalskills +1";
 
@@ -276,10 +277,26 @@ describe("Modifier Parser", () => {
         expect(result.errors).to.deep.equal(["splittermond.modifiers.parseMessages.duplicateValue"]);
     });
 
-    it("should return error for missing value declaration", () => {
+    it("should accept value-less modifier with attributes (emphasis)", () => {
         const input = "AUS emphasis=Schaden";
         const result = parseModifiers(input);
-        expect(result.errors).to.deep.equal(["splittermond.modifiers.parseMessages.noValue"]);
+        expect(result.errors).to.be.empty;
+        expect(result.modifiers).to.deep.equal([
+            { path: "AUS", attributes: { emphasis: "Schaden" }, rawFragment: "AUS emphasis=Schaden" },
+        ]);
+    });
+
+    it("should accept value-less modifier with non-emphasis attributes", () => {
+        const input = "check.require rollType=standard";
+        const result = parseModifiers(input);
+        expect(result.errors).to.be.empty;
+        expect(result.modifiers).to.deep.equal([
+            {
+                path: "check.require",
+                attributes: { rollType: "standard" },
+                rawFragment: "check.require rollType=standard",
+            },
+        ]);
     });
 
     ["AUS 1='a' 1"].forEach((input) => {
