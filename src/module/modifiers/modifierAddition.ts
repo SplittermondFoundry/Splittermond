@@ -2,7 +2,7 @@ import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
 import { type FocusModifier, parseModifiers, type ScalarModifier } from "./parsing";
-import { Expression as ScalarExpression } from "./expressions/scalar";
+import { of, Expression as ScalarExpression } from "./expressions/scalar";
 import { Modifier } from "module/activeEffect";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
@@ -56,9 +56,12 @@ export function initAddModifier(
                 const produced = costHandlerCache.getHandler(normalized.path).processModifier(normalized);
                 produced.forEach((modifier) => costModifiers.push({ modifier, rawFragment }));
             } else if (handlerCache.handles(parsedModifier.path)) {
-                const normalized = processScalarValue(parsedModifier, actorProvider);
+                const handler = handlerCache.getHandler(parsedModifier.path);
+                const normalized = handler.requiresValue(parsedModifier.path)
+                    ? processScalarValue(parsedModifier, actorProvider)
+                    : { ...parsedModifier, value: of(0) };
                 if (!normalized) continue;
-                const produced = handlerCache.getHandler(normalized.path).processModifier(normalized);
+                const produced = handler.processModifier(normalized);
                 produced.forEach((modifier) =>
                     modifiers.push({
                         modifier,

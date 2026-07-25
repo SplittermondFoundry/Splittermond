@@ -40,10 +40,8 @@ export function withErrorLogger(errorLogger: IErrorConsumer) {
     function processScalarValue(modifier: ParsedModifier, actorProvider: ActorProvider): ScalarModifier | null {
         const value = modifier.attributes.value;
         if (value === null || value === undefined) {
-            if (value === null || value === undefined) {
-                errorLogger.pushKey("splittermond.modifiers.parseMessages.noValue", { modifier: modifier.path });
-                return null;
-            }
+            errorLogger.pushKey("splittermond.modifiers.parseMessages.noValue", { modifier: modifier.path });
+            return null;
         }
         const normalized = normalizeValue(value);
         const processedValue = setUpExpression(normalized, actorProvider);

@@ -35,6 +35,10 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
         return this.buildModifier(modifier, pathConfig);
     }
 
+    requiresValue(path: string): boolean {
+        return this.getPathConfig(path)?.requiresValue ?? true;
+    }
+
     protected abstract omitForValue(value: ExpressionType<TYPE>): boolean;
 
     protected abstract buildModifier(modifier: TYPE, pathConfig: ConfigSegment): ResultType<TYPE>[];
