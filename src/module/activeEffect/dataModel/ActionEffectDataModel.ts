@@ -1,20 +1,20 @@
-import { DataModelSchemaType, fieldExtensions, fields } from "../../data/SplittermondDataModel";
-import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
-import type { IModifier, ModifierAttributes } from "module/modifiers";
-import { isModifierType } from "module/modifiers";
-import type { ICostModifier } from "module/util/costs/spellCostManagement";
-import { deserialize as deserializeScalar } from "module/modifiers/expressions/scalar/serialization";
-import { deserialize as deserializeCostExpression } from "module/modifiers/expressions/cost/serialization";
-import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
-import type { CostExpression } from "module/modifiers/expressions/cost";
-import { times as timesCost } from "module/modifiers/expressions/cost";
-import { of, type Expression } from "module/modifiers/expressions/scalar";
-import { SplittermondActiveEffect } from "module/activeEffect";
-import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
-import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
-import { CostModifier as CostValue } from "module/util/costs/Cost";
-import { getFromRegistry } from "module/data/dataModelRegistry";
-import { IllegalStateException } from "module/data/exceptions";
+import {DataModelSchemaType, fieldExtensions, fields} from "../../data/SplittermondDataModel";
+import {SplittermondActiveEffectDataModel} from "../../data/SplittermondActiveEffectDataModel";
+import type {IModifier, ModifierAttributes} from "module/modifiers";
+import {isModifierType} from "module/modifiers";
+import type {ICostModifier} from "module/util/costs/spellCostManagement";
+import {deserialize as deserializeScalar} from "module/modifiers/expressions/scalar/serialization";
+import {deserialize as deserializeCostExpression} from "module/modifiers/expressions/cost/serialization";
+import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
+import type {CostExpression} from "module/modifiers/expressions/cost";
+import {times as timesCost} from "module/modifiers/expressions/cost";
+import {type Expression, of} from "module/modifiers/expressions/scalar";
+import {SplittermondActiveEffect} from "module/activeEffect";
+import {UnboundWarner} from "module/activeEffect/dataModel/UnboundWarner";
+import {resolveHostActor} from "module/activeEffect/dataModel/hostActor";
+import {CostModifier as CostValue} from "module/util/costs/Cost";
+import {getFromRegistry} from "module/data/dataModelRegistry";
+import {IllegalStateException} from "module/data/exceptions";
 
 interface ModifierConstructor {
     new (
@@ -219,8 +219,8 @@ class CostModifierWrapper implements ICostModifier {
         this.attributes = attributes;
     }
 
-    applyMultiplier(multiplier: Expression): CostModifierWrapper {
-        return new CostModifierWrapper(this.label, timesCost(multiplier, this.value), this.skill, this.attributes);
+    applyMultiplier(multiplier: number): CostModifierWrapper {
+        return new CostModifierWrapper(this.label, timesCost(of(multiplier), this.value), this.skill, this.attributes);
     }
 }
 
@@ -235,7 +235,7 @@ function buildModifierWrapper(
         throw new IllegalStateException(`Unknown modifier implementation: ${entry.implementation}`);
     }
     const baseValue = deserializeScalar(entry.serializedValue, provider, onUnbound);
-    const multiplier = of(effect?.multiplier ?? 1);
+    const multiplier = effect?.multiplier ?? 1;
     return new Impl(entry.path, baseValue, entry.attributes, entry.selectable, provider).applyMultiplier(multiplier);
 }
 
@@ -246,6 +246,6 @@ function buildCostModifierWrapper(
     effect: SplittermondActiveEffect | null
 ): ICostModifier {
     const baseValue = deserializeCostExpression(entry.serializedValue, provider, onUnbound);
-    const multiplier = of(effect?.multiplier ?? 1);
+    const multiplier = effect?.multiplier ?? 1;
     return new CostModifierWrapper(entry.label, baseValue, entry.skill, entry.attributes).applyMultiplier(multiplier);
 }

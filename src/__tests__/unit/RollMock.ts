@@ -51,20 +51,39 @@ export class MockNumericTerm implements NumericTerm {
     }
 }
 
+function cloneTerm(term: Die | OperatorTerm | NumericTerm): Die | OperatorTerm | NumericTerm {
+    if ("faces" in term) {
+        return new MockDie(
+            term.number,
+            term.faces,
+            term.results.map((r) => ({ ...r })),
+            term._evaluated
+        );
+    } else if ("operator" in term) {
+        return new MockOperatorTerm(term.operator, term._evaluated);
+    } else {
+        return new MockNumericTerm(term.number, term._evaluated);
+    }
+}
+
 export class MockRoll implements FoundryRoll {
     /**@internal*/ _evaluated: boolean;
     /**@internal*/ _total: number;
+    private _formula: string;
+    /**@internal*/ _termsComplete: boolean;
     terms: Array<Die | OperatorTerm | NumericTerm>;
     dice: Die[];
 
-    constructor(public formula: string) {
+    constructor(formula: string) {
         this._evaluated = false;
         this._total = 0;
+        this._formula = formula;
+        this._termsComplete = false;
         this.terms = [];
         this.dice = [];
 
-        // Simple formula parsing for common cases
-        const match = formula.replace(/ /g, "").match(/(\d+)d(\d+)([+-]\d+)?/);
+        // Simple formula parsing for common cases: only fully match NdN(+M) or NdN(-M)
+        const match = formula.replace(/ /g, "").match(/^(\d+)d(\d+)([+-]\d+)?$/);
         if (match) {
             const diceCount = parseInt(match[1]);
             const faces = parseInt(match[2]);
@@ -86,11 +105,34 @@ export class MockRoll implements FoundryRoll {
                     new MockNumericTerm(Math.abs(modifier))
                 );
             }
+            this._termsComplete = true;
+        } else {
+            // Partial parse: extract the first die term for formulas with @ placeholders
+            const partialMatch = formula.replace(/ /g, "").match(/(\d+)d(\d+)/);
+            if (partialMatch) {
+                const diceCount = parseInt(partialMatch[1]);
+                const faces = parseInt(partialMatch[2]);
+                const dieResults = Array.from({ length: diceCount }, () => ({
+                    active: true,
+                    result: Math.floor(Math.random() * faces) + 1,
+                }));
+                const die = new MockDie(diceCount, faces, dieResults);
+                this.terms.push(die);
+                this.dice.push(die);
+            }
         }
     }
 
+    get formula(): string {
+        return this._termsComplete ? this.terms.map((t) => t.formula).join(" ") : this._formula;
+    }
+
+    set formula(value: string) {
+        this._formula = value;
+    }
+
     resetFormula() {
-        this.formula = this.terms.map((t) => t.formula).join(" ");
+        this._formula = this.terms.map((t) => t.formula).join(" ");
     }
 
     get result(): string {
@@ -139,10 +181,12 @@ export class MockRoll implements FoundryRoll {
 
     clone() {
         const roll = new MockRoll(this.formula);
-        roll.terms = this.terms;
-        roll.dice = this.dice;
+        roll.terms = this.terms.map(cloneTerm);
+        roll.dice = roll.terms.filter((term): term is Die => "faces" in term);
         roll._total = this._total;
         roll._evaluated = this._evaluated;
+        roll._termsComplete = this._termsComplete;
+        roll.resetFormula();
         return roll;
     }
 
@@ -161,6 +205,7 @@ export class MockRoll implements FoundryRoll {
         const roll = new MockRoll(formula);
         roll.terms = terms;
         roll.dice = terms.filter((term) => "faces" in term);
+        roll._termsComplete = true;
         return roll;
     }
 }
@@ -199,6 +244,7 @@ export function createTestRoll(
     roll.dice = dice;
     roll._total = results.reduce((a, b) => a + b, 0) + (modifier ?? 0);
     roll._evaluated = true;
+    roll._termsComplete = true;
 
     return roll;
 }

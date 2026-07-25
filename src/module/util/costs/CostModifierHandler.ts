@@ -49,7 +49,7 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
                 skill: group ?? undefined,
                 type: type ?? undefined,
             },
-            applyMultiplier: (multiplier) => ({ ...base, value: timesCost(multiplier, value) }),
+            applyMultiplier: (multiplier) => ({ ...base, value: timesCost(of(multiplier), value) }),
         };
         return [base];
     }

@@ -44,7 +44,7 @@ describe("InverseModifier", () => {
 
     it("should multiply its value via applyMultiplier (times operator)", async () => {
         const mod = InverseModifier.create("path", of(-3), { name: "Bonus", type: "innate" }, true);
-        const multiplied = mod.applyMultiplier(of(2));
+        const multiplied = mod.applyMultiplier(2);
         expect(await evaluate(multiplied.value)).to.equal(-6);
         expect(multiplied).to.be.instanceOf(InverseModifier);
         expect(multiplied.path).to.equal(mod.path);
@@ -54,7 +54,7 @@ describe("InverseModifier", () => {
 
     it("should return a new instance and leave the original value unchanged", async () => {
         const mod = InverseModifier.create("path", of(-3), { name: "Bonus", type: "innate" });
-        const multiplied = mod.applyMultiplier(of(2));
+        const multiplied = mod.applyMultiplier(2);
         expect(multiplied).to.not.equal(mod);
         expect(await evaluate(mod.value)).to.equal(-3);
         expect(await evaluate(multiplied.value)).to.equal(-6);
@@ -62,7 +62,7 @@ describe("InverseModifier", () => {
 
     it("should recompute isBonus/isMalus on the multiplied instance", async () => {
         const mod = InverseModifier.create("path", of(-3), { name: "Bonus", type: "innate" });
-        const multiplied = mod.applyMultiplier(of(-1));
+        const multiplied = mod.applyMultiplier(-1);
         expect(await evaluate(multiplied.value)).to.equal(3);
         expect(multiplied.isBonus).to.be.false;
         expect(multiplied.isMalus).to.be.true;

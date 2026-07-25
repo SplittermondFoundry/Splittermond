@@ -22,9 +22,8 @@ import {
     SubtractExpression,
     times,
 } from "./definitions";
-import { exhaustiveMatchGuard } from "module/modifiers/util";
-import { syncEvaluate } from "./evaluation";
-import { IllegalStateException } from "module/data/exceptions";
+import {exhaustiveMatchGuard} from "module/modifiers/util";
+import {syncEvaluate} from "./evaluation";
 
 export function isZero(expression: Expression): boolean {
     //straight forward eval would resolve references and rolls whose values are not constant and thus not reliably zero.
@@ -94,23 +93,17 @@ export function canCondense(expression: Expression, evalStableRef: boolean): boo
 }
 
 function processMin(expression: MinExpression, evalStableRef: boolean) {
-    const condensed = expression.args.map((arg) => condense(arg, evalStableRef));
+    const condensed = expression.map((arg) => condense(arg, evalStableRef));
     if (condensed.every((e) => e instanceof AmountExpression)) {
-        return of(Math.min(...condensed.map((e) => e.amount)));
+        return of(Math.min(...condensed.map((e:AmountExpression) => e.amount)));
     }
-    if (condensed.length > 1) {
-        return min(...(condensed as [Expression, ...Expression[]]));
-    }
-    throw new IllegalStateException("Zero array when min length 1 array required by definition.");
+    return min(...condensed)
 }
 
 function processMax(expression: MaxExpression, evalStableRef: boolean) {
-    const condensed = expression.args.map((arg) => condense(arg, evalStableRef));
+    const condensed = expression.map((arg) => condense(arg, evalStableRef));
     if (condensed.every((e) => e instanceof AmountExpression)) {
-        return of(Math.max(...condensed.map((e) => e.amount)));
+        return of(Math.max(...condensed.map((e:AmountExpression) => e.amount)));
     }
-    if (condensed.length > 1) {
-        return max(...(condensed as [Expression, ...Expression[]]));
-    }
-    throw new IllegalStateException("Zero array when min length 1 array required by definition.");
+    return max(...condensed)
 }

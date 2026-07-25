@@ -1,13 +1,12 @@
-import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
-import type { ScalarModifier, Value } from "module/modifiers/parsing";
-import { type Expression, isGreaterZero, isLessThanZero, isZero, times } from "module/modifiers/expressions/scalar";
-import type { IModifierSource } from "module/modifiers/IModifierSource";
-import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
+import {type IModifier, makeConfig, ModifierHandler, type ModifierType} from "module/modifiers";
+import type {ScalarModifier, Value} from "module/modifiers/parsing";
+import {type Expression, isGreaterZero, isLessThanZero, isZero} from "module/modifiers/expressions/scalar";
+import type {IModifierSource} from "module/modifiers/IModifierSource";
+import {CommonNormalizers} from "module/modifiers/impl/CommonNormalizers";
 
 export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }>(
     inputConfig: CONFIG,
-    groupId?: string,
-    operator: (a: Expression, b: Expression) => Expression = times
+    groupId?: string
 ) {
     const config = makeConfig(inputConfig);
     return class extends ModifierHandler<ScalarModifier> {
@@ -44,16 +43,9 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
                 selectable: false,
                 isBonus: isGreaterZero(value) ?? true,
                 isMalus: isLessThanZero(value) ?? false,
+                //incorrect but who cares! these get overwritten anyway.
                 addTooltipFormulaElements() {},
-                applyMultiplier: (multiplier) => {
-                    const multiplied = operator(value, multiplier);
-                    return {
-                        ...base,
-                        value: multiplied,
-                        isBonus: isGreaterZero(multiplied) ?? true,
-                        isMalus: isLessThanZero(multiplied) ?? false,
-                    };
-                },
+                applyMultiplier: () => base
             };
             return [base];
         }

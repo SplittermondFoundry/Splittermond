@@ -54,5 +54,5 @@ export interface IModifier {
     readonly selectable: boolean;
     readonly attributes: ModifierAttributes;
 
-    applyMultiplier(multiplier: Expression): IModifier;
+    applyMultiplier(multiplier: number): IModifier;
 }
