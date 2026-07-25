@@ -4,9 +4,9 @@ import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import { Modifier } from "module/activeEffect";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { type CheckSuccessState, successStates } from "module/check/modifyEvaluation";
-import { isMember } from "module/util/util";
 import { initMapper, LanguageMapper } from "module/util/LanguageMapper";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
+import { validateMembered } from "module/check/validateMembered";
 
 export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
     static config: Config = makeConfig({
@@ -57,27 +57,26 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
     }
 
     validateOutcomeCategory(category: Value): string | undefined {
-        return this.validateMembered("category", category, successStates, successStateMapper);
+        return validateMembered(
+            "category",
+            category,
+            successStates,
+            successStateMapper,
+            this.reportInvalidDescriptor.bind(this),
+            this.commonNormalizers,
+            CheckModifierHandler.config.topLevelPath
+        );
     }
     validateCheckType(type: Value): string | undefined {
-        return this.validateMembered("type", type, checkTypes, checkTypeMapper);
-    }
-    private validateMembered<T extends string>(
-        descriptorName: string,
-        value: Value,
-        collective: Readonly<T[]>,
-        mapper: () => LanguageMapper<T>
-    ) {
-        const resultDescriptor = this.commonNormalizers.validatedAttribute(value);
-        if (!resultDescriptor) {
-            return undefined;
-        }
-        const normalized = mapper().toCode(resultDescriptor);
-        if (isMember(collective, normalized ?? resultDescriptor)) {
-            return normalized ?? resultDescriptor;
-        }
-        this.reportInvalidDescriptor(CheckModifierHandler.config.topLevelPath, descriptorName, resultDescriptor);
-        return resultDescriptor;
+        return validateMembered(
+            "type",
+            type,
+            checkTypes,
+            checkTypeMapper,
+            this.reportInvalidDescriptor.bind(this),
+            this.commonNormalizers,
+            CheckModifierHandler.config.topLevelPath
+        );
     }
 }
 const successStateMapper = initMapper(successStates)
@@ -100,10 +99,10 @@ function mapSuccessMessage(successState: CheckSuccessState): string {
     }
 }
 
-const checkTypes = ["attack", "spell", "defense", "skill"] as const;
+export const checkTypes = ["attack", "spell", "defense", "skill"] as const;
 export type CheckType = (typeof checkTypes)[number];
 
-const checkTypeMapper = initMapper(checkTypes)
+export const checkTypeMapper: () => LanguageMapper<CheckType> = initMapper(checkTypes)
     .withTranslator(mapCheckTypes)
     .andDirectMap("activeDefense", "defense")
     .build();
