@@ -15,10 +15,7 @@ describe("addModifier check.require bypass (S1 M1 carry-forward)", () => {
     function setupAddModifier() {
         const modifierRegistry = new ModifierRegistry();
         const costModifierRegistry = new ModifierRegistry();
-        modifierRegistry.addHandler(
-            CheckRequireModifierHandler.config.topLevelPath,
-            CheckRequireModifierHandler
-        );
+        modifierRegistry.addHandler(CheckRequireModifierHandler.config.topLevelPath, CheckRequireModifierHandler);
         return initAddModifier(modifierRegistry, costModifierRegistry);
     }
 

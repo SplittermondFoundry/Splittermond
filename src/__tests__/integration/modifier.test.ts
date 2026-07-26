@@ -29,6 +29,18 @@ import { passesEventually } from "../util";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { SplittermondSkill } from "module/config/skillGroups";
 import { Modifier } from "module/activeEffect";
+import sinon from "sinon";
+
+declare const ChatMessage: any;
+
+const ROLL_TYPE_LABEL: Record<string, string> = {
+    standard: "Standardwurf",
+    risk: "Risikowurf",
+    safety: "Sicherheitswurf",
+    standardGrandmaster: "Standardwurf (Großmeister)",
+    riskGrandmaster: "Risikowurf (Großmeister)",
+    safetyGrandmaster: "Sicherheitswurf (Großmeister)",
+};
 
 export function modifierTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
@@ -1162,6 +1174,243 @@ export function modifierTest(context: QuenchBatchContext) {
                     expect(Number.isFinite(rollTotal), "roll total is a number").to.be.true;
                     expect(parseInt(degreeOfSuccess ?? "0")).to.equal(rollDegreeOfSuccess + 2);
                 });
+            })
+        );
+    });
+
+    describe("check.require rollType", function () {
+        this.timeout(10000);
+        let sandbox: sinon.SinonSandbox;
+        let createdMessages: string[] = [];
+
+        beforeEach(() => {
+            sandbox = sinon.createSandbox();
+            createdMessages = [];
+        });
+
+        afterEach(async () => {
+            sandbox.restore();
+            if (createdMessages.length > 0) {
+                await ChatMessage.deleteDocuments(createdMessages);
+            }
+            document.querySelectorAll(".dialog-check").forEach((el) => el.remove());
+            document.querySelectorAll("dialog").forEach((el) => {
+                if (el.querySelector("button[data-action='confirm']")) {
+                    el.remove();
+                }
+            });
+        });
+
+        async function addStrengthModifier(actor: SplittermondActor, modifier: string, name: string): Promise<void> {
+            await actor.createEmbeddedDocuments("Item", [{ type: "strength", name, system: { modifier } }]);
+            actor.prepareBaseData();
+            await actor.prepareEmbeddedDocuments();
+            actor.prepareDerivedData();
+        }
+
+        function rollTypeFromMessage(messageContent: string): string | undefined {
+            const match = messageContent.match(/(?<=<span class="roll-type">)[^<]+(?=<\/span>)/);
+            return match?.[0];
+        }
+
+        function lastActorMessage(actor: SplittermondActor): FoundryChatMessage | undefined {
+            const messages = foundryApi.messages as unknown as Collection<FoundryChatMessage>;
+            return Array.from(messages.contents)
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .find((m) => m.speaker?.actor === actor.id);
+        }
+
+        async function waitFor<T>(selector: () => T | null | undefined, description: string): Promise<T> {
+            await passesEventually(() => {
+                if (selector() == null) throw new Error(description);
+            });
+            return selector() as T;
+        }
+
+        it(
+            "should resolve a check.require rollType preset into the rolled check",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 4, advances: 0 },
+                            agility: { initial: 4, advances: 0 },
+                        },
+                        skills: { acrobatics: { points: 6 } },
+                    },
+                });
+                await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
+
+                await actor.skills.acrobatics.roll({ rollType: "standard", askUser: false, type: "skill" });
+
+                await passesEventually(() => {
+                    const message = lastActorMessage(actor);
+                    const content = message?.content ?? "";
+                    const renderedRollType = rollTypeFromMessage(content);
+                    expect(renderedRollType, "roll-type span exists").to.not.be.undefined;
+                    expect(renderedRollType).to.equal(ROLL_TYPE_LABEL.safety);
+                });
+                const message = lastActorMessage(actor);
+                if (message?.id) createdMessages.push(message.id);
+            })
+        );
+
+        it(
+            "should render a real check dialog whose preset button resolves immediately without a confirm dialog",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 4, advances: 0 },
+                            agility: { initial: 4, advances: 0 },
+                        },
+                        skills: { acrobatics: { points: 6 } },
+                    },
+                });
+                await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
+
+                const dialogPromise = actor.skills.acrobatics.prepareRollDialog(
+                    [],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    "safety"
+                );
+
+                const checkDialogEl = await waitFor(
+                    () => document.querySelector<HTMLElement>(".dialog-check"),
+                    "check dialog not rendered"
+                );
+
+                const presetButton = checkDialogEl.querySelector<HTMLButtonElement>("button[data-action='safety']");
+                expect(presetButton, "preset safety button exists").to.not.be.null;
+                presetButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+
+                const result = await dialogPromise;
+                expect(result, "preset submit resolves the dialog").to.not.be.null;
+                expect(result!.rollType).to.equal("safety");
+
+                await passesEventually(() => {
+                    expect(document.querySelector("button[data-action='confirm']"), "no confirm dialog is shown").to.be
+                        .null;
+                    expect(document.querySelector(".dialog-check"), "check dialog closed after preset submit").to.be
+                        .null;
+                }, 2000, 50);
+            })
+        );
+
+        it(
+            "should open a confirm dialog and keep the check dialog visible when a non-preset button is picked",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 4, advances: 0 },
+                            agility: { initial: 4, advances: 0 },
+                        },
+                        skills: { acrobatics: { points: 6 } },
+                    },
+                });
+                await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
+
+                const dialogPromise = actor.skills.acrobatics.prepareRollDialog(
+                    [],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    "safety"
+                );
+
+                const checkDialogEl = await waitFor(
+                    () => document.querySelector<HTMLElement>(".dialog-check"),
+                    "check dialog not rendered"
+                );
+
+                const nonPresetButton = checkDialogEl.querySelector<HTMLButtonElement>("button[data-action='risk']");
+                expect(nonPresetButton, "non-preset risk button exists").to.not.be.null;
+                nonPresetButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+
+                const confirmButton = await waitFor(
+                    () => document.querySelector<HTMLButtonElement>("button[data-action='confirm']"),
+                    "confirm dialog not rendered"
+                );
+                expect(document.querySelector(".dialog-check"), "check dialog stays visible (closeOnSubmit=false)").to
+                    .not.be.null;
+
+                confirmButton.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+
+                const result = await dialogPromise;
+                expect(result, "confirm resolves the dialog with the non-preset rollType").to.not.be.null;
+                expect(result!.rollType).to.equal("risk");
+            })
+        );
+
+        it(
+            "should keep the check dialog open and unresolved when the confirm prompt is dismissed",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 4, advances: 0 },
+                            agility: { initial: 4, advances: 0 },
+                        },
+                        skills: { acrobatics: { points: 6 } },
+                    },
+                });
+                await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
+
+                const dialogPromise = actor.skills.acrobatics.prepareRollDialog(
+                    [],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    "safety"
+                );
+
+                const checkDialogEl = await waitFor(
+                    () => document.querySelector<HTMLElement>(".dialog-check"),
+                    "check dialog not rendered"
+                );
+
+                const nonPresetButton = checkDialogEl.querySelector<HTMLButtonElement>("button[data-action='risk']");
+                nonPresetButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+
+                await waitFor(
+                    () => document.querySelector<HTMLButtonElement>("button[data-action='confirm']"),
+                    "confirm prompt not rendered"
+                );
+                expect(document.querySelector(".dialog-check"), "check dialog stays visible (closeOnSubmit=false)").to
+                    .not.be.null;
+
+                const confirmPrompt = document.querySelector<HTMLDialogElement>(
+                    "dialog:not(.dialog-check):has(button[data-action='confirm'])"
+                );
+                confirmPrompt!.dispatchEvent(
+                    new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
+                );
+
+                await passesEventually(() => {
+                    expect(
+                        document.querySelector("button[data-action='confirm']"),
+                        "confirm prompt dismissed"
+                    ).to.be.null;
+                }, 2000, 50);
+
+                expect(document.querySelector(".dialog-check"), "check dialog still open after dismiss").to.not.be.null;
+                const settled = await Promise.race([
+                    dialogPromise.then((r) => r ?? "settled"),
+                    new Promise((resolve) => setTimeout(() => resolve("pending"), 150)),
+                ]);
+                expect(settled, "check dialog promise remains unresolved after dismiss").to.equal("pending");
+
+                const presetButton = document.querySelector<HTMLButtonElement>("button[data-action='safety']");
+                presetButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+                const result = await dialogPromise;
+                expect(result, "preset pick after dismiss resolves the dialog").to.not.be.null;
+                expect(result!.rollType).to.equal("safety");
             })
         );
     });
