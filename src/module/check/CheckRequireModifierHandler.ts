@@ -52,13 +52,7 @@ export class CheckRequireModifierHandler extends ModifierHandler<ScalarModifier>
             emphasis,
         };
         return [
-            Modifier.create(
-                "check.require",
-                of(0),
-                attributes,
-                !!attributes.emphasis,
-                () => this.sourceItem.actor
-            ),
+            Modifier.create("check.require", of(0), attributes, !!attributes.emphasis, () => this.sourceItem.actor),
         ];
     }
 

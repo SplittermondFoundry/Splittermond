@@ -9,15 +9,43 @@ import { MessageModeKey } from "module/api/ChatMessage";
 import { RollDifficultyType } from "module/util/rollDifficultyParser";
 import { of, type Expression } from "module/modifiers/expressions/scalar";
 
+export interface CheckDialogEmphasisEntry {
+    name: string;
+    label: string;
+    value: string;
+    numericValue: Expression;
+    active: boolean;
+}
+
+export interface CheckDialogRollModeEntry {
+    label: string;
+    selected?: boolean;
+}
+
+export interface CheckDialogTemplateContext {
+    baseId: string;
+    skill: {
+        actor: { img: string; name: string };
+        label: string;
+        maneuvers: { name: string }[];
+    };
+    skillTooltip: string;
+    modifier: number;
+    emphasis: CheckDialogEmphasisEntry[];
+    difficulty: RollDifficultyType;
+    rollModes: Record<string, CheckDialogRollModeEntry>;
+}
+
 export interface CheckDialogInput {
     title?: string;
     skill: Skill;
     skillTooltip: string;
     modifier: number;
-    emphasis: { name: string; label: string; value: string; numericValue: Expression; active: boolean }[];
+    emphasis: CheckDialogEmphasisEntry[];
     difficulty: RollDifficultyType;
     messageMode: MessageModeKey;
     rollModes: Record<string, ChatMessageMode>;
+    presetRollType?: RollType;
 }
 
 export interface CheckDialogData {
@@ -62,10 +90,13 @@ export default class CheckDialog extends FoundryDialog {
             ])
         );
         const html = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/apps/dialog/check-dialog.hbs`, {
-            baseId,
             ...checkData,
+            baseId,
             rollModes: enrichedRollModes,
         });
+
+        const presetRollType = checkData.presetRollType;
+        const presetBase = presetRollType ? (presetRollType.replace(/Grandmaster$/, "") as RollType) : undefined;
 
         return new Promise<CheckDialogData | null>((resolve) => {
             const dlg = new this(checkData, {
@@ -73,30 +104,54 @@ export default class CheckDialog extends FoundryDialog {
                     title: checkData.title || foundryApi.localize("splittermond.skillCheck"),
                 },
                 content: html,
-                buttons: [
-                    {
-                        action: "risk",
-                        label: foundryApi.localize("splittermond.rollType.risk"),
-                    },
-                    {
-                        action: "standard",
-                        default: true,
-                        label: foundryApi.localize("splittermond.rollType.standard"),
-                    },
-                    {
-                        action: "safety",
-                        label: foundryApi.localize("splittermond.rollType.safety"),
-                    },
-                ],
+                form: { closeOnSubmit: false },
+                buttons: (["risk", "standard", "safety"] as const).map((action) => ({
+                    action,
+                    label: foundryApi.localize(`splittermond.rollType.${action}`),
+                    ...CheckDialog.#presetButtonState(action, presetBase),
+                })),
                 submit: (result: RollType, dialog: CheckDialog) => {
-                    let fd = CheckDialog._prepareFormData(dialog.element, checkData);
+                    const fd = CheckDialog._prepareFormData(dialog.element, checkData);
                     fd.rollType = result;
+                    if (presetBase && result !== presetBase) {
+                        CheckDialog.#openConfirmPreset().then((confirmed) => {
+                            if (confirmed) {
+                                resolve(fd);
+                                dialog.close();
+                            }
+                        });
+                        return;
+                    }
                     resolve(fd);
+                    dialog.close();
                 },
                 close: () => resolve(null),
             });
             dlg.render({ force: true });
         });
+    }
+
+    static #presetButtonState(
+        action: RollType,
+        presetBase: RollType | undefined
+    ): { default?: boolean; class?: string } {
+        if (!presetBase) {
+            return action === "standard" ? { default: true } : {};
+        }
+        return {
+            default: action === presetBase,
+            class: action === presetBase ? "preset" : "not-preset",
+        };
+    }
+
+    static async #openConfirmPreset(): Promise<boolean> {
+        const result = await FoundryDialog.prompt({
+            window: { title: foundryApi.localize("splittermond.check.require.confirmTitle") },
+            content: foundryApi.localize("splittermond.check.require.confirmBody"),
+            ok: { action: "confirm", label: foundryApi.localize("splittermond.yes") },
+            rejectClose: false,
+        });
+        return result === "confirm";
     }
 
     static _prepareFormData(html: HTMLElement, checkData: CheckDialogInput) {
