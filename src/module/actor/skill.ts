@@ -269,6 +269,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             options.difficulty,
             options.modifier,
             options.rollType,
+            options.type,
             options.askUser ?? true
         );
         if (!checkData) {
@@ -282,7 +283,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             await rollDifficulty.evaluate(principalTarget);
         }
         const parsedDifficulty = rollDifficulty.difficulty;
-        if (this.isGrandmaster) {
+        if (this.isGrandmaster && checkData.rollType && !checkData.rollType.endsWith("Grandmaster")) {
             checkData.rollType = (checkData.rollType + "Grandmaster") as RollType;
         }
         let condensedModifiers = 0;
@@ -388,6 +389,39 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         );
     }
 
+    private resolvePresetRollType(
+        programmatic: RollType | undefined,
+        checkType: string | undefined
+    ): RollType | undefined {
+        const matchingModifiers = this.actor.modifier
+            .getForId("check.require")
+            .notSelectable()
+            .withAttributeValuesOrAbsent("skill", this.id)
+            .withAttributeValuesOrAbsent("checkType", checkType ?? "")
+            .getModifiers();
+
+        if (matchingModifiers.length === 0) {
+            return programmatic;
+        }
+
+        const rollTypes = matchingModifiers.map((m) => m.attributes.rollType as RollType);
+        const hasConflict = new Set(rollTypes).size > 1;
+
+        if (hasConflict) {
+            foundryApi.warnUser("splittermond.check.require.conflict");
+        }
+
+        const preset = rollTypes[0];
+
+        if (programmatic && programmatic !== preset) {
+            console.warn(
+                `Splittermond | check.require modifier overrode programmatic rollType ${programmatic} with ${preset}`
+            );
+        }
+
+        return preset;
+    }
+
     async finalizeCheckInputData(
         selectedModifiers?: string[],
         title?: string,
@@ -395,8 +429,10 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         difficulty?: RollDifficultyType,
         modifier?: number,
         rollType?: RollType,
+        checkType?: string,
         askUser: boolean = true
     ): Promise<CheckDialogData | null> {
+        const resolvedRollType = this.resolvePresetRollType(rollType, checkType);
         if (!askUser) {
             return {
                 difficulty: (difficulty || splittermond.check.defaultDifficulty).toString(),
@@ -405,10 +441,10 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
                     ? [{ value: of(modifier), description: foundryApi.localize("splittermond.modifier") }]
                     : [],
                 messageMode: "public",
-                rollType: rollType ?? "standard",
+                rollType: resolvedRollType ?? "standard",
             };
         }
-        return this.prepareRollDialog(selectedModifiers ?? [], title, subtitle, difficulty, modifier);
+        return this.prepareRollDialog(selectedModifiers ?? [], title, subtitle, difficulty, modifier, resolvedRollType);
     }
 
     async prepareRollDialog(
@@ -416,7 +452,8 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
         title?: string,
         subtitle?: string,
         difficulty?: RollDifficultyType,
-        modifier?: number
+        modifier?: number,
+        presetRollType?: RollType
     ): Promise<CheckDialogData | null> {
         let emphasisData: any[] = [];
         let selectableModifier = this.selectableModifier;
@@ -451,6 +488,7 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             title: this.#createRollDialogTitle(title, subtitle),
             skill: this,
             skillTooltip: skillFormula.render(),
+            presetRollType,
         });
     }
 

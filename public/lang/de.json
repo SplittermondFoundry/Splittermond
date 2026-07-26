@@ -342,6 +342,13 @@
         "enhancementDescription": "Verstärkung",
         "degreeOfSuccessOptionsHeader": "Erfolgsgradoptionen",
         "degreeOfSuccess": "Erfolgsgrad",
+        "check": {
+            "require": {
+                "conflict": "Mehrere widersprüchliche check.require-Modifikatoren gefunden; der erste wird verwendet.",
+                "confirmTitle": "Würfeltyp bestätigen",
+                "confirmBody": "Der aktive Effekt empfiehlt einen anderen Würfeltyp. Möchtest du dennoch fortfahren?"
+            }
+        },
         "degreeOfSuccessAbbrev": "EG",
         "degreeOfSuccessClassification": {
             "devastating": "Verheerend",
