@@ -1,20 +1,20 @@
-import {DataModelSchemaType, fieldExtensions, fields} from "../../data/SplittermondDataModel";
-import {SplittermondActiveEffectDataModel} from "../../data/SplittermondActiveEffectDataModel";
-import type {IModifier, ModifierAttributes} from "module/modifiers";
-import {isModifierType} from "module/modifiers";
-import type {ICostModifier} from "module/util/costs/spellCostManagement";
-import {deserialize as deserializeScalar} from "module/modifiers/expressions/scalar/serialization";
-import {deserialize as deserializeCostExpression} from "module/modifiers/expressions/cost/serialization";
-import type {ActorProvider} from "module/modifiers/expressions/ActorProvider";
-import type {CostExpression} from "module/modifiers/expressions/cost";
-import {times as timesCost} from "module/modifiers/expressions/cost";
-import {type Expression, of} from "module/modifiers/expressions/scalar";
-import {SplittermondActiveEffect} from "module/activeEffect";
-import {UnboundWarner} from "module/activeEffect/dataModel/UnboundWarner";
-import {resolveHostActor} from "module/activeEffect/dataModel/hostActor";
-import {CostModifier as CostValue} from "module/util/costs/Cost";
-import {getFromRegistry} from "module/data/dataModelRegistry";
-import {IllegalStateException} from "module/data/exceptions";
+import { DataModelSchemaType, fieldExtensions, fields } from "../../data/SplittermondDataModel";
+import { SplittermondActiveEffectDataModel } from "../../data/SplittermondActiveEffectDataModel";
+import type { IModifier, ModifierAttributes } from "module/modifiers";
+import { isModifierType } from "module/modifiers";
+import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import { deserialize as deserializeScalar } from "module/modifiers/expressions/scalar/serialization";
+import { deserialize as deserializeCostExpression } from "module/modifiers/expressions/cost/serialization";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import type { CostExpression } from "module/modifiers/expressions/cost";
+import { times as timesCost } from "module/modifiers/expressions/cost";
+import { type Expression, of } from "module/modifiers/expressions/scalar";
+import { SplittermondActiveEffect } from "module/activeEffect";
+import { UnboundWarner } from "module/activeEffect/dataModel/UnboundWarner";
+import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
+import { CostModifier as CostValue } from "module/util/costs/Cost";
+import { getFromRegistry } from "module/data/dataModelRegistry";
+import { IllegalStateException } from "module/data/exceptions";
 
 interface ModifierConstructor {
     new (

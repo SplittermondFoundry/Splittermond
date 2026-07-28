@@ -72,11 +72,7 @@ function parseModifier(modifier: string): SingleParseResult {
     const value = valueMatch ? parseValue(valueMatch[0]) : null;
     if (isSet(value) && isSet(attributeParseResult.value)) {
         return foundryApi.format("splittermond.modifiers.parseMessages.duplicateValue", { modifier });
-    } else if (
-        !isSet(value) &&
-        !isSet(attributeParseResult.value) &&
-        !hasNonValueAttribute(parseResult.attributes)
-    ) {
+    } else if (!isSet(value) && !isSet(attributeParseResult.value) && !hasNonValueAttribute(parseResult.attributes)) {
         return foundryApi.format("splittermond.modifiers.parseMessages.noValue", { modifier });
     } else if (isSet(value)) {
         parseResult.attributes.value = value;
@@ -87,8 +83,8 @@ function parseModifier(modifier: string): SingleParseResult {
 function isSet(value: unknown) {
     return value !== null && value !== undefined;
 }
-function hasNonValueAttribute(attributes: Record<string, unknown> ): boolean {
-    return Object.keys(attributes).filter((k) => k !== "value").length > 0
+function hasNonValueAttribute(attributes: Record<string, unknown>): boolean {
+    return Object.keys(attributes).filter((k) => k !== "value").length > 0;
 }
 
 function findAttributes(modifier: string): string[] {

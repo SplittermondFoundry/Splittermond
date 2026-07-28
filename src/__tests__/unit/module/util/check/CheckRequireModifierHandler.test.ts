@@ -109,9 +109,7 @@ describe("CheckRequireModifierHandler", () => {
         expect(result).to.have.length(1);
         expect(result[0].attributes.rollType).to.equal("invalidRollType");
         expect(errorLogger.calledOnce).to.be.true;
-        expect(errorLogger.firstCall.args[0]).to.equal(
-            "splittermond.modifiers.parseMessages.invalidDescriptorValue"
-        );
+        expect(errorLogger.firstCall.args[0]).to.equal("splittermond.modifiers.parseMessages.invalidDescriptorValue");
     });
 
     it("should handle missing rollType attribute gracefully", () => {
