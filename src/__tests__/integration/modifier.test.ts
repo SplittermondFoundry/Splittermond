@@ -1291,12 +1291,16 @@ export function modifierTest(context: QuenchBatchContext) {
                 expect(result, "preset submit resolves the dialog").to.not.be.null;
                 expect(result!.rollType).to.equal("safety");
 
-                await passesEventually(() => {
-                    expect(document.querySelector("button[data-action='confirm']"), "no confirm dialog is shown").to.be
-                        .null;
-                    expect(document.querySelector(".dialog-check"), "check dialog closed after preset submit").to.be
-                        .null;
-                }, 2000, 50);
+                await passesEventually(
+                    () => {
+                        expect(document.querySelector("button[data-action='confirm']"), "no confirm dialog is shown").to
+                            .be.null;
+                        expect(document.querySelector(".dialog-check"), "check dialog closed after preset submit").to.be
+                            .null;
+                    },
+                    2000,
+                    50
+                );
             })
         );
 
@@ -1388,16 +1392,16 @@ export function modifierTest(context: QuenchBatchContext) {
                 const confirmPrompt = document.querySelector<HTMLDialogElement>(
                     "dialog:not(.dialog-check):has(button[data-action='confirm'])"
                 );
-                confirmPrompt!.dispatchEvent(
-                    new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
-                );
+                confirmPrompt!.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
 
-                await passesEventually(() => {
-                    expect(
-                        document.querySelector("button[data-action='confirm']"),
-                        "confirm prompt dismissed"
-                    ).to.be.null;
-                }, 2000, 50);
+                await passesEventually(
+                    () => {
+                        expect(document.querySelector("button[data-action='confirm']"), "confirm prompt dismissed").to
+                            .be.null;
+                    },
+                    2000,
+                    50
+                );
 
                 expect(document.querySelector(".dialog-check"), "check dialog still open after dismiss").to.not.be.null;
                 const settled = await Promise.race([

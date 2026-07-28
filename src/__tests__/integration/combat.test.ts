@@ -98,7 +98,9 @@ export function combatTest(context: QuenchBatchContext) {
                 { name: "Brennend", system: { combatEvent: { interval: 5 } }, type: "statuseffect" },
             ]);
 
-            expect(statusEffect[0].system.combatEvent.startTick, "Start tick was set").to.equal((combat.currentTick ?? 0) + 5);
+            expect(statusEffect[0].system.combatEvent.startTick, "Start tick was set").to.equal(
+                (combat.currentTick ?? 0) + 5
+            );
         });
 
         it(
