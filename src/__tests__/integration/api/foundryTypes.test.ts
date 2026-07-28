@@ -283,6 +283,28 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 expect(schema, `ActiveEffect schema does not contain ${key}`).to.have.property(key);
             });
         });
+        describe("ActiveEffect duration", () => {
+            ([
+            ["expired", fields.BooleanField],
+            ["expiry", fields.StringField],
+            ["units", fields.StringField],
+        ]as const).forEach(([key, type]) => {
+        it(`should provide duration with ${key}`, () => {
+            expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property("defineSchema");
+            expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a("function");
+            const schema = ActiveEffect.defineSchema().duration.fields; //Schema field types store their fields in a "fields" property
+                expect(schema, `ActiveEffect schema does not contain ${key}`).to.have.property(key);
+                expect((schema as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+            });
+        });
+            it("should have a property called label", withActiveEffect(activeEffectData,  async (effect) => {
+                expect(effect.duration.label).be.a("string").with.length.greaterThan(0);
+            }));
+
+            it("should have a property called remaining", withActiveEffect(activeEffectData,  async (effect) => {
+                expect(effect.duration.remaining).to.equal(Number.POSITIVE_INFINITY);
+            }));
+        });
     });
 
     describe("Token", () => {
