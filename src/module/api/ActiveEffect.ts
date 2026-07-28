@@ -28,7 +28,6 @@ declare class _FoundryActiveEffect extends FoundryDocument {
         expired: boolean;
         remaining: number;
         label: string;
-        start?: { round?: number; turn?: number; time?: number };
     };
 
     static defineSchema(): object;
