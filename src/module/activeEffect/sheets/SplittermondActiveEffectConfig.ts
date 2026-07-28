@@ -7,7 +7,7 @@ import type { AddModifierResult } from "module/modifiers/modifierAddition";
 import { buildCostEffectData, buildScalarEffectData } from "module/activeEffect/effectBuilder";
 import { type ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import type { SplittermondActiveEffect, DurationMode } from "module/activeEffect/SplittermondActiveEffect";
-import type {ItemType} from "module/config/itemTypes";
+import type { ItemType } from "module/config/itemTypes";
 
 type ActiveEffectDocument = SplittermondActiveEffect;
 
@@ -41,7 +41,6 @@ function prepareDurationContext(
     const durationMode = document.durationMode;
     const duration = document.duration ?? {};
     const durationUnits = readDurationUnits(duration.units);
-    const startRound = duration.start?.round;
 
     context.durationMode = durationMode;
     context.durationModeChoices = DURATION_MODE_CHOICES;
@@ -49,7 +48,6 @@ function prepareDurationContext(
     context.durationUnits = durationUnits;
     context.durationValue = readTimedDurationValue(duration.value);
     context.durationExpiry = durationUnits === "rounds" ? TICK_EXPIRY : "";
-    context.startTick = typeof startRound === "number" ? startRound : null;
     return context;
 }
 
@@ -248,8 +246,8 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
         return addModifier(this.#buildModifierSource(rawInput), rawInput, this.getModifierType());
     }
 
-    private getModifierType():ModifierType|null{
-        if(!this.document.item)return null;
+    private getModifierType(): ModifierType | null {
+        if (!this.document.item) return null;
         switch (this.document.item.type as ItemType) {
             case "equipment":
             case "weapon":
@@ -261,7 +259,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
             case "spelleffect":
                 return "magic";
             default:
-                return "innate"
+                return "innate";
         }
     }
 
