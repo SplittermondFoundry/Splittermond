@@ -21,16 +21,31 @@ declare class _FoundryActiveEffect extends FoundryDocument {
     /** The owning actor or parent of the owning item, if any */
     get actor(): Actor | null;
 
-    duration: {
-        value: number | null;
-        units: string;
-        expiry: string | null;
-        expired: boolean;
-        remaining: number;
-        label: string;
-    };
+    duration: ActiveEffectDurationData;
+
+    start: EffectStartData;
+
+    updateDuration(context?: object): ActiveEffectDurationData;
 
     static defineSchema(): object;
+}
+
+export interface ActiveEffectDurationData {
+    value: number | null;
+    units: string;
+    expiry: string | null;
+    expired: boolean;
+    remaining: number;
+    label: string;
+}
+
+export interface EffectStartData {
+    combat: string | null;
+    combatant: string | null;
+    initiative: number | null;
+    round: number | null;
+    time: number;
+    turn: number | null;
 }
 
 // @ts-ignore -- ActiveEffect is a Foundry global
