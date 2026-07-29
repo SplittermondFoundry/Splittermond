@@ -469,6 +469,7 @@ declare namespace foundry {
             get started(): boolean;
 
             startCombat(): Promise<this>;
+            nextRound(): Promise<this>;
         }
 
         class Combatant extends FoundryDocument {
