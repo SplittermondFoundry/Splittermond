@@ -204,6 +204,17 @@ export default class SplittermondActor extends Actor {
                     of(this.system.damageReduction.value)
                 );
             }
+            if(!this.findItem().withType("npcfeature").withName("Taktiker")){
+                this.modifier.add(
+                     "check.require",
+                     {
+                         name: foundryApi.localize("splittermond.notATactician"),
+                         type: "innate",
+                         rollType: "standard",
+                     },
+                     of(0)
+                )
+            }
         }
     }
 
@@ -1384,11 +1395,19 @@ export default class SplittermondActor extends Actor {
         let targetName = null;
         const actor = this;
 
+        /**
+         * @param {ItemType} type
+         * @return {{withName: function(string): SplittermondItem|null}}
+         */
         function withType(type) {
             targetType = type.toLowerCase();
             return { withName: withName };
         }
 
+        /**
+         * @param {string} name
+         * @return {SplittermondItem|null}
+         */
         function withName(name) {
             targetName = name.toLowerCase();
             return execute();

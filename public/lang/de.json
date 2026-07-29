@@ -94,6 +94,7 @@
         "bonusCap": "Bonusgrenze",
         "heroLevel": "Heldengrad",
         "name": "Name",
+        "notATactician": "Kein Taktiker",
         "enable": "Aktivieren",
         "disable": "Deaktivieren",
         "sex": "Geschlecht",
