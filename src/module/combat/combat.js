@@ -1,5 +1,25 @@
 import { CombatPauseType } from "module/combat/index.js";
 import { askUserForTickAddition } from "module/combat/TickAdditionDialog.js";
+import { foundryApi } from "../api/foundryApi";
+
+/**
+ * @param {SplittermondCombat} instance
+ * @param {{round:number,turn:number}} updateData
+ */
+function combatStartHook(instance, updateData) {
+    updateData.round = instance.calculateCurrentRound();
+}
+foundryApi.hooks.on("combatStart", combatStartHook);
+
+/**
+ * @param {SplittermondCombat} instance
+ * @param {{round:number,turn:number}} updateData
+ */
+function combatRoundHook(instance, updateData) {
+    updateData.round = instance.calculateCurrentRound();
+    updateData.turn = 0;
+}
+foundryApi.hooks.on("combatRound", combatRoundHook);
 
 export default class SplittermondCombat extends Combat {
     _sortCombatants(a, b) {
@@ -29,15 +49,12 @@ export default class SplittermondCombat extends Combat {
     }
 
     async startCombat() {
-        await super.startCombat();
-        this.update({ round: this.calculateCurrentRound() });
-        return this;
+        return super.startCombat();
     }
 
     async resetAll() {
         await super.resetAll();
-
-        return this.update({ round: 0 });
+        return this.update({ round: 0 }, { turnEvents: false });
     }
 
     async nextTurn(nTicks = 0) {
@@ -108,16 +125,6 @@ export default class SplittermondCombat extends Combat {
             return this.round; //reuse the last stored round value if all combatants are paused
         }
         return Math.max(round, 1); //combat does not like negative round numbers.
-    }
-
-    async nextRound() {
-        if (!this.started) return;
-
-        const updateData = { round: this.calculateCurrentRound(), turn: 0 };
-        this.setupTurns();
-        const updateOptions = { direction: 1 };
-        Hooks.callAll("combatRound", this, updateData, updateOptions);
-        return this.update(updateData);
     }
 
     async rollInitiative(ids, { formula = null, updateTurn = true, messageOptions = {} } = {}) {

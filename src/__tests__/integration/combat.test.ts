@@ -1,12 +1,15 @@
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import SplittermondCombat from "module/combat/combat";
 import type SplittermondActor from "module/actor/actor";
+import type { SplittermondActiveEffect } from "module/activeEffect/SplittermondActiveEffect";
 import sinon, { type SinonSandbox } from "sinon";
 import type { FoundryCombatant, FoundryScene } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
 import { createScene, withActor } from "./fixtures";
 import { actorCreator } from "module/data/EntityCreator";
 import { expect } from "chai";
+import { passesEventually } from "../util";
+import Combatant = foundry.documents.Combatant;
 
 declare const Scene: FoundryScene;
 export function combatTest(context: QuenchBatchContext) {
@@ -88,6 +91,18 @@ export function combatTest(context: QuenchBatchContext) {
         return { combatant, actor, token: tokenDocument };
     }
 
+    async function createTimedEffect(actor: SplittermondActor, ticks: number) {
+        const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
+            {
+                name: "Timed Test",
+                type: "base",
+                flags: { splittermond: { durationMode: "timed" } },
+                duration: { value: ticks, units: "rounds", expiry: "roundEnd" },
+            },
+        ]);
+        return effect as SplittermondActiveEffect;
+    }
+
     describe("Status effect update", () => {
         it("should add a start tick for combat effects", async () => {
             const combat = await createActiveCombat();
@@ -123,6 +138,109 @@ export function combatTest(context: QuenchBatchContext) {
             expect(typeof combatConfig).to.equal("object");
             expect(combatConfig).to.include.keys("turnMarker");
             expect((combatConfig as any).turnMarker).to.include.keys("src");
+        });
+    });
+
+    describe("Timed ActiveEffect combat lifecycle", () => {
+        it("expires a duration-2 effect once all combatants have advanced past its duration", async () => {
+            const combat = await createActiveCombat();
+            const { combatant, actor } = await createCombatant("ExpiryTester", combat);
+            await combat.setInitiative(combatant.id, 10);
+            const startTick = combat.currentTick ?? 0;
+
+            const effect = await createTimedEffect(actor, 2);
+
+            // Pins the intended start-tick assignment: a timed effect created mid-combat
+            // should record the combat's current tick as its start.round.
+            expect(effect.start.round, "start tick set to combat current tick on creation").to.equal(startTick);
+
+            // SplittermondCombat.setInitiative calls nextRound() internally when started,
+            // which fires the combatRound hook the future expiry hook is expected to listen on.
+            // No separate nextRound() call needed.
+            await combat.setInitiative(combatant.id, startTick + 3);
+
+            //setting start happens in a fire and forget hook spawned by "update"
+            await passesEventually(
+                () =>
+                    expect(
+                        actor.effects.get(effect.id)?.duration.expired,
+                        "effect expired after advancing past its duration"
+                    ).to.be.true
+            );
+        });
+
+        it("sets start tick from the combat's current tick when created mid-combat", async () => {
+            const combat = await createActiveCombat();
+            const { combatant: c1 } = await createCombatant("LowTick", combat);
+            const { combatant: c2, actor } = await createCombatant("HighTick", combat);
+            // setInitiative calls nextRound() internally on started combats (re-running setupTurns,
+            // which sorts ascending), so currentTick reflects the lowest initiative after each call.
+            await combat.setInitiative(c1.id, 2);
+            await combat.setInitiative(c2.id, 4);
+            expect(combat.currentTick, "precondition: current tick is the lowest initiative").to.equal(2);
+
+            const effect = await createTimedEffect(actor, 3);
+
+            expect(effect.start.round, "start tick set to combat current tick (2)").to.equal(2);
+        });
+
+        it("starts an existing timed effect's duration when its actor is drawn into a newly-started combat", async () => {
+            // Create an actor carrying a timed effect BEFORE any combat exists, so the
+            // effect's duration clock has not started yet.
+            const actor = await actorCreator.createCharacter({
+                type: "character",
+                name: "PreloadedEffect",
+                system: {},
+            });
+            actors.push(actor);
+            const effect = await createTimedEffect(actor, 2);
+            expect(effect.start.round, "precondition: clock not started outside combat").to.not.be.ok;
+
+            // Now draw the actor into a freshly-started combat.
+            const combat = await createActiveCombat();
+            await scene.createEmbeddedDocuments("Token", [
+                {
+                    type: "base",
+                    actorId: actor.id,
+                    x: scene._viewPosition.x,
+                    y: scene._viewPosition.y,
+                },
+            ]);
+            const combatants = await combat.createEmbeddedDocuments("Combatant", [
+                {
+                    type: "base",
+                    actorId: actor.id,
+                    sceneId: scene.id,
+                    tokenId: null,
+                    defeated: false,
+                    group: null,
+                },
+            ]);
+            const combatant = combatants[0]! as Combatant;
+            await combat.rollInitiative(combatant.id);
+            await combat.nextRound();
+
+            await passesEventually(() =>
+                expect(effect.start.round, "start tick set to combat current tick at combat start").to.equal(
+                    combat.currentTick
+                )
+            );
+        });
+
+        it("does NOT expire a timed effect before its duration elapses (negative spec)", async () => {
+            const combat = await createActiveCombat();
+            const { combatant, actor } = await createCombatant("NegativeSpec", combat);
+            await combat.setInitiative(combatant.id, 10);
+            const startTick = combat.currentTick ?? 0;
+
+            const effect = await createTimedEffect(actor, 5);
+
+            // Advance only 2 ticks of a duration-5 effect. setInitiative fires the
+            // round-advance hook internally; no separate nextRound() call needed.
+            await combat.setInitiative(combatant.id, startTick + 2);
+
+            // Negative spec — complements the expiry test. A future implementer cannot
+            expect(actor.effects.has(effect.id), "effect survives a sub-duration advance").to.be.true;
         });
     });
 }
