@@ -284,26 +284,84 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             });
         });
         describe("ActiveEffect duration", () => {
-            ([
-            ["expired", fields.BooleanField],
-            ["expiry", fields.StringField],
-            ["units", fields.StringField],
-        ]as const).forEach(([key, type]) => {
-        it(`should provide duration with ${key}`, () => {
-            expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property("defineSchema");
-            expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a("function");
-            const schema = ActiveEffect.defineSchema().duration.fields; //Schema field types store their fields in a "fields" property
-                expect(schema, `ActiveEffect schema does not contain ${key}`).to.have.property(key);
-                expect((schema as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+            (
+                [
+                    ["expired", fields.BooleanField],
+                    ["expiry", fields.StringField],
+                    ["units", fields.StringField],
+                ] as const
+            ).forEach(([key, type]) => {
+                it(`should provide duration with ${key}`, () => {
+                    expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property(
+                        "defineSchema"
+                    );
+                    expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a(
+                        "function"
+                    );
+                    const schema = ActiveEffect.defineSchema().duration.fields; //Schema field types store their fields in a "fields" property
+                    expect(schema, `ActiveEffect schema does not contain ${key}`).to.have.property(key);
+                    expect((schema as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+                });
             });
-        });
-            it("should have a property called label", withActiveEffect(activeEffectData,  async (effect) => {
-                expect(effect.duration.label).be.a("string").with.length.greaterThan(0);
-            }));
+            it(
+                "should have a property called label",
+                withActiveEffect(activeEffectData, async (effect) => {
+                    expect(effect.duration.label).be.a("string").with.length.greaterThan(0);
+                })
+            );
 
-            it("should have a property called remaining", withActiveEffect(activeEffectData,  async (effect) => {
-                expect(effect.duration.remaining).to.equal(Number.POSITIVE_INFINITY);
-            }));
+            it(
+                "should have a property called remaining",
+                withActiveEffect(activeEffectData, async (effect) => {
+                    expect(effect.duration.remaining).to.equal(Number.POSITIVE_INFINITY);
+                })
+            );
+        });
+
+        describe("ActiveEffect start", () => {
+            it("should provide a top-level start schema field", () => {
+                expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property("defineSchema");
+                expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a("function");
+                const schema = ActiveEffect.defineSchema();
+                expect(schema, "ActiveEffect schema does not contain start").to.have.property("start");
+            });
+
+            (
+                [
+                    ["combat", fields.StringField],
+                    ["combatant", fields.StringField],
+                    ["initiative", fields.NumberField],
+                    ["round", fields.NumberField],
+                    ["time", fields.NumberField],
+                    ["turn", fields.NumberField],
+                ] as const
+            ).forEach(([key, type]) => {
+                it(`should provide start with ${key}`, () => {
+                    expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property(
+                        "defineSchema"
+                    );
+                    expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a(
+                        "function"
+                    );
+                    const schema = ActiveEffect.defineSchema().start.fields;
+                    expect(schema, `ActiveEffect start schema does not contain ${key}`).to.have.property(key);
+                    expect((schema as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+                });
+            });
+
+            it(
+                "should have a method called updateDuration",
+                withActiveEffect(activeEffectData, async (effect) => {
+                    expect(effect.updateDuration, "ActiveEffect does not have updateDuration").to.be.a("function");
+                    const duration = effect.updateDuration();
+                    expect(duration, "updateDuration result does not have remaining").to.have.property("remaining");
+                    expect(typeof duration.remaining, "updateDuration remaining is not a number").to.equal("number");
+                    expect(duration, "updateDuration result does not have expired").to.have.property("expired");
+                    expect(duration, "updateDuration result does not have label").to.have.property("label");
+                    expect(duration, "updateDuration result does not have value").to.have.property("value");
+                    expect(duration, "updateDuration result does not have units").to.have.property("units");
+                })
+            );
         });
     });
 
