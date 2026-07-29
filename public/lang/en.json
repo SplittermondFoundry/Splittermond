@@ -8,6 +8,7 @@
         }
     },
     "splittermond": {
+        "notATactician": "Not a 'Taktiker'",
         "magicFumbleSorcerer": "Fumbled Spell (Sorcerer)",
         "magicFumblePriest": "Fumbled Spell (Priest)",
         "chooseMagicSkill": "Choose a school af magic!",
