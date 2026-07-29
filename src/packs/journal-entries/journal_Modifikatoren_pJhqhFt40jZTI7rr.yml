@@ -351,6 +351,79 @@ pages:
           modifiedTime: 1763817458270
           lastModifiedBy: XEyWQoNP8LHDdOvz
       _key: "!journal.pages!pJhqhFt40jZTI7rr.ZyoVmT1BVnWgeomd"
+    - sort: 80000
+      name: Probenwurf-Erfordernisse
+      type: text
+      _id: cHk8Rqf3vZyL2pWb
+      system: {}
+      title:
+          show: true
+          level: 2
+      image: {}
+      text:
+          format: 1
+          content: >-
+              <p>Probenwurf-Erfordernisse erzwingen einen bestimmten
+              <em>Würfeltyp</em> für Proben. Der Modifikator beginnt mit
+              <em>check.require</em> und benötigt als verpflichtendes Attribut den
+              Würfeltyp (<code>rollType</code> respektive
+              <code>Würfeltyp</code>).</p><p>Beispiel: <code>check.require
+              rollType="safety"</code> erzwingt, dass ausschließlich
+              <em>Sicherheitswürfe</em> verwendet werden. Ist der Würfeltyp auf
+              Deutsch angegeben, wird er automatisch übersetzt, also z.B.
+              <code>check.require
+              rollType="Sicherheitswurf"</code>.</p><h3>Attribute</h3><table><thead><tr><td
+              style="width:20%">Attribut</td><td
+              style="width:20%">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>rollType</p></td><td><p>Würfeltyp</p></td><td><p>Setzt
+              den zu erzwingenden Würfeltyp.
+              Verpflichtend.</p></td></tr><tr><td><p>skill</p></td><td><p>Fertigkeit</p></td><td><p>Begrenzt
+              die Wirkung des Modifikators auf eine bestimmte
+              <em>Fertigkeit</em>.</p></td></tr><tr><td><p>type</p></td><td><p>Typus</p></td><td><p>Begrenzt
+              die Wirkung des Modifikators auf bestimmte Probenarten (siehe Tabelle
+              der Probenmodifikatoren).</p></td></tr></tbody></table><h3>Ausprägungen
+              von Würfeltypen</h3><table><thead><tr><td
+              style="width:20%">Ausprägung</td><td
+              style="width:20%">Übersetzt</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p>standard</p></td><td><p>Standardwurf</p></td><td><p>Erzwingt
+              einen
+              <em>Standardwurf</em>.</p></td></tr><tr><td><p>risk</p></td><td><p>Risikowurf</p></td><td><p>Erzwingt
+              einen
+              <em>Risikowurf</em>.</p></td></tr><tr><td><p>safety</p></td><td><p>Sicherheitswurf</p></td><td><p>Erzwingt
+              einen
+              <em>Sicherheitswurf</em>.</p></td></tr><tr><td><p>standardGrandmaster</p></td><td><p>Standardwurf
+              (Großmeister)</p></td><td><p>Erzwingt einen <em>Standardwurf
+              (Großmeister)</em>.</p></td></tr><tr><td><p>riskGrandmaster</p></td><td><p>Risikowurf
+              (Großmeister)</p></td><td><p>Erzwingt einen <em>Risikowurf
+              (Großmeister)</em>.</p></td></tr><tr><td><p>safetyGrandmaster</p></td><td><p>Sicherheitswurf
+              (Großmeister)</p></td><td><p>Erzwingt einen <em>Sicherheitswurf
+              (Großmeister)</em>.</p></td></tr></tbody></table><div
+              class="box"><h1>Beispiel:</h1><p>Der Zustand <em>Rasend</em> erzwingt
+              Risikowürfe: <strong><code>check.require
+              rollType="risk"</code>.</strong></p><p>Der Zustand <em>Angsterfüllt</em>
+              erzwingt Sicherheitswürfe: <strong><code>check.require
+              rollType="safety"</code>.</strong></p></div><p>Treffen mehrere
+              widersprüchliche <em>check.require</em>-Modifikatoren auf dieselbe Probe
+              zu, wird der erste angewandt und der Anwender erhält einen
+              entsprechenden Hinweis.</p>
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      category: null
+      ownership:
+          default: -1
+          XEyWQoNP8LHDdOvz: 3
+      flags: {}
+      _stats:
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+          coreVersion: "13.350"
+          systemId: splittermond
+          systemVersion: 13.9.2
+          createdTime: 1763817458270
+          modifiedTime: 1763817458270
+          lastModifiedBy: XEyWQoNP8LHDdOvz
+      _key: "!journal.pages!pJhqhFt40jZTI7rr.cHk8Rqf3vZyL2pWb"
 _stats:
     coreVersion: "13.342"
     systemId: null
