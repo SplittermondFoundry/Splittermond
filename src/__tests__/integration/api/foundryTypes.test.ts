@@ -628,6 +628,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             "getFlag",
             "updateSource",
             "startCombat",
+            "nextRound",
         ].forEach((property) => {
             it(`should have a method ${property}`, () => {
                 expect(Combat.prototype, `Combat prototype does not have ${property}`).to.have.property(property);
