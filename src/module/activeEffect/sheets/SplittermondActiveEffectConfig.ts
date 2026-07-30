@@ -48,6 +48,7 @@ function prepareDurationContext(
     context.durationUnits = durationUnits;
     context.durationValue = readTimedDurationValue(duration.value);
     context.durationExpiry = durationUnits === "rounds" ? TICK_EXPIRY : "";
+    context.startTick = document.start.round;
     return context;
 }
 

@@ -328,13 +328,10 @@
             overflow: unset;
             margin: 0;
             padding: 0;
+            color: var(--color-text);
 
-            &::before:extend(.border-paper) {
-                border-image-repeat: repeat;
-                background: var(--splittermond-background-parchment);
-                //content: unset;
-                //display: none;
-                margin: -3px;
+            a {
+                color: var(--color-text-light-highlight, #c9d1d9);
             }
 
             .list-body {
