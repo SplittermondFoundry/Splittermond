@@ -13,6 +13,26 @@ import { TooltipConfigurer } from "module/actor/sheets/TooltipConfigurer.js";
 import { HoverStateTracker } from "module/actor/sheets/HoverStateTracker.ts";
 import { SplittermondActiveEffectCreationDialog } from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog.ts";
 import { SplittermondActiveEffect } from "module/activeEffect/index.ts";
+import { buildEffectCardContext } from "module/activeEffect/effectCardContext";
+
+/**
+ * @typedef {Object} StatusTabEffectContext
+ * The per-effect shape passed to the status-tab template.
+ * See `module/activeEffect/effectCardContext` for the
+ * `EffectCardContext` fields added via spread.
+ * @property {string} id
+ * @property {string} uuid
+ * @property {string} name
+ * @property {boolean} disabled
+ * @property {string} sourceName
+ * @property {boolean} fromItem
+ * @property {number} sort
+ * @property {import('../../activeEffect/dataModel/effectTypes').EffectType | 'base'} [type]
+ * @property {string} [typeCssClass]
+ * @property {Array<{icon: string, tooltipKey: string, cssClass: string}>} [badges]
+ * @property {number | null} [ticksToExpiration]
+ * @property {boolean} [showTicks]
+ */
 
 export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     static DEFAULT_OPTIONS = {
@@ -167,6 +187,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 sourceName: e.sourceName,
                 fromItem: e.parent !== this.actor,
                 sort: e.sort ?? 0,
+                ...buildEffectCardContext(e, { actor: this.actor }),
             }))
             .sort((a, b) => a.sort - b.sort);
 

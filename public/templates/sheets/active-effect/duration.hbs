@@ -8,11 +8,11 @@
         </div>
 
         {{#if (eq durationMode "timed")}}
-            <div class="form-group">
+            <div class="form-group duration-value">
                 <label>{{localize "splittermond.activeEffect.duration.value"}}</label>
                 <input type="number" name="duration.value" value="{{durationValue}}" step="1" min="1" />
             </div>
-            <div class="form-group">
+            <div class="form-group duration-unit">
                 <label>{{localize "splittermond.activeEffect.duration.unit"}}</label>
                 <select name="duration.units">
                     {{selectOptions durationUnitChoices selected=durationUnits localize=true}}
@@ -20,13 +20,13 @@
             </div>
             <input type="hidden" name="duration.expiry" value="{{durationExpiry}}" />
         {{else if (eq durationMode "channelled")}}
-            <p class="hint">{{localize "splittermond.activeEffect.duration.channelled"}}</p>
+            <p class="hint channeled">{{localize "splittermond.activeEffect.duration.channelled"}}</p>
         {{else}}
-            <p class="hint">{{localize "splittermond.activeEffect.duration.permanent"}}</p>
+            <p class="hint permanent">{{localize "splittermond.activeEffect.duration.permanent"}}</p>
         {{/if}}
 
-        {{#if (ne startTick null)}}
-            <div class="form-group">
+        {{#if startTick}}
+            <div class="form-group start-tick">
                 <label>{{localize "splittermond.activeEffect.duration.startTick"}}</label>
                 <span>{{startTick}}</span>
             </div>

@@ -10,7 +10,8 @@ import { splittermond } from "module/config/index.js";
 import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "module/item/availabilityParser";
 import { addModifierEffects } from "module/activeEffect/effectBuilder";
 import type { ItemType } from "module/config/itemTypes";
-import { SplittermondActiveEffect } from "module/activeEffect";
+import { buildEffectCardContext, SplittermondActiveEffect } from "module/activeEffect";
+import type { EffectCardContext } from "module/activeEffect";
 import { SplittermondActiveEffectCreationDialog } from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog";
 import { getAddModifier } from "module/item/item";
 import type { HandlebarsRenderOptions } from "module/api/Application";
@@ -55,6 +56,12 @@ interface PropertyGroup {
 }
 
 type SplittermondItemSheetProperties = PropertyGroup[];
+
+interface ItemEffectCardContext extends EffectCardContext {
+    id: string;
+    name: string;
+    disabled: boolean;
+}
 
 interface StatBlockEntry {
     label: string;
@@ -222,11 +229,14 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     }
 
     async #prepareEffectsPart(context: ApplicationRenderContext): Promise<ApplicationRenderContext> {
-        const effects = this.item.effects.map((e: any) => ({
-            id: e.id,
-            name: e.name,
-            disabled: e.disabled,
-        }));
+        const effects: ItemEffectCardContext[] = (this.item.effects as unknown as SplittermondActiveEffect[]).map(
+            (e) => ({
+                id: e.id,
+                name: e.name,
+                disabled: e.disabled,
+                ...buildEffectCardContext(e, { actor: this.item.actor ?? null }),
+            })
+        );
         context.effects = effects;
         context.modifierHelpText = await this.htmlEnricher(this.localizer.localize("splittermond.modificatorHelpText"));
         return context;
