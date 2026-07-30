@@ -179,6 +179,12 @@
                 "unitDays": "Tage",
                 "unitWeeks": "Wochen",
                 "unitMonths": "Monate"
+            },
+            "badge": {
+                "suppressed": "unterdrückt",
+                "expired": "abgelaufen",
+                "channelled": "kanalisiert",
+                "ticksRemaining": "noch {n} Ticks"
             }
         },
         "furtherActions": "Weitere Aktionen",

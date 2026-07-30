@@ -170,6 +170,12 @@
                 "unitWeeks": "Weeks",
                 "unitMonths": "Months"
             },
+            "badge": {
+                "suppressed": "suppressed",
+                "expired": "expired",
+                "channelled": "channelled",
+                "ticksRemaining": "{n} ticks remaining"
+            },
             "edit": "Edit Effect"
         }
     },
