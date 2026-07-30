@@ -145,6 +145,12 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         sheetData.items = this.actor.items.map((i) => i.toObject(false));
         this._prepareItems(sheetData);
 
+        await Promise.all(
+            Object.values(sheetData.spellsBySkill)
+                .flatMap((spellsBySkill) => spellsBySkill.spells)
+                .map(async (spell) => (spell.castDurationInTicks = await spell.castDuration.inTicks()))
+        );
+
         sheetData.combatTabs = {
             tabs: [
                 { id: "attack", group: "fight-action-type", label: "splittermond.attack" },
@@ -485,7 +491,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     #handleAddTick(target) {
         const value = closestData(target, "ticks");
         const message = closestData(target, "message");
-        this.actor.addTicks(value, message);
+        return this.actor.addTicks(value, message);
     }
 
     /**
