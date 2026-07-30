@@ -22,13 +22,26 @@
             {{#if effects.length}}
                 <ol class="effects-list">
                     {{#each effects}}
-                        <li class="effect-card{{#if this.disabled}} effect-disabled{{/if}} draggable"
+                        <li class="effect-card{{#if this.disabled}} effect-disabled{{/if}} {{this.typeCssClass}} draggable"
                             data-effect-id="{{this.id}}">
                             <div class="effect-card-content">
                                 <span class="effect-name">{{this.name}}</span>
                                 {{#if this.disabled}}
                                     <span class="effect-disabled-badge">{{localize
                                             "splittermond.effectsPanel.disabled"}}</span>
+                                {{/if}}
+                                {{#each this.badges}}
+                                    <span class="effect-badge {{this.cssClass}}" title="{{localize this.tooltipKey}}">
+                                        <i class="fas {{this.icon}}" aria-hidden="true"></i>
+                                    </span>
+                                {{/each}}
+                                {{#if this.showTicks}}
+                                    <span
+                                        class="effect-badge badge-ticks"
+                                        title="{{localize 'splittermond.activeEffect.badge.ticksRemaining' n=this.ticksToExpiration}}"
+                                    >
+                                        <i class="fas fa-hourglass-half" aria-hidden="true"></i>{{this.ticksToExpiration}}
+                                    </span>
                                 {{/if}}
                             </div>
                             <div class="effect-card-actions">

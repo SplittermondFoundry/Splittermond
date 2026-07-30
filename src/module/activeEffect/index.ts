@@ -19,6 +19,8 @@ export { Modifier } from "module/modifiers/impl/modifier";
 export { InverseModifier } from "module/modifiers/impl/InverseModifier";
 export { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
 export { ActionEffectDataModel, type ActionEffectSchemaType } from "./dataModel/ActionEffectDataModel";
+export type { EffectCardContext, EffectCardBadge, EffectCardEffect } from "./effectCardContext";
+export { buildEffectCardContext } from "./effectCardContext";
 
 /**
  * Register the custom ActiveEffect subclass with Foundry.

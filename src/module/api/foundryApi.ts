@@ -2,6 +2,7 @@ import {
     type ChatMessageStyles,
     type CompendiumPacks,
     type FoundryCombat,
+    type FoundryCombatant,
     type FoundryScene,
     type Hooks,
     type KeybindingActionBinding,
@@ -142,6 +143,15 @@ export const foundryApi = new (class FoundryApi {
     get combat(): FoundryCombat | null {
         //@ts-ignore
         return game.combat;
+    }
+
+    getCombatForActor(actor: Actor): FoundryCombat | null {
+        for (const combat of foundryApi.combats) {
+            if (combat.combatants.some((c: FoundryCombatant) => c.actor === actor)) {
+                return combat;
+            }
+        }
+        return null;
     }
 
     get socket(): Socket {

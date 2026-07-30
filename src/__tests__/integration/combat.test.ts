@@ -103,6 +103,38 @@ export function combatTest(context: QuenchBatchContext) {
         return effect as SplittermondActiveEffect;
     }
 
+    describe("foundryApi.getCombatForActor", () => {
+        it("returns the combat the actor is a combatant of", async () => {
+            const combat = await createActiveCombat();
+            const { actor } = await createCombatant("LookupTarget", combat);
+
+            const result = foundryApi.getCombatForActor(actor);
+            expect(result, "getCombatForActor returns the combat containing the actor").to.equal(combat);
+        });
+
+        it("returns null for an actor that is not in any combat", async () => {
+            const actor = await actorCreator.createCharacter({
+                type: "character",
+                name: "NonCombatant",
+                system: {},
+            });
+            actors.push(actor);
+
+            const result = foundryApi.getCombatForActor(actor);
+            expect(result, "getCombatForActor returns null for a non-combatant actor").to.be.null;
+        });
+
+        it("returns the correct combat when multiple combats exist", async () => {
+            const combatA = await createActiveCombat();
+            const combatB = await createActiveCombat();
+            const { actor } = await createCombatant("MultiCombatTarget", combatB);
+
+            const result = foundryApi.getCombatForActor(actor);
+            expect(result, "getCombatForActor returns the specific combat the actor is in").to.equal(combatB);
+            expect(result, "getCombatForActor does not return the wrong combat").to.not.equal(combatA);
+        });
+    });
+
     describe("Status effect update", () => {
         it("should add a start tick for combat effects", async () => {
             const combat = await createActiveCombat();
