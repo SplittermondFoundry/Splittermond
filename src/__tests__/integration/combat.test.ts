@@ -12,6 +12,7 @@ import { passesEventually } from "../util";
 import Combatant = foundry.documents.Combatant;
 
 declare const Scene: FoundryScene;
+declare const ui: { combat: { viewed: unknown } };
 export function combatTest(context: QuenchBatchContext) {
     const { it, describe, before, after, beforeEach, afterEach } = context;
     let combats: SplittermondCombat[] = [];
@@ -40,11 +41,12 @@ export function combatTest(context: QuenchBatchContext) {
     });
     beforeEach(() => (sandbox = sinon.createSandbox()));
 
-    afterEach(() => {
-        Combat.deleteDocuments(combats.map((c) => c.id));
-        Actor.deleteDocuments(actors.map((a) => a.id));
+    afterEach(async () => {
+        await Combat.deleteDocuments(combats.map((c) => c.id));
+        ui.combat.viewed = null;
+        await Actor.deleteDocuments(actors.map((a) => a.id));
         tokens.forEach((t) => t.actor?.sheet.close());
-        scene.deleteEmbeddedDocuments(
+        await scene.deleteEmbeddedDocuments(
             "Token",
             tokens.map((t) => t.id)
         );
@@ -216,9 +218,11 @@ export function combatTest(context: QuenchBatchContext) {
             expect(effect.start.round, "start tick set to combat current tick (2)").to.equal(2);
         });
 
-        it("starts an existing timed effect's duration when its actor is drawn into a newly-started combat", async () => {
+        it("does not start an existing timed effect's duration when its actor is drawn into a newly-started combat (core behavior)", async () => {
             // Create an actor carrying a timed effect BEFORE any combat exists, so the
             // effect's duration clock has not started yet.
+            await Combat.deleteDocuments(Array.from(foundryApi.combats.keys()));
+            ui.combat.viewed = null;
             const actor = await actorCreator.createCharacter({
                 type: "character",
                 name: "PreloadedEffect",
@@ -252,11 +256,8 @@ export function combatTest(context: QuenchBatchContext) {
             await combat.rollInitiative(combatant.id);
             await combat.nextRound();
 
-            await passesEventually(() =>
-                expect(effect.start.round, "start tick set to combat current tick at combat start").to.equal(
-                    combat.currentTick
-                )
-            );
+            expect(effect.start.round, "core does not start a pre-existing effect's clock on combat start").to.not.be
+                .ok;
         });
 
         it("does NOT expire a timed effect before its duration elapses (negative spec)", async () => {
