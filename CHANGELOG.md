@@ -2,6 +2,12 @@
 
 ### Fixes
 
+- Aufruf von "Ticks vorrücken" vom Actor Formularträge
+
+## 14.2.6
+
+### Fixes
+
 - Setzen von Startattributen wirft keinen "unbekannte Funktion" fehler mehr.
 
 ## 14.2.5
