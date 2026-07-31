@@ -147,7 +147,7 @@ export const foundryApi = new (class FoundryApi {
 
     getCombatForActor(actor: Actor): FoundryCombat | null {
         for (const combat of foundryApi.combats) {
-            if (combat.combatants.some((c: FoundryCombatant) => c.actor === actor)) {
+            if (combat.combatants.some((c: FoundryCombatant) => c.actorId === actor.id)) {
                 return combat;
             }
         }
