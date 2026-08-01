@@ -234,7 +234,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
                 id: e.id,
                 name: e.name,
                 disabled: e.disabled,
-                ...buildEffectCardContext(e, { actor: this.item.actor ?? null }),
+                ...buildEffectCardContext(e),
             })
         );
         context.effects = effects;

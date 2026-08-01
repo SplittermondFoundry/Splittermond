@@ -30,7 +30,7 @@ import { buildEffectCardContext } from "module/activeEffect/effectCardContext";
  * @property {import('../../activeEffect/dataModel/effectTypes').EffectType | 'base'} [type]
  * @property {string} [typeCssClass]
  * @property {Array<{icon: string, tooltipKey: string, cssClass: string}>} [badges]
- * @property {number | null} [ticksToExpiration]
+ * @property {string} [timeToExpirationDisplay]
  * @property {boolean} [showTicks]
  */
 
@@ -187,7 +187,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 sourceName: e.sourceName,
                 fromItem: e.parent !== this.actor,
                 sort: e.sort ?? 0,
-                ...buildEffectCardContext(e, { actor: this.actor }),
+                ...buildEffectCardContext(e),
             }))
             .sort((a, b) => a.sort - b.sort);
 

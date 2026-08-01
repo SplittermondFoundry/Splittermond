@@ -163,6 +163,15 @@
                 "value": "Duration",
                 "unit": "Unit",
                 "startTick": "Start Tick",
+                "start": "Start",
+                "remaining": "Remaining",
+                "status": "Status",
+                "statusExpired": "Expired",
+                "statusActive": "Active",
+                "timeType": "Time type",
+                "timeTypeNone": "—",
+                "timeTypeCombat": "Combat time",
+                "timeTypeWorld": "World time",
                 "unitTicks": "Ticks",
                 "unitMinutes": "Minutes",
                 "unitHours": "Hours",
@@ -174,7 +183,8 @@
                 "suppressed": "suppressed",
                 "expired": "expired",
                 "channelled": "channelled",
-                "ticksRemaining": "{n} ticks remaining"
+                "timed": "timed",
+                "timeRemaining": "{n} remaining"
             },
             "edit": "Edit Effect"
         }
