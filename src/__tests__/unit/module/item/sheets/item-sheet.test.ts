@@ -93,7 +93,7 @@ describe("SplittermondItemSheet — effects part context", () => {
         expect(actual.type).to.equal("modifier");
         expect(actual.typeCssClass).to.equal("");
         expect(actual.showTicks).to.equal(false);
-        expect(actual.ticksToExpiration).to.be.null;
+        expect(actual.timeToExpirationDisplay).to.be.null;
     });
 
     it("sets modifierHelpText from the enricher output", async () => {
