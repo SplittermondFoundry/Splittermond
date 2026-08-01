@@ -221,6 +221,23 @@ describe("addModifier", () => {
         });
     });
 
+    it("should make npcattacks modifier selectable when emphasis is provided", () => {
+        const npcAttack = sandbox.createStubInstance(SplittermondItem);
+        npcAttack.type = "npcattack";
+        sandbox.stub(npcAttack, "id").get(() => "npcAttack1");
+        Object.defineProperty(actor, "items", { value: [npcAttack] });
+
+        const result = addModifier(item, 'npcattacks emphasis="Schwerpunkt" +3');
+        expect(result.modifiers).to.have.length(1);
+        expect(result.modifiers[0].modifier).to.deep.contain({
+            path: "npcattacks",
+            attributes: { name: "Schwerpunkt", type: null, emphasis: "Schwerpunkt" },
+            value: of(3),
+
+            selectable: true,
+        });
+    });
+
     it("should report error for invalid syntax", () => {
         addModifier(item, "InvalidString");
         expect((foundryApi.reportError as SinonStub).calledOnce).to.be.true;
