@@ -31,26 +31,26 @@
                                             "splittermond.effectsPanel.disabled"}}</span>
                                 {{/if}}
                                 {{#each this.badges}}
-                                    <span class="effect-badge {{this.cssClass}}" title="{{localize this.tooltipKey}}">
+                                    <span class="effect-badge {{this.cssClass}}" data-tooltip="{{localize this.tooltipKey}}">
                                         <i class="fas {{this.icon}}" aria-hidden="true"></i>
                                     </span>
                                 {{/each}}
                                 {{#if this.showTicks}}
                                     <span
                                         class="effect-badge badge-ticks"
-                                        title="{{localize 'splittermond.activeEffect.badge.ticksRemaining' n=this.ticksToExpiration}}"
+                                        data-tooltip="{{localize 'splittermond.activeEffect.badge.timeRemaining' n=this.timeToExpirationDisplay}}"
                                     >
-                                        <i class="fas fa-hourglass-half" aria-hidden="true"></i>{{this.ticksToExpiration}}
+                                        <i class="fas fa-hourglass-half" aria-hidden="true"></i>{{this.timeToExpirationDisplay}}
                                     </span>
                                 {{/if}}
                             </div>
                             <div class="effect-card-actions">
                                 <button class="button-inline" type="button" data-action="edit-effect"
-                                        title="{{localize 'splittermond.activeEffect.edit'}}">
+                                        data-tooltip="{{localize 'splittermond.activeEffect.edit'}}">
                                     <i class="fa fa-edit" aria-hidden="true"></i>
                                 </button>
                                 <button class="button-inline" type="button" data-action="toggle-effect"
-                                        title="{{#if this.disabled}}{{localize 'splittermond.enable'}}{{else}}{{localize
+                                        data-tooltip="{{#if this.disabled}}{{localize 'splittermond.enable'}}{{else}}{{localize
                                                 'splittermond.disable'}}{{/if}}">
                                     <i class="fa {{#if this.disabled}}fa-eye-slash{{else}}fa-eye{{/if}}"
                                        aria-hidden="true"></i>

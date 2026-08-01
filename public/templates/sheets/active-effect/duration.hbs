@@ -19,17 +19,32 @@
                 </select>
             </div>
             <input type="hidden" name="duration.expiry" value="{{durationExpiry}}" />
+
+            <div class="form-group status">
+                <label>{{localize "splittermond.activeEffect.duration.status"}}</label>
+                <span{{#if isExpired}} class="expired"{{else}} class="active"{{/if}}>{{#if isExpired}}{{localize "splittermond.activeEffect.duration.statusExpired"}}{{else}}{{localize "splittermond.activeEffect.duration.statusActive"}}{{/if}}</span>
+            </div>
+
+            <div class="form-group time-type">
+                <label>{{localize "splittermond.activeEffect.duration.timeType"}}</label>
+                <span>{{localize durationTimeTypeKey}}</span>
+            </div>
+            {{#if durationStart}}
+                <div class="form-group start">
+                    <label>{{localize "splittermond.activeEffect.duration.start"}}</label>
+                    <span>{{durationStart}}</span>
+                </div>
+            {{/if}}
+            {{#if durationRemaining}}
+                <div class="form-group remaining">
+                    <label>{{localize "splittermond.activeEffect.duration.remaining"}}</label>
+                    <span>{{durationRemaining}}</span>
+                </div>
+            {{/if}}
         {{else if (eq durationMode "channelled")}}
             <p class="hint channeled">{{localize "splittermond.activeEffect.duration.channelled"}}</p>
         {{else}}
             <p class="hint permanent">{{localize "splittermond.activeEffect.duration.permanent"}}</p>
-        {{/if}}
-
-        {{#if startTick}}
-            <div class="form-group start-tick">
-                <label>{{localize "splittermond.activeEffect.duration.startTick"}}</label>
-                <span>{{startTick}}</span>
-            </div>
         {{/if}}
     </div>
 </section>

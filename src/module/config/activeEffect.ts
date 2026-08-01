@@ -12,5 +12,5 @@ export type DurationUnit = keyof typeof DURATION_UNIT_CHOICES;
 export const activeEffect = {
     duration: {
         unitChoices: DURATION_UNIT_CHOICES,
-    }
-}as const;
+    },
+} as const;

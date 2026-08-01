@@ -1,7 +1,5 @@
-import type SplittermondCombat from "module/combat/combat";
 import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
 import type { DurationMode } from "module/activeEffect/SplittermondActiveEffect";
-import { foundryApi } from "module/api/foundryApi";
 
 export type EffectCardEffect = {
     isSuppressed: boolean;
@@ -12,6 +10,7 @@ export type EffectCardEffect = {
         expired: boolean;
         value: number | null;
         units: string;
+        label?: string | null;
         start?: { round?: number };
     };
 };
@@ -26,7 +25,7 @@ export type EffectCardContext = {
     type: EffectType | "base";
     typeCssClass: string;
     badges: EffectCardBadge[];
-    ticksToExpiration: number | null;
+    timeToExpirationDisplay: string | null;
     showTicks: boolean;
 };
 
@@ -36,10 +35,7 @@ const HIGHLIGHTED_TYPES: Record<string, boolean> = {
     spellEnhancedEffect: true,
 };
 
-export function buildEffectCardContext(
-    effect: EffectCardEffect,
-    { actor }: { actor: Actor | null }
-): EffectCardContext {
+export function buildEffectCardContext(effect: EffectCardEffect): EffectCardContext {
     const badges: EffectCardBadge[] = [];
 
     if (effect.isSuppressed) {
@@ -66,34 +62,12 @@ export function buildEffectCardContext(
         });
     }
 
-    let ticksToExpiration: number | null = null;
-
-    const combat = actor ? (foundryApi.getCombatForActor(actor) as SplittermondCombat | null) : null;
-    const currentTick = combat?.currentTick;
-
-    if (
-        effect.durationMode === "timed" &&
-        effect.duration.units === "rounds" &&
-        effect.duration.value != null &&
-        Number.isFinite(effect.duration.value) &&
-        effect.duration.value > 0 &&
-        effect.duration.start?.round != null &&
-        Number.isFinite(effect.duration.start.round) &&
-        combat != null &&
-        currentTick != null &&
-        Number.isFinite(currentTick)
-    ) {
-        ticksToExpiration = effect.duration.start.round + effect.duration.value - currentTick;
-        if (ticksToExpiration <= 0) {
-            ticksToExpiration = null;
-        }
-    }
-
+    const isTimed = effect.durationMode === "timed" && !effect.duration.expired;
     return {
         type: effect.type,
         typeCssClass: effect.type in HIGHLIGHTED_TYPES ? `effect-type-${effect.type}` : "",
         badges,
-        ticksToExpiration,
-        showTicks: ticksToExpiration !== null,
+        timeToExpirationDisplay: effect.duration.label ?? null,
+        showTicks: isTimed,
     };
 }
