@@ -5,25 +5,28 @@ import { getAddModifier } from "module/item/item";
 import type { ModifierType } from "module/modifiers";
 import { isFirstActiveGM } from "module/util/foundryUserUtils";
 import { isGenerated, rebuildModifierEffects } from "../effectBuilder";
+import { modifierTypeForItemType } from "../modifierTypeResolver";
 
 const MIGRATION_FLAG_SCOPE = "splittermond";
 const MIGRATION_FLAG_KEY = "bakedMultiplierV1MigrationDone";
 
-const modifierTypeByItemType: Partial<Record<string, ModifierType>> = {
-    weapon: "equipment",
-    shield: "equipment",
-    armor: "equipment",
-    equipment: "equipment",
-    strength: "innate",
-    statuseffect: "innate",
-    mastery: "innate",
-    npcfeature: "innate",
-    culturelore: "innate",
-    spelleffect: "magic",
-};
-
 function modifierTypeFor(item: { type: string }): ModifierType | undefined {
-    return modifierTypeByItemType[item.type];
+    const itemType = item.type;
+    if (
+        itemType === "weapon" ||
+        itemType === "shield" ||
+        itemType === "armor" ||
+        itemType === "equipment" ||
+        itemType === "strength" ||
+        itemType === "statuseffect" ||
+        itemType === "mastery" ||
+        itemType === "npcfeature" ||
+        itemType === "culturelore" ||
+        itemType === "spelleffect"
+    ) {
+        return modifierTypeForItemType(itemType);
+    }
+    return undefined;
 }
 
 function isWorldScopeItem(host: unknown): host is SplittermondItem {

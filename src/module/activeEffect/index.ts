@@ -4,6 +4,7 @@ import { SplittermondActiveEffectCreationDialog } from "./sheets/SplittermondAct
 import { ActionEffectDataModel } from "./dataModel/ActionEffectDataModel";
 import { foundryApi } from "module/api/foundryApi";
 import { regenerateBakedMultiplierEffects } from "./migrations/regenerateBakedMultiplierEffects";
+import { setPreCreateActiveEffectHook } from "./modifierTypeRecalculation";
 
 type ActiveEffectDocumentClass = typeof SplittermondActiveEffect & {
     createDialog?: (
@@ -76,4 +77,6 @@ export function initializeActiveEffects(config: typeof CONFIG) {
     foundryApi.hooks.once("ready", () => {
         void regenerateBakedMultiplierEffects();
     });
+
+    setPreCreateActiveEffectHook();
 }

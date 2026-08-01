@@ -53,7 +53,56 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     await passesEventually(
                         () => {
                             expect(effect.system.modifiers[0].path).to.equal("actor.skills");
+                            expect(effect.system.modifiers[0].attributes.type).to.equal("innate");
                             expect(effect.getFlag("splittermond", "rawInput")).to.equal("skills skill=acrobatics +2");
+                        },
+                        1500,
+                        100
+                    );
+                }
+            )
+        );
+
+        it(
+            "should classify a spellEffect-type effect created directly on an actor as magic",
+            withActiveEffect(
+                {
+                    name: "Direct SpellEffect",
+                    type: "spellEffect",
+                    system: { modifiers: [], costModifiers: [] },
+                },
+                async (effect) => {
+                    const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                    await enterInSheet(sheet, "splittermondRawInput", "skills skill=acrobatics +2");
+
+                    await passesEventually(
+                        () => {
+                            expect(effect.system.modifiers[0].path).to.equal("actor.skills");
+                            expect(effect.system.modifiers[0].attributes.type).to.equal("magic");
+                        },
+                        1500,
+                        100
+                    );
+                }
+            )
+        );
+
+        it(
+            "should classify a spellEnhancedEffect-type effect created directly on an actor as magic",
+            withActiveEffect(
+                {
+                    name: "Direct SpellEnhancedEffect",
+                    type: "spellEnhancedEffect",
+                    system: { modifiers: [], costModifiers: [] },
+                },
+                async (effect) => {
+                    const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                    await enterInSheet(sheet, "splittermondRawInput", "skills skill=acrobatics +2");
+
+                    await passesEventually(
+                        () => {
+                            expect(effect.system.modifiers[0].path).to.equal("actor.skills");
+                            expect(effect.system.modifiers[0].attributes.type).to.equal("magic");
                         },
                         1500,
                         100
@@ -570,5 +619,149 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 await Item.deleteDocuments([sourceItem.id, targetItem.id]);
             }
         });
+    });
+
+    describe("modifierType recalculation on drop", () => {
+        it(
+            "should recalculate scalar modifier type when an effect is created on a weapon item",
+            withActor(async (actor) => {
+                const [weapon] = await actor.createEmbeddedDocuments("Item", [
+                    { type: "weapon", name: "Sword", system: { equipped: true } },
+                ]);
+                const [effect] = await weapon.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Dropped Effect",
+                        type: "modifier",
+                        system: {
+                            modifiers: [
+                                Modifier.init("skills", of(1), { name: "Dropped", type: "innate" }),
+                            ],
+                            costModifiers: [],
+                        },
+                    },
+                ]);
+
+                const restored = weapon.effects.get(effect.id);
+                expect(restored!.system.modifiers[0].attributes.type).to.equal("equipment");
+            })
+        );
+
+        it(
+            "should recalculate scalar modifier type when an effect is created on a spelleffect item",
+            withActor(async (actor) => {
+                const [spelleffect] = await actor.createEmbeddedDocuments("Item", [
+                    { type: "spelleffect", name: "Glow", system: { active: true } },
+                ]);
+                const [effect] = await spelleffect.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Dropped Effect",
+                        type: "modifier",
+                        system: {
+                            modifiers: [
+                                Modifier.init("skills", of(1), { name: "Dropped", type: "equipment" }),
+                            ],
+                            costModifiers: [],
+                        },
+                    },
+                ]);
+
+                const restored = spelleffect.effects.get(effect.id);
+                expect(restored!.system.modifiers[0].attributes.type).to.equal("magic");
+            })
+        );
+
+        it(
+            "should recalculate scalar modifier type when an effect is created directly on an actor as a spellEffect",
+            withActor(async (actor) => {
+                const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Direct SpellEffect",
+                        type: "spellEffect",
+                        system: {
+                            modifiers: [
+                                Modifier.init("skills", of(1), { name: "Direct", type: "equipment" }),
+                            ],
+                            costModifiers: [],
+                        },
+                    },
+                ]);
+
+                const restored = actor.effects.get(effect.id);
+                expect(restored!.system.modifiers[0].attributes.type).to.equal("magic");
+            })
+        );
+
+        it(
+            "should recalculate scalar modifier type when an effect is created directly on an actor as a base modifier effect",
+            withActor(async (actor) => {
+                const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Direct Modifier",
+                        type: "modifier",
+                        system: {
+                            modifiers: [
+                                Modifier.init("skills", of(1), { name: "Direct", type: "equipment" }),
+                            ],
+                            costModifiers: [],
+                        },
+                    },
+                ]);
+
+                const restored = actor.effects.get(effect.id);
+                expect(restored!.system.modifiers[0].attributes.type).to.equal("innate");
+            })
+        );
+
+        it(
+            "should not modify cost modifier attributes when an effect is created on a weapon item",
+            withActor(async (actor) => {
+                const [weapon] = await actor.createEmbeddedDocuments("Item", [
+                    { type: "weapon", name: "Sword", system: { equipped: true } },
+                ]);
+                const [effect] = await weapon.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Cost Effect",
+                        type: "modifier",
+                        system: {
+                            modifiers: [],
+                            costModifiers: [
+                                {
+                                    label: "focus.reduction",
+                                    serializedValue: { type: "amount", amount: { _exhausted: 1 } },
+                                    skill: null,
+                                    attributes: { type: "defensive" },
+                                },
+                            ],
+                        },
+                    },
+                ]);
+
+                const restored = weapon.effects.get(effect.id);
+                expect(restored!.system.costModifiers[0].attributes.type).to.equal("defensive");
+            })
+        );
+
+        it(
+            "should recalculate modifier type when an effect is dragged from an actor onto a weapon item",
+            withActor(async (sourceActor) => {
+                const [weapon] = await sourceActor.createEmbeddedDocuments("Item", [
+                    { type: "weapon", name: "Target Weapon", system: { equipped: true } },
+                ]);
+                const sourceEffectData = {
+                    name: "Dragged",
+                    type: "modifier",
+                    system: {
+                        modifiers: [Modifier.init("skills", of(1), { name: "Dragged", type: "innate" })],
+                        costModifiers: [],
+                    },
+                };
+                const [sourceEffect] = await sourceActor.createEmbeddedDocuments("ActiveEffect", [sourceEffectData]);
+
+                await weapon.createEmbeddedDocuments("ActiveEffect", [sourceEffect.toObject()]);
+
+                const targetEffect = weapon.effects.contents[0];
+                expect(targetEffect.system.modifiers[0].attributes.type).to.equal("equipment");
+            })
+        );
     });
 }
