@@ -37,6 +37,25 @@ export function BasicModifierHandler(inputPath: string, groupId?: string) {
         }
     };
 }
+export function EmphasisAwareBasicHandler(inputPath: string, groupId?: string) {
+    return class extends BarebonesModifierHandler(
+        { topLevelPath: inputPath, optionalAttributes: ["emphasis"] },
+        groupId
+    ) {
+        buildModifier(modifier: ScalarModifier): IModifier[] {
+            const preprocessed = super.buildModifier(modifier);
+            return preprocessed.map((mod) => {
+                return Modifier.create(
+                    mod.groupId,
+                    mod.value,
+                    { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
+                    !!mod.attributes.emphasis,
+                    this.actorProvider
+                );
+            });
+        }
+    };
+}
 export function InverseModifierHandler(inputPath: string, groupId?: Lowercase<string>) {
     return class extends BarebonesModifierHandler({ topLevelPath: inputPath }, groupId) {
         buildModifier(modifier: ScalarModifier): IModifier[] {
