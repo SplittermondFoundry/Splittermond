@@ -9,6 +9,7 @@ import SplittermondItemSheet from "module/item/sheets/item-sheet";
 import { serialize as serializeScalar } from "module/modifiers/expressions/scalar/serialization";
 
 declare const Item: any;
+declare const game: { time: { worldTime: number; advance(delta: number): Promise<unknown> } };
 
 async function enterInSheet(sheet: SplittermondActiveEffectConfig, inputName: string, value: string) {
     await sheet.render(true);
@@ -362,6 +363,68 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     expect(await evaluate(modifiers[0].value)).to.equal(3);
                     expect(modifiers[0].isBonus).to.be.true;
                 })
+            );
+        });
+
+        describe("Real-time duration expiry via worldTime advance", () => {
+            it(
+                "should mark a timed seconds-duration effect expired when worldTime advances past it",
+                withActiveEffect(
+                    {
+                        name: "Timed Seconds",
+                        type: "modifier",
+                        flags: { splittermond: { durationMode: "timed" } },
+                        duration: { value: 60, units: "seconds" },
+                        system: { modifiers: [], costModifiers: [] },
+                    },
+                    async (effect) => {
+                        const baseline = game.time.worldTime;
+                        const restored = effect as SplittermondActiveEffect;
+                        expect(restored.start?.time, "start.time must be set").to.be.a("number");
+                        expect(restored.duration.expired, "freshly created").to.be.false;
+
+                        try {
+                            await game.time.advance(120);
+                            await passesEventually(
+                                () => expect(restored.duration.expired, "after +120s").to.be.true,
+                                1500,
+                                50
+                            );
+                        } finally {
+                            await game.time.advance(baseline - game.time.worldTime);
+                        }
+                    }
+                )
+            );
+
+            it(
+                "should mark a timed hours-duration effect expired when worldTime advances past it",
+                withActiveEffect(
+                    {
+                        name: "Timed Hours",
+                        type: "modifier",
+                        flags: { splittermond: { durationMode: "timed" } },
+                        duration: { value: 2, units: "hours" },
+                        system: { modifiers: [], costModifiers: [] },
+                    },
+                    async (effect) => {
+                        const baseline = game.time.worldTime;
+                        const restored = effect as SplittermondActiveEffect;
+                        expect(restored.start?.time, "start.time must be set").to.be.a("number");
+                        expect(restored.duration.expired, "freshly created").to.be.false;
+
+                        try {
+                            await game.time.advance(3 * 3600 + 10);
+                            await passesEventually(
+                                () => expect(restored.duration.expired, "after +3h10m").to.be.true,
+                                1500,
+                                50
+                            );
+                        } finally {
+                            await game.time.advance(baseline - game.time.worldTime);
+                        }
+                    }
+                )
             );
         });
 
