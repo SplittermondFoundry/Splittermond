@@ -5,11 +5,14 @@ import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { ModifierType } from "module/modifiers";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
 import { buildCostEffectData, buildScalarEffectData } from "module/activeEffect/effectBuilder";
+import { modifierTypeForItemType, modifierTypeForEffectType } from "module/activeEffect/modifierTypeResolver";
+import { ACTION_EFFECT_TYPES, type EffectType } from "module/activeEffect/dataModel/effectTypes";
+
+const actionEffectTypes: ReadonlySet<EffectType> = new Set(ACTION_EFFECT_TYPES);
 
 import { type ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import type { SplittermondActiveEffect } from "module/activeEffect/SplittermondActiveEffect";
 import type { DurationMode } from "module/activeEffect/SplittermondActiveEffect";
-import type { ItemType } from "module/config/itemTypes";
 import { type DurationUnit } from "module/config/activeEffect";
 import { splittermond } from "module/config";
 type ActiveEffectDocument = SplittermondActiveEffect;
@@ -286,20 +289,11 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
     }
 
     private getModifierType(): ModifierType | null {
-        if (!this.document.item) return null;
-        switch (this.document.item.type as ItemType) {
-            case "equipment":
-            case "weapon":
-            case "projectile":
-            case "armor":
-            case "shield":
-                return "equipment";
-            case "spell":
-            case "spelleffect":
-                return "magic";
-            default:
-                return "innate";
+        const item = this.document.item;
+        if (item) {
+            return modifierTypeForItemType(item.type);
         }
+        return modifierTypeForEffectType(this.document.type);
     }
 
     #buildModifierSource(name: string): IModifierSource {
@@ -337,6 +331,6 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
     }
 
     #isModifierType(effectType: string): boolean {
-        return effectType === "modifier";
+        return actionEffectTypes.has(effectType as EffectType);
     }
 }
