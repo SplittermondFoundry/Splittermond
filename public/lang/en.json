@@ -184,7 +184,8 @@
                 "expired": "expired",
                 "channelled": "channelled",
                 "timed": "timed",
-                "timeRemaining": "{n} remaining"
+                "timeRemaining": "{n} remaining",
+                "generatedFromItemProperty": "generated from item property"
             },
             "edit": "Edit Effect"
         }
