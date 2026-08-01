@@ -1,0 +1,136 @@
+name: Pre-Release new Splittermond version
+permissions:
+    contents: write
+    packages: write
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "Version (without v prefix, e.g. 14.2.7-beta.1)"
+                required: true
+
+env:
+    outputName: splittermond-${{github.event.inputs.version}}
+    outputFile: splittermond-${{github.event.inputs.version}}.zip
+    prefixedVersion: v${{github.event.inputs.version}}
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v7
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: "24"
+                  cache: npm
+                  cache-dependency-path: package-lock.json
+            - name: Set new version in system.json
+              run: node ./.github/scripts/index.cjs
+              env:
+                  fileToUpdate: "./public/system.json"
+                  version: ${{github.event.inputs.version}}
+            - name: Set new version in package.json
+              run: node ./.github/scripts/index.cjs
+              env:
+                  fileToUpdate: "./package.json"
+                  version: ${{github.event.inputs.version}}
+            - name: Set new paths in system.json
+              run: node ./.github/scripts/replace_links.cjs
+              env:
+                  fileToUpdate: "./public/system.json"
+                  newManifest: https://github.com/SplittermondFoundry/splittermond/releases/download/${{env.prefixedVersion}}/system.json
+                  newDownload: https://github.com/SplittermondFoundry/Splittermond/releases/download/${{env.prefixedVersion}}/${{env.outputFile}}
+            - name: Install dependencies
+              run: npm install
+            - name: Lint
+              run: npm run format
+            - name: Build
+              run: npm run build
+            - name: Upload dist artifact
+              uses: actions/upload-artifact@v7
+              with:
+                  name: dist
+                  path: dist/
+            - name: Upload versioned sources
+              uses: actions/upload-artifact@v7
+              with:
+                  name: versioned-sources
+                  path: |
+                      public/system.json
+                      package.json
+                      package-lock.json
+
+    version-bump:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v7
+              with:
+                  fetch-depth: 0
+            - name: Download versioned sources
+              uses: actions/download-artifact@v8
+              with:
+                  name: versioned-sources
+            - name: Push to main
+              run: |
+                  git config user.name github-actions[bot]
+                  git config user.email github-actions[bot]@github.com
+                  git add public/system.json package.json package-lock.json
+                  git commit -m "Update version to ${{github.event.inputs.version}}"
+                  git tag ${{env.prefixedVersion}}
+                  git push
+                  git push --tags
+
+    release-github:
+        needs: [build, version-bump]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v7
+            - name: Download dist artifact
+              uses: actions/download-artifact@v8
+              with:
+                  name: dist
+                  path: dist/
+            - name: Create Zip for foundry
+              run: |
+                  cd dist/ && zip -r ../${{env.outputFile}} ./*; cd -
+                  zip -r ${{env.outputFile}} README.md FoundryModule1.png screenshots
+            - name: Upload release assets
+              uses: softprops/action-gh-release@v3.0.2
+              with:
+                  generate_release_notes: true
+                  draft: false
+                  prerelease: true
+                  tag_name: ${{env.prefixedVersion}}
+                  files: |
+                      ${{env.outputFile}}
+                      dist/system.json
+
+    release-npm:
+        needs: [build, version-bump]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v7
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: "24"
+            - name: Download dist artifact
+              uses: actions/download-artifact@v8
+              with:
+                  name: dist
+                  path: dist/
+            - name: Release package to github
+              run: |
+                  npm set "//npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}}"
+                  TAG=$(node -e "console.log(require('./package.json').version.includes('-') ? require('./package.json').version.split('-')[1] : 'latest')")
+                  npm publish --tag ${TAG}
+                  npm set "//npm.pkg.github.com/:_authToken=garbage"
+              env:
+                  NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
