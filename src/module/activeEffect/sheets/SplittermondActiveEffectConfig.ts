@@ -10,12 +10,8 @@ import { type ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/S
 import type { SplittermondActiveEffect } from "module/activeEffect/SplittermondActiveEffect";
 import type { DurationMode } from "module/activeEffect/SplittermondActiveEffect";
 import type { ItemType } from "module/config/itemTypes";
-import {
-    type DurationUnit,
-} from "module/config/activeEffect";
-import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
-import {splittermond} from "module/config";
-import type SplittermondCombat from "module/combat/combat";
+import { type DurationUnit } from "module/config/activeEffect";
+import { splittermond } from "module/config";
 type ActiveEffectDocument = SplittermondActiveEffect;
 
 const DURATION_MODE_PATH = "flags.splittermond.durationMode" as const;
@@ -48,34 +44,49 @@ function prepareDurationContext(
 
     context.isExpired = durationMode === "timed" && document.duration.expired;
 
-    const combatState = resolveCombatState(document);
-    context.inActiveCombat = combatState.inActiveCombat;
-    context.startTick = combatState.startTick;
-    context.remainingLabel = combatState.remainingLabel;
+    const durationStatus = resolveDurationStatus(document);
+    context.isCombatTime = durationStatus.isCombatTime;
+    context.durationStart = durationStatus.startLabel;
+    context.durationRemaining = durationStatus.remainingLabel;
+    context.durationTimeTypeKey = durationStatus.timeTypeKey;
     return context;
 }
 
-function resolveCombatState(document: ActiveEffectDocument): {
-    inActiveCombat: boolean;
-    startTick: number | null;
+function resolveDurationStatus(document: ActiveEffectDocument): {
+    isCombatTime: boolean;
+    startLabel: string | null;
     remainingLabel: string | null;
+    timeTypeKey: string;
 } {
-    const startRound = document.start.round;
-    if (document.durationMode !== "timed" || typeof startRound !== "number" || !Number.isFinite(startRound)) {
-        return { inActiveCombat: false, startTick: null, remainingLabel: null };
+    if (document.durationMode !== "timed") {
+        return {
+            isCombatTime: false,
+            startLabel: null,
+            remainingLabel: null,
+            timeTypeKey: "splittermond.activeEffect.duration.timeTypeNone",
+        };
     }
 
-    const actor = resolveHostActor(document);
-    const combat = actor ? (foundryApi.getCombatForActor(actor) as SplittermondCombat | null) : null;
-    const currentTick = combat?.currentTick;
-    if (combat == null || currentTick == null || !Number.isFinite(currentTick)) {
-        return { inActiveCombat: false, startTick: null, remainingLabel: null };
+    const isCombatTime = document.duration.units === "rounds" || document.duration.units === "turns";
+
+    if (isCombatTime) {
+        const startRound = document.start.round;
+        const startLabel = typeof startRound === "number" && Number.isFinite(startRound) ? String(startRound) : null;
+        return {
+            isCombatTime: true,
+            startLabel,
+            remainingLabel: document.duration.label || null,
+            timeTypeKey: "splittermond.activeEffect.duration.timeTypeCombat",
+        };
     }
 
+    const startTime = document.start.time;
+    const startLabel = typeof startTime === "number" && Number.isFinite(startTime) ? String(startTime) : null;
     return {
-        inActiveCombat: true,
-        startTick: startRound,
+        isCombatTime: false,
+        startLabel,
         remainingLabel: document.duration.label || null,
+        timeTypeKey: "splittermond.activeEffect.duration.timeTypeWorld",
     };
 }
 
