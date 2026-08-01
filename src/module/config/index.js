@@ -12,6 +12,7 @@ import { attributes, derivedAttributes } from "./attributes";
 import { itemFeatures } from "./itemFeatures";
 import { droppableCharacterItemTypes, droppableNpcItemTypes, itemTypes } from "./itemTypes";
 import { time } from "module/config/timeUnits";
+import { activeEffect } from "module/config/activeEffect.ts";
 import { splinterpoints } from "module/config/splinterpoints.js";
 import { splittermondAttackEnhancements } from "module/config/SplittermondAttackEnhancements.js";
 
@@ -1172,6 +1173,7 @@ splittermond.itemTypes = {
     },
 };
 splittermond.time = time;
+splittermond.activeEffect = activeEffect;
 splittermond.grazingHitBasePenalty = 2;
 
 splittermond.settings = {

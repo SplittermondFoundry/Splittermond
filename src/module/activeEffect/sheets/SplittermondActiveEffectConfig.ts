@@ -5,10 +5,17 @@ import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { ModifierType } from "module/modifiers";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
 import { buildCostEffectData, buildScalarEffectData } from "module/activeEffect/effectBuilder";
-import { type ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
-import type { SplittermondActiveEffect, DurationMode } from "module/activeEffect/SplittermondActiveEffect";
-import type { ItemType } from "module/config/itemTypes";
 
+import { type ApplicationRenderContext, TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
+import type { SplittermondActiveEffect } from "module/activeEffect/SplittermondActiveEffect";
+import type { DurationMode } from "module/activeEffect/SplittermondActiveEffect";
+import type { ItemType } from "module/config/itemTypes";
+import {
+    type DurationUnit,
+} from "module/config/activeEffect";
+import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
+import {splittermond} from "module/config";
+import type SplittermondCombat from "module/combat/combat";
 type ActiveEffectDocument = SplittermondActiveEffect;
 
 const DURATION_MODE_PATH = "flags.splittermond.durationMode" as const;
@@ -17,22 +24,12 @@ const DURATION_UNITS_PATH = "duration.units" as const;
 const DURATION_EXPIRY_PATH = "duration.expiry" as const;
 const TICK_EXPIRY = "roundEnd" as const;
 
-const DURATION_MODE_CHOICES = {
+export const DURATION_MODE_CHOICES = {
     timed: "splittermond.activeEffect.duration.timed",
     channelled: "splittermond.activeEffect.duration.channelled",
     permanent: "splittermond.activeEffect.duration.permanent",
-} as const;
-
-const DURATION_UNIT_CHOICES = {
-    rounds: "splittermond.activeEffect.duration.unitTicks",
-    minutes: "splittermond.activeEffect.duration.unitMinutes",
-    hours: "splittermond.activeEffect.duration.unitHours",
-    days: "splittermond.activeEffect.duration.unitDays",
-    weeks: "splittermond.activeEffect.duration.unitWeeks",
-    months: "splittermond.activeEffect.duration.unitMonths",
-} as const;
-
-type DurationUnit = keyof typeof DURATION_UNIT_CHOICES;
+} as const satisfies Record<DurationMode, string>;
+const DURATION_UNIT_CHOICES = splittermond.activeEffect.duration.unitChoices;
 
 function prepareDurationContext(
     context: ApplicationRenderContext,
@@ -48,8 +45,38 @@ function prepareDurationContext(
     context.durationUnits = durationUnits;
     context.durationValue = readTimedDurationValue(duration.value);
     context.durationExpiry = durationUnits === "rounds" ? TICK_EXPIRY : "";
-    context.startTick = document.start.round;
+
+    context.isExpired = durationMode === "timed" && document.duration.expired;
+
+    const combatState = resolveCombatState(document);
+    context.inActiveCombat = combatState.inActiveCombat;
+    context.startTick = combatState.startTick;
+    context.remainingLabel = combatState.remainingLabel;
     return context;
+}
+
+function resolveCombatState(document: ActiveEffectDocument): {
+    inActiveCombat: boolean;
+    startTick: number | null;
+    remainingLabel: string | null;
+} {
+    const startRound = document.start.round;
+    if (document.durationMode !== "timed" || typeof startRound !== "number" || !Number.isFinite(startRound)) {
+        return { inActiveCombat: false, startTick: null, remainingLabel: null };
+    }
+
+    const actor = resolveHostActor(document);
+    const combat = actor ? (foundryApi.getCombatForActor(actor) as SplittermondCombat | null) : null;
+    const currentTick = combat?.currentTick;
+    if (combat == null || currentTick == null || !Number.isFinite(currentTick)) {
+        return { inActiveCombat: false, startTick: null, remainingLabel: null };
+    }
+
+    return {
+        inActiveCombat: true,
+        startTick: startRound,
+        remainingLabel: document.duration.label || null,
+    };
 }
 
 function processDurationFormData(submitData: Record<string, unknown>): void {
