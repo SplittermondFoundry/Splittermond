@@ -4,7 +4,7 @@ import { addModifier } from "module/actor/addModifierAdapter";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { ModifierType } from "module/modifiers";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
-import { buildCostEffectData, buildScalarEffectData } from "module/activeEffect/effectBuilder";
+import { buildCostEffectData, buildScalarEffectData, isGenerated } from "module/activeEffect/effectBuilder";
 import { modifierTypeForItemType, modifierTypeForEffectType } from "module/activeEffect/modifierTypeResolver";
 import { ACTION_EFFECT_TYPES, type EffectType } from "module/activeEffect/dataModel/effectTypes";
 
@@ -213,6 +213,10 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
     }
 
     protected async _onSubmitForm(formConfig: ApplicationFormConfiguration, event: Event | SubmitEvent): Promise<void> {
+        if (isGenerated(this.document)) {
+            event.preventDefault();
+            return;
+        }
         const warningKey = this.#getTypeMismatchWarningKey(event.currentTarget);
         if (warningKey) {
             event.preventDefault();
@@ -228,6 +232,9 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
         options?: object
     ): Promise<ApplicationRenderContext> {
         const partContext = await super._preparePartContext(partId, context, options ?? {});
+        if (isGenerated(this.document)) {
+            partContext.editable = false;
+        }
         if (partId === "duration") return prepareDurationContext(partContext, this.document);
         if (partId !== "changes") return partContext;
         return this.#prepareEffectsContext(partContext);

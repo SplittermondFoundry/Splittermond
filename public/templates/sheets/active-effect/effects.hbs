@@ -3,7 +3,7 @@
         {{#if (eq effectsType "modifier")}}
             <div class="form-group">
                 <label>{{localize "splittermond.activeEffect.effects.rawInput"}}</label>
-                <input type="text" name="splittermondRawInput" value="{{rawInput}}" />
+                <input type="text" name="splittermondRawInput" value="{{rawInput}}" {{#unless editable}}disabled{{/unless}} />
             </div>
             <div class="help-text">{{{modifierHelpText}}}</div>
         {{else}}

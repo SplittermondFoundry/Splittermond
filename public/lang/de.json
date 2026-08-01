@@ -194,7 +194,8 @@
                 "expired": "abgelaufen",
                 "channelled": "kanalisiert",
                 "timed": "zeitlich begrenzt",
-                "timeRemaining": "noch {n}"
+                "timeRemaining": "noch {n}",
+                "generatedFromItemProperty": "aus Gegenstandseigenschaft generiert"
             }
         },
         "furtherActions": "Weitere Aktionen",
