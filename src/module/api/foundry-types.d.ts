@@ -349,6 +349,8 @@ declare namespace foundry {
 
                 options: Readonly<CONFIGURATION>;
 
+                position: foundry.applications.types.ApplicationPosition;
+
                 get classList(): DOMTokenList;
 
                 get element(): HTMLElement;
@@ -361,12 +363,20 @@ declare namespace foundry {
 
                 render(options?: boolean | ApplicationRenderOptions): Promise<this>;
 
+                setPosition(
+                    position?: Partial<foundry.applications.types.ApplicationPosition>
+                ): void | foundry.applications.types.ApplicationPosition;
+
                 submit(submitOptions?: object): Promise<any>;
 
                 addEventListener(type: string, listener: (event: Event) => void): void;
 
                 close(): void;
                 _preClose(options: ApplicationRenderOptions): Promise<void>;
+
+                protected _onPosition(position: foundry.applications.types.ApplicationPosition): void;
+
+                protected _prePosition(position: foundry.applications.types.ApplicationPosition): void;
 
                 protected _onRender(context: ApplicationRenderContext, options: RENDER_OPTIONS): Promise<void>;
 
