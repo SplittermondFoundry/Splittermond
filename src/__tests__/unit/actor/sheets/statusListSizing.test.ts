@@ -1,7 +1,12 @@
-import {expect} from "chai";
-import {describe, it} from "mocha";
-import {JSDOM} from "jsdom";
-import {applyStatusListSizing, BASE_CAPACITY, BASELINE_HEIGHT, ROW_HEIGHT,} from "module/actor/sheets/statusListSizing";
+import { expect } from "chai";
+import { describe, it } from "mocha";
+import { JSDOM } from "jsdom";
+import {
+    applyStatusListSizing,
+    BASE_CAPACITY,
+    BASELINE_HEIGHT,
+    ROW_HEIGHT,
+} from "module/actor/sheets/statusListSizing";
 
 function getCapacity(dom: JSDOM, listSelector: string): string {
     return (

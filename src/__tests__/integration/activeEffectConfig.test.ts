@@ -7,6 +7,7 @@ import { passesEventually } from "../util";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import SplittermondItemSheet from "module/item/sheets/item-sheet";
 import { serialize as serializeScalar } from "module/modifiers/expressions/scalar/serialization";
+import { splittermond } from "module/config";
 
 declare const Item: any;
 declare const game: { time: { worldTime: number; advance(delta: number): Promise<unknown> } };
@@ -74,7 +75,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 async (effect) => {
                     const sheet = effect.sheet as SplittermondActiveEffectConfig;
                     await enterInSheet(sheet, "splittermondRawInput", "skills skill=acrobatics +2");
-                    sheet.close()
+                    sheet.close();
 
                     await passesEventually(
                         () => {
@@ -185,6 +186,58 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         "input[name='splittermondRawInput']"
                     ) as HTMLInputElement | null;
                     expect(input?.value).to.equal("skills +2");
+                }
+            )
+        );
+    });
+
+    describe("SplittermondActiveEffectConfig — skill group modifiers", () => {
+        it(
+            "should persist a grouped skill fragment as one effect with N entries",
+            withActiveEffect(
+                {
+                    name: "Group",
+                    type: "modifier",
+                    system: { modifiers: [], costModifiers: [] },
+                },
+                async (effect) => {
+                    const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                    await enterInSheet(sheet, "splittermondRawInput", "skills.general +2");
+
+                    try {
+                        await passesEventually(
+                            () => {
+                                expect(effect.system.modifiers).to.have.length(splittermond.skillGroups.general.length);
+                                expect(effect.getFlag("splittermond", "rawInput")).to.equal("skills.general +2");
+                            },
+                            1500,
+                            100
+                        );
+                    } finally {
+                        await effect.sheet?.close();
+                    }
+                }
+            )
+        );
+
+        it(
+            "should reject a two-fragment input with the singleModifierOnly warning",
+            withActiveEffect(
+                {
+                    name: "Two",
+                    type: "modifier",
+                    system: { modifiers: [], costModifiers: [] },
+                },
+                async (effect) => {
+                    const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                    await enterInSheet(sheet, "splittermondRawInput", "skills.general +2, VTD +1");
+
+                    try {
+                        await new Promise((resolve) => setTimeout(resolve, 300));
+                        expect(effect.system.modifiers).to.have.length(0);
+                    } finally {
+                        await effect.sheet?.close();
+                    }
                 }
             )
         );
@@ -721,7 +774,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
-                effect.sheet.close();//get rid of annoying open sheet that somehow spawns
+                effect.sheet.close(); //get rid of annoying open sheet that somehow spawns
 
                 const restored = actor.effects.get(effect.id);
                 expect(restored!.system.modifiers[0].attributes.type).to.equal("magic");
@@ -741,7 +794,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
-                effect.sheet.close();//get rid of annoying open sheet that somehow spawns
+                effect.sheet.close(); //get rid of annoying open sheet that somehow spawns
 
                 const restored = actor.effects.get(effect.id);
                 expect(restored!.system.modifiers[0].attributes.type).to.equal("innate");
