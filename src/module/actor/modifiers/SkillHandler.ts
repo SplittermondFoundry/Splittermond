@@ -20,6 +20,9 @@ const commonConfig = {
         fighting: {
             optionalAttributes: ["emphasis"],
         },
+        social: {
+            optionalAttributes: ["emphasis"],
+        },
     },
 } as const;
 class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
@@ -33,13 +36,12 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
     }
     protected buildModifier(modifier: ScalarModifier): IModifier[] {
         const groupId = modifier.path.startsWith("actor") ? modifier.path : `actor.${modifier.path}`;
-        switch (groupId) {
-            case "actor.skills.general":
-                return this.unwrapModifiers(splittermond.skillGroups.general, modifier);
-            case "actor.skills.magic":
-                return this.unwrapModifiers(splittermond.skillGroups.magic, modifier);
-            case "actor.skills.fighting":
-                return this.unwrapModifiers(splittermond.skillGroups.fighting, modifier);
+        const terminal = groupId.split(".").pop()!;
+        if (terminal in splittermond.skillGroups) {
+            return this.unwrapModifiers(
+                splittermond.skillGroups[terminal as keyof typeof splittermond.skillGroups],
+                modifier
+            );
         }
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
         normalizedAttributes.name = normalizedAttributes.emphasis ?? normalizedAttributes.name;
