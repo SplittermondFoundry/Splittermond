@@ -74,6 +74,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 async (effect) => {
                     const sheet = effect.sheet as SplittermondActiveEffectConfig;
                     await enterInSheet(sheet, "splittermondRawInput", "skills skill=acrobatics +2");
+                    sheet.close()
 
                     await passesEventually(
                         () => {
@@ -98,6 +99,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 async (effect) => {
                     const sheet = effect.sheet as SplittermondActiveEffectConfig;
                     await enterInSheet(sheet, "splittermondRawInput", "skills skill=acrobatics +2");
+                    sheet.close();
 
                     await passesEventually(
                         () => {
@@ -162,6 +164,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         "input[name='splittermondRawInput']"
                     ) as HTMLInputElement | null;
                     expect(input?.value).to.equal("");
+                    sheet.close();
                 }
             )
         );
@@ -718,6 +721,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
+                effect.sheet.close();//get rid of annoying open sheet that somehow spawns
 
                 const restored = actor.effects.get(effect.id);
                 expect(restored!.system.modifiers[0].attributes.type).to.equal("magic");
@@ -737,6 +741,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
+                effect.sheet.close();//get rid of annoying open sheet that somehow spawns
 
                 const restored = actor.effects.get(effect.id);
                 expect(restored!.system.modifiers[0].attributes.type).to.equal("innate");

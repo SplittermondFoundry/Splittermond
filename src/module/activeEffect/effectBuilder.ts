@@ -1,11 +1,12 @@
-import type { ModifierType } from "module/modifiers";
-import type { ICostModifier } from "module/util/costs/spellCostManagement";
+import type {ModifierType} from "module/modifiers";
+import type {ICostModifier} from "module/util/costs/spellCostManagement";
 import type SplittermondItem from "module/item/item";
-import type { IModifierSource } from "module/modifiers/IModifierSource";
-import type { AddModifierResult, TaggedModifier } from "module/modifiers/modifierAddition";
-import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
-import { serialize } from "module/modifiers/expressions/scalar/serialization";
-import { CostModifierDataModel } from "./dataModel/CostModifierDataModel";
+import type {IModifierSource} from "module/modifiers/IModifierSource";
+import type {AddModifierResult, TaggedModifier} from "module/modifiers/modifierAddition";
+import type {EffectType} from "module/activeEffect/dataModel/effectTypes";
+import {serialize} from "module/modifiers/expressions/scalar/serialization";
+import {CostModifierDataModel} from "./dataModel/CostModifierDataModel";
+import type {SplittermondActiveEffect} from "module/activeEffect/SplittermondActiveEffect";
 
 type AddModifierFn = (item: IModifierSource, str: string, type: ModifierType) => AddModifierResult;
 
@@ -86,8 +87,8 @@ export async function addModifierEffects(
     addModifier: AddModifierFn,
     item: IModifierSource,
     modifierString: string,
-    modifierType: ModifierType = "magic" as ModifierType
-): Promise<void> {
+    modifierType: ModifierType = "innate"
+): Promise<SplittermondActiveEffect[]|void> {
     if (!modifierString.trim()) return;
 
     const { modifiers, costModifiers } = addModifier(item, modifierString, modifierType);
@@ -98,8 +99,8 @@ export async function addModifierEffects(
     ];
 
     if (effectDataArray.length > 0) {
-        await (
-            item as unknown as { createEmbeddedDocuments(t: string, d: object[]): Promise<unknown> }
+        return (
+            item as unknown as { createEmbeddedDocuments(t: string, d: object[]): Promise<SplittermondActiveEffect[]> }
         ).createEmbeddedDocuments("ActiveEffect", effectDataArray);
     }
 }
