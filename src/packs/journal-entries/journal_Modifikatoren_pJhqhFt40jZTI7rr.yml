@@ -228,7 +228,7 @@ pages:
       image: {}
       text:
           format: 1
-          content: "<p>Es gibt zwei grundlegende Startpunkte für Fertigkeitsmodifikatoren. <em>skills </em>und <code>&lt;attributeId&gt;</code>\_wobei letzere eine vereinfachte Syntax aufweisen, und nur <em>emphasis </em>und <em>value</em> als Attribute erlauben.</p><p></p><p>Für <em>skills</em>, respektive <em>actor.skills</em> gibt es folgende Ausprägungen</p><p></p><p></p><table><caption><strong>Fertigkeitsmodifikatorentabelle</strong></caption><thead><tr style=\"height:16px\"><td style=\"width:42%;height:16px\">Ausprägung</td><td style=\"width:57.1282%;height:16px\">Bemerkung</td></tr></thead><tbody><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert alle <em>Fertigkeiten.</em></td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills.general</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert alle <em>allgemeinen Fertigkeiten. </em>Akzeptiert nur \"Schwerpunt\" als Modifikatorattribut</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills.fighting</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert alle <em>Kampffertigkeiten</em>. Akzeptiert nur \"Schwerpunt\" als Modifikatorattribut</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills.magic</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert alle <em>Magieertigkeiten</em>. Akzeptiert nur \"Schwerpunt\" als Modifikatorattribut</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills attribute1=\"strength\"</code></strong></td><td style=\"width:57.1282%;height:16px\">Modfiziert alle <em>Fertigkeiten</em>, die \"Stärke\" als einen Grundwert haben. Alle Grundwerte sind verwendbar.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills Attribut1=\"Stärke\"</code></strong></td><td style=\"width:57.1282%;height:16px\">wie oben.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills Attribut2=\"Stärke\"</code></strong></td><td style=\"width:57.1282%;height:16px\">wie oben.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills skill=\"Empathie\"</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert die Fertigkeit <em>Empathie. </em>Alle Fertigkeiten sind verwendbar</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills Fertigkeit=\"Empathie\"</code></strong></td><td style=\"width:57.1282%;height:16px\">wie oben.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills emphasis=\"Kletteraffe\"</code></strong></td><td style=\"width:57.1282%;height:16px\">Erlaubt das Auswählen des Modifikators im Probendialog. Als Modifikatorenname wird \"Kletteraffe\" angezeigt.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills Schwerpunkt=\"Kletteraffe\"</code></strong></td><td style=\"width:57.1282%;height:16px\">wie oben.</td></tr></tbody></table><p></p>"
+          content: "<p>Es gibt zwei grundlegende Startpunkte für Fertigkeitsmodifikatoren. <em>skills </em>und <code>&lt;attributeId&gt;</code>\_wobei letzere eine vereinfachte Syntax aufweisen, und nur <em>emphasis </em>und <em>value</em> als Attribute erlauben.</p><p></p><p>Für <em>skills</em>, respektive <em>actor.skills</em> gibt es folgende Ausprägungen</p><p></p><p></p><table><caption><strong>Fertigkeitsmodifikatorentabelle</strong></caption><thead><tr style=\"height:16px\"><td style=\"width:42%;height:16px\">Ausprägung</td><td style=\"width:57.1282%;height:16px\">Bemerkung</td></tr></thead><tbody><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert alle <em>Fertigkeiten.</em></td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills.general</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert alle <em>allgemeinen Fertigkeiten. </em>Akzeptiert nur \"Schwerpunt\" als Modifikatorattribut</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills.fighting</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert alle <em>Kampffertigkeiten</em>. Akzeptiert nur \"Schwerpunt\" als Modifikatorattribut</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills.magic</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert alle <em>Magieertigkeiten</em>. Akzeptiert nur \"Schwerpunt\" als Modifikatorattribut</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills.social</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert alle <em>sozialen Fertigkeiten</em>. Akzeptiert nur \"Schwerpunkt\" als Modifikatorattribut</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills attribute1=\"strength\"</code></strong></td><td style=\"width:57.1282%;height:16px\">Modfiziert alle <em>Fertigkeiten</em>, die \"Stärke\" als einen Grundwert haben. Alle Grundwerte sind verwendbar.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills Attribut1=\"Stärke\"</code></strong></td><td style=\"width:57.1282%;height:16px\">wie oben.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills Attribut2=\"Stärke\"</code></strong></td><td style=\"width:57.1282%;height:16px\">wie oben.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills skill=\"Empathie\"</code></strong></td><td style=\"width:57.1282%;height:16px\">Modifiziert die Fertigkeit <em>Empathie. </em>Alle Fertigkeiten sind verwendbar</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills Fertigkeit=\"Empathie\"</code></strong></td><td style=\"width:57.1282%;height:16px\">wie oben.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills emphasis=\"Kletteraffe\"</code></strong></td><td style=\"width:57.1282%;height:16px\">Erlaubt das Auswählen des Modifikators im Probendialog. Als Modifikatorenname wird \"Kletteraffe\" angezeigt.</td></tr><tr style=\"height:16px\"><td style=\"width:42%;height:16px\"><strong><code>skills Schwerpunkt=\"Kletteraffe\"</code></strong></td><td style=\"width:57.1282%;height:16px\">wie oben.</td></tr></tbody></table><p></p>"
       video:
           controls: true
           volume: 0.5
@@ -424,6 +424,106 @@ pages:
           modifiedTime: 1763817458270
           lastModifiedBy: XEyWQoNP8LHDdOvz
       _key: "!journal.pages!pJhqhFt40jZTI7rr.cHk8Rqf3vZyL2pWb"
+    - sort: 90000
+      name: Aktive Effekte
+      type: text
+      _id: AeFf3cT9kLn2Mq4v
+      system: {}
+      title:
+          show: true
+          level: 2
+      image: {}
+      text:
+          format: 1
+          content: >-
+              <p>Aktive Effekte sind das Bindeglied zwischen Modifikatoren und
+              den Dokumenten (Akteur, Gegenstand), auf die sie wirken sollen. Ein
+              Aktiver Effekt speichert einen oder mehrere Modifikatoren und
+              wendet diese auf seinen Träger an, solange er aktiviert
+              ist.</p><h2>Erzeugung</h2><p>Aktive Effekte werden vorläufig noch
+              automatisch erzeugt: Wird ein Gegenstand oder Zustand mit einem
+              Modifikatorfeld (z.B. <code>system.modifier</code>) gespeichert,
+              parst das System den eingetragenen Modifikatorstring und legt
+              einen entsprechenden Aktiven Effekt an. Dieser ist am Flag
+              <code>autoGenerated</code> erkennbar und wird bei jeder Änderung
+              des Modifikatorfeldes neu erzeugt. Effekte können aber auch manuell
+              über den Effekt-Tab eines Dokuments hinzugefügt
+              werden.</p><h2>Typen</h2><p>Ein Aktiver Effekt hat einen von
+              mehreren Typen, der bestimmt, wie seine Modifikatoren ausgewertet
+              werden:</p><table><thead><tr><td
+              style="width:25%">Typ</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p><strong><code>modifier</code></strong></p></td><td><p>Der
+              Standardtyp. Enthält skalare Modifikatoren und/oder
+              Kostenmodifikatoren, die über einen Modifikatorstring angelegt
+              wurden.</p></td></tr><tr><td><p><strong><code>spellEffect</code></strong></p></td><td><p>Eine
+              Zauberwirkung. Wird bei der Anlage eines Zaubers erzeugt und
+              beschränkt die Wirkung auf Magieeffekte. (noch nicht implementiert)</p></td></tr><tr><td><p><strong><code>spellEnhancedEffect</code></strong></p></td><td><p>Eine
+              verstärkte Zauberwirkung, z.B. durch Verzauberung oder
+              Meisterschaften. (noch nicht implementiert) </p></td></tr><tr><td><p><strong><code>attackEffect</code></strong></p></td><td><p>Eine
+              Angriffswirkung, die einem Angriff zugeordnet
+              ist. (noch nicht implementiert)</p></td></tr></tbody></table><h2>Modifikatortyp</h2><p>Jeder
+              Aktive Effekt trägt zusätzlich einen <em>Modifikatortyp</em>,
+              der die Herkunft seiner Modifikatoren klassifiziert. Dieser Typ
+              wird aus dem Quell-Dokument abgeleitet und bestimmt, ob die
+              Wirkung z.B. als Ausrüstung oder Magie behandelt
+              wird:</p><table><thead><tr><td
+              style="width:25%">Modifikatortyp</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p><strong><code>equipment</code></strong></p></td><td><p>Stammt
+              von Ausrüstungsgegenständen (Waffen, Rüstungen, Schilde,
+              Ausrüstung).</p></td></tr><tr><td><p><strong><code>magic</code></strong></p></td><td><p>Stammt
+              von Zaubern und Zaubereffekten.</p></td></tr><tr><td><p><strong><code>innate</code></strong></p></td><td><p>Angeboren;
+              wird verwendet, wenn keine andere Quelle passt (z.B. bei Stärken
+              oder direkten Effekten auf einem
+              Akteur).</p></td></tr></tbody></table><h2>Dauer</h2><p>Die Dauer
+              eines Aktiven Effekts wird über den <em>Dauer-Typ</em>
+              (<code>flags.splittermond.durationMode</code>) bestimmt:</p><table><thead><tr><td
+              style="width:25%">Dauer-Typ</td><td>Beschreibung</td></tr></thead><tbody><tr><td><p><strong><code>permanent</code></strong></p></td><td><p>Der
+              Effekt gilt dauerhaft, solange sein Quell-Dokument existiert und
+              aktiv ist.</p></td></tr><tr><td><p><strong><code>timed</code></strong></p></td><td><p>Der
+              Effekt ist zeitlich begrenzt. Dauer und Einheit (Ticks, Minuten,
+              Stunden etc.) werden über die Standard-Felder von Foundry
+              gesetzt. Zeitliche Effekte in Ticks werden im Kampf automatisch
+              verwaltet.</p></td></tr><tr><td><p><strong><code>channelled</code></strong></p></td><td><p>Der
+              Effekt ist kanalisiert und an eine aktive Konzentration gebunden.
+              Die Dauer wird wie bei zeitlichen Effekten
+              angezeigt.</p></td></tr></tbody></table><h2>Unterdrückung</h2><p>Ein
+              Aktiver Effekt wird automatisch <em>unterdrückt</em>, wenn sein
+              Quell-Dokument nicht aktiv ist. So werden z.B.
+              Waffenmodifikatoren unterdrückt, sobald die Waffe abgelegt wird,
+              und Zaubereffekte werden unterdrückt, sobald der zugehörige
+              Zaubereffekt-Gegenstand deaktiviert wird. Unterdrückte Effekte
+              liefern ihre Modifikatoren nicht an den Träger, werden aber nicht
+              gelöscht und können wieder aktiv werden, sobald das Quell-Dokument
+              erneut aktiviert wird.</p><h2>Multiplikatoren</h2><p>Bestimmte
+              Quell-Dokumente wenden einen Multiplikator auf die Modifikatoren
+              ihres Aktiven Effekts an. Eine <em>Stärke</em> multipliziert ihre
+              Modifikatoren mit ihrer <code>quantity</code>, ein
+              <em>Zustand</em> mit seiner <code>level</code>-Stufe. Der
+              Multiplikator wird erst beim Auslesen der Modifikatoren
+              angewandt, die gespeicherten Werte bleiben
+              unverändert.</p><div class="box"><h1>Beispiel:</h1><p>Die Stärke
+              <em>Erhöhter Fokuspool</em> legt auf dem Gegenstand den Effekt
+              <strong><code>FO +5</code></strong> an. Wird die Stärke dreifach
+              erworben (<code>quantity = 3</code>), liefert der Effekt
+              tatsächlich <strong><code>FO +15</code></strong>.</p></div>
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      category: null
+      ownership:
+          default: -1
+          XEyWQoNP8LHDdOvz: 3
+      flags: {}
+      _stats:
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+          coreVersion: "13.350"
+          systemId: splittermond
+          systemVersion: 13.9.2
+          createdTime: 1763817458270
+          modifiedTime: 1763817458270
+          lastModifiedBy: XEyWQoNP8LHDdOvz
+      _key: "!journal.pages!pJhqhFt40jZTI7rr.AeFf3cT9kLn2Mq4v"
 _stats:
     coreVersion: "13.342"
     systemId: null
