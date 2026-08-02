@@ -52,13 +52,14 @@ const magicSkills = [
 export const skillGroups = {
     essential: ["acrobatics", "athletics", "determination", "stealth", "perception", "endurance"],
     ranged: ["throwing", "longrange"],
+    social: ["eloquence", "diplomacy", "empathy", "determination", "leadership"],
     fighting: fightingSkills,
     general: generalSkills,
     magic: magicSkills,
     all: [...generalSkills, ...fightingSkills, ...magicSkills],
-} as const;
+} as const satisfies Record<string, readonly SplittermondSkill[]>;
 
-export type SplittermondMagicSkill = (typeof skillGroups)["magic"][number];
-export type SplittermondFightingSkill = (typeof skillGroups)["fighting"][number];
-export type SplittermondGeneralSkill = (typeof skillGroups)["general"][number];
+export type SplittermondMagicSkill = (typeof magicSkills)[number];
+export type SplittermondFightingSkill = (typeof fightingSkills)[number];
+export type SplittermondGeneralSkill = (typeof generalSkills)[number];
 export type SplittermondSkill = SplittermondFightingSkill | SplittermondGeneralSkill | SplittermondMagicSkill;
