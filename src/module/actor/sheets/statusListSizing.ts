@@ -1,8 +1,11 @@
+
 /**
  * Module-level constants matching actor-sheet.js defaults.
  */
 export const BASELINE_HEIGHT = 720;
-export const ROW_HEIGHT = 32;
+export const ROW_HEIGHT = 28;
+export const BASE_CAP = 4;
+
 
 /**
  * Selector for the status tab's status effects list anchors.
@@ -52,7 +55,7 @@ const listBodySelectors: Record<string, string> = {
  * extra rows across the four lists.
  *
  * Distribution algorithm:
- *  - Every list starts at `min(itemCount, 4)` (base cap of 4 rows).
+ *  - Every list starts at `min(itemCount, BASE_CAP)` (base cap of 5 rows).
  *  - Extra rows (computed from sheet height above the BASELINE) are
  *    distributed one at a time, iterating bottom-to-top (activeEffects →
  *    spellEffects → statusEffects → channeledDamage).
@@ -65,7 +68,7 @@ function computeCapacities(counts: Record<string, number>): Record<string, numbe
     const capacities = {} as Record<string, number>;
     for (const key of applyOrder) {
         const count = counts[key] ?? 0;
-        capacities[key] = Math.min(count, 4);
+        capacities[key] = Math.min(count, BASE_CAP);
     }
 
     return capacities;
@@ -116,43 +119,48 @@ function queryItemCounts(sheetElement: HTMLElement): Record<string, number> {
  */
 function applyCapacities(sheetElement: HTMLElement, capacities: Record<string, number>): void {
     for (const key of applyOrder) {
-        const list = sheetElement.querySelector(statusListSelectors[key]) as HTMLElement | null;
+        const list = sheetElement.querySelector(statusListSelectors[key]) as HTMLOListElement| null;
         list?.style.setProperty("--status-list-capacity", String(capacities[key] ?? 0));
+        list?.style.setProperty("--status-list-max-capacity", String(capacities[key] + 1));
     }
 }
 
 /**
- * Read the effective sheet height and clamp it to a minimum baseline.
+ * Calculate the space on the sheet that we have available
  */
-function getEffectiveHeight(sheetHeight: number | "auto"): number {
-    if (typeof sheetHeight !== "number") {
-        return BASELINE_HEIGHT;
-    }
-    return Math.max(sheetHeight, 0);
+function getEffectiveHeight(sheetElement:HTMLElement): number {
+    const statusTab = sheetElement.querySelector("section.tab.status")!;
+    const restActionRow = statusTab.querySelector(".rest-action.row"); //not present on NPC
+    const restActionRowHeight = restActionRow?.getBoundingClientRect().height ?? 0;
+    const tabHeight= statusTab?.getBoundingClientRect().height ;
+    return Math.max(tabHeight - restActionRowHeight, 443.667 - 30.333);//default read tab height - the rest action button height (...that does not exist on NPC=
 }
 
 /**
  * Compute how many extra rows the sheet can display beyond the baseline.
  */
-function computeExtraRows(effectiveHeight: number): number {
-    return Math.max(0, Math.floor((effectiveHeight - BASELINE_HEIGHT) / ROW_HEIGHT));
+function computeExtraRows(effectiveHeight: number,counts:Record<string,number>): number {
+    const totalRowNumber = Math.max(0, Math.floor((effectiveHeight) / ROW_HEIGHT));
+    const headerNumber = Object.keys(counts).length;
+    const minRowNumber = Object.values(counts).reduce((acc,cur)=>acc + Math.min(cur,BASE_CAP),0)
+    return totalRowNumber - minRowNumber - headerNumber;
 }
 
 /**
  * Apply dynamic list sizing to the status tab so that extra vertical space
- * is distributed across the effect/damage lists below the base cap of 4 rows.
+ * is distributed across the effect/damage lists below the base cap of 5 rows.
  *
  * This is a pure DOM operation — it reads item counts from rendered HTML and
  * writes a CSS custom property. It does not trigger a re-render.  Call this
  * from the `_onPosition` hook wired by the actor sheet (see S4).
  */
-export function applyStatusListSizing(sheetElement: HTMLElement, sheetHeight: number | "auto"): void {
+export function applyStatusListSizing(sheetElement: HTMLElement): void {
     const statusTab = sheetElement.querySelector(statusListSelectors.tab);
     if (!statusTab) return;
 
-    const effectiveHeight = getEffectiveHeight(sheetHeight);
-    const extraRows = computeExtraRows(effectiveHeight);
+    const effectiveHeight = getEffectiveHeight(sheetElement);
     const counts = queryItemCounts(sheetElement);
+    const extraRows = computeExtraRows(effectiveHeight,counts);
     const capacities = computeCapacities(counts);
     distributeExtraRows(capacities, counts, extraRows);
     applyCapacities(sheetElement, capacities);
