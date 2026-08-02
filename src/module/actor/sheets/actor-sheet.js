@@ -14,6 +14,7 @@ import { HoverStateTracker } from "module/actor/sheets/HoverStateTracker.ts";
 import { SplittermondActiveEffectCreationDialog } from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog.ts";
 import { SplittermondActiveEffect } from "module/activeEffect/index.ts";
 import { buildEffectCardContext } from "module/activeEffect/effectCardContext";
+import { applyStatusListSizing, BASELINE_HEIGHT} from "module/actor/sheets/statusListSizing.ts";
 
 /**
  * @typedef {Object} StatusTabEffectContext
@@ -38,7 +39,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     static DEFAULT_OPTIONS = {
         classes: ["splittermond", "sheet", "actor"],
         overlays: ["#health", "#focus"],
-        position: { width: 750, height: 720 },
+        position: { width: 750, height: BASELINE_HEIGHT },
         window: {
             minimizable: true,
             resizable: true,
@@ -601,8 +602,17 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
         await effect.delete();
     }
 
+    /**
+     * @param {foundry.applications.types.ApplicationPosition} position
+     */
+    _onPosition(position) {
+        super._onPosition(position);
+        applyStatusListSizing(this.element, position.height);
+    }
+
     async _onRender(context, options) {
         await super._onRender(context, options);
+        applyStatusListSizing(this.element, this.position.height);
         autoExpandInputs(this.element);
         this._tooltipConfigurer.configureTooltips();
         this._hoverStateTracker.trackHoverState(this);
