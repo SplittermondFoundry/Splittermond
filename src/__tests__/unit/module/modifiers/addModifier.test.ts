@@ -310,6 +310,15 @@ describe("addModifier", () => {
         });
     });
 
+    (["fighting", "magic", "general", "social"] as const).forEach((skillGroup) => {
+        it(`should share one rawFragment across all expanded modifiers for skills.${skillGroup}`, () => {
+            const rawFragment = `skills.${skillGroup} +2`;
+            const result = addModifier(item, rawFragment);
+            expect(result.modifiers.length).to.be.greaterThan(0);
+            expect(result.modifiers.every((m) => m.rawFragment === rawFragment)).to.be.true;
+        });
+    });
+
     describe("damage modifiers", () => {
         it("should handle general damage modifiers (deprecated path)", () => {
             const result = addModifier(item, "Damage/fire +5");

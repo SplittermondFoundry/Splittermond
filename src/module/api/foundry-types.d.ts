@@ -371,7 +371,7 @@ declare namespace foundry {
 
                 addEventListener(type: string, listener: (event: Event) => void): void;
 
-                close(): void;
+                close(options?: object): Promise<unknown>;
                 _preClose(options: ApplicationRenderOptions): Promise<void>;
 
                 protected _onPosition(position: foundry.applications.types.ApplicationPosition): void;

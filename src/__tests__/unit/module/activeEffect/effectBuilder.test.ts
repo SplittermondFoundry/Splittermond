@@ -150,7 +150,7 @@ describe("effectBuilder", () => {
             expect(item.createEmbeddedDocuments.called).to.be.false;
         });
 
-        it("creates multiple effects when one fragment fan-outs to N modifiers", async () => {
+        it("collapses N modifiers sharing one rawFragment into a single effect with N entries", async () => {
             const m1 = makeScalarModifier({ groupId: "skill.id1" });
             const m2 = makeScalarModifier({ groupId: "skill.id2" });
             const addModifier = makeAddModifierFn({
@@ -162,7 +162,13 @@ describe("effectBuilder", () => {
             await addModifierEffects(addModifier, item, "npcattacks +2", "innate");
 
             const [, effects] = item.createEmbeddedDocuments.firstCall.args;
-            expect(effects).to.have.length(2);
+            expect(effects).to.have.length(1);
+            expect(effects[0].system.modifiers).to.have.length(2);
+            expect(effects[0].system.modifiers.map((m: { path: string }) => m.path)).to.deep.equal([
+                "skill.id1",
+                "skill.id2",
+            ]);
+            expect(effects[0].flags.splittermond.rawInput).to.equal("npcattacks +2");
         });
 
         it("stores rawInput in effect flags", async () => {
@@ -298,6 +304,74 @@ describe("effectBuilder", () => {
             expect(effects).to.have.length(2);
             expect(effects[0].type).to.equal("modifier");
             expect(effects[1].type).to.equal("modifier");
+        });
+    });
+
+    describe("addModifierEffects — skill group expansion", () => {
+        it("groups expanded modifiers from a single raw fragment into one effect", async () => {
+            const groupSize = 3;
+            const tagged: TaggedModifier[] = Array.from({ length: groupSize }, (_, i) =>
+                makeTagged(makeScalarModifier({ groupId: `actor.skills.skill${i}` }), "skills.general +2")
+            );
+            const addModifier = makeAddModifierFn({ modifiers: tagged, costModifiers: [] });
+            const item = makeItem();
+
+            await addModifierEffects(addModifier, item, "skills.general +2", "innate");
+
+            const [, effects] = item.createEmbeddedDocuments.firstCall.args;
+            expect(effects).to.have.length(1);
+            expect(effects[0].name).to.equal("skills.general +2");
+            expect(effects[0].flags.splittermond.rawInput).to.equal("skills.general +2");
+            expect(effects[0].system.modifiers).to.have.length(groupSize);
+            expect(effects[0].system.modifiers.map((m: { path: string }) => m.path)).to.deep.equal([
+                "actor.skills.skill0",
+                "actor.skills.skill1",
+                "actor.skills.skill2",
+            ]);
+        });
+
+        it("keeps grouped skill fragment and unrelated fragment as separate effects in order", async () => {
+            const socialSize = 2;
+            const grouped: TaggedModifier[] = Array.from({ length: socialSize }, (_, i) =>
+                makeTagged(makeScalarModifier({ groupId: `actor.skills.social${i}` }), "skills.social +2")
+            );
+            const single = makeTagged(makeScalarModifier({ groupId: "initiative" }), "VTD +1");
+            const addModifier = makeAddModifierFn({ modifiers: [...grouped, single], costModifiers: [] });
+            const item = makeItem();
+
+            await addModifierEffects(addModifier, item, "skills.social +2, VTD +1", "innate");
+
+            const [, effects] = item.createEmbeddedDocuments.firstCall.args;
+            expect(effects).to.have.length(2);
+            expect(effects[0].name).to.equal("skills.social +2");
+            expect(effects[0].system.modifiers).to.have.length(socialSize);
+            expect(effects[1].name).to.equal("VTD +1");
+            expect(effects[1].system.modifiers).to.have.length(1);
+        });
+    });
+
+    describe("rebuildModifierEffects — skill group expansion", () => {
+        it("produces one effect with N entries and is idempotent across rebuilds", async () => {
+            const groupSize = 3;
+            const tagged: TaggedModifier[] = Array.from({ length: groupSize }, (_, i) =>
+                makeTagged(makeScalarModifier({ groupId: `actor.skills.skill${i}` }), "skills.general +2")
+            );
+            const addModifier = makeAddModifierFn({ modifiers: tagged, costModifiers: [] });
+            const item = makeItem();
+
+            await rebuildModifierEffects(addModifier, item, "innate", "skills.general +2");
+
+            const [, firstEffects] = item.createEmbeddedDocuments.firstCall.args;
+            expect(firstEffects).to.have.length(1);
+            expect(firstEffects[0].system.modifiers).to.have.length(groupSize);
+            expect(firstEffects[0].flags.splittermond.rawInput).to.equal("skills.general +2");
+
+            await rebuildModifierEffects(addModifier, item, "innate", "skills.general +2");
+
+            const [, secondEffects] = item.createEmbeddedDocuments.secondCall.args;
+            expect(secondEffects).to.have.length(1);
+            expect(secondEffects[0].system.modifiers).to.have.length(groupSize);
+            expect(secondEffects[0].flags.splittermond.rawInput).to.equal("skills.general +2");
         });
     });
 });
