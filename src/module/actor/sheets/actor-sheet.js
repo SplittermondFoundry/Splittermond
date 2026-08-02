@@ -14,7 +14,7 @@ import { HoverStateTracker } from "module/actor/sheets/HoverStateTracker.ts";
 import { SplittermondActiveEffectCreationDialog } from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog.ts";
 import { SplittermondActiveEffect } from "module/activeEffect/index.ts";
 import { buildEffectCardContext } from "module/activeEffect/effectCardContext";
-import { applyStatusListSizing, BASELINE_HEIGHT} from "module/actor/sheets/statusListSizing.ts";
+import { applyStatusListSizing, BASELINE_HEIGHT } from "module/actor/sheets/statusListSizing.ts";
 
 /**
  * @typedef {Object} StatusTabEffectContext
