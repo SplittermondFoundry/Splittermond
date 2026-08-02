@@ -2,13 +2,7 @@ import type { ModifierType } from "module/modifiers";
 import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
 import type { ItemType } from "module/config/itemTypes";
 
-const equipmentItemTypes: ReadonlySet<ItemType> = new Set([
-    "weapon",
-    "projectile",
-    "armor",
-    "shield",
-    "equipment",
-]);
+const equipmentItemTypes: ReadonlySet<ItemType> = new Set(["weapon", "projectile", "armor", "shield", "equipment"]);
 const magicItemTypes: ReadonlySet<ItemType> = new Set(["spell", "spelleffect"]);
 const magicEffectTypes: ReadonlySet<EffectType> = new Set(["spellEffect", "spellEnhancedEffect"]);
 
