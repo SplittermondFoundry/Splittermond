@@ -51,15 +51,21 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     const sheet = effect.sheet as SplittermondActiveEffectConfig;
                     await enterInSheet(sheet, "splittermondRawInput", "skills skill=acrobatics +2");
 
-                    await passesEventually(
-                        () => {
-                            expect(effect.system.modifiers[0].path).to.equal("actor.skills");
-                            expect(effect.system.modifiers[0].attributes.type).to.equal("innate");
-                            expect(effect.getFlag("splittermond", "rawInput")).to.equal("skills skill=acrobatics +2");
-                        },
-                        1500,
-                        100
-                    );
+                    try {
+                        await passesEventually(
+                            () => {
+                                expect(effect.system.modifiers[0].path).to.equal("actor.skills");
+                                expect(effect.system.modifiers[0].attributes.type).to.equal("innate");
+                                expect(effect.getFlag("splittermond", "rawInput")).to.equal(
+                                    "skills skill=acrobatics +2"
+                                );
+                            },
+                            1500,
+                            100
+                        );
+                    } finally {
+                        await effect.sheet?.close();
+                    }
                 }
             )
         );
@@ -75,16 +81,19 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 async (effect) => {
                     const sheet = effect.sheet as SplittermondActiveEffectConfig;
                     await enterInSheet(sheet, "splittermondRawInput", "skills skill=acrobatics +2");
-                    sheet.close();
 
-                    await passesEventually(
-                        () => {
-                            expect(effect.system.modifiers[0].path).to.equal("actor.skills");
-                            expect(effect.system.modifiers[0].attributes.type).to.equal("magic");
-                        },
-                        1500,
-                        100
-                    );
+                    try {
+                        await passesEventually(
+                            () => {
+                                expect(effect.system.modifiers[0].path).to.equal("actor.skills");
+                                expect(effect.system.modifiers[0].attributes.type).to.equal("magic");
+                            },
+                            1500,
+                            100
+                        );
+                    } finally {
+                        await effect.sheet?.close();
+                    }
                 }
             )
         );
@@ -100,16 +109,19 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 async (effect) => {
                     const sheet = effect.sheet as SplittermondActiveEffectConfig;
                     await enterInSheet(sheet, "splittermondRawInput", "skills skill=acrobatics +2");
-                    sheet.close();
 
-                    await passesEventually(
-                        () => {
-                            expect(effect.system.modifiers[0].path).to.equal("actor.skills");
-                            expect(effect.system.modifiers[0].attributes.type).to.equal("magic");
-                        },
-                        1500,
-                        100
-                    );
+                    try {
+                        await passesEventually(
+                            () => {
+                                expect(effect.system.modifiers[0].path).to.equal("actor.skills");
+                                expect(effect.system.modifiers[0].attributes.type).to.equal("magic");
+                            },
+                            1500,
+                            100
+                        );
+                    } finally {
+                        await effect.sheet?.close();
+                    }
                 }
             )
         );
@@ -165,7 +177,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         "input[name='splittermondRawInput']"
                     ) as HTMLInputElement | null;
                     expect(input?.value).to.equal("");
-                    sheet.close();
+                    await sheet.close();
                 }
             )
         );
@@ -186,6 +198,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         "input[name='splittermondRawInput']"
                     ) as HTMLInputElement | null;
                     expect(input?.value).to.equal("skills +2");
+                    await sheet.close();
                 }
             )
         );
@@ -682,8 +695,8 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         expect(target.effects.map((e: { name: string }) => e.name)).to.include("Drag Test Effect");
                     });
 
-                    sourceSheet.close();
-                    targetSheet.close();
+                    await sourceSheet.close();
+                    await targetSheet.close();
                 })
             )
         );
@@ -708,8 +721,8 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     expect(targetItem.effects.map((e: { name: string }) => e.name)).to.include("Drag Test Effect");
                 });
 
-                sourceSheet.close();
-                targetSheet.close();
+                await sourceSheet.close();
+                await targetSheet.close();
             } finally {
                 await Item.deleteDocuments([sourceItem.id, targetItem.id]);
             }
@@ -774,7 +787,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
-                effect.sheet.close(); //get rid of annoying open sheet that somehow spawns
+                await effect.sheet?.close();
 
                 const restored = actor.effects.get(effect.id);
                 expect(restored!.system.modifiers[0].attributes.type).to.equal("magic");
@@ -794,7 +807,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
-                effect.sheet.close(); //get rid of annoying open sheet that somehow spawns
+                await effect.sheet?.close();
 
                 const restored = actor.effects.get(effect.id);
                 expect(restored!.system.modifiers[0].attributes.type).to.equal("innate");

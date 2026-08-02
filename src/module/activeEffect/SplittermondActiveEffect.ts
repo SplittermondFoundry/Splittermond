@@ -1,12 +1,14 @@
-import type { IModifier } from "module/modifiers";
-import type { ICostModifier } from "module/util/costs/spellCostManagement";
-import type { HasCostModifiers, HasModifiers } from "module/activeEffect/dataModel/ActionEffectDataModel";
-import { SplittermondBaseActiveEffect } from "module/data/SplittermondBaseActiveEffect";
-import { and } from "module/util/util";
-import type { DatabaseUpdateOperation, DataModelUpdateOptions } from "module/api/foundryTypes";
-import { foundryApi } from "module/api/foundryApi";
-import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
-import type { ActionEffectDataModel } from "module/activeEffect/dataModel/ActionEffectDataModel";
+import type {IModifier} from "module/modifiers";
+import type {ICostModifier} from "module/util/costs/spellCostManagement";
+import type {
+    ActionEffectDataModel,
+    HasCostModifiers,
+    HasModifiers
+} from "module/activeEffect/dataModel/ActionEffectDataModel";
+import {SplittermondBaseActiveEffect} from "module/data/SplittermondBaseActiveEffect";
+import {and} from "module/util/util";
+import {foundryApi} from "module/api/foundryApi";
+import type {EffectType} from "module/activeEffect/dataModel/effectTypes";
 import type SplittermondWeaponItem from "module/item/weapon";
 import type SplittermondShieldItem from "module/item/shield";
 import type SplittermondArmorItem from "module/item/armor";
@@ -108,29 +110,6 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
         } else if (this.durationMode === "permanent") {
             this.duration.label = foundryApi.localize("splittermond.activeEffect.duration.permanent");
         }
-    }
-
-    updateSource(data: object, operation: DataModelUpdateOptions = {}): object {
-        return super.updateSource(data, this.#withForcedReplacementOnTypeChange(data, operation));
-    }
-
-    update(data: object, operation: Partial<Omit<DatabaseUpdateOperation, "updates">> = {}): Promise<FoundryDocument> {
-        return super.update(data, this.#withForcedReplacementOnTypeChange(data, operation));
-    }
-
-    #withForcedReplacementOnTypeChange(data: object, operation: DataModelUpdateOptions): DataModelUpdateOptions {
-        const type = this.#readType(data);
-        if (!type || type === this.type) return operation;
-        return {
-            ...operation,
-            recursive: false,
-        };
-    }
-
-    #readType(data: object): string | null {
-        if (!("type" in data)) return null;
-        const type = data.type;
-        return typeof type === "string" ? type : null;
     }
 
     /**

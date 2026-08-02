@@ -1,6 +1,7 @@
 import { type ApplicationFormConfiguration, FoundryActiveEffectConfig } from "module/api/Application";
 import { foundryApi } from "module/api/foundryApi";
 import { addModifier } from "module/actor/addModifierAdapter";
+import { parseModifiers } from "module/modifiers/parsing";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { ModifierType } from "module/modifiers";
 import type { AddModifierResult } from "module/modifiers/modifierAddition";
@@ -273,15 +274,17 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
         delete submitData.splittermondRawInput;
         if (!rawInput) return submitData;
         const parsed = this.#parse(rawInput);
-        const taggedModifier = parsed.modifiers[0] ?? null;
-        const taggedCostModifier = parsed.costModifiers[0] ?? null;
-        const effectData = taggedModifier
-            ? buildScalarEffectData(taggedModifier, this.document.uuid)
-            : taggedCostModifier
-              ? buildCostEffectData(taggedCostModifier.modifier, taggedCostModifier.rawFragment, this.document.uuid)
-              : null;
+        const effectData =
+            parsed.modifiers.length > 0
+                ? buildScalarEffectData(parsed.modifiers, this.document.uuid, rawInput)
+                : parsed.costModifiers.length > 0
+                  ? buildCostEffectData(
+                        parsed.costModifiers[0].modifier,
+                        parsed.costModifiers[0].rawFragment,
+                        this.document.uuid
+                    )
+                  : null;
         if (!effectData) return submitData;
-        submitData.type = effectData.type;
         submitData.system = effectData.system;
         submitData.flags = foundryApi.utils.mergeObject((submitData.flags as object) ?? {}, {
             splittermond: {
@@ -318,8 +321,8 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
         if (this.#isModifierType(this.document.type)) {
             const rawInput = this.#readInputValue(submitTarget, "splittermondRawInput");
             if (!rawInput) return null;
-            const parsed = this.#parse(rawInput);
-            if (parsed.modifiers.length + parsed.costModifiers.length > 1) {
+            const { modifiers } = parseModifiers(rawInput);
+            if (modifiers.length > 1) {
                 return "splittermond.activeEffect.error.singleModifierOnly";
             }
         }
