@@ -246,7 +246,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
         if (this.#isModifierType(effectType)) {
             const rawInput = effect.getFlag("splittermond", "rawInput");
             context.effectsType = "modifier";
-            context.rawInput = (typeof rawInput === "string" && rawInput.trim()) || effect.name || "";
+            context.rawInput = (typeof rawInput === "string" && rawInput.trim()) || "";
             context.modifierHelpText = await foundryApi.utils.enrichHtml(
                 foundryApi.localize("splittermond.activeEffect.effects.modifierHelpText"),
                 {
