@@ -146,6 +146,45 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 }
             )
         );
+
+        it(
+            "should not pre-fill the modifier input with the effect name when no rawInput flag is set",
+            withActiveEffect(
+                {
+                    name: "My Effect",
+                    type: "modifier",
+                    system: { modifiers: [], costModifiers: [] },
+                },
+                async (effect) => {
+                    const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                    await sheet.render(true);
+                    const input = sheet.element.querySelector(
+                        "input[name='splittermondRawInput']"
+                    ) as HTMLInputElement | null;
+                    expect(input?.value).to.equal("");
+                }
+            )
+        );
+
+        it(
+            "should render the rawInput flag value in the modifier input when the flag is set",
+            withActiveEffect(
+                {
+                    name: "My Effect",
+                    type: "modifier",
+                    flags: { splittermond: { rawInput: "skills +2" } },
+                    system: { modifiers: [], costModifiers: [] },
+                },
+                async (effect) => {
+                    const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                    await sheet.render(true);
+                    const input = sheet.element.querySelector(
+                        "input[name='splittermondRawInput']"
+                    ) as HTMLInputElement | null;
+                    expect(input?.value).to.equal("skills +2");
+                }
+            )
+        );
     });
 
     describe("ActiveEffect DataModel serialization via Foundry persistence", () => {
@@ -633,9 +672,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         name: "Dropped Effect",
                         type: "modifier",
                         system: {
-                            modifiers: [
-                                Modifier.init("skills", of(1), { name: "Dropped", type: "innate" }),
-                            ],
+                            modifiers: [Modifier.init("skills", of(1), { name: "Dropped", type: "innate" })],
                             costModifiers: [],
                         },
                     },
@@ -657,9 +694,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         name: "Dropped Effect",
                         type: "modifier",
                         system: {
-                            modifiers: [
-                                Modifier.init("skills", of(1), { name: "Dropped", type: "equipment" }),
-                            ],
+                            modifiers: [Modifier.init("skills", of(1), { name: "Dropped", type: "equipment" })],
                             costModifiers: [],
                         },
                     },
@@ -678,9 +713,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         name: "Direct SpellEffect",
                         type: "spellEffect",
                         system: {
-                            modifiers: [
-                                Modifier.init("skills", of(1), { name: "Direct", type: "equipment" }),
-                            ],
+                            modifiers: [Modifier.init("skills", of(1), { name: "Direct", type: "equipment" })],
                             costModifiers: [],
                         },
                     },
@@ -699,9 +732,7 @@ export function activeEffectTest(context: QuenchBatchContext) {
                         name: "Direct Modifier",
                         type: "modifier",
                         system: {
-                            modifiers: [
-                                Modifier.init("skills", of(1), { name: "Direct", type: "equipment" }),
-                            ],
+                            modifiers: [Modifier.init("skills", of(1), { name: "Direct", type: "equipment" })],
                             costModifiers: [],
                         },
                     },
