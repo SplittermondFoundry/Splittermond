@@ -377,6 +377,7 @@ describe("SplittermondActorSheet — effect handlers", () => {
         (global as any).CONFIG = { splittermond: splittermond };
         const actorMock = { name: "Test Actor", spells: [], items: [], id: "actor1" };
         sheet = new SplittermondActorSheet({ document: actorMock });
+        sandbox.stub(sheet, "render");
     });
 
     afterEach(() => sandbox.restore());
@@ -429,6 +430,34 @@ describe("SplittermondActorSheet — effect handlers", () => {
             await callAction("toggle-effect", null, target);
 
             expect(updateSpy.called).to.be.false;
+        });
+    });
+
+    describe("#handleShowHideInactiveEffects", () => {
+        let bodyElement: Element;
+        beforeEach(() => {
+            bodyElement = new JSDOM("<body></body>").window.document.body;
+        });
+
+        it("toggles the flag from true to false and calls render", () => {
+            expect(sheet["_hideInactiveEffects"]).to.be.true;
+
+            callAction("show-hide-inactive-effects", null, bodyElement);
+
+            expect(sheet["_hideInactiveEffects"]).to.be.false;
+            expect((sheet.render as sinon.SinonStub).calledOnce).to.be.true;
+        });
+
+        it("toggles back to true when called again", () => {
+            // Toggle off
+            callAction("show-hide-inactive-effects", null, bodyElement);
+            expect(sheet["_hideInactiveEffects"]).to.be.false;
+            expect((sheet.render as sinon.SinonStub).callCount).to.equal(1);
+
+            // Toggle back on
+            callAction("show-hide-inactive-effects", null, bodyElement);
+            expect(sheet["_hideInactiveEffects"]).to.be.true;
+            expect((sheet.render as sinon.SinonStub).callCount).to.equal(2);
         });
     });
 

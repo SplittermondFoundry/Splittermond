@@ -196,7 +196,9 @@
                 "timed": "zeitlich begrenzt",
                 "timeRemaining": "noch {n}",
                 "generatedFromItemProperty": "aus Gegenstandseigenschaft generiert"
-            }
+            },
+            "hideInactiveEffects": "Inaktive Effekte ausblenden",
+            "showInactiveEffects": "Inaktive Effekte einblenden"
         },
         "furtherActions": "Weitere Aktionen",
         "update": "Aktualisieren",
