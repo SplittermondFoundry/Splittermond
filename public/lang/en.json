@@ -187,7 +187,9 @@
                 "timeRemaining": "{n} remaining",
                 "generatedFromItemProperty": "generated from item property"
             },
-            "edit": "Edit Effect"
+            "edit": "Edit Effect",
+            "hideInactiveEffects": "Hide inactive effects",
+            "showInactiveEffects": "Show inactive effects"
         }
     },
     "enable": "Enable",

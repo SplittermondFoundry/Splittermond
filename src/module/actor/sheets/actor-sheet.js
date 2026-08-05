@@ -33,6 +33,7 @@ import { applyStatusListSizing, BASELINE_HEIGHT } from "module/actor/sheets/stat
  * @property {Array<{icon: string, tooltipKey: string, cssClass: string}>} [badges]
  * @property {string} [timeToExpirationDisplay]
  * @property {boolean} [showTicks]
+ * @property {boolean} [isInactive]
  */
 
 export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
@@ -98,12 +99,14 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 "delete-effect": (_e, t) => this.#handleDeleteEffect(t),
                 "edit-effect": (_e, t) => this.#handleEditEffect(t),
                 "add-effect": () => this.#handleAddEffect(),
+                "show-hide-inactive-effects": () => this.#handleShowHideInactiveEffects(),
             },
         };
         const actorOptions = foundryApi.utils.mergeObject(instanceDefaults, options);
         super(actorOptions);
         this._activeOverlay = null;
         this._hideSkills = true;
+        this._hideInactiveEffects = true;
         this._tooltipConfigurer = new (options.tooltipConfigurerConstructor ?? TooltipConfigurer)(this);
         this._hoverStateTracker = options.hoverStateTracker ?? new HoverStateTracker();
     }
@@ -191,7 +194,10 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 sort: e.sort ?? 0,
                 ...buildEffectCardContext(e),
             }))
+            .filter((e) => !this._hideInactiveEffects || !e.isInactive)
             .sort((a, b) => a.sort - b.sort);
+
+        sheetData.hideInactiveEffects = this._hideInactiveEffects;
 
         sheetData.combatTabs = {
             tabs: [
@@ -439,6 +445,14 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
     #handleShowHideSkills(target) {
         this._hideSkills = !this._hideSkills;
         target.setAttribute("data-action", "hide-skills");
+        return this.render();
+    }
+
+    /**
+     * Handle showing/hiding inactive effects
+     */
+    #handleShowHideInactiveEffects() {
+        this._hideInactiveEffects = !this._hideInactiveEffects;
         return this.render();
     }
 
