@@ -147,7 +147,8 @@
                 "type": "Type"
             },
             "error": {
-                "singleModifierOnly": "Only a single modifier expression is allowed."
+                "singleModifierOnly": "Only a single modifier expression is allowed.",
+                "itemTypeEffectsNotSupported": "Effects are not supported for this item type."
             },
             "effects": {
                 "rawInput": "Modifier",

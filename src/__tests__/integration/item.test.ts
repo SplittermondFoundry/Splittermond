@@ -17,7 +17,10 @@ import { passesEventually } from "../util";
 import type SplittermondWeaponItem from "module/item/weapon";
 import SplittermondItemSheet from "module/item/sheets/item-sheet";
 import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
+import SplittermondAttackSheet from "module/item/sheets/attack-sheet";
 import type SplittermondEquipmentItem from "module/item/equipment";
+import { addModifierEffects, isGenerated } from "module/activeEffect/effectBuilder";
+import { getAddModifier } from "module/item/item";
 
 declare const Item: any;
 declare const game: any;
@@ -253,6 +256,115 @@ export function itemTest(this: any, context: QuenchBatchContext) {
 
             expect(featureInput?.valueAsNumber, "Input was updated").to.equal(1);
             await passesEventually(() => expect(item.system.quantity).to.equal(1), 1000, 100);
+        });
+    });
+
+    describe("item sheet effects tab suppression", () => {
+        let items: SplittermondItem[] = [];
+        let sheets: SplittermondItemSheet[] = [];
+
+        async function createItem(type: string) {
+            const item = (await foundryApi.createItem({
+                type,
+                name: "Effects Test Item",
+                system: {},
+            })) as SplittermondItem;
+            items.push(item);
+            return item;
+        }
+
+        afterEach(() => {
+            sheets.forEach((s) => s.close());
+            sheets = [];
+            Item.deleteDocuments(items.map((i) => i.id));
+            items = [];
+        });
+
+        async function renderSheet(sheet: SplittermondItemSheet) {
+            sheets.push(sheet);
+            await sheet.render(true);
+            return sheet;
+        }
+
+        function effectsNavEntry(sheet: SplittermondItemSheet): Element | null {
+            return sheet.element.querySelector("nav [data-tab='effects'], [data-group='primary'][data-tab='effects']");
+        }
+
+        function effectsPanel(sheet: SplittermondItemSheet): Element | null {
+            return sheet.element.querySelector(".effects-panel");
+        }
+
+        async function buildDropEvent(uuid: string): Promise<DragEvent> {
+            const dataTransfer = new DataTransfer();
+            dataTransfer.setData("text/plain", JSON.stringify({ type: "ActiveEffect", uuid }));
+            return new DragEvent("drop", { dataTransfer });
+        }
+
+        it("spell sheet renders no effects-tab nav and no effects panel", async () => {
+            const item = await createItem("spell");
+            const sheet = await renderSheet(new SplittermondSpellSheet({ document: item }));
+
+            expect(effectsNavEntry(sheet), "spell sheet has no effects-tab nav entry").to.be.null;
+            expect(effectsPanel(sheet), "spell sheet has no effects panel").to.be.null;
+        });
+
+        it("spell sheet rejects an ActiveEffect drop without creating an effect", async () => {
+            const donor = await createItem("weapon");
+            const [donorEffect] = await donor.createEmbeddedDocuments("ActiveEffect", [
+                { name: "Donor Effect", type: "modifier", system: { modifiers: [], costModifiers: [] } },
+            ]);
+            const target = await createItem("spell");
+            const sheet = await renderSheet(new SplittermondSpellSheet({ document: target }));
+
+            const before = target.effects.size;
+            const event = await buildDropEvent((donorEffect as { uuid: string }).uuid);
+            await sheet._onDrop(event);
+
+            expect(target.effects.size, "spell item effects unchanged after blocked drop").to.equal(before);
+        });
+
+        it("npcattack sheet renders no effects-tab nav and no effects panel", async () => {
+            const item = await createItem("npcattack");
+            const sheet = await renderSheet(new SplittermondAttackSheet({ document: item }));
+
+            expect(effectsNavEntry(sheet), "npcattack sheet has no effects-tab nav entry").to.be.null;
+            expect(effectsPanel(sheet), "npcattack sheet has no effects panel").to.be.null;
+        });
+
+        it("npcattack sheet rejects an ActiveEffect drop without creating an effect", async () => {
+            const donor = await createItem("weapon");
+            const [donorEffect] = await donor.createEmbeddedDocuments("ActiveEffect", [
+                { name: "Donor Effect", type: "modifier", system: { modifiers: [], costModifiers: [] } },
+            ]);
+            const target = await createItem("npcattack");
+            const sheet = await renderSheet(new SplittermondAttackSheet({ document: target }));
+
+            const before = target.effects.size;
+            const event = await buildDropEvent((donorEffect as { uuid: string }).uuid);
+            await sheet._onDrop(event);
+
+            expect(target.effects.size, "npcattack item effects unchanged after blocked drop").to.equal(before);
+        });
+
+        it("weapon sheet still renders the effects-tab nav and effects panel (regression)", async () => {
+            const item = await createItem("weapon");
+            const sheet = await renderSheet(new SplittermondWeaponSheet({ document: item }));
+
+            expect(effectsNavEntry(sheet), "weapon sheet still has effects-tab nav entry").to.not.be.null;
+            expect(effectsPanel(sheet), "weapon sheet still has effects panel").to.not.be.null;
+        });
+
+        it("addModifierEffects attaches an autoGenerated effect to a spell item (autogenerated path survives)", async () => {
+            const item = await createItem("spell");
+            const addModifier = getAddModifier();
+            expect(addModifier, "real addModifier is initialized in the Quench environment").to.not.be.null;
+
+            const created = await addModifierEffects(addModifier!, item, "acrobatics +2", "innate");
+            expect(created, "addModifierEffects created effects on the spell item").to.exist;
+            expect(created!.length, "one autoGenerated effect created").to.equal(1);
+
+            const autoGenerated = item.effects.filter(isGenerated);
+            expect(autoGenerated.length, "spell item carries the autoGenerated effect").to.equal(created!.length);
         });
     });
 }

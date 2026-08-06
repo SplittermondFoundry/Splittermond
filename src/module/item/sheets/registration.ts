@@ -1,5 +1,6 @@
 import { foundryApi } from "module/api/foundryApi";
 import SplittermondItemSheet from "module/item/sheets/item-sheet";
+import SplittermondItemEffectsSheet from "module/item/sheets/item-effects-sheet";
 import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
 import SplittermondWeaponSheet from "module/item/sheets/weapon-sheet";
 import SplittermondShieldSheet from "module/item/sheets/shield-sheet";
@@ -10,7 +11,7 @@ import StatusEffectItemSheet from "module/item/sheets/StatusEffectItemSheet";
 export function registerSheets() {
     [
         {
-            class: SplittermondItemSheet,
+            class: SplittermondItemEffectsSheet,
         },
         {
             type: "spell",

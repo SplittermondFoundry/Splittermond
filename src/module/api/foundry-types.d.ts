@@ -426,6 +426,7 @@ declare namespace foundry {
                 get item(): Item;
                 _onDragStart(event: DragEvent): Promise<void>;
                 _onDrop(event: DragEvent): Promise<void>;
+                _onDropActiveEffect(event: DragEvent, effect: unknown): Promise<foundry.documents.ActiveEffect | null>;
             }
 
             class ActorSheetV2 extends DocumentSheetV2 {
@@ -466,6 +467,8 @@ declare namespace foundry {
         import CombatHistoryData = foundry.documents.types.CombatHistoryData;
 
         class Scene extends FoundryDocument {}
+
+        class ActiveEffect extends FoundryDocument {}
 
         class Combat extends FoundryDocument {
             readonly turns: Combatant[];
