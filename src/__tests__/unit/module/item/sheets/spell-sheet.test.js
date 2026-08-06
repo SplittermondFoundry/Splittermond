@@ -102,3 +102,30 @@ describe("Spell Properties display", () => {
             .then((doc) => doc.querySelector(`.properties-editor input[name='${displayProperty.field}']`));
     }
 });
+
+describe("SplittermondSpellSheet — effect drop block", () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+        sandbox.restore();
+    });
+
+    it("warns and does not call super._onDropActiveEffect when an ActiveEffect is dropped", async () => {
+        const spellItem = { type: "spell", effects: [], system: { description: "" } };
+        const config = { itemSheetProperties: {}, displayOptions: { itemSheet: {} } };
+        config.displayOptions.itemSheet["default"] = { width: 1, height: 1 };
+        const warnStub = sandbox.stub(foundryApi, "warnUser");
+        const sheet = new SplittermondSpellSheet(
+            { document: spellItem },
+            simplePropertyResolver,
+            { localize: identity },
+            config,
+            promiseIdentity
+        );
+        const data = JSON.stringify({ type: "ActiveEffect", uuid: "some-uuid" });
+        const event = { dataTransfer: { getData: () => data } };
+        await sheet._onDropActiveEffect(event, { type: "ActiveEffect", uuid: "some-uuid" });
+        expect(warnStub.calledOnce).to.be.true;
+        expect(warnStub.firstCall.args[0]).to.equal("splittermond.activeEffect.error.itemTypeEffectsNotSupported");
+    });
+});

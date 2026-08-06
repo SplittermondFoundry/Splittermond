@@ -2,7 +2,8 @@ import { describe, it, beforeEach, afterEach } from "mocha";
 import { expect } from "chai";
 import sinon, { type SinonStub } from "sinon";
 import type { SinonSandbox } from "sinon";
-import SplittermondItemSheet from "module/item/sheets/item-sheet";
+import SplittermondItemEffectsSheet from "module/item/sheets/item-effects-sheet";
+import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
 import { foundryApi } from "module/api/foundryApi";
 import { splittermond } from "module/config";
 
@@ -46,10 +47,14 @@ function makeEffect(opts: {
 }
 
 function makeSheet(effects: ReturnType<typeof makeEffect>[], enricher?: SinonStub) {
+    return makeTypedSheet("weapon", effects, enricher);
+}
+
+function makeTypedSheet(itemType: string, effects: ReturnType<typeof makeEffect>[], enricher?: SinonStub) {
     const resolvedEnricher = enricher ?? sinon.stub().resolves("");
-    const mockItem = { type: "weapon", effects, system: { description: "" } };
+    const mockItem = { type: itemType, effects, system: { description: "" } };
     const localizer = { localize: sinon.stub().returns("") };
-    return new SplittermondItemSheet(
+    return new SplittermondItemEffectsSheet(
         { document: mockItem },
         foundryApi.utils.resolveProperty,
         localizer,
@@ -58,7 +63,27 @@ function makeSheet(effects: ReturnType<typeof makeEffect>[], enricher?: SinonStu
     );
 }
 
-describe("SplittermondItemSheet — effects part context", () => {
+function makeDropEvent(payload: unknown): DragEvent {
+    const data = payload === undefined ? undefined : JSON.stringify(payload);
+    return {
+        dataTransfer: { getData: () => data ?? "" },
+    } as unknown as DragEvent;
+}
+
+function makeSpellSheet(effects: ReturnType<typeof makeEffect>[], enricher?: SinonStub) {
+    const resolvedEnricher = enricher ?? sinon.stub().resolves("");
+    const mockItem = { type: "spell", effects, system: { description: "" } };
+    const localizer = { localize: sinon.stub().returns("") };
+    return new SplittermondSpellSheet(
+        { document: mockItem },
+        foundryApi.utils.resolveProperty,
+        localizer,
+        splittermond,
+        resolvedEnricher
+    );
+}
+
+describe("SplittermondItemEffectsSheet — effects part context", () => {
     let sandbox: SinonSandbox;
 
     beforeEach(() => {
@@ -116,5 +141,64 @@ describe("SplittermondItemSheet — effects part context", () => {
         const sheet = makeSheet([eff]);
         const result = await sheet._preparePartContext("effects", {}, {});
         expect(result.effects[0].disabled).to.equal(false);
+    });
+});
+
+describe("SplittermondItemSheet — effects block on unsupported item types", () => {
+    let sandbox: SinonSandbox;
+
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(foundryApi, "localize").callsFake((s: string) => s);
+    });
+
+    afterEach(() => sandbox.restore());
+
+    it("returns the effects part context unchanged for a spell-typed sheet", async () => {
+        const sheet = makeSpellSheet([]);
+        const result = await sheet._preparePartContext("effects", {}, {});
+        expect(result.effects).to.be.undefined;
+        expect(result.modifierHelpText).to.be.undefined;
+    });
+
+    it("warns and blocks the drop when an ActiveEffect is dropped on a spell-typed sheet", async () => {
+        const warnStub = sandbox.stub(foundryApi, "warnUser");
+        const sheet = makeSpellSheet([]);
+        await sheet._onDropActiveEffect(makeDropEvent({ type: "ActiveEffect", uuid: "some-uuid" }), {
+            type: "ActiveEffect",
+            uuid: "some-uuid",
+        });
+        expect(warnStub.calledOnce).to.be.true;
+        expect(warnStub.firstCall.args[0]).to.equal("splittermond.activeEffect.error.itemTypeEffectsNotSupported");
+    });
+
+    it("still populates the effects array for a weapon-typed sheet", async () => {
+        const sheet = makeTypedSheet("weapon", []);
+        const result = await sheet._preparePartContext("effects", {}, {});
+        expect(result.effects).to.deep.equal([]);
+        expect(result.modifierHelpText).to.equal("");
+    });
+});
+
+describe("SplittermondSpellSheet — static PARTS/TABS do not include effects entries", () => {
+    it("PARTS does not include the effects key", () => {
+        expect(SplittermondSpellSheet.PARTS).to.not.have.property("effects");
+    });
+
+    it("TABS.primary.tabs does not include an effects entry", () => {
+        const ids = SplittermondSpellSheet.TABS.primary.tabs.map((t) => t.id);
+        expect(ids).to.not.include("effects");
+    });
+
+    it("PARTS preserves the non-effects keys from the base", () => {
+        expect(SplittermondSpellSheet.PARTS).to.have.property("header");
+        expect(SplittermondSpellSheet.PARTS).to.have.property("editor");
+        expect(SplittermondSpellSheet.PARTS).to.have.property("properties");
+    });
+
+    it("TABS preserves the non-effects tabs from the base", () => {
+        const ids = SplittermondSpellSheet.TABS.primary.tabs.map((t) => t.id);
+        expect(ids).to.include("editor");
+        expect(ids).to.include("properties");
     });
 });

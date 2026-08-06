@@ -157,7 +157,8 @@
                 "type": "Typ"
             },
             "error": {
-                "singleModifierOnly": "Es ist nur ein einzelner Modifikatorausdruck erlaubt."
+                "singleModifierOnly": "Es ist nur ein einzelner Modifikatorausdruck erlaubt.",
+                "itemTypeEffectsNotSupported": "Effekte werden für diesen Gegenstandstyp nicht unterstützt."
             },
             "effects": {
                 "rawInput": "Modifikator",

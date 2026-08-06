@@ -1,4 +1,4 @@
-import SplittermondItemSheet from "./item-sheet";
+import SplittermondItemEffectsSheet from "./item-effects-sheet";
 import { foundryApi } from "module/api/foundryApi";
 import { isMacro } from "module/api/Macro";
 import type { ApplicationFormConfiguration } from "module/api/Application";
@@ -16,7 +16,7 @@ function isFormElement(value: EventTarget | null): value is HTMLFormElement {
     return !!value && typeof (value as HTMLFormElement).querySelector === "function";
 }
 
-export default class StatusEffectItemSheet extends SplittermondItemSheet {
+export default class StatusEffectItemSheet extends SplittermondItemEffectsSheet {
     static DEFAULT_OPTIONS = {
         ...super.DEFAULT_OPTIONS,
         classes: ["splittermond", "sheet", "item", "statuseffect"],

@@ -1,14 +1,14 @@
-import type {IModifier} from "module/modifiers";
-import type {ICostModifier} from "module/util/costs/spellCostManagement";
+import type { IModifier } from "module/modifiers";
+import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import type {
     ActionEffectDataModel,
     HasCostModifiers,
-    HasModifiers
+    HasModifiers,
 } from "module/activeEffect/dataModel/ActionEffectDataModel";
-import {SplittermondBaseActiveEffect} from "module/data/SplittermondBaseActiveEffect";
-import {and} from "module/util/util";
-import {foundryApi} from "module/api/foundryApi";
-import type {EffectType} from "module/activeEffect/dataModel/effectTypes";
+import { SplittermondBaseActiveEffect } from "module/data/SplittermondBaseActiveEffect";
+import { and } from "module/util/util";
+import { foundryApi } from "module/api/foundryApi";
+import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
 import type SplittermondWeaponItem from "module/item/weapon";
 import type SplittermondShieldItem from "module/item/shield";
 import type SplittermondArmorItem from "module/item/armor";
