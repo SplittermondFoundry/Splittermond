@@ -1,7 +1,7 @@
-import SplittermondItemSheet from "./item-sheet";
+import SplittermondItemEffectsSheet from "./item-effects-sheet";
 import type SplittermondArmorItem from "module/item/armor";
 
-export default class SplittermondArmorSheet extends SplittermondItemSheet {
+export default class SplittermondArmorSheet extends SplittermondItemEffectsSheet {
     static DEFAULT_OPTIONS = {
         ...super.DEFAULT_OPTIONS,
         classes: ["splittermond", "sheet", "item", "armor"],

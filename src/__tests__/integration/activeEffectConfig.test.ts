@@ -5,7 +5,7 @@ import { evaluate, of, plus, ref, times } from "module/modifiers/expressions/sca
 import { withActiveEffect, withActor } from "./fixtures";
 import { passesEventually } from "../util";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
-import SplittermondItemSheet from "module/item/sheets/item-sheet";
+import SplittermondItemEffectsSheet from "module/item/sheets/item-effects-sheet";
 import { serialize as serializeScalar } from "module/modifiers/expressions/scalar/serialization";
 import { splittermond } from "module/config";
 
@@ -708,8 +708,12 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 const [effect] = await sourceItem.createEmbeddedDocuments("ActiveEffect", [
                     { name: "Drag Test Effect" },
                 ]);
-                const sourceSheet = await new SplittermondItemSheet({ document: sourceItem }).render({ force: true });
-                const targetSheet = await new SplittermondItemSheet({ document: targetItem }).render({ force: true });
+                const sourceSheet = await new SplittermondItemEffectsSheet({ document: sourceItem }).render({
+                    force: true,
+                });
+                const targetSheet = await new SplittermondItemEffectsSheet({ document: targetItem }).render({
+                    force: true,
+                });
 
                 const dataTransfer = new DataTransfer();
                 const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
