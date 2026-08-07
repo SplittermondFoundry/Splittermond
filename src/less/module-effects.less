@@ -119,11 +119,19 @@
 // --- Centered badge column next to the name (actor sheet) ---
 .active-effects .list-item.effect {
     > .name {
+        display: inline-flex;
+        align-items: center;
         flex: 0 0 40%;
         min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
+
+        > .name-text {
+            min-width: 0;
+            flex: 0 1 auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     }
 
     > .source {
@@ -153,6 +161,11 @@
             white-space: nowrap;
             width: 1.5em;
         }
+    }
+
+    button.button-inline[data-action="toggle-effect"] {
+        flex: 0 0 auto;
+        margin-left: 0.25em;
     }
 }
 
