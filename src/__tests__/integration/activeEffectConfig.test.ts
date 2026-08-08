@@ -1,4 +1,5 @@
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
+import sinon from "sinon";
 import { Modifier, SplittermondActiveEffect } from "module/activeEffect";
 import { SplittermondActiveEffectConfig } from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
 import { evaluate, of, plus, ref, times } from "module/modifiers/expressions/scalar";
@@ -731,6 +732,68 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 await Item.deleteDocuments([sourceItem.id, targetItem.id]);
             }
         });
+
+        it(
+            "should set a valid ActiveEffect drag payload for an effect transferred from an embedded item",
+            withActor(async (actor) => {
+                const [weapon] = await actor.createEmbeddedDocuments("Item", [
+                    { type: "weapon", name: "Transferred Effect Source", system: { equipped: true } },
+                ]);
+                const [effect] = await weapon.createEmbeddedDocuments("ActiveEffect", [
+                    { name: "Transferred Drag Effect", type: "modifier", transfer: true },
+                ]);
+
+                actor.prepareData();
+                const applicableEffects = Array.from(actor.allApplicableEffects());
+                const transferredEffect = applicableEffects.find((e) => e.id === effect.id);
+                expect(transferredEffect, "precondition: transferred effect appears in actor.allApplicableEffects()").to
+                    .exist;
+                expect(transferredEffect!.parent, "precondition: effect parent is the embedded item").to.equal(weapon);
+
+                const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
+
+                const effectLi = sheet.element.querySelector(`[data-effect-uuid='${effect.uuid}']`);
+                expect(effectLi, "precondition: sheet renders an <li> with the transferred effect's uuid").to.exist;
+
+                const dataTransfer = new DataTransfer();
+                const setDataSpy = sinon.spy(dataTransfer, "setData");
+                const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                effectLi!.dispatchEvent(dragStart);
+
+                expect(setDataSpy.calledOnce, "setData called once during dragstart").to.be.true;
+                const payload = JSON.parse(setDataSpy.firstCall.args[1]) as { type: string; uuid: string };
+                expect(payload.type, "payload type is ActiveEffect").to.equal("ActiveEffect");
+                expect(payload.uuid, "payload uuid is the embedded-effect uuid").to.equal(effect.uuid);
+
+                await sheet.close();
+            })
+        );
+
+        it(
+            "should set a valid ActiveEffect drag payload for a directly-owned actor effect",
+            withActor(async (actor) => {
+                const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [{ name: "Direct Drag Effect" }]);
+
+                expect(effect.parent, "precondition: effect parent is the actor").to.equal(actor);
+
+                const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
+
+                const effectLi = sheet.element.querySelector(`[data-effect-uuid='${effect.uuid}']`);
+                expect(effectLi, "precondition: sheet renders an <li> with the effect's uuid").to.exist;
+
+                const dataTransfer = new DataTransfer();
+                const setDataSpy = sinon.spy(dataTransfer, "setData");
+                const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                effectLi!.dispatchEvent(dragStart);
+
+                expect(setDataSpy.calledOnce, "setData called once during dragstart").to.be.true;
+                const payload = JSON.parse(setDataSpy.firstCall.args[1]) as { type: string; uuid: string };
+                expect(payload.type, "payload type is ActiveEffect").to.equal("ActiveEffect");
+                expect(payload.uuid, "payload uuid is the effect uuid").to.equal(effect.uuid);
+
+                await sheet.close();
+            })
+        );
     });
 
     describe("modifierType recalculation on drop", () => {
