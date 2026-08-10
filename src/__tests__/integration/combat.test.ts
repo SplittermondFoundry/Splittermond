@@ -186,7 +186,7 @@ export function combatTest(context: QuenchBatchContext) {
 
             // Pins the intended start-tick assignment: a timed effect created mid-combat
             // should record the combat's current tick as its start.round.
-            expect(effect.start.round, "start tick set to combat current tick on creation").to.equal(startTick);
+            expect(effect.start!.round, "start tick set to combat current tick on creation").to.equal(startTick);
 
             // SplittermondCombat.setInitiative calls nextRound() internally when started,
             // which fires the combatRound hook the future expiry hook is expected to listen on.
@@ -215,7 +215,7 @@ export function combatTest(context: QuenchBatchContext) {
 
             const effect = await createTimedEffect(actor, 3);
 
-            expect(effect.start.round, "start tick set to combat current tick (2)").to.equal(2);
+            expect(effect.start!.round, "start tick set to combat current tick (2)").to.equal(2);
         });
 
         it("does not start an existing timed effect's duration when its actor is drawn into a newly-started combat (core behavior)", async () => {
@@ -230,7 +230,7 @@ export function combatTest(context: QuenchBatchContext) {
             });
             actors.push(actor);
             const effect = await createTimedEffect(actor, 2);
-            expect(effect.start.round, "precondition: clock not started outside combat").to.not.be.ok;
+            expect(effect.start?.round, "precondition: clock not started outside combat").to.not.be.ok;
 
             // Now draw the actor into a freshly-started combat.
             const combat = await createActiveCombat();
@@ -256,7 +256,7 @@ export function combatTest(context: QuenchBatchContext) {
             await combat.rollInitiative(combatant.id);
             await combat.nextRound();
 
-            expect(effect.start.round, "core does not start a pre-existing effect's clock on combat start").to.not.be
+            expect(effect.start?.round, "core does not start a pre-existing effect's clock on combat start").to.not.be
                 .ok;
         });
 

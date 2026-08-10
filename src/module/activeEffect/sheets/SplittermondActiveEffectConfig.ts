@@ -82,11 +82,14 @@ function resolveDurationStatus(document: ActiveEffectDocument): {
         };
     }
 
+    const start = document.start;
     const isCombatTime = document.duration.units === "rounds" || document.duration.units === "turns";
 
+    const NO_START = "-";
     if (isCombatTime) {
-        const startRound = document.start.round;
-        const startLabel = typeof startRound === "number" && Number.isFinite(startRound) ? String(startRound) : null;
+        const startRound = start?.round;
+        const startLabel =
+            typeof startRound === "number" && Number.isFinite(startRound) ? String(startRound) : NO_START;
         return {
             isCombatTime: true,
             startLabel,
@@ -95,8 +98,8 @@ function resolveDurationStatus(document: ActiveEffectDocument): {
         };
     }
 
-    const startTime = document.start.time;
-    const startLabel = typeof startTime === "number" && Number.isFinite(startTime) ? String(startTime) : null;
+    const startTime = start?.time;
+    const startLabel = typeof startTime === "number" && Number.isFinite(startTime) ? String(startTime) : NO_START;
     return {
         isCombatTime: false,
         startLabel,
