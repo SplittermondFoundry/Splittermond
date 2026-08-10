@@ -31,13 +31,24 @@ export const DURATION_MODE_CHOICES = {
 } as const satisfies Record<DurationMode, string>;
 const DURATION_UNIT_CHOICES = splittermond.activeEffect.duration.unitChoices;
 
-function prepareDurationContext(
+export function isActorInCombat(document: ActiveEffectDocument): boolean {
+    const actor = document.actor;
+    if (!actor) return false;
+    return foundryApi.getCombatForActor(actor) !== null;
+}
+
+export function defaultDurationUnit(isInCombat: boolean): DurationUnit {
+    return isInCombat ? "rounds" : "hours";
+}
+
+export function prepareDurationContext(
     context: ApplicationRenderContext,
     document: ActiveEffectDocument
 ): ApplicationRenderContext {
     const durationMode = document.durationMode;
     const duration = document.duration ?? {};
-    const durationUnits = readDurationUnits(duration.units);
+    const fallback = defaultDurationUnit(isActorInCombat(document));
+    const durationUnits = readDurationUnits(duration.units, fallback);
 
     context.durationMode = durationMode;
     context.durationModeChoices = DURATION_MODE_CHOICES;
@@ -94,7 +105,7 @@ function resolveDurationStatus(document: ActiveEffectDocument): {
     };
 }
 
-function processDurationFormData(submitData: Record<string, unknown>): void {
+export function processDurationFormData(submitData: Record<string, unknown>, document: ActiveEffectDocument): void {
     const durationMode = readDurationMode(readPath(submitData, DURATION_MODE_PATH));
     setPath(submitData, DURATION_MODE_PATH, durationMode);
 
@@ -105,7 +116,8 @@ function processDurationFormData(submitData: Record<string, unknown>): void {
         return;
     }
 
-    const durationUnits = readDurationUnits(readPath(submitData, DURATION_UNITS_PATH));
+    const fallback = defaultDurationUnit(isActorInCombat(document));
+    const durationUnits = readDurationUnits(readPath(submitData, DURATION_UNITS_PATH), fallback);
     setPath(submitData, DURATION_VALUE_PATH, readTimedDurationValue(readPath(submitData, DURATION_VALUE_PATH)));
     setPath(submitData, DURATION_UNITS_PATH, durationUnits);
     setPath(submitData, DURATION_EXPIRY_PATH, durationUnits === "rounds" ? TICK_EXPIRY : null);
@@ -116,9 +128,9 @@ function readDurationMode(value: unknown): DurationMode {
     return "permanent";
 }
 
-function readDurationUnits(value: unknown): DurationUnit {
-    if (typeof value !== "string") return "rounds";
-    return value in DURATION_UNIT_CHOICES ? (value as DurationUnit) : "rounds";
+export function readDurationUnits(value: unknown, fallback: DurationUnit): DurationUnit {
+    if (typeof value !== "string") return fallback;
+    return value in DURATION_UNIT_CHOICES ? (value as DurationUnit) : fallback;
 }
 
 function readTimedDurationValue(value: unknown): number {
@@ -183,7 +195,7 @@ export class BaseActiveEffectConfig extends FoundryActiveEffectConfig {
 
     _processFormData(event: Event, form: HTMLFormElement, formData: { object: Record<string, unknown> }): object {
         const submitData = super._processFormData(event, form, formData) as Record<string, unknown>;
-        processDurationFormData(submitData);
+        processDurationFormData(submitData, this.document);
         return submitData;
     }
 }
@@ -264,7 +276,7 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
 
     _processFormData(event: Event, form: HTMLFormElement, formData: { object: Record<string, unknown> }): object {
         const submitData = super._processFormData(event, form, formData) as Record<string, unknown>;
-        processDurationFormData(submitData);
+        processDurationFormData(submitData, this.document);
         return this.#processModifierFormData(submitData);
     }
 
