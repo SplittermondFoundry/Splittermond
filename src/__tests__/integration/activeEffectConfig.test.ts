@@ -1,16 +1,19 @@
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import sinon from "sinon";
 import { Modifier, SplittermondActiveEffect } from "module/activeEffect";
+import type SplittermondActor from "module/actor/actor";
 import { SplittermondActiveEffectConfig } from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
 import { evaluate, of, plus, ref, times } from "module/modifiers/expressions/scalar";
-import { withActiveEffect, withActor } from "./fixtures";
+import { createScene, withActiveEffect, withActor } from "./fixtures";
 import { passesEventually } from "../util";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import SplittermondItemEffectsSheet from "module/item/sheets/item-effects-sheet";
 import { serialize as serializeScalar } from "module/modifiers/expressions/scalar/serialization";
 import { splittermond } from "module/config";
+import type { FoundryScene } from "module/api/foundryTypes";
 
 declare const Item: any;
+declare const Scene: FoundryScene;
 declare const game: { time: { worldTime: number; advance(delta: number): Promise<unknown> } };
 
 async function enterInSheet(sheet: SplittermondActiveEffectConfig, inputName: string, value: string) {
@@ -930,6 +933,144 @@ export function activeEffectTest(context: QuenchBatchContext) {
 
                 const targetEffect = weapon.effects.contents[0];
                 expect(targetEffect.system.modifiers[0].attributes.type).to.equal("equipment");
+            })
+        );
+    });
+
+    describe("Combat-aware default duration units", () => {
+        let combatScene: FoundryScene;
+        let originalScene: FoundryScene | null;
+
+        before(async () => {
+            originalScene = (game as any).canvas?.scene ?? null;
+            combatScene = await createScene();
+            await combatScene.view();
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await combatScene.activate();
+        });
+
+        afterEach(async () => {
+            await Combat.deleteDocuments(Array.from((game as any).combats.keys()));
+            await combatScene.deleteEmbeddedDocuments(
+                "Token",
+                combatScene.tokens.map((t: TokenDocument) => t.id)
+            );
+        });
+
+        after(async () => {
+            await Scene.deleteDocuments([combatScene.id]);
+            if (originalScene) await originalScene.activate();
+        });
+
+        async function addActorToCombat(actor: SplittermondActor) {
+            const combat = (await Combat.create({})) as any;
+            await combat.update({ active: true });
+            await combat.startCombat();
+            const tokenDocument = (
+                await combatScene.createEmbeddedDocuments("Token", [
+                    {
+                        type: "base",
+                        actorId: actor.id,
+                        x: combatScene._viewPosition.x,
+                        y: combatScene._viewPosition.y,
+                    },
+                ])
+            )[0] as TokenDocument;
+            await combat.createEmbeddedDocuments("Combatant", [
+                {
+                    type: "base",
+                    actorId: actor.id,
+                    sceneId: combatScene.id,
+                    tokenId: tokenDocument.id,
+                    defeated: false,
+                    group: null,
+                },
+            ]);
+            return combat;
+        }
+
+        it(
+            "defaults timed units to hours when the actor is not in combat",
+            withActor(async (actor) => {
+                const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "NonCombat Timed",
+                        type: "modifier",
+                        flags: { splittermond: { durationMode: "timed" } },
+                        system: { modifiers: [], costModifiers: [] },
+                    },
+                ]);
+                const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                await sheet.render(true);
+                try {
+                    const unitsSelect = sheet.element.querySelector(
+                        "select[name='duration.units']"
+                    ) as HTMLSelectElement | null;
+                    expect(unitsSelect, "duration units dropdown rendered").to.exist;
+                    expect(unitsSelect!.value, "non-combat actor defaults to hours").to.equal("hours");
+                } finally {
+                    await sheet.close();
+                }
+            })
+        );
+
+        it(
+            "defaults timed units to rounds when the actor is in combat",
+            withActor(async (actor) => {
+                await addActorToCombat(actor);
+                const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Combat Timed",
+                        type: "modifier",
+                        flags: { splittermond: { durationMode: "timed" } },
+                        system: { modifiers: [], costModifiers: [] },
+                    },
+                ]);
+                const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                await sheet.render(true);
+                try {
+                    const unitsSelect = sheet.element.querySelector(
+                        "select[name='duration.units']"
+                    ) as HTMLSelectElement | null;
+                    expect(unitsSelect, "duration units dropdown rendered").to.exist;
+                    expect(unitsSelect!.value, "combat actor defaults to rounds").to.equal("rounds");
+                    const expiryInput = sheet.element.querySelector(
+                        "input[name='duration.expiry']"
+                    ) as HTMLInputElement | null;
+                    expect(expiryInput?.value, "rounds expiry is roundEnd").to.equal("roundEnd");
+                } finally {
+                    await sheet.close();
+                }
+            })
+        );
+
+        it(
+            "persists combat-aware rounds default after submitting the duration form",
+            withActor(async (actor) => {
+                await addActorToCombat(actor);
+                const [effect] = await actor.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Combat Submit",
+                        type: "modifier",
+                        flags: { splittermond: { durationMode: "timed" } },
+                        system: { modifiers: [], costModifiers: [] },
+                    },
+                ]);
+                const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                await enterInSheet(sheet, "duration.value", "2");
+                try {
+                    await passesEventually(
+                        () => {
+                            const restored = actor.effects.get(effect.id) as SplittermondActiveEffect;
+                            expect(restored.duration.units, "persisted units").to.equal("rounds");
+                            expect(restored.duration.expiry, "persisted expiry").to.equal("roundEnd");
+                        },
+                        2000,
+                        100
+                    );
+                } finally {
+                    await sheet.close();
+                }
             })
         );
     });
