@@ -23,7 +23,7 @@ declare class _FoundryActiveEffect extends FoundryDocument {
 
     duration: ActiveEffectDurationData;
 
-    start: EffectStartData;
+    start: EffectStartData | null;
 
     updateDuration(context?: object): ActiveEffectDurationData;
 
