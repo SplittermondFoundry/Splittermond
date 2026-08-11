@@ -259,17 +259,20 @@ export default class TokenActionBar extends SplittermondApplication {
         //try to place the action bar above the game and any custom hotbar
         if (showActionBar()) {
             let bottomPosition = Math.min(
-                $("#ui-bottom").outerHeight() ?? Number.POSITIVE_INFINITY,
-                $("#hotbar").outerHeight() ?? Number.POSITIVE_INFINITY
+                document.getElementById("ui-bottom")?.offsetHeight ?? Number.POSITIVE_INFINITY,
+                document.getElementById("hotbar")?.offsetHeight ?? Number.POSITIVE_INFINITY
             );
-            const bodyHeight = document.body.offsetHeight;
-            if (document.querySelectorAll("#custom-hotbar").length) {
-                bottomPosition = Math.max(bodyHeight - $("#custom-hotbar").position().top, bottomPosition);
+            const customHotbar = document.getElementById("custom-hotbar");
+            if (customHotbar) {
+                bottomPosition = Math.max(
+                    document.body.offsetHeight - customHotbar.getBoundingClientRect().top,
+                    bottomPosition
+                );
             }
             (this.element.querySelector(".token-action-bar")! as HTMLElement).style.bottom = `${bottomPosition}px`;
         } else {
             setTimeout(() => {
-                let bottomPosition = $("#ui-bottom").outerHeight() ?? "";
+                const bottomPosition = document.getElementById("ui-bottom")?.offsetHeight ?? "";
                 (this.element.querySelector(".token-action-bar")! as HTMLElement).style.bottom = `${bottomPosition}px`;
             }, 200);
         }
