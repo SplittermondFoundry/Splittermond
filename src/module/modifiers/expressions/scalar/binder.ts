@@ -3,6 +3,8 @@ import {
     AddExpression,
     DivideExpression,
     type Expression,
+    MaxExpression,
+    MinExpression,
     MultiplyExpression,
     PowerExpression,
     ReferenceExpression,
@@ -24,6 +26,8 @@ export function bindReferenceProviders(expression: Expression, provider: ActorPr
         bindReferenceProviders(expression.exponent, provider, onUnbound);
     } else if (expression instanceof AbsExpression) {
         bindReferenceProviders(expression.arg, provider, onUnbound);
+    } else if (expression instanceof MaxExpression || expression instanceof MinExpression) {
+        expression.args.forEach((a) => bindReferenceProviders(a, provider, onUnbound));
     }
     // AmountExpression and RollExpression have no references to bind
 }

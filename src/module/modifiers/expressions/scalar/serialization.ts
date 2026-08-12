@@ -4,6 +4,8 @@ import {
     AmountExpression,
     DivideExpression,
     type Expression,
+    MaxExpression,
+    MinExpression,
     MultiplyExpression,
     PowerExpression,
     ReferenceExpression,
@@ -42,6 +44,10 @@ export function serialize(expression: Expression): SerializedExpression {
         return { type: "power", base: serialize(expression.base), exponent: serialize(expression.exponent) };
     } else if (expression instanceof AbsExpression) {
         return { type: "abs", arg: serialize(expression.arg) };
+    } else if (expression instanceof MaxExpression) {
+        return { type: "max", args: expression.args.map(serialize) };
+    } else if (expression instanceof MinExpression) {
+        return { type: "min", args: expression.args.map(serialize) };
     }
     throw new Error(`Splittermond | Cannot serialize unknown expression type: ${expression}`);
 }
@@ -94,6 +100,14 @@ function deserializeInner(data: SerializedExpression): Expression {
             );
         case "abs":
             return new AbsExpression(deserializeInner(data.arg as SerializedExpression));
+        case "max":
+            return new MaxExpression(
+                (data.args as SerializedExpression[]).map((a) => deserializeInner(a)) as [Expression, ...Expression[]]
+            );
+        case "min":
+            return new MinExpression(
+                (data.args as SerializedExpression[]).map((a) => deserializeInner(a)) as [Expression, ...Expression[]]
+            );
         default:
             throw new Error(`Splittermond | Cannot deserialize unknown expression type: ${data.type}`);
     }

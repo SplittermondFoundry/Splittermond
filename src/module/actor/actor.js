@@ -24,7 +24,6 @@ import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
 import { FoundryDialog } from "module/api/Application.js";
 import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 import { fromExpression } from "module/util/util.ts";
-import { isGenerated } from "module/activeEffect/effectBuilder.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -277,7 +276,6 @@ export default class SplittermondActor extends Actor {
         if (phase !== "initial") return; //needs to be initial, b/c 'final' happens after derived value calculation.
         SplittermondActiveEffect.withFilter();
         for (/**@type SplittermondActiveEffect*/ const effect of this.allApplicableEffects()) {
-            if (isGenerated(effect)) continue;
             SplittermondActiveEffect.getModifiers([effect]).forEach((mod) => this.modifier.addModifier(mod));
             this.sortCostModifiersIntoManagers(SplittermondActiveEffect.getCostModifiers([effect]));
         }

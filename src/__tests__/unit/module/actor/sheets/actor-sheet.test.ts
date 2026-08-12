@@ -7,12 +7,12 @@ import SplittermondActorSheet from "module/actor/sheets/actor-sheet.js";
 import { splittermond } from "module/config";
 import { foundryApi } from "module/api/foundryApi";
 import { FoundryDialog } from "module/api/Application";
-import { SplittermondBaseActorSheet } from "module/data/SplittermondApplication";
 import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import { MasteryDataModel } from "module/item/dataModel/MasteryDataModel";
 import SplittermondActor from "module/actor/actor";
 import SplittermondItem from "module/item/item";
 import type { SplittermondItemDataModel } from "module/item";
+import { SplittermondBaseActorSheet } from "module/data/SplittermondApplication";
 
 declare const foundry: any;
 declare const global: any;
@@ -47,7 +47,7 @@ describe("SplittermondActorSheet", () => {
         superFunctionStub = sandbox.mock().callsFake((_e, doc) => doc);
         deleteFunctionStub = sandbox.mock();
         sandbox.stub(foundryApi.utils, "mergeObject").callsFake((a, b) => ({ ...a, ...b }));
-        Object.defineProperty(SplittermondBaseActorSheet.prototype, "_onDropDocument", {
+        Object.defineProperty(SplittermondBaseActorSheet.prototype, "_onDropItem", {
             value: superFunctionStub,
             configurable: true,
             writable: true,
@@ -76,7 +76,7 @@ describe("SplittermondActorSheet", () => {
 
         it("should set skill and skillLevel for valid single availableIn", async () => {
             const itemData = createDroppedItem("spell", new SpellDataModel({ availableIn: "illusionmagic 2" } as any));
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("illusionmagic");
@@ -88,7 +88,7 @@ describe("SplittermondActorSheet", () => {
                 "spell",
                 new SpellDataModel({ availableIn: "crazy antics, illusionmagic 2, illumanic 1" } as any)
             );
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("illusionmagic");
@@ -107,7 +107,7 @@ describe("SplittermondActorSheet", () => {
                 new SpellDataModel({ availableIn: "illusionmagic 2, deathmagic 1" } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("deathmagic");
@@ -128,7 +128,7 @@ describe("SplittermondActorSheet", () => {
                 new SpellDataModel({ availableIn: "", skill: "deathmagic", skillLevel: 1 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
@@ -152,7 +152,7 @@ describe("SplittermondActorSheet", () => {
                 { actor: sandbox.createStubInstance(SplittermondActor) }
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
@@ -176,7 +176,7 @@ describe("SplittermondActorSheet", () => {
                             new SpellDataModel({ availableIn: testInput.availableIn } as any)
                         );
 
-                        await sheet._onDropDocument(mockEvent, itemData);
+                        await sheet._onDropItem(mockEvent, itemData);
 
                         expect(superFunctionStub.called).to.be.true;
                         expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal(skill);
@@ -197,7 +197,7 @@ describe("SplittermondActorSheet", () => {
                 new SpellDataModel({ availableIn: "illusionmagic 2, deathmagic 1" } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(actorMock.deleteEmbeddedDocuments.callCount, "deleteEmbeddedDocuments call count").to.equal(1);
             expect(itemData.update.called).to.be.false;
@@ -236,7 +236,7 @@ describe("SplittermondActorSheet", () => {
                 "mastery",
                 new MasteryDataModel({ availableIn: "athletics", level: 3 } as any)
             );
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("athletics");
@@ -255,7 +255,7 @@ describe("SplittermondActorSheet", () => {
                 new MasteryDataModel({ availableIn: "athletics, acrobatics", level: 1 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("acrobatics");
@@ -273,7 +273,7 @@ describe("SplittermondActorSheet", () => {
                 new MasteryDataModel({ availableIn: "athletics, acrobatics", level: 1 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(deleteFunctionStub.callCount, "deleteEmbeddedDocuments call count").to.equal(1);
             expect(itemData.update.called).to.be.false;
@@ -292,7 +292,7 @@ describe("SplittermondActorSheet", () => {
                 new MasteryDataModel({ availableIn: "athletics, acrobatics", skill: "athletics", level: 2 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
@@ -313,7 +313,7 @@ describe("SplittermondActorSheet", () => {
                 new MasteryDataModel({ availableIn: "", skill: "melee", skillLevel: 2 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
@@ -336,7 +336,7 @@ describe("SplittermondActorSheet", () => {
                             new MasteryDataModel({ availableIn: "invalidskill" } as any)
                         );
 
-                        await sheet._onDropDocument(mockEvent, itemData);
+                        await sheet._onDropItem(mockEvent, itemData);
 
                         expect(superFunctionStub.called).to.be.true;
                         expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal(skill);

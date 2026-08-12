@@ -275,6 +275,17 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             })
         );
 
+        it(
+            "should return a drag-data object with type and uuid via toDragData",
+            withActiveEffect(activeEffectData, async (effect) => {
+                const dragData = effect.toDragData() as { type: string; uuid: string };
+                expect(dragData).to.be.an("object");
+                expect(dragData).to.not.be.null;
+                expect(dragData.type, "drag data type is ActiveEffect").to.equal("ActiveEffect");
+                expect(dragData.uuid, "drag data uuid is the effect uuid").to.equal(effect.uuid);
+            })
+        );
+
         it("should provide static defineSchema with expected keys", () => {
             expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property("defineSchema");
             expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a("function");

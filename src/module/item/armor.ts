@@ -1,5 +1,4 @@
 import SplittermondPhysicalItem from "./physical";
-import { of } from "../modifiers/expressions/scalar";
 import { ArmorDataModel } from "./dataModel/ArmorDataModel";
 
 export default class SplittermondArmorItem extends SplittermondPhysicalItem {
@@ -7,46 +6,6 @@ export default class SplittermondArmorItem extends SplittermondPhysicalItem {
 
     prepareActorData() {
         super.prepareActorData();
-        if (!this.system.equipped) return;
-        if (this.system.defenseBonus)
-            this.actor.modifier.add(
-                "defense",
-                {
-                    name: this.name,
-                    type: "equipment",
-                },
-                of(this.system.defenseBonus)
-            );
-        let handicap = this.handicap;
-        let tickMalus = this.tickMalus;
-        let damageReduction = this.system.damageReduction;
-        if (handicap)
-            this.actor.modifier.add(
-                "handicap.armor",
-                {
-                    name: this.name,
-                    type: "equipment",
-                },
-                of(handicap)
-            );
-        if (tickMalus)
-            this.actor.modifier.add(
-                "tickmalus.armor",
-                {
-                    name: this.name,
-                    type: "equipment",
-                },
-                of(tickMalus)
-            );
-        if (damageReduction)
-            this.actor.modifier.add(
-                "damagereduction",
-                {
-                    name: this.name,
-                    type: "equipment",
-                },
-                of(damageReduction)
-            );
     }
 
     get attributeMalus() {

@@ -34,8 +34,8 @@ function packPacksPlugin() {
     };
 }
 export default defineConfig({
-    root: path.resolve(__dirname, "../src/"),
-    publicDir: path.resolve(__dirname, "../public"),
+    root: path.resolve(import.meta.dirname, "../src/"),
+    publicDir: path.resolve(import.meta.dirname, "../public"),
     base: "/systems/splittermond/",
     plugins: [packPacksPlugin()],
     server: {
@@ -53,14 +53,14 @@ export default defineConfig({
         preprocessorOptions: {
             less: {
                 math: "always",
-                relativeUrls: true,
+                rewriteUrls: "all",
                 javascriptEnabled: true,
             },
         },
     },
     resolve: {
         alias: {
-            module: path.resolve(__dirname, "../src/module"),
+            module: path.resolve(import.meta.dirname, "../src/module"),
         },
     },
     esbuild: {
@@ -70,7 +70,7 @@ export default defineConfig({
         keepNames: true,
     },
     build: {
-        outDir: path.resolve(__dirname, "../dist"),
+        outDir: path.resolve(import.meta.dirname, "../dist"),
         emptyOutDir: true,
         sourcemap: true,
         lib: {
