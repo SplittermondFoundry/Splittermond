@@ -6,6 +6,11 @@ import {
     AddExpression,
     AmountExpression,
     DivideExpression,
+    evaluate,
+    max,
+    MaxExpression,
+    min,
+    MinExpression,
     minus,
     MultiplyExpression,
     of,
@@ -17,6 +22,7 @@ import {
 } from "module/modifiers/expressions/scalar";
 import { deserialize, serialize } from "module/modifiers/expressions/scalar/serialization";
 import { foundryApi } from "module/api/foundryApi";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import { MockRoll } from "__tests__/unit/RollMock";
 import { roll } from "module/modifiers/expressions/scalar/definitions";
 
@@ -321,6 +327,50 @@ describe("Expression Serialization", () => {
             expect(roundtripped.stringRep).to.equal("value");
             roundtripped.bindProvider(() => stubActor);
             expect(roundtripped.source).to.equal(stubActor);
+        });
+    });
+
+    describe("MaxExpression / MinExpression", () => {
+        it("should roundtrip MaxExpression structurally", () => {
+            const original = max(of(2), new ReferenceExpression("x", "y", true));
+            const roundtripped = deserialize(serialize(original));
+            expect(roundtripped).to.deep.equal(original);
+            expect(roundtripped).to.be.instanceOf(MaxExpression);
+        });
+
+        it("should roundtrip MinExpression structurally", () => {
+            const original = min(of(2), new ReferenceExpression("x", "y", true));
+            const roundtripped = deserialize(serialize(original));
+            expect(roundtripped).to.deep.equal(original);
+            expect(roundtripped).to.be.instanceOf(MinExpression);
+        });
+
+        it("should re-bind inner ReferenceExpression in max(...) at read time and evaluate to the actor's value, not the unbound fallback", async () => {
+            const stubActor = { attributes: { strength: { value: 10 } } } as any;
+            const provider: ActorProvider = () => stubActor;
+            const original = max(
+                of(0),
+                minus(
+                    of(13),
+                    ref("attributes.strength.value", () => null, "Stärke", true)
+                )
+            );
+            const roundtripped = deserialize(serialize(original), provider);
+            expect(await evaluate(roundtripped)).to.equal(3);
+        });
+
+        it("should re-bind inner ReferenceExpression in min(...) at read time and evaluate to the actor's value, not the unbound fallback", async () => {
+            const stubActor = { attributes: { strength: { value: 5 } } } as any;
+            const provider: ActorProvider = () => stubActor;
+            const original = min(
+                of(10),
+                minus(
+                    of(13),
+                    ref("attributes.strength.value", () => null, "Stärke", true)
+                )
+            );
+            const roundtripped = deserialize(serialize(original), provider);
+            expect(await evaluate(roundtripped)).to.equal(8);
         });
     });
 });

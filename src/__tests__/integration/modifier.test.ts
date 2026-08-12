@@ -30,6 +30,7 @@ import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { SplittermondSkill } from "module/config/skillGroups";
 import { Modifier } from "module/activeEffect";
 import sinon from "sinon";
+import { isGenerated } from "module/activeEffect/effectBuilder";
 
 declare const ChatMessage: any;
 
@@ -48,6 +49,21 @@ export function modifierTest(context: QuenchBatchContext) {
     beforeEach(() => (actors = []));
 
     afterEach(async () => await Actor.deleteDocuments(actors.map((a) => a.id)));
+
+    async function waitForItemEffects(items: FoundryDocument[], timeout = 1500) {
+        for (const item of items) {
+            await passesEventually(
+                () => {
+                    expect(
+                        item.effects.filter((e: { type: string }) => isGenerated(e)).length,
+                        "Effect was not verifiably created"
+                    ).to.be.greaterThan(0);
+                },
+                timeout,
+                50
+            );
+        }
+    }
 
     async function createActor(name: string) {
         const actor = await actorCreator.createCharacter({ type: "character", name, system: {} });
@@ -74,9 +90,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             });
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.stealth.value.calculate()).to.equal(7);
         });
@@ -92,7 +106,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const items = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Tough as Fingernails",
@@ -100,9 +114,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(items);
+
+            await subject.prepareData();
 
             expect(subject.system.health.total.value).to.equal(21);
         });
@@ -128,7 +142,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 });
 
                 const derivedValueKey = foundryApi.localize(`splittermond.derivedAttribute.${derivedValue}.short`);
-                await subject.createEmbeddedDocuments("Item", [
+                const items = await subject.createEmbeddedDocuments("Item", [
                     {
                         type: "strength",
                         name: "DerivedValueEnhancer",
@@ -136,9 +150,9 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 ]);
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                await waitForItemEffects(items);
+
+                await subject.prepareData();
 
                 expect(await subject.derivedValues[derivedValue].value.calculate()).to.equal(expected);
             });
@@ -154,7 +168,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     acrobatics: { points: 2, value: 6 },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const shieldItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "shield",
                     name: "Fat Shield",
@@ -168,9 +182,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(shieldItem);
+
+            await subject.prepareData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(5);
             expect(await subject.derivedValues.defense.value.calculate()).to.equal(17);
@@ -187,7 +201,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     acrobatics: { points: 2, value: 6 },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const armorItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "armor",
                     name: "Fat Armor",
@@ -201,9 +215,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(armorItem);
+
+            await subject.prepareData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(5);
             expect(await subject.derivedValues.defense.value.calculate()).to.equal(17);
@@ -237,9 +251,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         },
                     ])
                 )[0];
-                actor.prepareBaseData();
-                await actor.prepareEmbeddedDocuments();
-                actor.prepareDerivedData();
+                await actor.prepareData();
 
                 expect(
                     await actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.calculate()
@@ -252,7 +264,7 @@ export function modifierTest(context: QuenchBatchContext) {
             (subject.system as NpcDataModel).attributes.agility.updateSource({ value: 3 });
             (subject.system as NpcDataModel).attributes.strength.updateSource({ value: 5 });
             (subject.system as NpcDataModel).updateSource({ damageReduction: { value: 2 } });
-            await subject.createEmbeddedDocuments("Item", [
+            const npcFeatureItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "npcfeature",
                     name: "Elefant Skin",
@@ -262,9 +274,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(npcFeatureItem);
+
+            await subject.prepareData();
 
             expect(await subject.damageReduction.calculate()).to.equal(4);
         });
@@ -279,14 +291,12 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const skills = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "spelleffect",
                     name: "Superempathy",
                     system: { active: true, modifier: "empathy +1" },
                 },
-            ]);
-            await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "spelleffect",
                     name: "MegaEmpathy",
@@ -294,9 +304,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(skills);
+
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(8);
         });
@@ -314,7 +324,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     eloquence: { points: 9, value: 17 },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const masteryModItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Begabter Lügner",
@@ -325,6 +335,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masteryModItem);
             return subject;
         }
 
@@ -333,9 +344,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 "splinterpoints.bonus Fertigkeit='Redegewandtheit' +${AUS}"
             );
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             const splinterpointSpender = subject.spendSplinterpoint();
             expect(splinterpointSpender.pointSpent).to.be.true;
@@ -345,9 +354,7 @@ export function modifierTest(context: QuenchBatchContext) {
         it("should account for a global bonus modifier", async () => {
             const subject = await getActorWithMasteryModifying("splinterpoints.bonus 4");
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             const splinterpointSpender = subject.spendSplinterpoint();
             expect(splinterpointSpender.pointSpent).to.be.true;
@@ -358,7 +365,7 @@ export function modifierTest(context: QuenchBatchContext) {
             const subject = await getActorWithMasteryModifying(
                 "splinterpoints.bonus Fertigkeit='Redegewandtheit' ${AUS}"
             );
-            await subject.createEmbeddedDocuments("Item", [
+            const secondMastery = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Begabter Redner",
@@ -370,9 +377,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(secondMastery);
+
+            await subject.prepareData();
 
             const splinterpointSpender = subject.spendSplinterpoint();
             expect(splinterpointSpender.pointSpent).to.be.true;
@@ -392,20 +399,23 @@ export function modifierTest(context: QuenchBatchContext) {
                         },
                     },
                 });
-                actor.createEmbeddedDocuments("Item", [
+                const hasteItem = await actor.createEmbeddedDocuments("Item", [
                     {
                         type: "spelleffect",
                         name: "Haste",
                         //all three must take effect to achieve an overall modifier of 1.5
-                        system: { modifier: "actor.speed.multiplier 1.25, gsw.mult 0.6, speed.multiplier 2" },
+                        system: {
+                            modifier: "actor.speed.multiplier 1.25, gsw.mult 0.6, speed.multiplier 2",
+                            active: true,
+                        },
                     },
                 ]);
-                actor.prepareBaseData();
-                actor.prepareEmbeddedDocuments();
-                actor.prepareDerivedData();
-                actor.modifier.add("actor.speed.multiplier", { name: "Haste", type: "magic" }, of(1.5), false);
 
-                expect(Number(actor.derivedValues.speed.value.display)).to.equal(12);
+                await waitForItemEffects(hasteItem);
+
+                await actor.prepareData();
+
+                expect(await actor.derivedValues.speed.value.calculate()).to.equal(12);
             })
         );
     });
@@ -426,7 +436,7 @@ export function modifierTest(context: QuenchBatchContext) {
         }
 
         async function addWoundedEffect(actor: SplittermondActor, level: number) {
-            return await actor.createEmbeddedDocuments("Item", [
+            const item = await actor.createEmbeddedDocuments("Item", [
                 {
                     type: "statuseffect",
                     name: "Verwundung",
@@ -436,10 +446,12 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(item);
+            return item;
         }
 
         async function makeWeak(actor: SplittermondActor) {
-            return await actor.createEmbeddedDocuments("Item", [
+            const item = await actor.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Schwächlich",
@@ -448,6 +460,8 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(item);
+            return item;
         }
 
         it("should apply wound malus effect with more than full bar missing", async () => {
@@ -455,9 +469,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await addWoundedEffect(subject, 1);
             await subject.consumeCost("health", `8V8`, "");
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - 2);
         });
@@ -466,9 +478,7 @@ export function modifierTest(context: QuenchBatchContext) {
             const subject = await setUpActor();
             await subject.consumeCost("health", `8V8`, "");
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - 1);
         });
@@ -486,9 +496,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await makeWeak(subject);
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -498,9 +506,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await makeWeak(subject);
                         await subject.consumeCost("health", "1V1", "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -511,9 +517,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await makeWeak(subject);
                         await subject.consumeCost("health", `7V7`, "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -535,9 +539,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -547,9 +549,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await subject.consumeCost("health", "1V1", "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -559,9 +559,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await subject.consumeCost("health", `7V7`, "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -570,9 +568,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.derivedValues.initiative.value.calculate()).to.equal(8 + reduction);
                     });
@@ -582,9 +578,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await subject.consumeCost("health", "1V1", "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.derivedValues.initiative.value.calculate()).to.equal(8 + reduction);
                     });
@@ -594,9 +588,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await subject.consumeCost("health", `7V7`, "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.derivedValues.initiative.value.calculate()).to.equal(8 + reduction);
                     });
@@ -629,20 +621,18 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should add a constant value to a skill", async () => {
             const subject = await defaultActor("Empath", "empathy +1");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(6);
         });
 
         it("should add a roll to a skill", async () => {
             const subject = await defaultActor("Empath", "empathy 2W6");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate())
                 .to.be.above(6)
@@ -651,30 +641,27 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should add a attribute value to a skill", async () => {
             const subject = await defaultActor("Empath", "empathy ${Intuition}");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(7);
         });
 
         it("should add a skill value to a skill", async () => {
             const subject = await defaultActor("DoubleEmpath", "empathy ${Jagdkunst}");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(10);
         });
 
         it("should add a random numeric attribute to", async () => {
             const subject = await defaultActor("WeirdEmpath", "empathy ${system.health.max}");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(40);
         });
@@ -691,7 +678,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     difficulty: "18",
                 },
             };
-            await subject.createEmbeddedDocuments("Item", [
+            const masterySpell = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Sparsamer Zauberer",
@@ -702,11 +689,10 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masterySpell);
             await subject.createEmbeddedDocuments("Item", [spellDefinition]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("2V1");
         });
@@ -723,7 +709,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     difficulty: "18",
                 },
             };
-            await subject.createEmbeddedDocuments("Item", [
+            const masterySpell = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Sparsamer Zauberer",
@@ -734,11 +720,10 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masterySpell);
             await subject.createEmbeddedDocuments("Item", [spellDefinition]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("2V1");
         });
@@ -755,7 +740,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     difficulty: "18",
                 },
             };
-            await subject.createEmbeddedDocuments("Item", [
+            const masterySpell = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Sparsamer Zauberer",
@@ -766,11 +751,10 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masterySpell);
             await subject.createEmbeddedDocuments("Item", [spellDefinition]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("2V1");
         });
@@ -787,7 +771,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     difficulty: "18",
                 },
             };
-            await subject.createEmbeddedDocuments("Item", [
+            const masterySpell = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Sparsamer Zauberer",
@@ -798,17 +782,17 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masterySpell);
             await subject.createEmbeddedDocuments("Item", [spellDefinition]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("3V2");
         });
 
         it("should only modify npcattacks with npcattacks", async () => {
             const subject = await defaultActor("Attacking NPC", "npcattacks -1");
+            await waitForItemEffects(subject.items.contents);
             const npcAttackDefinition = {
                 type: "npcattack",
                 name: "Körper",
@@ -832,9 +816,9 @@ export function modifierTest(context: QuenchBatchContext) {
 
             const npcAttack = documents.find((d) => d.type === "npcattack")!;
             const weapon = documents.find((d) => d.type === "weapon")!;
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+
+            await subject.prepareData();
+
             const findAttack = (id: string) => subject.attacks.find((a) => a.toObject().id === id);
 
             expect(await findAttack(npcAttack.id)?.skill.value.calculate(), "unexpected npc attack skill").to.equal(
@@ -845,6 +829,7 @@ export function modifierTest(context: QuenchBatchContext) {
         ("");
         it("should modify npc attack values", async () => {
             const subject = await defaultActor("Attacking NPC", "npcattacks -1");
+            await waitForItemEffects(subject.items.contents);
             const npcAttackDefinition = {
                 type: "npcattack",
                 name: "Körper",
@@ -855,9 +840,7 @@ export function modifierTest(context: QuenchBatchContext) {
             const npcAttacks = await subject.createEmbeddedDocuments("Item", [npcAttackDefinition]);
             const npcAttack = npcAttacks[0];
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.attacks.find((a) => a.toObject().id === npcAttack.id)?.skill.value.display).to.equal(
                 `${npcAttackDefinition.system.skillValue - 1}`
@@ -887,6 +870,8 @@ export function modifierTest(context: QuenchBatchContext) {
                         weaponSpeed: 6,
                     },
                 },
+            ]);
+            const modifierItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Murderous Strength",
@@ -894,9 +879,10 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(modifierItem);
+
+            await subject.prepareData();
+
             expect(subject.attacks.find((a) => a.name === "Spear of Destiny")?.damage).to.equal("6");
         });
 
@@ -924,6 +910,8 @@ export function modifierTest(context: QuenchBatchContext) {
                         },
                     },
                 },
+            ]);
+            const modifierItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Absurd Fastness",
@@ -934,9 +922,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(modifierItem);
+
+            await subject.prepareData();
 
             const itemUnderTest = subject.items.find((i) => i.name === "Spear of Light") as SplittermondSpellItem;
             expect(await itemUnderTest.system.castDuration.inTicks()).to.equal(4);
@@ -1000,16 +988,15 @@ export function modifierTest(context: QuenchBatchContext) {
                 it(
                     `should modify skill group ${skillGroup}`,
                     withActor(async (actor) => {
-                        await actor.createEmbeddedDocuments("Item", [
+                        const skillItem = await actor.createEmbeddedDocuments("Item", [
                             {
                                 type: "strength",
                                 name: "Skill Booster",
                                 system: { modifier: `skills.${skillGroup} +2` },
                             },
                         ]);
-                        actor.prepareBaseData();
-                        await actor.prepareEmbeddedDocuments();
-                        actor.prepareDerivedData();
+                        await waitForItemEffects(skillItem);
+                        await actor.prepareData();
 
                         await Promise.all(
                             splittermond.skillGroups[skillGroup].map(async (skill) => {
@@ -1023,24 +1010,22 @@ export function modifierTest(context: QuenchBatchContext) {
             it(
                 `should modify skill group fighting`,
                 withActor(async (actor) => {
-                    const weapon = (
-                        await actor.createEmbeddedDocuments("Item", [
-                            {
-                                type: "weapon",
-                                name: "Skill Booster",
-                                system: {
-                                    equipped: true,
-                                    modifier: `skills.fighting +2`,
-                                    skill: "blades",
-                                    attribute1: "strength",
-                                    attribute2: "agility",
-                                },
+                    const items = await actor.createEmbeddedDocuments("Item", [
+                        {
+                            type: "weapon",
+                            name: "Skill Booster",
+                            system: {
+                                equipped: true,
+                                modifier: `skills.fighting +2`,
+                                skill: "blades",
+                                attribute1: "strength",
+                                attribute2: "agility",
                             },
-                        ])
-                    )[0];
-                    actor.prepareBaseData();
-                    await actor.prepareEmbeddedDocuments();
-                    actor.prepareDerivedData();
+                        },
+                    ]);
+                    const weapon = items[0];
+                    await waitForItemEffects(items);
+                    await actor.prepareData();
 
                     expect(actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.display).to.equal(
                         "6"
@@ -1059,16 +1044,15 @@ export function modifierTest(context: QuenchBatchContext) {
                     `should modify skill ${skill}`,
                     withActor(async (actor) => {
                         const originalValue = await actor.skills[skill].value.calculate();
-                        await actor.createEmbeddedDocuments("Item", [
+                        const skillItem = await actor.createEmbeddedDocuments("Item", [
                             {
                                 type: "strength",
                                 name: "Skill Booster",
                                 system: { modifier: `${skill} +2` },
                             },
                         ]);
-                        actor.prepareBaseData();
-                        await actor.prepareEmbeddedDocuments();
-                        actor.prepareDerivedData();
+                        await waitForItemEffects(skillItem);
+                        await actor.prepareData();
 
                         expect(await actor.skills[skill].value.calculate()).to.equal(originalValue + 2);
                     })
@@ -1082,16 +1066,15 @@ export function modifierTest(context: QuenchBatchContext) {
                     withActor(async (actor) => {
                         const originalValue = await actor.skills[skill].value.calculate();
                         const localizedSkill = foundryApi.localize(`splittermond.skillLabel.${skill}`);
-                        await actor.createEmbeddedDocuments("Item", [
+                        const skillItem = await actor.createEmbeddedDocuments("Item", [
                             {
                                 type: "strength",
                                 name: "Skill Booster",
                                 system: { modifier: `skills Fertigkeit="${localizedSkill}" +2` },
                             },
                         ]);
-                        actor.prepareBaseData();
-                        await actor.prepareEmbeddedDocuments();
-                        actor.prepareDerivedData();
+                        await waitForItemEffects(skillItem);
+                        await actor.prepareData();
 
                         expect(await actor.skills[skill].value.calculate()).to.equal(originalValue + 2);
                     })
@@ -1111,16 +1094,15 @@ export function modifierTest(context: QuenchBatchContext) {
             })
         );
         async function attributeTest(actor: SplittermondActor, modifierInput: string) {
-            await actor.createEmbeddedDocuments("Item", [
+            const skillItem = await actor.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Skill Booster",
                     system: { modifier: modifierInput },
                 },
             ]);
-            actor.prepareBaseData();
-            await actor.prepareEmbeddedDocuments();
-            actor.prepareDerivedData();
+            await waitForItemEffects(skillItem);
+            await actor.prepareData();
 
             ((await Promise.all(Object.entries(splittermond.skillAttributes))) as [[SplittermondSkill, string[]]])
                 .filter(([_, value]) => value.includes("mystic"))
@@ -1144,7 +1126,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         skills: { acrobatics: { points: 6 } },
                     },
                 });
-                await actor.createEmbeddedDocuments("Item", [
+                const checkItem = await actor.createEmbeddedDocuments("Item", [
                     {
                         type: "strength",
                         name: "Check Booster",
@@ -1153,9 +1135,8 @@ export function modifierTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
-                actor.prepareBaseData();
-                await actor.prepareEmbeddedDocuments();
-                actor.prepareDerivedData();
+                await waitForItemEffects(checkItem);
+                await actor.prepareData();
 
                 await actor.skills.acrobatics.roll({ rollType: "safety", askUser: false });
 
@@ -1202,10 +1183,11 @@ export function modifierTest(context: QuenchBatchContext) {
         });
 
         async function addStrengthModifier(actor: SplittermondActor, modifier: string, name: string): Promise<void> {
-            await actor.createEmbeddedDocuments("Item", [{ type: "strength", name, system: { modifier } }]);
-            actor.prepareBaseData();
-            await actor.prepareEmbeddedDocuments();
-            actor.prepareDerivedData();
+            const items = await actor.createEmbeddedDocuments("Item", [
+                { type: "strength", name, system: { modifier } },
+            ]);
+            await waitForItemEffects(items);
+            await actor.prepareData();
         }
 
         function rollTypeFromMessage(messageContent: string): string | undefined {
@@ -1455,9 +1437,8 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
+
             subject.modifier.add(
                 "item.damage",
                 {
@@ -1513,9 +1494,8 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
+
             subject.modifier.add(
                 "item.damage",
                 {
@@ -1579,9 +1559,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 ]);
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                await subject.prepareData();
 
                 expect(await subject.skills.empathy.value.calculate()).to.equal(7);
             })
@@ -1624,9 +1602,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 ]);
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                await subject.prepareData();
 
                 expect(await subject.woundMalusMod.calculate()).to.equal(2);
             })

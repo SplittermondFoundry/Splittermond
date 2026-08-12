@@ -108,7 +108,7 @@ const foundryApplicationSheets = {
             return this.options.document;
         }
 
-        _onDropDocument() {}
+        _onDropItem() {}
     },
     ActiveEffectConfig: class extends foundryApplicationsApi.ApplicationV2 {
         get document() {

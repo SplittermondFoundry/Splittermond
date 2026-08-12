@@ -441,6 +441,13 @@ declare namespace foundry {
 
                 _canDragStart(selector: string): boolean;
                 _onDrop(event: DragEvent): Promise<void>;
+                _onDropItem(event: DragEvent, item: Item): Promise<Item | null | undefined>;
+                _onDropActor(event: DragEvent, actor: Actor): Promise<Actor | null | undefined>;
+                _onDropActiveEffect(
+                    event: DragEvent,
+                    effect: foundry.documents.ActiveEffect
+                ): Promise<foundry.documents.ActiveEffect | null | undefined>;
+                _onDropFolder(event: DragEvent, folder: Folder): Promise<Folder | null | undefined>;
             }
 
             class ActiveEffectConfig extends HandlebarsApplicationMixin(DocumentSheetV2) {

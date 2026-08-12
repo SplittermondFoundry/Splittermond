@@ -13,7 +13,7 @@ export function isMember<T>(collection: Readonly<T[]>, member: unknown): member 
 export function fromExpression(expressionCalculator: () => Expression) {
     return {
         get display() {
-            return asString(condense(expressionCalculator()));
+            return asString(condense(expressionCalculator(), true));
         },
         get expression() {
             return expressionCalculator();

@@ -189,6 +189,9 @@ declare global {
 
         testUserPermission(user: User, permission: string, options?: { exact?: boolean }): boolean;
 
+        // Defined on ClientDocument
+        toDragData(): object;
+
         static deleteDocuments(documentId: string[]): Promise<void>;
 
         static create(data: object, options?: Record<string, any>): Promise<FoundryDocument>;

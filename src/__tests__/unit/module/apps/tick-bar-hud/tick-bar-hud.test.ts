@@ -6,7 +6,7 @@ import SplittermondCombat from "module/combat/combat";
 import TickBarHud from "module/apps/tick-bar-hud/tick-bar-hud";
 import type { FoundryCombatant } from "module/api/foundryTypes";
 import { JSDOM } from "jsdom";
-import { createHtml } from "../../../../handlebarHarness";
+import { createHtml } from "__tests__/handlebarHarness";
 import { addNewCombatant, createCombat, type MockedCombatant } from "./tickBarHudTestHelpers";
 
 describe("TickBarHud", () => {

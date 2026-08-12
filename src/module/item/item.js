@@ -77,46 +77,7 @@ export default class SplittermondItem extends Item {
         }
     }
 
-    prepareActorData() {
-        const data = this.system;
-        switch (this.type) {
-            case "weapon":
-            case "shield":
-            case "armor":
-                if (!data.equipped) {
-                    break;
-                }
-            case "equipment":
-                this.actor.addModifier(this, data.modifier, "equipment");
-                break;
-            case "strength":
-                this.actor.addModifier(this, data.modifier, "innate", data.quantity);
-                break;
-            case "statuseffect":
-                this.actor.addModifier(this, data.modifier, "innate", data.level);
-                break;
-            case "spelleffect":
-                if (data.active) {
-                    this.actor.addModifier(this, data.modifier, "magic");
-                }
-                break;
-            case "mastery":
-                let modifier = data.modifier.replaceAll("${skill}", data.skill);
-                let name = this.name;
-                if (name.startsWith("Schwerpunkt")) {
-                    name = this.name.substring(12).trim();
-                }
-                modifier = modifier.replaceAll("${name}", name);
-                this.actor.addModifier(this, modifier, "innate");
-                break;
-            case "npcfeature":
-                this.actor.addModifier(this, data.modifier, "innate");
-                break;
-            default:
-                this.actor.addModifier(this, data.modifier);
-                break;
-        }
-    }
+    prepareActorData() {}
 
     /** @override */
     async _onCreate(data, options, userId) {
@@ -146,8 +107,33 @@ export default class SplittermondItem extends Item {
     #modifierRebuildConfig() {
         switch (this.type) {
             case "weapon":
+                return {
+                    modifierType: "equipment",
+                    rebuildTrigger: (system) => "modifier" in system || "equipped" in system || "features" in system,
+                };
             case "shield":
+                return {
+                    modifierType: "equipment",
+                    rebuildTrigger: (system) =>
+                        "modifier" in system ||
+                        "equipped" in system ||
+                        "defenseBonus" in system ||
+                        "handicap" in system ||
+                        "tickMalus" in system ||
+                        "minAttributes" in system,
+                };
             case "armor":
+                return {
+                    modifierType: "equipment",
+                    rebuildTrigger: (system) =>
+                        "modifier" in system ||
+                        "equipped" in system ||
+                        "defenseBonus" in system ||
+                        "handicap" in system ||
+                        "tickMalus" in system ||
+                        "damageReduction" in system ||
+                        "minStr" in system,
+                };
             case "equipment":
                 return {
                     modifierType: "equipment",
