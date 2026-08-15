@@ -19,7 +19,7 @@ effects:
                 implementation: additive
                 selectable: false
                 attributes:
-                    name: check.require rollType="safety"
+                    name: Angsterfüllt
                     rollType: safety
                     type: innate
           costModifiers: []
@@ -72,9 +72,6 @@ system:
     source: ""
     modifier: ""
     level: "1"
-    startTick: 0
-    interval: 0
-    times: 0
     combatEvent:
         startTick: 0
         interval: 0

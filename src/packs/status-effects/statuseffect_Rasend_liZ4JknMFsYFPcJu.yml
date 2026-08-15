@@ -19,7 +19,7 @@ effects:
                 implementation: additive
                 selectable: false
                 attributes:
-                    name: check.require rollType="risk"
+                    name: Rasend
                     rollType: risk
                     type: innate
           costModifiers: []

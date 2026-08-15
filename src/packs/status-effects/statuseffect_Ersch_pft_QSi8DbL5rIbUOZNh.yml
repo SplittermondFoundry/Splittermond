@@ -3,7 +3,378 @@ name: Erschöpft
 type: statuseffect
 flags: {}
 img: icons/svg/mystery-man.svg
-effects: []
+effects:
+    - name: Erschöpfung
+      origin: Compendium.splittermond.statuseffects.Item.QSi8DbL5rIbUOZNh
+      type: modifier
+      _id: 5HBK0zjt8A3e8Dyb
+      img: icons/svg/mystery-man.svg
+      system:
+          changes: []
+          modifiers:
+              - path: melee
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: slashing
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: chains
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: blades
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: longrange
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: staffs
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: throwing
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: acrobatics
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: alchemy
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: leadership
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: arcanelore
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: athletics
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: performance
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: diplomacy
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: clscraft
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: empathy
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: determination
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: dexterity
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: history
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: craftmanship
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: heal
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: stealth
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: hunting
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: countrylore
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: nature
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: eloquence
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: locksntraps
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: swim
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: seafaring
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: streetlore
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: animals
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: survival
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: perception
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: endurance
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: npcattacks
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: speed
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+              - path: initiative
+                serializedValue:
+                    type: amount
+                    amount: 1
+                implementation: inverse
+                selectable: false
+                attributes:
+                    name: Erschöpft
+                    type: innate
+          costModifiers: []
+      disabled: false
+      start: null
+      duration:
+          value: null
+          units: null
+          expiry: null
+          expired: false
+      description: ""
+      tint: "#ffffff"
+      transfer: true
+      statuses: []
+      showIcon: 1
+      folder: null
+      sort: 0
+      flags:
+          splittermond:
+              durationMode: permanent
+              rawInput: skills.fighting -1, skills.general -1, GSW -1, INI +1, npcattacks -1
+      _stats:
+          coreVersion: "14.365"
+          systemId: splittermond
+          systemVersion: 14.3.0-alpha5
+          createdTime: 1785333758175
+          modifiedTime: 1785333936938
+          lastModifiedBy: XEyWQoNP8LHDdOvz
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+      _key: "!items.effects!QSi8DbL5rIbUOZNh.5HBK0zjt8A3e8Dyb"
 _stats:
     coreVersion: "13.342"
     systemId: null
@@ -25,7 +396,7 @@ system:
         Punkt erh&ouml;ht. Es kann durch eine <em>Verschnaufpause </em>der Zustand
         um eine Stufe verringert werden.</p>
     source: ""
-    modifier: skills.fighting -1, skills.general -1, GSW -1, INI +1, npcattacks -1
+    modifier: ""
     level: "1"
     combatEvent:
         startTick: 0

@@ -3,7 +3,54 @@ name: Benommen
 type: statuseffect
 flags: {}
 img: icons/svg/stoned.svg
-effects: []
+effects:
+    - name: Verzögerung
+      origin: Compendium.splittermond.statuseffects.Item.UfIqTMgCrPFr116f
+      type: modifier
+      _id: oTesWAbGLkC7N6gf
+      img: icons/svg/stoned.svg
+      system:
+          changes: []
+          modifiers:
+              - path: tickMalus
+                serializedValue:
+                    type: amount
+                    amount: 1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Benommen
+                    type: innate
+          costModifiers: []
+      disabled: false
+      start: null
+      duration:
+          value: 60
+          units: rounds
+          expiry: roundEnd
+          expired: false
+      description: ""
+      tint: "#ffffff"
+      transfer: true
+      statuses: []
+      showIcon: 1
+      folder: null
+      sort: 0
+      flags:
+          splittermond:
+              durationMode: permanent
+              rawInput: tickMalus.mod +1
+      _stats:
+          coreVersion: "14.365"
+          systemId: splittermond
+          systemVersion: 14.3.0-alpha5
+          createdTime: 1785333758175
+          modifiedTime: 1785333936938
+          lastModifiedBy: XEyWQoNP8LHDdOvz
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+      _key: "!items.effects!UfIqTMgCrPFr116f.oTesWAbGLkC7N6gf"
 _stats:
     coreVersion: "13.342"
     systemId: null
@@ -22,7 +69,7 @@ system:
         <p>Alle Aktionen sind um einen Tick verlangsamt. Der Zustand endet nach 60
         Ticks.&nbsp;</p>
     source: ""
-    modifier: tickMalus.mod +1
+    modifier: ""
     level: "1"
     combatEvent:
         startTick: 0
