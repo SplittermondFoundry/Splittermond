@@ -4,6 +4,7 @@ import sinon, { SinonSandbox } from "sinon";
 import { clearMappers } from "module/modifiers/parsing/normalizer";
 import { foundryApi } from "module/api/foundryApi";
 import { stubRollApi } from "../../../RollMock";
+import type { Die, FoundryRoll } from "module/api/Roll";
 
 describe("Modifier Parser", () => {
     let sandbox: SinonSandbox;
@@ -306,6 +307,32 @@ describe("Modifier Parser", () => {
                 errors.some((e) => e.includes("splittermond.modifiers.parseMessages.invalidAttributeKey"))
             );
         });
+    });
+
+    [1, 7.2, 0.5, 17, 30.3].forEach((input) => {
+        it(`should parse ${input} as number`, () => {
+            const modifier = `actor.speed.multiplier ${input}`;
+            const result = parseModifiers(modifier);
+            expect(result.errors).to.be.empty;
+            expect(result.modifiers).to.deep.equal([
+                {
+                    path: "actor.speed.multiplier",
+                    attributes: {
+                        value: input,
+                    },
+                    rawFragment: modifier,
+                },
+            ]);
+        });
+    });
+
+    it("should parse 1d6 as a roll", () => {
+        const modifier = `damage 1d6`;
+        const result = parseModifiers(modifier);
+        expect(result.errors).to.be.empty;
+        expect(typeof result.modifiers[0].attributes.value).to.equal("object");
+        expect(((result.modifiers[0].attributes.value as FoundryRoll).terms[0] as Die).number).to.equal(1);
+        expect(((result.modifiers[0].attributes.value as FoundryRoll).terms[0] as Die).faces).to.equal(6);
     });
 });
 

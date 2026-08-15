@@ -154,7 +154,7 @@ function parseAttribute(attribute: string): AttributeParseResult {
 
 function parseValue(value: string) {
     const valueExpressionPattern = /(?<=\$\{)[^}]+(?=})/;
-    const numberPattern = /(?<=["']|^)[+-]?\d+(?=["']|$)/;
+    const numberPattern = /(?<=["']|^)[+-]?\d+(:?[.]\d+)?(?=["']|$)/;
     const quotedStringPattern = /(?<=["']).*(?=["'])/;
     if (valueExpressionPattern.test(value)) {
         const sign: 1 | -1 = /-(?=\s*\$\{)/.test(value) ? -1 : 1;
