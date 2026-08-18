@@ -15,6 +15,14 @@ interface HasModifierString {
     system: { modifier: string | null };
 }
 
+/**
+ * Write-side sibling of `EffectDataObject` in `./types` (the read-side projection of
+ * `ActiveEffect.toObject()`). The two are paired: builders construct `EffectCreationData`
+ * for `createEmbeddedDocuments`, and readers/hook handlers consume `EffectDataObject`
+ * from `toObject()` / substitutors. `system` is left as `object` because the narrowed
+ * entry shapes (e.g. `propertyEffectBuilder`'s `attributes: { type: "equipment" }`)
+ * are erased at the write boundary and re-derived by the DataModel on read.
+ */
 export interface EffectCreationData {
     name: string;
     origin: string;

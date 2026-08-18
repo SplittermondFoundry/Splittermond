@@ -1,6 +1,8 @@
 import { foundryApi } from "../api/foundryApi";
-import { splittermond } from "module/config/index.js";
 import { rebuildModifierEffects } from "../activeEffect/effectBuilder.ts";
+import { stripSchwerpunktPrefix, substituteSkill } from "module/activeEffect/sentinelSubstitution.ts";
+import { modifiers } from "module/config/modifiers";
+import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffectAssignment.ts";
 
 /** @type {import("module/modifiers/modifierAddition").AddModifierResult extends object ? Function : never} */
 let _addModifier = null;
@@ -45,10 +47,6 @@ export default class SplittermondItem extends Item {
                 }
             }
 
-            if (splittermond.modifier[data.id]) {
-                data.modifier = CONFIG.splittermond.modifier[data.id];
-            }
-
             if (this.type === "spell") {
                 const enhancementDescriptionId = `${this.type}.${data.id}.enhan`;
                 const enhancementDescriptionText = game.i18n.localize(enhancementDescriptionId);
@@ -67,14 +65,6 @@ export default class SplittermondItem extends Item {
                 }
             }
         }
-
-        if (["strength", "mastery"].includes(this.type)) {
-            if (!data.modifier) {
-                if (CONFIG.splittermond.modifier[this.name.toLowerCase()]) {
-                    data.modifier = CONFIG.splittermond.modifier[this.name.toLowerCase()];
-                }
-            }
-        }
     }
 
     prepareActorData() {}
@@ -86,6 +76,7 @@ export default class SplittermondItem extends Item {
         const config = this.#modifierRebuildConfig();
         if (config) {
             await this.#rebuildItemModifierEffects(config);
+            await this.#assignCompendiumEffectByName();
         }
     }
 
@@ -173,12 +164,23 @@ export default class SplittermondItem extends Item {
     async #rebuildItemModifierEffects(config) {
         let modifierString = this.system.modifier ?? "";
         if (this.type === "mastery") {
-            let name = this.name;
-            if (name.startsWith("Schwerpunkt")) {
-                name = this.name.substring(12).trim();
-            }
+            const name = stripSchwerpunktPrefix(this.name);
             modifierString = modifierString.replaceAll("${skill}", this.system.skill ?? "").replaceAll("${name}", name);
         }
         return rebuildModifierEffects(_addModifier, this, config.modifierType, modifierString);
+    }
+
+    async #assignCompendiumEffectByName() {
+        if (!["strength", "mastery"].includes(this.type)) return;
+
+        const modifierKey = this.name.toLowerCase();
+        const uuid = modifiers[modifierKey];
+        if (!uuid) return;
+
+        const existing = this.effects.find((e) => e.flags?.core?.sourceId === uuid);
+        if (existing) return;
+
+        const substitutor = substituteSkill(this.system.skill);
+        await copyCompendiumEffectToItem(this, uuid, substitutor);
     }
 }

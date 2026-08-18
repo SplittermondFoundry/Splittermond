@@ -24,6 +24,8 @@ import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
 import { FoundryDialog } from "module/api/Application.js";
 import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 import { fromExpression } from "module/util/util.ts";
+import { copyCompendiumEffectToItem } from "../activeEffect/compendiumEffectAssignment.ts";
+import { substituteSkill, stripSchwerpunktPrefix } from "../activeEffect/sentinelSubstitution.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -735,8 +737,11 @@ export default class SplittermondActor extends Actor {
         // If Genesis-JSON-Export
         if (data.jsonExporterVersion && data.system === "SPLITTERMOND") {
             updateActor = updateActor ?? (await askUserAboutActorOverwrite());
-            const importedGenesisData = await this.#importGenesisData(data, updateActor);
+            const { data: importedGenesisData, effectAssignments } = await this.#importGenesisData(data, updateActor);
             json = JSON.stringify(importedGenesisData);
+            const created = await super.importFromJSON(json);
+            await this.#applyEffectAssignments(created, effectAssignments);
+            return created;
         }
 
         return super.importFromJSON(json);
@@ -745,12 +750,13 @@ export default class SplittermondActor extends Actor {
     /**
      * @param {Record<string,unknown>} data
      * @param {boolean} updateActor
-     * @returns {Promise<Partial<CharacterData>| undefined>}
+     * @returns {Promise<{ data: Partial<CharacterData> | undefined, effectAssignments: Map<string, { uuid: string, skill?: string, name?: string }> }>}
      */
     async #importGenesisData(data, updateActor) {
         const genesisData = data;
         let newData = this.toObject();
         let newItems = [];
+        const effectAssignments = new Map();
         newData.system = {};
 
         newData.system.species = {
@@ -836,7 +842,8 @@ export default class SplittermondActor extends Actor {
                 newData.system.skills[id].points = s.points;
 
                 s.masterships.forEach((m) => {
-                    let modifierStr = CONFIG.splittermond.modifier[m.id] || "";
+                    const configUuid = CONFIG.splittermond.modifier[m.id] || "";
+                    let modifierStr = configUuid;
                     let description = m.longDescription;
                     if (modifierStr === "" && m.specialization) {
                         let emphasisName = /(.*) [1-9]/.exec(m.name);
@@ -852,9 +859,18 @@ export default class SplittermondActor extends Actor {
                             skill: id,
                             level: m.level,
                             description: description,
-                            modifier: modifierStr,
                         },
                     };
+
+                    if (configUuid) {
+                        effectAssignments.set(`${m.name.trim().toLowerCase()}|mastery`, {
+                            uuid: configUuid,
+                            skill: id,
+                            name: stripSchwerpunktPrefix(m.name),
+                        });
+                    } else if (modifierStr !== "") {
+                        newMastership.system.modifier = modifierStr;
+                    }
 
                     newItems.push(newMastership);
                 });
@@ -864,15 +880,19 @@ export default class SplittermondActor extends Actor {
         });
 
         genesisData.powers.forEach((s) => {
-            newItems.push({
+            const strengthItemData = {
                 type: "strength",
                 name: s.name,
                 system: {
                     quantity: s.count,
                     description: s.longDescription,
-                    modifier: CONFIG.splittermond.modifier[s.id] || "",
                 },
-            });
+            };
+            const uuid = CONFIG.splittermond.modifier[s.id] || "";
+            if (uuid) {
+                effectAssignments.set(`${s.name.trim().toLowerCase()}|strength`, { uuid });
+            }
+            newItems.push(strengthItemData);
         });
 
         genesisData.resources.forEach((r) => {
@@ -1011,6 +1031,7 @@ export default class SplittermondActor extends Actor {
         if (updateActor) {
             let updateItems = [];
 
+            const createdItemKeys = new Set();
             newItems = newItems.filter((i) => {
                 let foundItem = this.items.find(
                     (im) => im.type === i.type && im.name.trim().toLowerCase() === i.name.trim().toLowerCase()
@@ -1021,22 +1042,54 @@ export default class SplittermondActor extends Actor {
                     updateItems.push(foundryApi.utils.duplicate(i));
                     return false;
                 }
+                createdItemKeys.add(`${i.name.trim().toLowerCase()}|${i.type}`);
                 return true;
             });
+
+            const assignmentsForCreated = new Map();
+            for (const key of createdItemKeys) {
+                if (effectAssignments.has(key)) {
+                    assignmentsForCreated.set(key, effectAssignments.get(key));
+                }
+            }
 
             newData.system.currency = this.system.currency;
 
             await this.update(newData);
             await this.updateEmbeddedDocuments("Item", updateItems);
-            await this.createEmbeddedDocuments("Item", newItems);
+            const createdItems = await this.createEmbeddedDocuments("Item", newItems);
 
-            return this.update(newData);
+            for (const createdItem of createdItems) {
+                const key = `${createdItem.name.trim().toLowerCase()}|${createdItem.type}`;
+                const assignment = assignmentsForCreated.get(key);
+                if (!assignment) continue;
+                const substitutor = substituteSkill(assignment.skill ?? createdItem.system?.skill);
+                await copyCompendiumEffectToItem(createdItem, assignment.uuid, substitutor);
+            }
+
+            return { data: await this.update(newData), effectAssignments: new Map() };
         }
         newData.name = genesisData.name;
         newData.prototypeToken.name = genesisData.name;
         newData.prototypeToken.actorLink = true;
         newData.items = foundryApi.utils.duplicate(newItems);
-        return newData;
+        return { data: newData, effectAssignments };
+    }
+
+    /**
+     * @param {object} createdActor The actor returned by `super.importFromJSON`.
+     * @param {Map<string, { uuid: string, skill?: string, name?: string }>} effectAssignments
+     * @returns {Promise<void>}
+     */
+    async #applyEffectAssignments(createdActor, effectAssignments) {
+        if (!effectAssignments || effectAssignments.size === 0) return;
+        for (const [key, assignment] of effectAssignments) {
+            const [nameKey, type] = key.split("|");
+            const item = createdActor.items.find((i) => i.type === type && i.name.trim().toLowerCase() === nameKey);
+            if (!item) continue;
+            const substitutor = substituteSkill(assignment.skill ?? item.system?.skill);
+            await copyCompendiumEffectToItem(item, assignment.uuid, substitutor);
+        }
     }
 
     /** @returns {{pointSpent:boolean, getBonus(skillName:SplittermondSkill): Promise<number>}} splinterpoints spent */

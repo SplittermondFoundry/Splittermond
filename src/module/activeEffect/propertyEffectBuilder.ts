@@ -7,14 +7,7 @@ import type { ShieldDataModel } from "module/item/dataModel/ShieldDataModel";
 import type { WeaponDataModel } from "module/item/dataModel/WeaponDataModel";
 import { foundryApi } from "module/api/foundryApi";
 import { parseShieldMinAttributes, type ParsedMinAttribute } from "module/item/minAttributesParser";
-
-interface ModifierEntry {
-    path: string;
-    serializedValue: ReturnType<typeof serialize>;
-    implementation: string;
-    selectable: boolean;
-    attributes: { name: string; type: "equipment" };
-}
+import type { ModifierEntry } from "./types";
 
 function equipmentAttributes(item: SplittermondItem): { name: string; type: "equipment" } {
     return { name: item.name, type: "equipment" };

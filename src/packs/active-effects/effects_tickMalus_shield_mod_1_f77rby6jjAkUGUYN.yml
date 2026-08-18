@@ -1,0 +1,47 @@
+folder: null
+name: Reduzierter Tickmalus für Schilde
+origin: null
+type: modifier
+_id: f77rby6jjAkUGUYN
+img: icons/svg/upgrade.svg
+system:
+    changes: []
+    modifiers:
+        - path: tickMalus.shield
+          serializedValue:
+              type: amount
+              amount: -1
+          implementation: additive
+          selectable: false
+          attributes:
+              name: tickMalus.shield.mod -1
+              type: innate
+    costModifiers: []
+disabled: false
+start: null
+duration:
+    value: null
+    units: seconds
+    expiry: null
+    expired: false
+description: ""
+tint: "#ffffff"
+transfer: true
+statuses: []
+showIcon: 1
+sort: 0
+flags:
+    splittermond:
+        durationMode: permanent
+        rawInput: tickMalus.shield.mod -1
+_stats:
+    coreVersion: "14.365"
+    systemId: splittermond
+    systemVersion: 14.3.0-alpha5
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
+_key: "!effects!f77rby6jjAkUGUYN"

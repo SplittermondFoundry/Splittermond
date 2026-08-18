@@ -15,6 +15,7 @@ import { resolveHostActor } from "module/activeEffect/dataModel/hostActor";
 import { CostModifier as CostValue } from "module/util/costs/Cost";
 import { getFromRegistry } from "module/data/dataModelRegistry";
 import { IllegalStateException } from "module/data/exceptions";
+import type { ModifierEntry, CostModifierEntry } from "../types";
 
 interface ModifierConstructor {
     new (
@@ -116,21 +117,6 @@ export function ActionEffectSchema() {
 }
 
 export type ActionEffectSchemaType = DataModelSchemaType<typeof ActionEffectSchema>;
-
-export interface ModifierEntry {
-    path: string;
-    serializedValue: SerializedExpression;
-    implementation: string;
-    selectable: boolean;
-    attributes: ModifierAttributes;
-}
-
-export interface CostModifierEntry {
-    label: string;
-    serializedValue: SerializedCostExpression;
-    skill: string | null;
-    attributes: CostModifierAttributes;
-}
 
 export interface HasCostModifiers {
     readonly asCostModifiers: ICostModifier[];

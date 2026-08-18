@@ -4,6 +4,8 @@ import { splittermond } from "../config";
 import { importSpell as spellImporter } from "./item-importer/spellImporter";
 import { importNpc as npcImporter } from "./item-importer/npcImporter";
 import { FoundryDialog } from "../api/Application.ts";
+import { copyCompendiumEffectToItem } from "../activeEffect/compendiumEffectAssignment.ts";
+import { substituteSkill } from "../activeEffect/sentinelSubstitution.ts";
 
 export default class ItemImporter {
     /**
@@ -229,15 +231,17 @@ export default class ItemImporter {
                     return;
                 }
 
+                const name = token[1].trim();
+                const uuid = splittermond.modifier[name.toLowerCase()];
+
                 let itemData = {
                     type: "mastery",
-                    name: token[1].trim(),
+                    name: name,
                     folder: folder,
                     system: {
                         skill: skill,
                         availableIn: skill,
                         level: level,
-                        modifier: splittermond.modifier[token[1].trim().toLowerCase()] || "",
                     },
                 };
                 let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -250,9 +254,18 @@ export default class ItemImporter {
                 if (descriptionData === null) {
                     descriptionData = levelData[1].match(new RegExp(`${escapeStr} ([^]+)`));
                 }
-                itemData.system.description = descriptionData[1].replace("\n", "").replace("", "");
+                itemData.system.description = descriptionData[1].replace("\n", "").replace("", "");
 
-                itemPromises.push(itemCreator.createMastery(itemData));
+                const createPromise = itemCreator.createMastery(itemData);
+                if (uuid) {
+                    itemPromises.push(
+                        createPromise.then((created) =>
+                            copyCompendiumEffectToItem(created, uuid, substituteSkill(created.system.skill))
+                        )
+                    );
+                } else {
+                    itemPromises.push(createPromise);
+                }
 
                 console.log(itemData);
                 foundryApi.informUser("splittermond.message.itemImported", {
@@ -267,16 +280,17 @@ export default class ItemImporter {
     static async importNpcFeatures(rawData) {
         let folder = await this._folderDialog();
 
-        rawData.match(/^(.*): .*/gm).forEach((m) => {
+        for (const m of rawData.match(/^(.*): .*/gm)) {
             let token = m.match(/(.*):/);
+
+            const name = token[1].trim();
+            const uuid = splittermond.modifier[name.toLowerCase()];
 
             let itemData = {
                 type: "npcfeature",
-                name: token[1].trim(),
+                name: name,
                 folder: folder,
-                system: {
-                    modifier: splittermond.modifier[token[1].trim().toLowerCase()] || "",
-                },
+                system: {},
             };
             let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -289,7 +303,10 @@ export default class ItemImporter {
                 .replaceAll("", "")
                 .replaceAll("  ", " ");
 
-            Item.create(itemData);
+            const created = await Item.create(itemData);
+            if (uuid) {
+                await copyCompendiumEffectToItem(created, uuid);
+            }
 
             console.log(itemData);
             ui.notifications.info(
@@ -298,22 +315,23 @@ export default class ItemImporter {
                     type: foundryApi.localize("ITEM.TypeNpcfeature"),
                 })
             );
-        });
+        }
     }
 
     static async importStrengths(rawData) {
         let folder = await this._folderDialog();
-        rawData.match(/^(.*) \(([0-9])(\*?)\): .*/gm).forEach((m) => {
+        for (const m of rawData.match(/^(.*) \(([0-9])(\*?)\): .*/gm)) {
             let token = m.match(/(.*) \(([0-9])(\*?)\):/);
+            const name = token[1].trim();
+            const uuid = splittermond.modifier[name.toLowerCase()];
             let itemData = {
                 type: "strength",
-                name: token[1].trim(),
+                name: name,
                 folder: folder,
                 system: {
                     quantity: 1,
                     level: parseInt(token[2]),
                     onCreationOnly: token[3] === "*",
-                    modifier: splittermond.modifier[token[1].trim().toLowerCase()] || "",
                 },
             };
             let escapeStr = token[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -324,7 +342,10 @@ export default class ItemImporter {
             }
             itemData.system.description = descriptionData[1].replace("\n", "").replace("", "");
 
-            Item.create(itemData);
+            const created = await Item.create(itemData);
+            if (uuid) {
+                await copyCompendiumEffectToItem(created, uuid, substituteSkill(created.system?.skill));
+            }
 
             console.log(itemData);
             ui.notifications.info(
@@ -333,7 +354,7 @@ export default class ItemImporter {
                     type: foundryApi.localize("ITEM.TypeStrength"),
                 })
             );
-        });
+        }
     }
 
     static async importShield(rawData, folder = "") {

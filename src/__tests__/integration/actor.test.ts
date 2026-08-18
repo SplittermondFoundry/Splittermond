@@ -188,19 +188,22 @@ export function actorTest(context: QuenchBatchContext) {
             });
 
             expect(actor.items.filter((i) => i.type === "strength").length, "Has n strength items").to.equal(5);
-            expect(
-                actor.items.find((i) => i.name === "Zusätzliche Splitterpunkte")?.system,
-                "Comparing strength 'Zusätzliche Splitterpunkte'"
-            ).to.deep.contain({
+            const splinterpointsStrength = actor.items.find((i) => i.name === "Zusätzliche Splitterpunkte");
+            expect(splinterpointsStrength?.system, "Comparing strength 'Zusätzliche Splitterpunkte'").to.deep.contain({
                 description:
                     "Das Schicksal ist dem Abenteurer in besonderem Maße gewogen. Er erhält 5 zusätzliche Sammelmünzen.",
                 level: 1,
-                modifier: "splinterpoints +2",
+                modifier: "",
                 multiSelectable: false,
                 onCreationOnly: false,
                 origin: "",
                 quantity: 1,
             });
+            const splinterpointsEffect = splinterpointsStrength?.effects.find((e) => e.type === "modifier");
+            expect(splinterpointsEffect, "strength carries an embedded modifier effect").to.exist;
+            expect(splinterpointsEffect!.system.modifiers[0].path, "embedded effect targets splinterpoints").to.equal(
+                "actor.splinterpoints"
+            );
 
             expect(actor.items.filter((i) => i.type === "mastery").length, "Has n mastery items").to.equal(17);
             expect(

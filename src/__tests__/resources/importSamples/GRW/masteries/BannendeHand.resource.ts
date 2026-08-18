@@ -11,7 +11,6 @@ export const expected = {
         description:
             "O feiticeiro pode expulsar effeitos magicos persistentes com pouco d' esforceo. Seine erschöpften Fokuspunkten XXX XXX XXXXXX von Bannzaubern des Typus Zauber brechensind um 2 Punkte verringert (Minimum 1).\n",
         level: 1,
-        modifier: "",
     },
     type: "mastery",
 };

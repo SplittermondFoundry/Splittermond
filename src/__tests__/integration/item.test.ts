@@ -21,6 +21,7 @@ import SplittermondAttackSheet from "module/item/sheets/attack-sheet";
 import type SplittermondEquipmentItem from "module/item/equipment";
 import { addModifierEffects, isGenerated } from "module/activeEffect/effectBuilder";
 import { getAddModifier } from "module/item/item";
+import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffectAssignment";
 
 declare const Item: any;
 declare const game: any;
@@ -45,6 +46,7 @@ export function itemTest(this: any, context: QuenchBatchContext) {
         );
 
         it("can create a new mastery item", async () => {
+            const arcanespeedUuid = splittermond.modifier["arcanespeed"];
             let itemData = {
                 type: "mastery",
                 name: "Supermastery",
@@ -53,19 +55,26 @@ export function itemTest(this: any, context: QuenchBatchContext) {
                     skill: "deathmagic",
                     availableIn: "deathmagic 1",
                     level: 1,
-                    modifier: splittermond.modifier["arcanespeed"],
                     description: "abc",
                     isGrandmaster: false,
                     isManeuver: false,
                     source: "",
+                    modifier: "",
                 },
             };
-            const item = await foundryApi.createItem(itemData);
+            const item = (await foundryApi.createItem(itemData)) as SplittermondItem;
 
             expect(item.system).to.deep.equal(itemData.system);
             expect(item.system).to.be.instanceOf(MasteryDataModel);
             expect(item.name).to.equal(itemData.name);
             expect(item.type).to.equal(itemData.type);
+
+            await copyCompendiumEffectToItem(item, arcanespeedUuid);
+            const embeddedEffect = item.effects.find((e) => e.flags?.core?.sourceId === arcanespeedUuid);
+            expect(embeddedEffect, "compendium effect copied onto mastery").to.exist;
+            expect(embeddedEffect!.type, "embedded effect is modifier-typed").to.equal("modifier");
+            expect(embeddedEffect!.transfer, "embedded effect transfers to actor").to.be.true;
+            expect(embeddedEffect!.system.modifiers.length, "embedded effect has one modifier").to.equal(1);
 
             await Item.deleteDocuments([item.id]);
         });

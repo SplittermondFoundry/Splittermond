@@ -6,6 +6,7 @@ import {
     ActionEffectDataModel,
     type ActionEffectSchemaType,
 } from "module/activeEffect/dataModel/ActionEffectDataModel";
+import type { ModifierEntry, CostModifierEntry } from "module/activeEffect";
 import { serialize as serializeScalar } from "module/modifiers/expressions/scalar/serialization";
 import { evaluate, type Expression, of } from "module/modifiers/expressions/scalar";
 import type { ModifierAttributes } from "module/modifiers";
@@ -16,9 +17,6 @@ import { TooltipFormula } from "module/util/tooltip";
 import { injectParent } from "__tests__/unit/testUtils";
 import { SplittermondActiveEffect } from "module/activeEffect/SplittermondActiveEffect";
 import { evaluate as evaluateCost } from "module/modifiers/expressions/cost";
-
-type ModifierEntry = ActionEffectSchemaType["modifiers"][number];
-type CostModifierEntry = ActionEffectSchemaType["costModifiers"][number];
 
 function modifierEntry(
     path: string,

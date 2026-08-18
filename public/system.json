@@ -231,6 +231,21 @@
       "langs": [
         "de"
       ]
+    },
+    {
+      "name": "activeeffects",
+      "label": "Stärken- und Meisterschaftseffekte",
+      "system": "splittermond",
+      "path": "packs/active-effects.db",
+      "entity": "ActiveEffect",
+      "type": "ActiveEffect",
+      "tags": [
+        "active-effects",
+        "auto-retrieved"
+      ],
+      "langs": [
+        "de"
+      ]
     }
   ],
   "languages": [
