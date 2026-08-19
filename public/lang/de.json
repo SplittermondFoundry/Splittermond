@@ -139,6 +139,10 @@
         "spellEffects": "Zaubereffekte",
         "activeEffects": "Aktive Effekte",
         "effects": "Effekte",
+        "experience": {
+            "free": "Freie EP",
+            "spent": "Ausgegebne EP"
+        },
         "effectsPanel": {
             "inputPlaceholder": "Modifikator eingeben, z.B. VTD +2, LP +1",
             "add": "Hinzufügen",

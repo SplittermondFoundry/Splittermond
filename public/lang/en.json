@@ -22,6 +22,10 @@
         "noDamage": "no damage category",
         "unknownError": "An unknown error occurred. Please file a bug report.",
         "messageMode": "Message mode",
+        "experience": {
+            "free": "Free XP",
+            "spent": "Spent XP"
+        },
         "chatCard": {
             "noGMConnected": "Action cannot be performed, because no authorized user (GM) is connected",
             "messageNotFound": "Message to update not found in the chat log",

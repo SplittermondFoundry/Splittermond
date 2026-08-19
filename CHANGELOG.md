@@ -17,6 +17,10 @@
         - Übertragung von Regionen
         - Auswertung ausschließlich bei Erschaffung des Effekts
 
+### Fixes
+
+- Anzeige des Namens und Tooltips für die Erfahrungspunktefelder
+
 ## 14.2.6
 
 ### Fixes
