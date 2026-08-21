@@ -1,8 +1,9 @@
 import { foundryApi } from "../api/foundryApi";
 import { rebuildModifierEffects } from "../activeEffect/effectBuilder.ts";
-import { stripSchwerpunktPrefix, substituteSkill } from "module/activeEffect/sentinelSubstitution.ts";
+import { stripSchwerpunktPrefix, substituteName, substituteSkill } from "module/activeEffect/sentinelSubstitution.ts";
 import { modifiers } from "module/config/modifiers";
 import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffectAssignment.ts";
+import { pipe } from "module/util/util.ts";
 
 /** @type {import("module/modifiers/modifierAddition").AddModifierResult extends object ? Function : never} */
 let _addModifier = null;
@@ -180,7 +181,7 @@ export default class SplittermondItem extends Item {
         const existing = this.effects.find((e) => e.flags?.core?.sourceId === uuid);
         if (existing) return;
 
-        const substitutor = substituteSkill(this.system.skill);
+        const substitutor = pipe(substituteSkill(this.system.skill), substituteName(this.item.name));
         await copyCompendiumEffectToItem(this, uuid, substitutor);
     }
 }

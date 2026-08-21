@@ -6,7 +6,7 @@ import type { EffectDataObject, EffectSubstitutor, SplittermondEffectFlags } fro
 export async function copyCompendiumEffectToItem(
     item: SplittermondItem,
     uuid: string,
-    substitutor: EffectSubstitutor = () => {}
+    substitutor: EffectSubstitutor = (e) => e
 ): Promise<void> {
     const resolved = await foundryApi.utils.fromUUID(uuid);
     if (!resolved) return;
@@ -22,7 +22,7 @@ export async function copyCompendiumEffectToItem(
     data.transfer = true;
     if (data.type !== "modifier") data.type = "modifier";
 
-    substitutor(data);
+    const substitutedData = substitutor(data);
 
-    await item.createEmbeddedDocuments("ActiveEffect", [data]);
+    await item.createEmbeddedDocuments("ActiveEffect", [substitutedData]);
 }

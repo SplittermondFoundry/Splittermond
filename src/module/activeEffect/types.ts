@@ -27,4 +27,4 @@ export interface EffectDataObject {
     [k: string]: unknown;
 }
 
-export type EffectSubstitutor = (effectData: EffectDataObject) => void;
+export type EffectSubstitutor = (effectData: EffectDataObject) => EffectDataObject;

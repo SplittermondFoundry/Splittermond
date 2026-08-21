@@ -5,7 +5,8 @@ import { importSpell as spellImporter } from "./item-importer/spellImporter";
 import { importNpc as npcImporter } from "./item-importer/npcImporter";
 import { FoundryDialog } from "../api/Application.ts";
 import { copyCompendiumEffectToItem } from "../activeEffect/compendiumEffectAssignment.ts";
-import { substituteSkill } from "../activeEffect/sentinelSubstitution.ts";
+import { substituteName, substituteSkill } from "../activeEffect/sentinelSubstitution.ts";
+import { pipe } from "module/util/util.ts";
 
 export default class ItemImporter {
     /**
@@ -260,7 +261,11 @@ export default class ItemImporter {
                 if (uuid) {
                     itemPromises.push(
                         createPromise.then((created) =>
-                            copyCompendiumEffectToItem(created, uuid, substituteSkill(created.system.skill))
+                            copyCompendiumEffectToItem(
+                                created,
+                                uuid,
+                                pipe(substituteSkill(created.system.skill), substituteName(created.name))
+                            )
                         )
                     );
                 } else {

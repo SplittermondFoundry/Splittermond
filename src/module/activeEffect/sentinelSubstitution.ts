@@ -7,14 +7,30 @@ export function stripSchwerpunktPrefix(name: string): string {
     return name;
 }
 
-export function substituteSkill(skill: string | undefined): (data: EffectDataObject) => void {
-    return (data) => {
+export function substituteSkill(skill: string | undefined) {
+    return (data: EffectDataObject) => {
         const system = data.system;
-        if (!system?.modifiers) return;
-        for (const entry of system.modifiers) {
-            if (entry.attributes && "skill" in entry.attributes) {
-                entry.attributes.skill = skill;
+        if (system?.modifiers) {
+            for (const entry of system.modifiers) {
+                if (entry.attributes && "skill" in entry.attributes) {
+                    entry.attributes.skill = skill;
+                }
             }
         }
+        return data;
+    };
+}
+
+export function substituteName(name: string) {
+    return (data: EffectDataObject) => {
+        const system = data.system;
+        if (system?.modifiers) {
+            for (const entry of system.modifiers) {
+                if (entry.attributes) {
+                    entry.attributes.name = name;
+                }
+            }
+        }
+        return data;
     };
 }
