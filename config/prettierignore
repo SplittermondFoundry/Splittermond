@@ -1,6 +1,7 @@
 node_modules/
 dist/
 build/
+workdir/
 *.min.js
 *.min.css
 package-lock.json
