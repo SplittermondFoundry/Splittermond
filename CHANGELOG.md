@@ -20,6 +20,7 @@
 ### Fixes
 
 - Anzeige des Namens und Tooltips für die Erfahrungspunktefelder
+- Erfolgsgrade von NSC werden nicht mehr limitiert wenn die Attribute einer Fertigkeit sich zu dem Fertigkeitswert summieren
 
 ## 14.2.6
 

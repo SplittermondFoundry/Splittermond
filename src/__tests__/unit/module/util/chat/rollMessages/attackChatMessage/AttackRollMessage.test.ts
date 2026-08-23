@@ -171,7 +171,11 @@ describe("AttackRollMessage", () => {
 
                 await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                    fromRoll: increase,
+                    modification: 0,
+                    limitedTo: 999,
+                });
             });
             it(`should increase open degrees of success by ${increase}`, async () => {
                 const underTest = createAttackRollMessage(sandbox);
@@ -187,7 +191,11 @@ describe("AttackRollMessage", () => {
 
                 await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                    fromRoll: increase,
+                    modification: 0,
+                    limitedTo: 999,
+                });
                 expect(underTest.openDegreesOfSuccess).to.deep.equal(increase);
             });
         });
@@ -232,7 +240,11 @@ describe("AttackRollMessage", () => {
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 10, modification: 0 });
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                fromRoll: 10,
+                modification: 0,
+                limitedTo: 999,
+            });
         });
 
         it("should only be usable once", async () => {
@@ -249,7 +261,11 @@ describe("AttackRollMessage", () => {
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 3, modification: 0 });
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                fromRoll: 3,
+                modification: 0,
+                limitedTo: 999,
+            });
         });
 
         it("should convert a failure into a success", async () => {
@@ -263,12 +279,16 @@ describe("AttackRollMessage", () => {
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
             underTest.checkReport.roll.total = underTest.checkReport.difficulty - 1;
-            underTest.checkReport.degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
             underTest.checkReport.succeeded = false;
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 0, modification: 0 });
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                fromRoll: 0,
+                modification: 0,
+                limitedTo: 999,
+            });
             expect(underTest.checkReport.succeeded).to.be.true;
         });
         it("should be available for splinterpoint bearers", () => {
@@ -330,7 +350,7 @@ describe("AttackRollMessage", () => {
                 },
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
-            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0 }; // 1 degree, but 2 maneuvers = grazing hit
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0, limitedTo: 999 }; // 1 degree, but 2 maneuvers = grazing hit
             underTest.checkReport.maneuvers = [{ id: "maneuver1" }, { id: "maneuver2" }] as any;
             underTest.checkReport.grazingHitPenalty = 4; // 2 maneuvers * 2 base penalty
             underTest.checkReport.succeeded = true;
@@ -371,7 +391,7 @@ describe("AttackRollMessage", () => {
                 },
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
-            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0 };
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0, limitedTo: 999 };
             underTest.checkReport.maneuvers = [
                 { id: "maneuver1" },
                 { id: "maneuver2" },
@@ -400,7 +420,7 @@ describe("AttackRollMessage", () => {
         function fullCheckReport(): CheckReport {
             return {
                 succeeded: false,
-                degreeOfSuccess: { fromRoll: 2, modification: 0 },
+                degreeOfSuccess: { fromRoll: 2, modification: 0, limitedTo: 999 },
                 degreeOfSuccessMessage: "",
                 difficulty: 9,
                 defenseType: null,
@@ -466,6 +486,7 @@ function createAttackRollMessage(sandbox: SinonSandbox, skill: SplittermondSkill
                 degreeOfSuccess: {
                     fromRoll: 0,
                     modification: 0,
+                    limitedTo: 999,
                 },
                 degreeOfSuccessMessage: "A very important message",
                 difficulty: 0,

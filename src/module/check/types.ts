@@ -4,6 +4,7 @@ export interface DegreeOfSuccessContainer {
     degreeOfSuccess: {
         fromRoll: number;
         modification: number;
+        limitedTo: number;
     };
 }
 interface RollResultForSplittermond {
@@ -12,16 +13,12 @@ interface RollResultForSplittermond {
     dice: { total: number }[];
 }
 
-export interface GenericRollEvaluation {
+export interface GenericRollEvaluation extends DegreeOfSuccessContainer {
     difficulty: number;
     rollType: RollType;
     succeeded: boolean;
     isFumble: boolean;
     isCrit: boolean;
-    degreeOfSuccess: {
-        fromRoll: number;
-        modification: number;
-    };
     degreeOfSuccessMessage: string;
     roll: RollResultForSplittermond;
 }

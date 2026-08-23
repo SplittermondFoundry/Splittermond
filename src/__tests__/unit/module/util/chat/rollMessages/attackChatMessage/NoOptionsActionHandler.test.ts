@@ -26,6 +26,7 @@ describe("Roll Fumble", () => {
         underTest.checkReportReference.get().degreeOfSuccess = {
             fromRoll: -2,
             modification: 0,
+            limitedTo: 999,
         };
 
         const actions = underTest.renderActions();
@@ -48,6 +49,7 @@ describe("Roll Fumble", () => {
         underTest.checkReportReference.get().degreeOfSuccess = {
             fromRoll: -5,
             modification: 0,
+            limitedTo: 999,
         };
 
         const actions = underTest.renderActions();
@@ -79,6 +81,7 @@ describe("Roll Fumble", () => {
         underTest.checkReportReference.get().degreeOfSuccess = {
             fromRoll: -5,
             modification: 0,
+            limitedTo: 999,
         };
 
         await underTest.useAction({ action: "rollFumble" });
@@ -138,7 +141,7 @@ function setUpNoOptionsActionHandler(sandbox: SinonSandbox): WithMockedRefs<NoOp
     const mockReportReference = setUpCheckReportSelfReference();
     const mockActor = setUpMockActor(sandbox);
     const mockAttackReference = setUpMockAttackSelfReference(sandbox, mockActor);
-    mockReportReference.degreeOfSuccess = { fromRoll: 0, modification: 0 };
+    mockReportReference.degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
 
     return withToObjectReturnsSelf(() => {
         const handler = NoOptionsActionHandler.initialize(

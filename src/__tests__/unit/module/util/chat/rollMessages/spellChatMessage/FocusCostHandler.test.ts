@@ -48,7 +48,7 @@ describe("FocusCostActionHandler", () => {
             underTest.channeled.updateSource({ isOption: false });
             underTest.exhausted.updateSource({ isOption: true });
             underTest.spellReference.getItem().getCostsForFinishedRoll.returns(new Cost(6, 2, false).asPrimaryCost());
-            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
 
             const options = underTest.renderDegreeOfSuccessOptions();
 
@@ -63,7 +63,7 @@ describe("FocusCostActionHandler", () => {
             underTest.channeled.updateSource({ isOption: true });
             underTest.exhausted.updateSource({ isOption: false });
             underTest.spellReference.getItem().getCostsForFinishedRoll.returns(new Cost(6, 2, true).asPrimaryCost());
-            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
 
             const options = underTest.renderDegreeOfSuccessOptions();
 
@@ -79,7 +79,7 @@ describe("FocusCostActionHandler", () => {
             const initialCost = new Cost(1, 1, false).asPrimaryCost();
 
             underTest.spellReference.getItem().getCostsForFinishedRoll.returns(initialCost);
-            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
 
             const options = underTest.renderDegreeOfSuccessOptions();
 
@@ -95,7 +95,7 @@ describe("FocusCostActionHandler", () => {
         it("should not render spell Enhancement if no cost is set", () => {
             const underTest = setUpFocusActionHandler(sandbox);
             underTest.spellReference.getItem().getCostsForFinishedRoll.returns(new Cost(6, 2, true).asPrimaryCost());
-            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
             underTest.updateSource({ spellEnhancement: { cost: 0 } });
 
             const options = underTest.renderDegreeOfSuccessOptions();
@@ -114,7 +114,7 @@ describe("FocusCostActionHandler", () => {
         ).forEach(([option, effect]) => {
             it(`${option} should not render if it reduces cost past minimum`, () => {
                 const underTest = setUpFocusActionHandler(sandbox);
-                underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+                underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
 
                 const initialCost = effect.asPrimaryCost();
 
@@ -135,7 +135,7 @@ describe("FocusCostActionHandler", () => {
         ).forEach(([option, effect]) => {
             it(`${option} should render exactly one reduction`, () => {
                 const underTest = setUpFocusActionHandler(sandbox);
-                underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+                underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
 
                 const initialCost = effect.asPrimaryCost();
 
@@ -157,7 +157,7 @@ describe("FocusCostActionHandler", () => {
             const initialCost = new Cost(1, 0, true).asPrimaryCost();
             underTest.spellReference.getItem().getCostsForFinishedRoll.returns(initialCost);
             underTest.spellEnhancement.effect = new Cost(0, 1, true).asModifier();
-            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
             asMock(settings.registerBoolean).returnsSetting(true);
 
             underTest.useDegreeOfSuccessOption({ action: "spellEnhancementUpdate", multiplicity: "1" }).action();
@@ -176,7 +176,7 @@ describe("FocusCostActionHandler", () => {
             const initialCost = new Cost(1, 0, true).asPrimaryCost();
             underTest.spellReference.getItem().getCostsForFinishedRoll.returns(initialCost);
             underTest.spellEnhancement.effect = new Cost(0, 1, true).asModifier();
-            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
             asMock(settings.registerBoolean).returnsSetting(false);
 
             underTest.useDegreeOfSuccessOption({ action: "spellEnhancementUpdate", multiplicity: "1" }).action();
@@ -190,7 +190,11 @@ describe("FocusCostActionHandler", () => {
             (option) => {
                 it(`should render the degree of success cost negatively for checked option ${option}`, () => {
                     const underTest = setUpFocusActionHandler(sandbox);
-                    underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+                    underTest.checkReportReference.get().degreeOfSuccess = {
+                        fromRoll: 0,
+                        modification: 0,
+                        limitedTo: 999,
+                    };
                     underTest.spellReference
                         .getItem()
                         .getCostsForFinishedRoll.returns(new Cost(1, 1, false).asPrimaryCost());
@@ -210,7 +214,11 @@ describe("FocusCostActionHandler", () => {
             [1, 2, 4, 8].forEach((multiplicity) => {
                 it(`should always offer checked option ${option} with multiplicity ${multiplicity}`, () => {
                     const underTest = setUpFocusActionHandler(sandbox);
-                    underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+                    underTest.checkReportReference.get().degreeOfSuccess = {
+                        fromRoll: 0,
+                        modification: 0,
+                        limitedTo: 999,
+                    };
                     underTest.useDegreeOfSuccessOption({ action: option, multiplicity }).action();
                     underTest.spellReference
                         .getItem()
@@ -434,7 +442,7 @@ describe("FocusCostActionHandler", () => {
     describe("useAction", () => {
         it("should consume cost and mark handler as used when useAction is called", async () => {
             const underTest = setUpFocusActionHandler(sandbox);
-            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
             const actionData = { action: "consumeCosts" } as const;
             const agent = underTest.casterReference.getAgent();
 
@@ -476,7 +484,7 @@ describe("FocusCostActionHandler", () => {
             underTest.exhausted.updateSource({ isOption: false });
             underTest.channeled.updateSource({ isOption: false });
             underTest.spellReference.getItem().getCostsForFinishedRoll.returns(new Cost(0, 0, false).asPrimaryCost());
-            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
 
             const actions = underTest.renderActions();
 
@@ -493,7 +501,7 @@ describe("FocusCostActionHandler", () => {
     describe("Cost calculation", () => {
         it("should calculate cost correctly when options are selected", () => {
             const underTest = setUpFocusActionHandler(sandbox);
-            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
 
             // Select consumed focus option with multiplicity 1
             underTest.consumed.check(1);
