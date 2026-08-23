@@ -203,6 +203,15 @@
                 "timeRemaining": "noch {n}",
                 "generatedFromItemProperty": "aus Gegenstandseigenschaft generiert"
             },
+            "propertyEffectName": {
+                "defense": "Verteidigung",
+                "damagereduction": "Schadensreduktion",
+                "handicapArmor": "Behinderung (Rüstung)",
+                "tickmalusArmor": "Tickmalus (Rüstung)",
+                "handicapShield": "Behinderung (Schild)",
+                "tickmalusShield": "Tickmalus (Schild)",
+                "defenseWeaponMalus": "Verteidigung (Waffenmalus)"
+            },
             "hideInactiveEffects": "Inaktive Effekte ausblenden",
             "showInactiveEffects": "Inaktive Effekte einblenden"
         },

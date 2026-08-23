@@ -73,7 +73,7 @@ export default class SplittermondItem extends Item {
     /** @override */
     async _onCreate(data, options, userId) {
         await super._onCreate(data, options, userId);
-        if (game.user.id !== userId) return;
+        if (foundryApi.currentUser.id !== userId) return;
         const config = this.#modifierRebuildConfig();
         if (config) {
             await this.#rebuildItemModifierEffects(config);
@@ -101,14 +101,15 @@ export default class SplittermondItem extends Item {
             case "weapon":
                 return {
                     modifierType: "equipment",
-                    rebuildTrigger: (system) => "modifier" in system || "equipped" in system || "features" in system,
+                    //minAttributes and skillMod are handled on attack level (because they exist separately for primary and secondary)
+                    /**@param {Partial<WeaponDataModel>} system*/
+                    rebuildTrigger: (system) => "modifier" in system || "features" in system,
                 };
             case "shield":
                 return {
                     modifierType: "equipment",
                     rebuildTrigger: (system) =>
                         "modifier" in system ||
-                        "equipped" in system ||
                         "defenseBonus" in system ||
                         "handicap" in system ||
                         "tickMalus" in system ||
@@ -119,7 +120,6 @@ export default class SplittermondItem extends Item {
                     modifierType: "equipment",
                     rebuildTrigger: (system) =>
                         "modifier" in system ||
-                        "equipped" in system ||
                         "defenseBonus" in system ||
                         "handicap" in system ||
                         "tickMalus" in system ||
@@ -134,12 +134,12 @@ export default class SplittermondItem extends Item {
             case "strength":
                 return {
                     modifierType: "innate",
-                    rebuildTrigger: (system) => "modifier" in system || "quantity" in system,
+                    rebuildTrigger: (system) => "modifier" in system,
                 };
             case "statuseffect":
                 return {
                     modifierType: "innate",
-                    rebuildTrigger: (system) => "modifier" in system || "level" in system,
+                    rebuildTrigger: (system) => "modifier" in system,
                 };
             case "spelleffect":
                 return {
@@ -181,7 +181,7 @@ export default class SplittermondItem extends Item {
         const existing = this.effects.find((e) => e.flags?.core?.sourceId === uuid);
         if (existing) return;
 
-        const substitutor = pipe(substituteSkill(this.system.skill), substituteName(this.item.name));
+        const substitutor = pipe(substituteSkill(this.system.skill), substituteName(this.name));
         await copyCompendiumEffectToItem(this, uuid, substitutor);
     }
 }

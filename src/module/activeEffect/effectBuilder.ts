@@ -172,8 +172,7 @@ export async function rebuildModifierEffects(
         );
     }
 
-    const propertyEffect = buildPropertyDerivedEffectData(item);
-    if (propertyEffect) effectDataArray.push(propertyEffect);
+    effectDataArray.push(...buildPropertyDerivedEffectData(item));
 
     if (effectDataArray.length > 0) {
         await item.createEmbeddedDocuments("ActiveEffect", effectDataArray);

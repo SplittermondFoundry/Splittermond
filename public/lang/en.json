@@ -193,6 +193,15 @@
                 "timeRemaining": "{n} remaining",
                 "generatedFromItemProperty": "generated from item property"
             },
+            "propertyEffectName": {
+                "defense": "Defense",
+                "damagereduction": "Damage Reduction",
+                "handicapArmor": "Handicap (Armor)",
+                "tickmalusArmor": "Tick Malus (Armor)",
+                "handicapShield": "Handicap (Shield)",
+                "tickmalusShield": "Tick Malus (Shield)",
+                "defenseWeaponMalus": "Defense (Weapon Malus)"
+            },
             "edit": "Edit Effect",
             "hideInactiveEffects": "Hide inactive effects",
             "showInactiveEffects": "Show inactive effects"
