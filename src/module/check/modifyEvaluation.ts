@@ -17,6 +17,8 @@ export async function modifyEvaluation(
     checkReport: ModifyEvaluationInput,
     actor: SplittermondActor
 ): Promise<GenericRollEvaluation> {
+    const limitedCheck = limitUnfamiliarSkillSuccessForPlayers(checkReport, actor);
+
     const successState = getSuccessAttributes(checkReport);
     const checkModifiers = actor.modifier
         .getForId("check.result")
@@ -26,12 +28,24 @@ export async function modifyEvaluation(
         .withAttributeValuesOrAbsent("checkType", checkReport.type)
         .getModifiers();
     return {
-        ...checkReport,
+        ...limitedCheck,
         degreeOfSuccess: {
-            fromRoll: checkReport.degreeOfSuccess.fromRoll,
-            modification: checkReport.degreeOfSuccess.modification + (await checkModifiers.sum()),
+            ...limitedCheck.degreeOfSuccess,
+            fromRoll: limitedCheck.degreeOfSuccess.fromRoll,
+            modification: limitedCheck.degreeOfSuccess.modification + (await checkModifiers.sum()),
         },
     };
+}
+function limitUnfamiliarSkillSuccessForPlayers(checkReport: ModifyEvaluationInput, actor: SplittermondActor) {
+    const newReport = { ...checkReport, degreeOfSuccess: { ...checkReport.degreeOfSuccess } };
+    if (actor.type === "character") {
+        const actorSkillPoints = actor.skills[newReport.skill].points;
+        if (actorSkillPoints < 1) {
+            newReport.degreeOfSuccess.fromRoll = Math.min(newReport.degreeOfSuccess.fromRoll, 0);
+            newReport.degreeOfSuccess.limitedTo = 0;
+        }
+    }
+    return newReport;
 }
 
 function getSuccessAttributes(checkReport: GenericRollEvaluation): CheckSuccessState[] {

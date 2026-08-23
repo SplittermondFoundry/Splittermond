@@ -1,10 +1,10 @@
-import {QuenchBatchContext} from "@ethaks/fvtt-quench";
-import {withActor} from "./fixtures";
-import {modifiers} from "module/config/modifiers";
-import type {EffectDataObject} from "module/activeEffect";
+import { QuenchBatchContext } from "@ethaks/fvtt-quench";
+import { withActor } from "./fixtures";
+import { modifiers } from "module/config/modifiers";
+import type { EffectDataObject } from "module/activeEffect";
 import type SplittermondItem from "module/item/item";
-import {splittermond} from "module/config";
-import {passesEventually} from "../util";
+import { splittermond } from "module/config";
+import { passesEventually } from "../util";
 
 declare const Item: { deleteDocuments(ids: string[]): Promise<void> };
 
@@ -39,15 +39,15 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
                 await add(item);
-                await passesEventually(()=>expect(item.effects).to.have.length(1))
+                await passesEventually(() => expect(item.effects).to.have.length(1));
 
-                const effect = (item.effects).find((e:EffectDataObject) => e.type === "modifier");
+                const effect = item.effects.find((e: EffectDataObject) => e.type === "modifier");
                 expect(effect, "embedded modifier effect should exist").to.exist;
 
                 const effectModifiers = effect!.system?.modifiers ?? [];
                 expect(effectModifiers).to.have.length(1);
                 expect(effectModifiers[0].path).to.equal("lp");
-                expect(effectModifiers[0].serializedValue).to.deep.equal({type: "amount", amount: 1});
+                expect(effectModifiers[0].serializedValue).to.deep.equal({ type: "amount", amount: 1 });
                 expect(effectModifiers[0].attributes?.name).to.equal("sturdy");
 
                 expect(effect!.flags?.core?.sourceId).to.equal(splittermond.modifier.sturdy);
@@ -76,7 +76,7 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
                 await add(item);
-                await passesEventually(()=>expect(item.effects).to.have.length(1))
+                await passesEventually(() => expect(item.effects).to.have.length(1));
 
                 const effect = findEffectBySourceId(item.effects, modifiers.arcanespeed);
                 expect(effect, "embedded modifier effect for arcanespeed should exist").to.exist;

@@ -26,23 +26,21 @@ export async function check(skill, difficulty, rollType = "standard", skillModif
     };
     const roll = foundryApi.roll(rollFormula, rollData).evaluate();
 
-    return await evaluateCheck(roll, skill.points, difficulty, rollType);
+    return evaluateCheck(roll, difficulty, rollType);
 }
 
 /**
  *
  * @param {Promise<{dice:{total:number}[], total:number}>} roll
- * @param skillPoints
  * @param {number} difficulty
  * @param rollType
  * @return {GenericRollEvaluation}
  */
-export async function evaluateCheck(roll, skillPoints, difficulty, rollType) {
+export async function evaluateCheck(roll, difficulty, rollType) {
     roll = await roll;
     const difference = roll.total - difficulty;
 
     let degreeOfSuccess = Math.sign(difference) * Math.floor(Math.abs(difference / 3));
-    degreeOfSuccess = skillPoints < 1 ? Math.min(degreeOfSuccess, 0) : degreeOfSuccess;
     const isFumble = rollType !== "safety" && roll.dice[0].total <= 3;
     const isCrit = roll.dice[0].total >= 19;
     const succeeded = difference >= 0 && !isFumble;
@@ -70,6 +68,7 @@ export async function evaluateCheck(roll, skillPoints, difficulty, rollType) {
         degreeOfSuccess: {
             fromRoll: degreeOfSuccess,
             modification: 0,
+            limitedTo: 999,
         },
         degreeOfSuccessMessage: degreeOfSuccessMessage,
         roll: roll,

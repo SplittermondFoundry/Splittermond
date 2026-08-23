@@ -441,7 +441,7 @@ describe("Attack", () => {
         const report: SpellOrAttackRollResult = {
             report: {
                 defenseType: "gw" as const,
-                degreeOfSuccess: { fromRoll: 0, modification: 0 },
+                degreeOfSuccess: { fromRoll: 0, modification: 0, limitedTo: 999 },
                 degreeOfSuccessMessage: "",
                 difficulty: 0,
                 hideDifficulty: false,
@@ -496,7 +496,7 @@ describe("Attack", () => {
             return {
                 report: {
                     defenseType: "gw" as const,
-                    degreeOfSuccess: { fromRoll: 0, modification: 0 },
+                    degreeOfSuccess: { fromRoll: 0, modification: 0, limitedTo: 999 },
                     degreeOfSuccessMessage: "",
                     difficulty: 0,
                     grazingHitPenalty: 0,
@@ -561,7 +561,7 @@ describe("Attack", () => {
             chatCardMock.sendToChat.resolves();
 
             const report = getReport();
-            report.report.degreeOfSuccess = { fromRoll: 3, modification: 2 };
+            report.report.degreeOfSuccess = { fromRoll: 3, modification: 2, limitedTo: 999 };
             sandbox.stub(Skill.prototype, "roll").resolves(report);
             const initStub = sandbox
                 .stub(AttackRollMessage, "initialize")
