@@ -15,7 +15,7 @@ import { initTokenActionBar } from "./module/apps/token-action-bar/token-action-
 
 import "./less/splittermond.less";
 import { initTheme } from "./module/theme";
-import { initializeItem } from "./module/item";
+import { initializeItem, initializeItemMigrations, runItemMigration } from "./module/item";
 import { DamageInitializer } from "./module/util/chat/damageChatMessage/initDamage";
 import { CostBase } from "./module/util/costs/costTypes";
 import { DamageRoll } from "./module/util/damage/DamageRoll.js";
@@ -102,6 +102,7 @@ Hooks.once("init", async function () {
     initializeActor(CONFIG.Actor, modifierModule);
     initializeActiveEffects(CONFIG);
     initializeItem(CONFIG, modifierModule.modifierRegistry, modifierModule.addModifier);
+    initializeItemMigrations();
     initializeCosts(modifierModule.costModifierRegistry);
     initializeChecks(modifierModule.modifierRegistry);
     chatActionFeature(CONFIG.ChatMessage);
@@ -126,6 +127,7 @@ Hooks.once("init", async function () {
     game.splittermond.attackFumble = Macros.attackFumble;
     game.splittermond.addFreeXP = Macros.addFreeXP;
     game.splittermond.compendiumBrowser = new SplittermondCompendiumBrowser();
+    game.splittermond.runItemMigration = runItemMigration;
     foundry.dice.terms.Die.MODIFIERS.ri = Dice.riskModifier;
 
     Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
@@ -569,12 +571,12 @@ Hooks.on(
                 event.stopPropagation();
 
                 let chatMessageId = $(event.currentTarget).closestData("message-id");
-                let message = game.messages.get(chatMessageId);
+                let message = foundryApi.messages.get(chatMessageId);
 
+                /**@type Speaker*/
                 const speaker = message.speaker;
-                let actor;
-                if (speaker.token) actor = game.actors.tokens[speaker.token];
-                if (!actor) actor = game.actors.get(speaker.actor);
+                const actor =
+                    foundryApi.getToken(speaker.scene, speaker.token).actor ?? foundryApi.getActor(speaker.actor);
 
                 actor.useSplinterpointBonus(message);
             })
@@ -588,9 +590,8 @@ Hooks.on(
                 let message = foundryApi.messages.get(chatMessageId);
 
                 const speaker = message.speaker;
-                let actor;
-                if (speaker.token) actor = game.actors.tokens[speaker.token];
-                if (!actor) actor = game.actors.get(speaker.actor);
+                const actor =
+                    foundryApi.getToken(speaker.scene, speaker.token).actor ?? foundryApi.getActor(speaker.actor);
 
                 await actor.deleteEmbeddedDocuments("Item", [statusId]);
             })

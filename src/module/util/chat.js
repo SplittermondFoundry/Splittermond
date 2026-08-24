@@ -67,11 +67,11 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
     let formula = new Tooltip.TooltipFormula();
 
     Object.keys(data.skillAttributes).forEach((key) => {
-        formula.addPart(data.skillAttributes[key], game.i18n.localize(`splittermond.attribute.${key}.short`));
+        formula.addPart(data.skillAttributes[key], foundryApi.localize(`splittermond.attribute.${key}.short`));
         formula.addOperator("+");
     });
 
-    formula.addPart(data.skillPoints, game.i18n.localize(`splittermond.skillPointsAbbrev`));
+    formula.addPart(data.skillPoints, foundryApi.localize(`splittermond.skillPointsAbbrev`));
     data.modifierElements.forEach((e) => {
         if (e.isMalus) {
             formula.addMalus(e.value, e.description);
@@ -115,9 +115,9 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
             templateContext.title = data.itemData.name;
             templateContext.img = data.itemData.img;
             templateContext.rollType =
-                game.i18n.localize(`splittermond.activeDefense`) +
+                foundryApi.localize(`splittermond.activeDefense`) +
                 " | " +
-                game.i18n.localize(`splittermond.rollType.${data.rollType}`);
+                foundryApi.localize(`splittermond.rollType.${data.rollType}`);
             let defenseValue = data.baseDefense;
             if (data.succeeded) {
                 const itemFeatures =
@@ -127,11 +127,11 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                 defenseValue = defenseValue + 1 + totalDegreeOfSuccess + itemFeatures.featureValue("Defensiv");
                 templateContext.degreeOfSuccessDescription =
                     "<p style='text-align: center'><strong>" +
-                    game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
+                    foundryApi.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
                     `: ${defenseValue}</strong></p>`;
 
                 if (totalDegreeOfSuccess >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold) {
-                    templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.outstanding")}</p>`;
+                    templateContext.degreeOfSuccessDescription += `<p>${foundryApi.localize("splittermond.defenseResultDescription.outstanding")}</p>`;
                 }
             } else {
                 if (totalDegreeOfSuccess === 0) {
@@ -139,25 +139,25 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
                 }
                 templateContext.degreeOfSuccessDescription =
                     "<p style='text-align: center'><strong>" +
-                    game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
+                    foundryApi.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
                     `: ${defenseValue}</strong></p>`;
                 if (totalDegreeOfSuccess === 0) {
-                    templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.nearmiss")}</p>`;
+                    templateContext.degreeOfSuccessDescription += `<p>${foundryApi.localize("splittermond.defenseResultDescription.nearmiss")}</p>`;
                 }
 
                 const fumbledFightingSkillCheck =
                     data.isFumble && !["acrobatics", "determination", "endurance"].includes(data.itemData.id);
                 if (totalDegreeOfSuccess <= -5 || fumbledFightingSkillCheck) {
                     if (data.itemData.id === "acrobatics") {
-                        templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.devastating.acrobatics")}</p>`;
+                        templateContext.degreeOfSuccessDescription += `<p>${foundryApi.localize("splittermond.defenseResultDescription.devastating.acrobatics")}</p>`;
                     } else if (data.itemData.id === "determination") {
-                        templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.devastating.determination")}</p>`;
+                        templateContext.degreeOfSuccessDescription += `<p>${foundryApi.localize("splittermond.defenseResultDescription.devastating.determination")}</p>`;
                     } else if (data.itemData.id === "endurance") {
-                        templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.devastating.endurance")}</p>`;
+                        templateContext.degreeOfSuccessDescription += `<p>${foundryApi.localize("splittermond.defenseResultDescription.devastating.endurance")}</p>`;
                     } else {
-                        templateContext.degreeOfSuccessDescription += `<p>${game.i18n.localize("splittermond.defenseResultDescription.devastating.melee")}</p>`;
+                        templateContext.degreeOfSuccessDescription += `<p>${foundryApi.localize("splittermond.defenseResultDescription.devastating.melee")}</p>`;
                         templateContext.actions.push({
-                            name: game.i18n.localize("splittermond.fumbleTableLabel"),
+                            name: foundryApi.localize("splittermond.fumbleTableLabel"),
                             icon: "fa-dice",
                             classes: "rollable",
                             data: {
@@ -170,15 +170,15 @@ export async function prepareCheckMessageData(actor, rollMode, roll, data) {
 
             const tickCost = await calculateDefenseTickCost(data, totalDegreeOfSuccess);
             templateContext.actions.push({
-                name: `${tickCost} ` + game.i18n.localize(`splittermond.ticks`),
+                name: `${tickCost} ` + foundryApi.localize(`splittermond.ticks`),
                 icon: "fa-stopwatch",
                 classes: "add-tick",
                 data: {
                     ticks: tickCost,
                     message:
-                        game.i18n.localize(`splittermond.activeDefense`) +
+                        foundryApi.localize(`splittermond.activeDefense`) +
                         " (" +
-                        game.i18n.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
+                        foundryApi.localize(`splittermond.derivedAttribute.${data.defenseType}.short`) +
                         "): " +
                         templateContext.title,
                 },

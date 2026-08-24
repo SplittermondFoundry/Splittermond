@@ -1137,27 +1137,11 @@ export default class SplittermondActor extends Actor {
         return highestValue;
     }
 
-    async #getSplinterpointBonusAsync(skillName) {
-        const baseBonus =
-            skillName === "health" ? splittermond.splinterpoints.healthBonus : splittermond.splinterpoints.skillBonus;
-        const modifiers = this.modifier
-            .getForId("actor.splinterpoints.bonus")
-            .withAttributeValuesOrAbsent("skill", skillName)
-            .notSelectable()
-            .getModifiers();
-        const bonusFromModifiers = await Promise.all(modifiers.map((m) => evaluate(m.value)));
-        const highestValue = Math.max(baseBonus, ...bonusFromModifiers);
-        if (bonusFromModifiers.length > 0 && highestValue === baseBonus) {
-            console.warn("Splittermond | Handed out minimum Splinterpoint bonus despite modifiers present");
-        }
-        return highestValue;
-    }
-
     /**
      * @deprecated Use actor.spendSplinterpoint() instead, as it allows the caller to specify if and how a spent point, or
      * the inability to do so should be communicated to the user.
-     * @param message
-     * @return {Promise<void>}
+     * @param {ChatMessage} message
+     * @return {Promise<unknown>}
      */
     async useSplinterpointBonus(message) {
         if (
@@ -1188,16 +1172,15 @@ export default class SplittermondActor extends Actor {
 
         let checkData = await Dice.evaluateCheck(
             message.rolls[0],
-            checkMessageData.skillPoints,
             checkMessageData.difficulty,
             checkMessageData.rollType
         );
         if (
             checkData.succeeded &&
-            parseInt(checkMessageData.skillPoints) == 0 &&
+            parseInt(checkMessageData.skillPoints) === 0 &&
             message.rolls[0]._total - checkMessageData.difficulty >= 3
         ) {
-            checkData.degreeOfSuccess += 1;
+            checkData.degreeOfSuccess.fromRoll += 1;
         }
 
         checkMessageData.succeeded = checkData.succeeded;
@@ -1210,13 +1193,15 @@ export default class SplittermondActor extends Actor {
             checkMessageData
         );
 
-        message.update({
-            content: chatMessageData.content,
-            "flags.splittermond.check": chatMessageData.flags.splittermond.check,
-        });
-        this.update({
-            "system.splinterpoints.value": this.system.splinterpoints.value,
-        });
+        return Promise.all([
+            message.update({
+                content: chatMessageData.content,
+                "flags.splittermond.check": chatMessageData.flags.splittermond.check,
+            }),
+            this.update({
+                "system.splinterpoints.value": this.system.splinterpoints.value,
+            }),
+        ]);
     }
 
     /**

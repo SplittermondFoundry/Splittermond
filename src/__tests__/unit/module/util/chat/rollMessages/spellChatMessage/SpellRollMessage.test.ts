@@ -229,7 +229,7 @@ describe("SpellRollMessage", () => {
                 });
                 const checkReport = fullCheckReport();
                 checkReport.degreeOfSuccess.limitedTo = limit;
-                checkReport.degreeOfSuccess.fromRoll = Math.min(limit , checkReport.degreeOfSuccess.fromRoll);
+                checkReport.degreeOfSuccess.fromRoll = Math.min(limit, checkReport.degreeOfSuccess.fromRoll);
                 underTest.updateSource({ checkReport });
                 underTest.updateSource({ openDegreesOfSuccess: totalDegreesOfSuccess(underTest.checkReport) });
 
