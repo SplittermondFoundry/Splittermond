@@ -21,6 +21,7 @@
 
 - Anzeige des Namens und Tooltips für die Erfahrungspunktefelder
 - Erfolgsgrade von NSC werden nicht mehr limitiert wenn die Attribute einer Fertigkeit sich zu dem Fertigkeitswert summieren
+- Bei aktiver Abwehr erhöht der Einsatz von Splitterpunkten jetzt korrekt die EG.
 
 ## 14.2.6
 
