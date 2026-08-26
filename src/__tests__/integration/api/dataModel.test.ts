@@ -144,6 +144,23 @@ export function dataModelTest(context: QuenchBatchContext) {
         });
     });
 
+    describe("getDocumentSource", () => {
+        it("returns the persisted plain source data for a world document", async () => {
+            const item = (await Item.create({
+                name: "Test Source Item",
+                type: "mastery",
+                system: { availableIn: "endurance, strength" },
+            })) as FoundryDocument;
+            createdSpells.push(item.id);
+
+            const source = foundryApi.getDocumentSource(item);
+
+            expect(source.system).to.be.an("object");
+            expect(source.system["availableIn"]).to.equal("endurance, strength");
+            expect(source.system).to.not.equal(item.system);
+        });
+    });
+
     describe("ItemReference", () => {
         it("should find an item in a top level collection", async () => {
             const sampleItem = (await createSpell()) as SplittermondSpellItem;

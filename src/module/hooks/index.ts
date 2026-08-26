@@ -1,5 +1,6 @@
 import { setGlobalHookRegister } from "module/hooks/globalHookRegister";
 import { fieldExtensions } from "module/data/SplittermondDataModel";
+import { registerHook } from "module/hooks/registration";
 
 export { registerHook } from "./registration";
 
@@ -20,3 +21,5 @@ export function documentValidator<T>(target: Constructor<T>): any {
     }
     return field;
 }
+export const readyHook = registerHook("splittermond.ready");
+export const initHook = registerHook("splittermond.init");

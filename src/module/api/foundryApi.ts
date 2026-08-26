@@ -179,6 +179,12 @@ export const foundryApi = new (class FoundryApi {
         return game.scenes.get(sceneId)?.tokens.get(tokenId);
     }
 
+    getDocumentSource(doc: FoundryDocument): Readonly<{ system: Record<string, unknown> }> {
+        // @ts-ignore — _source is Foundry-internal pristine source data. It should not be used.
+        // Surfaced not on the public document type, but here to keep the cast inside the api isolation layer.
+        return doc._source;
+    }
+
     roll(damageFormula: string, data: Record<string, string> = {}, context: object = {}): FoundryRoll {
         //@ts-ignore
         return new Roll(damageFormula, data, context);

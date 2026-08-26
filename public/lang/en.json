@@ -339,6 +339,36 @@
         "compendiumBrowser": {
             "noItem": "The Item in question could not be found",
             "allTypes": "All Types"
+        },
+        "migration": {
+            "itemMigration": {
+                "dialog": {
+                    "title": "Splittermond: Data Migration",
+                    "content": "<p>This migration runs all pending data migrations for items — both for all world items and all items in third-party compendia.</p><p><strong>Important:</strong> Please ensure all compendia to be migrated are set to <em>writable</em> (unlocked). Locked compendia will be skipped and listed after completion.</p><p>System compendia (shipped with the Splittermond system) are not affected by this migration.</p><p>The migration is idempotent — it can be re-run without risk.</p>",
+                    "confirm": "Start",
+                    "cancel": "Cancel"
+                },
+                "result": "Migration complete: {worldItems} world items, {packs} compendia migrated, {skipped} compendia skipped (read-only).",
+                "skippedListPrefix": "Skipped compendia: ",
+                "skippedList": "Skipped compendia: {packs}",
+                "start": "Starting migration of {total} documents...",
+                "progress": "Migration {percent}% complete ({current}/{total})",
+                "done": "Migration finished ({total} documents processed)."
+            },
+            "modifierToEffectMigration": {
+                "dialog": {
+                    "title": "Splittermond: Modifier Migration",
+                    "content": "<p>This migration transports each item's <code>system.modifier</code> string into persistent Active Effects of type <em>modifier</em> — one effect per modifier fragment. The <code>system.modifier</code> field is cleared afterwards, so the modifiers survive as durable effects instead of being rebuilt on every update.</p><p><strong>Important:</strong> Please ensure all compendia to be migrated are set to <em>writable</em> (unlocked). Locked compendia will be skipped and listed after completion.</p><p>System compendia (shipped with the Splittermond system) are not affected by this migration.</p><p>The migration is idempotent — it can be re-run without risk.</p>",
+                    "confirm": "Start",
+                    "cancel": "Cancel"
+                },
+                "result": "Modifier migration complete: {worldItems} world items, {packs} compendia migrated, {skipped} compendia skipped (read-only).",
+                "skippedListPrefix": "Skipped compendia: ",
+                "skippedList": "Skipped compendia: {packs}",
+                "start": "Starting modifier migration of {total} documents...",
+                "progress": "Modifier migration {percent}% complete ({current}/{total})",
+                "done": "Modifier migration finished ({total} documents processed)."
+            }
         }
     },
     "degreeOfSuccessClassification": {
