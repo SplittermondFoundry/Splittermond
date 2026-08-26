@@ -82,7 +82,7 @@ describe("runItemMigration", () => {
 
         expect(item.update.called).to.be.false;
         expect(flagSet.called).to.be.false;
-        expect(result).to.deep.equal({ worldItemsMigrated: 0, packsMigrated: 0, skippedPacks: [] });
+        expect(result).to.deep.equal({ worldDocumentsMigrated: 0, packsMigrated: 0, skippedPacks: [] });
     });
 
     it("is a no-op when the migration-done setting is already true", async () => {
@@ -98,7 +98,7 @@ describe("runItemMigration", () => {
 
         expect(item.update.called).to.be.false;
         expect(flagSet.called).to.be.false;
-        expect(result).to.deep.equal({ worldItemsMigrated: 0, packsMigrated: 0, skippedPacks: [] });
+        expect(result).to.deep.equal({ worldDocumentsMigrated: 0, packsMigrated: 0, skippedPacks: [] });
     });
 
     it("migrates world items, calls update with source system, and sets the done flag", async () => {
@@ -116,7 +116,7 @@ describe("runItemMigration", () => {
         expect(a.item.update.calledOnceWith({ system: a.source.system })).to.be.true;
         expect(b.item.update.calledOnceWith({ system: b.source.system })).to.be.true;
         expect(flagSet.calledOnceWith(true)).to.be.true;
-        expect(result.worldItemsMigrated).to.equal(2);
+        expect(result.worldDocumentsMigrated).to.equal(2);
         expect(result.packsMigrated).to.equal(0);
         expect(result.skippedPacks).to.deep.equal([]);
     });
@@ -215,7 +215,7 @@ describe("runItemMigration", () => {
         expect(failing.item.update.calledOnce).to.be.true;
         expect(ok.item.update.calledOnce).to.be.true;
         expect(flagSet.calledOnceWith(true)).to.be.true;
-        expect(result.worldItemsMigrated).to.equal(1);
+        expect(result.worldDocumentsMigrated).to.equal(1);
     });
 
     it("force option bypasses the idempotency guard", async () => {
@@ -231,6 +231,6 @@ describe("runItemMigration", () => {
         const result = await runItemMigration({ force: true });
 
         expect(a.item.update.calledOnce).to.be.true;
-        expect(result.worldItemsMigrated).to.equal(1);
+        expect(result.worldDocumentsMigrated).to.equal(1);
     });
 });
