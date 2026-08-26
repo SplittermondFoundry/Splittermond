@@ -339,6 +339,19 @@
         "compendiumBrowser": {
             "noItem": "The Item in question could not be found",
             "allTypes": "All Types"
+        },
+        "migration": {
+            "itemMigration": {
+                "dialog": {
+                    "title": "Splittermond: Data Migration",
+                    "content": "<p>This migration runs all pending data migrations for items — both for all world items and all items in third-party compendia.</p><p><strong>Important:</strong> Please ensure all compendia to be migrated are set to <em>writable</em> (unlocked). Locked compendia will be skipped and listed after completion.</p><p>System compendia (shipped with the Splittermond system) are not affected by this migration.</p><p>The migration is idempotent — it can be re-run without risk.</p>",
+                    "confirm": "Start",
+                    "cancel": "Cancel"
+                },
+                "result": "Migration complete: {worldItems} world items, {packs} compendia migrated, {skipped} compendia skipped (read-only).",
+                "skippedListPrefix": "Skipped compendia: ",
+                "skippedList": "Skipped compendia: {packs}"
+            }
         }
     },
     "degreeOfSuccessClassification": {

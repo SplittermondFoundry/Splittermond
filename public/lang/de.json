@@ -800,6 +800,19 @@
             "notinstalled": "Um PDF links zu verwenden muss PDFoundry installiert sein!",
             "notfound": "Kein PDF mit dem angegebenen Code gefunden."
         },
+        "migration": {
+            "itemMigration": {
+                "dialog": {
+                    "title": "Splittermond: Datenmigration",
+                    "content": "<p>Diese Migration führt alle ausstehenden Datenmigrationen für Items durch — sowohl für alle Welt-Items als auch für alle Items in Kompendien von Drittanbietern.</p><p><strong>Wichtig:</strong> Bitte stellen Sie sicher, dass alle zu migrierenden Kompendien auf <em>beschreibbar</em> (entsperrt) gesetzt sind. Gesperrte Kompendien werden übersprungen und nach Abschluss aufgelistet.</p><p>System-Kompendien (die mit dem Splittermond-System ausgeliefert werden) werden von dieser Migration nicht betroffen.</p><p>Die Migration ist idempotent — sie kann ohne Risiko erneut ausgeführt werden.</p>",
+                    "confirm": "Starten",
+                    "cancel": "Abbrechen"
+                },
+                "result": "Migration abgeschlossen: {worldItems} Welt-Items, {packs} Kompendien migriert, {skipped} Kompendien übersprungen (schreibgeschützt).",
+                "skippedListPrefix": "Übersprungene Kompendien: ",
+                "skippedList": "Übersprungene Kompendien: {packs}"
+            }
+        },
         "settings": {
             "reducibleEnhancementCosts": {
                 "name": "Reduzible Zauberverstärkungskosten",

@@ -32,6 +32,8 @@ import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { registerSheets } from "module/item/sheets/registration";
 import type { IAddModifier } from "module/actor/addModifierAdapter";
 import { setAddModifier } from "module/item/item";
+import { foundryApi } from "module/api/foundryApi";
+import { promptAndRunItemMigration, runItemMigration } from "module/item/migrations/itemMigration";
 
 type SplittermondItemDataModel =
     | AncestryDataModel
@@ -152,3 +154,15 @@ export function initializeItem(config: typeof CONFIG, modifierRegistry: ScalarRe
     modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);
     registerSheets();
 }
+
+export function initializeItemMigrations(): void {
+    // splittermond.ready is already registered in src/splittermond.js via registerHook;
+    // re-registering would throw (registration.ts:77). Subscribe directly to the
+    // underlying Foundry hook event — the hook has no schema, so the ValidatedHook
+    // wrapper adds no validation here.
+    foundryApi.hooks.once("splittermond.ready", () => {
+        void promptAndRunItemMigration();
+    });
+}
+
+export { runItemMigration };
