@@ -113,8 +113,8 @@ describe("runItemMigration", () => {
 
         const result = await runItemMigration();
 
-        expect(a.item.update.calledOnceWith({ system: a.source.system })).to.be.true;
-        expect(b.item.update.calledOnceWith({ system: b.source.system })).to.be.true;
+        expect(a.item.update.calledOnceWith({ system: a.source.system }, { diff: false })).to.be.true;
+        expect(b.item.update.calledOnceWith({ system: b.source.system }, { diff: false })).to.be.true;
         expect(flagSet.calledOnceWith(true)).to.be.true;
         expect(result.worldDocumentsMigrated).to.equal(2);
         expect(result.packsMigrated).to.equal(0);
@@ -175,8 +175,8 @@ describe("runItemMigration", () => {
         const result = await runItemMigration();
 
         expect(unlockedPack.getDocuments.calledOnce).to.be.true;
-        expect(packItemA.item.update.calledOnceWith({ system: packItemA.source.system })).to.be.true;
-        expect(packItemB.item.update.calledOnceWith({ system: packItemB.source.system })).to.be.true;
+        expect(packItemA.item.update.calledOnceWith({ system: packItemA.source.system }, { diff: false })).to.be.true;
+        expect(packItemB.item.update.calledOnceWith({ system: packItemB.source.system }, { diff: false })).to.be.true;
         expect(result.packsMigrated).to.equal(1);
         expect(result.skippedPacks).to.deep.equal([]);
     });

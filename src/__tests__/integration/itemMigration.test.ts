@@ -8,7 +8,7 @@ declare const Item: { deleteDocuments(ids: string[]): Promise<unknown> };
 interface CompendiumItem {
     id: string;
     system: { damage?: unknown };
-    update(data: object): Promise<unknown>;
+    update(data: object, operation?: { diff?: boolean }): Promise<unknown>;
 }
 
 function isMigratedDamage(damage: unknown): damage is { stringInput: string } {
@@ -79,6 +79,18 @@ export function itemMigrationTest(context: QuenchBatchContext) {
             expect(docs).to.have.lengthOf(1);
             const source = foundryApi.getDocumentSource(docs[0] as unknown as FoundryDocument);
             expect(source.system).to.be.an("object");
+        });
+
+        it("pins that updating with the pristine source alone is skipped, while diff:false writes", async () => {
+            const docs = await testCompendium.getDocuments();
+            expect(docs).to.have.lengthOf(1);
+            const source = foundryApi.getDocumentSource(docs[0] as unknown as FoundryDocument);
+
+            const skippedResult = await docs[0].update({ system: source.system });
+            expect(skippedResult, "identical source produces an empty diff and is not persisted").to.be.undefined;
+
+            const writtenResult = await docs[0].update({ system: source.system }, { diff: false });
+            expect(writtenResult, "diff:false bypasses the empty-diff skip").to.not.be.undefined;
         });
 
         it("pins pack.locked and pack.title accessors on a real compendium", () => {

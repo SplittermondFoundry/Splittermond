@@ -7,7 +7,7 @@ export const MIGRATION_FLAG_KEY = "itemMigrationDone";
 export type { MigrationResult };
 
 async function migrateItem(item: FoundryDocument, sourceSystem: Record<string, unknown>): Promise<boolean> {
-    await item.update({ system: sourceSystem });
+    await item.update({ system: sourceSystem }, { diff: false });
     return true;
 }
 
