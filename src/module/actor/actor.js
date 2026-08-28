@@ -1,5 +1,5 @@
-import * as Dice from "../check/dice";
-import * as Chat from "../util/chat";
+import { Dice } from "../check/dice";
+import { Chat } from "../util/chat";
 
 import Attribute from "./attribute";
 import Skill from "./skill";
@@ -1184,7 +1184,11 @@ export default class SplittermondActor extends Actor {
         }
 
         checkMessageData.succeeded = checkData.succeeded;
-        checkMessageData.degreeOfSuccess = checkData.degreeOfSuccess;
+        checkMessageData.degreeOfSuccess = {
+            ...checkData.degreeOfSuccess,
+            modification: checkMessageData.degreeOfSuccess.modification,
+            limitedTo: checkMessageData.degreeOfSuccess.limitedTo,
+        };
 
         let chatMessageData = await Chat.prepareCheckMessageData(
             this,
