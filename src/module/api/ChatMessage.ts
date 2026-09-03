@@ -12,8 +12,6 @@ declare class ChatMessage extends FoundryDocument {
 
     rolls: Roll[];
 
-    update(data: object): Promise<ChatMessage>;
-
     getFlag(scope: string, key: string): object;
 
     deleteDocuments(documentId: string[]): Promise<void>;

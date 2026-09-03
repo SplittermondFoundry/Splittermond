@@ -2,7 +2,7 @@ import { ChatMessage } from "module/api/ChatMessage";
 import { DataModelSchemaType, fields, SplittermondDataModel } from "./SplittermondDataModel";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 
-export interface ChatMessageModel {
+export interface ChatMessageModel extends InstanceType<typeof SplittermondDataModel> {
     template: string;
 
     getData(): object;
