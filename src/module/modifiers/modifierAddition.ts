@@ -1,32 +1,40 @@
-import SplittermondItem from "../item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
 import { type FocusModifier, parseModifiers, type ScalarModifier } from "./parsing";
-import { Expression as ScalarExpression, of, times } from "./expressions/scalar";
-import Modifier from "module/modifiers/impl/modifier";
+import { of, Expression as ScalarExpression } from "./expressions/scalar";
+import { Modifier } from "module/activeEffect";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
 import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
 import type { IModifier, ModifierType } from "module/modifiers/index";
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
+import { type Constructor, getKeyByConstructor } from "module/data/dataModelRegistry";
+
+export interface TaggedModifier {
+    modifier: IModifier;
+    rawFragment: string;
+    implementation: string;
+}
+
+export interface TaggedCostModifier {
+    modifier: ICostModifier;
+    rawFragment: string;
+}
 
 export interface AddModifierResult {
-    modifiers: IModifier[];
-    costModifiers: ICostModifier[];
+    modifiers: TaggedModifier[];
+    costModifiers: TaggedCostModifier[];
 }
 
 export function initAddModifier(
     registry: ModifierRegistry<ScalarModifier>,
     costRegistry: ModifierRegistry<FocusModifier>
 ) {
-    return function addModifier(
-        item: SplittermondItem,
-        str = "",
-        type: ModifierType = null,
-        multiplier = 1
-    ): AddModifierResult {
-        const modifiers: IModifier[] = [];
-        const costModifiers: ICostModifier[] = [];
+    return function addModifier(item: IModifierSource, str = "", type: ModifierType = null): AddModifierResult {
+        const modifiers: TaggedModifier[] = [];
+        const costModifiers: TaggedCostModifier[] = [];
 
         if (str == "") {
             return { modifiers, costModifiers };
@@ -35,49 +43,61 @@ export function initAddModifier(
         const { processCostValue, processScalarValue } = withErrorLogger(allErrors);
         const parsedResult = parseModifiers(str);
         allErrors.push(...parsedResult.errors);
-        const handlerCache = registry.getCache(allErrors.consumer, item, type, of(multiplier));
-        const costHandlerCache = costRegistry.getCache(allErrors.consumer, item, type, of(multiplier));
+        const handlerCache = registry.getCache(allErrors.consumer, item, type);
+        const costHandlerCache = costRegistry.getCache(allErrors.consumer, item, type);
+        const actorProvider: ActorProvider = () => item.actor;
 
-        const unprocessedModifiers: ScalarModifier[] = [];
+        const unprocessedModifiers: Array<{ parsed: ScalarModifier; rawFragment: string }> = [];
         for (const parsedModifier of parsedResult.modifiers) {
+            const rawFragment = parsedModifier.rawFragment;
             if (costHandlerCache.handles(parsedModifier.path)) {
-                const normalized = processCostValue(parsedModifier, item.actor);
+                const normalized = processCostValue(parsedModifier, actorProvider);
                 if (!normalized) continue;
-                const modifier = costHandlerCache.getHandler(normalized.path).processModifier(normalized);
-                costModifiers.push(...modifier);
+                const produced = costHandlerCache.getHandler(normalized.path).processModifier(normalized);
+                produced.forEach((modifier) => costModifiers.push({ modifier, rawFragment }));
             } else if (handlerCache.handles(parsedModifier.path)) {
-                const normalized = processScalarValue(parsedModifier, item.actor);
+                const handler = handlerCache.getHandler(parsedModifier.path);
+                const normalized = handler.requiresValue(parsedModifier.path)
+                    ? processScalarValue(parsedModifier, actorProvider)
+                    : { ...parsedModifier, value: of(0) };
                 if (!normalized) continue;
-                const modifier = handlerCache.getHandler(normalized.path).processModifier(normalized);
-                modifiers.push(...modifier);
+                const produced = handler.processModifier(normalized);
+                produced.forEach((modifier) =>
+                    modifiers.push({
+                        modifier,
+                        rawFragment,
+                        implementation: getKeyByConstructor(modifier.constructor as Constructor) ?? "additive",
+                    })
+                );
             } else {
-                const normalized = processScalarValue(parsedModifier, item.actor);
+                const normalized = processScalarValue(parsedModifier, actorProvider);
                 if (!normalized) continue;
-                unprocessedModifiers.push(normalized);
+                unprocessedModifiers.push({ parsed: normalized, rawFragment });
             }
         }
 
         //Backup processor for modifiers that have no dedicated handler
         //deprecated paths are also handled here
-        unprocessedModifiers.forEach((modifier) => {
+        unprocessedModifiers.forEach(({ parsed: modifier, rawFragment }) => {
             if (["damage", "weaponspeed"].includes(modifier.path.toLowerCase().split(".")[0])) {
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                    old: modifier.path,
-                    new: `item.${modifier.path}`,
+                    oldPath: modifier.path,
+                    newPath: `item.${modifier.path}`,
                     itemName: item.name,
                 });
                 modifier.path = `item.${modifier.path}`;
             } else if ("gsw.mult" === modifier.path.toLowerCase()) {
                 const newGroupId = "actor.speed.multiplier";
                 foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                    old: modifier.path,
-                    new: newGroupId,
+                    oldPath: modifier.path,
+                    newPath: newGroupId,
+                    itemName: item.name,
                 });
                 modifier.path = newGroupId;
             } else {
-                /*handles path translations for derived values and skills. Cannot be done in registry, because the language file loads too late for
+                /* handles path translations for derived values and skills. Cannot be done in registry, because the language file loads too late for
                  * adding initializers in 'init'. You cannot place handlers in the "ready" hook however, because Actors are initialized before the
-                 * 'ready' hook is initialized after Actors.
+                 * 'ready' hook.
                  */
                 const newGroupId = normalizeDescriptor(modifier.path).usingMappers("derivedAttributes", "skills").do();
                 if (handlerCache.handles(newGroupId)) {
@@ -87,37 +107,26 @@ export function initAddModifier(
 
             if (handlerCache.handles(modifier.path)) {
                 const handler = handlerCache.getHandler(modifier.path);
-                const createdModifier = handler.processModifier(modifier);
-                modifiers.push(...createdModifier);
+                const produced = handler.processModifier(modifier);
+                produced.forEach((m) =>
+                    modifiers.push({
+                        modifier: m,
+                        rawFragment,
+                        implementation: getKeyByConstructor(m.constructor as Constructor) ?? "additive",
+                    })
+                );
                 return;
             }
 
             /**Deprecated*/
             const modifierLabel = modifier.path.toLowerCase();
-            switch (modifierLabel) {
-                //This setup is a bit of a hack, it uses the (private) knowledge that Attack objects add the item id as listener to skill modifiers
-                //And also sneaks in actor knowledge via item.actor
-                case "npcattacks":
-                    item.actor?.items
-                        .filter((item) => item.type === "npcattack")
-                        .map((item) => `skill.${item.id}`) //name would be better thematically (skill name for npc attacks is the item name) but id is more reliable
-                        .forEach((skill) => {
-                            modifiers.push(
-                                createModifier(
-                                    skill,
-                                    times(of(multiplier), modifier.value),
-                                    item,
-                                    type,
-                                    modifier.attributes as Record<string, string>
-                                )
-                            );
-                        });
-                    break;
-                default:
-                    //mainly for internal modifiers.
-                    modifiers.push(createModifier(modifierLabel, times(of(multiplier), modifier.value), item, type));
-                    break;
-            }
+            //mainly for internal modifiers.
+            const mod = createModifier(modifierLabel, modifier.value, item, type, {}, actorProvider);
+            modifiers.push({
+                modifier: mod,
+                rawFragment,
+                implementation: getKeyByConstructor(mod.constructor as Constructor) ?? "additive",
+            });
         });
         // Only display errors to the GM or the owner of the item
         // Otherwise players might get spoilers
@@ -129,18 +138,19 @@ export function initAddModifier(
 function createModifier(
     path: string,
     value: ScalarExpression,
-    item: SplittermondItem,
+    item: IModifierSource,
     type: ModifierType,
-    attributes: Record<string, string> = {}
+    attributes: Record<string, string> = {},
+    actorProvider?: ActorProvider
 ): IModifier {
-    return new Modifier(
+    return Modifier.create(
         path,
         value,
         {
             name: attributes.emphasis ?? item.name,
             type,
         },
-        item,
-        !!attributes.emphasis
+        !!attributes.emphasis,
+        actorProvider
     );
 }

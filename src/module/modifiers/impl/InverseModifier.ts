@@ -1,52 +1,76 @@
-import { TooltipFormula } from "module/util/tooltip";
-import {
-    abs,
-    asString,
-    condense,
-    Expression,
-    isGreaterZero,
-    isLessThanZero,
-} from "module/modifiers/expressions/scalar";
+import { addToRegistry, type Constructor } from "module/data/dataModelRegistry";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import type { IModifier, ModifierAttributes } from "module/modifiers";
+import type { Expression } from "module/modifiers/expressions/scalar";
+import { abs, asString, condense, isGreaterZero, isLessThanZero } from "module/modifiers/expressions/scalar";
+import { serialize } from "module/modifiers/expressions/scalar/serialization";
+import type { TooltipFormula } from "module/util/tooltip";
+import { apply } from "module/modifiers/expressions/scalar/application";
 
 export class InverseModifier implements IModifier {
-    readonly attributes: ModifierAttributes;
-    readonly groupId: string;
-    readonly origin: object | null;
-    readonly selectable: boolean;
+    static readonly key = "inverse";
+    readonly path: string;
     readonly value: Expression;
-    private _isBonus: boolean;
-    private _isMalus: boolean;
+    readonly groupId: string;
+    readonly selectable: boolean;
+    readonly attributes: ModifierAttributes;
+    readonly isBonus: boolean;
+    readonly isMalus: boolean;
+    readonly actorProvider?: ActorProvider;
 
     constructor(
-        groupId: string,
+        path: string,
         value: Expression,
         attributes: ModifierAttributes,
-        origin: object | null = null,
-        selectable = false
+        selectable = false,
+        actorProvider?: ActorProvider
     ) {
+        this.path = path;
         this.value = value;
         this.attributes = attributes;
-        this.origin = origin;
         this.selectable = selectable;
-        this.groupId = groupId;
-        this._isBonus = isLessThanZero(value) ?? true; //Assume a bonus if result is unknown
-        this._isMalus = isGreaterZero(value) ?? false;
-    }
-
-    get isMalus() {
-        return this._isMalus;
-    }
-
-    get isBonus() {
-        return this._isBonus;
+        this.groupId = path;
+        this.actorProvider = actorProvider;
+        this.isBonus = isLessThanZero(value) ?? true;
+        this.isMalus = isGreaterZero(value) ?? false;
     }
 
     addTooltipFormulaElements(formula: TooltipFormula): void {
         const partClass = this.isBonus ? "bonus" : "malus";
         const operator = this.isBonus ? "-" : "+";
-        //formula default to a + operator for bonuses, so we have to use the low level API to get a decent display
         formula.addOperator(operator);
         formula.addPart(asString(abs(condense(this.value))), this.attributes.name, partClass);
     }
+
+    applyMultiplier(multiplier: number): InverseModifier {
+        return new InverseModifier(
+            this.path,
+            apply(this.value, multiplier),
+            this.attributes,
+            this.selectable,
+            this.actorProvider
+        );
+    }
+
+    static create(
+        path: string,
+        value: Expression,
+        attributes: ModifierAttributes,
+        selectable = false,
+        actorProvider?: ActorProvider
+    ): InverseModifier {
+        return new InverseModifier(path, value, attributes, selectable, actorProvider);
+    }
+
+    static init(path: string, value: Expression, attributes: ModifierAttributes, selectable = false) {
+        return {
+            path,
+            serializedValue: serialize(value),
+            implementation: InverseModifier.key,
+            selectable,
+            attributes,
+        };
+    }
 }
+
+addToRegistry(InverseModifier.key, InverseModifier as Constructor);

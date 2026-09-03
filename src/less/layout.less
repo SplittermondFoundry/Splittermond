@@ -112,6 +112,20 @@
         }
     }
 
+    section[data-tab="status"] {
+        overflow-y: hidden;
+
+        .list-body {
+            height: calc(var(--status-list-capacity, 2) * 31px);
+            max-height: calc(var(--status-list-capacity, 2) * 33px);
+            overflow-y: auto;
+        }
+
+        .list-item {
+            position: relative;
+        }
+    }
+
     &.sheet.item header {
         align-items: center;
     }

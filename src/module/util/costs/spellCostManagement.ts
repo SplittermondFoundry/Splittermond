@@ -33,6 +33,8 @@ export interface ICostModifier {
         skill?: string;
         type?: string;
     };
+
+    applyMultiplier(multiplier: number): ICostModifier;
 }
 
 class SpellCostReductionManager {

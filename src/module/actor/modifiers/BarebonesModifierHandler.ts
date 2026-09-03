@@ -1,13 +1,12 @@
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
-import { type Expression, isGreaterZero, isZero, times } from "module/modifiers/expressions/scalar";
-import type SplittermondItem from "module/item/item";
+import { type Expression, isGreaterZero, isLessThanZero, isZero } from "module/modifiers/expressions/scalar";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 
 export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }>(
     inputConfig: CONFIG,
-    groupId?: string,
-    operator: (a: Expression, b: Expression) => Expression = times
+    groupId?: string
 ) {
     const config = makeConfig(inputConfig);
     return class extends ModifierHandler<ScalarModifier> {
@@ -15,15 +14,17 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
         static config = config;
         constructor(
             logErrors: (...message: string[]) => void,
-            private readonly sourceItem: SplittermondItem,
-            private readonly modifierType: ModifierType,
-            private readonly multiplier: Expression
+            private readonly sourceItem: IModifierSource,
+            private readonly modifierType: ModifierType
         ) {
             super(logErrors, config);
             this.commonNormalizers = new CommonNormalizers(
                 this.validateDescriptor.bind(this),
                 this.reportInvalidDescriptor.bind(this)
             );
+        }
+        protected get actorProvider() {
+            return () => this.sourceItem.actor;
         }
         protected buildModifier(modifier: ScalarModifier): IModifier[] {
             const otherAttributes = Object.entries(modifier.attributes).map(this.mapAttribute.bind(this));
@@ -32,21 +33,23 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
                 name: this.sourceItem.name,
                 type: this.modifierType,
             };
-            const value = operator(modifier.value, this.multiplier);
-            return [
-                {
-                    groupId: groupId
-                        ? modifier.path.replace(new RegExp(inputConfig.topLevelPath, "i"), groupId)
-                        : modifier.path,
-                    value,
-                    attributes,
-                    origin: this.sourceItem,
-                    selectable: false,
-                    isBonus: isGreaterZero(value) ?? true,
-                    addTooltipFormulaElements() {},
-                },
-            ];
+            const value = modifier.value;
+            const base: IModifier = {
+                groupId: groupId
+                    ? modifier.path.replace(new RegExp(inputConfig.topLevelPath, "i"), groupId)
+                    : modifier.path,
+                value,
+                attributes,
+                selectable: false,
+                isBonus: isGreaterZero(value) ?? true,
+                isMalus: isLessThanZero(value) ?? false,
+                //incorrect but who cares! these get overwritten anyway.
+                addTooltipFormulaElements() {},
+                applyMultiplier: () => base,
+            };
+            return [base];
         }
+
         private mapAttribute([key, value]: [string, Value]): [string, string | undefined] {
             return [key, this.commonNormalizers.validatedAttribute(value)];
         }

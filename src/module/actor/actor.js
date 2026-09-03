@@ -1,5 +1,5 @@
-import * as Dice from "../check/dice";
-import * as Chat from "../util/chat";
+import { Dice } from "../check/dice";
+import { Chat } from "../util/chat";
 
 import Attribute from "./attribute";
 import Skill from "./skill";
@@ -17,13 +17,15 @@ import { addModifier } from "./addModifierAdapter";
 import { evaluate, max, min, minus, of, plus, syncEvaluate } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
-import { InverseModifier } from "module/modifiers/impl/InverseModifier";
+import { InverseModifier, SplittermondActiveEffect } from "module/activeEffect";
 import { genesisSpellImport } from "./genesisImport/spellImport";
 import { addTicks } from "module/combat/addTicks";
 import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
 import { FoundryDialog } from "module/api/Application.js";
 import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 import { fromExpression } from "module/util/util.ts";
+import { copyCompendiumEffectToItem } from "../activeEffect/compendiumEffectAssignment.ts";
+import { substituteSkill, stripSchwerpunktPrefix } from "../activeEffect/sentinelSubstitution.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -202,6 +204,17 @@ export default class SplittermondActor extends Actor {
                     of(this.system.damageReduction.value)
                 );
             }
+            if (!this.findItem().withType("npcfeature").withName("Taktiker")) {
+                this.modifier.add(
+                    "check.require",
+                    {
+                        name: foundryApi.localize("splittermond.notATactician"),
+                        type: "innate",
+                        rollType: "standard",
+                    },
+                    of(0)
+                );
+            }
         }
     }
 
@@ -260,6 +273,30 @@ export default class SplittermondActor extends Actor {
         }
     }
 
+    applyActiveEffects(phase) {
+        super.applyActiveEffects(phase);
+        if (phase !== "initial") return; //needs to be initial, b/c 'final' happens after derived value calculation.
+        SplittermondActiveEffect.withFilter();
+        for (/**@type SplittermondActiveEffect*/ const effect of this.allApplicableEffects()) {
+            SplittermondActiveEffect.getModifiers([effect]).forEach((mod) => this.modifier.addModifier(mod));
+            this.sortCostModifiersIntoManagers(SplittermondActiveEffect.getCostModifiers([effect]));
+        }
+    }
+
+    /**
+     * @param {ICostModifier[]} costModifiers
+     */
+    sortCostModifiersIntoManagers(costModifiers) {
+        costModifiers.forEach((mod) => {
+            const modifierLabel = mod.label.toLowerCase();
+            if (modifierLabel.startsWith("focus.reduction")) {
+                this.system.spellCostReduction.addCostModifier(mod);
+            } else if (modifierLabel.startsWith("focus.enhancedreduction")) {
+                this.system.spellEnhancedCostReduction.addCostModifier(mod);
+            }
+        });
+    }
+
     /**@returns VirtualToken[]*/
     getVirtualStatusTokens() {
         return this.items
@@ -267,23 +304,27 @@ export default class SplittermondActor extends Actor {
                 return e.type === "statuseffect";
             })
             .filter((e) => {
-                return (
-                    e.system.startTick != null &&
-                    e.system.startTick > 0 &&
-                    e.system.interval != null &&
-                    e.system.interval > 0
-                );
+                const combatEvent = e.system.combatEvent;
+                const startTick = combatEvent?.startTick ?? e.system.startTick;
+                const interval = combatEvent?.interval ?? e.system.interval;
+                return startTick != null && startTick > 0 && interval != null && interval > 0;
             })
             .map((e) => {
+                const event = e.system.combatEvent;
+                const startTick = event?.startTick ?? e.system.startTick;
+                const interval = event?.interval ?? e.system.interval;
+
                 return {
                     name: e.name,
-                    startTick: parseInt(e.system.startTick),
-                    interval: parseInt(e.system.interval),
-                    times: e.system.times ? parseInt(e.system.times) : 90,
+                    startTick: parseInt(startTick),
+                    interval: parseInt(interval),
+                    times: (event?.repeats ?? e.system.times) != null ? parseInt(event?.repeats ?? e.system.times) : 90,
                     description: e.system.description,
                     img: e.img,
                     level: e.system.level,
                     statusId: e.id,
+                    macroRef: event?.macroRef ?? null,
+                    postDescription: event?.postDescription ?? true,
                 };
             });
     }
@@ -458,18 +499,16 @@ export default class SplittermondActor extends Actor {
                     name: foundryApi.localize("splittermond.woundMalus"),
                     type: "innate",
                 },
-                of(data.health.woundMalus.value),
-                this
+                of(data.health.woundMalus.value)
             );
             this.modifier.addModifier(
-                new InverseModifier(
+                InverseModifier.create(
                     "initiativewoundmalus",
                     of(-data.health.woundMalus.value),
                     {
                         name: foundryApi.localize("splittermond.woundMalus"),
                         type: "innate",
                     },
-                    this,
                     false
                 )
             );
@@ -549,22 +588,12 @@ export default class SplittermondActor extends Actor {
     addModifier(item, str = "", type = "", multiplier = 1) {
         const result = addModifier(item, str, type, multiplier);
 
-        // Apply scalar modifiers to the actor's modifier manager
-        result.modifiers.forEach((modifier) => {
-            this.modifier.addModifier(modifier);
+        result.modifiers.forEach(({ modifier }) => {
+            this.modifier.addModifier(modifier.applyMultiplier(multiplier));
         });
 
-        // Apply cost modifiers to the appropriate spell cost reduction managers
-        const data = asPreparedData(this.system);
-        result.costModifiers.forEach((costModifier) => {
-            const modifierLabel = costModifier.label.toLowerCase();
-            if (modifierLabel.startsWith("focus.reduction")) {
-                data.spellCostReduction.addCostModifier(costModifier);
-            } else if (modifierLabel.startsWith("focus.enhancedreduction")) {
-                data.spellEnhancedCostReduction.addCostModifier(costModifier);
-            }
-        });
-
+        const rewrappedCostModifiers = result.costModifiers.map(({ modifier }) => modifier.applyMultiplier(multiplier));
+        this.sortCostModifiersIntoManagers(rewrappedCostModifiers);
         return result;
     }
 
@@ -579,8 +608,7 @@ export default class SplittermondActor extends Actor {
                             name: foundryApi.localize(`splittermond.heroLevels.${data.experience.heroLevel}`),
                             type: "innate",
                         },
-                        of(2 * (data.experience.heroLevel - 1)),
-                        this
+                        of(2 * (data.experience.heroLevel - 1))
                     );
                 });
                 this.modifier.add(
@@ -589,8 +617,7 @@ export default class SplittermondActor extends Actor {
                         name: foundryApi.localize(`splittermond.heroLevels.${data.experience.heroLevel}`),
                         type: "innate",
                     },
-                    of(data.experience.heroLevel - 1),
-                    this
+                    of(data.experience.heroLevel - 1)
                 );
             }
         }
@@ -603,8 +630,7 @@ export default class SplittermondActor extends Actor {
                     name: foundryApi.localize("splittermond.derivedAttribute.size.short"),
                     type: "innate",
                 },
-                of(stealthModifier),
-                this
+                of(stealthModifier)
             );
         }
 
@@ -619,8 +645,7 @@ export default class SplittermondActor extends Actor {
                             name: label,
                             type: "equipment",
                         },
-                        of(-handicap),
-                        this
+                        of(-handicap)
                     );
                 }
             );
@@ -630,8 +655,7 @@ export default class SplittermondActor extends Actor {
                     name: label,
                     type: "innate",
                 },
-                of(-Math.floor(handicap / 2)),
-                this
+                of(-Math.floor(handicap / 2))
             );
         }
     }
@@ -713,8 +737,11 @@ export default class SplittermondActor extends Actor {
         // If Genesis-JSON-Export
         if (data.jsonExporterVersion && data.system === "SPLITTERMOND") {
             updateActor = updateActor ?? (await askUserAboutActorOverwrite());
-            const importedGenesisData = await this.#importGenesisData(data, updateActor);
+            const { data: importedGenesisData, effectAssignments } = await this.#importGenesisData(data, updateActor);
             json = JSON.stringify(importedGenesisData);
+            const created = await super.importFromJSON(json);
+            await this.#applyEffectAssignments(created, effectAssignments);
+            return created;
         }
 
         return super.importFromJSON(json);
@@ -723,12 +750,13 @@ export default class SplittermondActor extends Actor {
     /**
      * @param {Record<string,unknown>} data
      * @param {boolean} updateActor
-     * @returns {Promise<Partial<CharacterData>| undefined>}
+     * @returns {Promise<{ data: Partial<CharacterData> | undefined, effectAssignments: Map<string, { uuid: string, skill?: string, name?: string }> }>}
      */
     async #importGenesisData(data, updateActor) {
         const genesisData = data;
         let newData = this.toObject();
         let newItems = [];
+        const effectAssignments = new Map();
         newData.system = {};
 
         newData.system.species = {
@@ -814,7 +842,8 @@ export default class SplittermondActor extends Actor {
                 newData.system.skills[id].points = s.points;
 
                 s.masterships.forEach((m) => {
-                    let modifierStr = CONFIG.splittermond.modifier[m.id] || "";
+                    const configUuid = CONFIG.splittermond.modifier[m.id] || "";
+                    let modifierStr = configUuid;
                     let description = m.longDescription;
                     if (modifierStr === "" && m.specialization) {
                         let emphasisName = /(.*) [1-9]/.exec(m.name);
@@ -830,9 +859,18 @@ export default class SplittermondActor extends Actor {
                             skill: id,
                             level: m.level,
                             description: description,
-                            modifier: modifierStr,
                         },
                     };
+
+                    if (configUuid) {
+                        effectAssignments.set(`${m.name.trim().toLowerCase()}|mastery`, {
+                            uuid: configUuid,
+                            skill: id,
+                            name: stripSchwerpunktPrefix(m.name),
+                        });
+                    } else if (modifierStr !== "") {
+                        newMastership.system.modifier = modifierStr;
+                    }
 
                     newItems.push(newMastership);
                 });
@@ -842,15 +880,19 @@ export default class SplittermondActor extends Actor {
         });
 
         genesisData.powers.forEach((s) => {
-            newItems.push({
+            const strengthItemData = {
                 type: "strength",
                 name: s.name,
                 system: {
                     quantity: s.count,
                     description: s.longDescription,
-                    modifier: CONFIG.splittermond.modifier[s.id] || "",
                 },
-            });
+            };
+            const uuid = CONFIG.splittermond.modifier[s.id] || "";
+            if (uuid) {
+                effectAssignments.set(`${s.name.trim().toLowerCase()}|strength`, { uuid });
+            }
+            newItems.push(strengthItemData);
         });
 
         genesisData.resources.forEach((r) => {
@@ -989,6 +1031,7 @@ export default class SplittermondActor extends Actor {
         if (updateActor) {
             let updateItems = [];
 
+            const createdItemKeys = new Set();
             newItems = newItems.filter((i) => {
                 let foundItem = this.items.find(
                     (im) => im.type === i.type && im.name.trim().toLowerCase() === i.name.trim().toLowerCase()
@@ -999,22 +1042,54 @@ export default class SplittermondActor extends Actor {
                     updateItems.push(foundryApi.utils.duplicate(i));
                     return false;
                 }
+                createdItemKeys.add(`${i.name.trim().toLowerCase()}|${i.type}`);
                 return true;
             });
+
+            const assignmentsForCreated = new Map();
+            for (const key of createdItemKeys) {
+                if (effectAssignments.has(key)) {
+                    assignmentsForCreated.set(key, effectAssignments.get(key));
+                }
+            }
 
             newData.system.currency = this.system.currency;
 
             await this.update(newData);
             await this.updateEmbeddedDocuments("Item", updateItems);
-            await this.createEmbeddedDocuments("Item", newItems);
+            const createdItems = await this.createEmbeddedDocuments("Item", newItems);
 
-            return this.update(newData);
+            for (const createdItem of createdItems) {
+                const key = `${createdItem.name.trim().toLowerCase()}|${createdItem.type}`;
+                const assignment = assignmentsForCreated.get(key);
+                if (!assignment) continue;
+                const substitutor = substituteSkill(assignment.skill ?? createdItem.system?.skill);
+                await copyCompendiumEffectToItem(createdItem, assignment.uuid, substitutor);
+            }
+
+            return { data: await this.update(newData), effectAssignments: new Map() };
         }
         newData.name = genesisData.name;
         newData.prototypeToken.name = genesisData.name;
         newData.prototypeToken.actorLink = true;
         newData.items = foundryApi.utils.duplicate(newItems);
-        return newData;
+        return { data: newData, effectAssignments };
+    }
+
+    /**
+     * @param {object} createdActor The actor returned by `super.importFromJSON`.
+     * @param {Map<string, { uuid: string, skill?: string, name?: string }>} effectAssignments
+     * @returns {Promise<void>}
+     */
+    async #applyEffectAssignments(createdActor, effectAssignments) {
+        if (!effectAssignments || effectAssignments.size === 0) return;
+        for (const [key, assignment] of effectAssignments) {
+            const [nameKey, type] = key.split("|");
+            const item = createdActor.items.find((i) => i.type === type && i.name.trim().toLowerCase() === nameKey);
+            if (!item) continue;
+            const substitutor = substituteSkill(assignment.skill ?? item.system?.skill);
+            await copyCompendiumEffectToItem(item, assignment.uuid, substitutor);
+        }
     }
 
     /** @returns {{pointSpent:boolean, getBonus(skillName:SplittermondSkill): Promise<number>}} splinterpoints spent */
@@ -1062,27 +1137,11 @@ export default class SplittermondActor extends Actor {
         return highestValue;
     }
 
-    async #getSplinterpointBonusAsync(skillName) {
-        const baseBonus =
-            skillName === "health" ? splittermond.splinterpoints.healthBonus : splittermond.splinterpoints.skillBonus;
-        const modifiers = this.modifier
-            .getForId("actor.splinterpoints.bonus")
-            .withAttributeValuesOrAbsent("skill", skillName)
-            .notSelectable()
-            .getModifiers();
-        const bonusFromModifiers = await Promise.all(modifiers.map((m) => evaluate(m.value)));
-        const highestValue = Math.max(baseBonus, ...bonusFromModifiers);
-        if (bonusFromModifiers.length > 0 && highestValue === baseBonus) {
-            console.warn("Splittermond | Handed out minimum Splinterpoint bonus despite modifiers present");
-        }
-        return highestValue;
-    }
-
     /**
      * @deprecated Use actor.spendSplinterpoint() instead, as it allows the caller to specify if and how a spent point, or
      * the inability to do so should be communicated to the user.
-     * @param message
-     * @return {Promise<void>}
+     * @param {ChatMessage} message
+     * @return {Promise<unknown>}
      */
     async useSplinterpointBonus(message) {
         if (
@@ -1113,20 +1172,23 @@ export default class SplittermondActor extends Actor {
 
         let checkData = await Dice.evaluateCheck(
             message.rolls[0],
-            checkMessageData.skillPoints,
             checkMessageData.difficulty,
             checkMessageData.rollType
         );
         if (
             checkData.succeeded &&
-            parseInt(checkMessageData.skillPoints) == 0 &&
+            parseInt(checkMessageData.skillPoints) === 0 &&
             message.rolls[0]._total - checkMessageData.difficulty >= 3
         ) {
-            checkData.degreeOfSuccess += 1;
+            checkData.degreeOfSuccess.fromRoll += 1;
         }
 
         checkMessageData.succeeded = checkData.succeeded;
-        checkMessageData.degreeOfSuccess = checkData.degreeOfSuccess;
+        checkMessageData.degreeOfSuccess = {
+            ...checkData.degreeOfSuccess,
+            modification: checkMessageData.degreeOfSuccess.modification,
+            limitedTo: checkMessageData.degreeOfSuccess.limitedTo,
+        };
 
         let chatMessageData = await Chat.prepareCheckMessageData(
             this,
@@ -1135,13 +1197,15 @@ export default class SplittermondActor extends Actor {
             checkMessageData
         );
 
-        message.update({
-            content: chatMessageData.content,
-            "flags.splittermond.check": chatMessageData.flags.splittermond.check,
-        });
-        this.update({
-            "system.splinterpoints.value": this.system.splinterpoints.value,
-        });
+        return Promise.all([
+            message.update({
+                content: chatMessageData.content,
+                "flags.splittermond.check": chatMessageData.flags.splittermond.check,
+            }),
+            this.update({
+                "system.splinterpoints.value": this.system.splinterpoints.value,
+            }),
+        ]);
     }
 
     /**
@@ -1370,11 +1434,19 @@ export default class SplittermondActor extends Actor {
         let targetName = null;
         const actor = this;
 
+        /**
+         * @param {ItemType} type
+         * @return {{withName: function(string): SplittermondItem|null}}
+         */
         function withType(type) {
             targetType = type.toLowerCase();
             return { withName: withName };
         }
 
+        /**
+         * @param {string} name
+         * @return {SplittermondItem|null}
+         */
         function withName(name) {
             targetName = name.toLowerCase();
             return execute();
@@ -1427,15 +1499,6 @@ async function askUser({ titleKey, contentKey, yesKey, noKey }) {
         });
         return dialog.render(true);
     });
-}
-
-function asPreparedData(system) {
-    const qualifies = "spellCostReduction" in system && "spellEnhancedCostReduction" in system;
-    if (qualifies) {
-        return system; //There's not really much chance for error with the type of Spell cost reduction.
-    } else {
-        throw new Error("System not prepared for modifiers");
-    }
 }
 
 /**

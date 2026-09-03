@@ -3,6 +3,7 @@ import { ActorSkillHandler, SkillHandler } from "module/actor/modifiers/SkillHan
 import { splittermond } from "module/config";
 import {
     BasicModifierHandler,
+    EmphasisAwareBasicHandler,
     IndividualSkillHandlers,
     InverseModifierHandler,
     ProductModifierHandler,
@@ -12,7 +13,6 @@ import {
 import type { ScalarModifier } from "module/modifiers/parsing";
 import { ActorSplinterpointsHandler, SplinterpointsHandler } from "module/actor/modifiers/SplinterpointsHandler";
 import { derivedAttributes } from "module/config/attributes";
-import { pow } from "module/modifiers/expressions/scalar";
 
 export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier>) {
     const lowerFumbleResultHandler = SkillFilterHandler({ topLevelPath: "lowerfumbleresult" });
@@ -40,6 +40,7 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
     registry.addHandler("tickmalus", TickHandicapHandler("tickmalus"));
     registry.addHandler("handicap", TickHandicapHandler("handicap"));
     registry.addHandler("bonuscap", BasicModifierHandler("bonuscap"));
+    registry.addHandler("npcattacks", EmphasisAwareBasicHandler("npcattacks"));
     ["focusregeneration", "healthregeneration"].forEach((slug) => {
         const segment = `${slug}.multiplier`;
         const fullId = `actor.${segment}` as Lowercase<string>;
@@ -61,8 +62,8 @@ function addDerivedValueHandlers(registry: ModifierRegistry<ScalarModifier>) {
     derivedAttributes.forEach((slug) => {
         const segment = `${slug}.multiplier`;
         const fullId = `actor.${segment}` as Lowercase<string>;
-        registry.addHandler(segment, ProductModifierHandler(segment, fullId, pow));
-        registry.addHandler(fullId, ProductModifierHandler(fullId, fullId, pow));
+        registry.addHandler(segment, ProductModifierHandler(segment, fullId));
+        registry.addHandler(fullId, ProductModifierHandler(fullId, fullId));
     });
     derivedAttributes
         .filter((attr) => attr !== "initiative")

@@ -2,22 +2,19 @@ import type { SplittermondSkill } from "module/config/skillGroups";
 import { BarebonesModifierHandler } from "module/actor/modifiers/BarebonesModifierHandler";
 import type { ScalarModifier } from "module/modifiers/parsing";
 import type { IModifier } from "module/modifiers";
-import Modifier from "module/modifiers/impl/modifier";
-import { MultiplicativeModifier } from "module/modifiers/impl/MultiplicativeModifier";
-import type { Expression } from "module/modifiers/expressions/scalar";
-import { InverseModifier } from "module/modifiers/impl/InverseModifier";
+import { Modifier, InverseModifier, MultiplicativeModifier } from "module/activeEffect";
 
 export function IndividualSkillHandlers(skill: SplittermondSkill) {
     return class extends BarebonesModifierHandler({ topLevelPath: skill, optionalAttributes: ["emphasis"] }) {
         buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
-                return new Modifier(
+                return Modifier.create(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
-                    mod.origin,
-                    !!mod.attributes.emphasis
+                    !!mod.attributes.emphasis,
+                    this.actorProvider
                 );
             });
         }
@@ -29,12 +26,31 @@ export function BasicModifierHandler(inputPath: string, groupId?: string) {
         buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
-                return new Modifier(
+                return Modifier.create(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
-                    mod.origin,
-                    mod.selectable
+                    mod.selectable,
+                    this.actorProvider
+                );
+            });
+        }
+    };
+}
+export function EmphasisAwareBasicHandler(inputPath: string, groupId?: string) {
+    return class extends BarebonesModifierHandler(
+        { topLevelPath: inputPath, optionalAttributes: ["emphasis"] },
+        groupId
+    ) {
+        buildModifier(modifier: ScalarModifier): IModifier[] {
+            const preprocessed = super.buildModifier(modifier);
+            return preprocessed.map((mod) => {
+                return Modifier.create(
+                    mod.groupId,
+                    mod.value,
+                    { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
+                    !!mod.attributes.emphasis,
+                    this.actorProvider
                 );
             });
         }
@@ -45,36 +61,32 @@ export function InverseModifierHandler(inputPath: string, groupId?: Lowercase<st
         buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
-                return new InverseModifier(
+                return InverseModifier.create(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.emphasis ?? mod.attributes.name },
-                    mod.origin,
-                    mod.selectable
+                    mod.selectable,
+                    this.actorProvider
                 );
             });
         }
     };
 }
 
-export function ProductModifierHandler(
-    inputPath: string,
-    groupId?: string,
-    operator?: (a: Expression, b: Expression) => Expression
-) {
-    return class extends BarebonesModifierHandler({ topLevelPath: inputPath }, groupId, operator) {
+export function ProductModifierHandler(inputPath: string, groupId?: string) {
+    return class extends BarebonesModifierHandler({ topLevelPath: inputPath }, groupId) {
         protected omitForValue(): boolean {
             return false;
         }
         protected buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
-                return new MultiplicativeModifier(
+                return MultiplicativeModifier.create(
                     mod.groupId,
                     mod.value,
                     { ...mod.attributes, name: mod.attributes.name },
-                    mod.origin,
-                    !!mod.attributes.emphasis
+                    !!mod.attributes.emphasis,
+                    this.actorProvider
                 );
             });
         }
@@ -95,7 +107,7 @@ export function TickHandicapHandler(inputPath: string) {
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
                 const demoddedId = mod.groupId.replace(/\.mod$/i, "");
-                return new Modifier(demoddedId, mod.value, mod.attributes, mod.origin, mod.selectable);
+                return Modifier.create(demoddedId, mod.value, mod.attributes, mod.selectable, this.actorProvider);
             });
         }
     };
@@ -115,7 +127,7 @@ export function SkillFilterHandler<CONFIG extends { topLevelPath: string }>(conf
                 if (mod.attributes.skill) {
                     mod.attributes.skill = this.commonNormalizers.normalizeSkill(mod.groupId, mod.attributes.skill);
                 }
-                return new Modifier(mod.groupId, mod.value, mod.attributes, mod.origin, mod.selectable);
+                return Modifier.create(mod.groupId, mod.value, mod.attributes, mod.selectable, this.actorProvider);
             });
         }
     };

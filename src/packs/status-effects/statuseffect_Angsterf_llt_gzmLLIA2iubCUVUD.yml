@@ -3,7 +3,55 @@ name: Angsterfüllt
 type: statuseffect
 flags: {}
 img: icons/svg/eye.svg
-effects: []
+effects:
+    - name: Sicherheitswurf erzwungen
+      origin: Compendium.splittermond.statuseffects.Item.gzmLLIA2iubCUVUD
+      type: modifier
+      _id: UbJ35h9g7Nilw0e3
+      img: icons/svg/eye.svg
+      system:
+          changes: []
+          modifiers:
+              - path: check.require
+                serializedValue:
+                    type: amount
+                    amount: 0
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Angsterfüllt
+                    rollType: safety
+                    type: innate
+          costModifiers: []
+      disabled: false
+      start: null
+      duration:
+          value: 60
+          units: rounds
+          expiry: roundEnd
+          expired: false
+      description: ""
+      tint: "#ffffff"
+      transfer: true
+      statuses: []
+      showIcon: 1
+      folder: null
+      sort: 0
+      flags:
+          splittermond:
+              durationMode: timed
+              rawInput: check.require rollType="safety"
+      _stats:
+          coreVersion: "14.365"
+          systemId: splittermond
+          systemVersion: 14.2.6
+          createdTime: 1785332478702
+          modifiedTime: 1785332556376
+          lastModifiedBy: XEyWQoNP8LHDdOvz
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+      _key: "!items.effects!gzmLLIA2iubCUVUD.UbJ35h9g7Nilw0e3"
 _stats:
     coreVersion: "13.342"
     systemId: null
@@ -24,9 +72,14 @@ system:
     source: ""
     modifier: ""
     level: "1"
-    startTick: 0
-    interval: 0
-    times: 0
+    combatEvent:
+        startTick: 0
+        interval: 0
+        repeats: 0
+        macroRef:
+            name: null
+            uuid: null
+        postDescription: true
 folder: null
 sort: 0
 _key: "!items!gzmLLIA2iubCUVUD"

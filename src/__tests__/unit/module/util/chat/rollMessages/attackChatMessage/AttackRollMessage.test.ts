@@ -39,7 +39,7 @@ describe("AttackRollMessage", () => {
     it("should filter degree of success options that are too expensive on render", () => {
         const attackRollMessage = createAttackRollMessage(sandbox);
         attackRollMessage.updateSource({ openDegreesOfSuccess: 0 });
-        expect(attackRollMessage.getData().degreeOfSuccessOptions).to.be.empty;
+        void expect(attackRollMessage.getData().degreeOfSuccessOptions).to.be.empty;
     });
 
     it("should allow options that are checked, even if no degrees of success are left", () => {
@@ -51,7 +51,7 @@ describe("AttackRollMessage", () => {
 
         expect(attackRollMessage.getData().degreeOfSuccessOptions).to.have.length.greaterThan(0);
         const checkedOption = attackRollMessage.getData().degreeOfSuccessOptions.find((o) => o.checked);
-        expect(checkedOption).to.not.be.undefined;
+        void expect(checkedOption).to.not.be.undefined;
         expect(checkedOption?.action).to.equal("damageUpdate");
     });
 
@@ -84,8 +84,8 @@ describe("AttackRollMessage", () => {
                 .degreeOfSuccessOptions.filter((o) => o.action === option)
                 .find((o) => o.multiplicity === "1");
 
-            expect(afterFirstUpdate?.checked).to.be.true;
-            expect(afterSecondUpdate?.checked).to.be.false;
+            void expect(afterFirstUpdate?.checked).to.be.true;
+            void expect(afterSecondUpdate?.checked).to.be.false;
         });
     });
 
@@ -106,8 +106,8 @@ describe("AttackRollMessage", () => {
             .degreeOfSuccessOptions.filter((o) => o.action === option)
             .find((o) => o.multiplicity === "1");
 
-        expect(afterFirstUpdate?.checked).to.be.true;
-        expect(afterSecondUpdate?.checked).to.be.false;
+        void expect(afterFirstUpdate?.checked).to.be.true;
+        void expect(afterSecondUpdate?.checked).to.be.false;
     });
 
     it(`should handle action rollFumble`, async () => {
@@ -117,7 +117,7 @@ describe("AttackRollMessage", () => {
 
         await underTest.handleGenericAction({ action: "rollFumble" });
 
-        expect(warnUserStub.called).to.be.false;
+        void expect(warnUserStub.called).to.be.false;
     });
     it(`should handle action advanceToken`, async () => {
         const underTest = createAttackRollMessage(sandbox);
@@ -126,7 +126,7 @@ describe("AttackRollMessage", () => {
 
         await underTest.handleGenericAction({ action: "advanceToken" });
 
-        expect(warnUserStub.called).to.be.false;
+        void expect(warnUserStub.called).to.be.false;
     });
 
     it("should handle action applyDamage", async () => {
@@ -138,7 +138,7 @@ describe("AttackRollMessage", () => {
 
         await underTest.handleGenericAction({ action: "applyDamage" });
 
-        expect(damageStub.called).to.be.true;
+        void expect(damageStub.called).to.be.true;
     });
 
     it("should handle action activeDefense", async () => {
@@ -151,7 +151,7 @@ describe("AttackRollMessage", () => {
 
         await underTest.handleGenericAction({ action: "activeDefense" });
 
-        expect(warnUserStub.called).to.be.false;
+        void expect(warnUserStub.called).to.be.false;
     });
     describe("Splinterpoint usage", () => {
         [
@@ -171,7 +171,11 @@ describe("AttackRollMessage", () => {
 
                 await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                    fromRoll: increase,
+                    modification: 0,
+                    limitedTo: 999,
+                });
             });
             it(`should increase open degrees of success by ${increase}`, async () => {
                 const underTest = createAttackRollMessage(sandbox);
@@ -187,7 +191,11 @@ describe("AttackRollMessage", () => {
 
                 await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                    fromRoll: increase,
+                    modification: 0,
+                    limitedTo: 999,
+                });
                 expect(underTest.openDegreesOfSuccess).to.deep.equal(increase);
             });
         });
@@ -232,7 +240,11 @@ describe("AttackRollMessage", () => {
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 10, modification: 0 });
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                fromRoll: 10,
+                modification: 0,
+                limitedTo: 999,
+            });
         });
 
         it("should only be usable once", async () => {
@@ -249,7 +261,11 @@ describe("AttackRollMessage", () => {
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 3, modification: 0 });
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                fromRoll: 3,
+                modification: 0,
+                limitedTo: 999,
+            });
         });
 
         it("should convert a failure into a success", async () => {
@@ -263,21 +279,25 @@ describe("AttackRollMessage", () => {
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
             underTest.checkReport.roll.total = underTest.checkReport.difficulty - 1;
-            underTest.checkReport.degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
             underTest.checkReport.succeeded = false;
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 0, modification: 0 });
-            expect(underTest.checkReport.succeeded).to.be.true;
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                fromRoll: 0,
+                modification: 0,
+                limitedTo: 999,
+            });
+            void expect(underTest.checkReport.succeeded).to.be.true;
         });
         it("should be available for splinterpoint bearers", () => {
             const underTest = createAttackRollMessage(sandbox);
             underTest.checkReport.isFumble = false;
             sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 3, value: 3 }));
 
-            expect(underTest.getData().actions.useSplinterpoint).not.to.be.undefined;
-            expect(
+            void expect(underTest.getData().actions.useSplinterpoint).not.to.be.undefined;
+            void expect(
                 (underTest.getData().actions.useSplinterpoint as Record<string, unknown>)?.disabled,
                 "Splinterpoint button disabled"
             ).to.be.false;
@@ -288,22 +308,22 @@ describe("AttackRollMessage", () => {
             underTest.checkReport.isFumble = true;
             sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 3, value: 3 }));
 
-            expect(underTest.getData().actions.useSplinterpoint).to.be.undefined;
+            void expect(underTest.getData().actions.useSplinterpoint).to.be.undefined;
         });
 
         it("should not be applicable for actors without splinterpoints", () => {
             const underTest = createAttackRollMessage(sandbox);
             sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 0, value: 0 }));
 
-            expect(underTest.getData().actions.useSplinterpoint).to.be.undefined;
+            void expect(underTest.getData().actions.useSplinterpoint).to.be.undefined;
         });
 
         it("should be disable for actors without available splinterpoints", () => {
             const underTest = createAttackRollMessage(sandbox);
             sandbox.stub(underTest.actorReference.getAgent(), "splinterpoints").get(() => ({ max: 3, value: 0 }));
 
-            expect(underTest.getData().actions.useSplinterpoint).not.to.be.undefined;
-            expect(
+            void expect(underTest.getData().actions.useSplinterpoint).not.to.be.undefined;
+            void expect(
                 (underTest.getData().actions.useSplinterpoint as Record<string, unknown>)?.disabled,
                 "Splinterpoint button disabled"
             ).to.be.true;
@@ -330,7 +350,7 @@ describe("AttackRollMessage", () => {
                 },
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
-            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0 }; // 1 degree, but 2 maneuvers = grazing hit
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0, limitedTo: 999 }; // 1 degree, but 2 maneuvers = grazing hit
             underTest.checkReport.maneuvers = [{ id: "maneuver1" }, { id: "maneuver2" }] as any;
             underTest.checkReport.grazingHitPenalty = 4; // 2 maneuvers * 2 base penalty
             underTest.checkReport.succeeded = true;
@@ -371,7 +391,7 @@ describe("AttackRollMessage", () => {
                 },
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
-            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0 };
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 1, modification: 0, limitedTo: 999 };
             underTest.checkReport.maneuvers = [
                 { id: "maneuver1" },
                 { id: "maneuver2" },
@@ -400,7 +420,7 @@ describe("AttackRollMessage", () => {
         function fullCheckReport(): CheckReport {
             return {
                 succeeded: false,
-                degreeOfSuccess: { fromRoll: 2, modification: 0 },
+                degreeOfSuccess: { fromRoll: 2, modification: 0, limitedTo: 999 },
                 degreeOfSuccessMessage: "",
                 difficulty: 9,
                 defenseType: null,
@@ -426,7 +446,7 @@ describe("AttackRollMessage", () => {
             const data = underTest.getData();
 
             const grazingHitOption = data.degreeOfSuccessOptions.find((o) => o.action === "grazingHitUpdate");
-            expect(grazingHitOption).to.not.be.undefined;
+            void expect(grazingHitOption).to.not.be.undefined;
         });
 
         it("should render consumeCost action when grazing hit cost is consumed", () => {
@@ -438,7 +458,7 @@ describe("AttackRollMessage", () => {
             underTest.handleGenericAction({ action: "grazingHitUpdate", multiplicity: "1" });
 
             const data = underTest.getData();
-            expect(data.actions.consumeCost).to.not.be.undefined;
+            void expect(data.actions.consumeCost).to.not.be.undefined;
             expect((data.actions.consumeCost as any).value).to.equal("4");
         });
 
@@ -449,7 +469,7 @@ describe("AttackRollMessage", () => {
             underTest.updateSource({ openDegreesOfSuccess: 100 });
 
             const data = underTest.getData();
-            expect(data.actions.consumeCost).to.be.undefined;
+            void expect(data.actions.consumeCost).to.be.undefined;
         });
     });
 });
@@ -466,6 +486,7 @@ function createAttackRollMessage(sandbox: SinonSandbox, skill: SplittermondSkill
                 degreeOfSuccess: {
                     fromRoll: 0,
                     modification: 0,
+                    limitedTo: 999,
                 },
                 degreeOfSuccessMessage: "A very important message",
                 difficulty: 0,

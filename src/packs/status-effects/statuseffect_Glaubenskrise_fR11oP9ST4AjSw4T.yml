@@ -3,7 +3,54 @@ name: Glaubenskrise
 type: statuseffect
 flags: {}
 img: icons/svg/angel.svg
-effects: []
+effects:
+    - name: Magiemalus
+      origin: Compendium.splittermond.statuseffects.Item.fR11oP9ST4AjSw4T
+      type: modifier
+      _id: 757EhIAITdghmde7
+      img: icons/svg/angel.svg
+      system:
+          changes: []
+          modifiers:
+              - path: magicskills
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+          costModifiers: []
+      disabled: false
+      start: null
+      duration:
+          value: null
+          units: null
+          expiry: null
+          expired: false
+      description: ""
+      tint: "#ffffff"
+      transfer: true
+      statuses: []
+      showIcon: 1
+      folder: null
+      sort: 0
+      flags:
+          splittermond:
+              durationMode: permanent
+              rawInput: magicSkills -1
+      _stats:
+          coreVersion: "14.365"
+          systemId: splittermond
+          systemVersion: 14.3.0-alpha5
+          createdTime: 1785333758175
+          modifiedTime: 1785333936938
+          lastModifiedBy: XEyWQoNP8LHDdOvz
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+      _key: "!items.effects!fR11oP9ST4AjSw4T.757EhIAITdghmde7"
 _stats:
     coreVersion: "13.342"
     systemId: null
@@ -23,11 +70,16 @@ system:
         Zustandsstufe. Der Zustand kann nach einer <em>Verschnaufpause
         </em>aufgehoben werden.</p>
     source: ""
-    modifier: magicSkills -1
+    modifier: ""
     level: "1"
-    startTick: 0
-    interval: 0
-    times: 0
+    combatEvent:
+        startTick: 0
+        interval: 0
+        repeats: 0
+        macroRef:
+            name: null
+            uuid: null
+        postDescription: true
 folder: null
 sort: 0
 _key: "!items!fR11oP9ST4AjSw4T"

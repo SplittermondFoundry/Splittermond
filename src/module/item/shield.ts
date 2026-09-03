@@ -2,10 +2,10 @@ import SplittermondPhysicalItem from "./physical";
 import AttackableItem from "./attackable-item";
 import ActiveDefense from "../actor/active-defense";
 import Skill from "../actor/skill";
-import { of } from "../modifiers/expressions/scalar";
 import { ShieldDataModel } from "./dataModel/ShieldDataModel";
-import { splittermond } from "../config";
-import { foundryApi } from "../api/foundryApi";
+import { parseShieldMinAttributes } from "./minAttributesParser";
+
+export { parseShieldMinAttributes, type ParsedMinAttribute } from "./minAttributesParser";
 
 export default class SplittermondShieldItem extends AttackableItem(SplittermondPhysicalItem) {
     //overwrite type
@@ -22,39 +22,6 @@ export default class SplittermondShieldItem extends AttackableItem(SplittermondP
     prepareActorData() {
         super.prepareActorData();
         this.prepareActiveDefense();
-        if (!this.system.equipped) return;
-        if (this.system.defenseBonus)
-            this.actor.modifier.add(
-                "defense",
-                {
-                    name: this.name,
-                    type: "equipment",
-                },
-                of(this.system.defenseBonus),
-                this
-            );
-        let handicap = this.handicap;
-        let tickMalus = this.tickMalus;
-        if (handicap)
-            this.actor.modifier.add(
-                "handicap.shield",
-                {
-                    name: this.name,
-                    type: "equipment",
-                },
-                of(handicap),
-                this
-            );
-        if (tickMalus)
-            this.actor.modifier.add(
-                "tickmalus.shield",
-                {
-                    name: this.name,
-                    type: "equipment",
-                },
-                of(tickMalus),
-                this
-            );
     }
 
     prepareActiveDefense() {
@@ -70,25 +37,11 @@ export default class SplittermondShieldItem extends AttackableItem(SplittermondP
 
     get attributeMalus() {
         if (!this.system.equipped) return 0;
-        let minAttributeMalus = 0;
         const actor = this.actor;
-        (this.system.minAttributes || "").split(",").forEach((aStr) => {
-            let temp = aStr.match(/([^ ]+)\s+([0-9]+)/);
-            if (temp) {
-                let attr = splittermond.attributes.find((a) => {
-                    return (
-                        temp[1].toLowerCase() ===
-                            foundryApi.localize(`splittermond.attribute.${a}.short`).toLowerCase() ||
-                        temp[1].toLowerCase() === foundryApi.localize(`splittermond.attribute.${a}.long`).toLowerCase()
-                    );
-                });
-                if (attr) {
-                    minAttributeMalus += Math.max(parseInt(temp[2] || "0") - parseInt(actor.attributes[attr].value), 0);
-                }
-            }
-        });
-
-        return minAttributeMalus;
+        return parseShieldMinAttributes(this.system.minAttributes).reduce(
+            (sum, { attr, threshold }) => sum + Math.max(threshold - parseInt(actor.attributes[attr].value), 0),
+            0
+        );
     }
 
     get handicap() {

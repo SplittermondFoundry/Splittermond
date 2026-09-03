@@ -26,6 +26,7 @@ describe("Roll Fumble", () => {
         underTest.checkReportReference.get().degreeOfSuccess = {
             fromRoll: -3,
             modification: 0,
+            limitedTo: 999,
         };
 
         const actions = underTest.renderActions();
@@ -48,6 +49,7 @@ describe("Roll Fumble", () => {
         underTest.checkReportReference.get().degreeOfSuccess = {
             fromRoll: -5,
             modification: 0,
+            limitedTo: 999,
         };
 
         const actions = underTest.renderActions();
@@ -71,6 +73,7 @@ describe("Roll Fumble", () => {
         underTest.checkReportReference.get().degreeOfSuccess = {
             fromRoll: eg,
             modification: 0,
+            limitedTo: 999,
         };
         sandbox.stub(underTest.spellReference.getItem(), "costs").get(() => costs);
         underTest.checkReportReference.get().skill = {
@@ -93,6 +96,7 @@ describe("Roll Fumble", () => {
         underTest.checkReportReference.get().degreeOfSuccess = {
             fromRoll: eg,
             modification: 0,
+            limitedTo: 999,
         };
         sandbox.stub(underTest.spellReference.getItem(), "costs").get(() => costs);
         underTest.checkReportReference.get().skill = {
@@ -112,6 +116,7 @@ describe("Roll Fumble", () => {
         underTest.checkReportReference.get().degreeOfSuccess = {
             fromRoll: 3,
             modification: 0,
+            limitedTo: 999,
         };
         sandbox.stub(underTest.spellReference.getItem(), "costs").get(() => "8V2");
         underTest.checkReportReference.get().skill = {
@@ -188,7 +193,7 @@ function setUpNoOptionsActionHandler(sandbox: SinonSandbox): WithMockedRefs<NoOp
     const mockSpellReference = setUpMockSpellSelfReference(sandbox);
     const mockActor = setUpMockActor(sandbox);
     linkSpellAndActor(mockSpellReference, mockActor);
-    mockReportReference.degreeOfSuccess = { fromRoll: 0, modification: 0 };
+    mockReportReference.degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
 
     return withToObjectReturnsSelf(() => {
         const handler = NoOptionsActionHandler.initialize(

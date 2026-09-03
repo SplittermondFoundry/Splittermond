@@ -9,7 +9,6 @@ export async function addSplinterpointBonus<T extends CheckReport>(
     checkReport.roll.total += splinterPointBonus;
     const updatedReport = await Dice.evaluateCheck(
         Promise.resolve(checkReport.roll),
-        checkReport.skill.points,
         checkReport.difficulty,
         checkReport.rollType
     );
@@ -23,8 +22,9 @@ export async function addSplinterpointBonus<T extends CheckReport>(
         ...updatedReport,
         roll: { ...updatedReport.roll, tooltip: checkReport.roll.tooltip },
         degreeOfSuccess: {
-            fromRoll: updatedReport.degreeOfSuccess.fromRoll,
+            fromRoll: Math.min(updatedReport.degreeOfSuccess.fromRoll, checkReport.degreeOfSuccess.limitedTo),
             modification: checkReport.degreeOfSuccess.modification,
+            limitedTo: checkReport.degreeOfSuccess.limitedTo,
         },
     };
 }

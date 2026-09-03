@@ -27,10 +27,11 @@ describe("CostModifierHandler", () => {
     describe("Case sensitivity", () => {
         it("should be case insensitive for addition", () => {
             const item = createItemWithSkill(sandbox, "deathmagic");
-            const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+            const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
             const result = underTest.processModifier({
                 path: "FOcuS.ADDition",
+                rawFragment: "FOcuS.ADDition",
                 value: asCost("2V1"),
                 attributes: {},
             })![0];
@@ -42,10 +43,11 @@ describe("CostModifierHandler", () => {
         });
         it("should be case insensitive for enhanced addition", () => {
             const item = createItemWithSkill(sandbox, "deathmagic");
-            const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+            const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
             const result = underTest.processModifier({
                 path: "focus.EnhancEdAddition",
+                rawFragment: "focus.EnhancEdAddition",
                 value: asCost("2V1"),
                 attributes: {},
             })![0];
@@ -57,10 +59,11 @@ describe("CostModifierHandler", () => {
         });
         it("should be case insensitive for reduction", () => {
             const item = createItemWithSkill(sandbox, "deathmagic");
-            const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+            const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
             const result = underTest.processModifier({
                 path: "FOcuS.REDucTIon",
+                rawFragment: "FOcuS.REDucTIon",
                 value: asCost("2V1"),
                 attributes: {},
             })![0];
@@ -72,10 +75,11 @@ describe("CostModifierHandler", () => {
         });
         it("should be case insensitive for enhanced Reduction", () => {
             const item = createItemWithSkill(sandbox, "deathmagic");
-            const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+            const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
             const result = underTest.processModifier({
                 path: "FOcuS.EnHaNcedREDucTIon",
+                rawFragment: "FOcuS.EnHaNcedREDucTIon",
                 value: asCost("2V1"),
                 attributes: {},
             })![0];
@@ -88,10 +92,11 @@ describe("CostModifierHandler", () => {
     });
     it("should fail for invalid path", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+        const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
         const result = underTest.processModifier({
             path: "invalid.path",
+            rawFragment: "invalid.path 2V1",
             value: asCost("2V1"),
             attributes: {},
         });
@@ -102,10 +107,11 @@ describe("CostModifierHandler", () => {
 
     it("should map addition to reduction", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+        const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.addition",
+            rawFragment: "focus.addition 2V1",
             value: asCost("2V1"),
             attributes: {},
         })![0];
@@ -118,10 +124,11 @@ describe("CostModifierHandler", () => {
 
     it("should map enhancedAddition to enhancedReduction", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+        const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.enhancedreduction",
+            rawFragment: "focus.enhancedreduction 2V1",
             value: asCost("2V1"),
             attributes: {},
         })![0];
@@ -134,10 +141,11 @@ describe("CostModifierHandler", () => {
 
     it("should create use item skill if skill attribute is invalid", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+        const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: 'focus.reduction skill="invalid" 2V1',
             value: asCost("2V1"),
             attributes: { skill: "invalid" },
         })![0];
@@ -149,10 +157,11 @@ describe("CostModifierHandler", () => {
 
     it("should use the item skill if skill attribute is missing", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+        const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: "focus.reduction 2V1",
             value: asCost("2V1"),
             attributes: {},
         })![0];
@@ -164,10 +173,11 @@ describe("CostModifierHandler", () => {
 
     it("should handle null multiplier for addition paths", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate", of(2));
+        const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.addition",
+            rawFragment: "focus.addition 3V1",
             value: asCost("3V1"),
             attributes: {},
         })![0];
@@ -180,10 +190,11 @@ describe("CostModifierHandler", () => {
 
     it("should handle items without skill property", () => {
         const item = createItemWithSkill(sandbox, null);
-        const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+        const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: "focus.reduction 2V1",
             value: asCost("2V1"),
             attributes: {},
         })![0];
@@ -195,10 +206,11 @@ describe("CostModifierHandler", () => {
 
     it("should validate type attribute", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+        const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: 'focus.reduction type="valid-type" 2V1',
             value: asCost("2V1"),
             attributes: { type: "valid-type" },
         })![0];
@@ -210,10 +222,11 @@ describe("CostModifierHandler", () => {
 
     it("should handle invalid skill but no item skill fallback", () => {
         const item = createItemWithSkill(sandbox, null);
-        const underTest = new CostModifierHandler(errorLogger, item, "innate", of(1));
+        const underTest = new CostModifierHandler(errorLogger, item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",
+            rawFragment: 'focus.reduction skill="invalid" 2V1',
             value: asCost("2V1"),
             attributes: { skill: "invalid" },
         })![0];

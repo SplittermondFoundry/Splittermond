@@ -58,7 +58,7 @@ function parseModifier(modifier: string): SingleParseResult {
         return foundryApi.format("splittermond.modifiers.parseMessages.notAModifier", { modifier });
     }
 
-    const parseResult = parsePath(pathMatch[0]);
+    const parseResult = parsePath(pathMatch[0], modifier);
 
     const attributeParseResult = parseAttributes(attributeMatch);
     if (typeof attributeParseResult === "string") {
@@ -72,7 +72,7 @@ function parseModifier(modifier: string): SingleParseResult {
     const value = valueMatch ? parseValue(valueMatch[0]) : null;
     if (isSet(value) && isSet(attributeParseResult.value)) {
         return foundryApi.format("splittermond.modifiers.parseMessages.duplicateValue", { modifier });
-    } else if (!isSet(value) && !isSet(attributeParseResult.value)) {
+    } else if (!isSet(value) && !isSet(attributeParseResult.value) && !hasNonValueAttribute(parseResult.attributes)) {
         return foundryApi.format("splittermond.modifiers.parseMessages.noValue", { modifier });
     } else if (isSet(value)) {
         parseResult.attributes.value = value;
@@ -82,6 +82,9 @@ function parseModifier(modifier: string): SingleParseResult {
 
 function isSet(value: unknown) {
     return value !== null && value !== undefined;
+}
+function hasNonValueAttribute(attributes: Record<string, unknown>): boolean {
+    return Object.keys(attributes).filter((k) => k !== "value").length > 0;
 }
 
 function findAttributes(modifier: string): string[] {
@@ -94,11 +97,12 @@ function findAttributes(modifier: string): string[] {
     return attributeMatches;
 }
 
-function parsePath(path: string): ParsedModifier {
+function parsePath(path: string, rawFragment: string): ParsedModifier {
     const pathAndEmphasis = path.split("/");
     return {
         path: pathAndEmphasis[0],
         attributes: { ...(pathAndEmphasis?.[1] ? { emphasis: pathAndEmphasis?.[1] } : {}) },
+        rawFragment,
     };
 }
 
@@ -150,7 +154,7 @@ function parseAttribute(attribute: string): AttributeParseResult {
 
 function parseValue(value: string) {
     const valueExpressionPattern = /(?<=\$\{)[^}]+(?=})/;
-    const numberPattern = /(?<=["']|^)[+-]?\d+(?=["']|$)/;
+    const numberPattern = /(?<=["']|^)[+-]?\d+(:?[.]\d+)?(?=["']|$)/;
     const quotedStringPattern = /(?<=["']).*(?=["'])/;
     if (valueExpressionPattern.test(value)) {
         const sign: 1 | -1 = /-(?=\s*\$\{)/.test(value) ? -1 : 1;

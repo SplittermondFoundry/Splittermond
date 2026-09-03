@@ -1,15 +1,17 @@
 import { foundryApi } from "module/api/foundryApi";
 import SplittermondItemSheet from "module/item/sheets/item-sheet";
+import SplittermondItemEffectsSheet from "module/item/sheets/item-effects-sheet";
 import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
 import SplittermondWeaponSheet from "module/item/sheets/weapon-sheet";
 import SplittermondShieldSheet from "module/item/sheets/shield-sheet";
 import SplittermondArmorSheet from "module/item/sheets/armor-sheet";
 import SplittermondAttackSheet from "module/item/sheets/attack-sheet";
+import StatusEffectItemSheet from "module/item/sheets/StatusEffectItemSheet";
 
 export function registerSheets() {
     [
         {
-            class: SplittermondItemSheet,
+            class: SplittermondItemEffectsSheet,
         },
         {
             type: "spell",
@@ -30,6 +32,10 @@ export function registerSheets() {
         {
             type: "npcattack",
             class: SplittermondAttackSheet,
+        },
+        {
+            type: "statuseffect",
+            class: StatusEffectItemSheet,
         },
     ].forEach((config) => registerSheet(config.class, config.type));
 }

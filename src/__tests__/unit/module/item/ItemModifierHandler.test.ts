@@ -34,7 +34,7 @@ describe("ItemModifierHandler", () => {
         mockItem = sandbox.createStubInstance(SplittermondItem);
         mockItem.name = "Test Item";
 
-        handler = new TestItemModifierHandler(logErrorsStub, mockItem, "equipment", of(1));
+        handler = new TestItemModifierHandler(logErrorsStub, mockItem, "equipment");
 
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => key);
         sandbox.stub(foundryApi, "format").callsFake((key: string, data?: any) => {
@@ -65,6 +65,7 @@ describe("ItemModifierHandler", () => {
         it("should create a modifier with correct properties", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.damage",
+                rawFragment: 'item.damage damageType="fire" +5',
                 value: of(5),
                 attributes: {
                     damageType: "fire",
@@ -76,7 +77,6 @@ describe("ItemModifierHandler", () => {
             expect(result).to.not.be.null;
             expect(result.groupId).to.equal("item.damage");
             expect(result.value).to.deep.equal(of(5));
-            expect(result.origin).to.equal(mockItem);
             expect(result.selectable).to.be.false;
         });
     });
@@ -178,6 +178,7 @@ describe("ItemModifierHandler", () => {
         it("should process valid modifier", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.damage",
+                rawFragment: 'item.damage damageType="fire" +5',
                 value: of(5),
                 attributes: {
                     damageType: "fire",
@@ -193,6 +194,7 @@ describe("ItemModifierHandler", () => {
 
         it("should process defense tick cost modifiers", () => {
             const scalarModifier: ScalarModifier = {
+                rawFragment: 'item.defenseTickCost itemType="shield" defenseType="vtd" -1',
                 path: "item.defenseTickCost",
                 value: of(-1),
                 attributes: {
@@ -220,6 +222,7 @@ describe("ItemModifierHandler", () => {
         ).forEach(([input, expected]) => {
             it(`should normalize defense tick cost defense type alias ${input}`, () => {
                 const scalarModifier: ScalarModifier = {
+                    rawFragment: input,
                     path: "item.defenseTickCost",
                     value: of(-1),
                     attributes: {
@@ -233,39 +236,42 @@ describe("ItemModifierHandler", () => {
             });
         });
 
-        it("should multiply modifier values", async () => {
+        it("should not bake the multiplier into modifier values", async () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration",
+                rawFragment: 'item.castDuration unit="T" +5',
                 value: of(5),
                 attributes: {
                     unit: "T",
                 },
             };
 
-            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
+            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment");
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(await evaluate(result.value)).to.deep.equal(10);
+            expect(await evaluate(result.value)).to.deep.equal(5);
         });
 
-        it("should take cast duration multiplier to the modifier multipliers power", async () => {
+        it("should not bake the multiplier into cast duration multiplier values", async () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.castDuration.multiplier",
+                rawFragment: 'item.castDuration.multiplier unit="T" 0.5',
                 value: of(0.5),
                 attributes: {
                     unit: "T",
                 },
             };
 
-            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment", of(2));
+            const underTest = new ItemModifierHandler(logErrorsStub, mockItem, "equipment");
             const result = underTest.processModifier(scalarModifier)![0];
 
-            expect(await evaluate(result.value)).to.deep.equal(0.25);
+            expect(await evaluate(result.value)).to.deep.equal(0.5);
         });
 
         it("should omit modifier with zero value", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.damage",
+                rawFragment: "item.damage +0",
                 value: of(0),
                 attributes: {},
             };
@@ -278,6 +284,7 @@ describe("ItemModifierHandler", () => {
         it("should reject modifier with invalid path", () => {
             const scalarModifier: ScalarModifier = {
                 path: "actor.damage",
+                rawFragment: "actor.damage +5",
                 value: of(5),
                 attributes: {},
             };
@@ -291,6 +298,7 @@ describe("ItemModifierHandler", () => {
         it("should reject modifier with unknown subpath", () => {
             const scalarModifier: ScalarModifier = {
                 path: "item.unknown",
+                rawFragment: "item.unknown +5",
                 value: of(5),
                 attributes: {},
             };
@@ -305,6 +313,7 @@ describe("ItemModifierHandler", () => {
     it("should report unknown attributes", () => {
         const scalarModifier: ScalarModifier = {
             path: "item.damage",
+            rawFragment: 'item.damage unknownAttribute="value" +5',
             value: of(5),
             attributes: {
                 unknownAttribute: "value",

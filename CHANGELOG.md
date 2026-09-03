@@ -1,3 +1,29 @@
+## 14.x.x
+
+### Features
+
+- Multiplikatoren sorgen bei additiven Modifikatoren jetzt für Mehrfachanwendung statt Multiplikation.
+  D.h. ein Statuseffekt Stufe 2 mit einem Schadensmodifikator produziert jetzt eval(2W6) statt 2 * eval(1W6)
+- Modifikatoren können jetzt über aktive Effekte gehandhabt werden
+- Statuseffekte lösen nach Wahl ein Makro nach einem bestimmten Intervall aus.
+- Es gibt jetzt einen Modifikator um eine bestimmte Würfeltaktik zu forcieren
+- Für NPC ohne Merkmal "Taktiker" wird "Standardwurf" forciert
+- Modifikatoren können über Foundries Aktive Effekte gehandhabt werden
+    - Modifikatoren nach altem Schema werden zur Anzeige konvertiert, aber nach altem Verfahren berechnet.
+    - Modifikatoren haben eine Zeitdauer "kanalisiert" (noch ohne Funktion)
+    - Es gelten alle Eigenschaften von Foundries aktiven Effekten z.B.
+        - Automatisches Abklingen im Kampf
+        - Übertragung von Items
+        - Übertragung von Regionen
+        - Auswertung ausschließlich bei Erschaffung des Effekts
+
+### Fixes
+
+- Anzeige des Namens und Tooltips für die Erfahrungspunktefelder
+- Erfolgsgrade von NSC werden nicht mehr limitiert wenn die Attribute einer Fertigkeit sich zu dem Fertigkeitswert summieren
+- Bei aktiver Abwehr erhöht der Einsatz von Splitterpunkten jetzt korrekt die EG.
+- Chat Karten merken sich ihren internen Zustand jetzt über mehrere Sitzungen hinweg.
+
 ## 14.2.6
 
 ### Fixes

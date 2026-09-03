@@ -9,6 +9,8 @@ import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.js
 import { splittermond } from "module/config/index.js";
 import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "module/item/availabilityParser";
 import type { ItemType } from "module/config/itemTypes";
+import type { HandlebarsRenderOptions } from "module/api/Application";
+import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
 
 interface ItemSheetData {
     cssClass: string;
@@ -98,6 +100,10 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         },
     };
 
+    protected get allowsActiveEffectDrop(): boolean {
+        return false;
+    }
+
     protected readonly localizer: Localizer;
     private itemSheetProperties: any[];
     private availabilityParser: AvailabilityParser;
@@ -107,7 +113,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         private resolveProperty = foundryApi.utils.resolveProperty,
         localizer: Localizer = foundryApi,
         config: any = splittermond,
-        private htmlEnricher = foundryApi.utils.enrichHtml,
+        protected htmlEnricher = foundryApi.utils.enrichHtml,
         availabilityParser: AvailabilityParser | null = null
     ) {
         const item = options.document;
@@ -169,7 +175,11 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return [];
     }
 
-    async _preparePartContext(partId: string, context: any, options: any): Promise<any> {
+    async _preparePartContext(
+        partId: string,
+        context: ApplicationRenderContext,
+        options: Partial<HandlebarsRenderOptions>
+    ): Promise<any> {
         const data = await super._preparePartContext(partId, context, options);
         switch (partId) {
             case "editor":
@@ -180,7 +190,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return data;
     }
 
-    async #prepareEditorPart(context: any): Promise<any> {
+    async #prepareEditorPart(context: ApplicationRenderContext): Promise<ApplicationRenderContext> {
         context.editor = {
             value: this.item.system.description ?? "",
             target: "system.description",
@@ -193,12 +203,20 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return context;
     }
 
-    async #prepareStatBlockPart(context: any): Promise<any> {
+    async #prepareStatBlockPart(context: ApplicationRenderContext): Promise<ApplicationRenderContext> {
         context.statBlock = this._getStatBlock();
         return context;
     }
 
-    protected async _onRender(context: ApplicationRenderContext, options: any): Promise<void> {
+    async _onDropActiveEffect(_event: DragEvent, _effect: unknown): Promise<foundry.documents.ActiveEffect | null> {
+        if (!this.allowsActiveEffectDrop) {
+            foundryApi.warnUser("splittermond.activeEffect.error.itemTypeEffectsNotSupported");
+            return null;
+        }
+        return super._onDropActiveEffect(_event, _effect as foundry.documents.ActiveEffect);
+    }
+
+    protected async _onRender(context: ApplicationRenderContext, options: ApplicationRenderOptions): Promise<void> {
         await super._onRender(context, options);
         autoExpandInputs(this.element);
     }

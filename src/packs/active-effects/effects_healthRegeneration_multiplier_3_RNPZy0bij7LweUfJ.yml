@@ -1,0 +1,47 @@
+folder: null
+name: Erhöhte Lebensregeneration
+origin: null
+type: modifier
+_id: RNPZy0bij7LweUfJ
+img: icons/svg/upgrade.svg
+system:
+    changes: []
+    modifiers:
+        - path: actor.healthregeneration.multiplier
+          serializedValue:
+              type: amount
+              amount: 3
+          implementation: multiplicative
+          selectable: false
+          attributes:
+              name: healthRegeneration.multiplier 3
+              type: innate
+    costModifiers: []
+disabled: false
+start: null
+duration:
+    value: null
+    units: seconds
+    expiry: null
+    expired: false
+description: ""
+tint: "#ffffff"
+transfer: true
+statuses: []
+showIcon: 1
+sort: 0
+flags:
+    splittermond:
+        durationMode: permanent
+        rawInput: healthRegeneration.multiplier 3
+_stats:
+    coreVersion: "14.365"
+    systemId: splittermond
+    systemVersion: 14.3.0-alpha5
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
+_key: "!effects!RNPZy0bij7LweUfJ"

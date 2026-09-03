@@ -14,7 +14,9 @@
         "sourceMap": true,
         "paths": {
             "module/*": ["./src/module/*"],
-            "__tests__/*": ["./src/__tests__/*"]
+            "__tests__/*": ["./src/__tests__/*"],
+            "fvtt-types/utils": ["./src/module/api/fvtt-types-stub.d.ts"],
+            "fvtt-types/configuration": ["./src/module/api/fvtt-types-stub.d.ts"]
         },
         "rootDir": "./src",
         "noEmit": true,

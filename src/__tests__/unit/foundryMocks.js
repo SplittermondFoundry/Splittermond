@@ -26,6 +26,18 @@ class FoundryDocument {
 
 global.Actor = class Actor extends FoundryDocument {};
 
+global.ActiveEffect = class ActiveEffect extends FoundryDocument {
+    get disabled() {
+        return false;
+    }
+    get isSuppressed() {
+        return false;
+    }
+    get item() {
+        return undefined;
+    }
+};
+
 global.Item = class Item extends FoundryDocument {};
 
 global.ChatMessage = class ChatMessage extends FoundryDocument {
@@ -74,7 +86,11 @@ const foundryApplicationsApi = {
         }
         render() {}
         _prepareContext() {}
+        _preparePartContext(_partId, context, _options) {
+            return Promise.resolve(context);
+        }
         _onRender() {}
+        _onSubmitForm() {}
         addEventListener() {}
         close() {}
         static prompt() {}
@@ -85,13 +101,19 @@ const foundryApplicationSheets = {
         get item() {
             return this.options.document;
         }
+        _onDrop() {}
     },
     ActorSheetV2: class extends foundryApplicationsApi.ApplicationV2 {
         get actor() {
             return this.options.document;
         }
 
-        _onDropDocument() {}
+        _onDropItem() {}
+    },
+    ActiveEffectConfig: class extends foundryApplicationsApi.ApplicationV2 {
+        get document() {
+            return this.options.document;
+        }
     },
 };
 
@@ -164,6 +186,15 @@ global.foundry = {
 
                 validate = typeValidation("boolean");
             },
+            HTMLField: class {
+                /**@type unknown */ options = null;
+
+                constructor(options) {
+                    this.options = options;
+                }
+
+                validate = typeValidation("string");
+            },
             EmbeddedDataField: class {
                 /**@type function*/ type = null;
                 /**@type unknown */ options = null;
@@ -233,6 +264,36 @@ global.foundry = {
                 return JSON.parse(JSON.stringify(this));
             }
         },
+        TypeDataModel: class {
+            constructor(data, context = {}) {
+                for (const key in data) {
+                    Object.defineProperty(this, key, {
+                        value: data[key],
+                        writable: true,
+                        enumerable: true,
+                        configurable: true,
+                    });
+                }
+                if ("parent" in context) {
+                    Object.defineProperty(this, "parent", {
+                        value: context.parent,
+                        writable: true,
+                        enumerable: true,
+                        configurable: true,
+                    });
+                }
+            }
+
+            updateSource(data, context) {
+                for (const key in data) {
+                    this[key] = data[key];
+                }
+            }
+
+            toObject() {
+                return JSON.parse(JSON.stringify(this));
+            }
+        },
     },
     applications: {
         ux: {
@@ -243,6 +304,12 @@ global.foundry = {
         api: foundryApplicationsApi,
         sheets: foundryApplicationSheets,
     },
+};
+
+global.foundry.data.ActiveEffectTypeDataModel = class extends global.foundry.abstract.TypeDataModel {
+    static defineSchema() {
+        return {};
+    }
 };
 
 global.game = {};

@@ -10,10 +10,10 @@ import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { CharacterAttribute } from "module/actor/dataModel/CharacterAttribute";
 import Attribute from "module/actor/attribute";
 import { clearMappers } from "module/modifiers/parsing/normalizer";
-import { evaluate, of, pow } from "module/modifiers/expressions/scalar";
+import { evaluate, of } from "module/modifiers/expressions/scalar";
 import { of as ofCost, times } from "module/modifiers/expressions/cost";
 import { stubRollApi } from "../../RollMock";
-import { InverseModifier } from "module/modifiers/impl/InverseModifier";
+import { InverseModifier } from "module/activeEffect";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
@@ -68,6 +68,7 @@ describe("addModifier", () => {
         };
         item = {
             id: "item1",
+            uuid: "Item.item1",
             name: "Test Item",
             type: "weapon",
             actor: actor,
@@ -75,6 +76,13 @@ describe("addModifier", () => {
             isOwner: true,
         } as unknown as SinonStubbedInstance<SplittermondItem>;
 
+        sandbox.stub(actor, "uuid").get(() => `Actor.${actor.id}`);
+        sandbox
+            .stub(foundryApi.utils, "fromUUIDSync")
+            .withArgs(item.uuid)
+            .returns(item)
+            .withArgs(actor.uuid)
+            .returns(actor);
         reportErrorStub = sandbox.stub(foundryApi, "reportError");
         sandbox.stub(foundryApi, "format").callsFake((key: string) => key);
         sandbox.stub(foundryApi, "localize").callsFake((key: string) => {
@@ -100,7 +108,7 @@ describe("addModifier", () => {
     it("should add basic modifier", () => {
         const result = addModifier(item, "BonusCap +2");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
+        expect(result.modifiers[0].modifier).to.deep.contain({
             path: "BonusCap",
             attributes: {
                 name: "Test Item",
@@ -112,18 +120,18 @@ describe("addModifier", () => {
 
     (
         [
-            ["speed.multiplier 2", pow(of(2), of(2))],
+            ["speed.multiplier 2", of(2)],
             ["gsw.mult 0", of(0)],
         ] as const
     ).forEach(([modifier, expected]) => {
         it(`should handle multiplier modifier ${modifier}`, () => {
-            const result = addModifier(item, modifier, "innate", 2);
+            const result = addModifier(item, modifier, "innate");
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.contain({
+            expect(result.modifiers[0].modifier).to.deep.contain({
                 groupId: "actor.speed.multiplier",
                 attributes: { name: "Test Item", type: "innate" },
                 value: expected,
-                origin: item,
+
                 selectable: false,
             });
         });
@@ -132,44 +140,44 @@ describe("addModifier", () => {
     it("should handle health regeneration multiplier", () => {
         const result = addModifier(item, "HealthRegeneration.multiplier 3");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
+        expect(result.modifiers[0].modifier).to.deep.contain({
             groupId: "actor.healthregeneration.multiplier",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
     });
     it("should handle health regeneration bonus", () => {
         const result = addModifier(item, "HealthRegeneration.bonus 3");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
+        expect(result.modifiers[0].modifier).to.deep.contain({
             path: "actor.healthregeneration.bonus",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
     });
     it("should handle focus regeneration multiplier", () => {
         const result = addModifier(item, "FocusRegeneration.multiplier 3");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
+        expect(result.modifiers[0].modifier).to.deep.contain({
             groupId: "actor.focusregeneration.multiplier",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
     });
     it("should handle focus regeneration bonus", () => {
         const result = addModifier(item, "FocusRegeneration.bonus 3");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
+        expect(result.modifiers[0].modifier).to.deep.contain({
             path: "actor.focusregeneration.bonus",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
     });
@@ -186,11 +194,11 @@ describe("addModifier", () => {
         expect(result.modifiers).to.have.length(mockSkills.length);
 
         mockSkills.forEach((skill, index) => {
-            expect(result.modifiers[index]).to.deep.contain({
+            expect(result.modifiers[index].modifier).to.deep.contain({
                 path: skill,
                 attributes: { emphasis: "emphasis", name: "emphasis", type: null },
                 value: of(2),
-                origin: item,
+
                 selectable: true,
             });
         });
@@ -204,12 +212,29 @@ describe("addModifier", () => {
 
         const result = addModifier(item, "npcattacks +3");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
-            path: "skill.npcAttack1",
+        expect(result.modifiers[0].modifier).to.deep.contain({
+            path: "npcattacks",
             attributes: { name: "Test Item", type: null },
             value: of(3),
-            origin: item,
+
             selectable: false,
+        });
+    });
+
+    it("should make npcattacks modifier selectable when emphasis is provided", () => {
+        const npcAttack = sandbox.createStubInstance(SplittermondItem);
+        npcAttack.type = "npcattack";
+        sandbox.stub(npcAttack, "id").get(() => "npcAttack1");
+        Object.defineProperty(actor, "items", { value: [npcAttack] });
+
+        const result = addModifier(item, 'npcattacks emphasis="Schwerpunkt" +3');
+        expect(result.modifiers).to.have.length(1);
+        expect(result.modifiers[0].modifier).to.deep.contain({
+            path: "npcattacks",
+            attributes: { name: "Schwerpunkt", type: null, emphasis: "Schwerpunkt" },
+            value: of(3),
+
+            selectable: true,
         });
     });
 
@@ -221,11 +246,11 @@ describe("addModifier", () => {
     it("should replace attribute placeholders", () => {
         const result = addModifier(item, "INI +1");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
+        expect(result.modifiers[0].modifier).to.deep.contain({
             groupId: "initiative",
             attributes: { name: "Test Item", type: null },
             value: of(1),
-            origin: item,
+
             selectable: false,
         });
     });
@@ -233,11 +258,11 @@ describe("addModifier", () => {
     it("should handle selectable modifiers with emphasis", () => {
         const result = addModifier(item, "diplomacy/emphasis +3");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
+        expect(result.modifiers[0].modifier).to.deep.contain({
             path: "diplomacy",
             attributes: { emphasis: "emphasis", name: "emphasis", type: null },
             value: of(3),
-            origin: item,
+
             selectable: true,
         });
     });
@@ -246,11 +271,11 @@ describe("addModifier", () => {
         it(`should recognize fumble result modifier ${fumbleResultPath}`, () => {
             const result = addModifier(item, `${fumbleResultPath} +3`);
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.contain({
+            expect(result.modifiers[0].modifier).to.deep.contain({
                 path: fumbleResultPath,
                 attributes: { name: "Test Item", type: null },
                 value: of(3),
-                origin: item,
+
                 selectable: false,
             });
         });
@@ -258,11 +283,11 @@ describe("addModifier", () => {
     it("should accept skill attribute for lower fumble result", () => {
         const result = addModifier(item, "lowerfumbleresult  skill=windmagic +3");
         expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0]).to.deep.contain({
+        expect(result.modifiers[0].modifier).to.deep.contain({
             path: "lowerfumbleresult",
             attributes: { name: "Test Item", type: null, skill: "windmagic" },
             value: of(3),
-            origin: item,
+
             selectable: false,
         });
         expect(reportErrorStub.notCalled, "Output to console error").to.be.true;
@@ -275,13 +300,22 @@ describe("addModifier", () => {
 
             // Check the last modifier (since we're testing the last skill in the group)
             const lastModifier = result.modifiers[result.modifiers.length - 1];
-            expect(lastModifier).to.deep.contain({
+            expect(lastModifier.modifier).to.deep.contain({
                 path: splittermond.skillGroups[skillGroup].slice(-1)[0],
                 attributes: { emphasis: "Schwerpunkt", name: "Schwerpunkt", type: null },
                 value: of(3),
-                origin: item,
+
                 selectable: true,
             });
+        });
+    });
+
+    (["fighting", "magic", "general", "social"] as const).forEach((skillGroup) => {
+        it(`should share one rawFragment across all expanded modifiers for skills.${skillGroup}`, () => {
+            const rawFragment = `skills.${skillGroup} +2`;
+            const result = addModifier(item, rawFragment);
+            expect(result.modifiers.length).to.be.greaterThan(0);
+            expect(result.modifiers.every((m) => m.rawFragment === rawFragment)).to.be.true;
         });
     });
 
@@ -289,7 +323,7 @@ describe("addModifier", () => {
         it("should handle general damage modifiers (deprecated path)", () => {
             const result = addModifier(item, "Damage/fire +5");
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.Damage",
                 value: of(5),
                 attributes: {
@@ -297,14 +331,13 @@ describe("addModifier", () => {
                     type: null,
                     emphasis: "fire",
                 },
-                origin: item,
             });
         });
 
         it("should handle general damage modifiers with item attribute (deprecated path)", () => {
             const result = addModifier(item, 'Damage emphasis="fire" item="Schwert" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.Damage",
                 value: of(5),
                 attributes: {
@@ -313,73 +346,66 @@ describe("addModifier", () => {
                     emphasis: "fire",
                     item: "Schwert",
                 },
-                origin: item,
             });
         });
 
         it("should pass valid damage types on modifiers", () => {
             const result = addModifier(item, 'item.damage damageType="fire" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, damageType: "fire" },
-                origin: item,
             });
         });
 
         it("should omit invalid damage types on modifiers", () => {
             const result = addModifier(item, 'item.damage damageType="frie" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, damageType: undefined },
-                origin: item,
             });
         });
 
         it("should pass valid item types on modifiers", () => {
             const result = addModifier(item, 'item.damage itemType="spell" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "spell" },
-                origin: item,
             });
         });
 
         it("should keep invalid item types on modifiers", () => {
             const result = addModifier(item, 'item.damage itemType="blubb" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "blubb" },
-                origin: item,
             });
         });
 
         it("should pass valid item skills on modifiers", () => {
             const result = addModifier(item, 'item.damage skill="arcanelore" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "arcanelore" },
-                origin: item,
             });
         });
 
         it("should keep invalid item skills on modifiers", () => {
             const result = addModifier(item, 'item.damage skill="blubb" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.damage",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "blubb" },
-                origin: item,
             });
         });
 
@@ -395,77 +421,70 @@ describe("addModifier", () => {
         it("should handle general weaponspeed modifiers (deprecated path)", () => {
             const result = addModifier(item, "weaponspeed +5");
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null },
-                origin: item,
             });
         });
 
         it("should handle general weaponspeed modifiers", () => {
             const result = addModifier(item, "item.weaponspeed +5");
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null },
-                origin: item,
             });
         });
 
         it("should handle weapon specific weaponspeed modifiers", () => {
             const result = addModifier(item, 'item.weaponspeed item="Lanze" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, item: "Lanze" },
-                origin: item,
             });
         });
 
         it("should pass item type weaponspeed modifiers", () => {
             const result = addModifier(item, 'item.weaponspeed itemType="weapon" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "weapon" },
-                origin: item,
             });
         });
 
         it("should keep invalid item type weaponspeed modifiers", () => {
             const result = addModifier(item, 'item.weaponspeed itemType="fern" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, itemType: "fern" },
-                origin: item,
             });
         });
 
         it("should pass skill weaponspeed modifiers", () => {
             const result = addModifier(item, 'item.weaponspeed skill="melee" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "melee" },
-                origin: item,
             });
         });
 
         it("should keep invalid skill weaponspeed modifiers", () => {
             const result = addModifier(item, 'item.weaponspeed skill="fern" +5');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.weaponspeed",
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "fern" },
-                origin: item,
             });
         });
 
@@ -481,32 +500,29 @@ describe("addModifier", () => {
         it("should handle defense tick cost modifiers", () => {
             const result = addModifier(item, 'item.defenseTickCost itemType="shield" +1');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.defenseTickCost",
                 value: of(1),
                 attributes: { name: "Test Item", type: null, itemType: "shield" },
-                origin: item,
             });
         });
 
         it("should support item and skill filters", () => {
             const result = addModifier(item, 'item.defenseTickCost item="Rundschild" skill="melee" +1');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.defenseTickCost",
                 value: of(1),
                 attributes: { name: "Test Item", type: null, item: "Rundschild", skill: "melee" },
-                origin: item,
             });
         });
         it("should normalize defense type filters in the item handler", () => {
             const result = addModifier(item, 'item.defenseTickCost defenseType="kw" -1');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.defenseTickCost",
                 value: of(-1),
                 attributes: { name: "Test Item", type: null, defenseType: "bodyresist" },
-                origin: item,
             });
         });
     });
@@ -515,22 +531,20 @@ describe("addModifier", () => {
         it("should handle cast duration modifiers", () => {
             const result = addModifier(item, 'item.castDuration unit="Ticks" +2');
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.castDuration",
                 value: of(2),
                 attributes: { name: "Test Item", type: null, unit: "T" },
-                origin: item,
             });
         });
 
         it("should handle cast duration multiplier modifiers", () => {
             const result = addModifier(item, "item.castDuration.multiplier +2");
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.include({
+            expect(result.modifiers[0].modifier).to.deep.include({
                 path: "item.castDuration.multiplier",
                 value: of(2),
                 attributes: { name: "Test Item", type: null },
-                origin: item,
             });
         });
     });
@@ -540,73 +554,67 @@ describe("addModifier", () => {
             it(`should handle general item feature modifiers for ${path}`, () => {
                 const result = addModifier(item, `${path} feature="robust" +2`);
                 expect(result.modifiers).to.have.length(1);
-                expect(result.modifiers[0]).to.deep.include({
+                expect(result.modifiers[0].modifier).to.deep.include({
                     path,
                     value: of(2),
                     attributes: { name: "Test Item", type: null, feature: "robust" },
-                    origin: item,
                 });
             });
 
             it(`should handle item feature modifiers with item attribute for ${path}`, () => {
                 const result = addModifier(item, `${path} feature="sharp" item="Schwert" +1`);
                 expect(result.modifiers).to.have.length(1);
-                expect(result.modifiers[0]).to.deep.include({
+                expect(result.modifiers[0].modifier).to.deep.include({
                     path,
                     value: of(1),
                     attributes: { name: "Test Item", type: null, feature: "sharp", item: "Schwert" },
-                    origin: item,
                 });
             });
 
             it(`should pass valid item types on item feature modifiers for ${path}`, () => {
                 const result = addModifier(item, `${path} feature="masterwork" itemType="weapon" +3`);
                 expect(result.modifiers).to.have.length(1);
-                expect(result.modifiers[0]).to.deep.include({
+                expect(result.modifiers[0].modifier).to.deep.include({
                     path,
                     value: of(3),
                     attributes: { name: "Test Item", type: null, feature: "masterwork", itemType: "weapon" },
-                    origin: item,
                 });
             });
 
             it(`should keep invalid item types on item feature modifiers for ${path}`, () => {
                 const result = addModifier(item, `${path} feature="enchanted" itemType="invalid" +1`);
                 expect(result.modifiers).to.have.length(1);
-                expect(result.modifiers[0]).to.deep.include({
+                expect(result.modifiers[0].modifier).to.deep.include({
                     path,
                     value: of(1),
                     attributes: { name: "Test Item", type: null, feature: "enchanted", itemType: "invalid" },
-                    origin: item,
                 });
             });
 
             it(`should pass valid item types on item feature modifiers for ${path}`, () => {
                 const result = addModifier(item, `${path} feature="masterwork" skill="blades" +3`);
                 expect(result.modifiers).to.have.length(1);
-                expect(result.modifiers[0]).to.deep.include({
+                expect(result.modifiers[0].modifier).to.deep.include({
                     path,
                     value: of(3),
                     attributes: { name: "Test Item", type: null, feature: "masterwork", skill: "blades" },
-                    origin: item,
                 });
             });
 
             it(`should keep invalid item types on item feature modifiers for ${path}`, () => {
                 const result = addModifier(item, `${path} feature="enchanted" skill="invalid" +1`);
                 expect(result.modifiers).to.have.length(1);
-                expect(result.modifiers[0]).to.deep.include({
+                expect(result.modifiers[0].modifier).to.deep.include({
                     path,
                     value: of(1),
                     attributes: { name: "Test Item", type: null, feature: "enchanted", skill: "invalid" },
-                    origin: item,
                 });
             });
 
             it(`should handle item feature modifiers with multiple attributes for ${path}`, () => {
                 const result = addModifier(item, `${path} feature="blessed" item="Holy Sword" itemType="weapon" +5`);
                 expect(result.modifiers).to.have.length(1);
-                expect(result.modifiers[0]).to.deep.include({
+                expect(result.modifiers[0].modifier).to.deep.include({
                     path,
                     value: of(5),
                     attributes: {
@@ -616,7 +624,6 @@ describe("addModifier", () => {
                         item: "Holy Sword",
                         itemType: "weapon",
                     },
-                    origin: item,
                 });
             });
             [
@@ -637,13 +644,12 @@ describe("addModifier", () => {
             const result = addModifier(item, `${iniRepresentation} +2`);
             expect(result.modifiers).to.have.length(1);
 
-            const createdModifier = result.modifiers[0];
+            const createdModifier = result.modifiers[0].modifier;
             expect(createdModifier).to.be.instanceof(InverseModifier);
             expect(createdModifier.groupId.toLowerCase()).to.equal("initiative");
             expect(createdModifier.attributes.name).to.equal("Test Item");
             expect(createdModifier.attributes.type).to.be.null;
             expect(createdModifier.value).to.deep.equal(of(2));
-            expect(createdModifier.origin).to.equal(item);
             expect(createdModifier.selectable).to.be.false;
         });
     });
@@ -671,13 +677,13 @@ describe("addModifier", () => {
 
             const result = addModifier(item, `stealth ${placeholder}`);
             expect(result.modifiers).to.have.length(1);
-            expect(result.modifiers[0]).to.deep.contain({
+            expect(result.modifiers[0].modifier).to.deep.contain({
                 path: "stealth",
                 attributes: { name: "Test Item", type: null },
-                origin: item,
+
                 selectable: false,
             });
-            expect(await evaluate(result.modifiers[0].value)).to.equal(expected);
+            expect(await evaluate(result.modifiers[0].modifier.value)).to.equal(expected);
         });
     });
 
@@ -693,7 +699,7 @@ describe("addModifier", () => {
         it(`should return reduced focus costs of ${cost} for spell manager`, () => {
             const result = addModifier(item, `focus.reduction skill="protectionmagic" ${cost}`);
             expect(result.costModifiers).to.have.length(1);
-            expect(result.costModifiers[0]).to.deep.equal({
+            expect(result.costModifiers[0].modifier).to.deep.contain({
                 label: "focus.reduction",
                 value: ofCost(expected),
                 skill: null,
@@ -703,7 +709,7 @@ describe("addModifier", () => {
         it(`should return added focus costs of ${cost} for spell manager`, () => {
             const result = addModifier(item, `focus.addition skill="protectionmagic" ${cost}`);
             expect(result.costModifiers).to.have.length(1);
-            expect(result.costModifiers[0]).to.deep.equal({
+            expect(result.costModifiers[0].modifier).to.deep.contain({
                 label: "focus.reduction",
                 value: times(of(-1), ofCost(expected)),
                 skill: null,
@@ -714,7 +720,7 @@ describe("addModifier", () => {
         it(`should return focus costs of ${cost} for spell enhancement manager`, () => {
             const result = addModifier(item, `focus.enhancedreduction skill="combatmagic" ${cost}`);
             expect(result.costModifiers).to.have.length(1);
-            expect(result.costModifiers[0]).to.deep.equal({
+            expect(result.costModifiers[0].modifier).to.deep.contain({
                 label: "focus.enhancedreduction",
                 value: ofCost(expected),
                 skill: null,

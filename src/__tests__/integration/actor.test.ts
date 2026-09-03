@@ -16,7 +16,7 @@ import SplittermondActorSheet from "../../module/actor/sheets/actor-sheet";
 import { withActor } from "./fixtures";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import { passesEventually } from "../util";
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import { of } from "module/modifiers/expressions/scalar";
 import type { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
 import type SplittermondWeaponItem from "module/item/weapon";
@@ -188,19 +188,22 @@ export function actorTest(context: QuenchBatchContext) {
             });
 
             expect(actor.items.filter((i) => i.type === "strength").length, "Has n strength items").to.equal(5);
-            expect(
-                actor.items.find((i) => i.name === "Zusätzliche Splitterpunkte")?.system,
-                "Comparing strength 'Zusätzliche Splitterpunkte'"
-            ).to.deep.contain({
+            const splinterpointsStrength = actor.items.find((i) => i.name === "Zusätzliche Splitterpunkte");
+            expect(splinterpointsStrength?.system, "Comparing strength 'Zusätzliche Splitterpunkte'").to.deep.contain({
                 description:
                     "Das Schicksal ist dem Abenteurer in besonderem Maße gewogen. Er erhält 5 zusätzliche Sammelmünzen.",
                 level: 1,
-                modifier: "splinterpoints +2",
+                modifier: "",
                 multiSelectable: false,
                 onCreationOnly: false,
                 origin: "",
                 quantity: 1,
             });
+            const splinterpointsEffect = splinterpointsStrength?.effects.find((e) => e.type === "modifier");
+            expect(splinterpointsEffect, "strength carries an embedded modifier effect").to.exist;
+            expect(splinterpointsEffect!.system.modifiers[0].path, "embedded effect targets splinterpoints").to.equal(
+                "actor.splinterpoints"
+            );
 
             expect(actor.items.filter((i) => i.type === "mastery").length, "Has n mastery items").to.equal(17);
             expect(
@@ -476,7 +479,7 @@ export function actorTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
-                actor.modifier.addModifier(new Modifier("item.damage", of(5), { name: "Test", type: "innate" }));
+                actor.modifier.addModifier(Modifier.create("item.damage", of(5), { name: "Test", type: "innate" }));
                 const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
 
                 const assertion = new Promise((resolve, reject) => {
@@ -508,7 +511,7 @@ export function actorTest(context: QuenchBatchContext) {
                         await source.createEmbeddedDocuments("Item", [
                             { type: "weapon", name: "Drag Test Weapon", system: { equipped: true } },
                         ])
-                    )[0];
+                    )[0] as SplittermondWeaponItem;
                     source.prepareBaseData();
                     source.prepareEmbeddedDocuments();
                     source.prepareDerivedData();
@@ -543,7 +546,7 @@ export function actorTest(context: QuenchBatchContext) {
                         await source.createEmbeddedDocuments("Item", [
                             { type: "weapon", name: "Drag Test Weapon", system: {} },
                         ])
-                    )[0];
+                    )[0] as SplittermondWeaponItem;
                     const sourceSheet = await new SplittermondCharacterSheet({ document: source }).render({
                         force: true,
                     });

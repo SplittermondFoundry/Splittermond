@@ -1,4 +1,4 @@
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import { Expression } from "module/modifiers/expressions/scalar";
 import type { IModifier, ModifierAttributes } from "module/modifiers";
 import { Modifiers } from "module/actor/modifiers/Modifiers";
@@ -12,14 +12,8 @@ interface AttributeSelector {
 export default class ModifierManager {
     private _modifier: Map<string, IModifier[]> = new Map();
 
-    add(
-        path: string,
-        attributes: ModifierAttributes,
-        value: Expression,
-        origin: object | null = null,
-        selectable = false
-    ) {
-        this.addModifier(new Modifier(path, value, attributes, origin, selectable));
+    add(path: string, attributes: ModifierAttributes, value: Expression, selectable = false) {
+        this.addModifier(Modifier.create(path, value, attributes, selectable));
     }
 
     addModifier(modifier: IModifier) {

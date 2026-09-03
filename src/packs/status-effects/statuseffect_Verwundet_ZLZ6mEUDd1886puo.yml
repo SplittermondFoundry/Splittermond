@@ -3,7 +3,54 @@ name: Verwundet
 type: statuseffect
 flags: {}
 img: icons/svg/bones.svg
-effects: []
+effects:
+    - name: Wundabzüge
+      origin: Compendium.splittermond.statuseffects.Item.ZLZ6mEUDd1886puo
+      type: modifier
+      _id: A44Es1vUSAezw2b3
+      img: icons/svg/bones.svg
+      system:
+          changes: []
+          modifiers:
+              - path: actor.woundmalus.levelmod
+                serializedValue:
+                    type: amount
+                    amount: 1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Verwundet
+                    type: innate
+          costModifiers: []
+      disabled: false
+      start: null
+      duration:
+          value: null
+          units: null
+          expiry: null
+          expired: false
+      description: ""
+      tint: "#ffffff"
+      transfer: true
+      statuses: []
+      showIcon: 1
+      folder: null
+      sort: 0
+      flags:
+          splittermond:
+              durationMode: permanent
+              rawInput: woundMalus.levelMod 1
+      _stats:
+          coreVersion: "14.365"
+          systemId: splittermond
+          systemVersion: 14.3.0-alpha5
+          createdTime: 1785333758175
+          modifiedTime: 1785333936938
+          lastModifiedBy: XEyWQoNP8LHDdOvz
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+      _key: "!items.effects!ZLZ6mEUDd1886puo.A44Es1vUSAezw2b3"
 _stats:
     coreVersion: "13.342"
     systemId: null
@@ -23,11 +70,16 @@ system:
         </em>h&ouml;her. Ohne Behandlung kann der Zustand nach einem Tag beendet
         werden.</p>
     source: ""
-    modifier: woundMalus.levelMod 1
+    modifier: ""
     level: "1"
-    startTick: 0
-    interval: 0
-    times: 0
+    combatEvent:
+        startTick: 0
+        interval: 0
+        repeats: 0
+        macroRef:
+            name: null
+            uuid: null
+        postDescription: true
 folder: null
 sort: 0
 _key: "!items!ZLZ6mEUDd1886puo"

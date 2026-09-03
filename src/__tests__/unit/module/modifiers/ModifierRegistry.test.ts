@@ -3,11 +3,10 @@ import { expect } from "chai";
 import sinon, { SinonSandbox, type SinonSpy } from "sinon";
 import { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { ModifierHandler } from "module/modifiers/ModiferHandler";
-import SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { ModifierType } from "module/modifiers";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import { foundryApi } from "module/api/foundryApi";
-import { of } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier } from "module/modifiers/parsing";
 
 describe("ModifierRegistry", () => {
@@ -15,30 +14,25 @@ describe("ModifierRegistry", () => {
     let registry: ModifierRegistry<ScalarModifier>;
     let consoleDebugSpy: SinonSpy;
 
-    // Mock handler classes for testing
     class TestHandler extends ModifierHandler<ScalarModifier> {
-        constructor(logErrors: (...messages: string[]) => void, _: SplittermondItem, _modifierType: ModifierType) {
+        constructor(logErrors: (...messages: string[]) => void, _: IModifierSource, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "test" }));
         }
-
         protected omitForValue(): boolean {
             return false;
         }
-
         protected buildModifier() {
             return [];
         }
     }
 
     class AnotherTestHandler extends ModifierHandler<ScalarModifier> {
-        constructor(logErrors: (...messages: string[]) => void, _: SplittermondItem, _modifierType: ModifierType) {
+        constructor(logErrors: (...messages: string[]) => void, _: IModifierSource, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "another" }));
         }
-
         protected omitForValue(): boolean {
             return false;
         }
-
         protected buildModifier() {
             return [];
         }
@@ -239,10 +233,10 @@ describe("ModifierRegistry", () => {
     describe("getCache", () => {
         it("should return a ModifierCache instance", () => {
             const mockLogErrors = sandbox.stub();
-            const mockItem = {} as SplittermondItem;
+            const mockItem = {} as IModifierSource;
             const mockType = "equipment" as ModifierType;
 
-            const cache = registry.getCache(mockLogErrors, mockItem, mockType, of(1));
+            const cache = registry.getCache(mockLogErrors, mockItem, mockType);
 
             expect(cache).to.be.instanceOf(Object);
             expect(cache.getHandler).to.be.a("function");
@@ -250,11 +244,11 @@ describe("ModifierRegistry", () => {
 
         it("should return different cache instances for different calls", () => {
             const mockLogErrors = sandbox.stub();
-            const mockItem = {} as SplittermondItem;
+            const mockItem = {} as IModifierSource;
             const mockType = "equipment" as ModifierType;
 
-            const cache1 = registry.getCache(mockLogErrors, mockItem, mockType, of(1));
-            const cache2 = registry.getCache(mockLogErrors, mockItem, mockType, of(1));
+            const cache1 = registry.getCache(mockLogErrors, mockItem, mockType);
+            const cache2 = registry.getCache(mockLogErrors, mockItem, mockType);
 
             expect(cache1).to.not.equal(cache2);
         });
@@ -263,12 +257,12 @@ describe("ModifierRegistry", () => {
     describe("ModifierCache", () => {
         let cache: any;
         let mockLogErrors: sinon.SinonStub;
-        let mockItem: SplittermondItem;
+        let mockItem: IModifierSource;
 
         beforeEach(() => {
             mockLogErrors = sandbox.stub();
-            mockItem = { name: "Test Item" } as SplittermondItem;
-            cache = registry.getCache(mockLogErrors, mockItem, "equipment", of(1));
+            mockItem = { name: "Test Item" } as IModifierSource;
+            cache = registry.getCache(mockLogErrors, mockItem, "equipment");
         });
 
         it("should pass correct arguments to handler constructor", () => {
@@ -278,7 +272,7 @@ describe("ModifierRegistry", () => {
             cache.getHandler("item");
 
             expect(constructorSpy.calledOnce).to.be.true;
-            expect(constructorSpy.lastCall.args).to.deep.equal([mockLogErrors, mockItem, "equipment", of(1)]);
+            expect(constructorSpy.lastCall.args).to.deep.equal([mockLogErrors, mockItem, "equipment"]);
         });
 
         describe("handler resolution tests", () => {
@@ -461,7 +455,7 @@ describe("ModifierRegistry", () => {
                 registry.addHandler("item", TestHandler);
                 registry.addHandler("actor", AnotherTestHandler);
 
-                const cache2 = registry.getCache(mockLogErrors, mockItem, "equipment", of(1));
+                const cache2 = registry.getCache(mockLogErrors, mockItem, "equipment");
 
                 const itemHandler1 = cache.getHandler("item");
                 const itemHandler2 = cache2.getHandler("item");
@@ -481,7 +475,7 @@ describe("ModifierRegistry", () => {
                 registry.addHandler("skills", TestHandler);
                 registry.addHandler("actor.skills", AnotherTestHandler);
 
-                const cache = registry.getCache(mockLogErrors, mockItem, "equipment", of(1));
+                const cache = registry.getCache(mockLogErrors, mockItem, "equipment");
 
                 const path1Handler = cache.getHandler("skills.sample");
                 const path2Handler = cache.getHandler("actor.skills.sample");

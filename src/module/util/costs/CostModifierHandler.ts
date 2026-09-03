@@ -1,11 +1,11 @@
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
 import { ICostModifier } from "module/util/costs/spellCostManagement";
 import { times as timesCost } from "module/modifiers/expressions/cost";
-import { type Expression, of, times } from "module/modifiers/expressions/scalar";
+import { type Expression, of } from "module/modifiers/expressions/scalar";
 import type { FocusModifier, Value } from "module/modifiers/parsing";
 import { ModifierHandler, type ModifierType } from "module/modifiers";
 import { makeConfig } from "module/modifiers/ModifierConfig";
-import type SplittermondItem from "module/item/item";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { splittermond } from "module/config";
 import { isMember } from "module/util/util";
 
@@ -14,9 +14,8 @@ type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappe
 export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     constructor(
         logErrors: (...message: string[]) => void,
-        private readonly sourceItem: SplittermondItem,
-        _: ModifierType,
-        private readonly multiplier: Expression
+        private readonly sourceItem: IModifierSource,
+        _: ModifierType
     ) {
         super(logErrors, CostModifierHandler.config);
     }
@@ -41,17 +40,18 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     protected buildModifier(modifier: FocusModifier): ICostModifier[] {
         const group = this.normalizeSkill(modifier.path, modifier.attributes.skill);
         const type = this.validatedAttribute(modifier.attributes.type);
-        return [
-            {
-                label: this.normalizePath(modifier.path),
-                value: timesCost(this.getMultiplier(modifier.path), modifier.value),
-                skill: "skill" in this.sourceItem.system ? this.sourceItem.system.skill : null,
-                attributes: {
-                    skill: group ?? undefined,
-                    type: type ?? undefined,
-                },
+        const value = timesCost(this.getSign(modifier.path), modifier.value);
+        const base: ICostModifier = {
+            label: this.normalizePath(modifier.path),
+            value,
+            skill: hasSystemSkill(this.sourceItem) ? this.sourceItem.system.skill : null,
+            attributes: {
+                skill: group ?? undefined,
+                type: type ?? undefined,
             },
-        ];
+            applyMultiplier: (multiplier) => ({ ...base, value: timesCost(of(multiplier), value) }),
+        };
+        return [base];
     }
 
     protected omitForValue(): boolean {
@@ -76,17 +76,17 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
             this.reportInvalidDescriptor(groupId, "skill", normalized);
             //If the skill is invalid, but the item has a skill, use that one. If not use the invalid one,
             //because we don't want to accidentally make the modifier global.
-            return hasSkill(this.sourceItem.system) ? this.sourceItem.system.skill : normalized;
+            return hasSystemSkill(this.sourceItem) ? this.sourceItem.system.skill : normalized;
         }
         return normalized;
     }
 
-    private getMultiplier(groupId: string): Expression {
+    private getSign(groupId: string): Expression {
         const lowerCaseId = groupId.toLowerCase();
         if (lowerCaseId.endsWith("reduction") || lowerCaseId.endsWith("enhancedreduction")) {
-            return this.multiplier;
+            return of(1);
         } else {
-            return times(this.multiplier, of(-1));
+            return of(-1);
         }
     }
 
@@ -100,6 +100,13 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     }
 }
 
+function hasSystemSkill(input: object): input is { system: { skill: string } } {
+    return hasSystem(input) && hasSkill(input.system);
+}
+function hasSystem(input: object): input is { system: object } {
+    return "system" in input && typeof input.system == "object" && !Array.isArray(input.system);
+}
+
 function hasSkill(input: object): input is { skill: string } {
-    return "skill" in input && typeof (input as any).skill === "string";
+    return "skill" in input && typeof input.skill === "string";
 }

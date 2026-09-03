@@ -2,16 +2,17 @@ import "../../../foundryMocks";
 import { expect } from "chai";
 import { afterEach, beforeEach, describe, it } from "mocha";
 import sinon from "sinon";
+import { JSDOM } from "jsdom";
 import SplittermondActorSheet from "module/actor/sheets/actor-sheet.js";
 import { splittermond } from "module/config";
 import { foundryApi } from "module/api/foundryApi";
 import { FoundryDialog } from "module/api/Application";
-import { SplittermondBaseActorSheet } from "module/data/SplittermondApplication";
 import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import { MasteryDataModel } from "module/item/dataModel/MasteryDataModel";
 import SplittermondActor from "module/actor/actor";
 import SplittermondItem from "module/item/item";
 import type { SplittermondItemDataModel } from "module/item";
+import { SplittermondBaseActorSheet } from "module/data/SplittermondApplication";
 
 declare const foundry: any;
 declare const global: any;
@@ -46,7 +47,7 @@ describe("SplittermondActorSheet", () => {
         superFunctionStub = sandbox.mock().callsFake((_e, doc) => doc);
         deleteFunctionStub = sandbox.mock();
         sandbox.stub(foundryApi.utils, "mergeObject").callsFake((a, b) => ({ ...a, ...b }));
-        Object.defineProperty(SplittermondBaseActorSheet.prototype, "_onDropDocument", {
+        Object.defineProperty(SplittermondBaseActorSheet.prototype, "_onDropItem", {
             value: superFunctionStub,
             configurable: true,
             writable: true,
@@ -75,7 +76,7 @@ describe("SplittermondActorSheet", () => {
 
         it("should set skill and skillLevel for valid single availableIn", async () => {
             const itemData = createDroppedItem("spell", new SpellDataModel({ availableIn: "illusionmagic 2" } as any));
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("illusionmagic");
@@ -87,7 +88,7 @@ describe("SplittermondActorSheet", () => {
                 "spell",
                 new SpellDataModel({ availableIn: "crazy antics, illusionmagic 2, illumanic 1" } as any)
             );
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("illusionmagic");
@@ -106,7 +107,7 @@ describe("SplittermondActorSheet", () => {
                 new SpellDataModel({ availableIn: "illusionmagic 2, deathmagic 1" } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("deathmagic");
@@ -127,7 +128,7 @@ describe("SplittermondActorSheet", () => {
                 new SpellDataModel({ availableIn: "", skill: "deathmagic", skillLevel: 1 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
@@ -151,7 +152,7 @@ describe("SplittermondActorSheet", () => {
                 { actor: sandbox.createStubInstance(SplittermondActor) }
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
@@ -175,7 +176,7 @@ describe("SplittermondActorSheet", () => {
                             new SpellDataModel({ availableIn: testInput.availableIn } as any)
                         );
 
-                        await sheet._onDropDocument(mockEvent, itemData);
+                        await sheet._onDropItem(mockEvent, itemData);
 
                         expect(superFunctionStub.called).to.be.true;
                         expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal(skill);
@@ -196,7 +197,7 @@ describe("SplittermondActorSheet", () => {
                 new SpellDataModel({ availableIn: "illusionmagic 2, deathmagic 1" } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(actorMock.deleteEmbeddedDocuments.callCount, "deleteEmbeddedDocuments call count").to.equal(1);
             expect(itemData.update.called).to.be.false;
@@ -235,7 +236,7 @@ describe("SplittermondActorSheet", () => {
                 "mastery",
                 new MasteryDataModel({ availableIn: "athletics", level: 3 } as any)
             );
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("athletics");
@@ -254,7 +255,7 @@ describe("SplittermondActorSheet", () => {
                 new MasteryDataModel({ availableIn: "athletics, acrobatics", level: 1 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(superFunctionStub.called).to.be.true;
             expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal("acrobatics");
@@ -272,7 +273,7 @@ describe("SplittermondActorSheet", () => {
                 new MasteryDataModel({ availableIn: "athletics, acrobatics", level: 1 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(deleteFunctionStub.callCount, "deleteEmbeddedDocuments call count").to.equal(1);
             expect(itemData.update.called).to.be.false;
@@ -291,7 +292,7 @@ describe("SplittermondActorSheet", () => {
                 new MasteryDataModel({ availableIn: "athletics, acrobatics", skill: "athletics", level: 2 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
@@ -312,7 +313,7 @@ describe("SplittermondActorSheet", () => {
                 new MasteryDataModel({ availableIn: "", skill: "melee", skillLevel: 2 } as any)
             );
 
-            await sheet._onDropDocument(mockEvent, itemData);
+            await sheet._onDropItem(mockEvent, itemData);
 
             expect(invocationCount).to.equal(0);
             expect(superFunctionStub.called).to.be.true;
@@ -335,13 +336,153 @@ describe("SplittermondActorSheet", () => {
                             new MasteryDataModel({ availableIn: "invalidskill" } as any)
                         );
 
-                        await sheet._onDropDocument(mockEvent, itemData);
+                        await sheet._onDropItem(mockEvent, itemData);
 
                         expect(superFunctionStub.called).to.be.true;
                         expect(superFunctionStub.lastCall.lastArg.system.skill).to.equal(skill);
                         expect(superFunctionStub.lastCall.lastArg.system.level).to.equal(skillLevel);
                     });
                 });
+        });
+    });
+});
+
+describe("SplittermondActorSheet — effect handlers", () => {
+    let sandbox: sinon.SinonSandbox;
+    let sheet: SplittermondActorSheet;
+
+    function callAction(name: string, event: Event | null, target: Element): unknown {
+        const action = sheet.options.actions[name];
+        if (typeof action !== "function") throw new Error(`action "${name}" is not a function`);
+        return (action as (e: PointerEvent, t: HTMLElement) => unknown)(event as PointerEvent, target as HTMLElement);
+    }
+
+    function makeTarget(uuid: string): Element {
+        const dom = new JSDOM(`<div data-effect-uuid="${uuid}"></div>`);
+        return dom.window.document.querySelector("[data-effect-uuid]")!;
+    }
+
+    function makeEffectMock() {
+        return {
+            disabled: false,
+            update: sinon.stub().resolves(),
+            delete: sinon.stub().resolves(),
+            sheet: { render: sinon.stub() },
+        };
+    }
+
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(foundryApi.utils, "mergeObject").callsFake((a: object, b?: object) => ({ ...a, ...(b ?? {}) }));
+        (global as any).CONFIG = { splittermond: splittermond };
+        const actorMock = { name: "Test Actor", spells: [], items: [], id: "actor1" };
+        sheet = new SplittermondActorSheet({ document: actorMock });
+        sandbox.stub(sheet, "render");
+    });
+
+    afterEach(() => sandbox.restore());
+
+    describe("#handleEditEffect", () => {
+        it("renders the effect sheet when the effect is found", () => {
+            const effect = makeEffectMock();
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(effect as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.e1");
+
+            callAction("edit-effect", null, target);
+
+            expect((effect.sheet.render as sinon.SinonStub).calledOnce).to.be.true;
+        });
+
+        it("does not throw when fromUUIDSync returns null", () => {
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(null as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.missing");
+
+            expect(() => callAction("edit-effect", null, target)).not.to.throw();
+        });
+    });
+
+    describe("#handleToggleEffect", () => {
+        it("calls effect.update with the inverted disabled value", async () => {
+            const effect = { ...makeEffectMock(), disabled: false };
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(effect as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.e1");
+
+            await callAction("toggle-effect", null, target);
+
+            expect((effect.update as sinon.SinonStub).calledWith({ disabled: true })).to.be.true;
+        });
+
+        it("toggles a disabled effect back to enabled", async () => {
+            const effect = { ...makeEffectMock(), disabled: true };
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(effect as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.e1");
+
+            await callAction("toggle-effect", null, target);
+
+            expect((effect.update as sinon.SinonStub).calledWith({ disabled: false })).to.be.true;
+        });
+
+        it("does not call update when fromUUIDSync returns null", async () => {
+            const updateSpy = sinon.spy();
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(null as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.missing");
+
+            await callAction("toggle-effect", null, target);
+
+            expect(updateSpy.called).to.be.false;
+        });
+    });
+
+    describe("#handleShowHideInactiveEffects", () => {
+        let bodyElement: Element;
+        beforeEach(() => {
+            bodyElement = new JSDOM("<body></body>").window.document.body;
+        });
+
+        it("toggles the flag from true to false and calls render", () => {
+            expect(sheet["_hideInactiveEffects"]).to.be.true;
+
+            callAction("show-hide-inactive-effects", null, bodyElement);
+
+            expect(sheet["_hideInactiveEffects"]).to.be.false;
+            expect((sheet.render as sinon.SinonStub).calledOnce).to.be.true;
+        });
+
+        it("toggles back to true when called again", () => {
+            // Toggle off
+            callAction("show-hide-inactive-effects", null, bodyElement);
+            expect(sheet["_hideInactiveEffects"]).to.be.false;
+            expect((sheet.render as sinon.SinonStub).callCount).to.equal(1);
+
+            // Toggle back on
+            callAction("show-hide-inactive-effects", null, bodyElement);
+            expect(sheet["_hideInactiveEffects"]).to.be.true;
+            expect((sheet.render as sinon.SinonStub).callCount).to.equal(2);
+        });
+    });
+
+    describe("#handleDeleteEffect", () => {
+        it("calls effect.delete when the effect is found", async () => {
+            const effect = makeEffectMock();
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(effect as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.e1");
+
+            await callAction("delete-effect", null, target);
+
+            expect((effect.delete as sinon.SinonStub).calledOnce).to.be.true;
+        });
+
+        it("does not throw when fromUUIDSync returns null", async () => {
+            sandbox.stub(foundryApi.utils, "fromUUIDSync").returns(null as any);
+            const target = makeTarget("Actor.a1.ActiveEffect.missing");
+
+            let threw = false;
+            try {
+                await (callAction("delete-effect", null, target) as Promise<unknown>);
+            } catch {
+                threw = true;
+            }
+            expect(threw).to.be.false;
         });
     });
 });

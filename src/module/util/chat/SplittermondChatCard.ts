@@ -130,7 +130,7 @@ export async function handleChatAction(data: unknown, messageId: string): Promis
 
 async function updateMessage(chatMessage: SplittermondChatMessage) {
     const content = await render(chatMessage.system);
-    return await chatMessage.update({ content });
+    return chatMessage.update({ content, system: chatMessage.system.toObject() }, { diff: false });
 }
 
 async function render(messageModel: ChatMessageModel) {

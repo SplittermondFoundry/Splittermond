@@ -191,7 +191,11 @@ describe("SpellRollMessage", () => {
 
                 await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                    fromRoll: increase,
+                    modification: 0,
+                    limitedTo: 999,
+                });
             });
             it(`should increase open degrees of success by ${increase}`, async () => {
                 const underTest = createSpellRollMessage(sandbox);
@@ -206,8 +210,37 @@ describe("SpellRollMessage", () => {
 
                 await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: increase, modification: 0 });
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                    fromRoll: increase,
+                    modification: 0,
+                    limitedTo: 999,
+                });
                 expect(underTest.openDegreesOfSuccess).to.deep.equal(increase);
+            });
+
+            it(`should cap increase at limit ${increase - 3} of degrees of success`, async () => {
+                const limit = increase - 3;
+                const underTest = createSpellRollMessage(sandbox);
+                underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                    pointSpent: true,
+                    getBonus() {
+                        return Promise.resolve(splinterpointValue);
+                    },
+                });
+                const checkReport = fullCheckReport();
+                checkReport.degreeOfSuccess.limitedTo = limit;
+                checkReport.degreeOfSuccess.fromRoll = Math.min(limit, checkReport.degreeOfSuccess.fromRoll);
+                underTest.updateSource({ checkReport });
+                underTest.updateSource({ openDegreesOfSuccess: totalDegreesOfSuccess(underTest.checkReport) });
+
+                await underTest.handleGenericAction({ action: "useSplinterpoint" });
+
+                expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                    fromRoll: limit,
+                    modification: 0,
+                    limitedTo: limit,
+                });
+                expect(underTest.openDegreesOfSuccess).to.deep.equal(limit);
             });
         });
 
@@ -248,7 +281,11 @@ describe("SpellRollMessage", () => {
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 10, modification: 0 });
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                fromRoll: 10,
+                modification: 0,
+                limitedTo: 999,
+            });
         });
 
         it("should only be usable once", async () => {
@@ -264,7 +301,11 @@ describe("SpellRollMessage", () => {
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 3, modification: 0 });
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                fromRoll: 3,
+                modification: 0,
+                limitedTo: 999,
+            });
         });
 
         it("should convert a failure into a success", async () => {
@@ -277,12 +318,16 @@ describe("SpellRollMessage", () => {
             });
             underTest.updateSource({ checkReport: fullCheckReport() });
             underTest.checkReport.roll.total = underTest.checkReport.difficulty - 1;
-            underTest.checkReport.degreeOfSuccess = { fromRoll: 0, modification: 0 };
+            underTest.checkReport.degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
             underTest.checkReport.succeeded = false;
 
             await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
-            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({ fromRoll: 0, modification: 0 });
+            expect(underTest.checkReport.degreeOfSuccess).to.deep.equal({
+                fromRoll: 0,
+                modification: 0,
+                limitedTo: 999,
+            });
             expect(underTest.checkReport.succeeded).to.be.true;
         });
 
@@ -326,7 +371,7 @@ describe("SpellRollMessage", () => {
         function fullCheckReport(): CheckReport {
             return {
                 succeeded: false,
-                degreeOfSuccess: { fromRoll: 2, modification: 0 },
+                degreeOfSuccess: { fromRoll: 2, modification: 0, limitedTo: 999 },
                 degreeOfSuccessMessage: "",
                 difficulty: 9,
                 defenseType: null,
@@ -353,6 +398,7 @@ function createSpellRollMessage(sandbox: SinonSandbox) {
             degreeOfSuccess: {
                 fromRoll: 0,
                 modification: 0,
+                limitedTo: 999,
             },
             degreeOfSuccessMessage: "Uma mensagem muito importante",
             difficulty: 0,

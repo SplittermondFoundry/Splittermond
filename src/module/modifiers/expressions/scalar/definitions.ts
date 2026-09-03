@@ -1,5 +1,6 @@
 import { FoundryRoll } from "module/api/Roll";
 import { RollExpression } from "./rollExpressions";
+import { type ActorProvider, UnboundReferenceError } from "module/modifiers/expressions/ActorProvider";
 
 export * from "./rollExpressions";
 
@@ -112,8 +113,13 @@ export function roll(roll: FoundryRoll) {
     return new RollExpression(roll);
 }
 
-export function ref(propertyPath: string, source: object, stringRepresentation: string, isStable: boolean = false) {
-    return new ReferenceExpression(propertyPath, source, stringRepresentation, isStable);
+export function ref(
+    propertyPath: string,
+    provider: ActorProvider,
+    stringRepresentation: string,
+    isStable: boolean = false
+) {
+    return new ReferenceExpression(propertyPath, stringRepresentation, isStable, provider);
 }
 export function min(...args: [Expression, ...Expression[]]) {
     if (args.length == 1) {
@@ -144,14 +150,35 @@ class OneExpression extends AmountExpression {
     }
 }
 
+export { UnboundReferenceError } from "module/modifiers/expressions/ActorProvider";
+
 export class ReferenceExpression {
+    private _provider: ActorProvider | null;
+    private _onUnbound: (() => void) | null = null;
+
     constructor(
         public readonly propertyPath: string,
-        public readonly source: object,
         public readonly stringRep: string,
         /** reference who's recipient is known to change little (skills, attributes, etc) */
-        public readonly isStable: boolean
-    ) {}
+        public readonly isStable: boolean,
+        provider: ActorProvider | null = null
+    ) {
+        this._provider = provider;
+    }
+
+    bindProvider(provider: ActorProvider, onUnbound?: () => void): void {
+        this._provider = provider;
+        this._onUnbound = onUnbound ?? null;
+    }
+
+    get source(): object {
+        const actor = this._provider?.() ?? null;
+        if (!actor) {
+            this._onUnbound?.();
+            throw new UnboundReferenceError(this.propertyPath);
+        }
+        return actor;
+    }
 }
 
 export class AddExpression {
@@ -195,8 +222,20 @@ export class AbsExpression {
 
 export class MinExpression {
     constructor(public readonly args: [Expression, ...Expression[]]) {}
+
+    map<T>(func: (ex: Expression, index: number) => T): [T, ...T[]] {
+        const first = this.args[0];
+        const rest = this.args.slice(1);
+        return [func(first, 0), ...rest.map((ex, i) => func(ex, i + 1))];
+    }
 }
 
 export class MaxExpression {
     constructor(public readonly args: [Expression, ...Expression[]]) {}
+
+    map<T>(func: (ex: Expression, index: number) => T): [T, ...T[]] {
+        const first = this.args[0];
+        const rest = this.args.slice(1);
+        return [func(first, 0), ...rest.map((ex, i) => func(ex, i + 1))];
+    }
 }

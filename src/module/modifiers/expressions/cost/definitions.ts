@@ -1,5 +1,6 @@
 import { CostModifier } from "module/util/costs/Cost";
 import { AmountExpression as ScalarAmount, Expression, of as scalarOf } from "../scalar/definitions";
+import { type ActorProvider, UnboundReferenceError } from "module/modifiers/expressions/ActorProvider";
 
 export type CostExpression =
     AmountExpression | ZeroExpression | AddExpression | SubtractExpression | MultiplyExpression | ReferenceExpression;
@@ -54,8 +55,13 @@ export function times(scalar: Expression, cost: CostExpression) {
     }
 }
 
-export function ref(propertyPath: string, source: object, stringRepresentation: string, isStable: boolean = false) {
-    return new ReferenceExpression(propertyPath, source, stringRepresentation, isStable);
+export function ref(
+    propertyPath: string,
+    provider: ActorProvider,
+    stringRepresentation: string,
+    isStable: boolean = false
+) {
+    return new ReferenceExpression(propertyPath, stringRepresentation, isStable, provider);
 }
 
 export class AmountExpression {
@@ -68,13 +74,34 @@ class ZeroExpression extends AmountExpression {
     }
 }
 
+export { UnboundReferenceError } from "module/modifiers/expressions/ActorProvider";
+
 export class ReferenceExpression {
+    private _provider: ActorProvider | null;
+    private _onUnbound: (() => void) | null = null;
+
     constructor(
         public readonly propertyPath: string,
-        public readonly source: object,
         public readonly stringRep: string,
-        public readonly isStable: boolean
-    ) {}
+        public readonly isStable: boolean,
+        provider: ActorProvider | null = null
+    ) {
+        this._provider = provider;
+    }
+
+    bindProvider(provider: ActorProvider, onUnbound?: () => void): void {
+        this._provider = provider;
+        this._onUnbound = onUnbound ?? null;
+    }
+
+    get source(): object {
+        const actor = this._provider?.() ?? null;
+        if (!actor) {
+            this._onUnbound?.();
+            throw new UnboundReferenceError(this.propertyPath);
+        }
+        return actor;
+    }
 }
 
 export class AddExpression {

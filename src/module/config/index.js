@@ -12,6 +12,7 @@ import { attributes, derivedAttributes } from "./attributes";
 import { itemFeatures } from "./itemFeatures";
 import { droppableCharacterItemTypes, droppableNpcItemTypes, itemTypes } from "./itemTypes";
 import { time } from "module/config/timeUnits";
+import { activeEffect } from "module/config/activeEffect.ts";
 import { splinterpoints } from "module/config/splinterpoints.js";
 import { splittermondAttackEnhancements } from "module/config/SplittermondAttackEnhancements.js";
 
@@ -421,25 +422,45 @@ splittermond.itemSheetProperties = {
                     template: "input",
                 },
                 {
-                    field: "system.startTick",
-                    label: "splittermond.combatEffect.statusEffect.startTick",
-                    template: "input",
-                },
-                {
-                    field: "system.interval",
-                    label: "splittermond.combatEffect.statusEffect.interval",
-                    template: "input",
-                },
-                {
-                    field: "system.times",
-                    label: "splittermond.combatEffect.statusEffect.times",
-                    template: "input",
-                },
-                {
                     field: "system.modifier",
                     label: "splittermond.modifier",
                     template: "input",
                     help: "splittermond.modificatorHelpText",
+                },
+            ],
+        },
+        {
+            groupName: "splittermond.combatEffect.label",
+            properties: [
+                {
+                    field: "system.combatEvent.startTick",
+                    label: "splittermond.combatEffect.statusEffect.startTick",
+                    template: "input",
+                },
+                {
+                    field: "system.combatEvent.interval",
+                    label: "splittermond.combatEffect.statusEffect.interval",
+                    template: "input",
+                },
+                {
+                    field: "system.combatEvent.repeats",
+                    label: "splittermond.combatEffect.statusEffect.times",
+                    template: "input",
+                },
+                {
+                    field: "system.combatEvent.postDescription",
+                    label: "splittermond.combatEffect.postDescription",
+                    template: "bool",
+                },
+                {
+                    field: "system.combatEvent.macroRef.name",
+                    label: "splittermond.combatEffect.macroRef",
+                    template: "readonly",
+                },
+                {
+                    field: "system.combatEvent.macroRef.uuid",
+                    label: "splittermond.combatEffect.macroRefUuid",
+                    template: "input",
                 },
             ],
         },
@@ -1152,6 +1173,7 @@ splittermond.itemTypes = {
     },
 };
 splittermond.time = time;
+splittermond.activeEffect = activeEffect;
 splittermond.grazingHitBasePenalty = 2;
 
 splittermond.settings = {

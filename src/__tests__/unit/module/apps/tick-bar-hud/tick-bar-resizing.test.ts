@@ -2,14 +2,11 @@ import { describe, it } from "mocha";
 import { expect } from "chai";
 import sinon from "sinon";
 import TickBarHud from "../../../../../module/apps/tick-bar-hud/tick-bar-hud";
-import { createHtml } from "../../../../handlebarHarness";
+import { createHtml } from "__tests__/handlebarHarness";
 import { JSDOM } from "jsdom";
-import {
-    foundryUISelectors,
-    initMaxWidthTransitionForTickBarHud,
-} from "../../../../../module/apps/tick-bar-hud/tickBarResizing";
+import { foundryUISelectors, initMaxWidthTransitionForTickBarHud } from "module/apps/tick-bar-hud/tickBarResizing";
 import { addNewCombatant, createCombat } from "./tickBarHudTestHelpers";
-import { foundryApi } from "../../../../../module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 
 import { expectEventually } from "../../../testUtils";
 

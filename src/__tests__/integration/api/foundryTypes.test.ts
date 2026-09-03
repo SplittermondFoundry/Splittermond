@@ -6,14 +6,17 @@ import { fields } from "module/data/SplittermondDataModel";
 import SplittermondCombat from "module/combat/combat";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import SplittermondCharacterSheet from "../../../module/actor/sheets/character-sheet";
-import { withActor, withPlayer, withUnlinkedToken } from "../fixtures";
+import { Modifier } from "module/activeEffect";
+import { of } from "module/modifiers/expressions/scalar";
+import { withActiveEffect, withActor, withPlayer, withUnlinkedToken } from "../fixtures";
 import { User } from "module/api/foundryTypes";
-import { SplittermondBaseActorSheet, SplittermondBaseItemSheet } from "module/data/SplittermondApplication";
+import type SplittermondActor from "module/actor/actor";
 
 declare const game: any;
 declare const Combat: any;
 declare const Combatant: any;
-declare const DocumentSheetConfig: any;
+declare const ActiveEffect: any;
+declare const Macro: any;
 
 export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     const { describe, it, expect, afterEach, before, after } = context;
@@ -119,29 +122,10 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 expect((Item.defineSchema() as any)[name], `${name} is of correct type`).to.be.instanceOf(type);
             });
         });
-
-        describe("Item Sheet Registration", () => {
-            class TestItemSheet extends SplittermondBaseItemSheet {}
-            it("can register a sheet for item", () => {
-                foundryApi.sheets.items.register("splittermond", TestItemSheet, {
-                    type: ["projectile"],
-                });
-
-                expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).to.include(TestItemSheet);
-            });
-
-            it("can unregister a sheet for item", () => {
-                foundryApi.sheets.items.unregister("splittermond", TestItemSheet);
-
-                expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).not.to.include(
-                    TestItemSheet
-                );
-            });
-        });
     });
 
     describe("Actor", () => {
-        let actor: Actor;
+        let actor: SplittermondActor;
         before(async () => {
             actor = await actorCreator.createCharacter({
                 type: "character",
@@ -190,27 +174,12 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             "getFlag",
             "updateSource",
             "testUserPermission",
+            "applyActiveEffects",
+            "allApplicableEffects",
         ].forEach((property) => {
             it(`should have a method ${property}`, () => {
                 expect(actor, `Actor prototype does not have ${property}`).to.have.property(property);
                 expect(typeof actor[property], `actor property ${property} is not a function`).to.equal("function");
-            });
-        });
-
-        describe("Actor Sheet Registration", () => {
-            class TestActorSheet extends SplittermondBaseActorSheet {}
-            it("can register a sheet", () => {
-                foundryApi.sheets.actors.register("splittermond", TestActorSheet, {
-                    type: ["npc"],
-                });
-
-                expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).to.include(TestActorSheet);
-            });
-
-            it("can unregister a sheet", () => {
-                foundryApi.sheets.actors.unregister("splittermond", TestActorSheet);
-
-                expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).not.to.include(TestActorSheet);
             });
         });
     });
@@ -235,6 +204,185 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 `compendium collection prototype does not have getIndex`
             ).to.have.property("getIndex");
             expect(game.packs.find(() => true).getIndex).to.be.a("function");
+        });
+
+        it("should expose locked and title accessors and a getDocuments method on every pack", () => {
+            foundryApi.collections.packs.forEach((pack) => {
+                expect(pack.locked, `Pack ${pack.name} does not have a 'locked' accessor`).to.be.a("boolean");
+                expect(pack.title, `Pack ${pack.name} does not have a 'title' accessor`).to.be.a("string");
+                expect(pack.getDocuments, `Pack ${pack.name} does not have a 'getDocuments' method`).to.be.a(
+                    "function"
+                );
+            });
+        });
+    });
+
+    describe("ActiveEffect", () => {
+        const activeEffectData = {
+            name: "Integration Test Effect",
+            type: "modifier",
+            system: {
+                modifiers: [
+                    Modifier.init("skills", of(1), {
+                        name: "Integration Test",
+                        type: "innate",
+                        skill: "acrobatics",
+                    }),
+                ],
+                costModifiers: [],
+            },
+        };
+
+        it("should be a class", () => {
+            expect(typeof ActiveEffect).to.equal("function");
+        });
+
+        it(
+            "should have declared properties",
+            withActiveEffect(activeEffectData, async (effect) => {
+                ["id", "uuid", "name", "origin", "transfer", "disabled", "changes"].forEach((property) => {
+                    expect(effect, `ActiveEffect does not have ${property}`).to.have.property(property);
+                });
+                expect(effect.transfer).to.be.a("boolean");
+                expect(effect.disabled).to.be.a("boolean");
+                expect(effect.changes).to.be.an("array");
+                expect(typeof effect.id).to.equal("string");
+                expect(typeof effect.uuid).to.equal("string");
+                expect(typeof effect.name).to.equal("string");
+            })
+        );
+
+        it(
+            "should expose declared accessors",
+            withActiveEffect(activeEffectData, async (effect) => {
+                expect(effect.isSuppressed).to.be.a("boolean");
+                expect(effect.item).to.be.null;
+                expect(effect.actor).to.be.instanceOf(Actor);
+            })
+        );
+
+        it(
+            "should have declared methods",
+            withActiveEffect(activeEffectData, async (effect) => {
+                ["getFlag", "setFlag", "update"].forEach((method) => {
+                    expect(effect, `ActiveEffect does not have ${method}`).to.have.property(method);
+                    expect(typeof effect[method as keyof typeof effect], `${method} is not a function`).to.equal(
+                        "function"
+                    );
+                });
+            })
+        );
+
+        it(
+            "should have inherited document methods",
+            withActiveEffect(activeEffectData, async (effect) => {
+                ["prepareBaseData", "prepareDerivedData", "updateSource", "toObject"].forEach((method) => {
+                    expect(effect, `ActiveEffect does not have ${method}`).to.have.property(method);
+                    expect(typeof effect[method as keyof typeof effect], `${method} is not a function`).to.equal(
+                        "function"
+                    );
+                });
+            })
+        );
+
+        it(
+            "should return a drag-data object with type and uuid via toDragData",
+            withActiveEffect(activeEffectData, async (effect) => {
+                const dragData = effect.toDragData() as { type: string; uuid: string };
+                expect(dragData).to.be.an("object");
+                expect(dragData).to.not.be.null;
+                expect(dragData.type, "drag data type is ActiveEffect").to.equal("ActiveEffect");
+                expect(dragData.uuid, "drag data uuid is the effect uuid").to.equal(effect.uuid);
+            })
+        );
+
+        it("should provide static defineSchema with expected keys", () => {
+            expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property("defineSchema");
+            expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a("function");
+            const schema = ActiveEffect.defineSchema();
+            ["disabled", "duration", "transfer"].forEach((key) => {
+                expect(schema, `ActiveEffect schema does not contain ${key}`).to.have.property(key);
+            });
+        });
+        describe("ActiveEffect duration", () => {
+            (
+                [
+                    ["expired", fields.BooleanField],
+                    ["expiry", fields.StringField],
+                    ["units", fields.StringField],
+                ] as const
+            ).forEach(([key, type]) => {
+                it(`should provide duration with ${key}`, () => {
+                    expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property(
+                        "defineSchema"
+                    );
+                    expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a(
+                        "function"
+                    );
+                    const schema = ActiveEffect.defineSchema().duration.fields; //Schema field types store their fields in a "fields" property
+                    expect(schema, `ActiveEffect schema does not contain ${key}`).to.have.property(key);
+                    expect((schema as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+                });
+            });
+            it(
+                "should have a property called label",
+                withActiveEffect(activeEffectData, async (effect) => {
+                    expect(effect.duration.label).be.a("string").with.length.greaterThan(0);
+                })
+            );
+
+            it(
+                "should have a property called remaining",
+                withActiveEffect(activeEffectData, async (effect) => {
+                    expect(effect.duration.remaining).to.equal(Number.POSITIVE_INFINITY);
+                })
+            );
+        });
+
+        describe("ActiveEffect start", () => {
+            it("should provide a top-level start schema field", () => {
+                expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property("defineSchema");
+                expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a("function");
+                const schema = ActiveEffect.defineSchema();
+                expect(schema, "ActiveEffect schema does not contain start").to.have.property("start");
+            });
+
+            (
+                [
+                    ["combat", fields.StringField],
+                    ["combatant", fields.StringField],
+                    ["initiative", fields.NumberField],
+                    ["round", fields.NumberField],
+                    ["time", fields.NumberField],
+                    ["turn", fields.NumberField],
+                ] as const
+            ).forEach(([key, type]) => {
+                it(`should provide start with ${key}`, () => {
+                    expect(ActiveEffect, "ActiveEffect class does not have defineSchema").to.have.property(
+                        "defineSchema"
+                    );
+                    expect(ActiveEffect.defineSchema, "ActiveEffect.defineSchema is not a function").to.be.a(
+                        "function"
+                    );
+                    const schema = ActiveEffect.defineSchema().start.fields;
+                    expect(schema, `ActiveEffect start schema does not contain ${key}`).to.have.property(key);
+                    expect((schema as any)[key], `${key} is not of type`).to.be.instanceOf(type);
+                });
+            });
+
+            it(
+                "should have a method called updateDuration",
+                withActiveEffect(activeEffectData, async (effect) => {
+                    expect(effect.updateDuration, "ActiveEffect does not have updateDuration").to.be.a("function");
+                    const duration = effect.updateDuration();
+                    expect(duration, "updateDuration result does not have remaining").to.have.property("remaining");
+                    expect(typeof duration.remaining, "updateDuration remaining is not a number").to.equal("number");
+                    expect(duration, "updateDuration result does not have expired").to.have.property("expired");
+                    expect(duration, "updateDuration result does not have label").to.have.property("label");
+                    expect(duration, "updateDuration result does not have value").to.have.property("value");
+                    expect(duration, "updateDuration result does not have units").to.have.property("units");
+                })
+            );
         });
     });
 
@@ -354,6 +502,23 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             expect(CONFIG.ChatMessage.dataModels, "CONFIG.ChatMessage is not initialized").to.deep.contain.keys([
                 "spellRollMessage",
             ]);
+        });
+
+        it("should have a property called ActiveEffect", () => {
+            expect(CONFIG, "CONFIG does not have a property called ActiveEffect").to.have.property("ActiveEffect");
+        });
+
+        it("should have required ActiveEffect properties", () => {
+            expect(CONFIG.ActiveEffect, "CONFIG.ActiveEffect does not have documentClass").to.have.property(
+                "documentClass"
+            );
+            expect(CONFIG.ActiveEffect.documentClass, "CONFIG.ActiveEffect.documentClass is not a function").to.be.a(
+                "function"
+            );
+            expect(CONFIG.ActiveEffect, "CONFIG.ActiveEffect does not have dataModels").to.have.property("dataModels");
+            expect(CONFIG.ActiveEffect.dataModels, "CONFIG.ActiveEffect.dataModels is not an object").to.be.an(
+                "object"
+            );
         });
 
         it("should have splittermond properties", () => {
@@ -484,6 +649,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             "getFlag",
             "updateSource",
             "startCombat",
+            "nextRound",
         ].forEach((property) => {
             it(`should have a method ${property}`, () => {
                 expect(Combat.prototype, `Combat prototype does not have ${property}`).to.have.property(property);
@@ -597,6 +763,56 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 expect(pack, `Pack ${pack.name} does not have a 'visible' property`).to.have.property("visible");
                 expect(pack.visible).to.be.a("boolean");
             });
+        });
+    });
+
+    describe("Macro", () => {
+        const createdMacros: any[] = [];
+
+        afterEach(() => {
+            if (createdMacros.length) {
+                Macro.deleteDocuments(createdMacros.map((m: any) => m.id));
+                createdMacros.length = 0;
+            }
+        });
+
+        async function createTestMacro() {
+            const macro = (await Macro.create({
+                name: "Test Macro",
+                type: "script",
+                command: "() => {}",
+            })) as any;
+            createdMacros.push(macro);
+            return macro;
+        }
+
+        it("should create a macro document", async () => {
+            const macro = await createTestMacro();
+            expect(macro).to.not.be.null;
+        });
+
+        it("should have a string property name", async () => {
+            const macro = await createTestMacro();
+            expect(macro, "Macro does not have name").to.have.property("name");
+            expect(typeof macro.name, "Macro name is not a string").to.equal("string");
+        });
+
+        it("should have a boolean property canExecute", async () => {
+            const macro = await createTestMacro();
+            expect(macro, "Macro does not have canExecute").to.have.property("canExecute");
+            expect(typeof macro.canExecute, "Macro canExecute is not a boolean").to.equal("boolean");
+        });
+
+        it("should have a function property execute", async () => {
+            const macro = await createTestMacro();
+            expect(macro, "Macro does not have execute").to.have.property("execute");
+            expect(typeof macro.execute, "Macro execute is not a function").to.equal("function");
+        });
+
+        it("should have a string property uuid", async () => {
+            const macro = await createTestMacro();
+            expect(macro, "Macro does not have uuid").to.have.property("uuid");
+            expect(typeof macro.uuid, "Macro uuid is not a string").to.equal("string");
         });
     });
 }

@@ -1,6 +1,7 @@
 export interface ConfigSegment {
     requiredAttributes: string[];
     optionalAttributes: string[];
+    requiresValue: boolean;
     subSegments?: Record<string, any>;
 }
 
@@ -38,6 +39,7 @@ function makeConfigSegment<SEGMENT extends Record<string, any>>(proto: SEGMENT):
         ...proto,
         requiredAttributes: proto.requiredAttributes ?? [],
         optionalAttributes: proto.optionalAttributes ?? [],
+        requiresValue: proto.requiresValue ?? true,
         subSegments: proto.subSegments ? makeSubSegments(proto.subSegments) : undefined,
     };
 }

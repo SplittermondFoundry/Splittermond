@@ -1,10 +1,14 @@
 import { DataModel } from "./DataModel";
 import type { FoundryApplication } from "./Application";
 import { MessageModeKey } from "./ChatMessage";
+import type { FoundryActiveEffect } from "module/api/ActiveEffect";
 
 export type FoundryCombat = foundry.documents.Combat;
 export type FoundryCombatant = foundry.documents.Combatant;
 export type FoundryScene = foundry.documents.Scene;
+
+export type DataModelUpdateOptions = foundry.abstract.types.DataModelUpdateOptions;
+export type DatabaseUpdateOperation = foundry.abstract.types.DatabaseUpdateOperation;
 
 export interface KeybindingActionConfig {
     editable?: KeybindingActionBinding[];
@@ -96,7 +100,7 @@ export interface SettingsConfig<T extends SettingTypes> {
 declare global {
     type Collection<T> = ReadonlyMap<string, T> &
         Omit<ReadonlyArray<T>, "length" | "push" | "pop" | "shift" | "unshift" | "splice" | "sort" | "reverse"> & {
-            get contents(): T[];
+            get contents(): ReadonlyArray<T>;
         };
 
     /**
@@ -121,10 +125,12 @@ declare global {
         readonly folder: string;
         system: Record<string, any>;
         owner: User;
-        sheet: InstanceType<typeof FoundryApplication>; //true in the future, now we're still on AppV1
 
         get inCombat(): boolean;
         get isToken(): boolean;
+
+        applyActiveEffects(phase: string): void;
+        allApplicableEffects(): Generator<FoundryActiveEffect, void, void>;
     }
 
     class Item extends FoundryDocument {
@@ -170,14 +176,21 @@ declare global {
         readonly uuid: string;
         readonly metadata: foundry.abstract.types.DocumentClassMetadata;
         readonly type: string;
+        readonly effects: Collection<FoundryActiveEffect>;
+        get sheet(): InstanceType<typeof FoundryApplication>;
 
-        updateSource(data: object): void;
+        update(data: object, operation?: Partial<Omit<DatabaseUpdateOperation, "updates">>): Promise<FoundryDocument>;
 
-        update(data: object, context?: any): Promise<FoundryDocument>;
+        createEmbeddedDocuments(embeddedName: string, data: object[], context?: object): Promise<FoundryDocument[]>;
+
+        deleteEmbeddedDocuments(embeddedName: string, ids: string[], context?: object): Promise<FoundryDocument[]>;
 
         prepareBaseData(): void;
 
         testUserPermission(user: User, permission: string, options?: { exact?: boolean }): boolean;
+
+        // Defined on ClientDocument
+        toDragData(): object;
 
         static deleteDocuments(documentId: string[]): Promise<void>;
 
@@ -217,6 +230,12 @@ declare global {
             fallbackTurnMarker: string;
         } & Record<string, unknown>;
         Dice: Record<string, unknown>;
+        ActiveEffect: {
+            documentClass: Function;
+            dataModels: Record<string, unknown>;
+            sheetClasses?: Record<string, Record<string, unknown>>;
+        };
+        dataModels: Record<string, unknown>;
     } & Record<string, unknown>;
 }
 
@@ -231,96 +250,6 @@ export interface MergeObjectOptions {
     recursive?: boolean;
 }
 export interface CompendiumPacks extends Collection<foundry.documents.collections.CompendiumCollection> {}
-
-declare namespace foundry {
-    namespace documents {
-        import CombatHistoryData = foundry.documents.types.CombatHistoryData;
-
-        class Scene extends FoundryDocument {}
-
-        class Combat extends FoundryDocument {
-            readonly turns: Combatant[];
-            readonly current: CombatHistoryData;
-            combatants: Collection<Combatant>; //defineSchema field. not actually part of the API
-            /**The scene this {@link Combat} is linked to. Is `null` when the combat is globally available */
-            readonly scene: Scene | null; //defineSchema field. not actually part of the API
-            readonly turn: number; //defineSchema field. not actually part of the API
-            readonly round: number; //defineSchema field. not actually part of the API
-            get isActive(): boolean;
-            get started(): boolean;
-
-            startCombat(): Promise<this>;
-        }
-
-        class Combatant extends FoundryDocument {
-            get isDefeated(): boolean;
-            get combat(): Combat;
-            get visible(): boolean;
-            get token(): TokenDocument | null;
-
-            initiative: number | null; //defineSchema field. not actually part of the API
-            tokenId: string | null; //defineSchema field. not actually part of the API
-            actorId: string | null; //defineSchema field. not actually part of the API
-            sceneId: string | null; //defineSchema field. not actually part of the API
-        }
-
-        namespace types {
-            interface CombatHistoryData {
-                combatantId: string | null;
-                round: number | null;
-                tokenId: string | null;
-                turn: number | null;
-            }
-        }
-        namespace collections {
-            class CompendiumCollection {
-                metadata: Record<string | symbol | number, unknown>;
-                /**
-                 * The index of the compendium collection. That is, the reduced data set
-                 */
-                index: Collection<Record<string | symbol | number, unknown>>;
-                documentName: string;
-                name: string;
-                getIndex<T extends string>(options?: { fields?: T[] }): Promise<Collection<Record<T, unknown>>>;
-                get visible(): boolean;
-            }
-        }
-    }
-    namespace abstract {
-        namespace types {
-            interface DocumentClassMetadata {
-                collection: string;
-                compendiumIndexFields: string[];
-                coreTypes: string[];
-                embedded: Record<string, string>;
-                hasTypeData: boolean;
-                indexed: boolean;
-                label: string;
-                name: string;
-                permissions: Record<
-                    "update" | "delete" | "view" | "create",
-                    | "INHERIT"
-                    | "NONE"
-                    | "LIMITED"
-                    | "OBSERVER"
-                    | "OWNER"
-                    | "PLAYER"
-                    | "TRUSTED"
-                    | "ASSISTANT"
-                    | "GAMEMASTER"
-                    | DocumentPermissionTest
-                >;
-                preserveOnImport: string[];
-                schemaVersion?: string;
-            }
-            type DocumentPermissionTest = (
-                user: unknown, //actually BaseUser but I did not want to continue typing
-                document: Document,
-                data?: object
-            ) => boolean;
-        }
-    }
-}
 
 export declare class DataModelValidationFailure {
     public message: string;

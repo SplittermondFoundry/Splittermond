@@ -28,6 +28,20 @@ import Attack from "module/actor/attack";
 import { passesEventually } from "../util";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { SplittermondSkill } from "module/config/skillGroups";
+import { Modifier } from "module/activeEffect";
+import sinon from "sinon";
+import { isGenerated } from "module/activeEffect/effectBuilder";
+
+declare const ChatMessage: any;
+
+const ROLL_TYPE_LABEL: Record<string, string> = {
+    standard: "Standardwurf",
+    risk: "Risikowurf",
+    safety: "Sicherheitswurf",
+    standardGrandmaster: "Standardwurf (Großmeister)",
+    riskGrandmaster: "Risikowurf (Großmeister)",
+    safetyGrandmaster: "Sicherheitswurf (Großmeister)",
+};
 
 export function modifierTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
@@ -35,6 +49,21 @@ export function modifierTest(context: QuenchBatchContext) {
     beforeEach(() => (actors = []));
 
     afterEach(async () => await Actor.deleteDocuments(actors.map((a) => a.id)));
+
+    async function waitForItemEffects(items: readonly FoundryDocument[], timeout = 1500) {
+        for (const item of items) {
+            await passesEventually(
+                () => {
+                    expect(
+                        item.effects.filter((e: { type: string }) => isGenerated(e)).length,
+                        "Effect was not verifiably created"
+                    ).to.be.greaterThan(0);
+                },
+                timeout,
+                50
+            );
+        }
+    }
 
     async function createActor(name: string) {
         const actor = await actorCreator.createCharacter({ type: "character", name, system: {} });
@@ -61,9 +90,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             });
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.stealth.value.calculate()).to.equal(7);
         });
@@ -79,7 +106,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const items = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Tough as Fingernails",
@@ -87,9 +114,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(items);
+
+            await subject.prepareData();
 
             expect(subject.system.health.total.value).to.equal(21);
         });
@@ -115,7 +142,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 });
 
                 const derivedValueKey = foundryApi.localize(`splittermond.derivedAttribute.${derivedValue}.short`);
-                await subject.createEmbeddedDocuments("Item", [
+                const items = await subject.createEmbeddedDocuments("Item", [
                     {
                         type: "strength",
                         name: "DerivedValueEnhancer",
@@ -123,9 +150,9 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 ]);
 
-                subject.prepareBaseData();
-                await subject.prepareEmbeddedDocuments();
-                subject.prepareDerivedData();
+                await waitForItemEffects(items);
+
+                await subject.prepareData();
 
                 expect(await subject.derivedValues[derivedValue].value.calculate()).to.equal(expected);
             });
@@ -141,7 +168,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     acrobatics: { points: 2, value: 6 },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const shieldItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "shield",
                     name: "Fat Shield",
@@ -155,9 +182,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(shieldItem);
+
+            await subject.prepareData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(5);
             expect(await subject.derivedValues.defense.value.calculate()).to.equal(17);
@@ -174,7 +201,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     acrobatics: { points: 2, value: 6 },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const armorItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "armor",
                     name: "Fat Armor",
@@ -188,9 +215,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(armorItem);
+
+            await subject.prepareData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(5);
             expect(await subject.derivedValues.defense.value.calculate()).to.equal(17);
@@ -224,9 +251,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         },
                     ])
                 )[0];
-                actor.prepareBaseData();
-                await actor.prepareEmbeddedDocuments();
-                actor.prepareDerivedData();
+                await actor.prepareData();
 
                 expect(
                     await actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.calculate()
@@ -239,7 +264,7 @@ export function modifierTest(context: QuenchBatchContext) {
             (subject.system as NpcDataModel).attributes.agility.updateSource({ value: 3 });
             (subject.system as NpcDataModel).attributes.strength.updateSource({ value: 5 });
             (subject.system as NpcDataModel).updateSource({ damageReduction: { value: 2 } });
-            await subject.createEmbeddedDocuments("Item", [
+            const npcFeatureItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "npcfeature",
                     name: "Elefant Skin",
@@ -249,9 +274,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(npcFeatureItem);
+
+            await subject.prepareData();
 
             expect(await subject.damageReduction.calculate()).to.equal(4);
         });
@@ -266,14 +291,12 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const skills = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "spelleffect",
                     name: "Superempathy",
                     system: { active: true, modifier: "empathy +1" },
                 },
-            ]);
-            await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "spelleffect",
                     name: "MegaEmpathy",
@@ -281,9 +304,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(skills);
+
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(8);
         });
@@ -301,7 +324,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     eloquence: { points: 9, value: 17 },
                 },
             });
-            await subject.createEmbeddedDocuments("Item", [
+            const masteryModItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Begabter Lügner",
@@ -312,6 +335,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masteryModItem);
             return subject;
         }
 
@@ -320,9 +344,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 "splinterpoints.bonus Fertigkeit='Redegewandtheit' +${AUS}"
             );
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             const splinterpointSpender = subject.spendSplinterpoint();
             expect(splinterpointSpender.pointSpent).to.be.true;
@@ -332,9 +354,7 @@ export function modifierTest(context: QuenchBatchContext) {
         it("should account for a global bonus modifier", async () => {
             const subject = await getActorWithMasteryModifying("splinterpoints.bonus 4");
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             const splinterpointSpender = subject.spendSplinterpoint();
             expect(splinterpointSpender.pointSpent).to.be.true;
@@ -345,7 +365,7 @@ export function modifierTest(context: QuenchBatchContext) {
             const subject = await getActorWithMasteryModifying(
                 "splinterpoints.bonus Fertigkeit='Redegewandtheit' ${AUS}"
             );
-            await subject.createEmbeddedDocuments("Item", [
+            const secondMastery = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Begabter Redner",
@@ -357,9 +377,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(secondMastery);
+
+            await subject.prepareData();
 
             const splinterpointSpender = subject.spendSplinterpoint();
             expect(splinterpointSpender.pointSpent).to.be.true;
@@ -379,20 +399,23 @@ export function modifierTest(context: QuenchBatchContext) {
                         },
                     },
                 });
-                actor.createEmbeddedDocuments("Item", [
+                const hasteItem = await actor.createEmbeddedDocuments("Item", [
                     {
                         type: "spelleffect",
                         name: "Haste",
                         //all three must take effect to achieve an overall modifier of 1.5
-                        system: { modifier: "actor.speed.multiplier 1.25, gsw.mult 0.6, speed.multiplier: 2" },
+                        system: {
+                            modifier: "actor.speed.multiplier 1.25, gsw.mult 0.6, speed.multiplier 2",
+                            active: true,
+                        },
                     },
                 ]);
-                actor.prepareBaseData();
-                actor.prepareEmbeddedDocuments();
-                actor.prepareDerivedData();
-                actor.modifier.add("actor.speed.multiplier", { name: "Haste", type: "magic" }, of(1.5), null, false);
 
-                expect(Number(actor.derivedValues.speed.value.display)).to.equal(12);
+                await waitForItemEffects(hasteItem);
+
+                await actor.prepareData();
+
+                expect(await actor.derivedValues.speed.value.calculate()).to.equal(12);
             })
         );
     });
@@ -413,7 +436,7 @@ export function modifierTest(context: QuenchBatchContext) {
         }
 
         async function addWoundedEffect(actor: SplittermondActor, level: number) {
-            return await actor.createEmbeddedDocuments("Item", [
+            const item = await actor.createEmbeddedDocuments("Item", [
                 {
                     type: "statuseffect",
                     name: "Verwundung",
@@ -423,10 +446,12 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(item);
+            return item;
         }
 
         async function makeWeak(actor: SplittermondActor) {
-            return await actor.createEmbeddedDocuments("Item", [
+            const item = await actor.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Schwächlich",
@@ -435,6 +460,8 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(item);
+            return item;
         }
 
         it("should apply wound malus effect with more than full bar missing", async () => {
@@ -442,9 +469,7 @@ export function modifierTest(context: QuenchBatchContext) {
             await addWoundedEffect(subject, 1);
             await subject.consumeCost("health", `8V8`, "");
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - 2);
         });
@@ -453,9 +478,7 @@ export function modifierTest(context: QuenchBatchContext) {
             const subject = await setUpActor();
             await subject.consumeCost("health", `8V8`, "");
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - 1);
         });
@@ -473,9 +496,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await makeWeak(subject);
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -485,9 +506,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await makeWeak(subject);
                         await subject.consumeCost("health", "1V1", "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -498,9 +517,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await makeWeak(subject);
                         await subject.consumeCost("health", `7V7`, "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -522,9 +539,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -534,9 +549,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await subject.consumeCost("health", "1V1", "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -546,9 +559,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await subject.consumeCost("health", `7V7`, "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.skills.acrobatics.value.calculate()).to.equal(6 - reduction);
                     });
@@ -557,9 +568,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.derivedValues.initiative.value.calculate()).to.equal(8 + reduction);
                     });
@@ -569,9 +578,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await subject.consumeCost("health", "1V1", "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.derivedValues.initiative.value.calculate()).to.equal(8 + reduction);
                     });
@@ -581,9 +588,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         await addWoundedEffect(subject, level);
                         await subject.consumeCost("health", `7V7`, "");
 
-                        subject.prepareBaseData();
-                        await subject.prepareEmbeddedDocuments();
-                        subject.prepareDerivedData();
+                        await subject.prepareData();
 
                         expect(await subject.derivedValues.initiative.value.calculate()).to.equal(8 + reduction);
                     });
@@ -616,20 +621,18 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should add a constant value to a skill", async () => {
             const subject = await defaultActor("Empath", "empathy +1");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(6);
         });
 
         it("should add a roll to a skill", async () => {
             const subject = await defaultActor("Empath", "empathy 2W6");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate())
                 .to.be.above(6)
@@ -638,30 +641,27 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should add a attribute value to a skill", async () => {
             const subject = await defaultActor("Empath", "empathy ${Intuition}");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(7);
         });
 
         it("should add a skill value to a skill", async () => {
             const subject = await defaultActor("DoubleEmpath", "empathy ${Jagdkunst}");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(10);
         });
 
         it("should add a random numeric attribute to", async () => {
             const subject = await defaultActor("WeirdEmpath", "empathy ${system.health.max}");
+            await waitForItemEffects(subject.items.contents);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(await subject.skills.empathy.value.calculate()).to.equal(40);
         });
@@ -678,7 +678,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     difficulty: "18",
                 },
             };
-            await subject.createEmbeddedDocuments("Item", [
+            const masterySpell = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Sparsamer Zauberer",
@@ -689,11 +689,10 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masterySpell);
             await subject.createEmbeddedDocuments("Item", [spellDefinition]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("2V1");
         });
@@ -710,7 +709,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     difficulty: "18",
                 },
             };
-            await subject.createEmbeddedDocuments("Item", [
+            const masterySpell = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Sparsamer Zauberer",
@@ -721,11 +720,10 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masterySpell);
             await subject.createEmbeddedDocuments("Item", [spellDefinition]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("2V1");
         });
@@ -742,7 +740,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     difficulty: "18",
                 },
             };
-            await subject.createEmbeddedDocuments("Item", [
+            const masterySpell = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Sparsamer Zauberer",
@@ -753,11 +751,10 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masterySpell);
             await subject.createEmbeddedDocuments("Item", [spellDefinition]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("2V1");
         });
@@ -774,7 +771,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     difficulty: "18",
                 },
             };
-            await subject.createEmbeddedDocuments("Item", [
+            const masterySpell = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "mastery",
                     name: "Sparsamer Zauberer",
@@ -785,17 +782,54 @@ export function modifierTest(context: QuenchBatchContext) {
                     },
                 },
             ]);
+            await waitForItemEffects(masterySpell);
             await subject.createEmbeddedDocuments("Item", [spellDefinition]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.items.find((i) => i.name == spellDefinition.name)?.costs).to.equal("3V2");
         });
 
+        it("should only modify npcattacks with npcattacks", async () => {
+            const subject = await defaultActor("Attacking NPC", "npcattacks -1");
+            await waitForItemEffects(subject.items.contents);
+            const npcAttackDefinition = {
+                type: "npcattack",
+                name: "Körper",
+                system: {
+                    skillValue: 7,
+                },
+            };
+            const weaponDefinition = {
+                type: "weapon",
+                name: "Keule",
+                system: {
+                    skill: "melee",
+                    damage: DamageModel.from("3"),
+                    equipped: true,
+                    attribute1: "strength",
+                    attribute2: "agility",
+                    weaponSpeed: 6,
+                },
+            };
+            const documents = await subject.createEmbeddedDocuments("Item", [npcAttackDefinition, weaponDefinition]);
+
+            const npcAttack = documents.find((d) => d.type === "npcattack")!;
+            const weapon = documents.find((d) => d.type === "weapon")!;
+
+            await subject.prepareData();
+
+            const findAttack = (id: string) => subject.attacks.find((a) => a.toObject().id === id);
+
+            expect(await findAttack(npcAttack.id)?.skill.value.calculate(), "unexpected npc attack skill").to.equal(
+                npcAttackDefinition.system.skillValue - 1
+            );
+            expect(await findAttack(weapon.id)?.skill.value.calculate(), "unexpected weapon skill").to.equal(4);
+        });
+        ("");
         it("should modify npc attack values", async () => {
             const subject = await defaultActor("Attacking NPC", "npcattacks -1");
+            await waitForItemEffects(subject.items.contents);
             const npcAttackDefinition = {
                 type: "npcattack",
                 name: "Körper",
@@ -806,9 +840,7 @@ export function modifierTest(context: QuenchBatchContext) {
             const npcAttacks = await subject.createEmbeddedDocuments("Item", [npcAttackDefinition]);
             const npcAttack = npcAttacks[0];
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
 
             expect(subject.attacks.find((a) => a.toObject().id === npcAttack.id)?.skill.value.display).to.equal(
                 `${npcAttackDefinition.system.skillValue - 1}`
@@ -838,6 +870,8 @@ export function modifierTest(context: QuenchBatchContext) {
                         weaponSpeed: 6,
                     },
                 },
+            ]);
+            const modifierItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Murderous Strength",
@@ -845,9 +879,10 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(modifierItem);
+
+            await subject.prepareData();
+
             expect(subject.attacks.find((a) => a.name === "Spear of Destiny")?.damage).to.equal("6");
         });
 
@@ -875,6 +910,8 @@ export function modifierTest(context: QuenchBatchContext) {
                         },
                     },
                 },
+            ]);
+            const modifierItem = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Absurd Fastness",
@@ -885,9 +922,9 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await waitForItemEffects(modifierItem);
+
+            await subject.prepareData();
 
             const itemUnderTest = subject.items.find((i) => i.name === "Spear of Light") as SplittermondSpellItem;
             expect(await itemUnderTest.system.castDuration.inTicks()).to.equal(4);
@@ -915,7 +952,13 @@ export function modifierTest(context: QuenchBatchContext) {
             //is (1*14 + |-4|/1) - (2*3 + 1)
             const expression = minus(
                 plus(times(roll(foundryApi.roll("1d1")), of(14)), dividedBy(abs(of(-4)), roll(foundryApi.roll("1d1")))),
-                plus(times(of(2), ref("value", { value: 3 }, "value")), ref("value", { value: 1 }, "value"))
+                plus(
+                    times(
+                        of(2),
+                        ref("value", () => ({ value: 3 }) as any, "value")
+                    ),
+                    ref("value", () => ({ value: 1 }) as any, "value")
+                )
             );
 
             const rollFormula = toRollFormula(expression);
@@ -945,16 +988,15 @@ export function modifierTest(context: QuenchBatchContext) {
                 it(
                     `should modify skill group ${skillGroup}`,
                     withActor(async (actor) => {
-                        await actor.createEmbeddedDocuments("Item", [
+                        const skillItem = await actor.createEmbeddedDocuments("Item", [
                             {
                                 type: "strength",
                                 name: "Skill Booster",
                                 system: { modifier: `skills.${skillGroup} +2` },
                             },
                         ]);
-                        actor.prepareBaseData();
-                        await actor.prepareEmbeddedDocuments();
-                        actor.prepareDerivedData();
+                        await waitForItemEffects(skillItem);
+                        await actor.prepareData();
 
                         await Promise.all(
                             splittermond.skillGroups[skillGroup].map(async (skill) => {
@@ -968,24 +1010,22 @@ export function modifierTest(context: QuenchBatchContext) {
             it(
                 `should modify skill group fighting`,
                 withActor(async (actor) => {
-                    const weapon = (
-                        await actor.createEmbeddedDocuments("Item", [
-                            {
-                                type: "weapon",
-                                name: "Skill Booster",
-                                system: {
-                                    equipped: true,
-                                    modifier: `skills.fighting +2`,
-                                    skill: "blades",
-                                    attribute1: "strength",
-                                    attribute2: "agility",
-                                },
+                    const items = await actor.createEmbeddedDocuments("Item", [
+                        {
+                            type: "weapon",
+                            name: "Skill Booster",
+                            system: {
+                                equipped: true,
+                                modifier: `skills.fighting +2`,
+                                skill: "blades",
+                                attribute1: "strength",
+                                attribute2: "agility",
                             },
-                        ])
-                    )[0];
-                    actor.prepareBaseData();
-                    await actor.prepareEmbeddedDocuments();
-                    actor.prepareDerivedData();
+                        },
+                    ]);
+                    const weapon = items[0];
+                    await waitForItemEffects(items);
+                    await actor.prepareData();
 
                     expect(actor.attacks.find((a: Attack) => a.name === weapon.name)?.skill.value.display).to.equal(
                         "6"
@@ -1004,16 +1044,15 @@ export function modifierTest(context: QuenchBatchContext) {
                     `should modify skill ${skill}`,
                     withActor(async (actor) => {
                         const originalValue = await actor.skills[skill].value.calculate();
-                        await actor.createEmbeddedDocuments("Item", [
+                        const skillItem = await actor.createEmbeddedDocuments("Item", [
                             {
                                 type: "strength",
                                 name: "Skill Booster",
                                 system: { modifier: `${skill} +2` },
                             },
                         ]);
-                        actor.prepareBaseData();
-                        await actor.prepareEmbeddedDocuments();
-                        actor.prepareDerivedData();
+                        await waitForItemEffects(skillItem);
+                        await actor.prepareData();
 
                         expect(await actor.skills[skill].value.calculate()).to.equal(originalValue + 2);
                     })
@@ -1027,16 +1066,15 @@ export function modifierTest(context: QuenchBatchContext) {
                     withActor(async (actor) => {
                         const originalValue = await actor.skills[skill].value.calculate();
                         const localizedSkill = foundryApi.localize(`splittermond.skillLabel.${skill}`);
-                        await actor.createEmbeddedDocuments("Item", [
+                        const skillItem = await actor.createEmbeddedDocuments("Item", [
                             {
                                 type: "strength",
                                 name: "Skill Booster",
                                 system: { modifier: `skills Fertigkeit="${localizedSkill}" +2` },
                             },
                         ]);
-                        actor.prepareBaseData();
-                        await actor.prepareEmbeddedDocuments();
-                        actor.prepareDerivedData();
+                        await waitForItemEffects(skillItem);
+                        await actor.prepareData();
 
                         expect(await actor.skills[skill].value.calculate()).to.equal(originalValue + 2);
                     })
@@ -1056,16 +1094,15 @@ export function modifierTest(context: QuenchBatchContext) {
             })
         );
         async function attributeTest(actor: SplittermondActor, modifierInput: string) {
-            await actor.createEmbeddedDocuments("Item", [
+            const skillItem = await actor.createEmbeddedDocuments("Item", [
                 {
                     type: "strength",
                     name: "Skill Booster",
                     system: { modifier: modifierInput },
                 },
             ]);
-            actor.prepareBaseData();
-            await actor.prepareEmbeddedDocuments();
-            actor.prepareDerivedData();
+            await waitForItemEffects(skillItem);
+            await actor.prepareData();
 
             ((await Promise.all(Object.entries(splittermond.skillAttributes))) as [[SplittermondSkill, string[]]])
                 .filter(([_, value]) => value.includes("mystic"))
@@ -1089,7 +1126,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         skills: { acrobatics: { points: 6 } },
                     },
                 });
-                await actor.createEmbeddedDocuments("Item", [
+                const checkItem = await actor.createEmbeddedDocuments("Item", [
                     {
                         type: "strength",
                         name: "Check Booster",
@@ -1098,9 +1135,8 @@ export function modifierTest(context: QuenchBatchContext) {
                         },
                     },
                 ]);
-                actor.prepareBaseData();
-                await actor.prepareEmbeddedDocuments();
-                actor.prepareDerivedData();
+                await waitForItemEffects(checkItem);
+                await actor.prepareData();
 
                 await actor.skills.acrobatics.roll({ rollType: "safety", askUser: false });
 
@@ -1123,15 +1159,267 @@ export function modifierTest(context: QuenchBatchContext) {
         );
     });
 
+    describe("check.require rollType", function () {
+        this.timeout(10000);
+        let sandbox: sinon.SinonSandbox;
+        let createdMessages: string[] = [];
+
+        beforeEach(() => {
+            sandbox = sinon.createSandbox();
+            createdMessages = [];
+        });
+
+        afterEach(async () => {
+            sandbox.restore();
+            if (createdMessages.length > 0) {
+                await ChatMessage.deleteDocuments(createdMessages);
+            }
+            document.querySelectorAll(".dialog-check").forEach((el) => el.remove());
+            document.querySelectorAll("dialog").forEach((el) => {
+                if (el.querySelector("button[data-action='confirm']")) {
+                    el.remove();
+                }
+            });
+        });
+
+        async function addStrengthModifier(actor: SplittermondActor, modifier: string, name: string): Promise<void> {
+            const items = await actor.createEmbeddedDocuments("Item", [
+                { type: "strength", name, system: { modifier } },
+            ]);
+            await waitForItemEffects(items);
+            await actor.prepareData();
+        }
+
+        function rollTypeFromMessage(messageContent: string): string | undefined {
+            const match = messageContent.match(/(?<=<span class="roll-type">)[^<]+(?=<\/span>)/);
+            return match?.[0];
+        }
+
+        function lastActorMessage(actor: SplittermondActor): FoundryChatMessage | undefined {
+            const messages = foundryApi.messages as unknown as Collection<FoundryChatMessage>;
+            return Array.from(messages.contents)
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .find((m) => m.speaker?.actor === actor.id);
+        }
+
+        async function waitFor<T>(selector: () => T | null | undefined, description: string): Promise<T> {
+            await passesEventually(() => {
+                if (selector() == null) throw new Error(description);
+            });
+            return selector() as T;
+        }
+
+        it(
+            "should resolve a check.require rollType preset into the rolled check",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 4, advances: 0 },
+                            agility: { initial: 4, advances: 0 },
+                        },
+                        skills: { acrobatics: { points: 6 } },
+                    },
+                });
+                await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
+
+                await actor.skills.acrobatics.roll({ rollType: "standard", askUser: false, type: "skill" });
+
+                await passesEventually(() => {
+                    const message = lastActorMessage(actor);
+                    const content = message?.content ?? "";
+                    const renderedRollType = rollTypeFromMessage(content);
+                    expect(renderedRollType, "roll-type span exists").to.not.be.undefined;
+                    expect(renderedRollType).to.equal(ROLL_TYPE_LABEL.safety);
+                });
+                const message = lastActorMessage(actor);
+                if (message?.id) createdMessages.push(message.id);
+            })
+        );
+
+        it(
+            "should render a real check dialog whose preset button resolves immediately without a confirm dialog",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 4, advances: 0 },
+                            agility: { initial: 4, advances: 0 },
+                        },
+                        skills: { acrobatics: { points: 6 } },
+                    },
+                });
+                await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
+
+                const dialogPromise = actor.skills.acrobatics.prepareRollDialog(
+                    [],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    "safety"
+                );
+
+                const checkDialogEl = await waitFor(
+                    () => document.querySelector<HTMLElement>(".dialog-check"),
+                    "check dialog not rendered"
+                );
+
+                const presetButton = checkDialogEl.querySelector<HTMLButtonElement>("button[data-action='safety']");
+                expect(presetButton, "preset safety button exists").to.not.be.null;
+                presetButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+
+                const result = await dialogPromise;
+                expect(result, "preset submit resolves the dialog").to.not.be.null;
+                expect(result!.rollType).to.equal("safety");
+
+                await passesEventually(
+                    () => {
+                        expect(document.querySelector("button[data-action='confirm']"), "no confirm dialog is shown").to
+                            .be.null;
+                        expect(document.querySelector(".dialog-check"), "check dialog closed after preset submit").to.be
+                            .null;
+                    },
+                    2000,
+                    50
+                );
+            })
+        );
+
+        it(
+            "should open a confirm dialog and keep the check dialog visible when a non-preset button is picked",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 4, advances: 0 },
+                            agility: { initial: 4, advances: 0 },
+                        },
+                        skills: { acrobatics: { points: 6 } },
+                    },
+                });
+                await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
+
+                const dialogPromise = actor.skills.acrobatics.prepareRollDialog(
+                    [],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    "safety"
+                );
+
+                const checkDialogEl = await waitFor(
+                    () => document.querySelector<HTMLElement>(".dialog-check"),
+                    "check dialog not rendered"
+                );
+
+                const nonPresetButton = checkDialogEl.querySelector<HTMLButtonElement>("button[data-action='risk']");
+                expect(nonPresetButton, "non-preset risk button exists").to.not.be.null;
+                nonPresetButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+
+                const confirmButton = await waitFor(
+                    () => document.querySelector<HTMLButtonElement>("button[data-action='confirm']"),
+                    "confirm dialog not rendered"
+                );
+                expect(document.querySelector(".dialog-check"), "check dialog stays visible (closeOnSubmit=false)").to
+                    .not.be.null;
+
+                confirmButton.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+
+                const result = await dialogPromise;
+                expect(result, "confirm resolves the dialog with the non-preset rollType").to.not.be.null;
+                expect(result!.rollType).to.equal("risk");
+            })
+        );
+
+        it(
+            "should keep the check dialog open and unresolved when the confirm prompt is dismissed",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        attributes: {
+                            strength: { initial: 4, advances: 0 },
+                            agility: { initial: 4, advances: 0 },
+                        },
+                        skills: { acrobatics: { points: 6 } },
+                    },
+                });
+                await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
+
+                const dialogPromise = actor.skills.acrobatics.prepareRollDialog(
+                    [],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    "safety"
+                );
+
+                const checkDialogEl = await waitFor(
+                    () => document.querySelector<HTMLElement>(".dialog-check"),
+                    "check dialog not rendered"
+                );
+
+                const nonPresetButton = checkDialogEl.querySelector<HTMLButtonElement>("button[data-action='risk']");
+                nonPresetButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+
+                await waitFor(
+                    () => document.querySelector<HTMLButtonElement>("button[data-action='confirm']"),
+                    "confirm prompt not rendered"
+                );
+                expect(document.querySelector(".dialog-check"), "check dialog stays visible (closeOnSubmit=false)").to
+                    .not.be.null;
+
+                const confirmPrompt = document.querySelector<HTMLDialogElement>(
+                    "dialog:not(.dialog-check):has(button[data-action='confirm'])"
+                );
+                confirmPrompt!.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+
+                await passesEventually(
+                    () => {
+                        expect(document.querySelector("button[data-action='confirm']"), "confirm prompt dismissed").to
+                            .be.null;
+                    },
+                    2000,
+                    50
+                );
+
+                expect(document.querySelector(".dialog-check"), "check dialog still open after dismiss").to.not.be.null;
+                const settled = await Promise.race([
+                    dialogPromise.then((r) => r ?? "settled"),
+                    new Promise((resolve) => setTimeout(() => resolve("pending"), 150)),
+                ]);
+                expect(settled, "check dialog promise remains unresolved after dismiss").to.equal("pending");
+
+                const presetButton = document.querySelector<HTMLButtonElement>("button[data-action='safety']");
+                presetButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+                const result = await dialogPromise;
+                expect(result, "preset pick after dismiss resolves the dialog").to.not.be.null;
+                expect(result!.rollType).to.equal("safety");
+            })
+        );
+    });
+
     describe("Item modifiers", () => {
         it("should account for modifications to weapons", async () => {
             const subject = await createActor("WeaponizedCharacter");
-            (subject.system as CharacterDataModel).attributes.agility.updateSource({ initial: 2, advances: 0 });
-            (subject.system as CharacterDataModel).attributes.strength.updateSource({ initial: 2, advances: 0 });
-            (subject.system as CharacterDataModel).updateSource({
-                skills: {
-                    ...subject.system.skills,
-                    blades: { points: 2, value: 6 },
+            await subject.update({
+                system: {
+                    attributes: {
+                        agility: {
+                            initial: 2,
+                            advances: 0,
+                        },
+                        strength: {
+                            initial: 2,
+                            advances: 0,
+                        },
+                    },
+                    skills: {
+                        ...subject.system.skills,
+                        blades: { points: 2, value: 6 },
+                    },
                 },
             });
             await subject.createEmbeddedDocuments("Item", [
@@ -1149,9 +1437,8 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
+
             subject.modifier.add(
                 "item.damage",
                 {
@@ -1160,11 +1447,10 @@ export function modifierTest(context: QuenchBatchContext) {
                     type: "magic",
                 },
                 of(1),
-                null,
                 false
             );
-            subject.modifier.add("item.damage", { name: "Mystery", type: "magic" }, of(2), null, false);
-            subject.modifier.add("item.weaponspeed", { name: "Mystery", type: "magic" }, of(2), null, false);
+            subject.modifier.add("item.damage", { name: "Mystery", type: "magic" }, of(2), false);
+            subject.modifier.add("item.weaponspeed", { name: "Mystery", type: "magic" }, of(2), false);
 
             expect(subject.attacks.find((a) => a.name === "Lance of Longinus")?.damage).to.equal("6");
             expect(await subject.attacks.find((a) => a.name === "Lance of Longinus")?.weaponSpeed.calculate()).to.equal(
@@ -1174,12 +1460,22 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should account for modifications to shields", async () => {
             const subject = await createActor("WeaponizedCharacter");
-            (subject.system as CharacterDataModel).attributes.agility.updateSource({ initial: 2, advances: 0 });
-            (subject.system as CharacterDataModel).attributes.strength.updateSource({ initial: 2, advances: 0 });
-            (subject.system as CharacterDataModel).updateSource({
-                skills: {
-                    ...subject.system.skills,
-                    blades: { points: 2, value: 6 },
+            await subject.update({
+                system: {
+                    attributes: {
+                        agility: {
+                            initial: 2,
+                            advances: 0,
+                        },
+                        strength: {
+                            initial: 2,
+                            advances: 0,
+                        },
+                    },
+                    skills: {
+                        ...subject.system.skills,
+                        blades: { points: 2, value: 6 },
+                    },
                 },
             });
             await subject.createEmbeddedDocuments("Item", [
@@ -1198,9 +1494,8 @@ export function modifierTest(context: QuenchBatchContext) {
                 },
             ]);
 
-            subject.prepareBaseData();
-            await subject.prepareEmbeddedDocuments();
-            subject.prepareDerivedData();
+            await subject.prepareData();
+
             subject.modifier.add(
                 "item.damage",
                 {
@@ -1209,7 +1504,6 @@ export function modifierTest(context: QuenchBatchContext) {
                     type: "magic",
                 },
                 of(1),
-                null,
                 false
             );
             subject.modifier.add(
@@ -1221,7 +1515,6 @@ export function modifierTest(context: QuenchBatchContext) {
                     type: "magic",
                 },
                 of(2),
-                null,
                 false
             );
 
@@ -1229,5 +1522,90 @@ export function modifierTest(context: QuenchBatchContext) {
                 .not.be.empty;
             expect(subject.attacks.find((a) => a.name === "Lance of Longinus")?.features).to.equal("Scharf 2");
         });
+    });
+
+    describe("Active effects from items are recognized exactly once", () => {
+        it(
+            "should apply a skill modifier",
+            withActor(async (subject) => {
+                await subject.update({
+                    system: {
+                        attributes: {
+                            intuition: {
+                                initial: 2,
+                                advances: 0,
+                            },
+                            mind: {
+                                initial: 3,
+                                advances: 0,
+                            },
+                        },
+                    },
+                });
+                // Base empathy = intuition(2) + charisma(3) + points(0) = 5; with +2 modifier → expected 7, not 9
+                const [item] = await subject.createEmbeddedDocuments("Item", [
+                    { type: "statuseffect", name: "Begabung", system: { modifier: "", level: 1 } },
+                ]);
+                await (item as any).createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "empathy +2",
+                        type: "modifier",
+                        transfer: true,
+                        disabled: false,
+                        system: {
+                            modifiers: [Modifier.init("empathy", of(2), { name: "Begabung", type: "innate" })],
+                            costModifiers: [],
+                        },
+                    },
+                ]);
+
+                await subject.prepareData();
+
+                expect(await subject.skills.empathy.value.calculate()).to.equal(7);
+            })
+        );
+
+        it(
+            "should apply a woundmalus.mod modifier",
+            withActor(async (subject) => {
+                await subject.update({
+                    system: {
+                        attributes: {
+                            constitution: {
+                                initial: 2,
+                                advances: 0,
+                            },
+                            agility: {
+                                initial: 3,
+                                advances: 0,
+                            },
+                        },
+                    },
+                });
+                // woundmalus.mod +2 shifts every wound threshold value by +2 (i.e. reduces severity)
+                // If applied twice, woundMalusMod would be 4 instead of 2
+                const [item] = await subject.createEmbeddedDocuments("Item", [
+                    { type: "statuseffect", name: "Eiserne Haut", system: { modifier: "", level: 1 } },
+                ]);
+                await (item as any).createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "woundmalus.mod +2",
+                        type: "modifier",
+                        transfer: true,
+                        disabled: false,
+                        system: {
+                            modifiers: [
+                                Modifier.init("actor.woundmalus.mod", of(2), { name: "Eiserne Haut", type: "innate" }),
+                            ],
+                            costModifiers: [],
+                        },
+                    },
+                ]);
+
+                await subject.prepareData();
+
+                expect(await subject.woundMalusMod.calculate()).to.equal(2);
+            })
+        );
     });
 }

@@ -4,7 +4,10 @@ import { expect } from "chai";
 
 describe("calculateDegreeOfSuccessDisplay", () => {
     it("should prefer to put bonus degrees on open degrees of success", () => {
-        const checkDegrees = { degreeOfSuccessMessage: "", degreeOfSuccess: { fromRoll: 2, modification: 1 } };
+        const checkDegrees = {
+            degreeOfSuccessMessage: "",
+            degreeOfSuccess: { fromRoll: 2, modification: 1, limitedTo: 999 },
+        };
         const openDegreesOfSuccess = 1;
         const result = renderDegreesOfSuccess(checkDegrees, openDegreesOfSuccess);
         expect(result).to.deep.equal({
@@ -18,7 +21,10 @@ describe("calculateDegreeOfSuccessDisplay", () => {
     });
 
     it("should use bonus degrees if no normal are available", () => {
-        const checkDegrees = { degreeOfSuccessMessage: "", degreeOfSuccess: { fromRoll: 4, modification: 3 } };
+        const checkDegrees = {
+            degreeOfSuccessMessage: "",
+            degreeOfSuccess: { fromRoll: 4, modification: 3, limitedTo: 999 },
+        };
         const openDegreesOfSuccess = 1;
         const result = renderDegreesOfSuccess(checkDegrees, openDegreesOfSuccess);
         expect(result).to.deep.equal({
@@ -32,7 +38,10 @@ describe("calculateDegreeOfSuccessDisplay", () => {
     });
 
     it("should not set used bonus degrees when there are open ones", () => {
-        const checkDegrees = { degreeOfSuccessMessage: "", degreeOfSuccess: { fromRoll: 4, modification: 3 } };
+        const checkDegrees = {
+            degreeOfSuccessMessage: "",
+            degreeOfSuccess: { fromRoll: 4, modification: 3, limitedTo: 999 },
+        };
         const openDegreesOfSuccess = 6;
         const result = renderDegreesOfSuccess(checkDegrees, openDegreesOfSuccess);
         expect(result).to.deep.equal({
@@ -46,7 +55,10 @@ describe("calculateDegreeOfSuccessDisplay", () => {
     });
 
     it("should not infer bonus degrees for negative roll degrees", () => {
-        const checkDegrees = { degreeOfSuccessMessage: "", degreeOfSuccess: { fromRoll: -2, modification: 0 } };
+        const checkDegrees = {
+            degreeOfSuccessMessage: "",
+            degreeOfSuccess: { fromRoll: -2, modification: 0, limitedTo: 999 },
+        };
         const openDegreesOfSuccess = -2;
         const result = renderDegreesOfSuccess(checkDegrees, openDegreesOfSuccess);
         expect(result).to.deep.equal({
@@ -60,7 +72,10 @@ describe("calculateDegreeOfSuccessDisplay", () => {
     });
 
     it("should keep bonus degrees when roll degrees ", () => {
-        const checkDegrees = { degreeOfSuccessMessage: "", degreeOfSuccess: { fromRoll: -2, modification: 3 } };
+        const checkDegrees = {
+            degreeOfSuccessMessage: "",
+            degreeOfSuccess: { fromRoll: -2, modification: 3, limitedTo: 999 },
+        };
         const openDegreesOfSuccess = 1;
         const result = renderDegreesOfSuccess(checkDegrees, openDegreesOfSuccess);
         expect(result).to.deep.equal({

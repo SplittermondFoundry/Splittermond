@@ -30,6 +30,14 @@ import { WeaponDataModel, type WeaponDataModelType } from "./dataModel/WeaponDat
 import { type ScalarRegistry } from "module/modifiers";
 import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { registerSheets } from "module/item/sheets/registration";
+import type { IAddModifier } from "module/actor/addModifierAdapter";
+import { setAddModifier } from "module/item/item";
+import { runItemMigration } from "module/item/migrations/itemMigration";
+import {
+    promptAndRunModifierToEffectMigration,
+    runModifierToEffectMigration,
+} from "module/item/migrations/modifierToEffectMigration";
+import { readyHook } from "module/hooks";
 
 type SplittermondItemDataModel =
     | AncestryDataModel
@@ -102,8 +110,9 @@ export type {
     SplittermondItemDataModel,
 };
 
-export function initializeItem(config: typeof CONFIG, modifierRegistry: ScalarRegistry) {
+export function initializeItem(config: typeof CONFIG, modifierRegistry: ScalarRegistry, addModifier: IAddModifier) {
     console.log("Splittermond | Initializing Item feature");
+    setAddModifier(addModifier);
     config.Item.documentClass = SplittermondItem;
     config.Item.dataModels = {
         ...(CONFIG.Item.dataModels ?? {}),
@@ -148,4 +157,15 @@ export function initializeItem(config: typeof CONFIG, modifierRegistry: ScalarRe
 
     modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);
     registerSheets();
+}
+
+export function initializeItemMigrations(migrationsRegistry: Record<string, (...x: any[]) => Promise<unknown>>): void {
+    readyHook.once(() => {
+        void (async () => {
+            await promptAndRunModifierToEffectMigration();
+        })();
+        return true;
+    });
+    migrationsRegistry.runItemMigration = runItemMigration;
+    migrationsRegistry.runModifierToEffectMigration = runModifierToEffectMigration;
 }

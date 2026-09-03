@@ -12,7 +12,7 @@ import { Dice } from "module/check/dice";
 import { Chat } from "module/util/chat";
 import CheckDialog from "module/apps/dialog/check-dialog";
 import type { IModifier } from "module/modifiers";
-import { evaluate, isGreaterZero, of, times } from "module/modifiers/expressions/scalar";
+import { evaluate, isGreaterZero, isLessThanZero, of, times } from "module/modifiers/expressions/scalar";
 
 type SkillCheckReport = Exclude<Awaited<ReturnType<Skill["roll"]>>, false | typeof ChatMessage>;
 describe("Skill", () => {
@@ -396,6 +396,338 @@ describe("Skill", () => {
         });
     });
 
+    describe("check.require preset roll type", () => {
+        it("should resolve the preset roll type from a check.require modifier and override the programmatic one with a console warning", async () => {
+            const actor = setUpActor(sandbox);
+            actor.modifier.addModifier(
+                getModifier({
+                    groupId: "check.require",
+                    attributes: { rollType: "safety", name: "test", type: "innate" },
+                })
+            );
+            const underTest = Skill.initialize(actor, "Testskill");
+
+            const warnStub = sandbox.stub(console, "warn");
+            const warnUserStub = sandbox.stub(foundryApi, "warnUser");
+
+            const checkData = await underTest.finalizeCheckInputData(
+                [],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                "standard",
+                "skill",
+                false
+            );
+
+            expect(checkData).to.not.be.null;
+            expect(checkData!.rollType).to.equal("safety");
+            expect(warnStub.calledOnce).to.be.true;
+            expect(warnStub.firstCall.args[0]).to.include("check.require modifier overrode programmatic rollType");
+            expect(warnUserStub.called).to.be.false;
+        });
+
+        it("should pass the programmatic roll type through when no check.require modifier matches", async () => {
+            const actor = setUpActor(sandbox);
+            const underTest = Skill.initialize(actor, "Testskill");
+
+            const warnStub = sandbox.stub(console, "warn");
+            const warnUserStub = sandbox.stub(foundryApi, "warnUser");
+
+            const checkData = await underTest.finalizeCheckInputData(
+                [],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                "risk",
+                "skill",
+                false
+            );
+
+            expect(checkData).to.not.be.null;
+            expect(checkData!.rollType).to.equal("risk");
+            expect(warnStub.called).to.be.false;
+            expect(warnUserStub.called).to.be.false;
+        });
+
+        it("should map a grandmaster base-type preset to its grandmaster variant", async () => {
+            const actor = setUpActor(sandbox);
+            actor.modifier.addModifier(
+                getModifier({
+                    groupId: "check.require",
+                    attributes: { rollType: "safety", name: "test", type: "innate" },
+                })
+            );
+            const underTest = Skill.initialize(actor, "Testskill");
+            sandbox.stub(underTest, "isGrandmaster").get(() => true);
+
+            const roll = {
+                dice: [],
+                total: 26,
+                getTooltip: () => "",
+            };
+            const diceCheckStub = sandbox.stub(Dice, "check").returns({
+                difficulty: 15,
+                succeeded: true,
+                isFumble: false,
+                isCrit: false,
+                degreeOfSuccess: { fromRoll: 3, modification: 0 },
+                degreeOfSuccessMessage: "(Gut) gelungen",
+                roll,
+            });
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves();
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            await underTest.roll({ askUser: false, type: "skill" });
+
+            expect(diceCheckStub.firstCall.args[2]).to.equal("safetyGrandmaster");
+        });
+
+        it("should pass a grandmaster-code preset through unchanged", async () => {
+            const actor = setUpActor(sandbox);
+            actor.modifier.addModifier(
+                getModifier({
+                    groupId: "check.require",
+                    attributes: { rollType: "safetyGrandmaster", name: "test", type: "innate" },
+                })
+            );
+            const underTest = Skill.initialize(actor, "Testskill");
+            sandbox.stub(underTest, "isGrandmaster").get(() => true);
+
+            const roll = {
+                dice: [],
+                total: 26,
+                getTooltip: () => "",
+            };
+            const diceCheckStub = sandbox.stub(Dice, "check").returns({
+                difficulty: 15,
+                succeeded: true,
+                isFumble: false,
+                isCrit: false,
+                degreeOfSuccess: { fromRoll: 3, modification: 0 },
+                degreeOfSuccessMessage: "(Gut) gelungen",
+                roll,
+            });
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves();
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            await underTest.roll({ askUser: false, type: "skill" });
+
+            expect(diceCheckStub.firstCall.args[2]).to.equal("safetyGrandmaster");
+        });
+
+        it("should warn the user and take the first roll type when two conflicting check.require modifiers match", async () => {
+            const actor = setUpActor(sandbox);
+            actor.modifier.addModifier(
+                getModifier({
+                    groupId: "check.require",
+                    attributes: { rollType: "safety", name: "first", type: "innate" },
+                })
+            );
+            actor.modifier.addModifier(
+                getModifier({
+                    groupId: "check.require",
+                    attributes: { rollType: "risk", name: "second", type: "innate" },
+                })
+            );
+            const underTest = Skill.initialize(actor, "Testskill");
+
+            const warnUserStub = sandbox.stub(foundryApi, "warnUser");
+
+            const checkData = await underTest.finalizeCheckInputData(
+                [],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                "skill",
+                false
+            );
+
+            expect(checkData).to.not.be.null;
+            expect(checkData!.rollType).to.equal("safety");
+            expect(warnUserStub.calledOnce).to.be.true;
+            expect(warnUserStub.firstCall.args[0]).to.equal("splittermond.check.require.conflict");
+        });
+
+        it("should flow the resolved preset roll type into the check dialog input when asking the user", async () => {
+            const actor = setUpActor(sandbox);
+            actor.modifier.addModifier(
+                getModifier({
+                    groupId: "check.require",
+                    attributes: { rollType: "safety", name: "test", type: "innate" },
+                })
+            );
+            const underTest = Skill.initialize(actor, "Testskill");
+
+            const checkDialogStub = sandbox.stub(CheckDialog, "create").resolves({
+                difficulty: "15",
+                maneuvers: [],
+                modifierElements: [],
+                messageMode: "public",
+                rollType: "safety",
+            });
+            sandbox.stub(foundryApi, "settings").get(() => ({
+                get: () => "public",
+            }));
+            sandbox.stub(foundryApi, "rollModes").get(() => ({}));
+            sandbox.stub(Dice, "check").returns({
+                difficulty: 15,
+                succeeded: true,
+                isFumble: false,
+                isCrit: false,
+                degreeOfSuccess: { fromRoll: 0, modification: 0 },
+                degreeOfSuccessMessage: "(Knapp) gelungen",
+                roll: { dice: [], total: 26, getTooltip: () => "" },
+            });
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves();
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            await underTest.roll({ askUser: true, type: "skill" });
+
+            expect(checkDialogStub.calledOnce).to.be.true;
+            const input = checkDialogStub.firstCall.args[0];
+            expect(input.presetRollType).to.equal("safety");
+        });
+
+        it("should pass the grandmaster-code preset roll type through unchanged to the check dialog input", async () => {
+            const actor = setUpActor(sandbox);
+            actor.modifier.addModifier(
+                getModifier({
+                    groupId: "check.require",
+                    attributes: { rollType: "safetyGrandmaster", name: "test", type: "innate" },
+                })
+            );
+            const underTest = Skill.initialize(actor, "Testskill");
+            sandbox.stub(underTest, "isGrandmaster").get(() => true);
+
+            const checkDialogStub = sandbox.stub(CheckDialog, "create").resolves({
+                difficulty: "15",
+                maneuvers: [],
+                modifierElements: [],
+                messageMode: "public",
+                rollType: "safetyGrandmaster",
+            });
+            sandbox.stub(foundryApi, "settings").get(() => ({
+                get: () => "public",
+            }));
+            sandbox.stub(foundryApi, "rollModes").get(() => ({}));
+            sandbox.stub(Dice, "check").returns({
+                difficulty: 15,
+                succeeded: true,
+                isFumble: false,
+                isCrit: false,
+                degreeOfSuccess: { fromRoll: 0, modification: 0 },
+                degreeOfSuccessMessage: "(Knapp) gelungen",
+                roll: { dice: [], total: 26, getTooltip: () => "" },
+            });
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves();
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            await underTest.roll({ askUser: true, type: "skill" });
+
+            expect(checkDialogStub.calledOnce).to.be.true;
+            const input = checkDialogStub.firstCall.args[0];
+            expect(input.presetRollType).to.equal("safetyGrandmaster");
+        });
+
+        it("should leave presetRollType undefined in the check dialog input when no check.require modifier matches", async () => {
+            const actor = setUpActor(sandbox);
+            const underTest = Skill.initialize(actor, "Testskill");
+
+            const checkDialogStub = sandbox.stub(CheckDialog, "create").resolves({
+                difficulty: "15",
+                maneuvers: [],
+                modifierElements: [],
+                messageMode: "public",
+                rollType: "standard",
+            });
+            sandbox.stub(foundryApi, "settings").get(() => ({
+                get: () => "public",
+            }));
+            sandbox.stub(foundryApi, "rollModes").get(() => ({}));
+            sandbox.stub(Dice, "check").returns({
+                difficulty: 15,
+                succeeded: true,
+                isFumble: false,
+                isCrit: false,
+                degreeOfSuccess: { fromRoll: 0, modification: 0 },
+                degreeOfSuccessMessage: "(Knapp) gelungen",
+                roll: { dice: [], total: 26, getTooltip: () => "" },
+            });
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves();
+            sandbox.stub(foundryApi, "createChatMessage").resolves();
+
+            await underTest.roll({ askUser: true, type: "skill" });
+
+            expect(checkDialogStub.calledOnce).to.be.true;
+            const input = checkDialogStub.firstCall.args[0];
+            expect(input.presetRollType).to.be.undefined;
+        });
+
+        it("should ignore a check.require modifier whose checkType attribute does not match the roll's check type", async () => {
+            const actor = setUpActor(sandbox);
+            actor.modifier.addModifier(
+                getModifier({
+                    groupId: "check.require",
+                    attributes: { rollType: "safety", name: "attack-only", type: "innate", checkType: "attack" },
+                })
+            );
+            const underTest = Skill.initialize(actor, "Testskill");
+
+            const warnStub = sandbox.stub(console, "warn");
+            const warnUserStub = sandbox.stub(foundryApi, "warnUser");
+
+            const checkData = await underTest.finalizeCheckInputData(
+                [],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                "standard",
+                "skill",
+                false
+            );
+
+            expect(checkData).to.not.be.null;
+            expect(checkData!.rollType).to.equal("standard");
+            expect(warnStub.called).to.be.false;
+            expect(warnUserStub.called).to.be.false;
+        });
+
+        it("should apply a check.require modifier whose checkType attribute matches the roll's check type", async () => {
+            const actor = setUpActor(sandbox);
+            actor.modifier.addModifier(
+                getModifier({
+                    groupId: "check.require",
+                    attributes: { rollType: "safety", name: "skill-only", type: "innate", checkType: "skill" },
+                })
+            );
+            const underTest = Skill.initialize(actor, "Testskill");
+
+            const warnStub = sandbox.stub(console, "warn");
+
+            const checkData = await underTest.finalizeCheckInputData(
+                [],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                "standard",
+                "skill",
+                false
+            );
+
+            expect(checkData).to.not.be.null;
+            expect(checkData!.rollType).to.equal("safety");
+            expect(warnStub.calledOnce).to.be.true;
+            expect(warnStub.firstCall.args[0]).to.include("check.require modifier overrode programmatic rollType");
+        });
+    });
+
     describe("selectable modifiers with emphasis", () => {
         it("should present selectable skill modifiers with emphasis in check dialog", async () => {
             const actor = setUpActor(sandbox);
@@ -738,7 +1070,8 @@ function setUpActor(sandbox: SinonSandbox) {
 
 type ModifierPartial = Omit<Partial<IModifier>, "attributes"> & { attributes?: Partial<IModifier["attributes"]> };
 function getModifier(mod: ModifierPartial = {}): IModifier {
-    return {
+    const value = mod.value ?? of(1);
+    const mock: IModifier = {
         groupId: mod.groupId ?? "test.modifier",
         attributes: {
             ...mod.attributes,
@@ -746,9 +1079,11 @@ function getModifier(mod: ModifierPartial = {}): IModifier {
             type: mod.attributes?.type ?? "innate",
         },
         selectable: mod.selectable ?? false,
-        origin: null,
         isBonus: (mod.value && isGreaterZero(mod.value)) ?? true,
-        value: mod.value ?? of(1),
+        isMalus: (mod.value && isLessThanZero(mod.value)) ?? false,
+        value,
         addTooltipFormulaElements: () => {},
+        applyMultiplier: () => mock,
     };
+    return { ...mock, ...mod, attributes: { ...mock.attributes, ...mod.attributes } };
 }

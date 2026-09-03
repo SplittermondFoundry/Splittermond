@@ -1,10 +1,10 @@
 import { type Config, type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import type { SplittermondSkill } from "module/config/skillGroups";
-import type SplittermondItem from "module/item/item";
-import { type Expression, isZero, times } from "module/modifiers/expressions/scalar";
+import type { IModifierSource } from "module/modifiers/IModifierSource";
+import { type Expression, isZero } from "module/modifiers/expressions/scalar";
 import { splittermond } from "module/config";
-import Modifier from "module/modifiers/impl/modifier";
+import { Modifier } from "module/activeEffect";
 import { isMember } from "module/util/util";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
@@ -20,37 +20,38 @@ const commonConfig = {
         fighting: {
             optionalAttributes: ["emphasis"],
         },
+        social: {
+            optionalAttributes: ["emphasis"],
+        },
     },
 } as const;
 class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
     constructor(
         logErrors: (...message: string[]) => void,
         config: Config,
-        sourceItem: SplittermondItem,
-        modifierType: ModifierType,
-        private readonly multiplier: Expression
+        sourceItem: IModifierSource,
+        modifierType: ModifierType
     ) {
         super(logErrors, config, sourceItem, modifierType);
     }
     protected buildModifier(modifier: ScalarModifier): IModifier[] {
         const groupId = modifier.path.startsWith("actor") ? modifier.path : `actor.${modifier.path}`;
-        switch (groupId) {
-            case "actor.skills.general":
-                return this.unwrapModifiers(splittermond.skillGroups.general, modifier);
-            case "actor.skills.magic":
-                return this.unwrapModifiers(splittermond.skillGroups.magic, modifier);
-            case "actor.skills.fighting":
-                return this.unwrapModifiers(splittermond.skillGroups.fighting, modifier);
+        const terminal = groupId.split(".").pop()!;
+        if (terminal in splittermond.skillGroups) {
+            return this.unwrapModifiers(
+                splittermond.skillGroups[terminal as keyof typeof splittermond.skillGroups],
+                modifier
+            );
         }
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
         normalizedAttributes.name = normalizedAttributes.emphasis ?? normalizedAttributes.name;
         return [
-            new Modifier(
+            Modifier.create(
                 groupId,
-                times(this.multiplier, modifier.value),
+                modifier.value,
                 normalizedAttributes,
-                this.sourceItem,
-                !!normalizedAttributes.emphasis
+                !!normalizedAttributes.emphasis,
+                () => this.sourceItem.actor
             ),
         ];
     }
@@ -61,10 +62,10 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
 
     private unwrapModifiers(skillGroup: readonly SplittermondSkill[], modifier: ScalarModifier) {
         return skillGroup.map((skill) => {
-            const value = times(this.multiplier, modifier.value);
+            const value = modifier.value;
             const emphasis = this.commonNormalizers.validatedAttribute(modifier.attributes.emphasis);
             const attributes = { name: emphasis ?? this.sourceItem.name, type: this.modifierType, emphasis };
-            return new Modifier(skill, value, attributes, this.sourceItem, !!emphasis);
+            return Modifier.create(skill, value, attributes, !!emphasis, () => this.sourceItem.actor);
         });
     }
 
@@ -106,13 +107,8 @@ export class SkillHandler extends CommonSkillHandler {
         topLevelPath: "skills",
         ...commonConfig,
     });
-    constructor(
-        logErrors: (...message: string[]) => void,
-        sourceItem: SplittermondItem,
-        modifierType: ModifierType,
-        multiplier: Expression
-    ) {
-        super(logErrors, SkillHandler.config, sourceItem, modifierType, multiplier);
+    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+        super(logErrors, SkillHandler.config, sourceItem, modifierType);
     }
 }
 export class ActorSkillHandler extends CommonSkillHandler {
@@ -120,12 +116,7 @@ export class ActorSkillHandler extends CommonSkillHandler {
         topLevelPath: "actor.skills",
         ...commonConfig,
     });
-    constructor(
-        logErrors: (...message: string[]) => void,
-        sourceItem: SplittermondItem,
-        modifierType: ModifierType,
-        multiplier: Expression
-    ) {
-        super(logErrors, ActorSkillHandler.config, sourceItem, modifierType, multiplier);
+    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+        super(logErrors, ActorSkillHandler.config, sourceItem, modifierType);
     }
 }

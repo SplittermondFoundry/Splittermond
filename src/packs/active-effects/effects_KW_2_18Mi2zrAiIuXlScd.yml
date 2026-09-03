@@ -1,0 +1,47 @@
+folder: null
+name: Erhöhter Körperlicher Widerstand
+origin: null
+type: modifier
+_id: 18Mi2zrAiIuXlScd
+img: icons/svg/upgrade.svg
+system:
+    changes: []
+    modifiers:
+        - path: kw
+          serializedValue:
+              type: amount
+              amount: 2
+          implementation: additive
+          selectable: false
+          attributes:
+              name: KW +2
+              type: innate
+    costModifiers: []
+disabled: false
+start: null
+duration:
+    value: null
+    units: seconds
+    expiry: null
+    expired: false
+description: ""
+tint: "#ffffff"
+transfer: true
+statuses: []
+showIcon: 1
+sort: 0
+flags:
+    splittermond:
+        durationMode: permanent
+        rawInput: KW +2
+_stats:
+    coreVersion: "14.365"
+    systemId: splittermond
+    systemVersion: 14.3.0-alpha5
+    createdTime: null
+    modifiedTime: null
+    lastModifiedBy: null
+    compendiumSource: null
+    duplicateSource: null
+    exportSource: null
+_key: "!effects!18Mi2zrAiIuXlScd"

@@ -2,6 +2,7 @@ import {
     type ChatMessageStyles,
     type CompendiumPacks,
     type FoundryCombat,
+    type FoundryCombatant,
     type FoundryScene,
     type Hooks,
     type KeybindingActionBinding,
@@ -16,6 +17,12 @@ import {
 import type { FoundryRoll, NumericTerm, OperatorTerm } from "./Roll";
 import { FoundryChatMessage } from "./ChatMessage";
 import { FoundryApplication } from "./Application";
+
+interface SheetRegistrationOptions {
+    types?: string[];
+    label?: string;
+    makeDefault?: boolean;
+}
 
 export const foundryApi = new (class FoundryApi {
     /**
@@ -138,6 +145,15 @@ export const foundryApi = new (class FoundryApi {
         return game.combat;
     }
 
+    getCombatForActor(actor: Actor): FoundryCombat | null {
+        for (const combat of foundryApi.combats) {
+            if (combat.combatants.some((c: FoundryCombatant) => c.actorId === actor.id)) {
+                return combat;
+            }
+        }
+        return null;
+    }
+
     get socket(): Socket {
         //@ts-ignore
         return game.socket;
@@ -161,6 +177,12 @@ export const foundryApi = new (class FoundryApi {
     getToken(sceneId: string, tokenId: string): TokenDocument | undefined {
         //@ts-ignore
         return game.scenes.get(sceneId)?.tokens.get(tokenId);
+    }
+
+    getDocumentSource(doc: FoundryDocument): Readonly<{ system: Record<string, unknown> }> {
+        // @ts-ignore — _source is Foundry-internal pristine source data. It should not be used.
+        // Surfaced not on the public document type, but here to keep the cast inside the api isolation layer.
+        return doc._source;
     }
 
     roll(damageFormula: string, data: Record<string, string> = {}, context: object = {}): FoundryRoll {
@@ -281,6 +303,10 @@ export const foundryApi = new (class FoundryApi {
             // @ts-ignore
             return foundry.applications.ux.TextEditor.implementation.enrichHTML(content, options);
         },
+        buildFormData(form: HTMLFormElement, options?: object): foundry.applications.ux.FormDataExtended {
+            // @ts-ignore
+            return new foundry.applications.ux.FormDataExtended(form, options);
+        },
         resolveProperty(object: object, path: string): unknown {
             // @ts-ignore
             return foundry.utils.getProperty(object, path);
@@ -304,23 +330,45 @@ export const foundryApi = new (class FoundryApi {
 
     sheets = {
         items: {
-            register(...args: any[]): void {
+            register(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return Items.registerSheet(...args);
+                return Items.registerSheet(scope, sheetClass, options);
             },
-            unregister(...args: any[]): void {
+            unregister(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return Items.unregisterSheet(...args);
+                return Items.unregisterSheet(scope, sheetClass, options);
             },
         },
         actors: {
-            register(...args: any[]): void {
+            register(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return Actors.registerSheet(...args);
+                return Actors.registerSheet(scope, sheetClass, options);
             },
-            unregister(...args: any[]): void {
+            unregister(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
                 // @ts-ignore
-                return Actors.unregisterSheet(...args);
+                return Actors.unregisterSheet(scope, sheetClass, options);
+            },
+        },
+        activeEffects: {
+            register(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
+                // @ts-ignore
+                return foundry.applications.apps.DocumentSheetConfig.registerSheet(
+                    // @ts-ignore
+                    ActiveEffect,
+                    scope,
+                    sheetClass,
+                    options
+                );
+            },
+            unregister(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {
+                // @ts-ignore
+                return foundry.applications.apps.DocumentSheetConfig.unregisterSheet(
+                    // @ts-ignore
+                    ActiveEffect,
+                    scope,
+                    sheetClass,
+                    options
+                );
             },
         },
     };

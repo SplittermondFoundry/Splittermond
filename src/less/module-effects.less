@@ -1,0 +1,201 @@
+.effects-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+
+    .effects-add {
+        display: flex;
+        gap: 0.5em;
+        align-items: center;
+
+        input.effect-modifier-input {
+            flex: 0 1 auto;
+            min-width: 0;
+        }
+
+        button.effect-add-button {
+            white-space: nowrap;
+            padding: 0.25em 0.5em;
+            cursor: pointer;
+        }
+    }
+
+    .effects-list-section {
+        margin-top: 0.5em;
+    }
+
+    .effects-list {
+        list-style: none;
+        margin: 0;
+        margin-top: 0.5em;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25em;
+    }
+
+    .effect-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.35em 0.5em;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.04);
+
+        .effect-card-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+
+            .effect-name {
+                font-weight: bold;
+            }
+
+            .effect-disabled-badge {
+                font-size: 0.8em;
+                opacity: 0.6;
+                font-style: italic;
+            }
+        }
+
+        .effect-card-actions {
+            display: flex;
+            gap: 0.25em;
+        }
+    }
+
+    .effects-empty {
+        opacity: 0.6;
+        font-style: italic;
+        text-align: center;
+        margin: 1em 0;
+    }
+
+    .effect-card.effect-disabled {
+        opacity: 0.5;
+        background: rgba(0, 0, 0, 0.02);
+    }
+
+    // --- Type accent classes (item-sheet scope) ---
+    .effect-card.effect-type-spellEffect {
+        border-left: 3px solid #7b2d8b;
+    }
+
+    .effect-card.effect-type-attackEffect {
+        border-left: 3px solid #9b2226;
+    }
+
+    .effect-card.effect-type-spellEnhancedEffect {
+        border-left: 3px solid #b8860b;
+    }
+}
+
+// --- Type accent + badge styles for the actor sheet ---
+.active-effects .list-item.effect {
+    &.effect-type-spellEffect {
+        border-left: 3px solid #7b2d8b;
+    }
+
+    &.effect-type-attackEffect {
+        border-left: 3px solid #9b2226;
+    }
+
+    &.effect-type-spellEnhancedEffect {
+        border-left: 3px solid #b8860b;
+    }
+}
+
+// --- Badge styles (global, used in both sheets) ---
+.effect-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.8em;
+    opacity: 0.7;
+    gap: 0.15em;
+    margin: 0 0.15em;
+}
+
+// --- Centered badge column next to the name (actor sheet) ---
+.active-effects .list-item.effect {
+    > .name {
+        display: inline-flex;
+        align-items: center;
+        flex: 0 0 40%;
+        min-width: 0;
+        white-space: nowrap;
+
+        > .name-text {
+            min-width: 0;
+            flex: 0 1 auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    > .source {
+        flex: 1 1 auto;
+        min-width: 0;
+        margin-left: 0.25em;
+        font-size: 0.9em;
+        opacity: 0.7;
+        justify-content: flex-end;
+        text-align: right;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    > .effect-badges {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.2em;
+        justify-content: flex-start;
+
+        > .effect-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            white-space: nowrap;
+            width: 1.5em;
+        }
+    }
+
+    button.button-inline[data-action="toggle-effect"] {
+        flex: 0 0 auto;
+        margin-left: 0.25em;
+    }
+}
+
+.badge-suppressed {
+    filter: grayscale(1);
+}
+
+.badge-expired {
+    color: #999;
+}
+
+.badge-channelled {
+    color: #4a7c59;
+}
+
+.badge-generated {
+    color: #8a6d3b;
+}
+
+.list-item.effect-disabled {
+    opacity: 0.5;
+}
+
+.list-item.effect-from-item {
+    font-style: italic;
+}
+
+.splittermond.sheet.item.spell .tabs [data-tab="effects"],
+.splittermond.sheet.item.spell nav [data-tab="effects"],
+.splittermond.sheet.item.npcattack .tabs [data-tab="effects"],
+.splittermond.sheet.item.npcattack nav [data-tab="effects"] {
+    display: none;
+}

@@ -1,47 +1,41 @@
-import { TooltipFormula } from "module/util/tooltip";
-import {
-    abs,
-    asString,
-    condense,
-    type Expression,
-    isGreaterZero,
-    isLessThanZero,
-} from "module/modifiers/expressions/scalar";
+import { addToRegistry, type Constructor } from "module/data/dataModelRegistry";
+import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import type { IModifier, ModifierAttributes } from "module/modifiers";
+import type { Expression } from "module/modifiers/expressions/scalar";
+import { abs, asString, condense, isGreaterZero, isLessThanZero } from "module/modifiers/expressions/scalar";
+import { serialize } from "module/modifiers/expressions/scalar/serialization";
+import type { TooltipFormula } from "module/util/tooltip";
+import { apply } from "module/modifiers/expressions/scalar/application";
 
-export default class Modifier implements IModifier {
-    private _isBonus: boolean;
-    private _isMalus: boolean;
+export class Modifier implements IModifier {
+    static readonly key = "additive";
+    readonly path: string;
+    readonly value: Expression;
+    readonly groupId: string;
+    readonly selectable: boolean;
+    readonly attributes: ModifierAttributes;
+    readonly isBonus: boolean;
+    readonly isMalus: boolean;
+    readonly actorProvider?: ActorProvider;
 
-    /**
-     *
-     * @param {string} path Modifier Path
-     * @param {(numeric | string)} value
-     * @param attributes secondary selection characteristics of this modifier
-     * @param {(Item | Actor)=null} origin
-     * @param {boolean=false} selectable is the modifier selectable as a roll option
-     */
     constructor(
-        public readonly path: string,
-        public readonly value: Expression,
-        public readonly attributes: ModifierAttributes,
-        public readonly origin: object | null = null,
-        public readonly selectable = false
+        path: string,
+        value: Expression,
+        attributes: ModifierAttributes,
+        selectable = false,
+        actorProvider?: ActorProvider
     ) {
+        this.path = path;
+        this.value = value;
+        this.attributes = attributes;
         this.selectable = selectable;
-        this._isBonus = isGreaterZero(value) ?? true; //Assume a bonus if result is unknown
-        this._isMalus = isLessThanZero(value) ?? false;
+        this.groupId = path;
+        this.actorProvider = actorProvider;
+        this.isBonus = isGreaterZero(value) ?? true;
+        this.isMalus = isLessThanZero(value) ?? false;
     }
 
-    get isMalus() {
-        return this._isMalus;
-    }
-
-    get isBonus() {
-        return this._isBonus;
-    }
-
-    addTooltipFormulaElements(formula: TooltipFormula) {
+    addTooltipFormulaElements(formula: TooltipFormula): void {
         if (this.isBonus) {
             const term = `+${asString(abs(condense(this.value)))}`;
             formula.addBonus(term, this.attributes.name);
@@ -51,25 +45,35 @@ export default class Modifier implements IModifier {
         }
     }
 
-    equals(other: Modifier) {
-        return this.path === other.path;
+    applyMultiplier(multiplier: number): Modifier {
+        return new Modifier(
+            this.path,
+            apply(this.value, multiplier),
+            this.attributes,
+            this.selectable,
+            this.actorProvider
+        );
     }
 
-    get groupId() {
-        return this.path;
+    static create(
+        path: string,
+        value: Expression,
+        attributes: ModifierAttributes,
+        selectable = false,
+        actorProvider?: ActorProvider
+    ): Modifier {
+        return new Modifier(path, value, attributes, selectable, actorProvider);
     }
 
-    /**
-     * @deprecated use attribute filters to access these
-     */
-    get name() {
-        return this.attributes.name;
-    }
-
-    /**
-     * @deprecated use attribute filters to access these
-     */
-    get type() {
-        return this.attributes.type;
+    static init(path: string, value: Expression, attributes: ModifierAttributes, selectable = false) {
+        return {
+            path,
+            serializedValue: serialize(value),
+            implementation: Modifier.key,
+            selectable,
+            attributes,
+        };
     }
 }
+
+addToRegistry(Modifier.key, Modifier as Constructor);

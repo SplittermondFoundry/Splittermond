@@ -47,10 +47,10 @@ async function unpackLdbCompendium(pack) {
     const extractSource = `${MODULE_ID}/packs/${pack}`;
     const extractTarget = `${SCRIPT_FILE_PATH}/../src/packs/${pack}`;
     console.debug(`\tExtracting pack ${extractSource} into ${extractTarget}`);
-    await extractPack(extractSource, extractTarget, {
+    return extractPack(extractSource, extractTarget, {
         yaml,
         transformName,
-    });
+    }).catch((e) => console.error(`\tFailed to extract pack: ${pack}`, e));
 }
 
 /**

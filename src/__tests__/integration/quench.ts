@@ -15,6 +15,14 @@ import { combatTest } from "./combat.test";
 import { apiConstantsTest } from "./apiConstants.test";
 import { cssVariablesTest } from "./api/cssVariables.test";
 import { hooksTest } from "./hooks.test";
+import { activeEffectTest } from "./activeEffectConfig.test";
+import { activeEffectMultiplierTest } from "./activeEffectMultiplier.test";
+import { bakedMultiplierMigrationTest } from "./bakedMultiplierMigration.test";
+import { macroApiTest } from "./api/Macro.test";
+import { compendiumEffectAssignmentTest } from "./compendiumEffectAssignment.test";
+import { itemCompendiumAssignmentTest } from "./itemCompendiumAssignment.test";
+import { itemMigrationTest } from "./migrations/itemMigration.test";
+import { modifierToEffectMigrationTest } from "./migrations/modifierToEffectMigration.test";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}
@@ -38,6 +46,14 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.keybindings", foundryKeybindingsTest);
     quench.registerBatch("splittermond.cssVariables", cssVariablesTest);
     quench.registerBatch("splittermond.hooks", hooksTest);
+    quench.registerBatch("splittermond.activeEffectConfig", activeEffectTest);
+    quench.registerBatch("splittermond.activeEffectMultiplier", activeEffectMultiplierTest);
+    quench.registerBatch("splittermond.bakedMultiplierMigration", bakedMultiplierMigrationTest);
+    quench.registerBatch("splittermond.macro", macroApiTest);
+    quench.registerBatch("splittermond.compendiumEffectAssignment", compendiumEffectAssignmentTest);
+    quench.registerBatch("splittermond.itemCompendiumAssignment", itemCompendiumAssignmentTest);
+    quench.registerBatch("splittermond.itemMigration", itemMigrationTest);
+    quench.registerBatch("splittermond.modifierToEffectMigration", modifierToEffectMigrationTest);
 }
 
 export function init() {

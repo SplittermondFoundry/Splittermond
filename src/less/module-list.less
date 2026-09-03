@@ -94,7 +94,7 @@
     }
 
     .list-item {
-        min-height: 28px;
+        min-height: 29px;
         /* border: 1px solid transparent; */
         border: 1px solid transparent;
         border-image: linear-gradient(to right, transparent, rgba(var(--color-text-secondary_rgb), 0.3), transparent) 0
@@ -328,13 +328,10 @@
             overflow: unset;
             margin: 0;
             padding: 0;
+            color: var(--color-text);
 
-            &::before:extend(.border-paper) {
-                border-image-repeat: repeat;
-                background: var(--splittermond-background-parchment);
-                //content: unset;
-                //display: none;
-                margin: -3px;
+            a {
+                color: var(--color-text-light-highlight, #c9d1d9);
             }
 
             .list-body {

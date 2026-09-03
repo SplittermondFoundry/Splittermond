@@ -14,15 +14,19 @@ import { asMock } from "../../settingsMock";
 import { settings } from "module/settings";
 import { JSDOM } from "jsdom";
 import { StrengthDataModel } from "module/item/dataModel/StrengthDataModel";
-import Modifier from "module/modifiers/impl/modifier";
-import { of } from "module/modifiers/expressions/scalar";
+import { Modifier } from "module/activeEffect";
+import { evaluate, of } from "module/modifiers/expressions/scalar";
+import { evaluate as evaluateCost } from "module/modifiers/expressions/cost";
 import { actualAddModifierFunction } from "module/actor/addModifierAdapter";
 import { initializeModifiers } from "module/modifiers";
 import { createTestRoll, stubFoundryRoll } from "../../RollMock";
 import type { User } from "module/api/foundryTypes";
 import { createHtml } from "../../../handlebarHarness";
 import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
-
+import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
+import { initAddModifier } from "module/modifiers/modifierAddition";
+import { Chat } from "module/util/chat";
+import { Dice } from "module/check/dice";
 declare const global: any;
 
 describe("SplittermondActor", () => {
@@ -170,6 +174,74 @@ describe("SplittermondActor", () => {
         });
     });
 
+    describe("useSplinterpointBonus (deprecated)", () => {
+        it("should preserve the original degreeOfSuccess.modification when re-evaluating", async () => {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            asCharacter(actor).updateSource({ splinterpoints: { value: 1, max: 3 } });
+
+            const originalModification = 2;
+            const message = {
+                flags: {
+                    splittermond: {
+                        check: {
+                            type: "defense",
+                            defenseType: "defense",
+                            baseDefense: 12,
+                            skill: "melee",
+                            skillPoints: 5,
+                            skillAttributes: {},
+                            difficulty: 15,
+                            rollType: "standard",
+                            modifierElements: [],
+                            succeeded: false,
+                            isFumble: false,
+                            isCrit: false,
+                            degreeOfSuccess: {
+                                fromRoll: 0,
+                                modification: originalModification,
+                                limitedTo: 999,
+                            },
+                            availableSplinterpoints: 1,
+                            itemData: {
+                                id: "melee",
+                                name: "Melee",
+                                img: "",
+                                itemType: "weapon",
+                                itemFeatures: { internalFeatureList: [] },
+                            },
+                        },
+                    },
+                },
+                rolls: [{ _total: 15 }],
+                messageMode: "roll",
+                update: sandbox.stub().resolves(),
+            };
+
+            sandbox.stub(Dice, "evaluateCheck").resolves({
+                difficulty: 15,
+                succeeded: true,
+                isFumble: false,
+                isCrit: false,
+                degreeOfSuccess: { fromRoll: 1, modification: 0, limitedTo: 999 },
+                degreeOfSuccessMessage: "splittermond.successMessage.1",
+                roll: { total: 17, dice: [{ total: 17 }] },
+            });
+
+            const prepareStub = sandbox.stub(Chat, "prepareCheckMessageData").resolves({
+                content: "rendered",
+                flags: { splittermond: { check: {} } },
+            });
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(prepareStub.calledOnce).to.be.true;
+            const passedCheckData = prepareStub.firstCall.args[3] as {
+                degreeOfSuccess: { modification: number; fromRoll: number; limitedTo: number };
+            };
+            expect(passedCheckData.degreeOfSuccess.modification).to.equal(originalModification);
+        });
+    });
+
     describe("Modifiers", () => {
         enableModifiers();
         it("should add a modifier to the actor", () => {
@@ -181,6 +253,50 @@ describe("SplittermondActor", () => {
             actor.addModifier(item, "bonuscap +2", "innate");
             const modifiers = actor.modifier.getForId("bonuscap").getModifiers();
             expect(modifiers).to.not.be.empty;
+        });
+
+        it("should apply the multiplier to scalar modifiers at the addModifier call site (legacy path)", async () => {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            sandbox.stub(foundryApi, "format").callsFake((key) => key);
+            sandbox.stub(foundryApi, "reportError").callsFake(() => {});
+            const item = sandbox.createStubInstance(SplittermondItem);
+            actor.prepareBaseData();
+            actor.addModifier(item, "bonuscap +3", "innate", 2);
+            const modifiers = actor.modifier.getForId("bonuscap").getModifiers();
+            expect(modifiers).to.have.length(1);
+            expect(await evaluate(modifiers[0].value)).to.equal(6);
+        });
+
+        it("should apply the multiplier to cost modifiers at the addModifier call site (legacy path)", async () => {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            sandbox.stub(foundryApi, "format").callsFake((key) => key);
+            sandbox.stub(foundryApi, "reportError").callsFake(() => {});
+            const modifiers = initializeModifiers();
+            registerActorModifiers(modifiers.modifierRegistry);
+            modifiers.costModifierRegistry.addHandler(CostModifierHandler.config.topLevelPath, CostModifierHandler);
+            const previousSelf = actualAddModifierFunction.self;
+            actualAddModifierFunction.self = initAddModifier(
+                modifiers.modifierRegistry,
+                modifiers.costModifierRegistry
+            );
+            try {
+                const item = sandbox.createStubInstance(SplittermondItem);
+                actor.prepareBaseData();
+                const addCostModifierSpy = sandbox.spy(
+                    (actor.system as unknown as { spellCostReduction: { addCostModifier: (m: unknown) => void } })
+                        .spellCostReduction,
+                    "addCostModifier"
+                );
+                actor.addModifier(item, "focus.reduction 3", "innate", 2);
+                expect(addCostModifierSpy.calledOnce).to.be.true;
+                const stored = addCostModifierSpy.firstCall.args[0] as {
+                    value: import("module/modifiers/expressions/cost").CostExpression;
+                };
+                const evaluated = await evaluateCost(stored.value);
+                expect(evaluated._exhausted).to.equal(6);
+            } finally {
+                actualAddModifierFunction.self = previousSelf;
+            }
         });
     });
 
@@ -266,15 +382,10 @@ describe("SplittermondActor", () => {
                 actor.system.attributes.constitution.updateSource({ initial: 3, advances: 0 });
                 actor.prepareBaseData();
                 actor.modifier.addModifier(
-                    new Modifier(
-                        "actor.healthregeneration.multiplier",
-                        of(multiplier),
-                        {
-                            name: "Test",
-                            type: "innate",
-                        },
-                        null
-                    )
+                    Modifier.create("actor.healthregeneration.multiplier", of(multiplier), {
+                        name: "Test",
+                        type: "innate",
+                    })
                 );
 
                 await actor.longRest();
@@ -289,15 +400,10 @@ describe("SplittermondActor", () => {
             actor.system.attributes.constitution.updateSource({ initial: 3, advances: 0 });
             actor.prepareBaseData();
             actor.modifier.addModifier(
-                new Modifier(
-                    "actor.healthregeneration.bonus",
-                    of(2),
-                    {
-                        name: "Test",
-                        type: "innate",
-                    },
-                    null
-                )
+                Modifier.create("actor.healthregeneration.bonus", of(2), {
+                    name: "Test",
+                    type: "innate",
+                })
             );
 
             await actor.longRest();
@@ -311,15 +417,10 @@ describe("SplittermondActor", () => {
             actor.system.attributes.willpower.updateSource({ initial: 3, advances: 0 });
             actor.prepareBaseData();
             actor.modifier.addModifier(
-                new Modifier(
-                    "actor.focusregeneration.multiplier",
-                    of(3),
-                    {
-                        name: "Test",
-                        type: "innate",
-                    },
-                    null
-                )
+                Modifier.create("actor.focusregeneration.multiplier", of(3), {
+                    name: "Test",
+                    type: "innate",
+                })
             );
 
             await actor.longRest();
@@ -333,15 +434,10 @@ describe("SplittermondActor", () => {
             actor.system.attributes.constitution.updateSource({ initial: 3, advances: 0 });
             actor.prepareBaseData();
             actor.modifier.addModifier(
-                new Modifier(
-                    "actor.focusregeneration.bonus",
-                    of(2),
-                    {
-                        name: "Test",
-                        type: "innate",
-                    },
-                    null
-                )
+                Modifier.create("actor.focusregeneration.bonus", of(2), {
+                    name: "Test",
+                    type: "innate",
+                })
             );
 
             await actor.longRest();
