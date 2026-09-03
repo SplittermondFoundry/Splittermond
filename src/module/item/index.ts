@@ -32,7 +32,7 @@ import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { registerSheets } from "module/item/sheets/registration";
 import type { IAddModifier } from "module/actor/addModifierAdapter";
 import { setAddModifier } from "module/item/item";
-import { promptAndRunItemMigration, runItemMigration } from "module/item/migrations/itemMigration";
+import { runItemMigration } from "module/item/migrations/itemMigration";
 import {
     promptAndRunModifierToEffectMigration,
     runModifierToEffectMigration,
