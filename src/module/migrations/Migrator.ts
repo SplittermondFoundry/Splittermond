@@ -3,7 +3,7 @@ import { FoundryDialog } from "module/api/Application";
 import { isFirstActiveGM } from "module/util/foundryUserUtils";
 import { settings } from "module/settings";
 import { MigrationReporter } from "module/migrations/MigrationReporter";
-import {pipe} from "module/util/util";
+import { pipe } from "module/util/util";
 
 type MigrationSetting = Awaited<ReturnType<typeof settings.registerBoolean>>;
 
@@ -32,7 +32,7 @@ export class MigrationBuilder<T extends FoundryDocument> {
     private compendiumSource: CompendiumSource = () => foundryApi.collections.packs;
     private migrationProcess: MigrationProcess<T> | null = null;
     private i18nPrefix: string | null = null;
-    private filterSet:boolean = false;
+    private filterSet: boolean = false;
 
     readonly migrationDoneFlag: MigrationSetting = {
         get: () => this.resolvedSetting?.get() ?? false,
@@ -60,7 +60,7 @@ export class MigrationBuilder<T extends FoundryDocument> {
 
     withCompendiumFilter(compendiumFilter: CompendiumFilter): this {
         const previousSource = this.compendiumSource;
-        this.compendiumSource = pipe(previousSource, (source)=>filter(source,compendiumFilter))
+        this.compendiumSource = pipe(previousSource, (source) => filter(source, compendiumFilter));
         this.filterSet = true;
         return this;
     }
@@ -80,7 +80,7 @@ export class MigrationBuilder<T extends FoundryDocument> {
     }
 
     build(): Migrator<T> {
-        if (!this.worldCollection || !this.filterSet|| !this.migrationProcess || !this.i18nPrefix) {
+        if (!this.worldCollection || !this.filterSet || !this.migrationProcess || !this.i18nPrefix) {
             throw new Error(`Splittermond | Migration "${this.name}" is not fully configured.`);
         }
         return new Migrator(
@@ -204,9 +204,9 @@ function isSystemPack(pack: { metadata?: { packageType?: string } | null }): boo
     return pack.metadata?.packageType === "system";
 }
 
-function* filter<T>(source: Iterable<T>, predicate:(x:T)=>boolean) {
-    for(const item of source){
-        if (predicate(item)){
+function* filter<T>(source: Iterable<T>, predicate: (x: T) => boolean) {
+    for (const item of source) {
+        if (predicate(item)) {
             yield item;
         }
     }
