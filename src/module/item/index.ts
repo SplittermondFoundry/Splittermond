@@ -162,7 +162,6 @@ export function initializeItem(config: typeof CONFIG, modifierRegistry: ScalarRe
 export function initializeItemMigrations(migrationsRegistry: Record<string, (...x: any[]) => Promise<unknown>>): void {
     readyHook.once(() => {
         void (async () => {
-            await promptAndRunItemMigration();
             await promptAndRunModifierToEffectMigration();
         })();
         return true;
