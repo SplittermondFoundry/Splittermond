@@ -39,7 +39,7 @@ export async function modifyEvaluation(
 function limitUnfamiliarSkillSuccessForPlayers(checkReport: ModifyEvaluationInput, actor: SplittermondActor) {
     const newReport = { ...checkReport, degreeOfSuccess: { ...checkReport.degreeOfSuccess } };
     if (actor.type === "character") {
-        const actorSkillPoints = actor.skills[newReport.skill].points;
+        const actorSkillPoints = actor.system.skills[newReport.skill].points;
         if (actorSkillPoints < 1) {
             newReport.degreeOfSuccess.fromRoll = Math.min(newReport.degreeOfSuccess.fromRoll, 0);
             newReport.degreeOfSuccess.limitedTo = 0;

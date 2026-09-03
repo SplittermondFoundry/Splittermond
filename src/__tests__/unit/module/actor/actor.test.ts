@@ -25,6 +25,8 @@ import { createHtml } from "../../../handlebarHarness";
 import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
 import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
 import { initAddModifier } from "module/modifiers/modifierAddition";
+import { Chat } from "module/util/chat";
+import { Dice } from "module/check/dice";
 declare const global: any;
 
 describe("SplittermondActor", () => {
@@ -169,6 +171,74 @@ describe("SplittermondActor", () => {
             const result = actor.spendSplinterpoint();
             expect(result.pointSpent).to.be.false;
             expect(asCharacter(actor).splinterpoints.value).to.equal(0);
+        });
+    });
+
+    describe("useSplinterpointBonus (deprecated)", () => {
+        it("should preserve the original degreeOfSuccess.modification when re-evaluating", async () => {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            asCharacter(actor).updateSource({ splinterpoints: { value: 1, max: 3 } });
+
+            const originalModification = 2;
+            const message = {
+                flags: {
+                    splittermond: {
+                        check: {
+                            type: "defense",
+                            defenseType: "defense",
+                            baseDefense: 12,
+                            skill: "melee",
+                            skillPoints: 5,
+                            skillAttributes: {},
+                            difficulty: 15,
+                            rollType: "standard",
+                            modifierElements: [],
+                            succeeded: false,
+                            isFumble: false,
+                            isCrit: false,
+                            degreeOfSuccess: {
+                                fromRoll: 0,
+                                modification: originalModification,
+                                limitedTo: 999,
+                            },
+                            availableSplinterpoints: 1,
+                            itemData: {
+                                id: "melee",
+                                name: "Melee",
+                                img: "",
+                                itemType: "weapon",
+                                itemFeatures: { internalFeatureList: [] },
+                            },
+                        },
+                    },
+                },
+                rolls: [{ _total: 15 }],
+                messageMode: "roll",
+                update: sandbox.stub().resolves(),
+            };
+
+            sandbox.stub(Dice, "evaluateCheck").resolves({
+                difficulty: 15,
+                succeeded: true,
+                isFumble: false,
+                isCrit: false,
+                degreeOfSuccess: { fromRoll: 1, modification: 0, limitedTo: 999 },
+                degreeOfSuccessMessage: "splittermond.successMessage.1",
+                roll: { total: 17, dice: [{ total: 17 }] },
+            });
+
+            const prepareStub = sandbox.stub(Chat, "prepareCheckMessageData").resolves({
+                content: "rendered",
+                flags: { splittermond: { check: {} } },
+            });
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(prepareStub.calledOnce).to.be.true;
+            const passedCheckData = prepareStub.firstCall.args[3] as {
+                degreeOfSuccess: { modification: number; fromRoll: number; limitedTo: number };
+            };
+            expect(passedCheckData.degreeOfSuccess.modification).to.equal(originalModification);
         });
     });
 

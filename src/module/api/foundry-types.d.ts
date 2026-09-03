@@ -523,6 +523,9 @@ declare namespace foundry {
                 name: string;
                 getIndex<T extends string>(options?: { fields?: T[] }): Promise<Collection<Record<T, unknown>>>;
                 get visible(): boolean;
+                get locked(): boolean;
+                get title(): string;
+                getDocuments(): Promise<FoundryDocument[]>;
             }
         }
     }

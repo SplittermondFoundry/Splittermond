@@ -205,6 +205,16 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             ).to.have.property("getIndex");
             expect(game.packs.find(() => true).getIndex).to.be.a("function");
         });
+
+        it("should expose locked and title accessors and a getDocuments method on every pack", () => {
+            foundryApi.collections.packs.forEach((pack) => {
+                expect(pack.locked, `Pack ${pack.name} does not have a 'locked' accessor`).to.be.a("boolean");
+                expect(pack.title, `Pack ${pack.name} does not have a 'title' accessor`).to.be.a("string");
+                expect(pack.getDocuments, `Pack ${pack.name} does not have a 'getDocuments' method`).to.be.a(
+                    "function"
+                );
+            });
+        });
     });
 
     describe("ActiveEffect", () => {

@@ -7,6 +7,8 @@ import ModifierManager from "module/actor/modifiers/modifier-manager";
 import type { GenericRollEvaluation } from "module/check/types";
 import type { CheckType } from "module/check/CheckModifierHandler";
 import type { SplittermondSkill } from "module/config/skillGroups";
+import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
+import { NpcDataModel } from "module/actor/dataModel/NpcDataModel";
 
 type ModifyEvaluationInput = GenericRollEvaluation & {
     skill: SplittermondSkill;
@@ -37,11 +39,13 @@ function setUpActor(sandbox: SinonSandbox, type: "character" | "npc", skillPoint
         enumerable: true,
         writable: false,
     });
-    Object.defineProperty(actor, "skills", {
-        value: { acrobatics: { points: skillPoints } },
-        enumerable: true,
-        writable: false,
-    });
+    const systemStub =
+        type === "character"
+            ? sandbox.createStubInstance(CharacterDataModel)
+            : sandbox.createStubInstance(NpcDataModel);
+    systemStub.updateSource.callThrough();
+    systemStub.updateSource({ skills: { acrobatics: { points: skillPoints, value: 0 } } });
+    actor.system = systemStub;
     return actor;
 }
 

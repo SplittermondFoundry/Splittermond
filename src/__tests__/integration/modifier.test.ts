@@ -50,7 +50,7 @@ export function modifierTest(context: QuenchBatchContext) {
 
     afterEach(async () => await Actor.deleteDocuments(actors.map((a) => a.id)));
 
-    async function waitForItemEffects(items: FoundryDocument[], timeout = 1500) {
+    async function waitForItemEffects(items: readonly FoundryDocument[], timeout = 1500) {
         for (const item of items) {
             await passesEventually(
                 () => {

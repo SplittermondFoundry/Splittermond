@@ -60,7 +60,7 @@
             "attackMessage": {
                 "selectConsumeCost": "Betäubungsschaden nehmen",
                 "numbingDamage": "Betäubungsschlag",
-                "interruptingAttack": "auf Stören einer kontinu-ierlichen Aktion",
+                "interruptingAttack": "auf Stören einer kontinu\u00ADierlichen Aktion",
                 "increaseDamage": "Wuchtschlag",
                 "consumeCost": "Eigenschaden"
             }
@@ -799,6 +799,36 @@
             "page": "Seite",
             "notinstalled": "Um PDF links zu verwenden muss PDFoundry installiert sein!",
             "notfound": "Kein PDF mit dem angegebenen Code gefunden."
+        },
+        "migration": {
+            "itemMigration": {
+                "dialog": {
+                    "title": "Splittermond: Datenmigration",
+                    "content": "<p>Diese Migration führt alle ausstehenden Datenmigrationen für Items durch — sowohl für alle Welt-Items als auch für alle Items in Kompendien von Drittanbietern.</p><p><strong>Wichtig:</strong> Bitte stellen Sie sicher, dass alle zu migrierenden Kompendien auf <em>beschreibbar</em> (entsperrt) gesetzt sind. Gesperrte Kompendien werden übersprungen und nach Abschluss aufgelistet.</p><p>System-Kompendien (die mit dem Splittermond-System ausgeliefert werden) werden von dieser Migration nicht betroffen.</p><p>Die Migration ist idempotent — sie kann ohne Risiko erneut ausgeführt werden.</p>",
+                    "confirm": "Starten",
+                    "cancel": "Abbrechen"
+                },
+                "result": "Migration abgeschlossen: {worldItems} Welt-Items, {packs} Kompendien migriert, {skipped} Kompendien übersprungen (schreibgeschützt).",
+                "skippedListPrefix": "Übersprungene Kompendien: ",
+                "skippedList": "Übersprungene Kompendien: {packs}",
+                "start": "Starte Migration von {total} Dokumenten...",
+                "progress": "Migration {percent}% abgeschlossen ({current}/{total})",
+                "done": "Migration beendet ({total} Dokumente verarbeitet)."
+            },
+            "modifierToEffectMigration": {
+                "dialog": {
+                    "title": "Splittermond: Modifikator-Migration",
+                    "content": "<p>Diese Migration überführt die <code>system.modifier</code>-Zeichenkette jedes Items in persistente Aktive Effekte vom Typ <em>modifier</em> — ein Effekt pro Modifikator-Fragment. Das Feld <code>system.modifier</code> wird anschließend geleert, sodass die Modifikatoren als dauerhafte Effekte fortbestehen, statt bei jeder Aktualisierung neu erzeugt zu werden.</p><p><strong>Wichtig:</strong> Bitte stellen Sie sicher, dass alle zu migrierenden Kompendien auf <em>beschreibbar</em> (entsperrt) gesetzt sind. Gesperrte Kompendien werden übersprungen und nach Abschluss aufgelistet.</p><p>System-Kompendien (die mit dem Splittermond-System ausgeliefert werden) werden von dieser Migration nicht betroffen.</p><p>Die Migration ist idempotent — sie kann ohne Risiko erneut ausgeführt werden.</p>",
+                    "confirm": "Starten",
+                    "cancel": "Abbrechen"
+                },
+                "result": "Modifikator-Migration abgeschlossen: {worldItems} Welt-Items, {packs} Kompendien migriert, {skipped} Kompendien übersprungen (schreibgeschützt).",
+                "skippedListPrefix": "Übersprungene Kompendien: ",
+                "skippedList": "Übersprungene Kompendien: {packs}",
+                "start": "Starte Modifikator-Migration von {total} Dokumenten...",
+                "progress": "Modifikator-Migration {percent}% abgeschlossen ({current}/{total})",
+                "done": "Modifikator-Migration beendet ({total} Dokumente verarbeitet)."
+            }
         },
         "settings": {
             "reducibleEnhancementCosts": {

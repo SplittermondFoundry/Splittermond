@@ -15,7 +15,7 @@ import { initTokenActionBar } from "./module/apps/token-action-bar/token-action-
 
 import "./less/splittermond.less";
 import { initTheme } from "./module/theme";
-import { initializeItem, initializeItemMigrations, runItemMigration } from "./module/item";
+import { initializeItem, initializeItemMigrations } from "./module/item";
 import { DamageInitializer } from "./module/util/chat/damageChatMessage/initDamage";
 import { CostBase } from "./module/util/costs/costTypes";
 import { DamageRoll } from "./module/util/damage/DamageRoll.js";
@@ -25,13 +25,13 @@ import { initializeActor } from "module/actor/index.js";
 import { initializeModifiers } from "module/modifiers/index.js";
 import { initializeCosts } from "module/util/costs/index.js";
 import { addTicks } from "module/combat/addTicks.js";
-import { initializeCombat, setTurnMarker } from "module/combat/index.js";
+import { initializeCombat } from "module/combat/index.js";
 import { closestData } from "module/data/ClosestDataMixin.js";
 import { TEMPLATE_BASE_PATH } from "module/data/SplittermondApplication";
 import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel";
 import { getTimeUnitConversion } from "module/util/util.js";
 import { initializeChecks } from "module/check/index.js";
-import { initializeHooks, registerHook } from "module/hooks/index.ts";
+import { initHook, initializeHooks, readyHook } from "module/hooks/index.ts";
 import { initializeActiveEffects } from "module/activeEffect/index.ts";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
@@ -69,7 +69,6 @@ function handlePdf(links) {
 }
 
 Hooks.once("ready", async function () {
-    const readyHook = registerHook("splittermond.ready");
     return Promise.all([initTickBarHud(game.splittermond), initTokenActionBar(game.splittermond)]).then(() => {
         console.log("Splittermond | Ready");
         readyHook.call();
@@ -84,6 +83,7 @@ Hooks.once("init", async function () {
             "    |"
     );
     console.log("Splittermond | Initialising Splittermond System ...");
+    initHook.call();
     if (CONFIG.compatibility) {
         CONFIG.compatibility.excludePatterns.push(new RegExp("systems/splittermond/"));
         CONFIG.compatibility.excludePatterns.push(new RegExp("Splittermond"));
@@ -96,13 +96,14 @@ Hooks.once("init", async function () {
             costModifierRegistry: modifierModule.costModifierRegistry,
         },
         hooks: {},
+        migrations: {},
         addTicks,
     };
     initializeHooks(game.splittermond.API.hooks);
     initializeActor(CONFIG.Actor, modifierModule);
     initializeActiveEffects(CONFIG);
     initializeItem(CONFIG, modifierModule.modifierRegistry, modifierModule.addModifier);
-    initializeItemMigrations();
+    initializeItemMigrations(game.splittermond.API.migrations);
     initializeCosts(modifierModule.costModifierRegistry);
     initializeChecks(modifierModule.modifierRegistry);
     chatActionFeature(CONFIG.ChatMessage);
@@ -225,7 +226,7 @@ Hooks.on("hotbarDrop", async (bar, data, slot) => {
             macroData.command = `game.splittermond.itemCheck("${data.data.type}","${data.data.name}","${actorId}","${data.data._id}")`;
         }
     }
-    if (macroData.command != "" && macroData.name != "") {
+    if (macroData.command !== "" && macroData.name !== "") {
         let macro = await Macro.create(macroData, { displaySheet: false });
 
         game.user.assignHotbarMacro(macro, slot);
@@ -359,9 +360,9 @@ Hooks.on("init", function () {
  *
  * @param {object} app
  * @param {HTMLElement} html
- * @param {Record<string,string>} data
+ * @param {Record<string,string>} _
  */
-function commonEventHandlerHTMLEdition(app, html, data) {
+function commonEventHandlerHTMLEdition(app, html, _) {
     html.querySelectorAll(".rollable").forEach((el) => {
         el.addEventListener("click", (event) => {
             const element = event.target;

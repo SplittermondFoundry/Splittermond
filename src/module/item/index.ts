@@ -32,6 +32,12 @@ import { ItemModifierHandler } from "module/item/ItemModifierHandler";
 import { registerSheets } from "module/item/sheets/registration";
 import type { IAddModifier } from "module/actor/addModifierAdapter";
 import { setAddModifier } from "module/item/item";
+import { promptAndRunItemMigration, runItemMigration } from "module/item/migrations/itemMigration";
+import {
+    promptAndRunModifierToEffectMigration,
+    runModifierToEffectMigration,
+} from "module/item/migrations/modifierToEffectMigration";
+import { readyHook } from "module/hooks";
 
 type SplittermondItemDataModel =
     | AncestryDataModel
@@ -151,4 +157,16 @@ export function initializeItem(config: typeof CONFIG, modifierRegistry: ScalarRe
 
     modifierRegistry.addHandler(ItemModifierHandler.config.topLevelPath, ItemModifierHandler);
     registerSheets();
+}
+
+export function initializeItemMigrations(migrationsRegistry: Record<string, (...x: any[]) => Promise<unknown>>): void {
+    readyHook.once(() => {
+        void (async () => {
+            await promptAndRunItemMigration();
+            await promptAndRunModifierToEffectMigration();
+        })();
+        return true;
+    });
+    migrationsRegistry.runItemMigration = runItemMigration;
+    migrationsRegistry.runModifierToEffectMigration = runModifierToEffectMigration;
 }
