@@ -128,7 +128,6 @@ Hooks.once("init", async function () {
     game.splittermond.attackFumble = Macros.attackFumble;
     game.splittermond.addFreeXP = Macros.addFreeXP;
     game.splittermond.compendiumBrowser = new SplittermondCompendiumBrowser();
-    game.splittermond.runItemMigration = runItemMigration;
     foundry.dice.terms.Die.MODIFIERS.ri = Dice.riskModifier;
 
     Handlebars.registerHelper("modifierFormat", (data) => (parseInt(data) > 0 ? "+" + parseInt(data) : data));
