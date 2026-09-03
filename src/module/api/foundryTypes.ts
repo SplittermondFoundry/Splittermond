@@ -100,7 +100,7 @@ export interface SettingsConfig<T extends SettingTypes> {
 declare global {
     type Collection<T> = ReadonlyMap<string, T> &
         Omit<ReadonlyArray<T>, "length" | "push" | "pop" | "shift" | "unshift" | "splice" | "sort" | "reverse"> & {
-            get contents(): T[];
+            get contents(): ReadonlyArray<T>;
         };
 
     /**

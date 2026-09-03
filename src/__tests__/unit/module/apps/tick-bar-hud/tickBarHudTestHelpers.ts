@@ -1,8 +1,8 @@
 import type { SinonSandbox, SinonStub, SinonStubbedInstance } from "sinon";
-import SplittermondCombat from "../../../../../module/combat/combat";
-import type { FoundryCombatant } from "../../../../../module/api/foundryTypes";
-import SplittermondActor from "../../../../../module/actor/actor";
-import SplittermondActorSheet from "../../../../../module/actor/sheets/actor-sheet";
+import SplittermondCombat from "module/combat/combat";
+import type { FoundryCombatant } from "module/api/foundryTypes";
+import SplittermondActor from "module/actor/actor";
+import SplittermondActorSheet from "module/actor/sheets/actor-sheet";
 
 const nextId = (function* () {
     let id = 1;
@@ -73,7 +73,7 @@ export function addNewCombatant(
         (combat.combatants as unknown as Array<FoundryCombatant>).push(combatant as FoundryCombatant);
     }
     if (combat.combatants && combat.combatants.contents) {
-        combat.combatants.contents.push(combatant as FoundryCombatant);
+        (combat.combatants.contents as FoundryCombatant[]).push(combatant as FoundryCombatant);
     }
 
     return combatant as unknown as Omit<FoundryCombatant, "token"> & {
