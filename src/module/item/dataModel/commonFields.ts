@@ -1,10 +1,10 @@
-import { fieldExtensions, fields } from "../../data/SplittermondDataModel";
-import { DamageType } from "../../config/damageTypes";
-import { splittermond } from "../../config";
-import { CostType, costTypes } from "../../util/costs/costTypes";
-import { DamageModel } from "./propertyModels/DamageModel";
-import type { SplittermondAttribute } from "module/config/attributes";
-import { isMember } from "module/util/util";
+import {fieldExtensions, fields} from "../../data/SplittermondDataModel";
+import {DamageType} from "../../config/damageTypes";
+import {splittermond} from "../../config";
+import {CostType, costTypes} from "../../util/costs/costTypes";
+import {DamageModel} from "./propertyModels/DamageModel";
+import type {SplittermondAttribute} from "module/config/attributes";
+import {isMember} from "module/util/util";
 
 export function getPhysicalProperties() {
     return {
@@ -61,12 +61,12 @@ export function damage() {
     };
 }
 
-export function validatedBoolean() {
+export function validatedBoolean(initial:boolean=false) {
     // noinspection PointlessBooleanExpressionJS
     return new fields.BooleanField({
         required: true,
         nullable: false,
-        initial: false,
+        initial,
         //Not pointless, I literally want to check that we only get literal 'true' of 'false' here, no other truthy of falsy value
         validate: (x) => x === true || x === false,
     });
