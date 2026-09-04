@@ -74,6 +74,63 @@ settings
     .then((accessor) => (getHeroLevelMultiplier = accessor.get))
     .catch((e) => console.error("Splittermond | Failed to register setting for hero level multipliers", e));
 
+/**
+ * A channeled-costs entry of a health/focus resource track, as defined by the
+ * `channeled.entries` schema of HealthDataModel and FocusDataModel
+ * (`./dataModel/`).
+ * @typedef {Object} ChanneledEntry
+ * @property {string} description
+ * @property {number} costs
+ */
+
+/**
+ * A health or focus resource track. The `consumed`, `exhausted` and
+ * `channeled` fields are schema-backed (see HealthDataModel and FocusDataModel
+ * in `./dataModel/`); `available`, `total`, `max` and the `percentage` fields
+ * are the ephemeral values added by `SplittermondActor#_prepareHealthFocus`.
+ * @typedef {Object} ResourceTrack
+ * @property {{value: number|string}} consumed
+ * @property {{value: number|string}} exhausted
+ * @property {{value: number, entries: ChanneledEntry[]}} channeled
+ * @property {{value: number, percentage: number}} available
+ * @property {{value: number, percentage: number}} total
+ * @property {number|string} max
+ */
+
+/**
+ * Clamps a health/focus point value into the [0, statPoints] range.
+ * @param {number} value
+ * @param {number} statPoints
+ * @returns {number}
+ */
+function limitToStatPoints(value, statPoints) {
+    return Math.max(Math.min(value, statPoints), 0);
+}
+
+/**
+ * Sums the costs of the channeled entries of a health/focus resource track.
+ * @param {ChanneledEntry[]} entries
+ * @returns {number}
+ */
+function sumChanneledCosts(entries) {
+    return entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0);
+}
+
+/**
+ * Normalizes a `consumed`/`exhausted` counter of a health/focus resource
+ * track: a falsy value yields a fresh `{value: 0}` object, otherwise `value`
+ * is overwritten with its parsed integer, preserving the counter object.
+ * @param {{value: number|string}} counter
+ * @returns {{value: number}}
+ */
+function normalizePointCounter(counter) {
+    if (!counter.value) {
+        return { value: 0 };
+    }
+    counter.value = parseInt(counter.value);
+    return counter;
+}
+
 export default class SplittermondActor extends Actor {
     actorData() {
         return this.system;
@@ -344,142 +401,123 @@ export default class SplittermondActor extends Actor {
         return this.modifier.getForId("actor.woundmalus.mod").getModifiers().asProperty().summed();
     }
 
+    /**
+     * Prepares the health and focus resource tracks on `system.health` and
+     * `system.focus` (shaped by HealthDataModel / FocusDataModel in
+     * `./dataModel/` plus the ephemeral `available`, `total`, `max` and
+     * `percentage` values), the wound malus level and value, and the
+     * `healthBar`/`focusBar` token bar data. The healthpoints and focuspoints
+     * derived values are evaluated exactly once each; neither of them can
+     * reference the wound malus modifiers registered by `_prepareWoundMalus`
+     * afterwards, so caching them up front is equivalent.
+     *
+     * @returns {void}
+     */
     _prepareHealthFocus() {
         const data = this.system;
         const healthNbrLevels = this.healthNbrLevels;
+        const healthpointsPerLevel = this.derivedValues.healthpoints.value.calculateSync();
+        const focuspoints = this.derivedValues.focuspoints.value.calculateSync();
+        const healthStatPoints = healthpointsPerLevel * healthNbrLevels;
+        const statPointsByType = { health: healthStatPoints, focus: focuspoints };
 
-        data.health.woundMalus.levels = foundryApi.utils.duplicate(splittermond.woundMalus[healthNbrLevels]);
-        data.health.woundMalus.levels = data.health.woundMalus.levels.map((i) => {
-            i.value = Math.min(i.value - this.woundMalusMod.calculateSync(), 0);
-            return i;
-        });
+        const woundMalusMod = this.woundMalusMod.calculateSync();
+        data.health.woundMalus.levels = foundryApi.utils
+            .duplicate(splittermond.woundMalus[healthNbrLevels])
+            .map((level) => {
+                level.value = Math.min(level.value - woundMalusMod, 0);
+                return level;
+            });
 
-        ["health", "focus"].forEach((type) => {
-            if (data[type].channeled.hasOwnProperty("entries")) {
-                if (type === "health") {
-                    data[type].channeled.value = Math.max(
-                        Math.min(
-                            data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    );
-                } else {
-                    data[type].channeled.value = Math.max(
-                        Math.min(
-                            data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    );
-                }
-            } else {
-                data[type].channeled = {
-                    value: 0,
-                    entries: [],
-                };
-            }
+        ["health", "focus"].forEach((type) => this._prepareResourceTrack(type, statPointsByType[type]));
 
-            if (!data[type].exhausted.value) {
-                data[type].exhausted = {
-                    value: 0,
-                };
-            }
+        this._prepareWoundMalus(healthpointsPerLevel, healthNbrLevels);
 
-            data[type].exhausted.value = parseInt(data[type].exhausted.value);
+        data.healthBar = {
+            value: data.health.total.value,
+            max: healthStatPoints,
+        };
 
-            if (!data[type].consumed.value) {
-                data[type].consumed = {
-                    value: 0,
-                };
-            }
+        data.focusBar = {
+            value: data.focus.available.value,
+            max: focuspoints,
+        };
+    }
 
-            data[type].consumed.value = parseInt(data[type].consumed.value);
-            if (type === "health") {
-                data[type].available = {
-                    value: Math.max(
-                        Math.min(
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync() -
-                                data[type].channeled.value -
-                                data[type].exhausted.value -
-                                data[type].consumed.value,
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    ),
-                };
+    /**
+     * Prepares a single health/focus resource track: normalizes the
+     * `channeled`, `exhausted` and `consumed` counters and derives the
+     * `available`, `total`, `percentage` and `max` values. For health,
+     * `statPoints` is the total across all wound malus levels; for focus it is
+     * the focuspoint pool. A focus track without stat points gets zeroed
+     * percentages and `max`.
+     *
+     * @param {"health"|"focus"} type
+     * @param {number} statPoints
+     * @returns {void}
+     */
+    _prepareResourceTrack(type, statPoints) {
+        /**@type ResourceTrack*/
+        const resource = this.system[type];
 
-                data[type].total = {
-                    value: Math.max(
-                        Math.min(
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync() -
-                                data[type].consumed.value,
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    ),
-                };
+        if (resource.channeled.hasOwnProperty("entries")) {
+            resource.channeled.value = limitToStatPoints(sumChanneledCosts(resource.channeled.entries), statPoints);
+        } else {
+            resource.channeled = {
+                value: 0,
+                entries: [],
+            };
+        }
 
-                data[type].available.percentage =
-                    (100 * data[type].available.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
-                data[type].exhausted.percentage =
-                    (100 * data[type].exhausted.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
-                data[type].channeled.percentage =
-                    (100 * data[type].channeled.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
-                data[type].total.percentage =
-                    (100 * data[type].total.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
-                data[type].max = healthNbrLevels * this.derivedValues.healthpoints.value.calculateSync();
-            } else {
-                data[type].available = {
-                    value: Math.max(
-                        Math.min(
-                            this.derivedValues[type + "points"].value.calculateSync() -
-                                data[type].channeled.value -
-                                data[type].exhausted.value -
-                                data[type].consumed.value,
-                            this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    ),
-                };
+        resource.exhausted = normalizePointCounter(resource.exhausted);
+        resource.consumed = normalizePointCounter(resource.consumed);
 
-                data[type].total = {
-                    value: Math.max(
-                        Math.min(
-                            this.derivedValues[type + "points"].value.calculateSync() - data[type].consumed.value,
-                            this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    ),
-                };
-                if (this.derivedValues[type + "points"].value.calculateSync()) {
-                    data[type].available.percentage =
-                        (100 * data[type].available.value) / this.derivedValues[type + "points"].value.calculateSync();
-                    data[type].exhausted.percentage =
-                        (100 * data[type].exhausted.value) / this.derivedValues[type + "points"].value.calculateSync();
-                    data[type].channeled.percentage =
-                        (100 * data[type].channeled.value) / this.derivedValues[type + "points"].value.calculateSync();
-                    data[type].total.percentage =
-                        (100 * data[type].total.value) / this.derivedValues[type + "points"].value.calculateSync();
-                    data[type].max = this.derivedValues.focuspoints.value.display;
-                } else {
-                    data[type].available.percentage = 0;
-                    data[type].exhausted.percentage = 0;
-                    data[type].channeled.percentage = 0;
-                    data[type].total.percentage = 0;
-                    data[type].max = 0;
-                }
-            }
-        });
-        const currentLevel = Math.floor(
-            data.health.total.value / this.derivedValues.healthpoints.value.calculateSync()
-        );
+        resource.available = {
+            value: limitToStatPoints(
+                statPoints - resource.channeled.value - resource.exhausted.value - resource.consumed.value,
+                statPoints
+            ),
+        };
+        resource.total = {
+            value: limitToStatPoints(statPoints - resource.consumed.value, statPoints),
+        };
+
+        if (type === "focus" && !statPoints) {
+            resource.available.percentage = 0;
+            resource.exhausted.percentage = 0;
+            resource.channeled.percentage = 0;
+            resource.total.percentage = 0;
+            resource.max = 0;
+            return;
+        }
+
+        resource.available.percentage = (100 * resource.available.value) / statPoints;
+        resource.exhausted.percentage = (100 * resource.exhausted.value) / statPoints;
+        resource.channeled.percentage = (100 * resource.channeled.value) / statPoints;
+        resource.total.percentage = (100 * resource.total.value) / statPoints;
+
+        if (type === "health") {
+            resource.max = statPoints;
+        } else {
+            resource.max = this.derivedValues.focuspoints.value.display;
+        }
+    }
+
+    /**
+     * Derives the wound malus level and value from the total health points
+     * (`healthpointsPerLevel` per level) and registers the wound malus as an
+     * innate skill modifier and as an inverted initiative modifier.
+     *
+     * @param {number} healthpointsPerLevel
+     * @param {number} healthNbrLevels
+     * @returns {void}
+     */
+    _prepareWoundMalus(healthpointsPerLevel, healthNbrLevels) {
+        const woundMalus = this.system.health.woundMalus;
+
+        const currentLevel = Math.floor(this.system.health.total.value / healthpointsPerLevel);
         const baseLevel = Math.max(healthNbrLevels - currentLevel - 1, 0);
-        data.health.woundMalus.level = syncEvaluate(
+        woundMalus.level = syncEvaluate(
             min(
                 plus(
                     of(baseLevel),
@@ -489,40 +527,23 @@ export default class SplittermondActor extends Actor {
             )
         );
 
-        let woundMalusValue = data.health.woundMalus.levels[data.health.woundMalus.level];
-        data.health.woundMalus.value = woundMalusValue?.value ?? 0;
+        const currentWoundMalusLevel = woundMalus.levels[woundMalus.level];
+        woundMalus.value = currentWoundMalusLevel?.value ?? 0;
 
-        if (data.health.woundMalus.value) {
-            this.modifier.add(
-                "woundmalus",
-                {
-                    name: foundryApi.localize("splittermond.woundMalus"),
-                    type: "innate",
-                },
-                of(data.health.woundMalus.value)
-            );
-            this.modifier.addModifier(
-                InverseModifier.create(
-                    "initiativewoundmalus",
-                    of(-data.health.woundMalus.value),
-                    {
-                        name: foundryApi.localize("splittermond.woundMalus"),
-                        type: "innate",
-                    },
-                    false
-                )
-            );
+        if (!woundMalus.value) {
+            return;
         }
 
-        data.healthBar = {
-            value: data.health.total.value,
-            max: healthNbrLevels * this.derivedValues.healthpoints.value.calculateSync(),
-        };
-
-        data.focusBar = {
-            value: data.focus.available.value,
-            max: this.derivedValues.focuspoints.value.calculateSync(),
-        };
+        const woundMalusLabel = foundryApi.localize("splittermond.woundMalus");
+        this.modifier.add("woundmalus", { name: woundMalusLabel, type: "innate" }, of(woundMalus.value));
+        this.modifier.addModifier(
+            InverseModifier.create(
+                "initiativewoundmalus",
+                of(-woundMalus.value),
+                { name: woundMalusLabel, type: "innate" },
+                false
+            )
+        );
     }
 
     _prepareAttacks() {
