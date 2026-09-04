@@ -190,23 +190,19 @@ export function from14_2_6_migrateCombatEvent(source: unknown) {
     if (!source || typeof source !== "object") return source;
     if ("combatEvent" in source) return source;
 
-    const hasStartTick = hasKey(source, "startTick") && typeof source.startTick === "number";
-    const hasInterval = hasKey(source, "interval") && typeof source.interval === "number";
-    const hasTimes = hasKey(source, "times") && typeof source.times === "number";
+    const hasStartTick = hasKey(source, "startTick");
+    const hasInterval = hasKey(source, "interval");
+    const hasTimes = hasKey(source, "times");
+    if (!hasStartTick && !hasInterval && !hasTimes) return source;
 
-    if (hasStartTick && hasInterval && hasTimes) {
-        const { startTick, interval, times } = source as Record<string, number>;
-        source.combatEvent = {
-            startTick,
-            interval,
-            repeats: times,
-            macroRef: { name: null, uuid: null },
-            postDescription: true,
-        };
-        delete (source as Record<string, unknown>).startTick;
-        delete (source as Record<string, unknown>).interval;
-        delete (source as Record<string, unknown>).times;
-    }
-
+    const record = source as Record<string, unknown>;
+    const combatEvent: Record<string, unknown> = {};
+    if (hasStartTick) combatEvent.startTick = record.startTick;
+    if (hasInterval) combatEvent.interval = record.interval;
+    if (hasTimes) combatEvent.repeats = record.times;
+    record.combatEvent = combatEvent;
+    delete record.startTick;
+    delete record.interval;
+    delete record.times;
     return source;
 }

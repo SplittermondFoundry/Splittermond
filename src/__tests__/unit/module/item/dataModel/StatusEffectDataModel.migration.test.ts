@@ -1,24 +1,36 @@
 import { expect } from "chai";
-import { from14_2_6_migrateCombatEvent } from "../../../../../module/item/dataModel/migrations";
-import { StatusEffectDataModel } from "../../../../../module/item/dataModel/StatusEffectDataModel";
+import { from14_2_6_migrateCombatEvent } from "module/item/dataModel/migrations";
+import { StatusEffectDataModel } from "module/item/dataModel/StatusEffectDataModel";
 
-describe("StatusEffect combatEvent migration (from 14.0.0)", () => {
-    it("moves legacy timing fields into a combatEvent group", () => {
+describe("StatusEffect combatEvent migration (from 14.2.6)", () => {
+    it("moves legacy timing fields into a combatEvent group without injecting defaults", () => {
         const source = { startTick: 5, interval: 3, times: 2, modifier: "x", level: 1 };
 
         const result = from14_2_6_migrateCombatEvent({ ...source }) as Record<string, unknown>;
 
         expect(result).to.deep.equal({
-            combatEvent: {
-                startTick: 5,
-                interval: 3,
-                repeats: 2,
-                macroRef: { name: null, uuid: null },
-                postDescription: true,
-            },
+            combatEvent: { startTick: 5, interval: 3, repeats: 2 },
             modifier: "x",
             level: 1,
         });
+    });
+
+    it("migrates when only some legacy timing fields are set, preserving nulls", () => {
+        const source = { startTick: null, interval: 5, times: null, modifier: "x" };
+
+        const result = from14_2_6_migrateCombatEvent({ ...source }) as Record<string, unknown>;
+
+        expect(result).to.deep.equal({
+            combatEvent: { startTick: null, interval: 5, repeats: null },
+            modifier: "x",
+        });
+    });
+
+    it("migrates a single legacy timing field without wiping other combatEvent members", () => {
+        const result = from14_2_6_migrateCombatEvent({ interval: 5 }) as Record<string, unknown>;
+
+        expect(result).to.deep.equal({ combatEvent: { interval: 5 } });
+        expect(Object.keys(result.combatEvent as object)).to.deep.equal(["interval"]);
     });
 
     it("is idempotent when run on already-migrated data", () => {
@@ -40,20 +52,9 @@ describe("StatusEffect combatEvent migration (from 14.0.0)", () => {
     });
 
     it("does not inject combatEvent for a partial delta omitting all timing fields", () => {
-        const source = { modifier: "x" };
-
-        const result = from14_2_6_migrateCombatEvent({ ...source }) as Record<string, unknown>;
+        const result = from14_2_6_migrateCombatEvent({ modifier: "x" }) as Record<string, unknown>;
 
         expect(result).to.deep.equal({ modifier: "x" });
-        expect("combatEvent" in result).to.be.false;
-    });
-
-    it("does not inject combatEvent for a partial delta with a single timing field", () => {
-        const source = { startTick: 5 };
-
-        const result = from14_2_6_migrateCombatEvent({ ...source }) as Record<string, unknown>;
-
-        expect(result).to.deep.equal({ startTick: 5 });
         expect("combatEvent" in result).to.be.false;
     });
 
