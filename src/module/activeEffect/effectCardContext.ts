@@ -6,6 +6,7 @@ export type EffectCardEffect = {
     disabled: boolean;
     type: EffectType | "base";
     durationMode: DurationMode;
+    isIneffective?: boolean;
     duration: {
         expired: boolean;
         value: number | null;
@@ -37,7 +38,7 @@ const HIGHLIGHTED_TYPES: Record<string, boolean> = {
 };
 
 function isInactiveEffect(effect: EffectCardEffect): boolean {
-    return effect.disabled || effect.isSuppressed || effect.duration.expired;
+    return effect.disabled || effect.isSuppressed || effect.duration.expired || (effect.isIneffective ?? false);
 }
 
 export function buildEffectCardContext(effect: EffectCardEffect): EffectCardContext {
@@ -65,6 +66,14 @@ export function buildEffectCardContext(effect: EffectCardEffect): EffectCardCont
             icon: "fa-hourglass-end",
             tooltipKey: "splittermond.activeEffect.badge.expired",
             cssClass: "badge-expired",
+        });
+    }
+
+    if (effect.isIneffective) {
+        badges.push({
+            icon: "fa-droplet-slash",
+            tooltipKey: "splittermond.activeEffect.badge.bonusExhausted",
+            cssClass: "badge-bonus-exhausted",
         });
     }
 

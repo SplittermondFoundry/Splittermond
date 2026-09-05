@@ -24,6 +24,7 @@ import { itemCompendiumAssignmentTest } from "./itemCompendiumAssignment.test";
 import { itemMigrationTest } from "./migrations/itemMigration.test";
 import { modifierToEffectMigrationTest } from "./migrations/modifierToEffectMigration.test";
 import { healthFocusTest } from "./healthFocus.test";
+import { healthBonusTest } from "./healthBonus.test";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}
@@ -56,6 +57,7 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.itemMigration", itemMigrationTest);
     quench.registerBatch("splittermond.modifierToEffectMigration", modifierToEffectMigrationTest);
     quench.registerBatch("splittermond.healthFocus", healthFocusTest);
+    quench.registerBatch("splittermond.healthBonus", healthBonusTest);
 }
 
 export function init() {

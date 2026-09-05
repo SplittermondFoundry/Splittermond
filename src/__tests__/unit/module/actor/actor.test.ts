@@ -24,6 +24,8 @@ import type { User } from "module/api/foundryTypes";
 import { createHtml } from "../../../handlebarHarness";
 import { registerActorModifiers } from "module/actor/modifiers/actorModifierRegistration";
 import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
+import { parseCostString } from "module/util/costs/costParser";
+import { Cost } from "module/util/costs/Cost";
 import { initAddModifier } from "module/modifiers/modifierAddition";
 import { Chat } from "module/util/chat";
 import { Dice } from "module/check/dice";
@@ -116,8 +118,14 @@ describe("SplittermondActor", () => {
                 consumed: { value: 0 },
                 exhausted: { value: 0 },
                 channeled: { entries: [] },
+                bonus: { entries: [] },
             }),
-            focus: new FocusDataModel({ consumed: { value: 0 }, exhausted: { value: 0 }, channeled: { entries: [] } }),
+            focus: new FocusDataModel({
+                consumed: { value: 0 },
+                exhausted: { value: 0 },
+                channeled: { entries: [] },
+                bonus: { entries: [] },
+            }),
             currency: { S: 0, L: 0, T: 0 },
         });
         Object.defineProperty(actor, "items", { value: [], writable: true, configurable: true });
@@ -454,6 +462,335 @@ describe("SplittermondActor", () => {
 
             expect(actor.system.health.channeled.entries).to.be.empty;
             expect(actor.system.focus.channeled.entries).not.to.be.empty;
+        });
+    });
+
+    describe("applyCost bonus pool absorption", () => {
+        interface ResourcePayload {
+            consumed: { value: number };
+            exhausted: { value: number };
+            bonus: { entries: { sourceId: string; value: number }[] };
+            channeled: { entries: { description: unknown; costs: number }[] };
+        }
+
+        function grant(sourceId: string, value: number) {
+            return { sourceId, value };
+        }
+
+        function applyCostString(type: "health" | "focus", cost: string, description: string) {
+            return actor.applyCost(type, parseCostString(cost).asPrimaryCost(), description);
+        }
+
+        function applyDamage(type: "health" | "focus", counter: "consumed" | "exhausted", amount: number) {
+            const cost = counter === "consumed" ? new Cost(0, amount, false) : new Cost(amount, 0, false);
+            return actor.applyCost(type, cost.asPrimaryCost(), "");
+        }
+
+        function seedEntries(type: "health" | "focus", entries: { sourceId: string; value: number }[]) {
+            (actor.system as CharacterDataModel)[type].updateSource({ bonus: { entries } });
+        }
+
+        function persistedResource(callIndex: number, type: "health" | "focus"): ResourcePayload {
+            const updateData = (actor.update as sinon.SinonSpy).getCall(callIndex).args[0] as {
+                system: Record<string, ResourcePayload>;
+            };
+            return updateData.system[type];
+        }
+
+        it("fully absorbs a mixed cost and leaves the counters unchanged", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 8)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 8)]);
+
+            await applyCostString("health", "8V2", "Test");
+
+            const payload = persistedResource(0, "health");
+            expect(payload.consumed.value).to.equal(0);
+            expect(payload.exhausted.value).to.equal(0);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 0)]);
+        });
+
+        it("splits a cost that exceeds the pool between pool and counter", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 3)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 2)]);
+
+            await applyCostString("health", "10V5", "Test");
+
+            const payload = persistedResource(0, "health");
+            expect(payload.consumed.value).to.equal(3);
+            expect(payload.exhausted.value).to.equal(5);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 0)]);
+        });
+
+        it("absorbs a plain exhaustion cost from the pool", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 4)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 4)]);
+
+            await applyCostString("health", "3", "Test");
+
+            const payload = persistedResource(0, "health");
+            expect(payload.exhausted.value).to.equal(0);
+            expect(payload.consumed.value).to.equal(0);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 1)]);
+        });
+
+        it("absorbs the consumed part before the exhausted part", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 1)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 1)]);
+
+            await applyCostString("health", "2V1", "Test");
+
+            const payload = persistedResource(0, "health");
+            expect(payload.consumed.value).to.equal(0);
+            expect(payload.exhausted.value).to.equal(1);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 0)]);
+        });
+
+        it("continues spending from depleted entries without re-materializing them", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 5)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 5)]);
+
+            await applyCostString("health", "3", "Test");
+            await applyCostString("health", "3V3", "Test");
+
+            const first = persistedResource(0, "health");
+            expect(first.exhausted.value).to.equal(0);
+            expect(first.bonus.entries).to.deep.equal([grant("effect-1", 2)]);
+
+            const second = persistedResource(1, "health");
+            expect(second.consumed.value).to.equal(1);
+            expect(second.exhausted.value).to.equal(0);
+            expect(second.bonus.entries).to.deep.equal([grant("effect-1", 0)]);
+        });
+
+        it("does not touch the pool for channeled-only costs", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 5)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 5)]);
+
+            await applyCostString("health", "K4", "Test");
+
+            const payload = persistedResource(0, "health");
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 5)]);
+            expect(payload.consumed.value).to.equal(0);
+            expect(payload.exhausted.value).to.equal(0);
+            expect(payload.channeled.entries).to.deep.equal([{ description: "Test", costs: 4 }]);
+        });
+
+        it("charges the full cost to the counters when no grants exist", async () => {
+            actor.bonusGrants = { healthpoints: [], focuspoints: [] };
+            seedEntries("health", []);
+
+            await applyCostString("health", "4V2", "Test");
+
+            const payload = persistedResource(0, "health");
+            expect(payload.consumed.value).to.equal(2);
+            expect(payload.exhausted.value).to.equal(2);
+            expect(payload.bonus.entries).to.deep.equal([]);
+        });
+
+        it("absorbs focus costs from the focus pool", async () => {
+            actor.bonusGrants = { healthpoints: [], focuspoints: [grant("effect-1", 3)] };
+            seedEntries("focus", [grant("effect-1", 3)]);
+
+            await applyCostString("focus", "3V3", "Test");
+
+            const payload = persistedResource(0, "focus");
+            expect(payload.consumed.value).to.equal(0);
+            expect(payload.exhausted.value).to.equal(0);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 0)]);
+        });
+
+        function seedChanneled(type: "health" | "focus", entries: { description: string; costs: number }[]) {
+            (actor.system as CharacterDataModel)[type].updateSource({ channeled: { entries } });
+        }
+
+        function seedExhausted(type: "health" | "focus", value: number) {
+            (actor.system as CharacterDataModel)[type].updateSource({ exhausted: { value } });
+        }
+
+        it("endChannel with full pool coverage decrements the entries and leaves exhausted unchanged", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 5)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 5)]);
+            seedChanneled("health", [{ description: "Zauber", costs: 4 }]);
+
+            await actor.endChannel("health", 0);
+
+            const payload = persistedResource(0, "health");
+            expect(payload.exhausted.value).to.equal(0);
+            expect(payload.consumed.value).to.equal(0);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 1)]);
+            expect(payload.channeled.entries).to.deep.equal([]);
+        });
+
+        it("endChannel with an empty pool adds the costs to exhausted and leaves entries alone", async () => {
+            actor.bonusGrants = { healthpoints: [], focuspoints: [] };
+            seedEntries("health", [grant("vanished-effect", 5)]);
+            seedChanneled("health", [{ description: "Zauber", costs: 4 }]);
+
+            await actor.endChannel("health", 0);
+
+            const payload = persistedResource(0, "health");
+            expect(payload.exhausted.value).to.equal(4);
+            expect(payload.bonus.entries).to.deep.equal([grant("vanished-effect", 5)]);
+            expect(payload.channeled.entries).to.deep.equal([]);
+        });
+
+        it("endChannel with partial coverage splits the costs between pool and exhausted", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 2)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 2)]);
+            seedChanneled("health", [{ description: "Zauber", costs: 5 }]);
+
+            await actor.endChannel("health", 0);
+
+            const payload = persistedResource(0, "health");
+            expect(payload.exhausted.value).to.equal(3);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 0)]);
+            expect(payload.channeled.entries).to.deep.equal([]);
+        });
+
+        it("endChannel removes exactly the indexed entry", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 10)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 10)]);
+            seedChanneled("health", [
+                { description: "Erster", costs: 4 },
+                { description: "Zweiter", costs: 7 },
+            ]);
+
+            await actor.endChannel("health", 1);
+
+            const payload = persistedResource(0, "health");
+            expect(payload.channeled.entries).to.deep.equal([{ description: "Erster", costs: 4 }]);
+            expect(payload.exhausted.value).to.equal(0);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 3)]);
+        });
+
+        it("endChannel absorbs focus channel costs from the focus pool", async () => {
+            actor.bonusGrants = { healthpoints: [], focuspoints: [grant("effect-1", 6)] };
+            seedEntries("focus", [grant("effect-1", 6)]);
+            seedChanneled("focus", [{ description: "Zauber", costs: 6 }]);
+
+            await actor.endChannel("focus", 0);
+
+            const payload = persistedResource(0, "focus");
+            expect(payload.exhausted.value).to.equal(0);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 0)]);
+            expect(payload.channeled.entries).to.deep.equal([]);
+        });
+
+        it("removeChannel changes neither counters nor entries and removes exactly the indexed entry", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 5)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 5)]);
+            seedExhausted("health", 3);
+            seedChanneled("health", [
+                { description: "Erster", costs: 4 },
+                { description: "Zweiter", costs: 7 },
+            ]);
+
+            await actor.removeChannel("health", 0);
+
+            const payload = persistedResource(0, "health");
+            expect(payload.exhausted.value).to.equal(3);
+            expect(payload.consumed.value).to.equal(0);
+            expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 5)]);
+            expect(payload.channeled.entries).to.deep.equal([{ description: "Zweiter", costs: 7 }]);
+        });
+
+        it("endChannel with an out-of-range index never calls update", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 5)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 5)]);
+            seedChanneled("health", [{ description: "Zauber", costs: 4 }]);
+
+            await actor.endChannel("health", 5);
+
+            expect((actor.update as sinon.SinonSpy).called).to.be.false;
+        });
+
+        it("removeChannel with an out-of-range index never calls update", async () => {
+            actor.bonusGrants = { healthpoints: [grant("effect-1", 5)], focuspoints: [] };
+            seedEntries("health", [grant("effect-1", 5)]);
+            seedChanneled("health", [{ description: "Zauber", costs: 4 }]);
+
+            await actor.removeChannel("health", 5);
+
+            expect((actor.update as sinon.SinonSpy).called).to.be.false;
+        });
+
+        describe("counter damage", () => {
+            it("fully absorbs consumed damage from the pool", async () => {
+                actor.bonusGrants = { healthpoints: [grant("effect-1", 5)], focuspoints: [] };
+                seedEntries("health", [grant("effect-1", 5)]);
+
+                await applyDamage("health", "consumed", 3);
+
+                const payload = persistedResource(0, "health");
+                expect(payload.consumed.value).to.equal(0);
+                expect(payload.exhausted.value).to.equal(0);
+                expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 2)]);
+            });
+
+            it("absorbs exhaustion damage from the pool without touching the exhausted counter", async () => {
+                actor.bonusGrants = { healthpoints: [grant("effect-1", 5)], focuspoints: [] };
+                seedEntries("health", [grant("effect-1", 5)]);
+
+                await applyDamage("health", "exhausted", 3);
+
+                const payload = persistedResource(0, "health");
+                expect(payload.exhausted.value).to.equal(0);
+                expect(payload.consumed.value).to.equal(0);
+                expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 2)]);
+            });
+
+            it("splits damage that exceeds the pool between pool and counter", async () => {
+                actor.bonusGrants = { healthpoints: [grant("effect-1", 3)], focuspoints: [] };
+                seedEntries("health", [grant("effect-1", 2)]);
+
+                await applyDamage("health", "consumed", 5);
+
+                const payload = persistedResource(0, "health");
+                expect(payload.consumed.value).to.equal(3);
+                expect(payload.exhausted.value).to.equal(0);
+                expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 0)]);
+            });
+
+            it("charges the full damage to the counter when no grants exist", async () => {
+                actor.bonusGrants = { healthpoints: [], focuspoints: [] };
+                seedEntries("health", []);
+
+                await applyDamage("health", "consumed", 4);
+
+                const payload = persistedResource(0, "health");
+                expect(payload.consumed.value).to.equal(4);
+                expect(payload.bonus.entries).to.deep.equal([]);
+            });
+
+            it("absorbs focus exhaustion damage from the focus pool", async () => {
+                actor.bonusGrants = { healthpoints: [], focuspoints: [grant("effect-1", 5)] };
+                seedEntries("focus", [grant("effect-1", 5)]);
+
+                await applyDamage("focus", "exhausted", 3);
+
+                const payload = persistedResource(0, "focus");
+                expect(payload.exhausted.value).to.equal(0);
+                expect(payload.bonus.entries).to.deep.equal([grant("effect-1", 2)]);
+            });
+
+            it("continues spending from depleted entries without re-materializing them", async () => {
+                actor.bonusGrants = { healthpoints: [grant("effect-1", 5)], focuspoints: [] };
+                seedEntries("health", [grant("effect-1", 5)]);
+
+                await applyDamage("health", "exhausted", 3);
+                await applyDamage("health", "consumed", 3);
+
+                const first = persistedResource(0, "health");
+                expect(first.exhausted.value).to.equal(0);
+                expect(first.bonus.entries).to.deep.equal([grant("effect-1", 2)]);
+
+                const second = persistedResource(1, "health");
+                expect(second.consumed.value).to.equal(1);
+                expect(second.exhausted.value).to.equal(0);
+                expect(second.bonus.entries, "the depleted entry is not topped up to the grant value").to.deep.equal([
+                    grant("effect-1", 0),
+                ]);
+            });
         });
     });
 

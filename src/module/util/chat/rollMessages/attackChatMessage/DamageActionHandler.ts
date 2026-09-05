@@ -13,6 +13,7 @@ import { splittermond } from "module/config";
 import { OnAncestorReference } from "module/data/references/OnAncestorReference";
 import { DamageInitializer } from "../../damageChatMessage/initDamage";
 import { CostBase, type CostType } from "../../../costs/costTypes";
+import { Cost } from "../../../costs/Cost";
 import { foundryApi } from "module/api/foundryApi";
 import { asString, condense, mapRoll } from "module/modifiers/expressions/scalar";
 import { toDisplayFormula, toRollFormula } from "module/util/damage/util";
@@ -183,7 +184,11 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
         this.updateSource({ penaltyUsed: true });
         return this.actorReference
             .getAgent()
-            .consumeCost("health", `${this.checkReportReference.get().grazingHitPenalty}`, "");
+            .applyCost(
+                "health",
+                new Cost(this.checkReportReference.get().grazingHitPenalty, 0, false).asPrimaryCost(),
+                ""
+            );
     }
 
     private applyDamage() {

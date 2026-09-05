@@ -124,6 +124,27 @@ describe("buildEffectCardContext", () => {
             expect(result.badges).to.have.length(1);
             expect(result.badges[0].cssClass).to.equal("badge-suppressed");
         });
+
+        it("ineffective effect includes the bonus exhausted badge", () => {
+            const result = buildEffectCardContext(makeEffect({ isIneffective: true }));
+
+            expect(result.badges).to.have.length(1);
+            expect(result.badges[0].icon).to.equal("fa-droplet-slash");
+            expect(result.badges[0].tooltipKey).to.equal("splittermond.activeEffect.badge.bonusExhausted");
+            expect(result.badges[0].cssClass).to.equal("badge-bonus-exhausted");
+        });
+
+        it("effective effect does not include the bonus exhausted badge", () => {
+            const result = buildEffectCardContext(makeEffect({ isIneffective: false }));
+
+            expect(result.badges.find((b) => b.cssClass === "badge-bonus-exhausted")).to.be.undefined;
+        });
+
+        it("effect without exhaustion state has no bonus exhausted badge", () => {
+            const result = buildEffectCardContext(makeEffect());
+
+            expect(result.badges.find((b) => b.cssClass === "badge-bonus-exhausted")).to.be.undefined;
+        });
     });
 
     describe("timeToExpirationDisplay and showTicks", () => {
@@ -283,6 +304,18 @@ describe("buildEffectCardContext", () => {
             );
 
             expect(result.isInactive).to.be.true;
+        });
+
+        it("ineffective effect is inactive", () => {
+            const result = buildEffectCardContext(makeEffect({ isIneffective: true }));
+
+            expect(result.isInactive).to.be.true;
+        });
+
+        it("effect whose bonus is exhausted but which still contributes otherwise is not inactive", () => {
+            const result = buildEffectCardContext(makeEffect({ isIneffective: false }));
+
+            expect(result.isInactive).to.be.false;
         });
     });
 });

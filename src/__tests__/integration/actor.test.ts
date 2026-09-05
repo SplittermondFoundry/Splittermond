@@ -579,7 +579,7 @@ export function actorTest(context: QuenchBatchContext) {
 
                 healthElement.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
                 const inputButton = healthElement.querySelector<HTMLButtonElement>(
-                    `${inputSelector}~button[data-action='inc-value']`
+                    `${inputSelector}~button[data-action='inc-damage']`
                 );
                 inputButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 

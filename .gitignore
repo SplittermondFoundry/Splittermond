@@ -14,6 +14,10 @@ public/images/source/
 workdir/
 test-results/
 
+# Working artifacts from npm-ci move-aside workarounds (dev server holds native binaries)
+.classic-level-node-held-tmp
+.rolldown-binding-held-by-devserver-tmp/
+
 opencode.json
 .opencode/
 AGENTS.md

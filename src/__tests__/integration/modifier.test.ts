@@ -31,6 +31,7 @@ import type { SplittermondSkill } from "module/config/skillGroups";
 import { Modifier } from "module/activeEffect";
 import sinon from "sinon";
 import { isGenerated } from "module/activeEffect/effectBuilder";
+import { parseCostString } from "module/util/costs/costParser";
 
 declare const ChatMessage: any;
 
@@ -421,6 +422,9 @@ export function modifierTest(context: QuenchBatchContext) {
     });
 
     describe("Wound malus", () => {
+        const applyHealthCost = (subject: SplittermondActor, cost: string) =>
+            subject.applyCost("health", parseCostString(cost).asPrimaryCost(), "");
+
         async function setUpActor() {
             const actor = await createActor("WoundedCharacter");
             (actor.system as CharacterDataModel).attributes.agility.updateSource({ initial: 2, advances: 0 });
@@ -467,7 +471,7 @@ export function modifierTest(context: QuenchBatchContext) {
         it("should apply wound malus effect with more than full bar missing", async () => {
             const subject = await setUpActor();
             await addWoundedEffect(subject, 1);
-            await subject.consumeCost("health", `8V8`, "");
+            await applyHealthCost(subject, "8V8");
 
             await subject.prepareData();
 
@@ -476,7 +480,7 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should apply LP wound malus when more than full bar missing", async () => {
             const subject = await setUpActor();
-            await subject.consumeCost("health", `8V8`, "");
+            await applyHealthCost(subject, "8V8");
 
             await subject.prepareData();
 
@@ -504,7 +508,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
                         await makeWeak(subject);
-                        await subject.consumeCost("health", "1V1", "");
+                        await applyHealthCost(subject, "1V1");
 
                         await subject.prepareData();
 
@@ -515,7 +519,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
                         await makeWeak(subject);
-                        await subject.consumeCost("health", `7V7`, "");
+                        await applyHealthCost(subject, "7V7");
 
                         await subject.prepareData();
 
@@ -547,7 +551,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     it(`should apply with 1hp missing`, async () => {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
-                        await subject.consumeCost("health", "1V1", "");
+                        await applyHealthCost(subject, "1V1");
 
                         await subject.prepareData();
 
@@ -557,7 +561,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     it(`should apply with full bar missing`, async () => {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
-                        await subject.consumeCost("health", `7V7`, "");
+                        await applyHealthCost(subject, "7V7");
 
                         await subject.prepareData();
 
@@ -576,7 +580,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     it(`should apply initiative penalty with 1hp missing`, async () => {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
-                        await subject.consumeCost("health", "1V1", "");
+                        await applyHealthCost(subject, "1V1");
 
                         await subject.prepareData();
 
@@ -586,7 +590,7 @@ export function modifierTest(context: QuenchBatchContext) {
                     it(`should apply initiative penalty with full bar missing`, async () => {
                         const subject = await setUpActor();
                         await addWoundedEffect(subject, level);
-                        await subject.consumeCost("health", `7V7`, "");
+                        await applyHealthCost(subject, "7V7");
 
                         await subject.prepareData();
 

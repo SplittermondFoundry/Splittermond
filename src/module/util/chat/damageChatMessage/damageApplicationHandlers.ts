@@ -104,9 +104,9 @@ function applyDamage(
         principalImplement: string;
     }
 ) {
-    target.consumeCost(
+    target.applyCost(
         "health",
-        damage.render(),
+        damage,
         foundryApi.format("splittermond.chatCard.damageMessage.consumptionMessage", reporting)
     );
     console.log(`Splittermond | ${reporting.sourceName} dealt ${damage.render()} damage to ${target.name}`);

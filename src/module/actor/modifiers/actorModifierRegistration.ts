@@ -32,6 +32,8 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
         "woundmalus.mod",
         "focusregeneration.bonus",
         "healthregeneration.bonus",
+        "healthpoints.bonus",
+        "focuspoints.bonus",
     ].forEach((segment) => {
         const fullId = `actor.${segment}` as Lowercase<string>;
         registry.addHandler(segment, BasicModifierHandler(segment, fullId));

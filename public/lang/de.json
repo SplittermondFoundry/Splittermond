@@ -201,7 +201,8 @@
                 "channelled": "kanalisiert",
                 "timed": "zeitlich begrenzt",
                 "timeRemaining": "noch {n}",
-                "generatedFromItemProperty": "aus Gegenstandseigenschaft generiert"
+                "generatedFromItemProperty": "aus Gegenstandseigenschaft generiert",
+                "bonusExhausted": "Bonus aufgebraucht"
             },
             "propertyEffectName": {
                 "defense": "Verteidigung",
@@ -465,6 +466,10 @@
         "damageCategory": "Schadensart",
         "channeled": "kanalisiert",
         "channeledAbbrev": "K",
+        "channelEnd": "Kanalisierung aufgeben",
+        "channelRevert": "Kanalisierung zurücknehmen",
+        "bonusPoints": "Bonuspunkte",
+        "bonusPointsSpent": "Verbrauchte Bonuspunkte",
         "exhausted": "erschöpft",
         "exhaustedAbbrev": "E",
         "consumed": "verzehrt",
