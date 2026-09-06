@@ -391,7 +391,12 @@ describe("DamageActionHandler", () => {
             underTest.useDegreeOfSuccessOption({ action: "grazingHitUpdate", multiplicity: "1" }).action();
             await underTest.useAction({ action: "consumeCost" });
 
-            expect(actor.consumeCost.calledOnceWith("health", "4", "")).to.be.true;
+            expect(actor.applyCost.calledOnce).to.be.true;
+            const [type, cost, description] = actor.applyCost.firstCall.args;
+            expect(type).to.equal("health");
+            expect(cost.exhausted).to.equal(4);
+            expect(cost.consumed).to.equal(0);
+            expect(description).to.equal("");
         });
 
         it("should mark consumeCost as used after execution", async () => {
@@ -417,7 +422,7 @@ describe("DamageActionHandler", () => {
             await underTest.useAction({ action: "consumeCost" });
             await underTest.useAction({ action: "consumeCost" });
 
-            expect(actor.consumeCost.calledOnce).to.be.true;
+            expect(actor.applyCost.calledOnce).to.be.true;
         });
     });
 

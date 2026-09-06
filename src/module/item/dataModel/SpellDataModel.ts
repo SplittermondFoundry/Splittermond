@@ -33,7 +33,7 @@ function SpellDataModelSchema() {
         features: new fields.EmbeddedDataField(ItemFeaturesModel, { required: true, nullable: false }),
         degreeOfSuccessOptions: new fields.SchemaField(
             {
-                castDuration: validatedBoolean(),
+                castDuration: validatedBoolean(true),
                 consumedFocus: validatedBoolean(),
                 exhaustedFocus: validatedBoolean(),
                 channelizedFocus: validatedBoolean(),

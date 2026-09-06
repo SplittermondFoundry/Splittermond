@@ -29,7 +29,12 @@
                             <div class="costs"><input data-array-field="costs" type="text" value="{{this.costs}}"
                                                       data-dtype="Number"></div>
                             <div class="list-actions">
-                                <button class="button-inline" type="button" data-action="delete-array-element">
+                                <button class="button-inline" type="button" data-action="end-channel"
+                                        data-render-sheet="0" data-tooltip="{{localize 'splittermond.channelEnd'}}">
+                                    <i class="fa fa-stop-circle" aria-hidden="true"></i>
+                                </button>
+                                <button class="button-inline" type="button" data-action="delete-array-element"
+                                    data-tooltip="{{localize 'splittermond.channelRevert'}}">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                 </button>
                             </div>
@@ -106,12 +111,12 @@
                 <div class="list-header">
                     <h3>{{localize "splittermond.activeEffects"}}</h3>
                     <div class="list-actions">
-                        <button class="button-inline" data-action="show-hide-inactive-effects" type="button"
-                                data-tooltip="{{#if hideInactiveEffects}}{{localize 'splittermond.activeEffect.showInactiveEffects'}}{{else}}{{localize 'splittermond.activeEffect.hideInactiveEffects'}}{{/if}}">
-                            {{#if hideInactiveEffects}}
-                                <i class="fa fa-eye" aria-hidden="true"></i>
-                            {{else}}
+                        <button class="button-inline" data-action="toggle-show-all-effects" type="button"
+                                data-tooltip="{{#if showAllEffects}}{{localize 'splittermond.activeEffect.showDefaultEffects'}}{{else}}{{localize 'splittermond.activeEffect.showAllEffects'}}{{/if}}">
+                            {{#if showAllEffects}}
                                 <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                            {{else}}
+                                <i class="fa fa-eye" aria-hidden="true"></i>
                             {{/if}}
                         </button>
                         <button class="button-inline" type="button" data-action="add-effect">

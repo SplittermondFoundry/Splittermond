@@ -203,9 +203,7 @@ export class FocusCostHandler extends SplittermondDataModel<FocusCostHandlerType
             .withHandlesActions(this.handlesActions)
             .whenAllChecksPassed(() => {
                 this.updateSource({ used: true });
-                this.casterReference
-                    .getAgent()
-                    .consumeCost("focus", this.cost.render(), this.spellReference.getItem().name);
+                this.casterReference.getAgent().applyCost("focus", this.cost, this.spellReference.getItem().name);
                 return Promise.resolve();
             })
             .useAction(actionData);

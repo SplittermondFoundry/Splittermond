@@ -450,11 +450,13 @@ describe("FocusCostActionHandler", () => {
 
             // Handler should now be used
             expect(underTest.used).to.be.true;
-            // Agent's consumeCost should have been called with correct parameters
+            // Agent's applyCost should have been called with correct parameters
             const expectedCost = underTest.cost;
-            expect(
-                agent.consumeCost.calledWith("focus", expectedCost.render(), underTest.spellReference.getItem().name)
-            ).to.be.true;
+            expect(agent.applyCost.calledOnce).to.be.true;
+            const [type, appliedCost, description] = agent.applyCost.firstCall.args;
+            expect(type).to.equal("focus");
+            expect(appliedCost.render()).to.equal(expectedCost.render());
+            expect(description).to.equal(underTest.spellReference.getItem().name);
         });
 
         it("should not allow useAction to be called if handler is already used", async () => {
@@ -470,9 +472,9 @@ describe("FocusCostActionHandler", () => {
             // Call useAction
             await underTest.useAction(actionData);
 
-            // Agent's consumeCost should not have been called
+            // Agent's applyCost should not have been called
             const agent = underTest.casterReference.getAgent();
-            expect(agent.consumeCost.called).to.be.false;
+            expect(agent.applyCost.called).to.be.false;
 
             // Console should have warned
             expect(consoleWarnStub.calledWith("Attempt to use a used action")).to.be.true;

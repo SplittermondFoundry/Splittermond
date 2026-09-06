@@ -7,12 +7,13 @@ import { CharacterDataModel } from "./dataModel/CharacterDataModel";
 import { NpcDataModel } from "./dataModel/NpcDataModel";
 import { Susceptibilities } from "./Susceptibilities";
 import ModifierManager from "./modifiers/modifier-manager";
+import type { BonusGrant } from "./bonusPool";
+import type { PrimaryCost } from "module/util/costs/PrimaryCost";
 import type { VirtualToken } from "../combat/VirtualToken";
 import type { ItemType } from "module/config/itemTypes";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { ExpressionBundle, ValueBundle } from "module/util/util";
 import type { Expression } from "module/modifiers/expressions/scalar";
-import type { FoundryActiveEffect } from "module/api/ActiveEffect";
 import { SplittermondActiveEffect } from "module/activeEffect";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
@@ -28,6 +29,7 @@ declare class SplittermondActor extends Actor {
     private _resistances: Susceptibilities;
     private _weaknesses: Susceptibilities;
     public readonly modifier: ModifierManager;
+    public bonusGrants: { healthpoints: BonusGrant[]; focuspoints: BonusGrant[] };
     public readonly type: "character" | "npc";
 
     items: Collection<SplittermondItem>;
@@ -71,7 +73,11 @@ declare class SplittermondActor extends Actor {
 
     async addTicks(value: number, message?: string, askPlayer?: boolean): Promise<void>;
 
-    consumeCost(type: "health" | "focus", valueStr: string, description: unknown): Promise<void>;
+    applyCost(type: "health" | "focus", primaryCost: PrimaryCost, description: string): Promise<void>;
+
+    endChannel(type: "health" | "focus", index: number): Promise<void> | undefined;
+
+    removeChannel(type: "health" | "focus", index: number): Promise<void> | undefined;
 
     importFromJSON(json: string, overwriteData?): Promise<unknown>;
 
@@ -81,9 +87,7 @@ declare class SplittermondActor extends Actor {
 
     get bonusCap(): ExpressionBundle;
     allApplicableEffects(): Generator<SplittermondActiveEffect, void, void>;
-
-    attacks: Attack[];
-    type: "character" | "npc";
+    isEffectIneffective(effect: SplittermondActiveEffect): boolean;
 }
 
 interface FindOptions {

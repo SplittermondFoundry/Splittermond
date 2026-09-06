@@ -40,6 +40,26 @@ function FocusSchema() {
             },
             { required: true, nullable: false }
         ),
+        bonus: new fields.SchemaField(
+            {
+                entries: new fields.ArrayField(
+                    new fields.SchemaField(
+                        {
+                            sourceId: new fields.StringField({ required: true, nullable: false }),
+                            value: new fields.NumberField({
+                                required: true,
+                                nullable: false,
+                                initial: 0,
+                                validate: (x: number) => x >= 0,
+                            }),
+                        },
+                        { required: true, nullable: false }
+                    ),
+                    { required: true, nullable: false, initial: [] }
+                ),
+            },
+            { required: true, nullable: false }
+        ),
     };
 }
 
@@ -53,6 +73,7 @@ export class FocusDataModel extends SplittermondDataModel<FocusType, CharacterDa
     public max: number | null = null;
     public available = { value: 0, percentage: 0 };
     public total = { value: 0, percentage: 0 };
+    public bonusPool = { granted: 0, remaining: 0, used: 0, startPercentage: 0, percentage: 0 };
     static defineSchema = FocusSchema;
 
     public toObject() {
@@ -62,6 +83,7 @@ export class FocusDataModel extends SplittermondDataModel<FocusType, CharacterDa
             max: this.max,
             total: this.total,
             available: this.available,
+            bonusPool: this.bonusPool,
             consumed: { ...focusData.consumed, percentage: (this.consumed as any).percentage },
             exhausted: { ...focusData.exhausted, percentage: (this.exhausted as any).percentage },
             channeled: { ...focusData.channeled, percentage: (this.channeled as any).percentage },

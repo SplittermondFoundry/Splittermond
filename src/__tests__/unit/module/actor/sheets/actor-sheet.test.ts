@@ -433,30 +433,30 @@ describe("SplittermondActorSheet — effect handlers", () => {
         });
     });
 
-    describe("#handleShowHideInactiveEffects", () => {
+    describe("#handleToggleShowAllEffects", () => {
         let bodyElement: Element;
         beforeEach(() => {
             bodyElement = new JSDOM("<body></body>").window.document.body;
         });
 
-        it("toggles the flag from true to false and calls render", () => {
-            expect(sheet["_hideInactiveEffects"]).to.be.true;
+        it("defaults to the filtered default view (_showAllEffects false)", () => {
+            expect(sheet["_showAllEffects"]).to.be.false;
+        });
 
-            callAction("show-hide-inactive-effects", null, bodyElement);
+        it("flips _showAllEffects to true and calls render", () => {
+            callAction("toggle-show-all-effects", null, bodyElement);
 
-            expect(sheet["_hideInactiveEffects"]).to.be.false;
+            expect(sheet["_showAllEffects"]).to.be.true;
             expect((sheet.render as sinon.SinonStub).calledOnce).to.be.true;
         });
 
-        it("toggles back to true when called again", () => {
-            // Toggle off
-            callAction("show-hide-inactive-effects", null, bodyElement);
-            expect(sheet["_hideInactiveEffects"]).to.be.false;
+        it("flips back to false on a second invocation", () => {
+            callAction("toggle-show-all-effects", null, bodyElement);
+            expect(sheet["_showAllEffects"]).to.be.true;
             expect((sheet.render as sinon.SinonStub).callCount).to.equal(1);
 
-            // Toggle back on
-            callAction("show-hide-inactive-effects", null, bodyElement);
-            expect(sheet["_hideInactiveEffects"]).to.be.true;
+            callAction("toggle-show-all-effects", null, bodyElement);
+            expect(sheet["_showAllEffects"]).to.be.false;
             expect((sheet.render as sinon.SinonStub).callCount).to.equal(2);
         });
     });

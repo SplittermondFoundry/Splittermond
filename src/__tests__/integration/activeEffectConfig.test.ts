@@ -755,6 +755,18 @@ export function activeEffectTest(context: QuenchBatchContext) {
 
                 const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
 
+                // A permanent transferred item effect is hidden in the default view; switch to the all view.
+                const toggleButton = sheet.element.querySelector<HTMLButtonElement>(
+                    'button[data-action="toggle-show-all-effects"]'
+                );
+                expect(toggleButton, "precondition: sheet renders the show-all toggle").to.exist;
+                const toggleAction = sheet.options.actions["toggle-show-all-effects"];
+                if (typeof toggleAction !== "function") {
+                    expect.fail("precondition: toggle-show-all-effects action should be registered");
+                    throw new Error("toggle-show-all-effects action should be registered"); //Satisfy compiler
+                }
+                await toggleAction(new PointerEvent("click"), toggleButton!);
+
                 const effectLi = sheet.element.querySelector(`[data-effect-uuid='${effect.uuid}']`);
                 expect(effectLi, "precondition: sheet renders an <li> with the transferred effect's uuid").to.exist;
 

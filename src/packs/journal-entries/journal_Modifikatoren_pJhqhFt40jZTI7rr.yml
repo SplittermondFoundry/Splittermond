@@ -524,6 +524,82 @@ pages:
           modifiedTime: 1763817458270
           lastModifiedBy: XEyWQoNP8LHDdOvz
       _key: "!journal.pages!pJhqhFt40jZTI7rr.AeFf3cT9kLn2Mq4v"
+    - sort: 85000
+      name: Lebens- und Fokuspunkte (Bonus)
+      type: text
+      _id: sH4kPqTb8wYmRv2x
+      system: {}
+      title:
+          show: true
+          level: 2
+      image: {}
+      text:
+          format: 1
+          content: >-
+              <p>Die Modifikatoren <strong><code>actor.healthpoints.bonus</code></strong>
+              und <strong><code>actor.focuspoints.bonus</code></strong> (jeweils auch
+              ohne <code>actor.</code>-Präfix als <code>healthpoints.bonus</code> bzw.
+              <code>focuspoints.bonus</code>) gewähren dem Charakter ein
+              <em>Polster aus Bonus-Lebens- bzw. Bonus-Fokuspunkten</em>. Anders als
+              <code>LP +5</code> oder <code>FO +3</code>, die den abgeleiteten Wert
+              dauerhaft erhöhen, sind die Bonuspunkte an den gewährenden Aktiven
+              Effekt gebunden und werden Punkt für Punkt verbraucht. Sind sie
+              aufgebraucht, entfällt der Bonus vollständig — dauerhaft behält der
+              Charakter nur seine regulären Lebens- bzw. Fokuspunkte. Die deutschen
+              Abkürzungen <code>LP</code> und <code>FO</code> funktionieren für diese
+              Modifikatoren nicht, es muss der technische Identifikator verwendet
+              werden.</p><h2>Wirkungsweise</h2><table><thead><tr><td
+              style="width:20%">Aspekt</td><td
+              style="width:79%">Beschreibung</td></tr></thead><tbody><tr><td><p>Gewährung</p></td><td><p>Bonuspunkte
+              werden von Aktiven Effekten gewährt, z.B. einem Gegenstandszustand oder
+              einer Stärke. Der Wert kann eine Zahl, ein Würfelwurf oder eine
+              Referenz auf eine Akteurs-Eigenschaft sein und wird bei jeder
+              Datenvorbereitung neu ausgewertet. Mehrere gewährende Effekte addieren
+              sich.</p></td></tr><tr><td><p>Kapazität</p></td><td><p>Die Leiste der
+              Lebens- bzw. Fokuspunkte wird um die noch verbleibenden Bonuspunkte
+              erweitert. In der Charakteransicht ist dieser Anteil als eigenes
+              Segment „Bonuspunkte" am Ende des verfügbaren Bereichs
+              hervorgehoben.</p></td></tr><tr><td><p>Kosten</p></td><td><p>Verzehrte
+              und erschöpfte Leiden werden zuerst aus dem Bonuspool gedeckt; erst
+              wenn dieser leer ist, wachsen die regulären Zähler („verzehrt"
+              bzw. „erschöpft") weiter. Bei Lebenspunkten heißt das: Solange der
+              Pool noch Schaden absorbieren kann, steigen die Wundmale
+              nicht.</p></td></tr><tr><td><p>Kanalisierung</p></td><td><p>Ein
+              kanalisiertes Leiden belegt während der Kanalisierung reguläre
+              Punkte. Mit dem Ende der Kanalisierung werden die Kosten abgerechnet —
+              auch hier zuerst aus dem Bonuspool.</p></td></tr><tr><td><p>Kontoführung</p></td><td><p>Je
+              gewährendem Effekt wird ein eigenes Guthaben mitgeführt. Ist das
+              Guthaben eines Effekts vollständig verbraucht, gilt ein Effekt, der
+              <em>nur</em> Bonuspunkte gewährt, als wirkungslos (Piktogramm
+              <strong>„Bonus aufgebraucht"</strong>).</p></td></tr></tbody></table><p>Wird
+              der Wert eines gewährenden Effekts verringert (z.B. weil der Wert aus
+              einer Referenz oder einem Wurf neu ausgewertet wurde), werden die
+              verbleibenden Bonuspunkte auf den aktuellen Wert gekappt;
+              verbrauchte Punkte werden nicht zurückgegeben.</p><div
+              class="box"><h1>Beispiele:</h1><p>Eine Stärke verleiht fünf
+              Bonus-Lebenspunkte: <strong><code>actor.healthpoints.bonus
+              5</code></strong></p><p>Ein Zustand würfelt Bonus-Fokuspunkte: <strong><code>actor.focuspoints.bonus
+              Wert="2W6"</code></strong></p></div>
+      video:
+          controls: true
+          volume: 0.5
+      src: null
+      category: null
+      ownership:
+          default: -1
+          XEyWQoNP8LHDdOvz: 3
+      flags: {}
+      _stats:
+          compendiumSource: null
+          duplicateSource: null
+          exportSource: null
+          coreVersion: "13.350"
+          systemId: splittermond
+          systemVersion: 13.9.2
+          createdTime: 1788652800000
+          modifiedTime: 1788652800000
+          lastModifiedBy: XEyWQoNP8LHDdOvz
+      _key: "!journal.pages!pJhqhFt40jZTI7rr.sH4kPqTb8wYmRv2x"
 _stats:
     coreVersion: "13.342"
     systemId: null

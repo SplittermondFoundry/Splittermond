@@ -18,6 +18,7 @@ import { initTheme } from "./module/theme";
 import { initializeItem, initializeItemMigrations } from "./module/item";
 import { DamageInitializer } from "./module/util/chat/damageChatMessage/initDamage";
 import { CostBase } from "./module/util/costs/costTypes";
+import { parseCostString } from "./module/util/costs/costParser";
 import { DamageRoll } from "./module/util/damage/DamageRoll.js";
 import { ItemFeaturesModel } from "./module/item/dataModel/propertyModels/ItemFeaturesModel.js";
 import { toggleElement } from "./module/util/animatedDisplay";
@@ -539,7 +540,7 @@ Hooks.on(
                 const type = $(event.currentTarget).closestData("type");
                 const value = $(event.currentTarget).closestData("value");
                 const description = $(event.currentTarget).closestData("description");
-                actor.consumeCost(type, value, description);
+                actor.applyCost(type, parseCostString(value ?? "").asPrimaryCost(), description ?? "");
             })
         );
 

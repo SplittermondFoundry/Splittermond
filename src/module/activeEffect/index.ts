@@ -29,8 +29,8 @@ export type {
     ModifierEntry,
     CostModifierEntry,
 } from "./types";
-export type { EffectCardContext, EffectCardBadge, EffectCardEffect } from "./effectCardContext";
-export { buildEffectCardContext } from "./effectCardContext";
+export type { EffectCardContext, EffectCardBadge, EffectCardEffect, DefaultViewEffect } from "./effectCardContext";
+export { buildEffectCardContext, showInDefaultView } from "./effectCardContext";
 
 /**
  * Register the custom ActiveEffect subclass with Foundry.

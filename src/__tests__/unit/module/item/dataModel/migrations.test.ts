@@ -6,9 +6,9 @@ import {
     from13_8_8_migrateSkillModifiers,
     migrateFrom0_12_13,
     migrateFrom0_12_20,
-} from "../../../../../module/item/dataModel/migrations";
+} from "module/item/dataModel/migrations";
 import sinon from "sinon";
-import { foundryApi } from "../../../../../module/api/foundryApi";
+import { foundryApi } from "module/api/foundryApi";
 
 describe("Modifier migration from 0.12.13", () => {
     it("should replace emphasis with emphasis attribute", () => {

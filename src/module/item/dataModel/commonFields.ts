@@ -61,12 +61,12 @@ export function damage() {
     };
 }
 
-export function validatedBoolean() {
+export function validatedBoolean(initial: boolean = false) {
     // noinspection PointlessBooleanExpressionJS
     return new fields.BooleanField({
         required: true,
         nullable: false,
-        initial: false,
+        initial,
         //Not pointless, I literally want to check that we only get literal 'true' of 'false' here, no other truthy of falsy value
         validate: (x) => x === true || x === false,
     });

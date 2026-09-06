@@ -17,6 +17,10 @@
         "damageType": "damage type",
         "damageCategory": "damage category",
         "channeledDamage": "channeled damage",
+        "channelEnd": "End channel",
+        "channelRevert": "Revert channel",
+        "bonusPoints": "Bonus points",
+        "bonusPointsSpent": "Spent bonus points",
         "normalDamage": "normal damage",
         "stunDamage": "stun damage",
         "noDamage": "no damage category",
@@ -191,7 +195,8 @@
                 "channelled": "channelled",
                 "timed": "timed",
                 "timeRemaining": "{n} remaining",
-                "generatedFromItemProperty": "generated from item property"
+                "generatedFromItemProperty": "generated from item property",
+                "bonusExhausted": "bonus used up"
             },
             "propertyEffectName": {
                 "defense": "Defense",
@@ -203,8 +208,8 @@
                 "defenseWeaponMalus": "Defense (Weapon Malus)"
             },
             "edit": "Edit Effect",
-            "hideInactiveEffects": "Hide inactive effects",
-            "showInactiveEffects": "Show inactive effects"
+            "showAllEffects": "Show all effects",
+            "showDefaultEffects": "Show only relevant effects"
         }
     },
     "enable": "Enable",

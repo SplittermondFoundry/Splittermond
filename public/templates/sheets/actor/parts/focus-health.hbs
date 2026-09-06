@@ -11,6 +11,7 @@
                 <div class="value" style="left: {{system.focus.available.percentage}}%">
                     {{system.focus.available.value}}
                 </div>
+                {{#if system.focus.bonusPool.percentage}}<div class="bonus" style="left: {{system.focus.bonusPool.startPercentage}}%; width: {{system.focus.bonusPool.percentage}}%" data-tooltip="{{localize 'splittermond.bonusPoints'}}: {{system.focus.bonusPool.remaining}}"></div>{{/if}}
             </div>
             <div class="value-max">
                 {{system.focus.max}}
@@ -24,7 +25,7 @@
                         <i class="fa fa-minus" aria-hidden="true"></i></button>
                     <input name="system.focus.exhausted.value" type="text"
                            value="{{system.focus.exhausted.value}}" data-dtype="Number">
-                    <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='system.focus.exhausted.value']">
+                    <button class="button-inline" type="button" data-action="inc-damage" data-type="focus" data-counter="exhausted">
                         <i class="fa fa-plus" aria-hidden="true"></i></button>
                 </div>
             </div>
@@ -35,8 +36,14 @@
                         <i class="fa fa-minus" aria-hidden="true"></i></button>
                     <input name="system.focus.consumed.value" type="text"
                            value="{{system.focus.consumed.value}}" data-dtype="Number">
-                    <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='system.focus.consumed.value']">
+                    <button class="button-inline" type="button" data-action="inc-damage" data-type="focus" data-counter="consumed">
                         <i class="fa fa-plus" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            <div class="health-focus-data-part bonus-data">
+                <label>{{localize 'splittermond.bonusPoints'}}</label>
+                <div class="value">
+                    <span data-tooltip="{{localize 'splittermond.bonusPointsSpent'}}: {{system.focus.bonusPool.used}}">{{system.focus.bonusPool.remaining}}</span>
                 </div>
             </div>
             <div class="list health-channeled-list">
@@ -59,7 +66,12 @@
                         <div class="costs"><input data-array-field="costs" type="text" value="{{this.costs}}"
                                 data-dtype="Number"></div>
                         <div class="list-actions">
-                            <button class="button-inline" type="button" data-action="delete-array-element">
+                            <button class="button-inline" type="button" data-action="end-channel"
+                                data-render-sheet="0" data-tooltip="{{localize 'splittermond.channelEnd'}}">
+                                <i class="fa fa-stop-circle" aria-hidden="true"></i>
+                            </button>
+                            <button class="button-inline" type="button" data-action="delete-array-element"
+                                data-tooltip="{{localize 'splittermond.channelRevert'}}">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -81,6 +93,7 @@
                 <div class="value" style="left: {{system.health.total.percentage}}%">
                     {{system.health.total.value}}
                 </div>
+                {{#if system.health.bonusPool.percentage}}<div class="bonus" style="left: {{system.health.bonusPool.startPercentage}}%; width: {{system.health.bonusPool.percentage}}%" data-tooltip="{{localize 'splittermond.bonusPoints'}}: {{system.health.bonusPool.remaining}}"></div>{{/if}}
             </div>
             <div class="value-max">
                 {{system.health.max}}
@@ -90,34 +103,38 @@
             {{#each system.health.woundMalus.levels}}
                 <div class="wound-malus-level{{#if
                         (eq ../system.health.woundMalus.value this.value)}} wound-malus-level-active{{/if}}"
-                     title="{{localize this.label}}">{{this.value}}</div>
+                     data-tooltip="{{localize this.label}}">{{this.value}}</div>
             {{/each}}
             <label>{{localize "splittermond.woundMalus"}}</label>
         </div>
          <div class="health-focus-data">
             <div class="health-focus-data-part consumed">
-                <label>{{localize 'splittermond.normalDamage'}}
+                <label for="system.health.consumed.value">{{localize 'splittermond.normalDamage'}}</label>
                 <div class="value">
                     <button class="button-inline" type="button" data-action="dec-value" data-input-query="input[name='system.health.consumed.value']">
                         <i class="fa fa-minus" aria-hidden="true"></i></button>
                     <input name="system.health.consumed.value" type="text"
                            value="{{system.health.consumed.value}}" data-dtype="Number">
-                    <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='system.health.consumed.value']">
+                    <button class="button-inline" type="button" data-action="inc-damage" data-type="health" data-counter="consumed">
                         <i class="fa fa-plus" aria-hidden="true"></i></button>
                 </div>
-                </label>
             </div>
             <div class="health-focus-data-part exhausted">
-                <label for="system.health.exhausted.value">{{localize 'splittermond.stunDamage'}}
+                <label for="system.health.exhausted.value">{{localize 'splittermond.stunDamage'}}</label>
                 <div class="value">
                     <button class="button-inline" type="button" data-action="dec-value" data-input-query="input[name='system.health.exhausted.value']">
                         <i class="fa fa-minus" aria-hidden="true"></i></button>
                     <input name="system.health.exhausted.value" type="text"
                            value="{{system.health.exhausted.value}}" data-dtype="Number">
-                    <button class="button-inline" type="button" data-action="inc-value" data-input-query="input[name='system.health.exhausted.value']">
+                    <button class="button-inline" type="button" data-action="inc-damage" data-type="health" data-counter="exhausted">
                         <i class="fa fa-plus" aria-hidden="true"></i></button>
                 </div>
-                </label>
+            </div>
+            <div class="health-focus-data-part bonus-data">
+                <label>{{localize 'splittermond.bonusPoints'}}</label>
+                <div class="value">
+                    <span data-tooltip="{{localize 'splittermond.bonusPointsSpent'}}: {{system.health.bonusPool.used}}">{{system.health.bonusPool.remaining}}</span>
+                </div>
             </div>
             <div class="list health-channeled-list">
                 <div class="list-header">
@@ -139,7 +156,12 @@
                         <div class="costs"><input data-array-field="costs" type="text" value="{{this.costs}}"
                                 data-dtype="Number"></div>
                         <div class="list-actions">
-                            <button class="button-inline" type="button" data-action="delete-array-element">
+                            <button class="button-inline" type="button" data-action="end-channel"
+                                data-render-sheet="0" data-tooltip="{{localize 'splittermond.channelEnd'}}">
+                                <i class="fa fa-stop-circle" aria-hidden="true"></i>
+                            </button>
+                            <button class="button-inline" type="button" data-action="delete-array-element"
+                                data-tooltip="{{localize 'splittermond.channelRevert'}}">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>
                         </div>

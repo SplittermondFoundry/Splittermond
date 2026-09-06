@@ -49,7 +49,7 @@ describe("damageApplicationHandlers", () => {
             ]);
             expect(
                 dialogMock.getUserAdjustedDamage.args.map(
-                    (arg) => (arg[0].target as SinonStubbedInstance<SplittermondActor>).consumeCost.called
+                    (arg) => (arg[0].target as SinonStubbedInstance<SplittermondActor>).applyCost.called
                 )
             ).to.deep.equal([true, true, true]);
         });
@@ -66,7 +66,7 @@ describe("damageApplicationHandlers", () => {
             expect(dialogMock.getUserAdjustedDamage.calledTwice).to.be.true;
             expect(
                 dialogMock.getUserAdjustedDamage.args.map(
-                    (arg) => (arg[0].target as SinonStubbedInstance<SplittermondActor>).consumeCost.called
+                    (arg) => (arg[0].target as SinonStubbedInstance<SplittermondActor>).applyCost.called
                 )
             ).to.deep.equal([false, false]);
         });
@@ -126,7 +126,7 @@ describe("damageApplicationHandlers", () => {
             ]);
             expect(
                 dialogMock.getUserAdjustedDamage.args.map(
-                    (arg) => (arg[0].target as SinonStubbedInstance<SplittermondActor>).consumeCost.called
+                    (arg) => (arg[0].target as SinonStubbedInstance<SplittermondActor>).applyCost.called
                 )
             ).to.deep.equal([true, true, true]);
         });
@@ -143,7 +143,7 @@ describe("damageApplicationHandlers", () => {
             expect(dialogMock.getUserAdjustedDamage.calledTwice).to.be.true;
             expect(
                 dialogMock.getUserAdjustedDamage.args.map(
-                    (arg) => (arg[0].target as SinonStubbedInstance<SplittermondActor>).consumeCost.called
+                    (arg) => (arg[0].target as SinonStubbedInstance<SplittermondActor>).applyCost.called
                 )
             ).to.deep.equal([false, false]);
         });
@@ -177,7 +177,7 @@ describe("damageApplicationHandlers", () => {
             );
             expect(
                 (dialogMock.getUserAdjustedDamage.firstCall.args[0].target as SinonStubbedInstance<SplittermondActor>)
-                    .consumeCost.called
+                    .applyCost.called
             ).to.be.true;
         });
 
@@ -196,7 +196,7 @@ describe("damageApplicationHandlers", () => {
             );
             expect(
                 (dialogMock.getUserAdjustedDamage.firstCall.args[0].target as SinonStubbedInstance<SplittermondActor>)
-                    .consumeCost.called
+                    .applyCost.called
             ).to.be.false;
         });
     });

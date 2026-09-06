@@ -5,15 +5,17 @@ import Attribute from "./attribute";
 import Skill from "./skill";
 import DerivedValue from "./derived-value";
 import ModifierManager from "./modifiers/modifier-manager";
+import { Modifiers } from "./modifiers/Modifiers";
 import Attack from "./attack";
 import ActiveDefense from "./active-defense.js";
-import { parseCostString } from "../util/costs/costParser";
+import { Cost } from "../util/costs/Cost";
 import { initializeSpellCostManagement } from "../util/costs/spellCostManagement";
 import { settings } from "../settings";
 import { splittermond } from "../config";
 import { foundryApi } from "../api/foundryApi";
 import { Susceptibilities } from "./Susceptibilities";
 import { addModifier } from "./addModifierAdapter";
+import { evaluateBonusPool, allocateFromBonusPool, isEffectBonusExhausted } from "./bonusPool";
 import { evaluate, max, min, minus, of, plus, syncEvaluate } from "../modifiers/expressions/scalar";
 import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
@@ -26,6 +28,9 @@ import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 import { fromExpression } from "module/util/util.ts";
 import { copyCompendiumEffectToItem } from "../activeEffect/compendiumEffectAssignment.ts";
 import { substituteSkill, stripSchwerpunktPrefix } from "../activeEffect/sentinelSubstitution.ts";
+import { documentValidator, registerHook } from "module/hooks/index.ts";
+import { fields } from "module/data/SplittermondDataModel.ts";
+import { PrimaryCost } from "module/util/costs/PrimaryCost.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -74,6 +79,74 @@ settings
     .then((accessor) => (getHeroLevelMultiplier = accessor.get))
     .catch((e) => console.error("Splittermond | Failed to register setting for hero level multipliers", e));
 
+/**
+ * A channeled-costs entry of a health/focus resource track, as defined by the
+ * `channeled.entries` schema of HealthDataModel and FocusDataModel
+ * (`./dataModel/`).
+ * @typedef {Object} ChanneledEntry
+ * @property {string} description
+ * @property {number} costs
+ */
+
+/**
+ * A persisted entry of the health/focus bonus pool. The `sourceId` is the uuid
+ * of the granting ActiveEffect, the `value` that source's remaining points.
+ * @typedef {Object} BonusEntry
+ * @property {string} sourceId
+ * @property {number} value
+ */
+
+/**
+ * A health or focus resource track. The `consumed`, `exhausted`, `channeled`
+ * and `bonus` fields are schema-backed (see HealthDataModel and FocusDataModel
+ * in `./dataModel/`); `available`, `total`, `max`, the `percentage` fields and
+ * `bonusPool` are the ephemeral values added by
+ * `SplittermondActor#_prepareHealthFocus`.
+ * @typedef {Object} ResourceTrack
+ * @property {{value: number|string}} consumed
+ * @property {{value: number|string}} exhausted
+ * @property {{value: number, entries: ChanneledEntry[]}} channeled
+ * @property {{entries: BonusEntry[]}} bonus
+ * @property {{value: number, percentage: number}} available
+ * @property {{value: number, percentage: number}} total
+ * @property {import("./bonusPool").BonusPoolState & {startPercentage: number, percentage: number}} bonusPool
+ * @property {number|string} max
+ */
+
+/**
+ * Clamps a health/focus point value into the [0, maximum] range.
+ * @param {number} value
+ * @param {number} maximum
+ * @returns {number}
+ */
+function limitToStatPoints(value, maximum) {
+    return Math.max(Math.min(value, maximum), 0);
+}
+
+/**
+ * Sums the costs of the channeled entries of a health/focus resource track.
+ * @param {ChanneledEntry[]} entries
+ * @returns {number}
+ */
+function sumChanneledCosts(entries) {
+    return entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0);
+}
+
+/**
+ * Normalizes a `consumed`/`exhausted` counter of a health/focus resource
+ * track: a falsy value yields a fresh `{value: 0}` object, otherwise `value`
+ * is overwritten with its parsed integer, preserving the counter object.
+ * @param {{value: number|string}} counter
+ * @returns {{value: number}}
+ */
+function normalizePointCounter(counter) {
+    if (!counter.value) {
+        return { value: 0 };
+    }
+    counter.value = parseInt(counter.value);
+    return counter;
+}
+
 export default class SplittermondActor extends Actor {
     actorData() {
         return this.system;
@@ -86,6 +159,7 @@ export default class SplittermondActor extends Actor {
         //console.log(`prepareBaseData() - ${this.type}: ${this.name}`);/a
         super.prepareBaseData();
         this.modifier = new ModifierManager();
+        this.bonusGrants = { healthpoints: [], focuspoints: [] };
         this._resistances = new Susceptibilities("resistance", this.modifier);
         this._weaknesses = new Susceptibilities("weakness", this.modifier);
 
@@ -138,6 +212,10 @@ export default class SplittermondActor extends Actor {
                 channeled: {
                     entries: [],
                 },
+                bonus: {
+                    entries: [],
+                },
+                bonusPool: { granted: 0, remaining: 0, used: 0, startPercentage: 0, percentage: 0 },
             };
         }
 
@@ -152,6 +230,10 @@ export default class SplittermondActor extends Actor {
                 channeled: {
                     entries: [],
                 },
+                bonus: {
+                    entries: [],
+                },
+                bonusPool: { granted: 0, remaining: 0, used: 0, startPercentage: 0, percentage: 0 },
             };
         }
 
@@ -278,9 +360,53 @@ export default class SplittermondActor extends Actor {
         if (phase !== "initial") return; //needs to be initial, b/c 'final' happens after derived value calculation.
         SplittermondActiveEffect.withFilter();
         for (/**@type SplittermondActiveEffect*/ const effect of this.allApplicableEffects()) {
-            SplittermondActiveEffect.getModifiers([effect]).forEach((mod) => this.modifier.addModifier(mod));
+            const modifiers = SplittermondActiveEffect.getModifiers([effect]);
+            modifiers.forEach((mod) => this.modifier.addModifier(mod));
+            this.#captureBonusGrants(effect, modifiers);
             this.sortCostModifiersIntoManagers(SplittermondActiveEffect.getCostModifiers([effect]));
         }
+    }
+
+    /**
+     * @param {SplittermondActiveEffect} effect
+     * @param {import("module/modifiers").IModifier[]} modifiers
+     */
+    #captureBonusGrants(effect, modifiers) {
+        [
+            ["actor.healthpoints.bonus", "healthpoints"],
+            ["actor.focuspoints.bonus", "focuspoints"],
+        ].forEach(([groupId, type]) => {
+            const selected = Modifiers.from(modifiers.filter((mod) => mod.groupId.toLowerCase() === groupId));
+            if (selected.length === 0) return;
+            const value = Math.max(Math.ceil(syncEvaluate(selected.sumExpressions())), 0);
+            if (value > 0) {
+                this.bonusGrants[type].push({ sourceId: effect.uuid, value });
+            }
+        });
+    }
+
+    /**
+     * Whether an active effect has become ineffective: every health/focus
+     * bonus it granted has been fully allocated and it applies no other
+     * modifiers or cost modifications. Derived on the fly from the pool
+     * entries persisted in the system data and the bonus grants captured
+     * during the last data preparation.
+     * @param {SplittermondActiveEffect} effect
+     * @returns {boolean}
+     */
+    isEffectIneffective(effect) {
+        const pools = [
+            { entries: this.system.health.bonus.entries, grants: this.bonusGrants.healthpoints },
+            { entries: this.system.focus.bonus.entries, grants: this.bonusGrants.focuspoints },
+        ];
+        if (!isEffectBonusExhausted(effect.uuid, pools)) return false;
+        const bonusGroupIds = ["actor.healthpoints.bonus", "actor.focuspoints.bonus"];
+        return (
+            SplittermondActiveEffect.getCostModifiers([effect]).length === 0 &&
+            SplittermondActiveEffect.getModifiers([effect]).every((mod) =>
+                bonusGroupIds.includes(mod.groupId.toLowerCase())
+            )
+        );
     }
 
     /**
@@ -344,142 +470,151 @@ export default class SplittermondActor extends Actor {
         return this.modifier.getForId("actor.woundmalus.mod").getModifiers().asProperty().summed();
     }
 
+    /**
+     * Prepares the health and focus resource tracks on `system.health` and
+     * `system.focus` (shaped by HealthDataModel / FocusDataModel in
+     * `./dataModel/` plus the ephemeral `available`, `total`, `max`,
+     * `percentage` and `bonusPool` values), the wound malus level and value, and the
+     * `healthBar`/`focusBar` token bar data. The healthpoints and focuspoints
+     * derived values are evaluated exactly once each; neither of them can
+     * reference the wound malus modifiers registered by `_prepareWoundMalus`
+     * afterwards, so caching them up front is equivalent.
+     *
+     * @returns {void}
+     */
     _prepareHealthFocus() {
         const data = this.system;
         const healthNbrLevels = this.healthNbrLevels;
+        const healthpointsPerLevel = this.derivedValues.healthpoints.value.calculateSync();
+        const focuspoints = this.derivedValues.focuspoints.value.calculateSync();
+        const healthStatPoints = healthpointsPerLevel * healthNbrLevels;
+        const statPointsByType = { health: healthStatPoints, focus: focuspoints };
+        const bonusPools = {
+            health: evaluateBonusPool(data.health.bonus.entries, this.bonusGrants.healthpoints),
+            focus: evaluateBonusPool(data.focus.bonus.entries, this.bonusGrants.focuspoints),
+        };
 
-        data.health.woundMalus.levels = foundryApi.utils.duplicate(splittermond.woundMalus[healthNbrLevels]);
-        data.health.woundMalus.levels = data.health.woundMalus.levels.map((i) => {
-            i.value = Math.min(i.value - this.woundMalusMod.calculateSync(), 0);
-            return i;
-        });
+        const woundMalusMod = this.woundMalusMod.calculateSync();
+        data.health.woundMalus.levels = foundryApi.utils
+            .duplicate(splittermond.woundMalus[healthNbrLevels])
+            .map((level) => {
+                level.value = Math.min(level.value - woundMalusMod, 0);
+                return level;
+            });
 
-        ["health", "focus"].forEach((type) => {
-            if (data[type].channeled.hasOwnProperty("entries")) {
-                if (type === "health") {
-                    data[type].channeled.value = Math.max(
-                        Math.min(
-                            data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    );
-                } else {
-                    data[type].channeled.value = Math.max(
-                        Math.min(
-                            data[type].channeled.entries.reduce((acc, val) => acc + parseInt(val.costs || 0), 0),
-                            this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    );
-                }
-            } else {
-                data[type].channeled = {
-                    value: 0,
-                    entries: [],
-                };
-            }
-
-            if (!data[type].exhausted.value) {
-                data[type].exhausted = {
-                    value: 0,
-                };
-            }
-
-            data[type].exhausted.value = parseInt(data[type].exhausted.value);
-
-            if (!data[type].consumed.value) {
-                data[type].consumed = {
-                    value: 0,
-                };
-            }
-
-            data[type].consumed.value = parseInt(data[type].consumed.value);
-            if (type === "health") {
-                data[type].available = {
-                    value: Math.max(
-                        Math.min(
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync() -
-                                data[type].channeled.value -
-                                data[type].exhausted.value -
-                                data[type].consumed.value,
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    ),
-                };
-
-                data[type].total = {
-                    value: Math.max(
-                        Math.min(
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync() -
-                                data[type].consumed.value,
-                            healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    ),
-                };
-
-                data[type].available.percentage =
-                    (100 * data[type].available.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
-                data[type].exhausted.percentage =
-                    (100 * data[type].exhausted.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
-                data[type].channeled.percentage =
-                    (100 * data[type].channeled.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
-                data[type].total.percentage =
-                    (100 * data[type].total.value) /
-                    (healthNbrLevels * this.derivedValues[type + "points"].value.calculateSync());
-                data[type].max = healthNbrLevels * this.derivedValues.healthpoints.value.calculateSync();
-            } else {
-                data[type].available = {
-                    value: Math.max(
-                        Math.min(
-                            this.derivedValues[type + "points"].value.calculateSync() -
-                                data[type].channeled.value -
-                                data[type].exhausted.value -
-                                data[type].consumed.value,
-                            this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    ),
-                };
-
-                data[type].total = {
-                    value: Math.max(
-                        Math.min(
-                            this.derivedValues[type + "points"].value.calculateSync() - data[type].consumed.value,
-                            this.derivedValues[type + "points"].value.calculateSync()
-                        ),
-                        0
-                    ),
-                };
-                if (this.derivedValues[type + "points"].value.calculateSync()) {
-                    data[type].available.percentage =
-                        (100 * data[type].available.value) / this.derivedValues[type + "points"].value.calculateSync();
-                    data[type].exhausted.percentage =
-                        (100 * data[type].exhausted.value) / this.derivedValues[type + "points"].value.calculateSync();
-                    data[type].channeled.percentage =
-                        (100 * data[type].channeled.value) / this.derivedValues[type + "points"].value.calculateSync();
-                    data[type].total.percentage =
-                        (100 * data[type].total.value) / this.derivedValues[type + "points"].value.calculateSync();
-                    data[type].max = this.derivedValues.focuspoints.value.display;
-                } else {
-                    data[type].available.percentage = 0;
-                    data[type].exhausted.percentage = 0;
-                    data[type].channeled.percentage = 0;
-                    data[type].total.percentage = 0;
-                    data[type].max = 0;
-                }
-            }
-        });
-        const currentLevel = Math.floor(
-            data.health.total.value / this.derivedValues.healthpoints.value.calculateSync()
+        ["health", "focus"].forEach((type) =>
+            this._prepareResourceTrack(type, statPointsByType[type], bonusPools[type])
         );
+
+        this._prepareWoundMalus(healthpointsPerLevel, healthNbrLevels);
+
+        data.healthBar = {
+            value: data.health.total.value,
+            max: healthStatPoints + bonusPools.health.remaining,
+        };
+
+        data.focusBar = {
+            value: data.focus.available.value,
+            max: focuspoints + bonusPools.focus.remaining,
+        };
+    }
+
+    /**
+     * Prepares a single health/focus resource track: normalizes the
+     * `channeled`, `exhausted` and `consumed` counters and derives the
+     * `available`, `total`, `percentage` and `max` values as well as the
+     * `bonusPool` overlay geometry. The bonus pool extends the track's
+     * capacity to `statPoints + bonus.remaining`, and the bar geometry
+     * divides by `capacity = statPoints + bonus.remaining`; the bar ledger
+     * in the well-formed case is
+     * `available + uncoveredChanneled + exhausted + consumed = capacity`.
+     * The `bonus` overlay marks the bonus tail of the available segment;
+     * there is no separate overlay for the used share of the bonus. For
+     * health, `statPoints` is the total across all wound malus levels; for
+     * focus it is the focuspoint pool. A focus track without stat points gets
+     * zeroed values, percentages, geometry and `max`.
+     *
+     * @param {"health"|"focus"} type
+     * @param {number} statPoints
+     * @param {import("./bonusPool").BonusPoolState} bonus
+     * @returns {void}
+     */
+    _prepareResourceTrack(type, statPoints, bonus) {
+        /**@type ResourceTrack*/
+        const resource = this.system[type];
+        const capacity = statPoints + bonus.remaining;
+
+        if (resource.channeled.hasOwnProperty("entries")) {
+            resource.channeled.value = limitToStatPoints(sumChanneledCosts(resource.channeled.entries), capacity);
+        } else {
+            resource.channeled = {
+                value: 0,
+                entries: [],
+            };
+        }
+
+        resource.exhausted = normalizePointCounter(resource.exhausted);
+        resource.consumed = normalizePointCounter(resource.consumed);
+
+        const coveredChanneled = Math.min(bonus.remaining, resource.channeled.value);
+        const uncoveredChanneled = resource.channeled.value - coveredChanneled;
+        resource.available = {
+            value: limitToStatPoints(
+                capacity - uncoveredChanneled - resource.exhausted.value - resource.consumed.value,
+                capacity
+            ),
+        };
+        resource.total = {
+            value: limitToStatPoints(capacity - resource.consumed.value, capacity),
+        };
+
+        if (type === "focus" && !statPoints) {
+            resource.available.value = 0;
+            resource.available.percentage = 0;
+            resource.exhausted.percentage = 0;
+            resource.channeled.percentage = 0;
+            resource.total.value = 0;
+            resource.total.percentage = 0;
+            resource.max = 0;
+            Object.assign(resource.bonusPool, { ...bonus, startPercentage: 0, percentage: 0 });
+            return;
+        }
+
+        resource.available.percentage = (100 * resource.available.value) / capacity;
+        resource.exhausted.percentage = (100 * resource.exhausted.value) / capacity;
+        resource.channeled.percentage = (100 * uncoveredChanneled) / capacity;
+        resource.total.percentage = (100 * resource.total.value) / capacity;
+
+        Object.assign(resource.bonusPool, {
+            ...bonus,
+            startPercentage: (100 * Math.max(resource.available.value - bonus.remaining, 0)) / capacity,
+            percentage: (100 * Math.min(bonus.remaining, resource.available.value)) / capacity,
+        });
+
+        if (type === "health") {
+            resource.max = capacity;
+        } else if (bonus.remaining > 0) {
+            resource.max = `${this.derivedValues.focuspoints.value.display} + ${bonus.remaining}`;
+        } else {
+            resource.max = this.derivedValues.focuspoints.value.display;
+        }
+    }
+
+    /**
+     * Derives the wound malus level and value from the total health points
+     * (`healthpointsPerLevel` per level) and registers the wound malus as an
+     * innate skill modifier and as an inverted initiative modifier.
+     *
+     * @param {number} healthpointsPerLevel
+     * @param {number} healthNbrLevels
+     * @returns {void}
+     */
+    _prepareWoundMalus(healthpointsPerLevel, healthNbrLevels) {
+        const woundMalus = this.system.health.woundMalus;
+
+        const currentLevel = Math.floor(this.system.health.total.value / healthpointsPerLevel);
         const baseLevel = Math.max(healthNbrLevels - currentLevel - 1, 0);
-        data.health.woundMalus.level = syncEvaluate(
+        woundMalus.level = syncEvaluate(
             min(
                 plus(
                     of(baseLevel),
@@ -489,40 +624,23 @@ export default class SplittermondActor extends Actor {
             )
         );
 
-        let woundMalusValue = data.health.woundMalus.levels[data.health.woundMalus.level];
-        data.health.woundMalus.value = woundMalusValue?.value ?? 0;
+        const currentWoundMalusLevel = woundMalus.levels[woundMalus.level];
+        woundMalus.value = currentWoundMalusLevel?.value ?? 0;
 
-        if (data.health.woundMalus.value) {
-            this.modifier.add(
-                "woundmalus",
-                {
-                    name: foundryApi.localize("splittermond.woundMalus"),
-                    type: "innate",
-                },
-                of(data.health.woundMalus.value)
-            );
-            this.modifier.addModifier(
-                InverseModifier.create(
-                    "initiativewoundmalus",
-                    of(-data.health.woundMalus.value),
-                    {
-                        name: foundryApi.localize("splittermond.woundMalus"),
-                        type: "innate",
-                    },
-                    false
-                )
-            );
+        if (!woundMalus.value) {
+            return;
         }
 
-        data.healthBar = {
-            value: data.health.total.value,
-            max: healthNbrLevels * this.derivedValues.healthpoints.value.calculateSync(),
-        };
-
-        data.focusBar = {
-            value: data.focus.available.value,
-            max: this.derivedValues.focuspoints.value.calculateSync(),
-        };
+        const woundMalusLabel = foundryApi.localize("splittermond.woundMalus");
+        this.modifier.add("woundmalus", { name: woundMalusLabel, type: "innate" }, of(woundMalus.value));
+        this.modifier.addModifier(
+            InverseModifier.create(
+                "initiativewoundmalus",
+                of(-woundMalus.value),
+                { name: woundMalusLabel, type: "innate" },
+                false
+            )
+        );
     }
 
     _prepareAttacks() {
@@ -1363,18 +1481,36 @@ export default class SplittermondActor extends Actor {
     }
 
     /**
-     *
+     * Applies a health or focus cost to the actor. Channeled costs open a new
+     * channeled entry; consumed and exhausted costs are first absorbed from
+     * the bonus pool granted by active effects, and only the remainder is
+     * charged to the counters.
      * @param {"health"|"focus"} type
-     * @param {string} valueStr  a string of same form as given for Splittermond Spells
-     * @param description
+     * @param {import("../util/costs/PrimaryCost").PrimaryCost} primaryCost
+     * @param {string} description
      */
-    consumeCost(type, valueStr, description) {
-        const data = this.system;
-        let costData = parseCostString(valueStr.toString()).asPrimaryCost();
+    applyCost(type, primaryCost, description) {
+        const subData = foundryApi.utils.duplicate(this.system[type]);
+        this.#applyCostToSubData(type, primaryCost, description, subData);
+        return this.update({
+            system: {
+                [type]: subData,
+            },
+        });
+    }
 
-        let subData = foundryApi.utils.duplicate(data[type]);
-
-        if (costData.channeled) {
+    /**
+     * @param {"health"|"focus"} type
+     * @param {import("../util/costs/PrimaryCost").PrimaryCost} primaryCost
+     * @param {string} description
+     * @param {object} subData
+     */
+    #applyCostToSubData(type, primaryCost, description, subData) {
+        console.log(
+            `Splittermond | Actor ${this.name} absorbed ${primaryCost} to his ${type} ${!!description ? `due to ${description}` : ""}`
+        );
+        onApplyCostHook.call(this, type, primaryCost);
+        if (primaryCost.channeled > 0) {
             if (!subData.channeled.hasOwnProperty("entries")) {
                 subData.channeled = {
                     value: 0,
@@ -1384,7 +1520,7 @@ export default class SplittermondActor extends Actor {
 
             subData.channeled.entries.push({
                 description: description,
-                costs: costData.channeled,
+                costs: primaryCost.channeled,
             });
         }
         if (!subData.exhausted.value) {
@@ -1399,8 +1535,60 @@ export default class SplittermondActor extends Actor {
             };
         }
 
-        subData.exhausted.value += costData.exhausted;
-        subData.consumed.value += costData.consumed;
+        const grants = type === "health" ? this.bonusGrants.healthpoints : this.bonusGrants.focuspoints;
+        if (primaryCost.consumed > 0) {
+            const consumedAllocation = allocateFromBonusPool(
+                subData.bonus?.entries ?? [],
+                grants,
+                primaryCost.consumed
+            );
+            subData.bonus = { entries: consumedAllocation.entries };
+            subData.consumed.value += primaryCost.consumed - consumedAllocation.absorbed;
+        }
+        if (primaryCost.exhausted > 0) {
+            const exhaustedAllocation = allocateFromBonusPool(
+                subData.bonus?.entries ?? [],
+                grants,
+                primaryCost.exhausted
+            );
+            subData.bonus = { entries: exhaustedAllocation.entries };
+            subData.exhausted.value += primaryCost.exhausted - exhaustedAllocation.absorbed;
+        }
+    }
+
+    /**
+     *
+     * @param {"health"|"focus"} type
+     * @param {number} index index into system[type].channeled.entries
+     */
+    endChannel(type, index) {
+        const subData = foundryApi.utils.duplicate(this.system[type]);
+        const entry = subData.channeled.entries[index];
+        if (!entry) return;
+
+        const channelCost = new Cost(parseInt(entry.costs), 0, false).asPrimaryCost();
+        subData.channeled.entries.splice(index, 1);
+        this.#applyCostToSubData(type, channelCost, "", subData);
+
+        return this.update({
+            system: {
+                [type]: subData,
+            },
+        });
+    }
+
+    /**
+     *
+     * @param {"health"|"focus"} type
+     * @param {number} index index into system[type].channeled.entries
+     */
+    removeChannel(type, index) {
+        const data = this.system;
+        const subData = foundryApi.utils.duplicate(data[type]);
+        const entry = subData.channeled.entries[index];
+        if (!entry) return;
+
+        subData.channeled.entries.splice(index, 1);
 
         return this.update({
             system: {
@@ -1461,6 +1649,12 @@ export default class SplittermondActor extends Actor {
         return { withType, withName };
     }
 }
+
+const onApplyCostHook = registerHook("onApplyCost", () => [
+    documentValidator(SplittermondActor),
+    new fields.StringField({ required: true, nullable: false }),
+    new fields.EmbeddedDataField(PrimaryCost, { required: true, nullable: false }),
+]);
 
 async function askUserAboutActorOverwrite() {
     const labels = {
