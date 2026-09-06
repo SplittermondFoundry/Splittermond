@@ -28,9 +28,9 @@ import { showActiveDefenseDialog } from "module/actor/ActiveDefenseDialog.js";
 import { fromExpression } from "module/util/util.ts";
 import { copyCompendiumEffectToItem } from "../activeEffect/compendiumEffectAssignment.ts";
 import { substituteSkill, stripSchwerpunktPrefix } from "../activeEffect/sentinelSubstitution.ts";
-import {documentValidator, registerHook} from "module/hooks/index.ts";
-import {fields} from "module/data/SplittermondDataModel.ts";
-import {PrimaryCost} from "module/util/costs/PrimaryCost.ts";
+import { documentValidator, registerHook } from "module/hooks/index.ts";
+import { fields } from "module/data/SplittermondDataModel.ts";
+import { PrimaryCost } from "module/util/costs/PrimaryCost.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -1506,8 +1506,10 @@ export default class SplittermondActor extends Actor {
      * @param {object} subData
      */
     #applyCostToSubData(type, primaryCost, description, subData) {
-        console.log(`Splittermond | Actor ${this.name} absorbed ${primaryCost} to his ${type} ${!!description ?  `due to ${description}`:""}`);
-        onApplyCostHook.call(this,type,primaryCost);
+        console.log(
+            `Splittermond | Actor ${this.name} absorbed ${primaryCost} to his ${type} ${!!description ? `due to ${description}` : ""}`
+        );
+        onApplyCostHook.call(this, type, primaryCost);
         if (primaryCost.channeled > 0) {
             if (!subData.channeled.hasOwnProperty("entries")) {
                 subData.channeled = {
@@ -1648,10 +1650,10 @@ export default class SplittermondActor extends Actor {
     }
 }
 
-const onApplyCostHook = registerHook("onApplyCost",() =>[
+const onApplyCostHook = registerHook("onApplyCost", () => [
     documentValidator(SplittermondActor),
-    new fields.StringField({required:true,nullable:false}),
-    new fields.EmbeddedDataField(PrimaryCost, {required:true,nullable:false}),
+    new fields.StringField({ required: true, nullable: false }),
+    new fields.EmbeddedDataField(PrimaryCost, { required: true, nullable: false }),
 ]);
 
 async function askUserAboutActorOverwrite() {
