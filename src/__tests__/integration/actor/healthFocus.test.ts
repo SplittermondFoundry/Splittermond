@@ -1,5 +1,5 @@
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
-import { withActor } from "./fixtures";
+import { withActor } from "../fixtures";
 
 export function healthFocusTest(context: QuenchBatchContext) {
     const { describe, it, expect } = context;

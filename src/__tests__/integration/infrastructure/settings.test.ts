@@ -1,4 +1,4 @@
-import { settings } from "../../module/settings";
+import { settings } from "module/settings";
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
 
 declare const game: any;

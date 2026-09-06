@@ -2,10 +2,13 @@ import type SplittermondActor from "module/actor/actor";
 import type { FoundryActiveEffect } from "module/api/ActiveEffect";
 import type { FoundryScene, User } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
+import type { QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
 
 declare const game: any;
 declare const Scene: FoundryScene;
 declare const User: User & FoundryDocument;
+
+export type BatchRegistrar = (name: string, batch: QuenchRegisterBatchFunction) => void;
 
 export async function createActor() {
     const actor = await Actor.create({ type: "character", name: `Test Actor${nextId()}` });

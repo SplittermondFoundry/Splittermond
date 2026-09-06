@@ -1,6 +1,6 @@
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
-import { withActor } from "./fixtures";
-import { passesEventually } from "../util";
+import { withActor } from "../fixtures";
+import { passesEventually } from "../../util";
 import { isGenerated } from "module/activeEffect/effectBuilder";
 import type SplittermondActor from "module/actor/actor";
 import type { FoundryActiveEffect } from "module/api/ActiveEffect";

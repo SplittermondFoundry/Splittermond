@@ -4,8 +4,8 @@ import { regenerateBakedMultiplierEffects } from "module/activeEffect/migrations
 import { evaluate, of, times } from "module/modifiers/expressions/scalar";
 import { serialize } from "module/modifiers/expressions/scalar/serialization";
 import { foundryApi } from "module/api/foundryApi";
-import { withActor } from "./fixtures";
-import { passesEventually } from "../util";
+import { withActor } from "../fixtures";
+import { passesEventually } from "../../util";
 
 const MIGRATION_FLAG_SCOPE = "splittermond";
 const MIGRATION_FLAG_KEY = "bakedMultiplierV1MigrationDone";

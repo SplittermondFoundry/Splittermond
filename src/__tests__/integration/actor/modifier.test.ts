@@ -23,9 +23,9 @@ import {
 } from "module/modifiers/expressions/scalar";
 import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 import type SplittermondSpellItem from "module/item/spell";
-import { withActor } from "./fixtures";
+import { withActor } from "../fixtures";
 import Attack from "module/actor/attack";
-import { passesEventually } from "../util";
+import { passesEventually } from "../../util";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { SplittermondSkill } from "module/config/skillGroups";
 import { Modifier } from "module/activeEffect";

@@ -1,8 +1,8 @@
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import { SplittermondActiveEffect } from "module/activeEffect";
 import { evaluate } from "module/modifiers/expressions/scalar";
-import { withActor } from "./fixtures";
-import { passesEventually } from "../util";
+import { withActor } from "../fixtures";
+import { passesEventually } from "../../util";
 
 export function activeEffectMultiplierTest(context: QuenchBatchContext) {
     const { describe, it, expect } = context;

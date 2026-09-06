@@ -1,63 +1,42 @@
 import { applicationTests } from "./application.tests";
 import { itemTest } from "./item.test";
 import { chatActionFeatureTest } from "./chatActionFeature.test";
-import { dataModelTest } from "./api/dataModel.test";
 import { DamageProcessingTest } from "./DamageProcessingTest";
-import { foundryTypeDeclarationsTest } from "./api/foundryTypes.test";
-import { apiUtilsTest } from "./api/apiUtils.test";
-import { actorTest } from "./actor.test";
-import type { Quench } from "@ethaks/fvtt-quench";
-import { settingsTest } from "./settings.test";
-import { foundryRollTest } from "./api/Roll.test";
-import { modifierTest } from "./modifier.test";
-import { foundryKeybindingsTest } from "./api/keybindings.test";
+import type { Quench, QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
 import { combatTest } from "./combat.test";
-import { apiConstantsTest } from "./apiConstants.test";
-import { cssVariablesTest } from "./api/cssVariables.test";
-import { hooksTest } from "./hooks.test";
 import { activeEffectTest } from "./activeEffectConfig.test";
-import { activeEffectMultiplierTest } from "./activeEffectMultiplier.test";
-import { bakedMultiplierMigrationTest } from "./bakedMultiplierMigration.test";
-import { macroApiTest } from "./api/Macro.test";
 import { compendiumEffectAssignmentTest } from "./compendiumEffectAssignment.test";
 import { itemCompendiumAssignmentTest } from "./itemCompendiumAssignment.test";
-import { itemMigrationTest } from "./migrations/itemMigration.test";
-import { modifierToEffectMigrationTest } from "./migrations/modifierToEffectMigration.test";
-import { healthFocusTest } from "./healthFocus.test";
-import { healthBonusTest } from "./healthBonus.test";
+import { registerApiBatches } from "./api";
+import { registerMigrationBatches } from "./migrations";
+import { registerInfrastructureBatches } from "./infrastructure";
+import { registerActorBatches } from "./actor";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}
 
-function registerQuenchTests(quench: Quench) {
-    console.log("Splittermond | Initializing quench tests");
+function createRegistrar(quench: Quench, infix: string) {
+    return (name: string, func: QuenchRegisterBatchFunction) =>
+        quench.registerBatch(`splittermond.${infix}.${name}`, func);
+}
 
-    quench.registerBatch("splittermond.roll", foundryRollTest);
+function registerQuenchTests(quench: Quench) {
+    console.group("Quench");
+    console.log("Splittermond | Initializing quench tests");
+    registerApiBatches(createRegistrar(quench, "api"));
+    registerMigrationBatches(createRegistrar(quench, "migration"));
+    registerInfrastructureBatches(createRegistrar(quench, "infrastructure"));
+    registerActorBatches(createRegistrar(quench, "actor"));
+
     quench.registerBatch("splittermond.applications", applicationTests);
     quench.registerBatch("splittermond.item", itemTest);
-    quench.registerBatch("splittermond.actor", actorTest);
-    quench.registerBatch("splittermond.apiConstants", apiConstantsTest);
     quench.registerBatch("splittermond.combat", combatTest);
     quench.registerBatch("splittermond.chatSystem", chatActionFeatureTest);
-    quench.registerBatch("splittermond.dataModel", dataModelTest);
     quench.registerBatch("splittermond.damageProcessing", DamageProcessingTest);
-    quench.registerBatch("splittermond.foundryTypes", foundryTypeDeclarationsTest);
-    quench.registerBatch("splittermond.apiUtils", apiUtilsTest);
-    quench.registerBatch("splittermond.SettingsModule", settingsTest);
-    quench.registerBatch("splittermond.modifier", modifierTest);
-    quench.registerBatch("splittermond.keybindings", foundryKeybindingsTest);
-    quench.registerBatch("splittermond.cssVariables", cssVariablesTest);
-    quench.registerBatch("splittermond.hooks", hooksTest);
     quench.registerBatch("splittermond.activeEffectConfig", activeEffectTest);
-    quench.registerBatch("splittermond.activeEffectMultiplier", activeEffectMultiplierTest);
-    quench.registerBatch("splittermond.bakedMultiplierMigration", bakedMultiplierMigrationTest);
-    quench.registerBatch("splittermond.macro", macroApiTest);
     quench.registerBatch("splittermond.compendiumEffectAssignment", compendiumEffectAssignmentTest);
     quench.registerBatch("splittermond.itemCompendiumAssignment", itemCompendiumAssignmentTest);
-    quench.registerBatch("splittermond.itemMigration", itemMigrationTest);
-    quench.registerBatch("splittermond.modifierToEffectMigration", modifierToEffectMigrationTest);
-    quench.registerBatch("splittermond.healthFocus", healthFocusTest);
-    quench.registerBatch("splittermond.healthBonus", healthBonusTest);
+    console.groupEnd();
 }
 
 export function init() {
