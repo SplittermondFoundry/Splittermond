@@ -213,8 +213,8 @@
                 "tickmalusShield": "Tickmalus (Schild)",
                 "defenseWeaponMalus": "Verteidigung (Waffenmalus)"
             },
-            "hideInactiveEffects": "Inaktive Effekte ausblenden",
-            "showInactiveEffects": "Inaktive Effekte einblenden"
+            "showAllEffects": "Alle Effekte anzeigen",
+            "showDefaultEffects": "Nur relevante Effekte anzeigen"
         },
         "furtherActions": "Weitere Aktionen",
         "update": "Aktualisieren",
