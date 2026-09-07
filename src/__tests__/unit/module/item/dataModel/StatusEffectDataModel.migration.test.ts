@@ -26,6 +26,13 @@ describe("StatusEffect combatEvent migration (from 14.2.6)", () => {
         });
     });
 
+    it("migrates a zero value interval to null", () => {
+        const result = from14_2_6_migrateCombatEvent({ interval: 0 }) as Record<string, unknown>;
+
+        expect(result).to.deep.equal({ combatEvent: { interval: null } });
+        expect(Object.keys(result.combatEvent as object)).to.deep.equal(["interval"]);
+    });
+
     it("migrates a single legacy timing field without wiping other combatEvent members", () => {
         const result = from14_2_6_migrateCombatEvent({ interval: 5 }) as Record<string, unknown>;
 
