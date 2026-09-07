@@ -1397,14 +1397,13 @@ export default class SplittermondActor extends Actor {
 
     async longRest(clearChanneled = true, askUser = true) {
         const finalClearChanneled = askUser ? await this.#askUserForLongRest() : clearChanneled;
-        let focusData = foundryApi.utils.duplicate(this.system.focus);
-        let healthData = foundryApi.utils.duplicate(this.system.health);
 
         if (finalClearChanneled) {
-            focusData.channeled.entries = [];
+            await this.endChannel("focus", ...this.system.focus.channeled.entries.map((_, index) => index));
         }
 
-        healthData.channeled.entries = [];
+        let focusData = foundryApi.utils.duplicate(this.system.focus);
+        let healthData = foundryApi.utils.duplicate(this.system.health);
 
         focusData.exhausted.value = 0;
         healthData.exhausted.value = 0;
@@ -1559,17 +1558,23 @@ export default class SplittermondActor extends Actor {
     /**
      *
      * @param {"health"|"focus"} type
-     * @param {number} index index into system[type].channeled.entries
+     * @param {number} indexes index into system[type].channeled.entries
+     * @returns {Promise<this>}
      */
-    endChannel(type, index) {
+    endChannel(type, ...indexes) {
         const subData = foundryApi.utils.duplicate(this.system[type]);
-        const entry = subData.channeled.entries[index];
-        if (!entry) return;
+        let updated = false;
+        for (const index of [...indexes].sort((a, b) => b - a)) {
+            const entry = subData.channeled.entries[index];
+            if (!entry) continue;
 
-        const channelCost = new Cost(parseInt(entry.costs), 0, false).asPrimaryCost();
-        subData.channeled.entries.splice(index, 1);
-        this.#applyCostToSubData(type, channelCost, "", subData);
-
+            const channelCost = new Cost(parseInt(entry.costs), 0, false).asPrimaryCost();
+            subData.channeled.entries.splice(index, 1);
+            this.#applyCostToSubData(type, channelCost, "", subData);
+            updated = true;
+        }
+        if (!updated) return;
+        //If we didn't do an update foundry will recognize identity and skip the DB update for us.
         return this.update({
             system: {
                 [type]: subData,

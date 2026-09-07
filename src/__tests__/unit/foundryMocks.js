@@ -6,12 +6,31 @@ global.Hooks = {
     call() {},
 };
 
+function deepMerge(target, source) {
+    if (Array.isArray(source) || typeof source !== "object" || source === null) return source;
+    if (typeof target !== "object" || target === null || Array.isArray(target)) return deepMerge({}, source);
+    const result = { ...target };
+    for (const key in source) {
+        result[key] = key in result ? deepMerge(result[key], source[key]) : source[key];
+    }
+    return result;
+}
+
 class FoundryDocument {
     constructor(data, context) {}
 
     async update(data, options) {
         for (const key in data) {
-            this[key] = data[key];
+            const keys = key.split(".");
+            let target = this;
+            while (keys.length > 1) {
+                const k = keys.shift();
+                if (typeof target[k] !== "object" || target[k] === null) target[k] = {};
+                target = target[k];
+            }
+            const last = keys[0];
+            const value = data[key];
+            target[last] = deepMerge(target[last], value);
         }
     }
 
