@@ -7,7 +7,7 @@ img: icons/svg/upgrade.svg
 system:
     changes: []
     modifiers:
-        - path: vtd
+        - path: actor.defense
           serializedValue:
               type: amount
               amount: 2

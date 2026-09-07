@@ -7,7 +7,7 @@ img: icons/svg/upgrade.svg
 system:
     changes: []
     modifiers:
-        - path: lp
+        - path: actor.healthpoints
           serializedValue:
               type: amount
               amount: 1

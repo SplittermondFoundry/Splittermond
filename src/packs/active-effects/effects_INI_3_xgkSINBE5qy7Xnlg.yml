@@ -7,11 +7,11 @@ img: icons/svg/upgrade.svg
 system:
     changes: []
     modifiers:
-        - path: ini
+        - path: actor.initiative
           serializedValue:
               type: amount
               amount: -3
-          implementation: additive
+          implementation: inverse
           selectable: false
           attributes:
               name: INI -3

@@ -7,7 +7,7 @@ img: icons/svg/upgrade.svg
 system:
     changes: []
     modifiers:
-        - path: gsw
+        - path: actor.speed
           serializedValue:
               type: amount
               amount: 1
