@@ -13,7 +13,7 @@ export async function migrateItem(item: FoundryDocument, sourceSystem: Record<st
 
 function itemMigrationBuilder(): MigrationBuilder<FoundryDocument> {
     return new MigrationBuilder<FoundryDocument>(MIGRATION_FLAG_KEY)
-        .withWorldCollection(() => foundryApi.collections.items)
+        .withWorldCollection(generateWorldCollection)
         .withDocumentClass("Item")
         .withMigrationProcess(migrateItem)
         .withI18nPrefix("splittermond.migration.itemMigration");
@@ -32,4 +32,15 @@ export async function runItemMigration(options?: { force?: boolean }): Promise<M
 
 export async function promptAndRunItemMigration(): Promise<void> {
     return itemMigrator.promptAndRun();
+}
+
+function* generateWorldCollection() {
+    for (const item of foundryApi.collections.items) {
+        yield item;
+    }
+    for (const actor of foundryApi.collections.actors) {
+        for (const item of actor.items) {
+            yield item;
+        }
+    }
 }

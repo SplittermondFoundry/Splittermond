@@ -1,10 +1,12 @@
 import { foundryApi } from "module/api/foundryApi";
 import { MigrationBuilder, type MigrationResult } from "module/migrations/Migrator";
-import { getAddModifier } from "module/item/item";
+import SplittermondItem, { getAddModifier } from "module/item/item";
 import { addModifierEffects } from "module/activeEffect/effectBuilder";
 import { modifierTypeForItemType } from "module/activeEffect/modifierTypeResolver";
 import type { IAddModifier } from "module/actor/addModifierAdapter";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
+import { splittermond } from "module/config";
+import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffectAssignment";
 
 export const MIGRATION_FLAG_SCOPE = "splittermond";
 export const MIGRATION_FLAG_KEY = "modifierToEffectMigrationDone";
@@ -14,7 +16,7 @@ export const MIGRATION_FLAG_KEY = "modifierToEffectMigrationDone";
  * effect produced by this migration, so future migrations can identify the batch.
  * Bump when the transport logic changes and re-running is desired.
  */
-export const MODIFIER_TO_EFFECT_MIGRATION_VERSION = "1";
+export const MODIFIER_TO_EFFECT_MIGRATION_VERSION = 2;
 
 export type { MigrationResult };
 
@@ -35,8 +37,22 @@ export type { MigrationResult };
  */
 export async function migrateModifierToEffects(item: Item, addModifier: IAddModifier | null): Promise<boolean> {
     const modifierString = getModifierString(item);
-    if (!modifierString.trim()) return false;
 
+    if (!modifierString && ["strength", "mastery"].includes(item.type)) {
+        const alreadyMigrated = item.effects.some(
+            (effect) => effect.getFlag("splittermond", "modifierMigrationVersion") != null
+        );
+        if (alreadyMigrated) return false;
+        const lowercaseName = item.name.trim().toLowerCase();
+        if (lowercaseName in splittermond.modifier) {
+            const effectUuid = splittermond.modifier[lowercaseName as keyof typeof splittermond.modifier];
+            const alreadyAssigned = item.effects.some((effect) => effect.getFlag("core", "sourceId") === effectUuid);
+            if (alreadyAssigned) return false;
+            const created = await copyCompendiumEffectToItem(item as SplittermondItem, effectUuid);
+            return created.length > 0;
+        }
+    }
+    if (!modifierString.trim()) return false;
     if (!addModifier) return false;
 
     const modifierType = modifierTypeForItemType(item.type);
@@ -64,7 +80,7 @@ function getModifierString(item: Item) {
 
 function modifierToEffectMigrationBuilder(): MigrationBuilder<Item> {
     return new MigrationBuilder<Item>(MIGRATION_FLAG_KEY)
-        .withWorldCollection(() => foundryApi.collections.items)
+        .withWorldCollection(generateWorldCollection)
         .withDocumentClass("Item")
         .withMigrationProcess((item) => migrateModifierToEffects(item, getAddModifier()))
         .withI18nPrefix("splittermond.migration.modifierToEffectMigration");
@@ -82,4 +98,15 @@ export async function runModifierToEffectMigration(options?: { force?: boolean }
 
 export async function promptAndRunModifierToEffectMigration(): Promise<void> {
     return migrator.promptAndRun();
+}
+
+function* generateWorldCollection() {
+    for (const item of foundryApi.collections.items) {
+        yield item;
+    }
+    for (const actor of foundryApi.collections.actors) {
+        for (const item of actor.items) {
+            yield item;
+        }
+    }
 }
