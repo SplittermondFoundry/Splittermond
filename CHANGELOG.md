@@ -1,4 +1,4 @@
-## 14.x.x
+## 14.3.0
 
 ### Features
 
@@ -9,13 +9,18 @@
 - Es gibt jetzt einen Modifikator um eine bestimmte Würfeltaktik zu forcieren
 - Für NPC ohne Merkmal "Taktiker" wird "Standardwurf" forciert
 - Modifikatoren können über Foundries Aktive Effekte gehandhabt werden
-    - Modifikatoren nach altem Schema werden zur Anzeige konvertiert, aber nach altem Verfahren berechnet.
     - Modifikatoren haben eine Zeitdauer "kanalisiert" (noch ohne Funktion)
     - Es gelten alle Eigenschaften von Foundries aktiven Effekten z.B.
         - Automatisches Abklingen im Kampf
         - Übertragung von Items
         - Übertragung von Regionen
         - Auswertung ausschließlich bei Erschaffung des Effekts
+- Es ist jetzt möglich Boni auf Lebens- und Fokuspunkte mittels Modifikator darzustellen
+    - Der Modifikator heißt `actor.healthpoints.bonus` bzw. `actor.focuspoints.bonus`
+    - Boni werden nur von _erschöpften_ und _verzehrten_ Punkten direkt abgezogen.
+    - Kanalisierte Punkte werden von den eigentlichen Punkten gestellt, bis die Kanalisierung aufgehoben wird
+    - Zum Beenden einer Kanalisierung gibt es jetzt den Knopf _Kanal beenden_. Dieser verrechnet kanalisierte Punkte ordnungsgemäß.
+- Es gibt jetzt einen Sammelmodifikator `skills.social` für soziale Fertigkeiten
 
 ### Fixes
 
@@ -25,6 +30,7 @@
 - Chat Karten merken sich ihren internen Zustand jetzt über mehrere Sitzungen hinweg.
 - Zauber haben jetzt die Option zum Ändern der Zauberdauer jetzt standardmäßig auf "an".
   Dadurch wird es unwahrscheinlicher, dass bei Zaubern kein "Zauberdauer abrechnen" erscheint.
+- Kanalisierte Lebenspunkte werden bei langen Rasten nicht mehr zurück gesetzt.
 
 ## 14.2.6
 
