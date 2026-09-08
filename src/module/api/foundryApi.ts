@@ -328,6 +328,13 @@ export const foundryApi = new (class FoundryApi {
         },
     };
 
+    documents = {
+        traverseEmbeddedDocuments(document: FoundryDocument): Iterable<[string, FoundryDocument]> {
+            // @ts-ignore
+            return document.traverseEmbeddedDocuments();
+        },
+    };
+
     sheets = {
         items: {
             register(scope: string, sheetClass: Function, options?: SheetRegistrationOptions): void {

@@ -28,11 +28,12 @@ function emptyMigrationResult(): MigrationResult {
 
 export class MigrationBuilder<T extends FoundryDocument> {
     private resolvedSetting: MigrationSetting | null = null;
-    private worldCollection: (() => Iterable<T>) | null = null;
+    private worldCollection: (() => Iterable<FoundryDocument>) | null = null;
     private compendiumSource: CompendiumSource = () => foundryApi.collections.packs;
     private migrationProcess: MigrationProcess<T> | null = null;
     private i18nPrefix: string | null = null;
     private filterSet: boolean = false;
+    private documentClass: string | null = null;
 
     readonly migrationDoneFlag: MigrationSetting = {
         get: () => this.resolvedSetting?.get() ?? false,
@@ -53,7 +54,7 @@ export class MigrationBuilder<T extends FoundryDocument> {
             );
     }
 
-    withWorldCollection(worldCollection: () => Iterable<T>): this {
+    withWorldCollection(worldCollection: () => Iterable<FoundryDocument>): this {
         this.worldCollection = worldCollection;
         return this;
     }
@@ -66,7 +67,8 @@ export class MigrationBuilder<T extends FoundryDocument> {
     }
 
     withDocumentClass(documentClass: string): this {
-        return this.withCompendiumFilter((pack) => pack.documentName === documentClass);
+        this.documentClass = documentClass;
+        return this;
     }
 
     withMigrationProcess(migrationProcess: MigrationProcess<T>): this {
@@ -80,7 +82,12 @@ export class MigrationBuilder<T extends FoundryDocument> {
     }
 
     build(): Migrator<T> {
-        if (!this.worldCollection || !this.filterSet || !this.migrationProcess || !this.i18nPrefix) {
+        if (
+            !this.worldCollection ||
+            !this.migrationProcess ||
+            !this.i18nPrefix ||
+            !(this.filterSet || this.documentClass)
+        ) {
             throw new Error(`Splittermond | Migration "${this.name}" is not fully configured.`);
         }
         return new Migrator(
@@ -89,7 +96,8 @@ export class MigrationBuilder<T extends FoundryDocument> {
             this.worldCollection,
             this.compendiumSource,
             this.migrationProcess,
-            this.i18nPrefix
+            this.i18nPrefix,
+            this.documentClass
         );
     }
 }
@@ -98,10 +106,11 @@ export class Migrator<T extends FoundryDocument> {
     constructor(
         private readonly name: string,
         private readonly migrationSetting: MigrationSetting,
-        private readonly worldCollection: () => Iterable<T>,
+        private readonly worldCollection: () => Iterable<FoundryDocument>,
         private readonly compendiumSource: CompendiumSource,
         private readonly migrationProcess: MigrationProcess<T>,
-        private readonly i18nPrefix: string
+        private readonly i18nPrefix: string,
+        private readonly documentClass: string | null
     ) {}
 
     async run(options?: { force?: boolean }): Promise<MigrationResult> {
@@ -131,19 +140,15 @@ export class Migrator<T extends FoundryDocument> {
         reporter.start();
 
         for (const document of worldDocs) {
-            if (await this.applyMigration(document)) {
-                result.worldDocumentsMigrated += 1;
-            }
-            reporter.updateProcessed();
+            result.worldDocumentsMigrated += await this.applyToDocumentTree(document, reporter);
         }
         for (const { pack } of migratablePacks) {
             const docs = await pack.getDocuments();
             let migratedAny = false;
             for (const doc of docs) {
-                if (await this.applyMigration(doc as T)) {
+                if ((await this.applyToDocumentTree(doc, reporter)) > 0) {
                     migratedAny = true;
                 }
-                reporter.updateProcessed();
             }
             if (migratedAny) result.packsMigrated += 1;
         }
@@ -188,6 +193,29 @@ export class Migrator<T extends FoundryDocument> {
             ],
         });
         return dialog.render({ force: true }).then(() => {});
+    }
+
+    private async applyToDocumentTree(document: FoundryDocument, reporter: MigrationReporter): Promise<number> {
+        let migratedCount = 0;
+        if (this.matchesDocumentClass(document)) {
+            if (await this.applyMigration(document as T)) {
+                migratedCount += 1;
+            }
+        }
+        reporter.updateProcessed();
+        for (const [, embedded] of foundryApi.documents.traverseEmbeddedDocuments(document)) {
+            if (this.matchesDocumentClass(embedded)) {
+                if (await this.applyMigration(embedded as T)) {
+                    migratedCount += 1;
+                }
+            }
+            reporter.updateProcessed();
+        }
+        return migratedCount;
+    }
+
+    private matchesDocumentClass(document: FoundryDocument): boolean {
+        return this.documentClass === null || document.documentName === this.documentClass;
     }
 
     private async applyMigration(document: T): Promise<boolean> {

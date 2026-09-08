@@ -5,11 +5,12 @@ import { runItemMigration, migrationDoneFlag } from "module/item/migrations/item
 import { foundryApi } from "module/api/foundryApi";
 
 interface MigratableItem {
+    documentName: string;
     update: SinonStub;
 }
 
 interface FakePack {
-    metadata: { packageType?: string };
+    metadata: { packageType?: string; system?: string };
     documentName: string;
     locked: boolean;
     title: string;
@@ -22,14 +23,14 @@ function makeItem(sourceSystem: Record<string, unknown> = { field: "value" }): {
     source: { system: Record<string, unknown> };
 } {
     return {
-        item: { update: sinon.stub().resolves() },
+        item: { documentName: "Item", update: sinon.stub().resolves() },
         source: { system: sourceSystem },
     };
 }
 
 function makePack(overrides: Partial<FakePack> = {}): FakePack {
     return {
-        metadata: { packageType: "module" },
+        metadata: { packageType: "module", system: "splittermond" },
         documentName: "Item",
         locked: false,
         title: "Third Party Pack",
@@ -62,6 +63,8 @@ describe("runItemMigration", () => {
         sandbox.stub(foundryApi, "currentUser").value(gmUser());
         sandbox.stub(foundryApi, "users").value([gmUser()]);
         sandbox.stub(foundryApi, "informUser");
+        sandbox.stub(foundryApi.documents, "traverseEmbeddedDocuments").returns([]);
+        sandbox.stub(foundryApi, "scenes").value([]);
     });
 
     afterEach(() => {
@@ -126,7 +129,7 @@ describe("runItemMigration", () => {
 
     it("silently drops system compendia (metadata.packageType === system)", async () => {
         const systemPack = makePack({
-            metadata: { packageType: "system" },
+            metadata: { packageType: "system", system: "splittermond" },
             title: "System Pack",
         });
         sandbox.stub(foundryApi, "collections").value({
@@ -185,10 +188,13 @@ describe("runItemMigration", () => {
         expect(result.skippedPacks).to.deep.equal([]);
     });
 
-    it("ignores non-Item compendia (documentName !== Item)", async () => {
+    it("loads non-Item compendia but does not migrate their documents", async () => {
+        const macroDoc = { documentName: "Macro", update: sinon.stub().resolves() };
         const macroPack = makePack({
             documentName: "Macro",
             title: "Macro Pack",
+            getDocuments: sinon.stub().resolves([macroDoc]),
+            getIndex: sinon.stub().resolves({ size: 1 }),
         });
         sandbox.stub(foundryApi, "collections").value({
             items: [],
@@ -198,7 +204,28 @@ describe("runItemMigration", () => {
 
         const result = await runItemMigration();
 
-        expect(macroPack.getDocuments.called).to.be.false;
+        expect(macroPack.getIndex.called, "non-Item packs are loaded for embedded-document traversal").to.be.true;
+        expect(macroPack.getDocuments.called, "non-Item packs are loaded for embedded-document traversal").to.be.true;
+        expect(macroDoc.update.called, "documents of another class are never migrated").to.be.false;
+        expect(result.packsMigrated).to.equal(0);
+        expect(result.skippedPacks).to.deep.equal([]);
+    });
+
+    it("never loads compendia unrelated to the splittermond system (e.g. a sound library)", async () => {
+        const unrelatedPack = makePack({
+            metadata: { packageType: "module" },
+            title: "Sound Library Pack",
+        });
+        sandbox.stub(foundryApi, "collections").value({
+            items: [],
+            actors: [],
+            packs: [unrelatedPack],
+        });
+
+        const result = await runItemMigration();
+
+        expect(unrelatedPack.getIndex.called, "unrelated packs are never counted").to.be.false;
+        expect(unrelatedPack.getDocuments.called, "unrelated packs are never loaded").to.be.false;
         expect(result.packsMigrated).to.equal(0);
         expect(result.skippedPacks).to.deep.equal([]);
     });

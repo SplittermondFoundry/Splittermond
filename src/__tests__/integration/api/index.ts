@@ -3,6 +3,7 @@ import { apiConstantsTest } from "./apiConstants.test";
 import { foundryKeybindingsTest } from "./keybindings.test";
 import { cssVariablesTest } from "./cssVariables.test";
 import { dataModelTest } from "./dataModel.test";
+import { documentsApiTest } from "./documents.test";
 import { foundryRollTest } from "./Roll.test";
 import { foundryTypeDeclarationsTest } from "./foundryTypes.test";
 import { macroApiTest } from "./Macro.test";
@@ -13,6 +14,7 @@ export function registerApiBatches(register: BatchRegistrar) {
     register("apiUtils", apiUtilsTest);
     register("cssVariables", cssVariablesTest);
     register("dataModel", dataModelTest);
+    register("documents", documentsApiTest);
     register("foundryTypes", foundryTypeDeclarationsTest);
     register("keybindings", foundryKeybindingsTest);
     register("macro", macroApiTest);

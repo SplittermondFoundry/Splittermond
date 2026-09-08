@@ -14,6 +14,7 @@ import type { IModifier } from "module/modifiers";
 import { of } from "module/modifiers/expressions/scalar";
 
 interface StubItem {
+    documentName: string;
     type: string;
     uuid: string;
     name: string;
@@ -28,6 +29,7 @@ interface StubItem {
 
 function makeItem(modifier: string | null, type = "weapon"): StubItem {
     return {
+        documentName: "Item",
         type,
         uuid: "Item.test-uuid",
         name: "Test Item",
@@ -196,6 +198,8 @@ describe("runModifierToEffectMigration", () => {
         sandbox.stub(foundryApi, "currentUser").value(gmUser());
         sandbox.stub(foundryApi, "users").value([gmUser()]);
         sandbox.stub(foundryApi, "informUser");
+        sandbox.stub(foundryApi.documents, "traverseEmbeddedDocuments").returns([]);
+        sandbox.stub(foundryApi, "scenes").value([]);
         addModifierStub = sinon
             .stub()
             .returns(scalarResult(makeTagged(makeScalarModifier("skills.acrobatics"), "skills.acrobatics +2")));

@@ -1,5 +1,6 @@
 import { foundryApi } from "module/api/foundryApi";
 import { MigrationBuilder, type MigrationResult } from "module/migrations/Migrator";
+import { isSplittermondPack } from "module/item/migrations/splittermondPackFilter";
 import SplittermondItem, { getAddModifier } from "module/item/item";
 import { addModifierEffects } from "module/activeEffect/effectBuilder";
 import { modifierTypeForItemType } from "module/activeEffect/modifierTypeResolver";
@@ -81,6 +82,7 @@ function getModifierString(item: Item) {
 function modifierToEffectMigrationBuilder(): MigrationBuilder<Item> {
     return new MigrationBuilder<Item>(MIGRATION_FLAG_KEY)
         .withWorldCollection(generateWorldCollection)
+        .withCompendiumFilter(isSplittermondPack)
         .withDocumentClass("Item")
         .withMigrationProcess((item) => migrateModifierToEffects(item, getAddModifier()))
         .withI18nPrefix("splittermond.migration.modifierToEffectMigration");
@@ -100,13 +102,8 @@ export async function promptAndRunModifierToEffectMigration(): Promise<void> {
     return migrator.promptAndRun();
 }
 
-function* generateWorldCollection() {
-    for (const item of foundryApi.collections.items) {
-        yield item;
-    }
-    for (const actor of foundryApi.collections.actors) {
-        for (const item of actor.items) {
-            yield item;
-        }
-    }
+function* generateWorldCollection(): Generator<FoundryDocument> {
+    yield* foundryApi.collections.items;
+    yield* foundryApi.collections.actors;
+    yield* foundryApi.scenes;
 }
