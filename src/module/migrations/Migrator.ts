@@ -165,6 +165,7 @@ export class Migrator<T extends FoundryDocument> {
         const content = foundryApi.localize(`${this.i18nPrefix}.dialog.content`);
         const dialog = new FoundryDialog({
             window: { title: `${this.i18nPrefix}.dialog.title` },
+            position: { width: 600 },
             content,
             buttons: [
                 {
