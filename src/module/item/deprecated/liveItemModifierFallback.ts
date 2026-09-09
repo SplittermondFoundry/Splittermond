@@ -10,8 +10,8 @@ import { deserialize } from "module/modifiers/expressions/scalar/serialization";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
 import { getFromRegistry } from "module/data/dataModelRegistry";
 import { IllegalStateException } from "module/data/exceptions";
-import type {StrengthDataModel} from "module/item/dataModel/StrengthDataModel";
-import type {StatusEffectDataModel} from "module/item/dataModel/StatusEffectDataModel";
+import type { StrengthDataModel } from "module/item/dataModel/StrengthDataModel";
+import type { StatusEffectDataModel } from "module/item/dataModel/StatusEffectDataModel";
 
 /**
  * Live fallback for the pre-ActiveEffect item modifier pathway: items that carry no

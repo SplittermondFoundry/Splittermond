@@ -80,15 +80,23 @@ export default class SplittermondItem extends Item {
         const config = this.#modifierRebuildConfig();
         if (config) {
             await this.#rebuildItemModifierEffects(config);
-            await this.#assignCompendiumEffectByName();
+            await this.#syncCompendiumEffectsWithName();
         }
     }
 
     /** @override */
     async _onUpdate(changed, options, userId) {
         await super._onUpdate(changed, options, userId);
-        if (game.user.id !== userId) return;
+        if (foundryApi.currentUser.id !== userId) return;
         const config = this.#modifierRebuildConfig();
+        if ("name" in changed) {
+            await this.#syncCompendiumEffectsWithName();
+            if (this.type === "mastery" && config) {
+                //Mastery has item-name dependent effects, so with a name change we need to rebuild.
+                await this.#rebuildItemModifierEffects(config);
+                return;
+            }
+        }
         if (!config) return;
         const system = changed.system ?? {};
         if (!config.rebuildTrigger(system)) return;
@@ -174,17 +182,24 @@ export default class SplittermondItem extends Item {
         return rebuildModifierEffects(_addModifier, this, config.modifierType, modifierString);
     }
 
-    async #assignCompendiumEffectByName() {
+    async #syncCompendiumEffectsWithName() {
         if (!["strength", "mastery"].includes(this.type)) return;
 
-        const modifierKey = this.name.toLowerCase();
-        const uuid = modifiers[modifierKey];
-        if (!uuid) return;
+        const targetUuid = modifiers[this.name.toLowerCase()] ?? null;
+        const staleEffects = this.effects.filter((e) => {
+            const sourceId = e.flags?.core?.sourceId;
+            return !!sourceId && Object.values(modifiers).includes(sourceId) && sourceId !== targetUuid;
+        });
+        for (const effect of staleEffects) {
+            await effect.delete();
+        }
 
-        const existing = this.effects.find((e) => e.flags?.core?.sourceId === uuid);
+        if (!targetUuid) return;
+
+        const existing = this.effects.find((e) => e.flags?.core?.sourceId === targetUuid);
         if (existing) return;
 
         const substitutor = pipe(substituteSkill(this.system.skill), substituteName(this.name));
-        await copyCompendiumEffectToItem(this, uuid, substitutor);
+        await copyCompendiumEffectToItem(this, targetUuid, substitutor);
     }
 }

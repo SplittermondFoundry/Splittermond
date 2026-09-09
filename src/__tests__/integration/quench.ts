@@ -1,15 +1,15 @@
-import {applicationTests} from "./application.tests";
-import {chatActionFeatureTest} from "./chatActionFeature.test";
-import {DamageProcessingTest} from "./DamageProcessingTest";
-import type {Quench, QuenchRegisterBatchFunction} from "@ethaks/fvtt-quench";
-import {combatTest} from "./combat.test";
-import {activeEffectTest} from "./activeEffectConfig.test";
-import {compendiumEffectAssignmentTest} from "./compendiumEffectAssignment.test";
-import {registerApiBatches} from "./api";
-import {registerMigrationBatches} from "./migrations";
-import {registerInfrastructureBatches} from "./infrastructure";
-import {registerActorBatches} from "./actor";
-import {registerItemBatches} from "__tests__/integration/item";
+import { applicationTests } from "./application.tests";
+import { chatActionFeatureTest } from "./chatActionFeature.test";
+import { DamageProcessingTest } from "./DamageProcessingTest";
+import type { Quench, QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
+import { combatTest } from "./combat.test";
+import { activeEffectTest } from "./activeEffectConfig.test";
+import { compendiumEffectAssignmentTest } from "./compendiumEffectAssignment.test";
+import { registerApiBatches } from "./api";
+import { registerMigrationBatches } from "./migrations";
+import { registerInfrastructureBatches } from "./infrastructure";
+import { registerActorBatches } from "./actor";
+import { registerItemBatches } from "./item";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}

@@ -1,7 +1,7 @@
-import type {BatchRegistrar} from "__tests__/integration/fixtures";
-import {itemTest} from "__tests__/integration/item/item.test";
-import {itemCompendiumAssignmentTest} from "__tests__/integration/item/itemCompendiumAssignment.test";
-import {liveItemModifierFallbackTest} from "__tests__/integration/item/liveItemModifierFallback.test";
+import type { BatchRegistrar } from "../fixtures"
+import { itemTest } from "./item.test";
+import { itemCompendiumAssignmentTest } from "./itemCompendiumAssignment.test";
+import { liveItemModifierFallbackTest } from "./liveItemModifierFallback.test";
 
 export function registerItemBatches(register: BatchRegistrar) {
     register("main", itemTest);
