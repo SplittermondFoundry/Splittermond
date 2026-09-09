@@ -4,6 +4,7 @@ import {
     MODIFIER_TO_EFFECT_MIGRATION_VERSION,
 } from "module/item/migrations/modifierToEffectMigration";
 import { getAddModifier } from "module/item/item";
+import type SplittermondItem from "module/item/item";
 import { foundryApi } from "module/api/foundryApi";
 import { passesEventually } from "../../util";
 
@@ -90,7 +91,7 @@ export function modifierToEffectMigrationTest(context: QuenchBatchContext) {
                 50
             );
 
-            const migrated = await migrateModifierToEffects(created as unknown as Item, getAddModifier());
+            const migrated = await migrateModifierToEffects(created as unknown as SplittermondItem, getAddModifier());
 
             void expect(migrated, "processor reports a migrated item").to.be.true;
 
@@ -117,14 +118,14 @@ export function modifierToEffectMigrationTest(context: QuenchBatchContext) {
             const created = (await foundryApi.createItem(equipmentData("defense +1"))) as unknown as ItemLike;
             worldItemIds.push(created.id);
 
-            await migrateModifierToEffects(created as unknown as Item, getAddModifier());
+            await migrateModifierToEffects(created as unknown as SplittermondItem, getAddModifier());
 
             await passesEventually(() => expect(created.system.modifier).to.equal(""), 1500, 50);
 
             const effectsAfterFirst = modifierTypeEffects(created).length;
             expect(effectsAfterFirst).to.equal(1);
 
-            const second = await migrateModifierToEffects(created as unknown as Item, getAddModifier());
+            const second = await migrateModifierToEffects(created as unknown as SplittermondItem, getAddModifier());
             void expect(second, "second run finds nothing to transport").to.be.false;
 
             await passesEventually(
@@ -143,7 +144,7 @@ export function modifierToEffectMigrationTest(context: QuenchBatchContext) {
             const created = (await foundryApi.createItem(equipmentData(""))) as unknown as ItemLike;
             worldItemIds.push(created.id);
 
-            const migrated = await migrateModifierToEffects(created as unknown as Item, getAddModifier());
+            const migrated = await migrateModifierToEffects(created as unknown as SplittermondItem, getAddModifier());
 
             expect(migrated, "nothing to transport counts as not migrated").to.be.false;
             expect(created.system.modifier, "empty string stays empty").to.equal("");
@@ -177,7 +178,7 @@ export function modifierToEffectMigrationTest(context: QuenchBatchContext) {
             it("migrates the compendium item and persists a modifier-type effect", async () => {
                 const docs = await testCompendium.getDocuments();
                 expect(docs).to.have.lengthOf(1);
-                const doc = docs[0] as unknown as Item;
+                const doc = docs[0] as unknown as SplittermondItem;
 
                 const migrated = await migrateModifierToEffects(doc, getAddModifier());
 

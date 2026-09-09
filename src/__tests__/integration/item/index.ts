@@ -1,4 +1,4 @@
-import type { BatchRegistrar } from "../fixtures"
+import type { BatchRegistrar } from "../fixtures";
 import { itemTest } from "./item.test";
 import { itemCompendiumAssignmentTest } from "./itemCompendiumAssignment.test";
 import { liveItemModifierFallbackTest } from "./liveItemModifierFallback.test";

@@ -27,7 +27,7 @@ export function compendiumEffectAssignmentTest(context: QuenchBatchContext) {
 
                 const effectModifiers = effect!.system?.modifiers ?? [];
                 expect(effectModifiers).to.have.length(1);
-                expect(effectModifiers[0].path).to.equal("lp");
+                expect(effectModifiers[0].path).to.equal("actor.healthpoints");
                 expect(effectModifiers[0].attributes?.name).to.equal("LP +1");
 
                 expect(effect!.flags?.core?.sourceId).to.equal(modifiers.sturdy);

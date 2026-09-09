@@ -5,7 +5,6 @@ import SplittermondItem, { getAddModifier } from "module/item/item";
 import { addModifierEffects } from "module/activeEffect/effectBuilder";
 import { modifierTypeForItemType } from "module/activeEffect/modifierTypeResolver";
 import type { IAddModifier } from "module/actor/addModifierAdapter";
-import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { splittermond } from "module/config";
 import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffectAssignment";
 
@@ -36,7 +35,10 @@ export type { MigrationResult };
  * The `addModifier` parser is injected so the per-item logic is unit-testable
  * without the Foundry-bound `getAddModifier` singleton.
  */
-export async function migrateModifierToEffects(item: Item, addModifier: IAddModifier | null): Promise<boolean> {
+export async function migrateModifierToEffects(
+    item: SplittermondItem,
+    addModifier: IAddModifier | null
+): Promise<boolean> {
     const modifierString = getModifierString(item);
 
     if (!modifierString && ["strength", "mastery"].includes(item.type)) {
@@ -49,7 +51,7 @@ export async function migrateModifierToEffects(item: Item, addModifier: IAddModi
             const effectUuid = splittermond.modifier[lowercaseName as keyof typeof splittermond.modifier];
             const alreadyAssigned = item.effects.some((effect) => effect.getFlag("core", "sourceId") === effectUuid);
             if (alreadyAssigned) return false;
-            const created = await copyCompendiumEffectToItem(item as SplittermondItem, effectUuid);
+            const created = await copyCompendiumEffectToItem(item, effectUuid);
             return created.length > 0;
         }
     }
@@ -57,18 +59,15 @@ export async function migrateModifierToEffects(item: Item, addModifier: IAddModi
     if (!addModifier) return false;
 
     const modifierType = modifierTypeForItemType(item.type);
+    const parseResult = addModifier(item, modifierString, modifierType);
+    if (parseResult.hasErrors) return false;
 
     await item.setFlag("splittermond", "systemModifier", modifierString);
     await item.update({ "system.modifier": "" });
 
-    await addModifierEffects(
-        addModifier,
-        item as unknown as IModifierSource,
-        modifierString,
-        modifierType,
-        "modifier",
-        { modifierMigrationVersion: MODIFIER_TO_EFFECT_MIGRATION_VERSION }
-    );
+    await addModifierEffects(() => parseResult, item, modifierString, modifierType, "modifier", {
+        modifierMigrationVersion: MODIFIER_TO_EFFECT_MIGRATION_VERSION,
+    });
 
     await item.setFlag("splittermond", "systemModifier", null);
     return true;
@@ -79,8 +78,8 @@ function getModifierString(item: Item) {
     return modifierString ?? "";
 }
 
-function modifierToEffectMigrationBuilder(): MigrationBuilder<Item> {
-    return new MigrationBuilder<Item>(MIGRATION_FLAG_KEY)
+function modifierToEffectMigrationBuilder(): MigrationBuilder<SplittermondItem> {
+    return new MigrationBuilder<SplittermondItem>(MIGRATION_FLAG_KEY)
         .withWorldCollection(generateWorldCollection)
         .withCompendiumFilter(isSplittermondPack)
         .withDocumentClass("Item")

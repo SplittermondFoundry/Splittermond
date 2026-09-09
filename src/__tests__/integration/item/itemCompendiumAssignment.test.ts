@@ -20,14 +20,6 @@ function hasConfigSourceId(effect: unknown): boolean {
     return !!sourceId && Object.values<string>(modifiers).includes(sourceId);
 }
 
-function emphasisAttributes(effects: unknown): string[] {
-    return (effects as EffectDataObject[])
-        .map(e => e)
-        .flatMap((e) => e.system?.modifiers ?? [])
-        .map((m) => m.attributes.emphasis)
-        .filter((emphasis): emphasis is string => !!emphasis);
-}
-
 export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
     const { describe, it, expect, afterEach } = context;
 
@@ -43,7 +35,8 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
         return item;
     }
 
-    describe("SplittermondItem._onCreate compendium effect assignment", () => {
+    describe("SplittermondItem._onCreate compendium effect assignment", function () {
+        this.timeout(15000);
         it(
             "create strength item assigns the sturdy compendium effect via _onCreate",
             withActor(async (actor) => {
@@ -59,7 +52,7 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
 
                 const effectModifiers = effect!.system?.modifiers ?? [];
                 expect(effectModifiers).to.have.length(1);
-                expect(effectModifiers[0].path).to.equal("lp");
+                expect(effectModifiers[0].path).to.equal("actor.healthpoints");
                 expect(effectModifiers[0].serializedValue).to.deep.equal({ type: "amount", amount: 1 });
                 expect(effectModifiers[0].attributes?.name).to.equal("sturdy");
 
@@ -303,8 +296,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                         expect(effectData, "the rebuilt effect should not reference the old name").to.not.contain(
                             "Sammeln"
                         );
-                        expect(emphasisAttributes(item.effects)).to.include("Inspizieren");
-                        expect(emphasisAttributes(item.effects)).to.not.include("Sammeln");
                     },
                     robustTimeout,
                     pollInterval

@@ -2,6 +2,7 @@ import { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import type SplittermondActor from "module/actor/actor";
 import { migrateModifierToEffects } from "module/item/migrations/modifierToEffectMigration";
 import { getAddModifier } from "module/item/item";
+import type SplittermondItem from "module/item/item";
 import { withActor } from "../fixtures";
 import { passesEventually } from "../../util";
 
@@ -145,7 +146,7 @@ export function liveItemModifierFallbackTest(context: QuenchBatchContext) {
                 expect(live.length, "the live string path registers defense exactly once").to.equal(1);
                 expect(await live.sum(), "defense +1 arrives live").to.equal(1);
 
-                await migrateModifierToEffects(item as unknown as Item, getAddModifier());
+                await migrateModifierToEffects(item as unknown as SplittermondItem, getAddModifier());
                 await passesEventually(
                     () => {
                         expect(item.system.modifier, "system.modifier not yet cleared").to.equal("");
