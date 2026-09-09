@@ -1,10 +1,10 @@
 import { QuenchBatchContext } from "@ethaks/fvtt-quench";
-import { withActor } from "./fixtures";
+import { withActor } from "../fixtures";
 import { modifiers } from "module/config/modifiers";
 import type { EffectDataObject } from "module/activeEffect";
 import type SplittermondItem from "module/item/item";
 import { splittermond } from "module/config";
-import { passesEventually } from "../util";
+import { passesEventually } from "../../util";
 
 declare const Item: { deleteDocuments(ids: string[]): Promise<void> };
 

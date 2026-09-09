@@ -4,6 +4,7 @@ import { stripSchwerpunktPrefix, substituteName, substituteSkill } from "module/
 import { modifiers } from "module/config/modifiers";
 import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffectAssignment.ts";
 import { pipe } from "module/util/util.ts";
+import { applyLiveItemModifiers } from "./deprecated/liveItemModifierFallback.ts";
 
 /** @type {import("module/modifiers/modifierAddition").AddModifierResult extends object ? Function : never} */
 let _addModifier = null;
@@ -68,7 +69,9 @@ export default class SplittermondItem extends Item {
         }
     }
 
-    prepareActorData() {}
+    prepareActorData() {
+        applyLiveItemModifiers(this);
+    }
 
     /** @override */
     async _onCreate(data, options, userId) {
