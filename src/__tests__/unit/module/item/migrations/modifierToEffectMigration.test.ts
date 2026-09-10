@@ -9,11 +9,13 @@ import {
 } from "module/item/migrations/modifierToEffectMigration";
 import { foundryApi } from "module/api/foundryApi";
 import { setAddModifier } from "module/item/item";
+import type SplittermondItem from "module/item/item";
 import type { AddModifierResult, TaggedModifier } from "module/modifiers/modifierAddition";
 import type { IModifier } from "module/modifiers";
 import { of } from "module/modifiers/expressions/scalar";
 
 interface StubItem {
+    documentName: string;
     type: string;
     uuid: string;
     name: string;
@@ -28,6 +30,7 @@ interface StubItem {
 
 function makeItem(modifier: string | null, type = "weapon"): StubItem {
     return {
+        documentName: "Item",
         type,
         uuid: "Item.test-uuid",
         name: "Test Item",
@@ -64,11 +67,11 @@ function makeAddModifier(result: AddModifierResult): SinonStub {
 }
 
 function scalarResult(...tagged: TaggedModifier[]): AddModifierResult {
-    return { modifiers: tagged, costModifiers: [] };
+    return { modifiers: tagged, costModifiers: [], hasErrors: false };
 }
 
 function emptyResult(): AddModifierResult {
-    return { modifiers: [], costModifiers: [] };
+    return { modifiers: [], costModifiers: [], hasErrors: false };
 }
 
 function gmUser(id = "gm1") {
@@ -88,7 +91,7 @@ describe("migrateModifierToEffects", () => {
         const item = makeItem("");
         const addModifier = makeAddModifier(emptyResult());
 
-        const result = await migrateModifierToEffects(item as unknown as Item, addModifier);
+        const result = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
 
         expect(result).to.be.false;
         expect(item.update.called, "field is not cleared when there is nothing to transport").to.be.false;
@@ -100,7 +103,7 @@ describe("migrateModifierToEffects", () => {
         const item = makeItem(null);
         const addModifier = makeAddModifier(emptyResult());
 
-        const result = await migrateModifierToEffects(item as unknown as Item, addModifier);
+        const result = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
 
         expect(result).to.be.false;
         expect(item.update.called).to.be.false;
@@ -109,11 +112,23 @@ describe("migrateModifierToEffects", () => {
     it("is a no-op when addModifier is null (parser unavailable)", async () => {
         const item = makeItem("skills.acrobatics +2");
 
-        const result = await migrateModifierToEffects(item as unknown as Item, null);
+        const result = await migrateModifierToEffects(item as unknown as SplittermondItem, null);
 
         expect(result).to.be.false;
         expect(item.update.called, "field is not cleared when the parser is unavailable").to.be.false;
         expect(item.createEmbeddedDocuments.called).to.be.false;
+    });
+
+    it("preserves the modifier string when parsing reports errors", async () => {
+        const item = makeItem("rubbish fragment");
+        const addModifier = makeAddModifier({ modifiers: [], costModifiers: [], hasErrors: true });
+
+        const result = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
+
+        expect(result).to.be.false;
+        expect(item.update.called, "field is not cleared when parsing fails").to.be.false;
+        expect(item.setFlag.called, "no backup flag is written when parsing fails").to.be.false;
+        expect(item.createEmbeddedDocuments.called, "no effects are created when parsing fails").to.be.false;
     });
 
     it("clears system.modifier, then creates modifier-type effects with the version flag", async () => {
@@ -122,7 +137,7 @@ describe("migrateModifierToEffects", () => {
             scalarResult(makeTagged(makeScalarModifier("skills.acrobatics"), "skills.acrobatics +2"))
         );
 
-        const result = await migrateModifierToEffects(item as unknown as Item, addModifier);
+        const result = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
 
         expect(result).to.be.true;
         expect(
@@ -150,7 +165,7 @@ describe("migrateModifierToEffects", () => {
             )
         );
 
-        await migrateModifierToEffects(item as unknown as Item, addModifier);
+        await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
 
         expect(item.createEmbeddedDocuments.calledOnce).to.be.true;
         const [, effectDataArray] = item.createEmbeddedDocuments.firstCall.args as [
@@ -172,10 +187,10 @@ describe("migrateModifierToEffects", () => {
             scalarResult(makeTagged(makeScalarModifier("skills.acrobatics"), "skills.acrobatics +2"))
         );
 
-        await migrateModifierToEffects(item as unknown as Item, addModifier);
+        await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
         item.system.modifier = "";
 
-        const second = await migrateModifierToEffects(item as unknown as Item, addModifier);
+        const second = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
 
         expect(second).to.be.false;
         expect(item.update.calledOnce, "update only fires on the first run").to.be.true;
@@ -196,6 +211,8 @@ describe("runModifierToEffectMigration", () => {
         sandbox.stub(foundryApi, "currentUser").value(gmUser());
         sandbox.stub(foundryApi, "users").value([gmUser()]);
         sandbox.stub(foundryApi, "informUser");
+        sandbox.stub(foundryApi.documents, "traverseEmbeddedDocuments").returns([]);
+        sandbox.stub(foundryApi, "scenes").value([]);
         addModifierStub = sinon
             .stub()
             .returns(scalarResult(makeTagged(makeScalarModifier("skills.acrobatics"), "skills.acrobatics +2")));

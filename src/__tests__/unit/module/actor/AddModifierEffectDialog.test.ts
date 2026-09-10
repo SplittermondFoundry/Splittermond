@@ -122,7 +122,7 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
         });
 
         it("does not call createEmbeddedDocuments when addModifier returns no effects", async () => {
-            addModifierStub.returns({ modifiers: [], costModifiers: [] } satisfies AddModifierResult);
+            addModifierStub.returns({ modifiers: [], costModifiers: [], hasErrors: false } satisfies AddModifierResult);
 
             const modifierString = "unknownpath +2";
             const { modifiers, costModifiers } = addModifierStub(source, modifierString, null, 1);
@@ -229,7 +229,7 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
 
     describe("empty modifier string guard", () => {
         it("does not call createEmbeddedDocuments when modifier string is empty", async () => {
-            addModifierStub.returns({ modifiers: [], costModifiers: [] } satisfies AddModifierResult);
+            addModifierStub.returns({ modifiers: [], costModifiers: [], hasErrors: false } satisfies AddModifierResult);
 
             // Replicate the guard from AddModifierEffectDialog.#onConfirm
             const modifierString = "   ".trim();
@@ -259,7 +259,7 @@ describe("AddModifierEffectDialog — onConfirm logic", () => {
         });
 
         it("does not call createEmbeddedDocuments when addModifier returns no effects", async () => {
-            addModifierStub.returns({ modifiers: [], costModifiers: [] } satisfies AddModifierResult);
+            addModifierStub.returns({ modifiers: [], costModifiers: [], hasErrors: false } satisfies AddModifierResult);
 
             const modifierString = "unknownpath +2";
             const { modifiers, costModifiers } = addModifierStub(source, modifierString, null, 1);

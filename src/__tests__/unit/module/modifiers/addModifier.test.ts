@@ -182,6 +182,39 @@ describe("addModifier", () => {
         });
     });
 
+    (
+        [
+            ["healthpoints +1", "healthpoints", 1],
+            ["actor.healthpoints +1", "healthpoints", 1],
+            ["focuspoints +2", "focuspoints", 2],
+            ["actor.focuspoints +2", "focuspoints", 2],
+            ["healthpoints.bonus +3", "actor.healthpoints.bonus", 3],
+            ["actor.healthpoints.bonus +3", "actor.healthpoints.bonus", 3],
+            ["focuspoints.bonus +1", "actor.focuspoints.bonus", 1],
+            ["actor.focuspoints.bonus +1", "actor.focuspoints.bonus", 1],
+        ] as const
+    ).forEach(([input, canonicalGroupId, amount]) => {
+        it(`should map '${input}' onto '${canonicalGroupId}'`, () => {
+            const result = addModifier(item, input);
+            expect(result.hasErrors).to.be.false;
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0].modifier).to.deep.contain({
+                path: canonicalGroupId,
+                groupId: canonicalGroupId,
+                attributes: { name: "Test Item", type: null },
+                value: of(amount),
+
+                selectable: false,
+            });
+        });
+    });
+
+    it("should reject unknown resource points subsegments", () => {
+        const result = addModifier(item, "actor.healthpoints.woundmalus +1");
+        expect(result.hasErrors).to.be.true;
+        expect(result.modifiers).to.have.length(0);
+    });
+
     it("should handle skill groups", () => {
         const mockSkills = ["skill1", "skill2"];
         sandbox.stub(splittermond, "skillGroups").value({

@@ -5,15 +5,15 @@ import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import SplittermondSpellItem from "module/item/spell";
 import { itemCreator } from "module/data/EntityCreator";
 import ItemImporter from "module/util/item-importer";
-import * as Machtexplosion from "../resources/importSamples/GRW/spells/Machtexplosion.resource";
+import * as Machtexplosion from "../../resources/importSamples/GRW/spells/Machtexplosion.resource";
 import sinon from "sinon";
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 
 import { itemTypes } from "module/config/itemTypes";
-import { withActor } from "./fixtures";
+import { withActor } from "../fixtures";
 import type SplittermondItem from "module/item/item";
 import SplittermondWeaponSheet from "module/item/sheets/weapon-sheet";
-import { passesEventually } from "../util";
+import { passesEventually } from "../../util";
 import type SplittermondWeaponItem from "module/item/weapon";
 import SplittermondItemSheet from "module/item/sheets/item-sheet";
 import SplittermondSpellSheet from "module/item/sheets/spell-sheet";

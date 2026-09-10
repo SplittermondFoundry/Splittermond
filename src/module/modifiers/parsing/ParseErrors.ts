@@ -14,6 +14,10 @@ export class ParseErrors implements IErrorConsumer {
         private readonly itemName: string
     ) {}
 
+    get hasErrors(): boolean {
+        return this.errors.length > 0;
+    }
+
     get consumer() {
         return (...errors: string[]) => this.errors.push(...errors);
     }

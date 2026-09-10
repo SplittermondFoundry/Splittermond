@@ -362,7 +362,7 @@ describe("SplittermondActor", () => {
             expect((actor.update as sinon.SinonSpy).calledOnce).to.be.true;
         });
 
-        it("should clear channeled health and focus on long rest", async () => {
+        it("should clear channeled focus and keep channeled health on long rest", async () => {
             autoApproveLongRest();
             actor.system.focus.updateSource({ channeled: { entries: [{ description: "Zauber", costs: 7 }] } });
             actor.system.health.updateSource({ channeled: { entries: [{ description: "Seuche", costs: 20 }] } });
@@ -370,7 +370,7 @@ describe("SplittermondActor", () => {
 
             await actor.longRest();
 
-            expect(actor.system.health.channeled.entries).to.be.empty;
+            expect(actor.system.health.channeled.entries).not.to.be.empty;
             expect(actor.system.focus.channeled.entries).to.be.empty;
         });
 
@@ -460,7 +460,7 @@ describe("SplittermondActor", () => {
 
             await actor.longRest(false, false);
 
-            expect(actor.system.health.channeled.entries).to.be.empty;
+            expect(actor.system.health.channeled.entries).not.to.be.empty;
             expect(actor.system.focus.channeled.entries).not.to.be.empty;
         });
     });

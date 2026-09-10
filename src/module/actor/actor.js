@@ -362,16 +362,17 @@ export default class SplittermondActor extends Actor {
         for (/**@type SplittermondActiveEffect*/ const effect of this.allApplicableEffects()) {
             const modifiers = SplittermondActiveEffect.getModifiers([effect]);
             modifiers.forEach((mod) => this.modifier.addModifier(mod));
-            this.#captureBonusGrants(effect, modifiers);
+            this.captureBonusGrants(effect, modifiers);
             this.sortCostModifiersIntoManagers(SplittermondActiveEffect.getCostModifiers([effect]));
         }
     }
 
     /**
+     * @private
      * @param {SplittermondActiveEffect} effect
      * @param {import("module/modifiers").IModifier[]} modifiers
      */
-    #captureBonusGrants(effect, modifiers) {
+    captureBonusGrants(effect, modifiers) {
         [
             ["actor.healthpoints.bonus", "healthpoints"],
             ["actor.focuspoints.bonus", "focuspoints"],
@@ -855,10 +856,10 @@ export default class SplittermondActor extends Actor {
         // If Genesis-JSON-Export
         if (data.jsonExporterVersion && data.system === "SPLITTERMOND") {
             updateActor = updateActor ?? (await askUserAboutActorOverwrite());
-            const { data: importedGenesisData, effectAssignments } = await this.#importGenesisData(data, updateActor);
+            const { data: importedGenesisData, effectAssignments } = await this.importGenesisData(data, updateActor);
             json = JSON.stringify(importedGenesisData);
             const created = await super.importFromJSON(json);
-            await this.#applyEffectAssignments(created, effectAssignments);
+            await this.applyEffectAssignments(created, effectAssignments);
             return created;
         }
 
@@ -866,11 +867,12 @@ export default class SplittermondActor extends Actor {
     }
 
     /**
+     * @private
      * @param {Record<string,unknown>} data
      * @param {boolean} updateActor
      * @returns {Promise<{ data: Partial<CharacterData> | undefined, effectAssignments: Map<string, { uuid: string, skill?: string, name?: string }> }>}
      */
-    async #importGenesisData(data, updateActor) {
+    async importGenesisData(data, updateActor) {
         const genesisData = data;
         let newData = this.toObject();
         let newItems = [];
@@ -1195,11 +1197,12 @@ export default class SplittermondActor extends Actor {
     }
 
     /**
+     * @private
      * @param {object} createdActor The actor returned by `super.importFromJSON`.
      * @param {Map<string, { uuid: string, skill?: string, name?: string }>} effectAssignments
      * @returns {Promise<void>}
      */
-    async #applyEffectAssignments(createdActor, effectAssignments) {
+    async applyEffectAssignments(createdActor, effectAssignments) {
         if (!effectAssignments || effectAssignments.size === 0) return;
         for (const [key, assignment] of effectAssignments) {
             const [nameKey, type] = key.split("|");
@@ -1397,14 +1400,13 @@ export default class SplittermondActor extends Actor {
 
     async longRest(clearChanneled = true, askUser = true) {
         const finalClearChanneled = askUser ? await this.#askUserForLongRest() : clearChanneled;
-        let focusData = foundryApi.utils.duplicate(this.system.focus);
-        let healthData = foundryApi.utils.duplicate(this.system.health);
 
         if (finalClearChanneled) {
-            focusData.channeled.entries = [];
+            await this.endChannel("focus", ...this.system.focus.channeled.entries.map((_, index) => index));
         }
 
-        healthData.channeled.entries = [];
+        let focusData = foundryApi.utils.duplicate(this.system.focus);
+        let healthData = foundryApi.utils.duplicate(this.system.health);
 
         focusData.exhausted.value = 0;
         healthData.exhausted.value = 0;
@@ -1491,7 +1493,7 @@ export default class SplittermondActor extends Actor {
      */
     applyCost(type, primaryCost, description) {
         const subData = foundryApi.utils.duplicate(this.system[type]);
-        this.#applyCostToSubData(type, primaryCost, description, subData);
+        this.applyCostToSubData(type, primaryCost, description, subData);
         return this.update({
             system: {
                 [type]: subData,
@@ -1500,12 +1502,13 @@ export default class SplittermondActor extends Actor {
     }
 
     /**
+     * @private
      * @param {"health"|"focus"} type
      * @param {import("../util/costs/PrimaryCost").PrimaryCost} primaryCost
      * @param {string} description
      * @param {object} subData
      */
-    #applyCostToSubData(type, primaryCost, description, subData) {
+    applyCostToSubData(type, primaryCost, description, subData) {
         console.log(
             `Splittermond | Actor ${this.name} absorbed ${primaryCost} to his ${type} ${!!description ? `due to ${description}` : ""}`
         );
@@ -1559,17 +1562,22 @@ export default class SplittermondActor extends Actor {
     /**
      *
      * @param {"health"|"focus"} type
-     * @param {number} index index into system[type].channeled.entries
+     * @param {number} indexes index into system[type].channeled.entries
+     * @returns {Promise<this>}
      */
-    endChannel(type, index) {
+    endChannel(type, ...indexes) {
         const subData = foundryApi.utils.duplicate(this.system[type]);
-        const entry = subData.channeled.entries[index];
-        if (!entry) return;
+        let updated = false;
+        for (const index of [...indexes].sort((a, b) => b - a)) {
+            const entry = subData.channeled.entries[index];
+            if (!entry) continue;
 
-        const channelCost = new Cost(parseInt(entry.costs), 0, false).asPrimaryCost();
-        subData.channeled.entries.splice(index, 1);
-        this.#applyCostToSubData(type, channelCost, "", subData);
-
+            const channelCost = new Cost(parseInt(entry.costs), 0, false).asPrimaryCost();
+            subData.channeled.entries.splice(index, 1);
+            this.applyCostToSubData(type, channelCost, "", subData);
+            updated = true;
+        }
+        if (!updated) return;
         return this.update({
             system: {
                 [type]: subData,

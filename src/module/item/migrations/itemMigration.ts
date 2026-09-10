@@ -1,5 +1,6 @@
 import { foundryApi } from "module/api/foundryApi";
 import { MigrationBuilder, type MigrationResult } from "module/migrations/Migrator";
+import { isSplittermondPack } from "module/item/migrations/splittermondPackFilter";
 
 export const MIGRATION_FLAG_SCOPE = "splittermond";
 export const MIGRATION_FLAG_KEY = "itemV14MigrationDone";
@@ -13,7 +14,8 @@ export async function migrateItem(item: FoundryDocument, sourceSystem: Record<st
 
 function itemMigrationBuilder(): MigrationBuilder<FoundryDocument> {
     return new MigrationBuilder<FoundryDocument>(MIGRATION_FLAG_KEY)
-        .withWorldCollection(() => foundryApi.collections.items)
+        .withWorldCollection(generateWorldCollection)
+        .withCompendiumFilter(isSplittermondPack)
         .withDocumentClass("Item")
         .withMigrationProcess(migrateItem)
         .withI18nPrefix("splittermond.migration.itemMigration");
@@ -32,4 +34,10 @@ export async function runItemMigration(options?: { force?: boolean }): Promise<M
 
 export async function promptAndRunItemMigration(): Promise<void> {
     return itemMigrator.promptAndRun();
+}
+
+function* generateWorldCollection(): Generator<FoundryDocument> {
+    yield* foundryApi.collections.items;
+    yield* foundryApi.collections.actors;
+    yield* foundryApi.scenes;
 }

@@ -7,9 +7,9 @@ export async function copyCompendiumEffectToItem(
     item: SplittermondItem,
     uuid: string,
     substitutor: EffectSubstitutor = (e) => e
-): Promise<void> {
+): Promise<FoundryDocument[]> {
     const resolved = await foundryApi.utils.fromUUID(uuid);
-    if (!resolved) return;
+    if (!resolved) return [];
     const compendiumEffect = resolved as FoundryActiveEffect;
 
     const data = compendiumEffect.toObject() as EffectDataObject;
@@ -24,5 +24,5 @@ export async function copyCompendiumEffectToItem(
 
     const substitutedData = substitutor(data);
 
-    await item.createEmbeddedDocuments("ActiveEffect", [substitutedData]);
+    return item.createEmbeddedDocuments("ActiveEffect", [substitutedData]);
 }

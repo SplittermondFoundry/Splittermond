@@ -26,6 +26,7 @@ export interface TaggedCostModifier {
 export interface AddModifierResult {
     modifiers: TaggedModifier[];
     costModifiers: TaggedCostModifier[];
+    hasErrors: boolean;
 }
 
 export function initAddModifier(
@@ -37,7 +38,7 @@ export function initAddModifier(
         const costModifiers: TaggedCostModifier[] = [];
 
         if (str == "") {
-            return { modifiers, costModifiers };
+            return { modifiers, costModifiers, hasErrors: false };
         }
         const allErrors = new ParseErrors(str, item.name);
         const { processCostValue, processScalarValue } = withErrorLogger(allErrors);
@@ -80,19 +81,23 @@ export function initAddModifier(
         //deprecated paths are also handled here
         unprocessedModifiers.forEach(({ parsed: modifier, rawFragment }) => {
             if (["damage", "weaponspeed"].includes(modifier.path.toLowerCase().split(".")[0])) {
-                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                    oldPath: modifier.path,
-                    newPath: `item.${modifier.path}`,
-                    itemName: item.name,
-                });
+                allErrors.push(
+                    foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
+                        oldPath: modifier.path,
+                        newPath: `item.${modifier.path}`,
+                        itemName: item.name,
+                    })
+                );
                 modifier.path = `item.${modifier.path}`;
             } else if ("gsw.mult" === modifier.path.toLowerCase()) {
                 const newGroupId = "actor.speed.multiplier";
-                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                    oldPath: modifier.path,
-                    newPath: newGroupId,
-                    itemName: item.name,
-                });
+                allErrors.push(
+                    foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
+                        oldPath: modifier.path,
+                        newPath: newGroupId,
+                        itemName: item.name,
+                    })
+                );
                 modifier.path = newGroupId;
             } else {
                 /* handles path translations for derived values and skills. Cannot be done in registry, because the language file loads too late for
@@ -122,6 +127,7 @@ export function initAddModifier(
             const modifierLabel = modifier.path.toLowerCase();
             //mainly for internal modifiers.
             const mod = createModifier(modifierLabel, modifier.value, item, type, {}, actorProvider);
+            console.debug(`Splittermond | Modifier '${rawFragment}' of '${item.name}' hit deprecated processor.`);
             modifiers.push({
                 modifier: mod,
                 rawFragment,
@@ -131,7 +137,7 @@ export function initAddModifier(
         // Only display errors to the GM or the owner of the item
         // Otherwise players might get spoilers
         if (item.isOwner) allErrors.printAll();
-        return { modifiers, costModifiers };
+        return { modifiers, costModifiers, hasErrors: allErrors.hasErrors };
     };
 }
 

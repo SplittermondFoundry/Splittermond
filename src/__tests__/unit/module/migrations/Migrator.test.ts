@@ -69,18 +69,20 @@ describe("MigrationBuilder", () => {
 
 describe("Migrator", () => {
     let sandbox: SinonSandbox;
+    let traverseStub: SinonStub;
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
         sandbox.stub(foundryApi, "currentUser").value({ id: "gm1", isGM: true, active: true });
         sandbox.stub(foundryApi, "users").value([{ id: "gm1", isGM: true, active: true }]);
+        traverseStub = sandbox.stub(foundryApi.documents, "traverseEmbeddedDocuments").returns([]);
     });
 
     afterEach(() => {
         sandbox.restore();
     });
 
-    it("sweeps the configured world collection and only packs of the configured document class", async () => {
+    it("sweeps the configured world collection and filters compendium documents per document class", async () => {
         const builder = new MigrationBuilder<FoundryDocument>("actorMigration")
             .withWorldCollection(() => foundryApi.collections.actors)
             .withDocumentClass("Actor")
@@ -93,24 +95,20 @@ describe("Migrator", () => {
         sandbox.stub(builder.migrationDoneFlag, "get").returns(false);
         const flagSet = sandbox.stub(builder.migrationDoneFlag, "set");
 
-        const actorDoc = { update: sinon.stub().resolves() };
-        const packDoc = { update: sinon.stub().resolves() };
-        const actorPack = {
-            metadata: { system: "other-system" },
-            documentName: "Actor",
-            locked: false,
+        const actorDoc = { documentName: "Actor", update: sinon.stub().resolves() };
+        const packDoc = { documentName: "Actor", update: sinon.stub().resolves() };
+        const itemDoc = { documentName: "Item", update: sinon.stub().resolves() };
+        const actorPack = makePack({
             title: "Actor Pack",
             getDocuments: sinon.stub().resolves([packDoc]),
             getIndex: sinon.stub().resolves({ size: 1 }),
-        };
-        const itemPack = {
-            metadata: { system: "other-system" },
+        });
+        const itemPack = makePack({
             documentName: "Item",
-            locked: false,
             title: "Item Pack",
-            getDocuments: sinon.stub().resolves([]),
-            getIndex: sinon.stub().resolves({ size: 0 }),
-        };
+            getDocuments: sinon.stub().resolves([itemDoc]),
+            getIndex: sinon.stub().resolves({ size: 1 }),
+        });
         sandbox.stub(foundryApi, "collections").value({
             actors: [actorDoc],
             items: [],
@@ -123,8 +121,9 @@ describe("Migrator", () => {
 
         expect(actorDoc.update.calledOnce).to.be.true;
         expect(packDoc.update.calledOnce).to.be.true;
-        expect(itemPack.getDocuments.called).to.be.false;
-        expect(itemPack.getIndex.called).to.be.false;
+        expect(itemDoc.update.called, "documents of another class are not migrated").to.be.false;
+        expect(itemPack.getIndex.called, "packs of another document class are still loaded").to.be.true;
+        expect(itemPack.getDocuments.called, "packs of another document class are still loaded").to.be.true;
         expect(result).to.deep.equal({ worldDocumentsMigrated: 1, packsMigrated: 1, skippedPacks: [] });
         expect(flagSet.calledOnceWith(true)).to.be.true;
         const calledKeys = informUser.getCalls().map((c) => c.firstArg);
@@ -135,6 +134,75 @@ describe("Migrator", () => {
             "splittermond.migration.actorMigration.progress",
             "splittermond.migration.actorMigration.done",
         ]);
+    });
+
+    it("migrates embedded documents matching the document class and skips non-matching ones", async () => {
+        const actorDoc = { documentName: "Actor", update: sinon.stub().resolves() };
+        const embeddedItem = { documentName: "Item", update: sinon.stub().resolves() };
+        const embeddedEffect = { documentName: "ActiveEffect", update: sinon.stub().resolves() };
+        traverseStub.returns([
+            ["items", embeddedItem],
+            ["items.effects", embeddedEffect],
+        ]);
+        const processCalls: Array<{ document: unknown; source: unknown }> = [];
+        const builder = new MigrationBuilder<FoundryDocument>("embeddedMigration")
+            .withWorldCollection(() => [actorDoc as unknown as FoundryDocument])
+            .withDocumentClass("Item")
+            .withMigrationProcess(async (document, source) => {
+                processCalls.push({ document, source });
+                return true;
+            })
+            .withI18nPrefix("splittermond.migration.embeddedMigration");
+        const embeddedSource = { system: { field: "embedded" } };
+        sandbox.stub(foundryApi, "collections").value({ actors: [], items: [], packs: [] });
+        sandbox.stub(foundryApi, "getDocumentSource").withArgs(embeddedItem).returns(embeddedSource);
+        sandbox.stub(foundryApi, "informUser");
+        sandbox.stub(builder.migrationDoneFlag, "get").returns(false);
+        const flagSet = sandbox.stub(builder.migrationDoneFlag, "set");
+        const migrator = builder.build();
+
+        const result = await migrator.run();
+
+        expect(
+            processCalls,
+            "only the matching embedded document reaches the process, with its own source"
+        ).to.deep.equal([{ document: embeddedItem, source: embeddedSource.system }]);
+        expect(result.worldDocumentsMigrated, "embedded migrations count into worldDocumentsMigrated").to.equal(1);
+        expect(flagSet.calledOnceWith(true)).to.be.true;
+    });
+
+    it("passes the top-level document and all embedded documents to the process when no document class is configured", async () => {
+        const scopedDoc = { documentName: "Actor", update: sinon.stub().resolves() };
+        const embeddedEffect = { documentName: "ActiveEffect", update: sinon.stub().resolves() };
+        traverseStub.returns([["effects", embeddedEffect]]);
+        const processCalls: Array<{ document: unknown; source: unknown }> = [];
+        const scopedPack = makePack({
+            title: "Scoped Pack",
+            getDocuments: sinon.stub().resolves([scopedDoc]),
+            getIndex: sinon.stub().resolves({ size: 1 }),
+        });
+        sandbox.stub(foundryApi, "collections").value({ actors: [], items: [], packs: [scopedPack] });
+        sandbox.stub(foundryApi, "getDocumentSource").returns({ system: {} });
+        sandbox.stub(foundryApi, "informUser");
+
+        const builder = new MigrationBuilder<FoundryDocument>("unfilteredMigration")
+            .withWorldCollection(() => [])
+            .withCompendiumFilter((pack) => pack.title === "Scoped Pack")
+            .withMigrationProcess(async (document, source) => {
+                processCalls.push({ document, source });
+                return true;
+            })
+            .withI18nPrefix("splittermond.migration.unfilteredMigration");
+        sandbox.stub(builder.migrationDoneFlag, "get").returns(false);
+        const migrator = builder.build();
+
+        const result = await migrator.run();
+
+        expect(processCalls).to.deep.equal([
+            { document: scopedDoc, source: {} },
+            { document: embeddedEffect, source: {} },
+        ]);
+        expect(result.packsMigrated).to.equal(1);
     });
 
     it("migrates only the packs matching a custom compendium filter", async () => {
