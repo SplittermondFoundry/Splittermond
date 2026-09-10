@@ -197,9 +197,9 @@ export function from14_2_6_migrateCombatEvent(source: unknown) {
 
     const record = source as Record<string, unknown>;
     const combatEvent: Record<string, unknown> = {};
-    if (hasStartTick) combatEvent.startTick = record.startTick;
-    if (hasInterval) combatEvent.interval = record.interval ? Number(record.interval) : null;
-    if (hasTimes) combatEvent.repeats = record.times;
+    if (hasStartTick) combatEvent.startTick = Number(record.startTick) ? Number(record.startTick) : null;
+    if (hasInterval) combatEvent.interval = !!Number(record.interval) ? Number(record.interval) : null;
+    if (hasTimes) combatEvent.repeats = Number(record.times) ? Number(record.times) : null;
     record.combatEvent = combatEvent;
     delete record.startTick;
     delete record.interval;
