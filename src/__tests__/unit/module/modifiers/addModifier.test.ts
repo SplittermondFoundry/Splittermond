@@ -77,6 +77,7 @@ describe("addModifier", () => {
         } as unknown as SinonStubbedInstance<SplittermondItem>;
 
         sandbox.stub(actor, "uuid").get(() => `Actor.${actor.id}`);
+        sandbox.stub(foundryApi, "warnUser");
         sandbox
             .stub(foundryApi.utils, "fromUUIDSync")
             .withArgs(item.uuid)
