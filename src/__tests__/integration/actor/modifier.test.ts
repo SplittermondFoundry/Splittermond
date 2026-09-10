@@ -159,6 +159,36 @@ export function modifierTest(context: QuenchBatchContext) {
             });
         });
 
+        [
+            ["actor.healthpoints", "healthpoints", 8],
+            ["actor.focuspoints", "focuspoints", 9],
+        ].forEach(([modifierPath, derivedValue, expected]) => {
+            it(`should modify derived value '${derivedValue}' via '${modifierPath}'`, async () => {
+                const subject = await createActor(`Prefixed${derivedValue}`);
+                splittermond.attributes.forEach((attribute) => {
+                    (subject.system as CharacterDataModel).attributes[attribute].updateSource({
+                        initial: 2,
+                        advances: 0,
+                        species: 0,
+                    });
+                });
+
+                const items = await subject.createEmbeddedDocuments("Item", [
+                    {
+                        type: "strength",
+                        name: "PrefixedDerivedValueEnhancer",
+                        system: { modifier: `${modifierPath} +1` },
+                    },
+                ]);
+
+                await waitForItemEffects(items);
+
+                await subject.prepareData();
+
+                expect(await subject.derivedValues[derivedValue].value.calculate()).to.equal(expected);
+            });
+        });
+
         it("should account for modifications from shields", async () => {
             const subject = await createActor("ShieldedCharacter");
             (subject.system as CharacterDataModel).attributes.agility.updateSource({ initial: 2, advances: 0 });

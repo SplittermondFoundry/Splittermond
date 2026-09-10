@@ -123,6 +123,7 @@ export function initAddModifier(
             const modifierLabel = modifier.path.toLowerCase();
             //mainly for internal modifiers.
             const mod = createModifier(modifierLabel, modifier.value, item, type, {}, actorProvider);
+            console.debug(`Splittermond | Modifier '${rawFragment}' of '${item.name}' hit deprecated processor.`);
             modifiers.push({
                 modifier: mod,
                 rawFragment,

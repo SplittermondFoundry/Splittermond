@@ -12,6 +12,7 @@ import {
 } from "module/actor/modifiers/ActorModifierHandlers";
 import type { ScalarModifier } from "module/modifiers/parsing";
 import { ActorSplinterpointsHandler, SplinterpointsHandler } from "module/actor/modifiers/SplinterpointsHandler";
+import { isResourcePoints, registerResourcePointsHandlers } from "module/actor/modifiers/ResourcePointsHandler";
 import { derivedAttributes } from "module/config/attributes";
 
 export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier>) {
@@ -32,8 +33,6 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
         "woundmalus.mod",
         "focusregeneration.bonus",
         "healthregeneration.bonus",
-        "healthpoints.bonus",
-        "focuspoints.bonus",
     ].forEach((segment) => {
         const fullId = `actor.${segment}` as Lowercase<string>;
         registry.addHandler(segment, BasicModifierHandler(segment, fullId));
@@ -68,7 +67,8 @@ function addDerivedValueHandlers(registry: ModifierRegistry<ScalarModifier>) {
         registry.addHandler(fullId, ProductModifierHandler(fullId, fullId));
     });
     derivedAttributes
-        .filter((attr) => attr !== "initiative")
+        .filter((attr) => attr !== "initiative" && !isResourcePoints(attr))
         .forEach((da) => registry.addHandler(da, BasicModifierHandler(da)));
     registry.addHandler("initiative", InverseModifierHandler("initiative"));
+    registerResourcePointsHandlers(registry);
 }
