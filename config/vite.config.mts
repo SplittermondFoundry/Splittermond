@@ -63,12 +63,6 @@ export default defineConfig({
             module: path.resolve(import.meta.dirname, "../src/module"),
         },
     },
-    esbuild: {
-        minifyWhitespace: true,
-        minifyIdentifiers: true,
-        minifySyntax: true,
-        keepNames: true,
-    },
     build: {
         outDir: path.resolve(import.meta.dirname, "../dist"),
         emptyOutDir: true,
@@ -79,9 +73,10 @@ export default defineConfig({
             formats: ["es"],
             fileName: "splittermond",
         },
-        minify: "esbuild",
+        minify: "oxc",
         rollupOptions: {
             output: {
+                minify: true,
                 assetFileNames: (chunkInfo) => {
                     if (chunkInfo.names.includes("style.css")) return "splittermond.css";
                     else {
