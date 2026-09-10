@@ -81,19 +81,23 @@ export function initAddModifier(
         //deprecated paths are also handled here
         unprocessedModifiers.forEach(({ parsed: modifier, rawFragment }) => {
             if (["damage", "weaponspeed"].includes(modifier.path.toLowerCase().split(".")[0])) {
-                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                    oldPath: modifier.path,
-                    newPath: `item.${modifier.path}`,
-                    itemName: item.name,
-                });
+                allErrors.push(
+                    foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
+                        oldPath: modifier.path,
+                        newPath: `item.${modifier.path}`,
+                        itemName: item.name,
+                    })
+                );
                 modifier.path = `item.${modifier.path}`;
             } else if ("gsw.mult" === modifier.path.toLowerCase()) {
                 const newGroupId = "actor.speed.multiplier";
-                foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                    oldPath: modifier.path,
-                    newPath: newGroupId,
-                    itemName: item.name,
-                });
+                allErrors.push(
+                    foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
+                        oldPath: modifier.path,
+                        newPath: newGroupId,
+                        itemName: item.name,
+                    })
+                );
                 modifier.path = newGroupId;
             } else {
                 /* handles path translations for derived values and skills. Cannot be done in registry, because the language file loads too late for
