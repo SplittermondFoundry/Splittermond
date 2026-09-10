@@ -65,6 +65,22 @@ describe("MigrationBuilder", () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
         expect(builder.migrationDoneFlag.get(), "flag delegates to the registered setting").to.be.true;
     });
+
+    it("logs an error instead of silently dropping the flag when the setting never registers", async () => {
+        const consoleError = sandbox.stub(console, "error");
+        sandbox.stub(settings, "registerBoolean").rejects(new Error("registration failed"));
+        const builder = new MigrationBuilder<FoundryDocument>("unresolvableMigration");
+
+        await builder.migrationDoneFlag.ready();
+
+        builder.migrationDoneFlag.set(true);
+
+        expect(builder.migrationDoneFlag.isFunctional(), "flag stays non-functional after a failed registration").to.be
+            .false;
+        const messages = consoleError.getCalls().map((c) => String(c.args[0]));
+        expect(messages).to.have.lengthOf(2);
+        expect(messages[1]).to.contain("cannot persist the migration-done flag");
+    });
 });
 
 describe("Migrator", () => {
@@ -238,5 +254,131 @@ describe("Migrator", () => {
         expect(outsidePack.getIndex.called, "packs outside the filter are never counted").to.be.false;
         expect(outsidePack.getDocuments.called, "packs outside the filter are never loaded").to.be.false;
         expect(result).to.deep.equal({ worldDocumentsMigrated: 0, packsMigrated: 1, skippedPacks: [] });
+    });
+
+    it("refuses to run when the done-flag setting is not available", async () => {
+        const consoleError = sandbox.stub(console, "error");
+        sandbox.stub(settings, "registerBoolean").rejects(new Error("registration failed"));
+        let processCalls = 0;
+        const builder = new MigrationBuilder<FoundryDocument>("flaglessMigration")
+            .withWorldCollection(() => [])
+            .withDocumentClass("Actor")
+            .withMigrationProcess(async () => {
+                processCalls += 1;
+                return true;
+            })
+            .withI18nPrefix("splittermond.migration.flaglessMigration");
+        const migrator = builder.build();
+        sandbox.stub(foundryApi, "collections").value({ actors: [], items: [], packs: [] });
+        sandbox.stub(foundryApi, "informUser");
+
+        const result = await migrator.run();
+
+        expect(result).to.deep.equal({ worldDocumentsMigrated: 0, packsMigrated: 0, skippedPacks: [] });
+        expect(processCalls, "no document is migrated when the flag cannot be recorded").to.equal(0);
+        expect(
+            consoleError.getCalls().some((c) => String(c.args[0]).includes("migration-done setting is unavailable")),
+            "the refusal is logged loudly"
+        ).to.be.true;
+    });
+
+    it("skips a compendium whose index cannot be loaded instead of aborting the run", async () => {
+        const consoleWarn = sandbox.stub(console, "warn");
+        const healthyDoc = { documentName: "Actor", update: sinon.stub().resolves() };
+        const brokenPack = makePack({
+            title: "Broken Index Pack",
+            getIndex: sinon.stub().rejects(new Error("index failed")),
+        });
+        const healthyPack = makePack({
+            title: "Healthy Pack",
+            documentName: "Actor",
+            getDocuments: sinon.stub().resolves([healthyDoc]),
+            getIndex: sinon.stub().resolves({ size: 1 }),
+        });
+        const builder = new MigrationBuilder<FoundryDocument>("brokenIndexMigration")
+            .withWorldCollection(() => [])
+            .withDocumentClass("Actor")
+            .withMigrationProcess(async (document) => {
+                await document.update({});
+                return true;
+            })
+            .withI18nPrefix("splittermond.migration.brokenIndexMigration");
+        const migrator = builder.build();
+        sandbox.stub(builder.migrationDoneFlag, "get").returns(false);
+        const flagSet = sandbox.stub(builder.migrationDoneFlag, "set");
+        sandbox.stub(foundryApi, "collections").value({
+            actors: [],
+            items: [],
+            packs: [brokenPack, healthyPack],
+        });
+        sandbox.stub(foundryApi, "getDocumentSource").returns({ system: {} });
+        sandbox.stub(foundryApi, "informUser");
+
+        const result = await migrator.run();
+
+        expect(healthyDoc.update.calledOnce, "documents of the healthy pack are still migrated").to.be.true;
+        expect(result).to.deep.equal({
+            worldDocumentsMigrated: 0,
+            packsMigrated: 1,
+            skippedPacks: ["Broken Index Pack"],
+        });
+        expect(flagSet.calledOnceWith(true), "the done flag is still persisted").to.be.true;
+        expect(consoleWarn.calledOnce).to.be.true;
+    });
+
+    it("skips a compendium whose documents cannot be loaded instead of aborting the run", async () => {
+        const consoleWarn = sandbox.stub(console, "warn");
+        const brokenPack = makePack({
+            title: "Unreadable Pack",
+            getDocuments: sinon.stub().rejects(new Error("load failed")),
+        });
+        const builder = new MigrationBuilder<FoundryDocument>("brokenPackMigration")
+            .withWorldCollection(() => [])
+            .withDocumentClass("Actor")
+            .withMigrationProcess(async () => true)
+            .withI18nPrefix("splittermond.migration.brokenPackMigration");
+        const migrator = builder.build();
+        sandbox.stub(builder.migrationDoneFlag, "get").returns(false);
+        const flagSet = sandbox.stub(builder.migrationDoneFlag, "set");
+        sandbox.stub(foundryApi, "collections").value({ actors: [], items: [], packs: [brokenPack] });
+        sandbox.stub(foundryApi, "informUser");
+
+        const result = await migrator.run();
+
+        expect(result).to.deep.equal({
+            worldDocumentsMigrated: 0,
+            packsMigrated: 0,
+            skippedPacks: ["Unreadable Pack"],
+        });
+        expect(flagSet.calledOnceWith(true), "the done flag is still persisted").to.be.true;
+        expect(consoleWarn.calledOnce).to.be.true;
+    });
+
+    it("continues with the next world document when one document tree fails", async () => {
+        const consoleWarn = sandbox.stub(console, "warn");
+        const brokenDoc = { documentName: "Actor", update: sinon.stub().resolves() };
+        const healthyDoc = { documentName: "Item", update: sinon.stub().resolves() };
+        traverseStub.withArgs(brokenDoc as unknown as FoundryDocument).throws(new Error("traversal failed"));
+        const builder = new MigrationBuilder<FoundryDocument>("brokenTreeMigration")
+            .withWorldCollection(() => [brokenDoc, healthyDoc].map((d) => d as unknown as FoundryDocument))
+            .withDocumentClass("Item")
+            .withMigrationProcess(async (document) => {
+                await document.update({});
+                return true;
+            })
+            .withI18nPrefix("splittermond.migration.brokenTreeMigration");
+        const migrator = builder.build();
+        sandbox.stub(builder.migrationDoneFlag, "get").returns(false);
+        const flagSet = sandbox.stub(builder.migrationDoneFlag, "set");
+        sandbox.stub(foundryApi, "collections").value({ actors: [], items: [], packs: [] });
+        sandbox.stub(foundryApi, "getDocumentSource").returns({ system: {} });
+        sandbox.stub(foundryApi, "informUser");
+
+        const result = await migrator.run();
+
+        expect(healthyDoc.update.calledOnce, "the document after the broken tree is still migrated").to.be.true;
+        expect(result.worldDocumentsMigrated).to.equal(1);
+        expect(flagSet.calledOnceWith(true)).to.be.true;
+        expect(consoleWarn.calledOnce).to.be.true;
     });
 });

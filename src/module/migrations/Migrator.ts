@@ -5,7 +5,14 @@ import { settings } from "module/settings";
 import { MigrationReporter } from "module/migrations/MigrationReporter";
 import { pipe } from "module/util/util";
 
-type MigrationSetting = Awaited<ReturnType<typeof settings.registerBoolean>>;
+type RegisteredMigrationSetting = Awaited<ReturnType<typeof settings.registerBoolean>>;
+
+interface MigrationSetting {
+    get(): boolean;
+    set(value: boolean): void;
+    ready(): Promise<void>;
+    isFunctional(): boolean;
+}
 
 export type CompendiumSource = () => Iterable<foundry.documents.collections.CompendiumCollection>;
 
@@ -22,12 +29,18 @@ export interface MigrationResult {
     skippedPacks: string[];
 }
 
+interface MigratablePack {
+    pack: foundry.documents.collections.CompendiumCollection;
+    size: number;
+}
+
 function emptyMigrationResult(): MigrationResult {
     return { worldDocumentsMigrated: 0, packsMigrated: 0, skippedPacks: [] };
 }
 
 export class MigrationBuilder<T extends FoundryDocument> {
-    private resolvedSetting: MigrationSetting | null = null;
+    private resolvedSetting: RegisteredMigrationSetting | null = null;
+    private settingReady: Promise<void> = Promise.resolve();
     private worldCollection: (() => Iterable<FoundryDocument>) | null = null;
     private compendiumSource: CompendiumSource = () => foundryApi.collections.packs;
     private migrationProcess: MigrationProcess<T> | null = null;
@@ -37,11 +50,13 @@ export class MigrationBuilder<T extends FoundryDocument> {
 
     readonly migrationDoneFlag: MigrationSetting = {
         get: () => this.resolvedSetting?.get() ?? false,
-        set: (value) => this.resolvedSetting?.set(value),
+        set: (value) => this.setDoneFlag(value),
+        ready: () => this.settingReady,
+        isFunctional: () => this.resolvedSetting !== null,
     };
 
     constructor(readonly name: string) {
-        settings
+        this.settingReady = settings
             .registerBoolean(name, { default: false, config: false, scope: "world" })
             .then((resolved) => {
                 this.resolvedSetting = resolved;
@@ -52,6 +67,16 @@ export class MigrationBuilder<T extends FoundryDocument> {
                     error
                 )
             );
+    }
+
+    private setDoneFlag(value: boolean): void {
+        if (!this.resolvedSetting) {
+            console.error(
+                `Splittermond | Migration "${this.name}": cannot persist the migration-done flag because the setting is not registered. The migration will run again.`
+            );
+            return;
+        }
+        this.resolvedSetting.set(value);
     }
 
     withWorldCollection(worldCollection: () => Iterable<FoundryDocument>): this {
@@ -117,49 +142,39 @@ export class Migrator<T extends FoundryDocument> {
         if (!isFirstActiveGM(foundryApi.currentUser, foundryApi.users)) {
             return emptyMigrationResult();
         }
+        if (!(await this.isMigrationFlagAvailable())) {
+            return emptyMigrationResult();
+        }
         if (!options?.force && this.migrationSetting.get()) {
             return emptyMigrationResult();
         }
 
         const result = emptyMigrationResult();
         const worldDocs = [...this.worldCollection()];
-        const migratablePacks: { pack: foundry.documents.collections.CompendiumCollection; size: number }[] = [];
-
-        for (const pack of this.compendiumSource()) {
-            if (isSystemPack(pack)) continue;
-            if (pack.locked) {
-                result.skippedPacks.push(pack.title);
-                continue;
-            }
-            const index = await pack.getIndex();
-            migratablePacks.push({ pack, size: index.size });
-        }
+        const migratablePacks = await this.collectMigratablePacks(result);
 
         const total = worldDocs.length + migratablePacks.reduce((sum, p) => sum + p.size, 0);
         const reporter = new MigrationReporter(total, this.i18nPrefix);
         reporter.start();
 
-        for (const document of worldDocs) {
-            result.worldDocumentsMigrated += await this.applyToDocumentTree(document, reporter);
-        }
-        for (const { pack } of migratablePacks) {
-            const docs = await pack.getDocuments();
-            let migratedAny = false;
-            for (const doc of docs) {
-                if ((await this.applyToDocumentTree(doc, reporter)) > 0) {
-                    migratedAny = true;
-                }
-            }
-            if (migratedAny) result.packsMigrated += 1;
-        }
+        await this.migrateWorldDocuments(worldDocs, reporter, result);
+        await this.migratePacks(migratablePacks, reporter, result);
 
-        this.migrationSetting.set(true);
+        try {
+            this.migrationSetting.set(true);
+        } catch (error) {
+            console.error(
+                `Splittermond | migration "${this.name}": failed to persist the migration-done flag. The migration will run again.`,
+                error
+            );
+        }
         reporter.stop();
         return result;
     }
 
     async promptAndRun(): Promise<void> {
         if (!isFirstActiveGM(foundryApi.currentUser, foundryApi.users)) return;
+        if (!(await this.isMigrationFlagAvailable())) return;
         if (this.migrationSetting.get()) return;
 
         const content = foundryApi.localize(`${this.i18nPrefix}.dialog.content`);
@@ -194,6 +209,89 @@ export class Migrator<T extends FoundryDocument> {
             ],
         });
         return dialog.render({ force: true }).then(() => {});
+    }
+
+    private async isMigrationFlagAvailable(): Promise<boolean> {
+        await this.migrationSetting.ready();
+        if (this.migrationSetting.isFunctional()) return true;
+        console.error(
+            `Splittermond | migration "${this.name}": the migration-done setting is unavailable. The migration is not started to avoid an endless migration loop.`
+        );
+        return false;
+    }
+
+    private async collectMigratablePacks(result: MigrationResult): Promise<MigratablePack[]> {
+        const migratablePacks: MigratablePack[] = [];
+        for (const pack of this.compendiumSource()) {
+            if (isSystemPack(pack)) continue;
+            if (pack.locked) {
+                result.skippedPacks.push(pack.title);
+                continue;
+            }
+            try {
+                const index = await pack.getIndex();
+                migratablePacks.push({ pack, size: index.size });
+            } catch (error) {
+                console.warn(
+                    `Splittermond | migration "${this.name}": failed to load the index of compendium "${pack.title}". Skipping it.`,
+                    error
+                );
+                result.skippedPacks.push(pack.title);
+            }
+        }
+        return migratablePacks;
+    }
+
+    private async migrateWorldDocuments(
+        worldDocs: FoundryDocument[],
+        reporter: MigrationReporter,
+        result: MigrationResult
+    ): Promise<void> {
+        for (const document of worldDocs) {
+            try {
+                result.worldDocumentsMigrated += await this.applyToDocumentTree(document, reporter);
+            } catch (error) {
+                this.logDocumentTreeFailure(error);
+            }
+        }
+    }
+
+    private async migratePacks(
+        migratablePacks: MigratablePack[],
+        reporter: MigrationReporter,
+        result: MigrationResult
+    ): Promise<void> {
+        for (const { pack } of migratablePacks) {
+            let docs: FoundryDocument[];
+            try {
+                docs = await pack.getDocuments();
+            } catch (error) {
+                console.warn(
+                    `Splittermond | migration "${this.name}": failed to load the documents of compendium "${pack.title}". Skipping it.`,
+                    error
+                );
+                result.skippedPacks.push(pack.title);
+                continue;
+            }
+            let migratedAny = false;
+            for (const doc of docs) {
+                try {
+                    if ((await this.applyToDocumentTree(doc, reporter)) > 0) {
+                        migratedAny = true;
+                    }
+                } catch (error) {
+                    this.logDocumentTreeFailure(error);
+                }
+            }
+            if (migratedAny) result.packsMigrated += 1;
+        }
+    }
+
+    private logDocumentTreeFailure(error: unknown): void {
+        console.warn(
+            `Splittermond | migration "${this.name}": failed to process a document tree. Continuing with the next document.`,
+            error
+        );
     }
 
     private async applyToDocumentTree(document: FoundryDocument, reporter: MigrationReporter): Promise<number> {
