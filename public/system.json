@@ -270,7 +270,7 @@
   "secondaryTokenAttribute": "focusBar",
   "compatibility": {
     "minimum": "14.359",
-    "verified": "14.363",
+    "verified": "14.367",
     "maximum": "14"
   },
   "media": [
