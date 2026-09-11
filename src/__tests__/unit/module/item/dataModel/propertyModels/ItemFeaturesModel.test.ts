@@ -342,4 +342,12 @@ describe("feature parser", () => {
         expect(result[0]).to.deep.equal({ name: "Scharf", value: 5 });
         expect(result[1].name).to.equal("Improvisiert");
     });
+    it("should parse badly formatted features", () => {
+        const featureString = "Scharf 3     ,, Improvisiert, Scharf 5, ";
+        const result = parseFeatures(featureString);
+
+        expect(result).to.have.lengthOf(2);
+        expect(result[0]).to.deep.equal({ name: "Scharf", value: 5 });
+        expect(result[1].name).to.equal("Improvisiert");
+    });
 });

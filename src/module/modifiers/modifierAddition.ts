@@ -2,7 +2,7 @@ import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { foundryApi } from "../api/foundryApi";
 import { ICostModifier } from "../util/costs/spellCostManagement";
 import { type FocusModifier, parseModifiers, type ScalarModifier } from "./parsing";
-import { of, Expression as ScalarExpression } from "./expressions/scalar";
+import { Expression as ScalarExpression, of } from "./expressions/scalar";
 import { Modifier } from "module/activeEffect";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
@@ -80,25 +80,15 @@ export function initAddModifier(
         //Backup processor for modifiers that have no dedicated handler
         //deprecated paths are also handled here
         unprocessedModifiers.forEach(({ parsed: modifier, rawFragment }) => {
-            if (["damage", "weaponspeed"].includes(modifier.path.toLowerCase().split(".")[0])) {
-                allErrors.push(
-                    foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                        oldPath: modifier.path,
-                        newPath: `item.${modifier.path}`,
-                        itemName: item.name,
-                    })
-                );
+            if ("damage" === modifier.path.toLowerCase().split(".")[0]) {
+                damageDeprecation.notify(item.name);
+                modifier.path = `item.${modifier.path}`;
+            } else if ("weaponspeed" === modifier.path.toLowerCase().split(".")[0]) {
+                weaponSpeedDeprecation.notify(item.name);
                 modifier.path = `item.${modifier.path}`;
             } else if ("gsw.mult" === modifier.path.toLowerCase()) {
-                const newGroupId = "actor.speed.multiplier";
-                allErrors.push(
-                    foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
-                        oldPath: modifier.path,
-                        newPath: newGroupId,
-                        itemName: item.name,
-                    })
-                );
-                modifier.path = newGroupId;
+                gswDeprecation.notify(item.name);
+                modifier.path = "actor.speed.multiplier";
             } else {
                 /* handles path translations for derived values and skills. Cannot be done in registry, because the language file loads too late for
                  * adding initializers in 'init'. You cannot place handlers in the "ready" hook however, because Actors are initialized before the
@@ -160,3 +150,30 @@ function createModifier(
         actorProvider
     );
 }
+
+class DeprecationNotifier {
+    private notified = false;
+
+    constructor(
+        private readonly oldPath: string,
+        private readonly newPath: string
+    ) {}
+
+    notify(itemName: string) {
+        const message = foundryApi.format("splittermond.modifiers.parseMessages.deprecatedPath", {
+            oldPath: this.oldPath,
+            newPath: this.newPath,
+            itemName,
+        });
+        if (this.notified) {
+            console.warn(`Splittermond | ${message}`);
+        } else {
+            foundryApi.warnUser(message);
+            this.notified = true;
+        }
+    }
+}
+
+const weaponSpeedDeprecation = new DeprecationNotifier("weaponspeed", "item.weaponspeed");
+const damageDeprecation = new DeprecationNotifier("damage", "item.damage");
+const gswDeprecation = new DeprecationNotifier("gsw.mult", "actor.speed.multiplier");
