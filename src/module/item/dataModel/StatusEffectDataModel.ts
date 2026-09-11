@@ -46,6 +46,8 @@ export class StatusEffectDataModel extends SplittermondDataModel<StatusEffectDat
     static defineSchema = StatusEffectDataModelSchema;
 
     static migrateData(source: unknown) {
+        source = migrateFrom0_12_13(source);
+        source = migrateFrom0_12_20(source);
         source = from13_5_2_migrate_fo_modifiers(source);
         source = from13_8_8_migrateSkillModifiers(source);
         source = from14_2_6_migrateCombatEvent(source);
