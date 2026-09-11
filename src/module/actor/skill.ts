@@ -19,6 +19,8 @@ import { rollType, RollType } from "module/config/check";
 import { CheckReport, type GenericRollEvaluation } from "module/check";
 import { SplittermondSkill } from "module/config/skillGroups";
 import { registerHook } from "module/hooks";
+import type { CharacterDataModelType } from "module/actor/dataModel/CharacterDataModel";
+import type { NpcDataModelType } from "module/actor/dataModel/NpcDataModel";
 
 function newSkillAttribute() {
     const id = new fieldExtensions.StringEnumField({
@@ -166,11 +168,21 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
     }
 
     get points(): number {
-        //No actual skill value can have a value of 0 (let alone null or undefined). Therefore if we encounter this,
+        //No actual skill value can have a value of null or undefined. Therefore, if we encounter this,
         // we're dealing with a proper skill (one calculated from attributes and points), meaning that we can just
         // read out the points from the actor.
-        if (!this._skillValue) {
-            return parseInt((this.actor.system.skills as any)[this.id]?.points ?? "0");
+        if (isMember([null, undefined], this._skillValue)) {
+            const id = this.id;
+            if (isMember(splittermond.skillGroups.all, id)) {
+                return (
+                    (this.actor.system.skills as (CharacterDataModelType | NpcDataModelType)["skills"])[id]?.points ?? 0
+                );
+            } else {
+                console.warn(
+                    `Splittermond | Unknown skill ${id} found for actor ${this.actor.name}. Assuming a skill of 0`
+                );
+                return 0;
+            }
         } else {
             return this._skillValue - (this.attribute1?.value || 0) - (this.attribute2?.value || 0);
         }

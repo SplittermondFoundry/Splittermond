@@ -42,7 +42,7 @@ interface AttackItemData {
     skill: string;
     attribute1: SplittermondAttribute | "";
     attribute2: SplittermondAttribute | "";
-    skillValue: number;
+    skillValue: number | null;
     minAttributes: string;
     skillMod: number;
     damageLevel: number;
@@ -67,7 +67,7 @@ function withDefaults(data: Options<AttackItemData>): AttackItemData {
             return data.attribute2 ?? "";
         },
         get skillValue() {
-            return data.skillValue ?? 0;
+            return data.skillValue ?? null;
         },
         get minAttributes() {
             return data.minAttributes ?? "";

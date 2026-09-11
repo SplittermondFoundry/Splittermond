@@ -110,9 +110,9 @@ describe("SplittermondActor", () => {
                 protectionmagic: { points: 0, value: 0 },
                 enhancemagic: { points: 0, value: 0 },
                 deathmagic: { points: 0, value: 0 },
-                transformationmagic: { points: 0 },
-                watermagic: { points: 0 },
-                windmagic: { points: 0 },
+                transformationmagic: { points: 0, value: 0 },
+                watermagic: { points: 0, value: 0 },
+                windmagic: { points: 0, value: 0 },
             },
             health: new HealthDataModel({
                 consumed: { value: 0 },

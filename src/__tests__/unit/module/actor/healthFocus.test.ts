@@ -117,9 +117,9 @@ function zeroedSkills() {
         protectionmagic: zeroed,
         enhancemagic: zeroed,
         deathmagic: zeroed,
-        transformationmagic: { points: 0 },
-        watermagic: { points: 0 },
-        windmagic: { points: 0 },
+        transformationmagic: zeroed,
+        watermagic: zeroed,
+        windmagic: zeroed,
     };
 }
 
