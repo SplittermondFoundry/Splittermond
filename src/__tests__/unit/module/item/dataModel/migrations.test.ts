@@ -1,7 +1,5 @@
 import { expect } from "chai";
 import {
-    from0_12_20_migrateDamage,
-    from0_12_20_migrateFeatures,
     from13_5_2_migrate_fo_modifiers,
     from13_8_8_migrateSkillModifiers,
     migrateFrom0_12_13,
