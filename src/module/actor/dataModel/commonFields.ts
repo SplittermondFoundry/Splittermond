@@ -16,6 +16,13 @@ export function actorDataModel<T extends Constructor<CharacterAttribute | NpcAtt
         health: new fields.EmbeddedDataField(HealthDataModel, strictlyPresent()),
         focus: new fields.EmbeddedDataField(FocusDataModel, strictlyPresent()),
         currency: currency(),
+        preparedAction: new fields.SchemaField(
+            {
+                attack: new fields.StringField({ required: true, nullable: true, initial: null }),
+                spell: new fields.StringField({ required: true, nullable: true, initial: null }),
+            },
+            strictlyPresent()
+        ),
     } as const;
 }
 

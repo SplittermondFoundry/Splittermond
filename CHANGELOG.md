@@ -31,6 +31,7 @@
 - Zauber haben jetzt die Option zum Ändern der Zauberdauer jetzt standardmäßig auf "an".
   Dadurch wird es unwahrscheinlicher, dass bei Zaubern kein "Zauberdauer abrechnen" erscheint.
 - Kanalisierte Lebenspunkte werden bei langen Rasten nicht mehr zurück gesetzt.
+- Vorbereitete Zauber und Angriffe verfallen jetzt bei Kurzen und Langen Rasten
 
 ## 14.2.6
 

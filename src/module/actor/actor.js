@@ -31,6 +31,7 @@ import { substituteSkill, stripSchwerpunktPrefix } from "../activeEffect/sentine
 import { documentValidator, registerHook } from "module/hooks/index.ts";
 import { fields } from "module/data/SplittermondDataModel.ts";
 import { PrimaryCost } from "module/util/costs/PrimaryCost.ts";
+import { PreparedAction } from "module/actor/PreparedAction.ts";
 
 /** @type ()=>number */
 let getHeroLevelMultiplier = () => 1;
@@ -159,6 +160,8 @@ export default class SplittermondActor extends Actor {
         //console.log(`prepareBaseData() - ${this.type}: ${this.name}`);/a
         super.prepareBaseData();
         this.modifier = new ModifierManager();
+        this.preparedSpells = new PreparedAction(this, "spell");
+        this.preparedAttacks = new PreparedAction(this, "attack");
         this.bonusGrants = { healthpoints: [], focuspoints: [] };
         this._resistances = new Susceptibilities("resistance", this.modifier);
         this._weaknesses = new Susceptibilities("weakness", this.modifier);
@@ -1394,7 +1397,14 @@ export default class SplittermondActor extends Actor {
         healthData.exhausted.value = 0;
 
         return await this.update({
-            system: { health: healthData, focus: focusData },
+            system: {
+                health: healthData,
+                focus: focusData,
+                preparedAction: {
+                    attack: null,
+                    spell: null,
+                },
+            },
         }); //propagate update to the database
     }
 
@@ -1428,7 +1438,14 @@ export default class SplittermondActor extends Actor {
         );
 
         return await this.update({
-            system: { health: healthData, focus: focusData },
+            system: {
+                health: healthData,
+                focus: focusData,
+                preparedAction: {
+                    attack: null,
+                    spell: null,
+                },
+            },
         }); //propagate update to the database
     }
 

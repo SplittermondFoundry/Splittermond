@@ -332,8 +332,8 @@ export default class Attack {
         return isMember(splittermond.skillGroups.ranged, this.skill.id);
     }
 
-    get isPrepared() {
-        return this.isRanged ? this.actor.getFlag("splittermond", "preparedAttack") == this.id : true;
+    get isPrepared(): boolean {
+        return this.isRanged ? this.actor.preparedAttacks.isPrepared(this.id) : true;
     }
 
     toObject() {

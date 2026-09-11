@@ -127,6 +127,7 @@ describe("SplittermondActor", () => {
                 bonus: { entries: [] },
             }),
             currency: { S: 0, L: 0, T: 0 },
+            preparedAction: { attack: null, spell: null },
         });
         Object.defineProperty(actor, "items", { value: [], writable: true, configurable: true });
         // Mock update to avoid side effects and allow assertions

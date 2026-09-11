@@ -15,6 +15,8 @@ import type { FoundryChatMessage } from "module/api/ChatMessage";
 import type { ExpressionBundle, ValueBundle } from "module/util/util";
 import type { Expression } from "module/modifiers/expressions/scalar";
 import { SplittermondActiveEffect } from "module/activeEffect";
+import type { PreparedAction } from "module/actor/PreparedAction";
+import type SplittermondSpellItem from "../item/spell";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 
@@ -29,6 +31,8 @@ declare class SplittermondActor extends Actor {
     private _resistances: Susceptibilities;
     private _weaknesses: Susceptibilities;
     public readonly modifier: ModifierManager;
+    public preparedSpells: PreparedAction;
+    public preparedAttacks: PreparedAction;
     public bonusGrants: { healthpoints: BonusGrant[]; focuspoints: BonusGrant[] };
     public readonly type: "character" | "npc";
 
@@ -38,6 +42,7 @@ declare class SplittermondActor extends Actor {
 
     public readonly skills: Record<SplittermondSkill, Skill>;
     public readonly attacks: Attack[];
+    public spells: SplittermondSpellItem[];
 
     async activeDefenseDialog(type?: DefenseType): Promise<void>;
 

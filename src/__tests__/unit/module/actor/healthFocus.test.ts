@@ -151,6 +151,7 @@ function createCharacterData(
         health: healthTrackFixture(healthSeed),
         focus: focusTrackFixture(focusSeed),
         currency: { S: 0, L: 0, T: 0 },
+        preparedAction: { attack: null, spell: null },
     });
 }
 
