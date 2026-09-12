@@ -24,6 +24,11 @@ interface SheetRegistrationOptions {
     makeDefault?: boolean;
 }
 
+function notificationsAreLoaded() {
+    //@ts-ignore
+    return !!ui && !!ui.notifications;
+}
+
 export const foundryApi = new (class FoundryApi {
     /**
      * @param messageKey the key to an entry in the localization file
@@ -32,7 +37,7 @@ export const foundryApi = new (class FoundryApi {
     reportError(messageKey: string, templateArgs?: Record<string, string>): void {
         const message = templateArgs ? this.format(messageKey, templateArgs) : this.localize(messageKey);
         //@ts-ignore
-        ui.notifications.error(message);
+        void (notificationsAreLoaded() ? ui.notifications.error(message) : console.error(message));
     }
 
     /**
@@ -42,7 +47,7 @@ export const foundryApi = new (class FoundryApi {
     warnUser(messageKey: string, templateArgs?: Record<string, string>): void {
         const message = templateArgs ? this.format(messageKey, templateArgs) : this.localize(messageKey);
         //@ts-ignore
-        ui.notifications.warn(message);
+        void (notificationsAreLoaded() ? ui.notifications.warn(message) : console.warn(message));
     }
 
     /**
@@ -52,7 +57,7 @@ export const foundryApi = new (class FoundryApi {
     informUser(messageKey: string, templateArgs?: Record<string, string>): void {
         const message = templateArgs ? this.format(messageKey, templateArgs) : this.localize(messageKey);
         // @ts-ignore
-        ui.notifications.info(message);
+        void (notificationsAreLoaded() ? ui.notifications.info(message) : console.log(message));
     }
 
     get messages(): { get: (id: string) => FoundryChatMessage } {
