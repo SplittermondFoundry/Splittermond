@@ -94,6 +94,10 @@ describe("addModifier", () => {
                     return "INI";
                 case "splittermond.derivedAttribute.initiative.long":
                     return "Initiative";
+                case "splittermond.derivedAttribute.mindresist.short":
+                    return "GW";
+                case "splittermond.derivedAttribute.mindresist.long":
+                    return "Geistiger Widerstand";
                 case "splittermond.damageTypes.physical":
                     return "physisch";
                 default:
@@ -286,6 +290,19 @@ describe("addModifier", () => {
             value: of(1),
 
             selectable: false,
+        });
+    });
+
+    it("should retain V12 emphasis semantics on localized derived values", () => {
+        const result = addModifier(item, 'GW emphasis="Unbeherrschbar" +10', "innate");
+
+        expect(result.hasErrors).to.be.false;
+        expect(result.modifiers).to.have.length(1);
+        expect(result.modifiers[0].modifier).to.deep.contain({
+            groupId: "mindresist",
+            attributes: { emphasis: "Unbeherrschbar", name: "Unbeherrschbar", type: "innate" },
+            value: of(10),
+            selectable: true,
         });
     });
 

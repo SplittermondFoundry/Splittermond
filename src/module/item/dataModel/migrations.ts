@@ -14,6 +14,7 @@ export function migrateModifiers(source: unknown) {
     source = from13_5_2_migrate_fo_modifiers(source);
     source = from13_8_8_migrateSkillModifiers(source);
     source = from14_2_7_migrateModifiers(source);
+    source = from14_3_0_migratePositionalSkillSelectors(source);
     return source;
 }
 
@@ -271,6 +272,37 @@ export function from14_2_7_migrateModifiers(source: unknown) {
     const changed = change.map((mod) => mod.replace(/^gsw[.]mult/i, "actor.speed.multiplier"));
     source.modifier = [...keep, ...changed].join(", ");
     return source;
+}
+
+/**
+ * Normalize the positional selector found in older world data. The current skill
+ * handler expects the selected skill as an attribute (`skills skill="..."`),
+ * while some V12-era items persisted it as a second bare token
+ * (`skills perception ...`). Only known skill ids are rewritten so malformed
+ * free-form modifiers remain visible to the user instead of being guessed at.
+ */
+export function from14_3_0_migratePositionalSkillSelectors(source: unknown) {
+    if (!hasStringKey(source, "modifier")) {
+        return source;
+    }
+    const { keep, change } = separateModifiers(source.modifier, hasPositionalSkillSelector);
+    const changed = change.map(mapPositionalSkillSelector);
+    source.modifier = [...keep, ...changed].join(", ");
+    return source;
+}
+
+function hasPositionalSkillSelector(mod: string): boolean {
+    const match = /^(actor[.]skills|skills)\s+([^\s=]+)(?=\s)/i.exec(mod);
+    if (!match) return false;
+    return splittermond.skillGroups.all.some((skill) => skill.toLowerCase() === match[2].toLowerCase());
+}
+
+function mapPositionalSkillSelector(mod: string): string {
+    const match = /^(actor[.]skills|skills)\s+([^\s=]+)(?=\s)/i.exec(mod);
+    if (!match) return mod;
+    const skill = splittermond.skillGroups.all.find((candidate) => candidate.toLowerCase() === match[2].toLowerCase());
+    if (!skill) return mod;
+    return mod.replace(match[0], `${match[1]} skill="${skill}"`);
 }
 
 function mapSusceptibilityModifier(mod: string): string {

@@ -68,7 +68,10 @@ function addDerivedValueHandlers(registry: ModifierRegistry<ScalarModifier>) {
     });
     derivedAttributes
         .filter((attr) => attr !== "initiative" && !isResourcePoints(attr))
-        .forEach((da) => registry.addHandler(da, BasicModifierHandler(da)));
+        // V12 accepted `emphasis` on ordinary derived values (for example
+        // `GW emphasis="Unbeherrschbar" +10`). Keep that selectable behaviour
+        // when the localized path is normalized to its modern id.
+        .forEach((da) => registry.addHandler(da, EmphasisAwareBasicHandler(da)));
     registry.addHandler("initiative", InverseModifierHandler("initiative"));
     registerResourcePointsHandlers(registry);
 }

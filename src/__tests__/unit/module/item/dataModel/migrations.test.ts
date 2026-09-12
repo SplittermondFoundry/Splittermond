@@ -5,6 +5,7 @@ import {
     from13_5_2_migrate_fo_modifiers,
     from13_8_8_migrateSkillModifiers,
     from14_2_7_migrateModifiers,
+    from14_3_0_migratePositionalSkillSelectors,
     migrateFrom0_12_11,
     migrateFrom0_12_13,
     migrateFrom0_12_20,
@@ -440,17 +441,44 @@ describe("Modifier migration from 14.2.7", () => {
     });
 });
 
+describe("Modifier migration from 14.3.0", () => {
+    it("should move a positional skill selector into the skill attribute", () => {
+        const source = { modifier: 'skills perception emphasis="Feine Nase" +2' };
+
+        const result = from14_3_0_migratePositionalSkillSelectors(source);
+
+        expect(result).to.deep.equal({ modifier: 'skills skill="perception" emphasis="Feine Nase" +2' });
+    });
+
+    it("should preserve an actor.skills prefix and canonicalize the skill id case", () => {
+        const source = { modifier: "actor.skills PERCEPTION +2" };
+
+        const result = from14_3_0_migratePositionalSkillSelectors(source);
+
+        expect(result).to.deep.equal({ modifier: 'actor.skills skill="perception" +2' });
+    });
+
+    it("should leave keyed and unknown selectors unchanged", () => {
+        const keyed = { modifier: 'skills skill="perception" +2' };
+        const unknown = { modifier: "skills invented +2" };
+
+        expect(from14_3_0_migratePositionalSkillSelectors(keyed)).to.deep.equal(keyed);
+        expect(from14_3_0_migratePositionalSkillSelectors(unknown)).to.deep.equal(unknown);
+    });
+});
+
 describe("Combined modifier migrations", () => {
     it("should migrate legacy paths from V12 through V14 in one pass", () => {
         const source = {
-            modifier: "susceptibility.light 2, damage 1W6, GSW.mult 0.5, MagicSkills -1, FoReduction.deathmagic K2V1",
+            modifier:
+                'susceptibility.light 2, damage 1W6, GSW.mult 0.5, MagicSkills -1, FoReduction.deathmagic K2V1, skills perception emphasis="Feine Nase" +2',
         };
 
         const result = migrateModifiers(source);
 
         expect(result).to.deep.equal({
             modifier:
-                'resistance.light -2, item.damage 1W6, focus.reduction skill="deathmagic" K2V1, actor.skills.magic -1, actor.speed.multiplier 0.5',
+                'resistance.light -2, item.damage 1W6, focus.reduction skill="deathmagic" K2V1, actor.skills.magic -1, actor.speed.multiplier 0.5, skills skill="perception" emphasis="Feine Nase" +2',
         });
     });
 

@@ -7,6 +7,7 @@ import { modifierTypeForItemType } from "module/activeEffect/modifierTypeResolve
 import type { IAddModifier } from "module/actor/addModifierAdapter";
 import { splittermond } from "module/config";
 import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffectAssignment";
+import { stripSchwerpunktPrefix } from "module/activeEffect/sentinelSubstitution";
 
 export const MIGRATION_FLAG_SCOPE = "splittermond";
 export const MIGRATION_FLAG_KEY = "modifierToEffectMigrationDone";
@@ -58,14 +59,17 @@ export async function migrateModifierToEffects(
     if (!modifierString.trim()) return false;
     if (!addModifier) return false;
 
+    const resolvedModifierString = resolveMasteryPlaceholders(item, modifierString);
+    if (resolvedModifierString === null) return false;
+
     const modifierType = modifierTypeForItemType(item.type);
-    const parseResult = addModifier(item, modifierString, modifierType);
+    const parseResult = addModifier(item, resolvedModifierString, modifierType);
     if (parseResult.hasErrors) return false;
 
     await item.setFlag("splittermond", "systemModifier", modifierString);
     await item.update({ "system.modifier": "" });
 
-    await addModifierEffects(() => parseResult, item, modifierString, modifierType, "modifier", {
+    await addModifierEffects(() => parseResult, item, resolvedModifierString, modifierType, "modifier", {
         modifierMigrationVersion: MODIFIER_TO_EFFECT_MIGRATION_VERSION,
     });
 
@@ -76,6 +80,24 @@ export async function migrateModifierToEffects(
 function getModifierString(item: Item) {
     const modifierString = item.system?.modifier || item.getFlag("splittermond", "systemModifier");
     return modifierString ?? "";
+}
+
+/**
+ * Mastery modifier strings may contain template sentinels. Embedded masteries
+ * have a concrete skill and can be transported after substitution. Library
+ * templates without a selected skill must keep their source string so the
+ * normal item-assignment workflow can substitute it later.
+ */
+function resolveMasteryPlaceholders(item: SplittermondItem, modifierString: string): string | null {
+    if (item.type !== "mastery") return modifierString;
+
+    let resolved = modifierString.split("${name}").join(stripSchwerpunktPrefix(item.name));
+    if (!resolved.includes("${skill}")) return resolved;
+
+    const skill = (item.system as { skill?: string | null }).skill;
+    if (!skill) return null;
+    resolved = resolved.split("${skill}").join(skill);
+    return resolved;
 }
 
 function modifierToEffectMigrationBuilder(): MigrationBuilder<SplittermondItem> {
