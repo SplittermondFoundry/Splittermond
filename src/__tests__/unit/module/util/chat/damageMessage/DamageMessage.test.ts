@@ -1,10 +1,10 @@
 import { describe, it } from "mocha";
-import { DamageMessage } from "../../../../../../module/util/chat/damageChatMessage/DamageMessage";
+import { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
 import { createDamageEvent, createDamageImplement } from "../../damage/damageEventTestHelper";
 import sinon from "sinon";
 import { expect } from "chai";
-import { foundryApi } from "../../../../../../module/api/foundryApi";
-import { damageHandlers } from "../../../../../../module/util/chat/damageChatMessage/damageApplicationHandlers";
+import { foundryApi } from "module/api/foundryApi";
+import { damageHandlers } from "module/util/chat/damageChatMessage/damageApplicationHandlers";
 
 describe("Damage Message", () => {
     let sandbox: sinon.SinonSandbox;
