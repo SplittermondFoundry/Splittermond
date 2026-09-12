@@ -2,6 +2,8 @@ import { parseModifiers } from "module/modifiers/parsing";
 import { validateDescriptors } from "module/modifiers/parsing/validators";
 import { isRoll } from "module/api/Roll";
 import { parseFeatures } from "./propertyModels/ItemFeaturesModel";
+import { splittermond } from "module/config";
+import { type ItemFeature } from "module/config/itemFeatures";
 
 /* Remove migrations after advancing two major versions. I.e. remove 12.x migrations with Foundry v14 */
 export function migrateFrom0_12_13(source: unknown) {
@@ -45,7 +47,7 @@ export function from0_12_20_migrateFeatures(source: unknown) {
     if (hasStringKey(source, "features")) {
         const features = source.features;
         source.features = {
-            internalFeatureList: parseFeatures(features),
+            internalFeatureList: parseFeatures(cleanFeatures(features)),
         };
     }
     if (
@@ -55,10 +57,29 @@ export function from0_12_20_migrateFeatures(source: unknown) {
     ) {
         const features = source.secondaryAttack.features;
         source.secondaryAttack.features = {
-            internalFeatureList: parseFeatures(features),
+            internalFeatureList: parseFeatures(cleanFeatures(features)),
         };
     }
     return source;
+}
+function cleanFeatures(features: string): string {
+    return features
+        .trim()
+        .split(",")
+        .map((f) => f.trim())
+        .filter((f) => !(f.includes("-") || f.includes("–")))
+        .filter((f) => !!f)
+        .map((candidate) => {
+            const bestMatch = splittermond.itemFeatures.find((f) => f.toLowerCase() === candidate);
+            if (bestMatch) {
+                return bestMatch;
+            } else if (candidate.toLowerCase().includes("lange") && candidate.toLowerCase().includes("waffe")) {
+                return "Lange Waffe" satisfies ItemFeature;
+            } else {
+                return candidate;
+            }
+        })
+        .join(", ");
 }
 
 export function from0_12_20_migrateDamage(source: unknown) {
@@ -112,9 +133,9 @@ function mapDamageModifier(mod: string): string {
     }
 
     if (itemName) {
-        return `${path} item="${itemName}" ${valueAsString}`;
+        return `item.${path} item="${itemName}" ${valueAsString}`;
     } else {
-        return `${path} ${valueAsString}`;
+        return `item.${path} ${valueAsString}`;
     }
 }
 
@@ -183,12 +204,15 @@ function hasStringKey(source: unknown, key: string): source is { [key]: string |
     return hasKey(source, key) && typeof source[key] === "string";
 }
 function hasKey(source: unknown, key: string): source is { [key]: unknown } {
-    return !!source && typeof source === "object" && key in source;
+    return isObject(source) && key in source;
+}
+
+function isObject(source: unknown): source is object {
+    return !!source && typeof source === "object";
 }
 
 export function from14_2_6_migrateCombatEvent(source: unknown) {
-    if (!source || typeof source !== "object") return source;
-    if ("combatEvent" in source) return source;
+    if (hasKey(source, "combatEvent")) return source;
 
     const hasStartTick = hasKey(source, "startTick");
     const hasInterval = hasKey(source, "interval");
@@ -206,3 +230,5 @@ export function from14_2_6_migrateCombatEvent(source: unknown) {
     delete record.times;
     return source;
 }
+
+export function from14_2_7_migrateModifiers(_source: unknown) {}

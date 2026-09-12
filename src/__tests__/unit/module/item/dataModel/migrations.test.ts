@@ -62,7 +62,7 @@ describe("Modifier migration from 0.12.20", () => {
 
             const result = migrateFrom0_12_20(source);
 
-            expect(result).to.deep.equal({ modifier: `${path} item="Hellebarde" 1` });
+            expect(result).to.deep.equal({ modifier: `item.${path} item="Hellebarde" 1` });
         });
 
         it(`should replace dot descriptor with item attribute for ${path}`, () => {
@@ -70,7 +70,7 @@ describe("Modifier migration from 0.12.20", () => {
 
             const result = migrateFrom0_12_20(source);
 
-            expect(result).to.deep.equal({ modifier: `${path} item="Hellebarde" 1` });
+            expect(result).to.deep.equal({ modifier: `item.${path} item="Hellebarde" 1` });
         });
 
         it(`should replace emphasis with spaces emphasis attribute for ${path}`, () => {
@@ -78,7 +78,7 @@ describe("Modifier migration from 0.12.20", () => {
 
             const result = migrateFrom0_12_20(source);
 
-            expect(result).to.deep.equal({ modifier: `${path} item="Natürliche Waffe" 1` });
+            expect(result).to.deep.equal({ modifier: `item.${path} item="Natürliche Waffe" 1` });
         });
 
         it(`should keep unaffected modifiers for ${path}`, () => {
@@ -89,7 +89,7 @@ describe("Modifier migration from 0.12.20", () => {
             const result = migrateFrom0_12_20(source);
 
             expect(result).to.deep.equal({
-                modifier: `FO -1, fightingSkill.melee emphasis=Hellebarde -1, VTD +2, ${path} item="Natürliche Waffe" 1`,
+                modifier: `FO -1, fightingSkill.melee emphasis=Hellebarde -1, VTD +2, item.${path} item="Natürliche Waffe" 1`,
             });
         });
 
