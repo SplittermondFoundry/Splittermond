@@ -34,12 +34,6 @@ export default class SplittermondSpellSheet extends SplittermondItemSheet {
     }
 
     _prepareSubmitData(event: SubmitEvent, form: HTMLFormElement, formData: any, updateObject: object = {}): object {
-        if (formData.object["system.damageType"] === "null") {
-            formData.object["system.damageType"] = null;
-        }
-        if (formData.object["system.costType"] === "null") {
-            formData.object["system.costType"] = null;
-        }
         if (formData.object["system.castDuration.innateDuration"] !== undefined) {
             formData.object["system.castDuration"] = parseCastDuration(
                 formData.object["system.castDuration.innateDuration"]

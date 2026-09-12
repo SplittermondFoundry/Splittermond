@@ -42,6 +42,7 @@ interface InputItemProperty {
     placeholderText?: string;
     label?: string;
     help?: string;
+    choices?: Record<string, string>;
 }
 
 interface ItemSheetPropertyDisplayProperty extends InputItemProperty {}
@@ -252,7 +253,18 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
             );
             delete formData.availableIn;
         }
+        this.convertNullSelectSubmissions(formData);
         return super._prepareSubmitData(event, form, formData, submitObject);
+    }
+
+    private convertNullSelectSubmissions(formData: { object: Record<string, unknown> }): void {
+        this.itemSheetProperties.forEach((group: PropertyGroup) => {
+            group.properties.forEach((prop: InputItemProperty) => {
+                if (prop.template === "select" && prop.choices?.null && formData.object[prop.field] === "null") {
+                    formData.object[prop.field] = null;
+                }
+            });
+        });
     }
 
     private resolveParser(userSet: AvailabilityParser | null, itemType: ItemType) {

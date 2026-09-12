@@ -145,6 +145,7 @@ export default class SplittermondCompendiumBrowser extends SplittermondApplicati
         delete data.spellFilter.skills.arcanelore;
         data.spellFilter.skills.none = "splittermond.skillLabel.none";
         data.weaponFilter.skills.none = "splittermond.skillLabel.none";
+        data.masteryFilter.skills.none = "splittermond.skillLabel.none";
 
         const allItems = this.recordCompendiaItemsInCategories(foundryApi.collections.packs)
             .then((record) => this.appendWorldItemsToRecord(record, itemRetriever.items))

@@ -79,6 +79,25 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             await Item.deleteDocuments([item.id]);
         });
 
+        it("treats a missing mastery skill as null and round-trips null updates", async () => {
+            const item = (await foundryApi.createItem({
+                type: "mastery",
+                name: "Meisterschaft ohne Fertigkeit",
+                folder: null,
+                system: {},
+            })) as SplittermondItem;
+
+            void expect((item.system as MasteryDataModel).skill, "initial skill is null").to.be.null;
+
+            await item.update({ "system.skill": "blades" });
+            expect((item.system as MasteryDataModel).skill, "skill set to blades").to.equal("blades");
+
+            await item.update({ "system.skill": null });
+            void expect((item.system as MasteryDataModel).skill, "skill reset to null").to.be.null;
+
+            await Item.deleteDocuments([item.id]);
+        });
+
         it("can create a new spell item", async () => {
             let itemData = {
                 type: "spell",
@@ -189,11 +208,11 @@ export function itemTest(this: any, context: QuenchBatchContext) {
         async function enterInSheet(sheet: SplittermondItemSheet, inputName: string, value: string) {
             await sheet.render(true);
             const featureInput = sheet.element.querySelector(`input[name='${inputName}']`) as HTMLInputElement | null;
-            expect(featureInput, "Feature input found").to.not.be.null;
+            void expect(featureInput, "Feature input found").to.not.be.null;
             featureInput!.value = value;
             featureInput!.dispatchEvent(new Event("input", { bubbles: true }));
             featureInput!.dispatchEvent(new Event("change", { bubbles: true }));
-            sheet.close();
+            void sheet.close();
         }
 
         it("should save secondaryAttack features", async () => {
@@ -236,12 +255,12 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             const featureInput = sheet.element.querySelector(
                 `input[name='system.quantity']`
             ) as HTMLInputElement | null;
-            expect(featureInput, "Feature input found").to.not.be.null;
+            void expect(featureInput, "Feature input found").to.not.be.null;
 
             featureInput?.parentElement
                 ?.querySelector("button[data-action='inc-value']")
                 ?.dispatchEvent(new PointerEvent("click", { bubbles: true }));
-            sheet.close();
+            void sheet.close();
 
             expect(featureInput?.valueAsNumber, "Input was updated").to.equal(2);
             await passesEventually(() => expect(item.system.quantity).to.equal(2), 1000, 100);
@@ -256,12 +275,12 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             const featureInput = sheet.element.querySelector(
                 `input[name='system.quantity']`
             ) as HTMLInputElement | null;
-            expect(featureInput, "Feature input found").to.not.be.null;
+            void expect(featureInput, "Feature input found").to.not.be.null;
 
             featureInput?.parentElement
                 ?.querySelector("button[data-action='dec-value']")
                 ?.dispatchEvent(new PointerEvent("click", { bubbles: true }));
-            sheet.close();
+            void sheet.close();
 
             expect(featureInput?.valueAsNumber, "Input was updated").to.equal(1);
             await passesEventually(() => expect(item.system.quantity).to.equal(1), 1000, 100);
@@ -313,8 +332,8 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             const item = await createItem("spell");
             const sheet = await renderSheet(new SplittermondSpellSheet({ document: item }));
 
-            expect(effectsNavEntry(sheet), "spell sheet has no effects-tab nav entry").to.be.null;
-            expect(effectsPanel(sheet), "spell sheet has no effects panel").to.be.null;
+            void expect(effectsNavEntry(sheet), "spell sheet has no effects-tab nav entry").to.be.null;
+            void expect(effectsPanel(sheet), "spell sheet has no effects panel").to.be.null;
         });
 
         it("spell sheet rejects an ActiveEffect drop without creating an effect", async () => {
@@ -336,8 +355,8 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             const item = await createItem("npcattack");
             const sheet = await renderSheet(new SplittermondAttackSheet({ document: item }));
 
-            expect(effectsNavEntry(sheet), "npcattack sheet has no effects-tab nav entry").to.be.null;
-            expect(effectsPanel(sheet), "npcattack sheet has no effects panel").to.be.null;
+            void expect(effectsNavEntry(sheet), "npcattack sheet has no effects-tab nav entry").to.be.null;
+            void expect(effectsPanel(sheet), "npcattack sheet has no effects panel").to.be.null;
         });
 
         it("npcattack sheet rejects an ActiveEffect drop without creating an effect", async () => {
@@ -359,17 +378,17 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             const item = await createItem("weapon");
             const sheet = await renderSheet(new SplittermondWeaponSheet({ document: item }));
 
-            expect(effectsNavEntry(sheet), "weapon sheet still has effects-tab nav entry").to.not.be.null;
-            expect(effectsPanel(sheet), "weapon sheet still has effects panel").to.not.be.null;
+            void expect(effectsNavEntry(sheet), "weapon sheet still has effects-tab nav entry").to.not.be.null;
+            void expect(effectsPanel(sheet), "weapon sheet still has effects panel").to.not.be.null;
         });
 
         it("addModifierEffects attaches an autoGenerated effect to a spell item (autogenerated path survives)", async () => {
             const item = await createItem("spell");
             const addModifier = getAddModifier();
-            expect(addModifier, "real addModifier is initialized in the Quench environment").to.not.be.null;
+            void expect(addModifier, "real addModifier is initialized in the Quench environment").to.not.be.null;
 
             const created = await addModifierEffects(addModifier!, item, "acrobatics +2", "innate");
-            expect(created, "addModifierEffects created effects on the spell item").to.exist;
+            void expect(created, "addModifierEffects created effects on the spell item").to.exist;
             expect(created!.length, "one autoGenerated effect created").to.equal(1);
 
             const autoGenerated = item.effects.filter(isGenerated);
@@ -379,20 +398,20 @@ export function itemTest(this: any, context: QuenchBatchContext) {
         it("addModifierEffects creates a modifier-type effect when called with type 'modifier'", async () => {
             const item = await createItem("weapon");
             const addModifier = getAddModifier();
-            expect(addModifier, "real addModifier is initialized in the Quench environment").to.not.be.null;
+            void expect(addModifier, "real addModifier is initialized in the Quench environment").to.not.be.null;
 
             const created = await addModifierEffects(addModifier!, item, "acrobatics +2", "innate", "modifier");
-            expect(created, "addModifierEffects created effects on the weapon item").to.exist;
+            void expect(created, "addModifierEffects created effects on the weapon item").to.exist;
             expect(created!.length, "one modifier-type effect created").to.equal(1);
 
             const createdEffect = created![0];
             expect(createdEffect.type, "created effect type is modifier (not autoGenerated)").to.equal("modifier");
-            expect(isGenerated(createdEffect), "created effect is not isGenerated").to.be.false;
+            void expect(isGenerated(createdEffect), "created effect is not isGenerated").to.be.false;
 
             const stored = item.effects.get(createdEffect.id);
-            expect(stored, "created effect is persisted on the item").to.exist;
+            void expect(stored, "created effect is persisted on the item").to.exist;
             expect(stored!.type, "persisted effect type is modifier").to.equal("modifier");
-            expect(isGenerated(stored!), "persisted effect is not isGenerated").to.be.false;
+            void expect(isGenerated(stored!), "persisted effect is not isGenerated").to.be.false;
         });
     });
 }
