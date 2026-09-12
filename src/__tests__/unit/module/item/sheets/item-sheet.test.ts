@@ -3,7 +3,9 @@ import { expect } from "chai";
 import sinon, { type SinonStub } from "sinon";
 import type { SinonSandbox } from "sinon";
 import SplittermondItemEffectsSheet from "module/item/sheets/item-effects-sheet";
+import SplittermondItemSheet from "module/item/sheets/item-sheet";
 import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
+import { SplittermondBaseItemSheet } from "module/data/SplittermondApplication";
 import { foundryApi } from "module/api/foundryApi";
 import { splittermond } from "module/config";
 
@@ -112,7 +114,7 @@ describe("SplittermondItemEffectsSheet — effects part context", () => {
         expect(actual.type).to.equal("modifier");
         expect(actual.typeCssClass).to.equal("");
         expect(actual.showTicks).to.equal(false);
-        expect(actual.timeToExpirationDisplay).to.be.null;
+        void expect(actual.timeToExpirationDisplay).to.be.null;
     });
 
     it("sets modifierHelpText from the enricher output", async () => {
@@ -136,6 +138,50 @@ describe("SplittermondItemEffectsSheet — effects part context", () => {
     });
 });
 
+describe("SplittermondItemSheet — null select choice submission", () => {
+    let sandbox: SinonSandbox;
+
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(foundryApi, "localize").callsFake((s: string) => s);
+        SplittermondBaseItemSheet.prototype._prepareSubmitData = () => ({});
+    });
+
+    afterEach(() => {
+        sandbox.restore();
+        delete (SplittermondBaseItemSheet.prototype as unknown as Record<string, unknown>)._prepareSubmitData;
+    });
+
+    function makeMasterySheet() {
+        const mockItem = { type: "mastery", effects: [], system: { description: "" } };
+        return new SplittermondItemSheet(
+            { document: mockItem },
+            foundryApi.utils.resolveProperty,
+            { localize: (s: string) => s },
+            splittermond,
+            sinon.stub().resolves("")
+        );
+    }
+
+    it("converts a submitted 'null' select value back to null", () => {
+        const sheet = makeMasterySheet();
+        const formData = { object: { "system.skill": "null" } };
+
+        sheet._prepareSubmitData({} as SubmitEvent, {} as HTMLFormElement, formData);
+
+        void expect(formData.object["system.skill"]).to.be.null;
+    });
+
+    it("leaves regular select submissions untouched", () => {
+        const sheet = makeMasterySheet();
+        const formData = { object: { "system.skill": "blades" } };
+
+        sheet._prepareSubmitData({} as SubmitEvent, {} as HTMLFormElement, formData);
+
+        expect(formData.object["system.skill"]).to.equal("blades");
+    });
+});
+
 describe("SplittermondItemSheet — effects block on unsupported item types", () => {
     let sandbox: SinonSandbox;
 
@@ -149,8 +195,8 @@ describe("SplittermondItemSheet — effects block on unsupported item types", ()
     it("returns the effects part context unchanged for a spell-typed sheet", async () => {
         const sheet = makeSpellSheet([]);
         const result = await sheet._preparePartContext("effects", {}, {});
-        expect(result.effects).to.be.undefined;
-        expect(result.modifierHelpText).to.be.undefined;
+        void expect(result.effects).to.be.undefined;
+        void expect(result.modifierHelpText).to.be.undefined;
     });
 
     it("warns and blocks the drop when an ActiveEffect is dropped on a spell-typed sheet", async () => {
@@ -160,7 +206,7 @@ describe("SplittermondItemSheet — effects block on unsupported item types", ()
             type: "ActiveEffect",
             uuid: "some-uuid",
         });
-        expect(warnStub.calledOnce).to.be.true;
+        void expect(warnStub.calledOnce).to.be.true;
         expect(warnStub.firstCall.args[0]).to.equal("splittermond.activeEffect.error.itemTypeEffectsNotSupported");
     });
 

@@ -1,4 +1,4 @@
-import sinon, { SinonSandbox } from "sinon";
+import sinon, { SinonSandbox, type SinonStub } from "sinon";
 import { beforeEach, describe } from "mocha";
 import Attack from "module/actor/attack";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
@@ -17,6 +17,7 @@ import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { splittermond } from "module/config";
 import { AttackCheckReport } from "module/util/chat/rollMessages/attackChatMessage/interfaces";
 import { fromExpression } from "module/util/util";
+import { PreparedAction } from "module/actor/PreparedAction";
 
 describe("Attack", () => {
     let sandbox: SinonSandbox;
@@ -470,7 +471,6 @@ describe("Attack", () => {
     ["longrange", "throwing"].forEach((skill) => {
         it(`should not report prepared if attack represents a ${skill} attack`, () => {
             const actor = setUpActor(sandbox);
-            actor.getFlag.withArgs("splittermond", "preparedAttack").returns(null);
             const attackItem = setUpAttackItem({ skill });
 
             const underTest = Attack.initialize(actor, attackItem);
@@ -478,10 +478,10 @@ describe("Attack", () => {
             expect(underTest.isPrepared).to.be.false;
         });
 
-        it(`should not report prepared if ${skill} attack is prepared`, () => {
+        it(`should report prepared if ${skill} attack is prepared`, () => {
             const id = "3122345234";
             const actor = setUpActor(sandbox);
-            actor.getFlag.withArgs("splittermond", "preparedAttack").returns(id);
+            (actor.preparedAttacks.isPrepared as SinonStub).withArgs(id).returns(true);
             const attackItem = setUpAttackItem({ skill });
             attackItem.id = id;
 
@@ -586,7 +586,9 @@ function setUpActor(sandbox: SinonSandbox) {
         enumerable: true,
         writable: false,
     });
-    Object.defineProperty(actor, "getFlag", { value: sandbox.stub(), enumerable: true, writable: false });
+    const preparedAttacks = sandbox.createStubInstance(PreparedAction);
+    preparedAttacks.isPrepared.returns(false);
+    Object.defineProperty(actor, "preparedAttacks", { value: preparedAttacks, enumerable: true, writable: false });
     Object.defineProperty(actor, "modifier", { value: new ModifierManager(), enumerable: true, writable: false });
     Object.defineProperty(actor, "system", { value: dataModel, enumerable: true, writable: false });
     Object.defineProperty(actor.system, "skills", { value: {}, enumerable: true, writable: false });

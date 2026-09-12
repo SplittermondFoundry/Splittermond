@@ -4,7 +4,6 @@ import SplittermondShieldItem from "./shield";
 import SplittermondWeaponItem from "./weapon";
 import SplittermondNPCAttackItem from "./npcattack";
 
-// Helper type to define a constructor
 type Constructor<T = {}> = new (...args: any[]) => T;
 
 // Mixin function to extend SplittermondItem

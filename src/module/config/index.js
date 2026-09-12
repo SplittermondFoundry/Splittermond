@@ -264,7 +264,6 @@ splittermond.masterySkillsOption = {
     transformationmagic: "splittermond.skillLabel.transformationmagic",
     watermagic: "splittermond.skillLabel.watermagic",
     windmagic: "splittermond.skillLabel.windmagic",
-    none: "splittermond.skillLabel.none",
 };
 
 splittermond.displayOptions = {
@@ -353,7 +352,7 @@ splittermond.itemSheetProperties = {
                     field: "system.skill",
                     label: "splittermond.skill",
                     template: "select",
-                    choices: splittermond.masterySkillsOption,
+                    choices: { ...splittermond.masterySkillsOption, null: "splittermond.skillLabel.none" },
                 },
                 {
                     field: "system.level",

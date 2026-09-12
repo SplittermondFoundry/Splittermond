@@ -174,7 +174,7 @@ export function applicationTests(context: QuenchBatchContext) {
                 .querySelector("[data-action='prepareSpell']")
                 ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
-            await passesEventually(() => expect(actor.getFlag("splittermond", "preparedSpell")).to.equal(spell.id));
+            await passesEventually(() => expect(actor.system.preparedAction.spell).to.equal(spell.id));
         });
 
         it("should roll for a prepared spell", async () => {
@@ -189,14 +189,12 @@ export function applicationTests(context: QuenchBatchContext) {
             tokenActionBar.element
                 .querySelector("[data-action='prepareSpell']")
                 ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-            await passesEventually(() => expect(actor.getFlag("splittermond", "preparedSpell")).to.equal(spell.id));
+            await passesEventually(() => expect(actor.system.preparedAction.spell).to.equal(spell.id));
             await renderActionBarForActor(actor);
             const preparedSpell = tokenActionBar.element.querySelector('[data-action="rollSpell"]');
             preparedSpell?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
-            await passesEventually(() =>
-                expect(actor.getFlag("splittermond", "preparedSpell")).to.be.oneOf([null, undefined])
-            );
+            await passesEventually(() => expect(actor.system.preparedAction.spell).to.equal(null));
             await passesEventually(() => expect(rollSpellStub.callCount).to.equal(1));
             expect(rollSpellStub.lastCall.args).to.deep.equal([spell.id]);
         });

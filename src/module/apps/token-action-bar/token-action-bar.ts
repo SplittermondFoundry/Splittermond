@@ -220,9 +220,7 @@ export default class TokenActionBar extends SplittermondApplication {
                 data.spells = undefined;
             }
 
-            const preparedItemId = this._currentActor.getFlag("splittermond", "preparedSpell") as
-                string | null | undefined;
-            data.preparedSpell = preparedItemId ? this.getPreparedSpell(preparedItemId) : null;
+            data.preparedSpell = await this.getPreparedSpell();
 
             data.derivedValues = this._currentActor.derivedValues;
         }
@@ -230,10 +228,12 @@ export default class TokenActionBar extends SplittermondApplication {
         return data;
     }
 
-    private getPreparedSpell(preparedSpellId: string) {
-        const preparedItem = preparedSpellId ? this._currentActor?.items.get(preparedSpellId) : null;
+    private async getPreparedSpell() {
+        const preparedSpellId = this._currentActor?.preparedSpells.preparedId;
+        if (!preparedSpellId) return null;
+        const preparedItem = this._currentActor?.items.get(preparedSpellId);
         if (!(preparedItem instanceof SplittermondSpellItem)) {
-            this.currentActor?.setFlag("splittermond", "preparedSpell", null);
+            await this.currentActor?.preparedSpells.release();
             throw new Error(`${preparedSpellId} does not point to a valid spell item`);
         }
         return {
@@ -279,23 +279,14 @@ export default class TokenActionBar extends SplittermondApplication {
     }
 
     async rollAttack(__: PointerEvent, target: HTMLElement) {
-        const attackId = target.dataset.attackId;
+        const attackId = target.dataset.attackId ?? "";
         const prepared = target.dataset.prepared == "true";
         if (prepared) {
             let success = await this._currentActor?.rollAttack(attackId);
-            if (success) this._currentActor?.setFlag("splittermond", "preparedAttack", null);
+            if (success) await this._currentActor?.preparedAttacks.release();
             return;
         }
-        const attack = this._currentActor?.attacks.find((attack) => attack.id === attackId);
-        if (!attack) {
-            console.debug(`Splittermond | Attack of id ${attackId} not found on actor`);
-            return;
-        }
-        this._currentActor?.addTicks(
-            await attack.weaponSpeedAsync(),
-            `${foundryApi.localize("splittermond.attack")}: ${attack.name}`
-        );
-        this._currentActor?.setFlag("splittermond", "preparedAttack", attackId);
+        await this._currentActor?.preparedAttacks.set(attackId);
     }
 
     rollSkill(__: PointerEvent, target: HTMLElement) {
@@ -307,7 +298,7 @@ export default class TokenActionBar extends SplittermondApplication {
         const itemId = closestData(target, "item-id");
         let success = await this._currentActor?.rollSpell(itemId);
         if (success) {
-            this._currentActor?.setFlag("splittermond", "preparedSpell", null);
+            await this._currentActor?.preparedSpells.release();
         }
     }
 
@@ -323,16 +314,7 @@ export default class TokenActionBar extends SplittermondApplication {
 
     async prepareSpell(__: PointerEvent, target: HTMLElement) {
         const itemId = target.dataset.spellId ?? "";
-        const spell = this._currentActor?.items.get(itemId);
-        if (!spell || !(spell instanceof SplittermondSpellItem)) {
-            console.debug("Splittermond | Invalid spell", spell?.uuid);
-            return;
-        }
-        this._currentActor?.addTicks(
-            await spell.castDuration.inTicks(),
-            `${foundryApi.localize("splittermond.castDuration")}: ${spell.name}`
-        );
-        await this._currentActor?.setFlag("splittermond", "preparedSpell", itemId);
+        await this._currentActor?.preparedSpells.set(itemId);
     }
 
     openSheet() {
