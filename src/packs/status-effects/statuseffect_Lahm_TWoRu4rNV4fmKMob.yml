@@ -39,7 +39,7 @@ effects:
       flags:
           splittermond:
               durationMode: permanent
-              rawInput: GSW.mult 0.5
+              rawInput: actor.speed.multiplier 0.5
       _stats:
           coreVersion: "14.365"
           systemId: splittermond

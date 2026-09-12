@@ -21,7 +21,7 @@ interface StubItem {
     name: string;
     actor: unknown;
     isOwner: boolean;
-    system: { modifier: string | null };
+    system: { modifier: string | null; skill?: string | null };
     update: SinonStub;
     setFlag: SinonStub;
     getFlag: SinonStub;
@@ -129,6 +129,38 @@ describe("migrateModifierToEffects", () => {
         expect(item.update.called, "field is not cleared when parsing fails").to.be.false;
         expect(item.setFlag.called, "no backup flag is written when parsing fails").to.be.false;
         expect(item.createEmbeddedDocuments.called, "no effects are created when parsing fails").to.be.false;
+    });
+
+    it("resolves mastery skill and name placeholders before parsing", async () => {
+        const item = makeItem(
+            'focus.reduction skill="${skill}" 1, skills skill="${skill}" emphasis="${name}" +2',
+            "mastery"
+        );
+        item.name = "Schwerpunkt Feine Nase";
+        item.system.skill = "perception";
+        const resolved = 'focus.reduction skill="perception" 1, skills skill="perception" emphasis="Feine Nase" +2';
+        const addModifier = makeAddModifier(
+            scalarResult(makeTagged(makeScalarModifier("actor.skills"), resolved.split(", ")[1]))
+        );
+
+        const result = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
+
+        expect(result).to.be.true;
+        expect(addModifier.calledOnceWith(item, resolved, "innate")).to.be.true;
+        expect(item.update.calledOnceWith({ "system.modifier": "" })).to.be.true;
+    });
+
+    it("keeps an unresolved mastery template for substitution when it is assigned", async () => {
+        const item = makeItem('focus.reduction skill="${skill}" 1', "mastery");
+        item.system.skill = null;
+        const addModifier = makeAddModifier(emptyResult());
+
+        const result = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
+
+        expect(result).to.be.false;
+        expect(addModifier.called, "an unresolved descriptor is not sent to the parser").to.be.false;
+        expect(item.update.called, "the reusable template string is preserved").to.be.false;
+        expect(item.createEmbeddedDocuments.called).to.be.false;
     });
 
     it("clears system.modifier, then creates modifier-type effects with the version flag", async () => {

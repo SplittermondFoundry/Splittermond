@@ -94,6 +94,10 @@ describe("addModifier", () => {
                     return "INI";
                 case "splittermond.derivedAttribute.initiative.long":
                     return "Initiative";
+                case "splittermond.derivedAttribute.mindresist.short":
+                    return "GW";
+                case "splittermond.derivedAttribute.mindresist.long":
+                    return "Geistiger Widerstand";
                 case "splittermond.damageTypes.physical":
                     return "physisch";
                 default:
