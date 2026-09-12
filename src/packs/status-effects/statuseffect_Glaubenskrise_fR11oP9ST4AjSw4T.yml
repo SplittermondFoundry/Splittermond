@@ -12,7 +12,169 @@ effects:
       system:
           changes: []
           modifiers:
-              - path: magicskills
+              - path: antimagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: controlmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: motionmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: insightmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: stonemagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: firemagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: healmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: illusionmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: combatmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: lightmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: naturemagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: shadowmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: fatemagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: protectionmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: enhancemagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: deathmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: transformationmagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: watermagic
+                serializedValue:
+                    type: amount
+                    amount: -1
+                implementation: additive
+                selectable: false
+                attributes:
+                    name: Glaubenskrise
+                    type: innate
+              - path: windmagic
                 serializedValue:
                     type: amount
                     amount: -1
@@ -39,7 +201,7 @@ effects:
       flags:
           splittermond:
               durationMode: permanent
-              rawInput: magicSkills -1
+              rawInput: actor.skills.magic -1
       _stats:
           coreVersion: "14.365"
           systemId: splittermond

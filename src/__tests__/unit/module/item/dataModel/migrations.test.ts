@@ -4,11 +4,40 @@ import {
     from0_12_20_migrateFeatures,
     from13_5_2_migrate_fo_modifiers,
     from13_8_8_migrateSkillModifiers,
+    from14_2_7_migrateModifiers,
+    migrateFrom0_12_11,
     migrateFrom0_12_13,
     migrateFrom0_12_20,
+    migrateModifiers,
 } from "module/item/dataModel/migrations";
 import sinon from "sinon";
 import { foundryApi } from "module/api/foundryApi";
+
+describe("Modifier migration from 0.12.11", () => {
+    it("should replace susceptibility with an inverted resistance", () => {
+        const source = { modifier: "susceptibility.light 2" };
+
+        const result = migrateFrom0_12_11(source);
+
+        expect(result).to.deep.equal({ modifier: "resistance.light -2" });
+    });
+
+    it("should preserve the sign inversion used by the original V12 migration", () => {
+        const source = { modifier: "susceptibility.fire -4, VTD +1" };
+
+        const result = migrateFrom0_12_11(source);
+
+        expect(result).to.deep.equal({ modifier: "VTD +1, resistance.fire 4" });
+    });
+
+    it("should migrate the path case-insensitively", () => {
+        const source = { modifier: "Susceptibility.cold +1" };
+
+        const result = migrateFrom0_12_11(source);
+
+        expect(result).to.deep.equal({ modifier: "resistance.cold -1" });
+    });
+});
 
 describe("Modifier migration from 0.12.13", () => {
     it("should replace emphasis with emphasis attribute", () => {
@@ -47,6 +76,14 @@ describe("Modifier migration from 0.12.13", () => {
 
         expect(result).to.deep.equal({ modifier: "VTD +1", prepared: undefined });
     });
+
+    it("should not mistake a slash inside an attribute for the legacy emphasis syntax", () => {
+        const source = { modifier: 'VTD source="GRW/S. 12" +1' };
+
+        const result = migrateFrom0_12_13(source);
+
+        expect(result).to.deep.equal({ modifier: 'VTD source="GRW/S. 12" +1' });
+    });
 });
 describe("Modifier migration from 0.12.20", () => {
     let sandbox: sinon.SinonSandbox;
@@ -57,6 +94,14 @@ describe("Modifier migration from 0.12.20", () => {
     afterEach(() => sandbox.restore());
 
     ["damage", "weaponspeed"].forEach((path) => {
+        it(`should migrate the unqualified ${path} path`, () => {
+            const source = { modifier: `${path} +2` };
+
+            const result = migrateFrom0_12_20(source);
+
+            expect(result).to.deep.equal({ modifier: `item.${path} +2` });
+        });
+
         it(`should replace emphasis with item attribute for ${path}`, () => {
             const source = { modifier: `${path}/Hellebarde 1` };
 
@@ -89,17 +134,53 @@ describe("Modifier migration from 0.12.20", () => {
             const result = migrateFrom0_12_20(source);
 
             expect(result).to.deep.equal({
-                modifier: `FO -1, fightingSkill.melee emphasis=Hellebarde -1, VTD +2, item.${path} item="Natürliche Waffe" 1`,
+                modifier: `FO -1, fightingSkill.melee emphasis=Hellebarde -1, VTD +2, item.${path} item="Natürliche Waffe" +1`,
             });
         });
 
-        it(`should not engage new style modifiers`, () => {
+        it(`should namespace ${path} modifiers that already use modern attributes`, () => {
             const source = { modifier: `${path} item="Hellebarde" damageType="Wasser" 1` };
 
             const result = migrateFrom0_12_20(source);
 
-            expect(result).to.deep.equal({ modifier: `${path} item="Hellebarde" damageType="Wasser" 1` });
+            expect(result).to.deep.equal({ modifier: `item.${path} item="Hellebarde" damageType="Wasser" 1` });
         });
+
+        it(`should migrate ${path} case-insensitively`, () => {
+            const source = { modifier: `${path.toUpperCase()} +2` };
+
+            const result = migrateFrom0_12_20(source);
+
+            expect(result).to.deep.equal({ modifier: `item.${path} +2` });
+        });
+
+        it(`should leave an already migrated item.${path} modifier unchanged`, () => {
+            const source = { modifier: `item.${path} +2` };
+
+            const result = migrateFrom0_12_20(source);
+
+            expect(result).to.deep.equal({ modifier: `item.${path} +2` });
+        });
+    });
+
+    it("should preserve quoted commas and all damage attributes", () => {
+        const source = {
+            modifier: 'damage features="Scharf 2, Wuchtig" damageType="physical" +1, VTD +2',
+        };
+
+        const result = migrateFrom0_12_20(source);
+
+        expect(result).to.deep.equal({
+            modifier: 'VTD +2, item.damage features="Scharf 2, Wuchtig" damageType="physical" +1',
+        });
+    });
+
+    it("should not mistake damagereduction for the deprecated damage path", () => {
+        const source = { modifier: "damagereduction +2" };
+
+        const result = migrateFrom0_12_20(source);
+
+        expect(result).to.deep.equal({ modifier: "damagereduction +2" });
     });
 
     it("should map features", () => {
@@ -192,6 +273,14 @@ describe("Migrations from 13.5.2", () => {
     it("should keep migrated modifiers", () => {
         const input = { modifier: 'focus.reduction skill="deathmagic" K2V1' };
         const result = from13_5_2_migrate_fo_modifiers(input);
+        expect(result).to.deep.equal({ modifier: 'focus.reduction skill="deathmagic" K2V1' });
+    });
+
+    it("should migrate focus modifiers case-insensitively", () => {
+        const input = { modifier: "FoReduction.deathmagic K2V1" };
+
+        const result = from13_5_2_migrate_fo_modifiers(input);
+
         expect(result).to.deep.equal({ modifier: 'focus.reduction skill="deathmagic" K2V1' });
     });
 
@@ -329,5 +418,55 @@ describe("Migrations from 13.8.8", () => {
         const input = { modifier: "generalskills +2", name: "Test Item", value: 42 };
         const result = from13_8_8_migrateSkillModifiers(input);
         expect(result).to.deep.equal({ modifier: "actor.skills.general +2", name: "Test Item", value: 42 });
+    });
+});
+
+describe("Modifier migration from 14.2.7", () => {
+    it("should replace gsw.mult with actor.speed.multiplier", () => {
+        const source = { modifier: "GSW.mult 0.5, VTD +1" };
+
+        const result = from14_2_7_migrateModifiers(source);
+
+        expect(result).to.deep.equal({ modifier: "VTD +1, actor.speed.multiplier 0.5" });
+    });
+
+    it("should leave the canonical speed multiplier unchanged", () => {
+        const source = { modifier: "actor.speed.multiplier 0.5" };
+
+        const result = from14_2_7_migrateModifiers(source);
+
+        expect(result).to.equal(source);
+        expect(result).to.deep.equal({ modifier: "actor.speed.multiplier 0.5" });
+    });
+});
+
+describe("Combined modifier migrations", () => {
+    it("should migrate legacy paths from V12 through V14 in one pass", () => {
+        const source = {
+            modifier: "susceptibility.light 2, damage 1W6, GSW.mult 0.5, MagicSkills -1, FoReduction.deathmagic K2V1",
+        };
+
+        const result = migrateModifiers(source);
+
+        expect(result).to.deep.equal({
+            modifier:
+                'resistance.light -2, item.damage 1W6, focus.reduction skill="deathmagic" K2V1, actor.skills.magic -1, actor.speed.multiplier 0.5',
+        });
+    });
+
+    it("should be idempotent", () => {
+        const source = {
+            modifier:
+                'resistance.light -2, item.damage 1W6, focus.reduction skill="deathmagic" K2V1, actor.skills.magic -1, actor.speed.multiplier 0.5',
+        };
+
+        const firstResult = migrateModifiers(source);
+        const secondResult = migrateModifiers(source);
+
+        expect(secondResult).to.equal(firstResult);
+        expect(secondResult).to.deep.equal({
+            modifier:
+                'resistance.light -2, item.damage 1W6, focus.reduction skill="deathmagic" K2V1, actor.skills.magic -1, actor.speed.multiplier 0.5',
+        });
     });
 });
