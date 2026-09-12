@@ -6,6 +6,7 @@ import {
     from13_8_8_migrateSkillModifiers,
     from14_2_7_migrateModifiers,
     from14_3_0_migratePositionalSkillSelectors,
+    from14_3_0_removeDerivedValueEmphasis,
     migrateFrom0_12_11,
     migrateFrom0_12_13,
     migrateFrom0_12_20,
@@ -464,6 +465,27 @@ describe("Modifier migration from 14.3.0", () => {
 
         expect(from14_3_0_migratePositionalSkillSelectors(keyed)).to.deep.equal(keyed);
         expect(from14_3_0_migratePositionalSkillSelectors(unknown)).to.deep.equal(unknown);
+    });
+
+    it("should remove unsupported emphasis attributes from derived values", () => {
+        const source = {
+            modifier:
+                'GW emphasis="Unbeherrschbar" +10, actor.defense emphasis="Hinterhalt" -2, skills emphasis="Feine Nase" +2, npcattacks emphasis="Umklammern" +1',
+        };
+
+        const result = from14_3_0_removeDerivedValueEmphasis(source);
+
+        expect(result).to.deep.equal({
+            modifier: 'GW +10, actor.defense -2, skills emphasis="Feine Nase" +2, npcattacks emphasis="Umklammern" +1',
+        });
+    });
+
+    it("should remove emphasis introduced by the V12 slash migration", () => {
+        const source = { modifier: "GW/Unbeherrschbar +10" };
+
+        const result = migrateModifiers(source);
+
+        expect(result).to.deep.equal({ modifier: "GW +10" });
     });
 });
 

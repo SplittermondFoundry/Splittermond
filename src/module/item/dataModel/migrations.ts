@@ -1,6 +1,7 @@
 import { parseFeatures } from "./propertyModels/ItemFeaturesModel";
 import { splittermond } from "module/config";
 import { type ItemFeature } from "module/config/itemFeatures";
+import { derivedAttributes } from "module/config/attributes";
 
 /*
  * Keep modifier-string migrations even after their Foundry generation has aged out. Items can survive skipped system
@@ -15,6 +16,7 @@ export function migrateModifiers(source: unknown) {
     source = from13_8_8_migrateSkillModifiers(source);
     source = from14_2_7_migrateModifiers(source);
     source = from14_3_0_migratePositionalSkillSelectors(source);
+    source = from14_3_0_removeDerivedValueEmphasis(source);
     return source;
 }
 
@@ -289,6 +291,29 @@ export function from14_3_0_migratePositionalSkillSelectors(source: unknown) {
     const changed = change.map(mapPositionalSkillSelector);
     source.modifier = [...keep, ...changed].join(", ");
     return source;
+}
+
+export function from14_3_0_removeDerivedValueEmphasis(source: unknown) {
+    if (!hasStringKey(source, "modifier")) {
+        return source;
+    }
+    source.modifier = splitModifierString(source.modifier)
+        .map((mod) => mod.trim())
+        .filter(Boolean)
+        .map(removeDerivedValueEmphasis)
+        .join(", ");
+    return source;
+}
+
+const derivedValuePaths = new Set([...derivedAttributes, "gk", "gsw", "ini", "lp", "fo", "vtd", "kw", "gw"]);
+
+function removeDerivedValueEmphasis(mod: string): string {
+    const path = /^\S+/
+        .exec(mod)?.[0]
+        .replace(/^actor[.]/i, "")
+        .toLowerCase();
+    if (!path || !derivedValuePaths.has(path)) return mod;
+    return mod.replace(/\s+emphasis=(?:"[^"]*"|'[^']*'|[^\s]+)/gi, "");
 }
 
 function hasPositionalSkillSelector(mod: string): boolean {

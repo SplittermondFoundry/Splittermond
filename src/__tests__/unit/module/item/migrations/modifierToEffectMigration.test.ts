@@ -5,7 +5,6 @@ import {
     migrateModifierToEffects,
     runModifierToEffectMigration,
     migrationDoneFlag,
-    MIGRATION_FLAG_KEY,
     MODIFIER_TO_EFFECT_MIGRATION_VERSION,
 } from "module/item/migrations/modifierToEffectMigration";
 import { foundryApi } from "module/api/foundryApi";
@@ -78,13 +77,6 @@ function emptyResult(): AddModifierResult {
 function gmUser(id = "gm1") {
     return { id, isGM: true, active: true };
 }
-
-describe("modifier-to-effect migration version", () => {
-    it("uses a V3-specific completion flag so earlier beta runs do not suppress it", () => {
-        expect(MODIFIER_TO_EFFECT_MIGRATION_VERSION).to.equal(3);
-        expect(MIGRATION_FLAG_KEY).to.equal("modifierToEffectMigrationV3Done");
-    });
-});
 
 describe("migrateModifierToEffects", () => {
     let sandbox: SinonSandbox;

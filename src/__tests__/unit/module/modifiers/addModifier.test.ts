@@ -293,19 +293,6 @@ describe("addModifier", () => {
         });
     });
 
-    it("should retain V12 emphasis semantics on localized derived values", () => {
-        const result = addModifier(item, 'GW emphasis="Unbeherrschbar" +10', "innate");
-
-        expect(result.hasErrors).to.be.false;
-        expect(result.modifiers).to.have.length(1);
-        expect(result.modifiers[0].modifier).to.deep.contain({
-            groupId: "mindresist",
-            attributes: { emphasis: "Unbeherrschbar", name: "Unbeherrschbar", type: "innate" },
-            value: of(10),
-            selectable: true,
-        });
-    });
-
     it("should handle selectable modifiers with emphasis", () => {
         const result = addModifier(item, "diplomacy/emphasis +3");
         expect(result.modifiers).to.have.length(1);
