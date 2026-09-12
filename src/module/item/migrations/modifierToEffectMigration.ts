@@ -10,14 +10,15 @@ import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffect
 import { stripSchwerpunktPrefix } from "module/activeEffect/sentinelSubstitution";
 
 export const MIGRATION_FLAG_SCOPE = "splittermond";
-export const MIGRATION_FLAG_KEY = "modifierToEffectMigrationDone";
 
 /**
  * Version stamp written to `flags.splittermond.modifierMigrationVersion` on every
- * effect produced by this migration, so future migrations can identify the batch.
- * Bump when the transport logic changes and re-running is desired.
+ * effect produced by this migration. The version is also part of the completion
+ * setting so worlds that already completed an older run receive the updated
+ * migration once.
  */
-export const MODIFIER_TO_EFFECT_MIGRATION_VERSION = 2;
+export const MODIFIER_TO_EFFECT_MIGRATION_VERSION = 3;
+export const MIGRATION_FLAG_KEY = `modifierToEffectMigrationV${MODIFIER_TO_EFFECT_MIGRATION_VERSION}Done`;
 
 export type { MigrationResult };
 
