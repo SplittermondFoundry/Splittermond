@@ -66,7 +66,7 @@ effects:
       flags:
           splittermond:
               durationMode: permanent
-              rawInput: skills -3, VTD -3, GSW.mult 0, npcattacks -3
+              rawInput: skills -3, VTD -3, actor.speed.multiplier 0, npcattacks -3
       _stats:
           coreVersion: "14.365"
           systemId: splittermond
