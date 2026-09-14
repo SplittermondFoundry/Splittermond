@@ -86,6 +86,7 @@
                 "features": "features",
                 "item": "item",
                 "itemType": "itemType",
+                "spellType": "spellType",
                 "skill": "skill",
                 "type": "type",
                 "unit": "unit",

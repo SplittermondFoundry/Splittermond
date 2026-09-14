@@ -263,6 +263,7 @@ export default class Attack {
             .withAttributeValuesOrAbsent("item", this.name)
             .withAttributeValuesOrAbsent("itemType", this.item.type)
             .withAttributeValuesOrAbsent("skill", this.skill.id)
+            .withAttributeValuesOrAbsent("spellType")
             .getModifiers()
             .map((m) => {
                 const features = mergeFeatures(

@@ -21,6 +21,7 @@
     - Kanalisierte Punkte werden von den eigentlichen Punkten gestellt, bis die Kanalisierung aufgehoben wird
     - Zum Beenden einer Kanalisierung gibt es jetzt den Knopf _Kanal beenden_. Dieser verrechnet kanalisierte Punkte ordnungsgemäß.
 - Es gibt jetzt einen Sammelmodifikator `skills.social` für soziale Fertigkeiten
+- Schadensmodifikatoren (`item.damage`) können mit `spellType` auf Zaubertypen beschränkt werden.
 
 ### Fixes
 
