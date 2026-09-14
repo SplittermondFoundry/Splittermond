@@ -231,6 +231,7 @@
                 "features": "Merkmale",
                 "item": "Objekt",
                 "itemType": "Objekttyp",
+                "spellType": "Zaubertypus",
                 "skill": "Fertigkeit",
                 "type": "Typus",
                 "unit": "Einheit",

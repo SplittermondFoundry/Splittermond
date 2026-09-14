@@ -13,6 +13,7 @@ const modifierKeys = [
     "features",
     "item",
     "itemType",
+    "spellType",
     "type",
     "unit",
     "attribute1",
@@ -29,6 +30,8 @@ const derivedAttributeMapper = initMapper(derivedAttributes)
     .build();
 const modifierKeyMapper = initMapper(modifierKeys)
     .withTranslator((t) => `splittermond.modifiers.keys.${t}`)
+    .andDirectMap("spellType", "spellType")
+    .andDirectMap("Zaubertyp", "spellType")
     .build();
 const skillMapper = initMapper(splittermond.skillGroups.all)
     .withTranslator((t) => `splittermond.skillLabel.${t}`)
