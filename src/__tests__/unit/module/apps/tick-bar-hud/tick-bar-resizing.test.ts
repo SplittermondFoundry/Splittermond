@@ -39,6 +39,7 @@ async function setupTickBarHud() {
     global.MutationObserver = dom.window.MutationObserver;
 
     afterEach(() => {
+        dom.window.close();
         Object.defineProperty(global, "window", { value: undefined, writable: true });
         //@ts-ignore
         global.requestAnimationFrame = undefined;
@@ -109,6 +110,27 @@ describe("tick-bar-resizing", () => {
                 attributes: true,
                 attributeFilter: ["class", "style"],
             });
+        });
+
+        it("should reposition after the initial sidebar layout settles", async () => {
+            const { underTest, dom } = await setupTickBarHud();
+            const leftColumn = underTest.element.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
+            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const tickBarElement = underTest.element.querySelector(".tick-bar-hud") as HTMLElement;
+            sandbox.stub(leftColumn, "getBoundingClientRect").returns({ right: 250 } as DOMRect);
+            const sidebarRectStub = sandbox.stub(sidebar, "getBoundingClientRect").returns({ left: 400 } as DOMRect);
+            const setTimeoutStub = sandbox.stub(dom.window, "setTimeout");
+
+            initMaxWidthTransitionForTickBarHud(underTest);
+            requestAnimationFrameStub.firstCall.firstArg();
+            expect(tickBarElement.style.maxWidth).to.equal("120px");
+
+            sidebarRectStub.returns({ left: 800 } as DOMRect);
+            expect(setTimeoutStub.callCount).to.equal(2);
+            setTimeoutStub.secondCall.firstArg();
+            requestAnimationFrameStub.lastCall.firstArg();
+
+            expect(tickBarElement.style.maxWidth).to.equal("520px");
         });
     });
 
