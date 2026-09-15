@@ -10,7 +10,7 @@ import { initTickBarHud } from "./module/apps/tick-bar-hud/tick-bar-hud";
 import { chatActionFeature } from "./module/util/chat/chatActionFeature";
 import { referencesUtils } from "./module/data/references/referencesUtils";
 import { foundryApi } from "./module/api/foundryApi";
-import { canEditMessageOf } from "./module/util/chat";
+import { canEditMessageOf, useSplinterpointFromMessage } from "./module/util/chat";
 import { initTokenActionBar } from "./module/apps/token-action-bar/token-action-bar";
 
 import "./less/splittermond.less";
@@ -574,12 +574,7 @@ Hooks.on(
                 let chatMessageId = $(event.currentTarget).closestData("message-id");
                 let message = foundryApi.messages.get(chatMessageId);
 
-                /**@type Speaker*/
-                const speaker = message.speaker;
-                const actor =
-                    foundryApi.getToken(speaker.scene, speaker.token).actor ?? foundryApi.getActor(speaker.actor);
-
-                actor.useSplinterpointBonus(message);
+                useSplinterpointFromMessage(message);
             })
         );
 
