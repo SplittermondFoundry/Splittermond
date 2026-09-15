@@ -16,6 +16,8 @@ export const foundryUISelectors = {
 export function initMaxWidthTransitionForTickBarHud(tickBarHud: SplittermondApplication) {
     // Initial positioning
     positionTickBarHudBetweenElements(tickBarHud);
+    window.setTimeout(() => positionTickBarHudBetweenElements(tickBarHud), 300);
+    window.setTimeout(() => positionTickBarHudBetweenElements(tickBarHud), 800);
 
     foundryApi.hooks.on("splittermond.tickBarHudRendered", (app: SplittermondApplication) =>
         positionTickBarHudBetweenElementsImmediately(app)
