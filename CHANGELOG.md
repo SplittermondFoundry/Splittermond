@@ -25,6 +25,7 @@
 ### Fixes
 
 - Veraltete Modifikatorpfade aus V12 bis V14 werden vor der Active-Effect-Migration vollständig aktualisiert.
+- Fertigkeitsproben berücksichtigen jetzt modifizierte Splitterpunktboni.
 - Anzeige des Namens und Tooltips für die Erfahrungspunktefelder
 - Erfolgsgrade von NSC werden nicht mehr limitiert wenn die Attribute einer Fertigkeit sich zu dem Fertigkeitswert summieren
 - Bei aktiver Abwehr erhöht der Einsatz von Splitterpunkten jetzt korrekt die EG.
