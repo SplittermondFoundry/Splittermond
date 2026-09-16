@@ -61,6 +61,7 @@ global.Item = class Item extends FoundryDocument {};
 
 global.ChatMessage = class ChatMessage extends FoundryDocument {
     static applyMode() {}
+    static getSpeakerActor() {}
 };
 global.Combat = class Combat extends FoundryDocument {
     scene = null;

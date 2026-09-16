@@ -2,7 +2,6 @@ import type { User } from "../api/foundryTypes";
 import type { VirtualToken } from "module/combat/VirtualToken";
 import type SplittermondActor from "module/actor/actor";
 import type { CheckReport } from "module/check";
-import type { FoundryChatMessage } from "module/api/ChatMessage";
 
 interface RollResultForSplittermond {
     total: number;
@@ -32,8 +31,6 @@ export const Chat: {
 };
 
 export function canEditMessageOf(userId: string): boolean {}
-
-export function useSplinterpointFromMessage(message: FoundryChatMessage): Promise<unknown> | undefined;
 
 export async function calculateDefenseTickCost(data: CheckReport, totalDegreeOfSuccess: number): number {}
 

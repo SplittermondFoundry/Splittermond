@@ -13,17 +13,6 @@ export const Chat = {
 };
 
 /**
- * @param {import("module/api/ChatMessage").FoundryChatMessage} message
- * @returns {Promise<unknown> | undefined}
- */
-export function useSplinterpointFromMessage(message) {
-    const speaker = message.speaker;
-    const token = speaker.token ? foundryApi.getToken(speaker.scene, speaker.token) : undefined;
-    const actor = token?.actor ?? (speaker.actor ? foundryApi.getActor(speaker.actor) : undefined);
-    return actor?.useSplinterpointBonus(message);
-}
-
-/**
  * @param {string|null} userId
  * @return {boolean}
  */

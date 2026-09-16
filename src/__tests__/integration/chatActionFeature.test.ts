@@ -318,6 +318,15 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
         );
 
         it(
+            "should resolve an actor-only speaker",
+            withActor(async (actor) => {
+                const speaker = { scene: "", token: null, actor: actor.id, alias: actor.name };
+
+                expect(foundryApi.getSpeakerActor(speaker), "speaker resolves to its explicit actor").to.equal(actor);
+            })
+        );
+
+        it(
             "should return a message id when creating a chat message",
             withActor(async (actor) => {
                 const speaker = foundryApi.getSpeaker({ actor });
