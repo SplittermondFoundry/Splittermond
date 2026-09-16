@@ -16,9 +16,13 @@ async function setupTickBarHud() {
     underTest.options = TickBarHud.DEFAULT_OPTIONS;
 
     const context = await underTest._prepareContext({ parts: [] });
+    // Mirror Foundry's production structure: the sidebar and control panel are
+    // document-level siblings of the tick bar HUD application.
     const html = `
       <div id="ui-left-column-1" style="width: 200px; height: 100vh; position: absolute; left: 0; top: 0;"></div>
-      ${createHtml("./templates/apps/tick-bar-hud.hbs", context)}
+      <div id="tick-bar-hud-application">
+        ${createHtml("./templates/apps/tick-bar-hud.hbs", context)}
+      </div>
       <div id="sidebar" style="width: 200px; height: 100vh; position: absolute; left: 0; top: 0;">
         <menu>
         <li>
@@ -33,7 +37,7 @@ async function setupTickBarHud() {
       `;
     const dom = new JSDOM(html);
     // @ts-expect-error element is readonly
-    underTest.element = dom.window.document.body;
+    underTest.element = dom.window.document.querySelector("#tick-bar-hud-application") as HTMLElement;
 
     Object.defineProperty(global, "window", { value: dom.window, writable: true });
     global.MutationObserver = dom.window.MutationObserver;
@@ -85,7 +89,7 @@ describe("tick-bar-resizing", () => {
 
         it("should initialize sidebar toggle listener", async () => {
             const { underTest } = await setupTickBarHud();
-            const sidebarToggle = underTest.element.querySelector(
+            const sidebarToggle = underTest.element.ownerDocument.querySelector(
                 foundryUISelectors.sidebarExpansionToggle
             ) as HTMLElement;
 
@@ -99,7 +103,7 @@ describe("tick-bar-resizing", () => {
 
         it("should initialize mutation observer for sidebar changes", async () => {
             const { underTest, dom } = await setupTickBarHud();
-            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const sidebar = underTest.element.ownerDocument.querySelector(foundryUISelectors.sidebar) as HTMLElement;
 
             const observeStub = sandbox.stub(dom.window.MutationObserver.prototype, "observe");
 
@@ -112,10 +116,12 @@ describe("tick-bar-resizing", () => {
             });
         });
 
-        it("should reposition after the initial sidebar layout settles", async () => {
+        it("should reposition after timeout", async () => {
             const { underTest, dom } = await setupTickBarHud();
-            const leftColumn = underTest.element.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
-            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const leftColumn = underTest.element.ownerDocument.querySelector(
+                foundryUISelectors.controlPanel
+            ) as HTMLElement;
+            const sidebar = underTest.element.ownerDocument.querySelector(foundryUISelectors.sidebar) as HTMLElement;
             const tickBarElement = underTest.element.querySelector(".tick-bar-hud") as HTMLElement;
             sandbox.stub(leftColumn, "getBoundingClientRect").returns({ right: 250 } as DOMRect);
             const sidebarRectStub = sandbox.stub(sidebar, "getBoundingClientRect").returns({ left: 400 } as DOMRect);
@@ -137,8 +143,10 @@ describe("tick-bar-resizing", () => {
     describe("positionTickBarHudBetweenElements", () => {
         it("should calculate correct max width when all elements present", async () => {
             const { underTest } = await setupTickBarHud();
-            const leftColumn = underTest.element.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
-            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const leftColumn = underTest.element.ownerDocument.querySelector(
+                foundryUISelectors.controlPanel
+            ) as HTMLElement;
+            const sidebar = underTest.element.ownerDocument.querySelector(foundryUISelectors.sidebar) as HTMLElement;
             const tickBarElement = underTest.element.querySelector(".tick-bar-hud") as HTMLElement;
 
             sandbox.stub(leftColumn, "getBoundingClientRect").returns({ right: 250 } as DOMRect);
@@ -156,7 +164,7 @@ describe("tick-bar-resizing", () => {
 
         it("should handle missing sidebar element gracefully", async () => {
             const { underTest } = await setupTickBarHud();
-            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const sidebar = underTest.element.ownerDocument.querySelector(foundryUISelectors.sidebar) as HTMLElement;
             sidebar.remove();
 
             expect(() => initMaxWidthTransitionForTickBarHud(underTest)).not.to.throw();
@@ -177,7 +185,9 @@ describe("tick-bar-resizing", () => {
 
         it("should handle missing left column element gracefully", async () => {
             const { underTest } = await setupTickBarHud();
-            const leftColumn = underTest.element.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
+            const leftColumn = underTest.element.ownerDocument.querySelector(
+                foundryUISelectors.controlPanel
+            ) as HTMLElement;
             leftColumn.remove();
 
             const consoleWarnStub = sandbox.spy(console, "warn");
@@ -192,11 +202,13 @@ describe("tick-bar-resizing", () => {
     describe("sidebar toggle listener", () => {
         it("should reposition tick bar after sidebar toggle with delay", async () => {
             const { underTest } = await setupTickBarHud();
-            const sidebarToggle = underTest.element.querySelector(
+            const sidebarToggle = underTest.element.ownerDocument.querySelector(
                 foundryUISelectors.sidebarExpansionToggle
             ) as HTMLElement;
-            const leftColumn = underTest.element.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
-            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const leftColumn = underTest.element.ownerDocument.querySelector(
+                foundryUISelectors.controlPanel
+            ) as HTMLElement;
+            const sidebar = underTest.element.ownerDocument.querySelector(foundryUISelectors.sidebar) as HTMLElement;
             sandbox.stub(leftColumn, "getBoundingClientRect").returns({ right: 250 } as DOMRect);
             sandbox.stub(sidebar, "getBoundingClientRect").returns({ left: 800 } as DOMRect);
 
@@ -220,11 +232,13 @@ describe("tick-bar-resizing", () => {
 
         it("should reposition tick bar when sidebar gets expanded by button click", async () => {
             const { underTest } = await setupTickBarHud();
-            const sidebarToggle = underTest.element.querySelector(
+            const sidebarToggle = underTest.element.ownerDocument.querySelector(
                 foundryUISelectors.sidebarButtons + "[data-action=tab]"
             ) as HTMLElement;
-            const leftColumn = underTest.element.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
-            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const leftColumn = underTest.element.ownerDocument.querySelector(
+                foundryUISelectors.controlPanel
+            ) as HTMLElement;
+            const sidebar = underTest.element.ownerDocument.querySelector(foundryUISelectors.sidebar) as HTMLElement;
             sandbox.stub(leftColumn, "getBoundingClientRect").returns({ right: 250 } as DOMRect);
             sandbox.stub(sidebar, "getBoundingClientRect").returns({ left: 800 } as DOMRect);
 
@@ -248,11 +262,13 @@ describe("tick-bar-resizing", () => {
 
         it("should not reposition tick bar when button clicked on expanded sidebar", async () => {
             const { underTest } = await setupTickBarHud();
-            const sidebarToggle = underTest.element.querySelector(
+            const sidebarToggle = underTest.element.ownerDocument.querySelector(
                 foundryUISelectors.sidebarButtons + "[data-action=tab]"
             ) as HTMLElement;
-            const leftColumn = underTest.element.querySelector(foundryUISelectors.controlPanel) as HTMLElement;
-            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const leftColumn = underTest.element.ownerDocument.querySelector(
+                foundryUISelectors.controlPanel
+            ) as HTMLElement;
+            const sidebar = underTest.element.ownerDocument.querySelector(foundryUISelectors.sidebar) as HTMLElement;
             sidebar.querySelector(foundryUISelectors.sidebarContent)?.classList.add("expanded");
             sandbox.stub(leftColumn, "getBoundingClientRect").returns({ right: 250 } as DOMRect);
             sandbox.stub(sidebar, "getBoundingClientRect").returns({ left: 800 } as DOMRect);
@@ -271,7 +287,7 @@ describe("tick-bar-resizing", () => {
     describe("sidebar mutation observer", () => {
         it("should reposition on sidebar style changes", async () => {
             const { underTest } = await setupTickBarHud();
-            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const sidebar = underTest.element.ownerDocument.querySelector(foundryUISelectors.sidebar) as HTMLElement;
             initMaxWidthTransitionForTickBarHud(underTest);
 
             sidebar.setAttribute("style", sidebar.getAttribute("style") + "; width: 300px;");
@@ -281,7 +297,7 @@ describe("tick-bar-resizing", () => {
 
         it("should reposition on sidebar class changes", async () => {
             const { underTest } = await setupTickBarHud();
-            const sidebar = underTest.element.querySelector(foundryUISelectors.sidebar) as HTMLElement;
+            const sidebar = underTest.element.ownerDocument.querySelector(foundryUISelectors.sidebar) as HTMLElement;
             initMaxWidthTransitionForTickBarHud(underTest);
 
             sidebar.classList.add("some-class");

@@ -16,6 +16,7 @@ export const foundryUISelectors = {
 export function initMaxWidthTransitionForTickBarHud(tickBarHud: SplittermondApplication) {
     // Initial positioning
     positionTickBarHudBetweenElements(tickBarHud);
+    // Reuse the empirically determined sidebar transition delays from the live listeners below.
     window.setTimeout(() => positionTickBarHudBetweenElements(tickBarHud), 300);
     window.setTimeout(() => positionTickBarHudBetweenElements(tickBarHud), 800);
 
@@ -78,6 +79,7 @@ function initSidebarToggleListener(tickBarHud: SplittermondApplication) {
     tickBarHud.element.ownerDocument
         .querySelector(foundryUISelectors.sidebarExpansionToggle)
         ?.addEventListener("click", () => {
+            // The 300 ms and 800 ms delays were determined empirically from Foundry's sidebar transition.
             setTimeout(() => {
                 positionTickBarHudBetweenElements(tickBarHud);
             }, 300);
@@ -98,6 +100,7 @@ function initSidebarExpansionListener(tickBarHud: SplittermondApplication) {
             if (sidebarContent?.classList.contains("expanded")) {
                 return;
             }
+            // The 300 ms and 800 ms delays were determined empirically from Foundry's sidebar transition.
             setTimeout(() => {
                 positionTickBarHudBetweenElements(tickBarHud);
             }, 300);
