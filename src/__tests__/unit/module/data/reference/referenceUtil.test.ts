@@ -26,29 +26,56 @@ describe("getBestActor", () => {
         const result = referencesUtils.findBestUserActor();
 
         expect(result.id).to.equal(agentMock.id);
+        expect(result.sceneId).to.equal(agentMock.parent?.id);
+        expect(result.type).to.equal("token");
     });
 
-    it("should query the actor if no token is found", () => {
-        const sampleToken = { scene: "scene", token: "token", actor: "actor", alias: "alias" };
-        const agentMock = {
+    for (const token of [null, "missing-token"]) {
+        it(`should resolve the actor when the speaker token is ${token}`, () => {
+            const speaker = { scene: "scene", token, actor: "actor", alias: "alias" };
+            const agentMock = {
+                documentName: "Actor",
+                parent: undefined,
+                id: "1",
+                items: new Map(),
+            } as unknown as SplittermondActor; /*mock good enough for this test */
+            sandbox.stub(foundryApi, "getToken").returns(undefined);
+            sandbox.stub(foundryApi, "getSpeakerActor").returns(agentMock);
+            sandbox.stub(foundryApi, "getSpeaker").returns(speaker);
+
+            const result = referencesUtils.findBestUserActor();
+
+            expect(result.id).to.equal(agentMock.id);
+            expect(result.sceneId).to.be.null;
+            expect(result.type).to.equal("actor");
+        });
+    }
+
+    it("should fall back to the world actor if the token reference cannot be initialized", () => {
+        const speaker = { scene: "scene", token: "token", actor: "actor", alias: "alias" };
+        const invalidToken = { documentName: "Token", id: "token" } as TokenDocument;
+        const actor = {
             documentName: "Actor",
-            parent: undefined,
-            id: "1",
-            items: new Map(),
-        } as unknown as SplittermondActor; /*mock good enough for this test */
-        sandbox.stub(foundryApi, "getToken").returns(undefined);
-        sandbox.stub(foundryApi, "getActor").returns(agentMock);
-        sandbox.stub(foundryApi, "getSpeaker").returns(sampleToken);
+            id: "actor",
+        } as SplittermondActor;
+        sandbox.stub(foundryApi, "getSpeaker").returns(speaker);
+        sandbox.stub(foundryApi, "getToken").returns(invalidToken);
+        sandbox
+            .stub(foundryApi, "getSpeakerActor")
+            .withArgs({ ...speaker, token: null })
+            .returns(actor);
 
         const result = referencesUtils.findBestUserActor();
 
-        expect(result.id).to.equal(agentMock.id);
+        expect(result.id).to.equal(actor.id);
+        expect(result.sceneId).to.be.null;
+        expect(result.type).to.equal("actor");
     });
 
     it("should throw exception if no actor can be derived from the speaker", () => {
         const sampleToken = { scene: "scene", token: "token", actor: "actor", alias: "alias" };
         sandbox.stub(foundryApi, "getToken").returns(undefined);
-        sandbox.stub(foundryApi, "getActor").returns(undefined);
+        sandbox.stub(foundryApi, "getSpeakerActor").returns(null);
         sandbox.stub(foundryApi, "getSpeaker").returns(sampleToken);
 
         expect(() => referencesUtils.findBestUserActor()).to.throw(Error);

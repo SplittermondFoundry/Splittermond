@@ -7,6 +7,7 @@ import { documentsApiTest } from "./documents.test";
 import { foundryRollTest } from "./Roll.test";
 import { foundryTypeDeclarationsTest } from "./foundryTypes.test";
 import { macroApiTest } from "./Macro.test";
+import { speakerApiTest } from "./speaker.test";
 import type { BatchRegistrar } from "../fixtures";
 
 export function registerApiBatches(register: BatchRegistrar) {
@@ -19,5 +20,6 @@ export function registerApiBatches(register: BatchRegistrar) {
     register("keybindings", foundryKeybindingsTest);
     register("macro", macroApiTest);
     register("roll", foundryRollTest);
+    register("speaker", speakerApiTest);
     console.log("Splittermond | Initialized quench API tests");
 }
