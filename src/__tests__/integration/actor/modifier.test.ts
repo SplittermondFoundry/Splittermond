@@ -920,6 +920,45 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(subject.attacks.find((a) => a.name === "Spear of Destiny")?.damage).to.equal("6");
         });
 
+        it("should apply mixed-case spelltype modifiers through generated effects", async () => {
+            const subject = await createActor("SpellDamageCharacter");
+            const spells = await subject.createEmbeddedDocuments("Item", [
+                {
+                    type: "spell",
+                    name: "Fireball",
+                    system: {
+                        skill: "firemagic",
+                        spellType: "Schaden",
+                        damageType: "fire",
+                        damage: DamageModel.from("3"),
+                    },
+                },
+                {
+                    type: "spell",
+                    name: "Flame Control",
+                    system: {
+                        skill: "firemagic",
+                        spellType: "Kontrolle",
+                        damageType: "fire",
+                        damage: DamageModel.from("3"),
+                    },
+                },
+            ]);
+            const modifierItems = await subject.createEmbeddedDocuments("Item", [
+                {
+                    type: "strength",
+                    name: "Destructive Magic",
+                    system: { modifier: "item.damage SpElLtYpE='Schaden' +3" },
+                },
+            ]);
+
+            await waitForItemEffects(modifierItems);
+            await subject.prepareData();
+
+            expect((spells[0] as SplittermondSpellItem).damage).to.equal("6");
+            expect((spells[1] as SplittermondSpellItem).damage).to.equal("3");
+        });
+
         it("should respond to cast duration modifiers", async () => {
             const subject = await createActor("WeaponizedCharacter");
             (subject.system as CharacterDataModel).attributes.agility.updateSource({ initial: 2, advances: 0 });
