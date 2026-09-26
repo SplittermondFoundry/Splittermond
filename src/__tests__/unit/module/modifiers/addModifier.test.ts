@@ -447,6 +447,49 @@ describe("addModifier", () => {
             });
         });
 
+        ["firemagic", "arcanelore"].forEach((skill) => {
+            it(`should pass spell type filters for ${skill}`, () => {
+                const result = addModifier(item, `item.damage spellType="Schaden" skill="${skill}" +5`);
+                expect(result.modifiers).to.have.length(1);
+                expect(result.modifiers[0].modifier).to.deep.include({
+                    path: "item.damage",
+                    value: of(5),
+                    attributes: { name: "Test Item", type: null, spellType: "schaden", skill },
+                });
+                expect(result.hasErrors).to.be.false;
+            });
+        });
+
+        it("should accept a lowercase spell type attribute key", () => {
+            const result = addModifier(item, 'item.damage spelltype="Schaden" +5');
+
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0].modifier.attributes.spellType).to.equal("schaden");
+            expect(result.hasErrors).to.be.false;
+        });
+
+        it("should accept Zaubertyp as a case-insensitive spell type attribute key", () => {
+            const result = addModifier(item, 'item.damage zAuBeRtYp="Schaden" +5');
+
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0].modifier.attributes.spellType).to.equal("schaden");
+            expect(result.hasErrors).to.be.false;
+        });
+
+        it("should reject spell type filters for non-spell skills", () => {
+            const result = addModifier(item, 'item.damage spellType="Schaden" skill="blades" +5');
+
+            expect(result.modifiers).to.be.empty;
+            expect(result.hasErrors).to.be.true;
+        });
+
+        it("should reject spell type filters combined with item filters", () => {
+            const result = addModifier(item, 'item.damage spellType="Schaden" item="Kettenblitz" +5');
+
+            expect(result.modifiers).to.be.empty;
+            expect(result.hasErrors).to.be.true;
+        });
+
         ["item='Schwert'", 'itemType="weapon"', "skill=blades"].forEach((attribute) => {
             it("should not warn for valid damage type attributes", () => {
                 addModifier(item, `item.damage damageType="fire" ${attribute} features="Kritisch 2" +2`);

@@ -289,6 +289,34 @@ describe("Spell item damage report", () => {
         expect(damages.otherComponents).to.have.lengthOf(1);
     });
 
+    it("should account for matching spell type modifiers", () => {
+        const underTest = setUpSpell(sandbox, ["Schaden", "Feuer"]);
+        const modifierProperties = {
+            type: "magic" as const,
+            spellType: "schaden",
+            name: "Klinge aus Licht",
+        };
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
+
+        const damages = underTest.getForDamageRoll();
+
+        expect(damages.otherComponents).to.have.lengthOf(1);
+    });
+
+    it("should ignore modifiers for other spell types", () => {
+        const underTest = setUpSpell(sandbox, ["Heilung"]);
+        const modifierProperties = {
+            type: "magic" as const,
+            spellType: "schaden",
+            name: "Klinge aus Licht",
+        };
+        underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
+
+        const damages = underTest.getForDamageRoll();
+
+        expect(damages.otherComponents).to.be.empty;
+    });
+
     it("should filter out type modifiers", () => {
         const underTest = setUpSpell(sandbox);
         defineValue(underTest, "name", "Kettenblitz");
@@ -353,9 +381,11 @@ describe("Spell item damage report", () => {
         defineValue(underTest, "actor", setUpActor(sandbox));
         defineValue(underTest, "system", sandbox.createStubInstance(SpellDataModel));
         defineValue(underTest.system, "damage", DamageModel.from("1W6 +2"));
+        defineValue(underTest.system, "spellType", "Schaden");
         const modifierProperties = {
             type: "magic" as const,
             name: "Klinge aus Licht",
+            spellType: "schaden",
         };
         underTest.actor.modifier.add("item.damage", modifierProperties, of(3), false);
 
@@ -368,9 +398,10 @@ describe("Spell item damage report", () => {
         Object.defineProperty(object, property, { value, enumerable: true, writable: true });
     }
 
-    function setUpSpell(sandbox: SinonSandbox) {
+    function setUpSpell(sandbox: SinonSandbox, spellTypeList: string[] = []) {
         const stub = sinon.createStubInstance(SplittermondSpellItem);
         stub.type = "spell";
+        defineValue(stub, "spellTypeList", spellTypeList);
         const system = sandbox.createStubInstance(SpellDataModel);
         Object.defineProperty(stub, "system", { value: system, enumerable: true, writable: false });
         Object.defineProperty(stub, "actor", { value: setUpActor(sandbox), enumerable: true, writable: false });

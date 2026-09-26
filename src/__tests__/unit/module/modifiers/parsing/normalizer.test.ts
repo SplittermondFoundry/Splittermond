@@ -17,6 +17,8 @@ describe("normalizeModifiers", () => {
                     return "Schadensart";
                 case "splittermond.modifiers.keys.value":
                     return "Wert";
+                case "splittermond.modifiers.keys.spellType":
+                    return "Zaubertypus";
                 case "splittermond.derivedAttribute.speed.short":
                     return "GSW";
                 case "splittermond.attribute.charisma.short":
@@ -40,6 +42,11 @@ describe("normalizeModifiers", () => {
         ["Schadensart", "damageType"],
         ["Wert", "value"],
         ["Schwerpunkt", "emphasis"],
+        ["Zaubertypus", "spellType"],
+        ["spelltype", "spellType"],
+        ["Zaubertyp", "spellType"],
+        ["zaubertyp", "spellType"],
+        ["ZaUbErTyP", "spellType"],
         ["AUS", "AUS"],
         ["GSW", "GSW"],
     ].forEach(([key, expected]) => {
