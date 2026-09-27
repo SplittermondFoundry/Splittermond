@@ -80,22 +80,24 @@ export function itemTest(this: any, context: QuenchBatchContext) {
         });
 
         it("treats a missing mastery skill as null and round-trips null updates", async () => {
-            const item = (await foundryApi.createItem({
+            const item = await itemCreator.createMastery({
                 type: "mastery",
                 name: "Meisterschaft ohne Fertigkeit",
-                folder: null,
                 system: {},
-            })) as SplittermondItem;
+            });
 
-            void expect((item.system as MasteryDataModel).skill, "initial skill is null").to.be.null;
+            try {
+                context.assert.instanceOf(item.system, MasteryDataModel);
+                expect(item.system.skill, "initial skill is null").to.be.null;
 
-            await item.update({ "system.skill": "blades" });
-            expect((item.system as MasteryDataModel).skill, "skill set to blades").to.equal("blades");
+                await item.update({ "system.skill": "blades" });
+                expect(item.system.skill, "skill set to blades").to.equal("blades");
 
-            await item.update({ "system.skill": null });
-            void expect((item.system as MasteryDataModel).skill, "skill reset to null").to.be.null;
-
-            await Item.deleteDocuments([item.id]);
+                await item.update({ "system.skill": null });
+                expect(item.system.skill, "skill reset to null").to.be.null;
+            } finally {
+                await Item.deleteDocuments([item.id]);
+            }
         });
 
         it("can create a new spell item", async () => {
