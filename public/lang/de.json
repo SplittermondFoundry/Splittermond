@@ -226,11 +226,13 @@
             "displayName": "Modifikatoren",
             "keys": {
                 "damageType": "Schadensart",
+                "defenseType": "Verteidigungsart",
                 "emphasis": "Schwerpunkt",
                 "feature": "Merkmal",
                 "features": "Merkmale",
                 "item": "Objekt",
                 "itemType": "Objekttyp",
+                "rollType": "Würfeltyp",
                 "spellType": "Zaubertypus",
                 "skill": "Fertigkeit",
                 "type": "Typus",
