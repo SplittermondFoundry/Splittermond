@@ -1279,18 +1279,13 @@ export default class SplittermondActor extends Actor {
 
         let checkMessageData = message.flags.splittermond.check;
 
-        const bonus = splittermond.splinterpoints.skillBonus;
+        const splinterpointAction = this.spendSplinterpoint();
+        const bonus = await splinterpointAction.getBonus(checkMessageData.skill);
         //Magic number 0; Message comes with a storage for several rolls, but we only set one roll in chat.js.
         message.rolls[0]._total = message.rolls[0]._total + bonus;
         checkMessageData.modifierElements.push({
             value: bonus,
             description: foundryApi.localize("splittermond.splinterpoint"),
-        });
-
-        this.update({
-            system: {
-                splinterpoints: { value: parseInt(this.splinterpoints.value) - 1 },
-            },
         });
         checkMessageData.availableSplinterpoints = 0;
 

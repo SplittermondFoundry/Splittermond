@@ -184,47 +184,12 @@ describe("SplittermondActor", () => {
     });
 
     describe("useSplinterpointBonus (deprecated)", () => {
-        it("should preserve the original degreeOfSuccess.modification when re-evaluating", async () => {
-            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
-            asCharacter(actor).updateSource({ splinterpoints: { value: 1, max: 3 } });
+        enableModifiers();
 
-            const originalModification = 2;
-            const message = {
-                flags: {
-                    splittermond: {
-                        check: {
-                            type: "defense",
-                            defenseType: "defense",
-                            baseDefense: 12,
-                            skill: "melee",
-                            skillPoints: 5,
-                            skillAttributes: {},
-                            difficulty: 15,
-                            rollType: "standard",
-                            modifierElements: [],
-                            succeeded: false,
-                            isFumble: false,
-                            isCrit: false,
-                            degreeOfSuccess: {
-                                fromRoll: 0,
-                                modification: originalModification,
-                                limitedTo: 999,
-                            },
-                            availableSplinterpoints: 1,
-                            itemData: {
-                                id: "melee",
-                                name: "Melee",
-                                img: "",
-                                itemType: "weapon",
-                                itemFeatures: { internalFeatureList: [] },
-                            },
-                        },
-                    },
-                },
-                rolls: [{ _total: 15 }],
-                messageMode: "roll",
-                update: sandbox.stub().resolves(),
-            };
+        function prepareLegacySkillCheck() {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            actor.prepareBaseData();
+            asCharacter(actor).updateSource({ splinterpoints: { value: 1, max: 3 } });
 
             sandbox.stub(Dice, "evaluateCheck").resolves({
                 difficulty: 15,
@@ -236,10 +201,122 @@ describe("SplittermondActor", () => {
                 roll: { total: 17, dice: [{ total: 17 }] },
             });
 
-            const prepareStub = sandbox.stub(Chat, "prepareCheckMessageData").resolves({
+            return sandbox.stub(Chat, "prepareCheckMessageData").resolves({
                 content: "rendered",
                 flags: { splittermond: { check: {} } },
             });
+        }
+
+        function createLegacySkillCheckMessage(skill = "athletics", isFumble = false) {
+            return {
+                flags: {
+                    splittermond: {
+                        check: {
+                            type: "skill",
+                            defenseType: "defense",
+                            baseDefense: 12,
+                            skill,
+                            skillPoints: 5,
+                            skillAttributes: {},
+                            difficulty: 15,
+                            rollType: "standard",
+                            modifierElements: [],
+                            succeeded: false,
+                            isFumble,
+                            isCrit: false,
+                            degreeOfSuccess: {
+                                fromRoll: 0,
+                                modification: 2,
+                                limitedTo: 999,
+                            },
+                            availableSplinterpoints: 1,
+                            itemData: {
+                                id: skill,
+                                name: "Test item",
+                                img: "",
+                                itemType: "weapon",
+                                itemFeatures: { internalFeatureList: [] },
+                            },
+                        },
+                    },
+                },
+                rolls: [{ _total: 15 }],
+                messageMode: "roll",
+                update: sandbox.stub().resolves(),
+            };
+        }
+
+        it("should apply a global splinterpoint bonus to skill checks", async () => {
+            prepareLegacySkillCheck();
+            actor.modifier.add("actor.splinterpoints.bonus", { name: "Global bonus", type: "innate" }, of(5));
+            const message = createLegacySkillCheckMessage();
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(message.rolls[0]._total).to.equal(20);
+            expect(message.flags.splittermond.check.modifierElements).to.deep.include({
+                value: 5,
+                description: "splittermond.splinterpoint",
+            });
+        });
+
+        it("should apply a skill-specific splinterpoint bonus to a matching skill check", async () => {
+            prepareLegacySkillCheck();
+            actor.modifier.add(
+                "actor.splinterpoints.bonus",
+                { name: "Athletics bonus", type: "innate", skill: "athletics" },
+                of(6)
+            );
+            const message = createLegacySkillCheckMessage("athletics");
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(message.rolls[0]._total).to.equal(21);
+        });
+
+        it("should ignore a skill-specific splinterpoint bonus for other skill checks", async () => {
+            prepareLegacySkillCheck();
+            actor.modifier.add(
+                "actor.splinterpoints.bonus",
+                { name: "Acrobatics bonus", type: "innate", skill: "acrobatics" },
+                of(7)
+            );
+            const message = createLegacySkillCheckMessage("athletics");
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(message.rolls[0]._total).to.equal(18);
+        });
+
+        it("should not spend a splinterpoint on a fumble", async () => {
+            const prepareStub = prepareLegacySkillCheck();
+            const message = createLegacySkillCheckMessage("athletics", true);
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(message.rolls[0]._total).to.equal(15);
+            expect(asCharacter(actor).splinterpoints.value).to.equal(1);
+            expect(prepareStub.called).to.be.false;
+        });
+
+        it("should apply the splinterpoint bonus only once", async () => {
+            const prepareStub = prepareLegacySkillCheck();
+            actor.modifier.add("actor.splinterpoints.bonus", { name: "Global bonus", type: "innate" }, of(5));
+            const message = createLegacySkillCheckMessage();
+
+            await actor.useSplinterpointBonus(message);
+            await actor.useSplinterpointBonus(message);
+
+            expect(message.rolls[0]._total).to.equal(20);
+            expect(message.flags.splittermond.check.modifierElements).to.have.length(1);
+            expect(asCharacter(actor).splinterpoints.value).to.equal(0);
+            expect(prepareStub.calledOnce).to.be.true;
+        });
+
+        it("should preserve the original degreeOfSuccess.modification when re-evaluating", async () => {
+            const prepareStub = prepareLegacySkillCheck();
+            const message = createLegacySkillCheckMessage("melee");
+            message.flags.splittermond.check.type = "defense";
 
             await actor.useSplinterpointBonus(message);
 
@@ -247,7 +324,7 @@ describe("SplittermondActor", () => {
             const passedCheckData = prepareStub.firstCall.args[3] as {
                 degreeOfSuccess: { modification: number; fromRoll: number; limitedTo: number };
             };
-            expect(passedCheckData.degreeOfSuccess.modification).to.equal(originalModification);
+            expect(passedCheckData.degreeOfSuccess.modification).to.equal(2);
         });
     });
 
