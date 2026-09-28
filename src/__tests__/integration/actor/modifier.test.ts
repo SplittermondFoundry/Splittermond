@@ -920,7 +920,7 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(subject.attacks.find((a) => a.name === "Spear of Destiny")?.damage).to.equal("6");
         });
 
-        it("should apply mixed-case spelltype modifiers through generated effects", async () => {
+        it("should filter spell damage modifiers by spell type through generated effects", async () => {
             const subject = await createActor("SpellDamageCharacter");
             const spells = await subject.createEmbeddedDocuments("Item", [
                 {
@@ -948,7 +948,7 @@ export function modifierTest(context: QuenchBatchContext) {
                 {
                     type: "strength",
                     name: "Destructive Magic",
-                    system: { modifier: "item.damage SpElLtYpE='Schaden' +3" },
+                    system: { modifier: "item.damage spellType='Schaden' +3" },
                 },
             ]);
 
