@@ -25,6 +25,7 @@
 ### Fixes
 
 - Die Schaltflächen von Proben- und Angriffsdialogen bleiben bei kleinen Fenstern auch mit vielen Modifikatoren erreichbar.
+- Die Tickleiste berücksichtigt beim Wiedereintritt in einen laufenden Kampf die wiederhergestellte Sidebarbreite.
 - Veraltete Modifikatorpfade aus V12 bis V14 werden vor der Active-Effect-Migration vollständig aktualisiert.
 - Anzeige des Namens und Tooltips für die Erfahrungspunktefelder
 - Erfolgsgrade von NSC werden nicht mehr limitiert wenn die Attribute einer Fertigkeit sich zu dem Fertigkeitswert summieren
