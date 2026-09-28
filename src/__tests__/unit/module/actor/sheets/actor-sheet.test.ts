@@ -111,19 +111,17 @@ describe("SplittermondActorSheet", () => {
                         const result = await actorSheet._onDropItem(mockEvent, item);
 
                         if (allowed) {
-                            expect(superFunctionStub.calledOnceWithExactly(mockEvent, item)).to.be.true;
-                            expect(informUser.called).to.be.false;
+                            expect(superFunctionStub.callCount).to.equal(1);
+                            expect(superFunctionStub.lastCall.args).to.deep.equal([mockEvent, item]);
+                            expect(informUser.callCount).to.equal(0);
                         } else {
-                            expect(superFunctionStub.called).to.be.false;
+                            expect(superFunctionStub.callCount).to.equal(0);
                             expect(result).to.be.null;
-                            expect(
-                                informUser.calledOnceWithExactly(
-                                    "splittermond.applications.actorSheet.invalidItemType",
-                                    {
-                                        type: `TYPES.Item.${itemType}`,
-                                    }
-                                )
-                            ).to.be.true;
+                            expect(informUser.callCount).to.equal(1);
+                            expect(informUser.lastCall.args).to.deep.equal([
+                                "splittermond.applications.actorSheet.invalidItemType",
+                                { type: `TYPES.Item.${itemType}` },
+                            ]);
                         }
                     });
                 });
