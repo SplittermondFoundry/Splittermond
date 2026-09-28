@@ -87,14 +87,14 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             });
 
             try {
-                context.assert.instanceOf(item.system, MasteryDataModel);
-                expect(item.system.skill, "initial skill is null").to.be.null;
+                expect(item.system).to.be.instanceOf(MasteryDataModel);
+                expect(item.system, "initial skill is null").to.have.property("skill", null);
 
                 await item.update({ "system.skill": "blades" });
-                expect(item.system.skill, "skill set to blades").to.equal("blades");
+                expect(item.system, "skill set to blades").to.have.property("skill", "blades");
 
                 await item.update({ "system.skill": null });
-                expect(item.system.skill, "skill reset to null").to.be.null;
+                expect(item.system, "skill reset to null").to.have.property("skill", null);
             } finally {
                 await Item.deleteDocuments([item.id]);
             }
