@@ -5,9 +5,7 @@ import { withActor, withScene } from "../fixtures";
 export function speakerApiTest(context: QuenchBatchContext) {
     const { describe, it, expect } = context;
 
-    describe("foundryApi.getSpeakerActor", function () {
-        this.timeout(10000);
-
+    describe("foundryApi.getSpeakerActor", () => {
         it(
             "resolves an actor-only speaker",
             withActor(async (actor) => {
