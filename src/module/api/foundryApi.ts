@@ -15,7 +15,7 @@ import {
     type User,
 } from "./foundryTypes";
 import type { FoundryRoll, NumericTerm, OperatorTerm } from "./Roll";
-import { FoundryChatMessage } from "./ChatMessage";
+import { ChatMessage as ChatMessageApi, type FoundryChatMessage } from "./ChatMessage";
 import { FoundryApplication } from "./Application";
 
 interface SheetRegistrationOptions {
@@ -92,6 +92,10 @@ export const foundryApi = new (class FoundryApi {
     getSpeaker(data: object): Speaker {
         //@ts-ignore
         return ChatMessage.getSpeaker(data);
+    }
+
+    getSpeakerActor(speaker: Speaker): Actor | null {
+        return ChatMessageApi.getSpeakerActor(speaker);
     }
 
     /**
