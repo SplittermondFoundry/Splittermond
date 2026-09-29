@@ -4,7 +4,10 @@ import { afterEach, beforeEach, describe, it } from "mocha";
 import sinon from "sinon";
 import { JSDOM } from "jsdom";
 import SplittermondActorSheet from "module/actor/sheets/actor-sheet.js";
+import SplittermondCharacterSheet from "module/actor/sheets/character-sheet.js";
+import SplittermondNPCSheet from "module/actor/sheets/npc-sheet.js";
 import { splittermond } from "module/config";
+import { itemTypes, type ItemType } from "module/config/itemTypes";
 import { foundryApi } from "module/api/foundryApi";
 import { FoundryDialog } from "module/api/Application";
 import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
@@ -56,6 +59,75 @@ describe("SplittermondActorSheet", () => {
         global.CONFIG = { splittermond: splittermond };
     });
     afterEach(() => sandbox.restore());
+
+    describe("Item drop permissions", () => {
+        const allowedDrops: Record<ItemType, { character: boolean; npc: boolean }> = {
+            weapon: { character: true, npc: true },
+            projectile: { character: false, npc: false },
+            equipment: { character: true, npc: true },
+            shield: { character: true, npc: true },
+            armor: { character: true, npc: true },
+            spell: { character: true, npc: true },
+            strength: { character: true, npc: false },
+            weakness: { character: true, npc: false },
+            mastery: { character: true, npc: true },
+            species: { character: false, npc: false },
+            culture: { character: false, npc: false },
+            ancestry: { character: false, npc: false },
+            education: { character: false, npc: false },
+            resource: { character: true, npc: false },
+            npcfeature: { character: false, npc: true },
+            moonsign: { character: false, npc: false },
+            language: { character: true, npc: false },
+            culturelore: { character: true, npc: false },
+            statuseffect: { character: true, npc: true },
+            spelleffect: { character: true, npc: true },
+            npcattack: { character: false, npc: true },
+        };
+        let informUser: sinon.SinonStub;
+
+        beforeEach(() => {
+            // Stop at the Foundry boundary; spell and mastery configuration is tested separately below.
+            superFunctionStub.callsFake(async () => null);
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            informUser = sandbox.stub(foundryApi, "informUser");
+        });
+
+        (
+            [
+                { actorType: "character", Sheet: SplittermondCharacterSheet },
+                { actorType: "npc", Sheet: SplittermondNPCSheet },
+            ] as const
+        ).forEach(({ actorType, Sheet }) => {
+            describe(Sheet.name, () => {
+                itemTypes.forEach((itemType) => {
+                    const allowed = allowedDrops[itemType][actorType];
+                    it(`${allowed ? "forwards" : "rejects"} ${itemType} item drops`, async () => {
+                        const actor = sandbox.createStubInstance(SplittermondActor);
+                        const actorSheet = new Sheet({ document: actor });
+                        const item = sandbox.createStubInstance(SplittermondItem);
+                        item.type = itemType;
+
+                        const result = await actorSheet._onDropItem(mockEvent, item);
+
+                        if (allowed) {
+                            expect(superFunctionStub.callCount).to.equal(1);
+                            expect(superFunctionStub.lastCall.args).to.deep.equal([mockEvent, item]);
+                            expect(informUser.callCount).to.equal(0);
+                        } else {
+                            expect(superFunctionStub.callCount).to.equal(0);
+                            expect(result).to.be.null;
+                            expect(informUser.callCount).to.equal(1);
+                            expect(informUser.lastCall.args).to.deep.equal([
+                                "splittermond.applications.actorSheet.invalidItemType",
+                                { type: `TYPES.Item.${itemType}` },
+                            ]);
+                        }
+                    });
+                });
+            });
+        });
+    });
 
     describe("Addition of a spell to actor", () => {
         let actorMock: any;

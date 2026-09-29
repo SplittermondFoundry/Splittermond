@@ -30,7 +30,6 @@ const prohibitedForCharacter = [
     "education",
     "npcfeature",
     "moonsign",
-    "language",
     "npcattack",
 ];
 const allowedForNpc = [
