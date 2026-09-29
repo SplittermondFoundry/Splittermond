@@ -24,6 +24,7 @@
 
 ### Fixes
 
+- Neue Meisterschaften ohne Fertigkeit verwenden jetzt `null` statt einer leeren Zeichenfolge als Standardwert.
 - Die Schaltflächen von Proben- und Angriffsdialogen bleiben bei kleinen Fenstern auch mit vielen Modifikatoren erreichbar.
 - Die Tickleiste berücksichtigt beim Wiedereintritt in einen laufenden Kampf die wiederhergestellte Sidebarbreite.
 - Veraltete Modifikatorpfade aus V12 bis V14 werden vor der Active-Effect-Migration vollständig aktualisiert.
