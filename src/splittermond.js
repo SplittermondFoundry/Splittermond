@@ -574,12 +574,7 @@ Hooks.on(
                 let chatMessageId = $(event.currentTarget).closestData("message-id");
                 let message = foundryApi.messages.get(chatMessageId);
 
-                /**@type Speaker*/
-                const speaker = message.speaker;
-                const actor =
-                    foundryApi.getToken(speaker.scene, speaker.token).actor ?? foundryApi.getActor(speaker.actor);
-
-                actor.useSplinterpointBonus(message);
+                foundryApi.getSpeakerActor(message.speaker)?.useSplinterpointBonus(message);
             })
         );
 

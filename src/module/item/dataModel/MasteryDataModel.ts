@@ -8,7 +8,7 @@ function ItemMasteryDataModelSchema() {
         ...getDescriptorFields(),
         availableIn: new fields.StringField({ required: true, nullable: true }),
         modifier: new fields.StringField({ required: true, nullable: true }),
-        skill: new fields.StringField({ required: true, nullable: true, initial: null }),
+        skill: new fields.StringField({ required: true, nullable: true, blank: false, initial: null }),
         isGrandmaster: validatedBoolean(),
         isManeuver: validatedBoolean(),
         level: new fields.NumberField({ required: true, nullable: false, initial: 0 }),

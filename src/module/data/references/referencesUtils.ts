@@ -1,6 +1,5 @@
 import { foundryApi } from "module/api/foundryApi";
 import { AgentReference } from "./AgentReference";
-import { actorRetriever } from "../EntityRetriever";
 
 export const referencesUtils = {
     /**@type {() => AgentReference}*/ findBestUserActor,
@@ -23,7 +22,8 @@ function findBestUserActor(): AgentReference {
     }
 
     if (!actor && speaker.actor) {
-        const topLevelActor = actorRetriever.get(speaker.actor);
+        // Keep the world-actor fallback even if initializing the token reference failed.
+        const topLevelActor = foundryApi.getSpeakerActor({ ...speaker, token: null });
         actor = topLevelActor ? withTry(() => AgentReference.initialize(topLevelActor)) : null;
     }
     if (!actor) {
