@@ -15,8 +15,16 @@ describe("normalizeModifiers", () => {
                     return "Schwerpunkt";
                 case "splittermond.modifiers.keys.damageType":
                     return "Schadensart";
+                case "splittermond.modifiers.keys.defenseType":
+                    return "Verteidigungsart";
+                case "splittermond.modifiers.keys.itemType":
+                    return "Objekttyp";
+                case "splittermond.modifiers.keys.rollType":
+                    return "Würfeltyp";
                 case "splittermond.modifiers.keys.value":
                     return "Wert";
+                case "splittermond.modifiers.keys.spellType":
+                    return "Zaubertypus";
                 case "splittermond.derivedAttribute.speed.short":
                     return "GSW";
                 case "splittermond.attribute.charisma.short":
@@ -38,8 +46,17 @@ describe("normalizeModifiers", () => {
     });
     [
         ["Schadensart", "damageType"],
+        ["DaMaGeTyPe", "damageType"],
+        ["Verteidigungsart", "defenseType"],
+        ["DeFeNsEtYpE", "defenseType"],
+        ["Objekttyp", "itemType"],
+        ["ItEmTyPe", "itemType"],
+        ["Würfeltyp", "rollType"],
+        ["RoLlTyPe", "rollType"],
         ["Wert", "value"],
         ["Schwerpunkt", "emphasis"],
+        ["ZaUbErTyPuS", "spellType"],
+        ["ZaUbErTyP", "spellType"],
         ["AUS", "AUS"],
         ["GSW", "GSW"],
     ].forEach(([key, expected]) => {

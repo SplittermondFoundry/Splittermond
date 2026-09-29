@@ -134,6 +134,7 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
             .withAttributeValuesOrAbsent("item", this.name)
             .withAttributeValuesOrAbsent("itemType", this.type)
             .withAttributeValuesOrAbsent("skill", this.system.skill)
+            .withAttributeValuesOrAbsent("spellType", ...this.spellTypeList.map((spellType) => spellType.toLowerCase()))
             .getModifiers()
             .map((m) => m.value)
             .reduce((a, b) => plus(a, b), of(0));
@@ -151,6 +152,7 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
             .withAttributeValuesOrAbsent("item", this.name)
             .withAttributeValuesOrAbsent("itemType", this.type)
             .withAttributeValuesOrAbsent("skill", this.system.skill)
+            .withAttributeValuesOrAbsent("spellType", ...this.spellTypeList.map((spellType) => spellType.toLowerCase()))
             .getModifiers()
             .map((m) => {
                 const features = mergeFeatures(

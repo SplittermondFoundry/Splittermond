@@ -203,6 +203,22 @@ describe("Attack", () => {
             expect(damageItems.otherComponents).to.be.empty;
         });
 
+        it("should ignore spell type modifiers", () => {
+            const actor = setUpActor(sandbox);
+            const attackItem = setUpAttackItem({ skill: "blades" });
+            const modifierAttributes = {
+                type: "magic" as const,
+                spellType: "schaden",
+                name: "Klinge des Lichts",
+            };
+            actor.modifier.add("item.damage", modifierAttributes, of(3), false);
+            const underTest = Attack.initialize(actor, attackItem);
+
+            const damageItems = underTest.getForDamageRoll();
+
+            expect(damageItems.otherComponents).to.be.empty;
+        });
+
         it("should ignore modifiers if attack has no skill", () => {
             const actor = setUpActor(sandbox);
             const attackItem = setUpAttackItem({ skill: undefined });

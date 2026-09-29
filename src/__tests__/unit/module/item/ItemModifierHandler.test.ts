@@ -192,6 +192,75 @@ describe("ItemModifierHandler", () => {
             expect(result.attributes.damageType).to.equal("fire");
         });
 
+        it("should normalize spell type filters", () => {
+            const scalarModifier: ScalarModifier = {
+                path: "item.damage",
+                rawFragment: 'item.damage spellType="Schaden" +5',
+                value: of(5),
+                attributes: {
+                    spellType: "Schaden",
+                },
+            };
+
+            const result = handler.processModifier(scalarModifier)[0];
+
+            expect(result.attributes.spellType).to.equal("schaden");
+            expect(allErrors).to.be.empty;
+        });
+
+        ["firemagic", "arcanelore"].forEach((skill) => {
+            it(`should accept spell type filters for ${skill}`, () => {
+                const scalarModifier: ScalarModifier = {
+                    path: "item.damage",
+                    rawFragment: `item.damage spellType="Schaden" skill="${skill}" +5`,
+                    value: of(5),
+                    attributes: {
+                        spellType: "Schaden",
+                        skill,
+                    },
+                };
+
+                const result = handler.processModifier(scalarModifier);
+
+                expect(result).to.have.lengthOf(1);
+                expect(allErrors).to.be.empty;
+            });
+        });
+
+        it("should reject spell type filters for non-spell skills", () => {
+            const scalarModifier: ScalarModifier = {
+                path: "item.damage",
+                rawFragment: 'item.damage spellType="Schaden" skill="blades" +5',
+                value: of(5),
+                attributes: {
+                    spellType: "Schaden",
+                    skill: "blades",
+                },
+            };
+
+            const result = handler.processModifier(scalarModifier);
+
+            expect(result).to.be.empty;
+            expect(allErrors).to.have.lengthOf(1);
+        });
+
+        it("should reject spell type filters combined with item filters", () => {
+            const scalarModifier: ScalarModifier = {
+                path: "item.damage",
+                rawFragment: 'item.damage spellType="Schaden" item="Kettenblitz" +5',
+                value: of(5),
+                attributes: {
+                    spellType: "Schaden",
+                    item: "Kettenblitz",
+                },
+            };
+
+            const result = handler.processModifier(scalarModifier);
+
+            expect(result).to.be.empty;
+            expect(allErrors).to.have.lengthOf(1);
+        });
+
         it("should process defense tick cost modifiers", () => {
             const scalarModifier: ScalarModifier = {
                 rawFragment: 'item.defenseTickCost itemType="shield" defenseType="vtd" -1',

@@ -7,12 +7,15 @@ import { splittermond } from "module/config";
 const modifierKeys = [
     "emphasis",
     "damageType",
+    "defenseType",
     "value",
     "skill",
     "feature",
     "features",
     "item",
     "itemType",
+    "rollType",
+    "spellType",
     "type",
     "unit",
     "attribute1",
@@ -29,6 +32,12 @@ const derivedAttributeMapper = initMapper(derivedAttributes)
     .build();
 const modifierKeyMapper = initMapper(modifierKeys)
     .withTranslator((t) => `splittermond.modifiers.keys.${t}`)
+    .andDirectMap("damagetype", "damageType")
+    .andDirectMap("defensetype", "defenseType")
+    .andDirectMap("itemtype", "itemType")
+    .andDirectMap("rolltype", "rollType")
+    .andDirectMap("spelltype", "spellType")
+    .andDirectMap("Zaubertyp", "spellType")
     .build();
 const skillMapper = initMapper(splittermond.skillGroups.all)
     .withTranslator((t) => `splittermond.skillLabel.${t}`)

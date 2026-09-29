@@ -16,7 +16,7 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
         topLevelPath: "item",
         subSegments: {
             damage: {
-                optionalAttributes: ["item", "damageType", "itemType", "features", "skill"],
+                optionalAttributes: ["item", "damageType", "itemType", "features", "skill", "spellType"],
             },
             weaponspeed: {
                 optionalAttributes: ["item", "itemType", "skill"],
@@ -46,8 +46,32 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
 
     protected buildModifier(modifier: ScalarModifier): IModifier[] {
         const normalizedAttributes = this.buildAttributes(modifier.path, modifier.attributes);
+        if (!this.hasValidDamageFilters(modifier, normalizedAttributes)) {
+            return [];
+        }
         const constructor = this.getConstructor(modifier.path);
         return [constructor(modifier.path, modifier.value, normalizedAttributes, false, () => this.sourceItem.actor)];
+    }
+
+    private hasValidDamageFilters(modifier: ScalarModifier, attributes: IModifier["attributes"]): boolean {
+        if (modifier.path.toLowerCase() !== "item.damage" || !("spellType" in modifier.attributes)) {
+            return true;
+        }
+        if ("item" in modifier.attributes) {
+            this.reportInvalidDescriptor(modifier.path, "spellType", attributes.spellType ?? undefined);
+            return false;
+        }
+        if ("skill" in modifier.attributes) {
+            const skill = attributes.skill;
+            const isValidSpellSkill = skill === "arcanelore" || isMember(splittermond.skillGroups.magic, skill);
+            if (!isValidSpellSkill) {
+                if (isMember(splittermond.skillGroups.all, skill)) {
+                    this.reportInvalidDescriptor(modifier.path, "skill", skill);
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     private getConstructor(path: string) {
@@ -66,6 +90,8 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
                 return this.normalizeUnit(path, value);
             case "skill":
                 return this.commonNormalizers.normalizeSkill(path, value);
+            case "spellType":
+                return this.commonNormalizers.validatedAttribute(value)?.trim().toLowerCase();
             case "defenseType":
                 return this.normalizeDefenseType(path, value);
             default:

@@ -100,6 +100,8 @@ describe("addModifier", () => {
                     return "Geistiger Widerstand";
                 case "splittermond.damageTypes.physical":
                     return "physisch";
+                case "splittermond.modifiers.keys.spellType":
+                    return "Zaubertypus";
                 default:
                     return key;
             }
@@ -445,6 +447,14 @@ describe("addModifier", () => {
                 value: of(5),
                 attributes: { name: "Test Item", type: null, skill: "blubb" },
             });
+        });
+
+        it("should normalize a lowercase internal spell type key when the localized key differs", () => {
+            const result = addModifier(item, 'item.damage spelltype="Schaden" +5');
+
+            expect(result.modifiers).to.have.length(1);
+            expect(result.modifiers[0].modifier.attributes.spellType).to.equal("schaden");
+            expect(result.hasErrors).to.be.false;
         });
 
         ["item='Schwert'", 'itemType="weapon"', "skill=blades"].forEach((attribute) => {
