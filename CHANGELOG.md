@@ -2,6 +2,7 @@
 
 ### Features
 
+- Beim Ablegen von Items oder aktiven Effekten auf Charakter- und NSC-Bögen öffnet sich automatisch der zugehörige Tab. Der neue Eintrag wird ins Sichtfeld gescrollt und kurz hervorgehoben.
 - Multiplikatoren sorgen bei additiven Modifikatoren jetzt für Mehrfachanwendung statt Multiplikation.
   D.h. ein Statuseffekt Stufe 2 mit einem Schadensmodifikator produziert jetzt eval(2W6) statt 2 * eval(1W6)
 - Modifikatoren können jetzt über aktive Effekte gehandhabt werden

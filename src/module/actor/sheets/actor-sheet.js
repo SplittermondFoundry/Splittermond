@@ -816,12 +816,16 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
      */
     async _onDropActiveEffect(event, effect) {
         const fromSameParent = effect.parent === this.actor || effect.parent?.parent === this.actor;
+        let droppedEffect;
         if (isGenerated(effect) && !fromSameParent) {
             const payload = { ...effect.toObject(), type: "modifier", origin: this.actor.uuid };
             const [created] = await this.actor.createEmbeddedDocuments("ActiveEffect", [payload]);
-            return created ?? null;
+            droppedEffect = created ?? null;
+        } else {
+            droppedEffect = await super._onDropActiveEffect(event, effect);
         }
-        return super._onDropActiveEffect(event, effect);
+        if (droppedEffect) await this.#showDrop("status", `[data-effect-uuid="${droppedEffect.uuid}"]`);
+        return droppedEffect;
     }
 
     /**
@@ -868,7 +872,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 return this.actor.deleteEmbeddedDocuments("Item", [newDocument.id]);
             }
 
-            return newDocument.update({ system: { skill: selectedSkill.skill, skillLevel: selectedSkill.level } });
+            await newDocument.update({ system: { skill: selectedSkill.skill, skillLevel: selectedSkill.level } });
         }
         if (newDocument.type === "mastery") {
             const allowedSkills = splittermond.skillGroups.all;
@@ -891,8 +895,49 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 return this.actor.deleteEmbeddedDocuments("Item", [newDocument.id]);
             }
 
-            return newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
+            await newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
         }
+        const tab = {
+            weapon: "inventory",
+            armor: "inventory",
+            shield: "inventory",
+            equipment: "inventory",
+            spell: "spells",
+            mastery: this.actor.type === "character" ? "skills" : "general",
+            statuseffect: "status",
+            spelleffect: "status",
+            strength: "general",
+            weakness: "general",
+            resource: "general",
+            language: "general",
+            culturelore: "general",
+            npcattack: "general",
+        }[newDocument.type];
+        await this.#showDrop(tab, `[data-item-id="${newDocument.id}"]`);
+        return newDocument;
+    }
+
+    /**
+     * @param {string | undefined} tab
+     * @param {string} selector
+     */
+    async #showDrop(tab, selector) {
+        // An open sheet can be mid-render after document updates; let rendering finish before checking it.
+        await this.render();
+        if (!this.element?.isConnected) return;
+        if (tab) this.changeTab(tab, "primary");
+        const entry = this.element.querySelector(`${tab ? `section[data-tab="${tab}"]` : "header"} ${selector}`);
+        const row = entry?.closest(".list-item, .taglist-item");
+        if (!row) return;
+        row.scrollIntoView({ block: "nearest", inline: "nearest" });
+        row.animate(
+            [
+                { backgroundColor: "rgba(var(--color-primary_rgb), 0.35)", offset: 0 },
+                { backgroundColor: "rgba(var(--color-primary_rgb), 0.35)", offset: 0.65 },
+                { backgroundColor: "transparent" },
+            ],
+            { duration: 1800, easing: "ease-out" }
+        );
     }
 
     /**

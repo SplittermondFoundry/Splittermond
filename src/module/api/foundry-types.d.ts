@@ -363,6 +363,8 @@ declare namespace foundry {
 
                 render(options?: boolean | ApplicationRenderOptions): Promise<this>;
 
+                changeTab(tab: string, group: string): void;
+
                 setPosition(
                     position?: Partial<foundry.applications.types.ApplicationPosition>
                 ): void | foundry.applications.types.ApplicationPosition;

@@ -105,6 +105,7 @@ const foundryApplicationsApi = {
         }
         render() {}
         _prepareContext() {}
+        changeTab() {}
         _preparePartContext(_partId, context, _options) {
             return Promise.resolve(context);
         }
