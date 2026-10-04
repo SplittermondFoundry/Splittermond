@@ -1109,8 +1109,12 @@ export function activeEffectTest(context: QuenchBatchContext) {
         });
 
         after(async () => {
-            await Scene.deleteDocuments([combatScene.id]);
-            if (originalScene) await originalScene.activate();
+            try {
+                await originalScene?.activate();
+                await originalScene?.view();
+            } finally {
+                await Scene.deleteDocuments([combatScene.id]);
+            }
         });
 
         async function addActorToCombat(actor: SplittermondActor) {

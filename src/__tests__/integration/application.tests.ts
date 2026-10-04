@@ -328,8 +328,12 @@ export function applicationTests(context: QuenchBatchContext) {
             await scene.activate();
         });
         after(async () => {
-            await Scene.deleteDocuments([scene.id]);
-            originalScene?.activate();
+            try {
+                await originalScene?.activate();
+                await originalScene?.view();
+            } finally {
+                await Scene.deleteDocuments([scene.id]);
+            }
         });
         beforeEach(() => (sandbox = sinon.createSandbox()));
 
