@@ -75,6 +75,7 @@ describe("Actor sheet tabs after item drops", () => {
             let sheet: InstanceType<typeof Sheet>;
             let changeTab: sinon.SinonStub;
             let drop: sinon.SinonStub;
+            let events: EventTarget;
             let remove: sinon.SinonStub<
                 Parameters<SplittermondActor["deleteEmbeddedDocuments"]>,
                 ReturnType<SplittermondActor["deleteEmbeddedDocuments"]>
@@ -95,6 +96,9 @@ describe("Actor sheet tabs after item drops", () => {
                 Object.defineProperty(sheet, "element", { value: new JSDOM().window.document.body });
                 changeTab = sandbox.stub(sheet, "changeTab");
                 drop = sandbox.stub(SplittermondBaseActorSheet.prototype, "_onDropItem");
+                events = new EventTarget();
+                sandbox.stub(sheet, "addEventListener").callsFake(events.addEventListener.bind(events));
+                sandbox.stub(sheet, "removeEventListener").callsFake(events.removeEventListener.bind(events));
             });
 
             for (const type of itemTypes) {
@@ -113,7 +117,7 @@ describe("Actor sheet tabs after item drops", () => {
                     await sheet._onDropItem(event, item);
 
                     expect(changeTab.callCount).to.equal(changesTab ? 1 : 0);
-                    if (changesTab) expect(changeTab.firstCall.args).to.deep.equal([tab, "primary"]);
+                    if (changesTab) expect(changeTab.firstCall.args.slice(0, 2)).to.deep.equal([tab, "primary"]);
                     expect(drop.calledOnce).to.equal(tab !== null);
                 });
             }
@@ -162,6 +166,15 @@ describe("Actor sheet tabs after item drops", () => {
                 expect(changeTab.called).to.be.false;
             });
 
+            it("does not request an extra render after an item drop", async () => {
+                const render = sandbox.stub(sheet, "render").resolves();
+                drop.resolves(droppedItem("equipment"));
+
+                await sheet._onDropItem(event, droppedItem("equipment"));
+
+                expect(render.called, "Document changes already request the sheet render").to.be.false;
+            });
+
             it("finishes the mastery drop while the sheet is being rendered", async () => {
                 const item = droppedItem("mastery");
                 drop.resolves(item);
@@ -169,19 +182,16 @@ describe("Actor sheet tabs after item drops", () => {
                     Object.defineProperty(sheet, "rendered", { value: false, configurable: true });
                     return item;
                 });
-                sandbox.define(
-                    sheet,
-                    "render",
-                    sandbox.stub().callsFake(async () => {
-                        Object.defineProperty(sheet, "rendered", { value: true });
-                        return sheet;
-                    })
-                );
-
                 await sheet._onDropItem(event, item);
 
+                expect(changeTab.called).to.be.false;
+                Object.defineProperty(sheet, "rendered", { value: true });
+                events.dispatchEvent(new Event("render"));
                 expect(changeTab.calledOnce).to.be.true;
-                expect(changeTab.firstCall.args).to.deep.equal([destinations.mastery[actorType], "primary"]);
+                expect(changeTab.firstCall.args.slice(0, 2)).to.deep.equal([
+                    destinations.mastery[actorType],
+                    "primary",
+                ]);
             });
 
             for (const type of ["mastery", "weapon", "npcattack", "npcfeature"] as const) {
@@ -225,23 +235,9 @@ describe("Actor sheet tabs after item drops", () => {
             }
 
             for (const documentType of ["Item", "ActiveEffect"] as const) {
-                it(`waits for rendering before activating the ${documentType} destination`, async () => {
-                    let startRender!: () => void;
-                    let finishRender!: (value: typeof sheet) => void;
-                    const renderStarted = new Promise<void>((resolve) => {
-                        startRender = resolve;
-                    });
-                    const renderFinished = new Promise<typeof sheet>((resolve) => {
-                        finishRender = resolve;
-                    });
-                    sandbox.define(
-                        sheet,
-                        "render",
-                        sandbox.stub().callsFake(() => {
-                            startRender();
-                            return renderFinished;
-                        })
-                    );
+                it(`uses the document render to activate the ${documentType} destination`, async () => {
+                    Object.defineProperty(sheet, "rendered", { value: false, configurable: true });
+                    const render = sandbox.stub(sheet, "render").resolves();
                     const item = droppedItem("spell");
                     drop.resolves(item);
                     const effect = sandbox.createStubInstance(SplittermondActiveEffect);
@@ -252,19 +248,15 @@ describe("Actor sheet tabs after item drops", () => {
                         sandbox.stub().resolves(effect)
                     );
 
-                    const pendingDrop =
-                        documentType === "Item"
-                            ? sheet._onDropItem(event, item)
-                            : sheet._onDropActiveEffect(event, effect);
-                    try {
-                        await Promise.race([renderStarted, pendingDrop]);
-                        expect(changeTab.called, "Do not activate a tab in HTML about to be replaced").to.be.false;
-                    } finally {
-                        finishRender(sheet);
-                        await pendingDrop;
-                    }
+                    await (documentType === "Item"
+                        ? sheet._onDropItem(event, item)
+                        : sheet._onDropActiveEffect(event, effect));
+                    expect(changeTab.called, "Do not activate a tab in HTML about to be replaced").to.be.false;
+                    expect(render.called).to.be.false;
+                    Object.defineProperty(sheet, "rendered", { value: true });
+                    events.dispatchEvent(new Event("render"));
                     expect(changeTab.calledOnce).to.be.true;
-                    expect(changeTab.firstCall.args).to.deep.equal([
+                    expect(changeTab.firstCall.args.slice(0, 2)).to.deep.equal([
                         documentType === "Item" ? "spells" : "status",
                         "primary",
                     ]);
@@ -296,7 +288,7 @@ describe("Actor sheet tabs after item drops", () => {
                         expect(await sheet._onDropActiveEffect(event, effect)).to.equal(result);
                         expect(changeTab.callCount).to.equal(succeeds ? 1 : 0);
                         expect(animate.callCount).to.equal(succeeds ? 1 : 0);
-                        if (succeeds) expect(changeTab.firstCall.args).to.deep.equal(["status", "primary"]);
+                        if (succeeds) expect(changeTab.firstCall.args.slice(0, 2)).to.deep.equal(["status", "primary"]);
                     });
                 }
             }

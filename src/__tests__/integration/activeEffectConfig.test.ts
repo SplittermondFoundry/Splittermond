@@ -4,7 +4,7 @@ import { Modifier, SplittermondActiveEffect } from "module/activeEffect";
 import type SplittermondActor from "module/actor/actor";
 import { SplittermondActiveEffectConfig } from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
 import { evaluate, of, plus, ref, times } from "module/modifiers/expressions/scalar";
-import { createScene, withActiveEffect, withActor } from "./fixtures";
+import { useScene, withActiveEffect, withActor } from "./fixtures";
 import { passesEventually } from "../util";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import SplittermondItemEffectsSheet from "module/item/sheets/item-effects-sheet";
@@ -13,7 +13,6 @@ import { splittermond } from "module/config";
 import type { FoundryScene } from "module/api/foundryTypes";
 
 declare const Item: any;
-declare const Scene: FoundryScene;
 declare const game: { time: { worldTime: number; advance(delta: number): Promise<unknown> } };
 
 async function enterInSheet(sheet: SplittermondActiveEffectConfig, inputName: string, value: string) {
@@ -1090,14 +1089,8 @@ export function activeEffectTest(context: QuenchBatchContext) {
 
     describe("Combat-aware default duration units", () => {
         let combatScene: FoundryScene;
-        let originalScene: FoundryScene | null;
-
-        before(async () => {
-            originalScene = (game as any).canvas?.scene ?? null;
-            combatScene = await createScene();
-            await combatScene.view();
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            await combatScene.activate();
+        useScene({ before, after }, (created) => {
+            combatScene = created;
         });
 
         afterEach(async () => {
@@ -1106,15 +1099,6 @@ export function activeEffectTest(context: QuenchBatchContext) {
                 "Token",
                 combatScene.tokens.map((t: TokenDocument) => t.id)
             );
-        });
-
-        after(async () => {
-            try {
-                await originalScene?.activate();
-                await originalScene?.view();
-            } finally {
-                await Scene.deleteDocuments([combatScene.id]);
-            }
         });
 
         async function addActorToCombat(actor: SplittermondActor) {

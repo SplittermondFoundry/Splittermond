@@ -18,6 +18,7 @@ import { SplittermondActiveEffect } from "module/activeEffect/index.ts";
 import { buildEffectCardContext, showInDefaultView } from "module/activeEffect/effectCardContext";
 import { applyStatusListSizing, BASELINE_HEIGHT } from "module/actor/sheets/statusListSizing.ts";
 import { isGenerated } from "module/activeEffect/effectBuilder";
+import { showDroppedEntry } from "module/util/showDroppedEntry";
 
 /**
  * @typedef {Object} StatusTabEffectContext
@@ -815,17 +816,20 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
      * @returns {Promise<ActiveEffect | null | undefined>}
      */
     async _onDropActiveEffect(event, effect) {
+        const droppedEffect = await this._createEffectCopy(event, effect);
+        if (droppedEffect) showDroppedEntry(this, "status", `[data-effect-uuid="${droppedEffect.uuid}"]`);
+        return droppedEffect;
+    }
+
+    /** @private */
+    async _createEffectCopy(event, effect) {
         const fromSameParent = effect.parent === this.actor || effect.parent?.parent === this.actor;
-        let droppedEffect;
         if (isGenerated(effect) && !fromSameParent) {
             const payload = { ...effect.toObject(), type: "modifier", origin: this.actor.uuid };
             const [created] = await this.actor.createEmbeddedDocuments("ActiveEffect", [payload]);
-            droppedEffect = created ?? null;
-        } else {
-            droppedEffect = await super._onDropActiveEffect(event, effect);
+            return created ?? null;
         }
-        if (droppedEffect) await this.#showDrop("status", `[data-effect-uuid="${droppedEffect.uuid}"]`);
-        return droppedEffect;
+        return super._onDropActiveEffect(event, effect);
     }
 
     /**
@@ -897,47 +901,34 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
             await newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
         }
-        const tab = {
-            weapon: "inventory",
-            armor: "inventory",
-            shield: "inventory",
-            equipment: "inventory",
-            spell: "spells",
-            mastery: this.actor.type === "character" ? "skills" : "general",
-            statuseffect: "status",
-            spelleffect: "status",
-            strength: "general",
-            weakness: "general",
-            resource: "general",
-            language: "general",
-            culturelore: "general",
-            npcattack: "general",
-        }[newDocument.type];
-        await this.#showDrop(tab, `[data-item-id="${newDocument.id}"]`);
+        showDroppedEntry(this, this._getDropTab(newDocument.type), `[data-item-id="${newDocument.id}"]`);
         return newDocument;
     }
 
     /**
-     * @param {string | undefined} tab
-     * @param {string} selector
+     * @param {import("module/config/itemTypes").ItemType} itemType
+     * @returns {string | undefined}
+     * @protected
      */
-    async #showDrop(tab, selector) {
-        // An open sheet can be mid-render after document updates; let rendering finish before checking it.
-        await this.render();
-        if (!this.element?.isConnected) return;
-        if (tab) this.changeTab(tab, "primary");
-        const entry = this.element.querySelector(`${tab ? `section[data-tab="${tab}"]` : "header"} ${selector}`);
-        const row = entry?.closest(".list-item, .taglist-item");
-        if (!row) return;
-        row.scrollIntoView({ block: "nearest", inline: "nearest" });
-        row.animate(
-            [
-                { backgroundColor: "rgba(var(--color-primary_rgb), 0.35)", offset: 0 },
-                { backgroundColor: "rgba(var(--color-primary_rgb), 0.35)", offset: 0.65 },
-                { backgroundColor: "transparent" },
-            ],
-            { duration: 1800, easing: "ease-out" }
-        );
+    _getDropTab(itemType) {
+        switch (itemType) {
+            case "weapon":
+            case "armor":
+            case "shield":
+            case "equipment":
+                return "inventory";
+            case "spell":
+                return "spells";
+            case "mastery":
+                return this.actor.type === "character" ? "skills" : "general";
+            case "statuseffect":
+            case "spelleffect":
+                return "status";
+            case "npcfeature":
+                return undefined;
+            default:
+                return "general";
+        }
     }
 
     /**

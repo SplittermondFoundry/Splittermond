@@ -2,7 +2,7 @@ import type SplittermondActor from "module/actor/actor";
 import type { FoundryActiveEffect } from "module/api/ActiveEffect";
 import type { FoundryScene, User } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
-import type { QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
+import type { QuenchBatchContext, QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
 
 declare const game: any;
 declare const Scene: FoundryScene;
@@ -60,15 +60,51 @@ export function withActiveEffect<P extends Array<any>, R>(
     });
 }
 
-export function withScene<P extends Array<any>, R>(fn: (scene: FoundryScene, ...args: P) => Promise<R>) {
+async function createSceneFixture() {
+    const originalScene = foundryApi.currentScene;
+    const scene = await createScene();
+    return {
+        scene,
+        async cleanup() {
+            try {
+                if (foundryApi.currentScene?.id === scene.id) {
+                    await originalScene?.activate();
+                    await originalScene?.view();
+                }
+            } finally {
+                await Scene.deleteDocuments([scene.id]);
+            }
+        },
+    };
+}
+
+export function withScene<P extends unknown[], R>(fn: (scene: FoundryScene, ...args: P) => Promise<R>) {
     return async (...args: P) => {
-        const scene = await createScene();
+        const fixture = await createSceneFixture();
         try {
-            return await fn(scene, ...args);
+            return await fn(fixture.scene, ...args);
         } finally {
-            await Scene.deleteDocuments([scene.id]);
+            await fixture.cleanup();
         }
     };
+}
+
+export function useScene(
+    { before, after }: Pick<QuenchBatchContext, "before" | "after">,
+    setup: (scene: FoundryScene) => void
+): void {
+    let fixture: Awaited<ReturnType<typeof createSceneFixture>> | undefined;
+    before(async () => {
+        fixture = await createSceneFixture();
+        setup(fixture.scene);
+        await fixture.scene.view();
+        // Keep the existing combat fixtures' grace period for canvas/token initialization.
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await fixture.scene.activate();
+    });
+    after(async () => {
+        await fixture?.cleanup();
+    });
 }
 
 export function withPlayer<P extends Array<any>, R>(fn: (player: User, ...args: P) => Promise<R>) {

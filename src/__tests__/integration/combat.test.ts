@@ -5,13 +5,12 @@ import type { SplittermondActiveEffect } from "module/activeEffect/SplittermondA
 import sinon, { type SinonSandbox } from "sinon";
 import type { FoundryCombatant, FoundryScene } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
-import { createScene, withActor } from "./fixtures";
+import { useScene, withActor } from "./fixtures";
 import { actorCreator } from "module/data/EntityCreator";
 import { expect } from "chai";
 import { passesEventually } from "../util";
 import Combatant = foundry.documents.Combatant;
 
-declare const Scene: FoundryScene;
 declare const ui: { combat: { viewed: unknown } };
 export function combatTest(context: QuenchBatchContext) {
     const { it, describe, before, after, beforeEach, afterEach } = context;
@@ -20,27 +19,8 @@ export function combatTest(context: QuenchBatchContext) {
     let tokens: TokenDocument[] = [];
     let sandbox: SinonSandbox;
     let scene: FoundryScene;
-    let originalScene: FoundryScene | null;
-
-    before(async () => {
-        /*
-         * For creating valid tokens we need a fully loaded and active scene. Unfortunately, scene loading happens
-         * asynchronously and there is no "scene loaded" event we could hook into. So we just wait a second after
-         * the scene was activated.
-         */
-        originalScene = foundryApi.currentScene;
-        scene = await createScene();
-        await scene.view();
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        await scene.activate();
-    });
-    after(async () => {
-        try {
-            await originalScene?.activate();
-            await originalScene?.view();
-        } finally {
-            await Scene.deleteDocuments([scene.id]);
-        }
+    useScene({ before, after }, (created) => {
+        scene = created;
     });
     beforeEach(() => (sandbox = sinon.createSandbox()));
 

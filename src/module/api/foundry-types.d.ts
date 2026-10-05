@@ -363,7 +363,7 @@ declare namespace foundry {
 
                 render(options?: boolean | ApplicationRenderOptions): Promise<this>;
 
-                changeTab(tab: string, group: string): void;
+                changeTab(tab: string, group: string, options?: { force?: boolean }): void;
 
                 setPosition(
                     position?: Partial<foundry.applications.types.ApplicationPosition>
@@ -371,7 +371,9 @@ declare namespace foundry {
 
                 submit(submitOptions?: object): Promise<any>;
 
-                addEventListener(type: string, listener: (event: Event) => void): void;
+                addEventListener(type: string, listener: (event: Event) => void, options?: { once?: boolean }): void;
+
+                removeEventListener(type: string, listener: (event: Event) => void): void;
 
                 close(options?: object): Promise<unknown>;
                 _preClose(options: ApplicationRenderOptions): Promise<void>;

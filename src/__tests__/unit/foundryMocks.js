@@ -112,6 +112,7 @@ const foundryApplicationsApi = {
         _onRender() {}
         _onSubmitForm() {}
         addEventListener() {}
+        removeEventListener() {}
         close() {}
         static prompt() {}
     },
