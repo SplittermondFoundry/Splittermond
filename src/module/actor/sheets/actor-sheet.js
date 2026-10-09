@@ -18,6 +18,7 @@ import { SplittermondActiveEffect } from "module/activeEffect/index.ts";
 import { buildEffectCardContext, showInDefaultView } from "module/activeEffect/effectCardContext";
 import { applyStatusListSizing, BASELINE_HEIGHT } from "module/actor/sheets/statusListSizing.ts";
 import { isGenerated } from "module/activeEffect/effectBuilder";
+import { showDroppedEntry } from "module/util/showDroppedEntry";
 
 /**
  * @typedef {Object} StatusTabEffectContext
@@ -815,6 +816,13 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
      * @returns {Promise<ActiveEffect | null | undefined>}
      */
     async _onDropActiveEffect(event, effect) {
+        const droppedEffect = await this._createEffectCopy(event, effect);
+        if (droppedEffect) showDroppedEntry(this, "status", `[data-effect-uuid="${droppedEffect.uuid}"]`);
+        return droppedEffect;
+    }
+
+    /** @private */
+    async _createEffectCopy(event, effect) {
         const fromSameParent = effect.parent === this.actor || effect.parent?.parent === this.actor;
         if (isGenerated(effect) && !fromSameParent) {
             const payload = { ...effect.toObject(), type: "modifier", origin: this.actor.uuid };
@@ -868,7 +876,7 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 return this.actor.deleteEmbeddedDocuments("Item", [newDocument.id]);
             }
 
-            return newDocument.update({ system: { skill: selectedSkill.skill, skillLevel: selectedSkill.level } });
+            await newDocument.update({ system: { skill: selectedSkill.skill, skillLevel: selectedSkill.level } });
         }
         if (newDocument.type === "mastery") {
             const allowedSkills = splittermond.skillGroups.all;
@@ -891,7 +899,35 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
                 return this.actor.deleteEmbeddedDocuments("Item", [newDocument.id]);
             }
 
-            return newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
+            await newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
+        }
+        showDroppedEntry(this, this._getDropTab(newDocument.type), `[data-item-id="${newDocument.id}"]`);
+        return newDocument;
+    }
+
+    /**
+     * @param {import("module/config/itemTypes").ItemType} itemType
+     * @returns {string | undefined}
+     * @protected
+     */
+    _getDropTab(itemType) {
+        switch (itemType) {
+            case "weapon":
+            case "armor":
+            case "shield":
+            case "equipment":
+                return "inventory";
+            case "spell":
+                return "spells";
+            case "mastery":
+                return this.actor.type === "character" ? "skills" : "general";
+            case "statuseffect":
+            case "spelleffect":
+                return "status";
+            case "npcfeature":
+                return undefined;
+            default:
+                return "general";
         }
     }
 
