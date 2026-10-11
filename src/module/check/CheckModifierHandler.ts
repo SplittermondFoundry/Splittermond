@@ -7,12 +7,28 @@ import { type CheckSuccessState, successStates } from "module/check/modifyEvalua
 import { initMapper, LanguageMapper } from "module/util/LanguageMapper";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 import { validateMembered } from "module/check/validateMembered";
+import { modifierChoices } from "module/modifiers/ModifierConfig";
+
+export const checkTypes = ["attack", "spell", "defense", "skill"] as const;
+export const checkTypeChoices = modifierChoices(checkTypes, mapCheckTypes);
 
 export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
     static config: Config = makeConfig({
         topLevelPath: "check",
+        hideInHelper: true,
         subSegments: {
             result: {
+                description: "splittermond.modifierHelper.descriptions.checkResult",
+                helperAttributes: {
+                    type: {
+                        label: "splittermond.modifierHelper.checkType",
+                        hint: "splittermond.modifierHelper.attributes.checkType",
+                    },
+                },
+                attributeChoices: {
+                    category: modifierChoices(successStates, mapSuccessMessage),
+                    type: checkTypeChoices,
+                },
                 requiredAttributes: ["category"],
                 optionalAttributes: ["skill", "type"],
             },
@@ -99,7 +115,6 @@ function mapSuccessMessage(successState: CheckSuccessState): string {
     }
 }
 
-export const checkTypes = ["attack", "spell", "defense", "skill"] as const;
 export type CheckType = (typeof checkTypes)[number];
 
 export const checkTypeMapper: () => LanguageMapper<CheckType> = initMapper(checkTypes)

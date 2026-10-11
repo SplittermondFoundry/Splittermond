@@ -955,8 +955,10 @@ export function modifierTest(context: QuenchBatchContext) {
             await waitForItemEffects(modifierItems);
             await subject.prepareData();
 
-            expect((spells[0] as SplittermondSpellItem).damage).to.equal("6");
-            expect((spells[1] as SplittermondSpellItem).damage).to.equal("3");
+            await passesEventually(() => {
+                expect((spells[0] as SplittermondSpellItem).damage).to.equal("6");
+                expect((spells[1] as SplittermondSpellItem).damage).to.equal("3");
+            });
         });
 
         it("should respond to cast duration modifiers", async () => {

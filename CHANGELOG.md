@@ -2,6 +2,11 @@
 
 ### Features
 
+- Ein Modifikator-Helfer bietet an den Eingabefeldern eine Auswahl mit kurzen Erklärungen und passenden Attributen.
+  Für Ausrüstungsverbesserungen ergänzt er passende Zusatzmodifikatoren und weist auf Voraussetzungen und manuell zu berücksichtigende Wirkungen hin.
+  Merkmalsvorschläge berücksichtigen Waffen, Rüstungen und Schilde; der Objektname und begrenzte Stufenauswahlen werden passend vorbelegt.
+  Ungültige Zahlenwerte für Merkmalsstufen werden vor der Übernahme am Eingabefeld angezeigt.
+  Beim erneuten Öffnen einer Auswahl bleibt der gewählte Eintrag sichtbar, auch in eingeklappten Kategorien.
 - Multiplikatoren sorgen bei additiven Modifikatoren jetzt für Mehrfachanwendung statt Multiplikation.
   D.h. ein Statuseffekt Stufe 2 mit einem Schadensmodifikator produziert jetzt eval(2W6) statt 2 * eval(1W6)
 - Modifikatoren können jetzt über aktive Effekte gehandhabt werden
@@ -25,6 +30,7 @@
 
 ### Fixes
 
+- Der Modifikator-Helfer lässt sich auch über HTTP-Verbindungen ohne `crypto.randomUUID()` öffnen.
 - Sprachen können jetzt aus der Bibliothek auf Charakterbögen gezogen werden.
 - Neue Meisterschaften ohne Fertigkeit verwenden jetzt `null` statt einer leeren Zeichenfolge als Standardwert.
 - Die Schaltflächen von Proben- und Angriffsdialogen bleiben bei kleinen Fenstern auch mit vielen Modifikatoren erreichbar.
