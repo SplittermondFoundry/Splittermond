@@ -6,6 +6,8 @@ import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import sinon, { type SinonSandbox } from "sinon";
 import SplittermondItem from "module/item/item";
 import { FoundryActiveEffect } from "module/api/ActiveEffect";
+import { Modifier } from "module/modifiers/impl/modifier";
+import { of } from "module/modifiers/expressions/scalar";
 
 interface CostModifierSystem {
     readonly asCostModifiers: ICostModifier[];
@@ -102,6 +104,26 @@ describe("SplittermondActiveEffect", () => {
     });
 
     describe("getModifiers", () => {
+        [0, 1, 2, null].forEach((level) => {
+            it(`should ${level === 0 ? "exclude" : "include"} a required roll type from a status effect at level ${level}`, () => {
+                const item = sandbox.createStubInstance(SplittermondItem);
+                item.type = "statuseffect";
+                Object.assign(item, { system: { level } });
+                const modifier = Modifier.create("check.require", of(0), {
+                    name: "Angsterfüllt",
+                    type: "innate",
+                    rollType: "safety",
+                });
+                const effect = createEffect(sandbox, {
+                    type: "modifier",
+                    system: mockModifierSystem([modifier]),
+                    item,
+                });
+
+                expect(SplittermondActiveEffect.getModifiers([effect])).to.deep.equal(level === 0 ? [] : [modifier]);
+            });
+        });
+
         it("should collect modifiers from active, non-suppressed effects", () => {
             const modifier1 = mockModifier();
             const modifier2 = mockModifier();
