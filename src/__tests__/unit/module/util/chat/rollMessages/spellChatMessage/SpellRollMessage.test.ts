@@ -37,6 +37,17 @@ describe("SpellRollMessage", () => {
         expect(spellRollMessage?.getData()).to.not.be.undefined;
     });
 
+    for (const tickCost of [3, 5]) {
+        it(`displays and consumes the supplied release cost of ${tickCost} ticks`, async () => {
+            const message = createSpellRollMessage(sandbox, tickCost);
+            expect(message.getData().actions.advanceToken).to.deep.contain({ value: `${tickCost}` });
+
+            await message.handleGenericAction({ action: "advanceToken" });
+
+            expect(message.actorReference.getAgent().addTicks.calledOnceWithExactly(tickCost, "", false)).to.be.true;
+        });
+    }
+
     it("should filter degree of success options that are too expensive on render", () => {
         const spellRollMessage = createSpellRollMessage(sandbox);
         spellRollMessage.updateSource({ openDegreesOfSuccess: 0 });
@@ -388,31 +399,35 @@ describe("SpellRollMessage", () => {
     });
 });
 
-function createSpellRollMessage(sandbox: SinonSandbox) {
+function createSpellRollMessage(sandbox: SinonSandbox, tickCost = 3) {
     const mockSpell = setUpMockSpellSelfReference(sandbox);
     setNecessaryDefaultsForSpellproperties(mockSpell, sandbox);
     const mockActor = setUpMockActor(sandbox);
     linkSpellAndActor(mockSpell, mockActor);
     const spellRollMessage = withToObjectReturnsSelf(() => {
-        return SpellRollMessage.initialize(mockSpell, {
-            degreeOfSuccess: {
-                fromRoll: 0,
-                modification: 0,
-                limitedTo: 999,
+        return SpellRollMessage.initialize(
+            mockSpell,
+            {
+                degreeOfSuccess: {
+                    fromRoll: 0,
+                    modification: 0,
+                    limitedTo: 999,
+                },
+                degreeOfSuccessMessage: "Uma mensagem muito importante",
+                difficulty: 0,
+                defenseType: null,
+                hideDifficulty: false,
+                isCrit: false,
+                isFumble: false,
+                modifierElements: [],
+                roll: { dice: [], tooltip: "", total: 0 },
+                rollType: "standard",
+                skill: { attributes: {}, id: "deathmagic", points: 0 },
+                succeeded: true,
+                maneuvers: [],
             },
-            degreeOfSuccessMessage: "Uma mensagem muito importante",
-            difficulty: 0,
-            defenseType: null,
-            hideDifficulty: false,
-            isCrit: false,
-            isFumble: false,
-            modifierElements: [],
-            roll: { dice: [], tooltip: "", total: 0 },
-            rollType: "standard",
-            skill: { attributes: {}, id: "deathmagic", points: 0 },
-            succeeded: true,
-            maneuvers: [],
-        });
+            tickCost
+        );
     });
     injectParent(spellRollMessage);
     return spellRollMessage as unknown as WithMockedRefs<SpellRollMessage>; //TS cannot know that we injected mocks

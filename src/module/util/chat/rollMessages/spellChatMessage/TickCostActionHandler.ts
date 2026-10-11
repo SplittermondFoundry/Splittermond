@@ -53,6 +53,9 @@ export class TickCostActionHandler extends SplittermondDataModel<TickCostActionH
             .whenAllChecksPassed((degreeOfSuccessOptionData) => {
                 const multiplicity = Number.parseInt(degreeOfSuccessOptionData.multiplicity);
                 const option = this.options.forMultiplicity(multiplicity);
+                if (!option.isChecked() && this.reducesCostPastMinimum(option.effect)) {
+                    return { usedDegreesOfSuccess: 0, action() {} };
+                }
                 return {
                     usedDegreesOfSuccess: option.isChecked() ? -1 * option.cost : option.cost,
                     action: () => {
@@ -84,7 +87,8 @@ export class TickCostActionHandler extends SplittermondDataModel<TickCostActionH
     }
 
     private reducesCostPastMinimum(effect: number): boolean {
-        return this.baseTickCost - effect < 1;
+        const reduction = this.tickReduction + effect;
+        return reduction > 2 || this.baseTickCost - reduction < 1;
     }
 
     public readonly handlesActions = ["advanceToken"] as const;
@@ -92,7 +96,6 @@ export class TickCostActionHandler extends SplittermondDataModel<TickCostActionH
     useAction(actionData: any): Promise<void> {
         return configureUseAction()
             .withUsed(() => this.used)
-            .withIsOptionEvaluator(() => this.isOption)
             .withHandlesActions(this.handlesActions)
             .whenAllChecksPassed(() => {
                 this.updateSource({ used: true });
@@ -102,9 +105,6 @@ export class TickCostActionHandler extends SplittermondDataModel<TickCostActionH
     }
 
     renderActions(): ValuedAction[] {
-        if (!this.isOption) {
-            return [];
-        }
         return [
             {
                 type: "advanceToken",
