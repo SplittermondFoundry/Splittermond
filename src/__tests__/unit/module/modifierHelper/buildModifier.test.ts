@@ -73,6 +73,25 @@ describe("Modifier helper", () => {
         });
     }
 
+    for (const value of ["1.5", "-0.5", "+2.25", "1e-1"]) {
+        it(`rejects fractional magic fumble table steps: ${value}`, () => {
+            const error = sinon.spy();
+            expect(buildModifier(definition("lowerfumbleresult"), { value, attributes: {} }, error)).to.equal(null);
+            expect(error.calledOnceWithExactly("value", "splittermond.modifierHelper.errors.fumbleLevels")).to.equal(
+                true
+            );
+            expect(localize(error.firstCall.args[1])).not.to.include("splittermond.");
+        });
+    }
+
+    for (const value of ["1", "-2", "+3", "3.0", "${attributes.strength.value}", "1W6"]) {
+        it(`preserves supported magic fumble values: ${value}`, () => {
+            const raw = buildModifier(definition("lowerfumbleresult"), { value, attributes: { skill: "arcanelore" } });
+            expect(raw).not.to.equal(null);
+            expect(module.addModifier(source, raw!, "innate").hasErrors).to.equal(false);
+        });
+    }
+
     for (const value of ["", "2, defense 99", "2 skill=acrobatics", '"2" emphasis="hidden"']) {
         it(`rejects missing values or injected modifiers: ${value}`, () => {
             expect(buildModifier(definition("defense"), { value, attributes: {} })).to.equal(null);
@@ -91,6 +110,7 @@ describe("Modifier helper", () => {
         ["defense", "", {}, "value"],
         ["defense", "2, defense 99", {}, "value"],
         ["focus.reduction", "K1V5", {}, "value"],
+        ["lowerfumbleresult", "1.5", {}, "value"],
         ["item.damage", "2", { item: "123" }, "item"],
     ] as const) {
         it(`locates an unrepresentable ${path} input in the ${attribute} field`, () => {

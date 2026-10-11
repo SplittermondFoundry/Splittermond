@@ -314,7 +314,7 @@ describe("Modifier helper", () => {
         }
     });
 
-    for (const path of ["item.castDuration", "item.castDuration.multiplier"]) {
+    for (const path of ["item.castDuration", "item.castDuration.multiplier", "lowerfumbleresult"]) {
         it(`offers only regular spell skills for new ${path} filters`, async () => {
             const helper = new ModifierHelper({
                 definitions,
@@ -341,7 +341,9 @@ describe("Modifier helper", () => {
                 expect(context.preview).to.include(`skill="${skill}"`);
             }
         });
+    }
 
+    for (const path of ["item.castDuration", "item.castDuration.multiplier"]) {
         it(`orders duration controls before skill and object filters in ${path}`, async () => {
             const multiplier = path.endsWith("multiplier");
             const helper = new ModifierHelper({
@@ -414,6 +416,35 @@ describe("Modifier helper", () => {
                     itemType || undefined
                 );
             }
+        });
+    }
+
+    it("explains that fumble reduction moves magic table entries for sorcerers and priests", async () => {
+        const helper = new ModifierHelper({
+            definitions,
+            initial: "lowerfumbleresult +1",
+            validate: () => [],
+            apply: () => true,
+        });
+        const context = await helper._prepareContext({});
+        expect(context.description).to.include("Magiepatzertabelle");
+        expect(context.description).to.include("Tabellenstufen");
+        expect(context.description).to.include("Priester");
+        expect(context.fields.find((field) => field.key === "skill")!.hint).to.include("Arkane Kunde");
+    });
+
+    for (const path of ["focus.reduction", "focus.addition", "focus.enhancedReduction", "focus.enhancedAddition"]) {
+        it(`keeps ${path} suggestions within supported schools and explains the source skill restriction`, async () => {
+            const helper = new ModifierHelper({
+                definitions,
+                initial: `${path} K1V1`,
+                validate: () => [],
+                apply: () => true,
+            });
+            const field = (await helper._prepareContext({})).fields.find((field) => field.key === "skill")!;
+            expect(field.choices.map((choice) => choice.value)).to.have.members(skillGroups.magic);
+            expect(field.hint).to.include("Quellobjekt");
+            expect(field.hint).to.include("Fertigkeit");
         });
     }
 

@@ -103,7 +103,7 @@ describe("Modifier helper", () => {
                 const picker = helper.element.querySelector<HTMLDetailsElement>('[data-attribute-picker="skill"]');
                 expect(picker).not.to.equal(null);
                 const focus = entry.path.startsWith("focus.");
-                const grouped = !entry.path.startsWith("item.castDuration") && !focus;
+                const grouped = entry.helperAttributes?.skill?.groupChoices !== false;
                 if (!grouped) {
                     expect(picker!.querySelector("[data-category-heading]")).to.equal(null);
                     const visible = [...picker!.querySelectorAll<HTMLElement>("[data-picker-value]")].filter(

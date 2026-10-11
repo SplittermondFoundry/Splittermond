@@ -6,6 +6,7 @@
   Für Ausrüstungsverbesserungen ergänzt er passende Zusatzmodifikatoren und weist auf Voraussetzungen und manuell zu berücksichtigende Wirkungen hin.
   Merkmalsvorschläge berücksichtigen Waffen, Rüstungen und Schilde; der Objektname und begrenzte Stufenauswahlen werden passend vorbelegt.
   Ungültige Zahlenwerte für Merkmalsstufen werden vor der Übernahme am Eingabefeld angezeigt.
+  Bei der Magiepatzerreduktion werden nur Magieschulen und Arkane Kunde vorgeschlagen und Dezimalwerte abgewiesen.
   Beim erneuten Öffnen einer Auswahl bleibt der gewählte Eintrag sichtbar, auch in eingeklappten Kategorien.
 - Multiplikatoren sorgen bei additiven Modifikatoren jetzt für Mehrfachanwendung statt Multiplikation.
   D.h. ein Statuseffekt Stufe 2 mit einem Schadensmodifikator produziert jetzt eval(2W6) statt 2 * eval(1W6)

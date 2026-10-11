@@ -305,6 +305,7 @@
                 "required": "Bitte einen Wert angeben.",
                 "valueChoice": "Bitte einen der angebotenen Werte auswählen.",
                 "featureLevel": "Bitte eine positive ganze Zahl als Merkmalsstufe angeben.",
+                "fumbleLevels": "Bitte eine ganze Zahl als Anzahl der Tabellenstufen angeben.",
                 "attributeSyntax": "Dieser Text lässt sich nicht als Attribut übernehmen. Gleichheitszeichen, Zeilenumbrüche, reine Zahlen und gemischte Anführungszeichen sind hier nicht möglich.",
                 "valueSyntax": "Bitte genau eine Zahl, Würfelformel oder Referenz angeben, z. B. 2, 2W6+1 oder ${attributes.strength.value}.",
                 "costSyntax": "Ungültige Fokuskosten. Beispiel: K3V1 für insgesamt 3 kanalisierte Punkte, davon 1 verzehrt. Der verzehrte Anteil darf den Gesamtwert nicht überschreiten."
@@ -314,6 +315,8 @@
             "attributes": {
                 "skill": "Gilt nur für diese Fertigkeit. Ohne Auswahl gilt keine Fertigkeitsbeschränkung.",
                 "castDurationSkill": "Wirkt auf Zauber der gewählten Fertigkeit. Regulär sind das Magieschulen oder Arkane Kunde. Ohne Auswahl gilt keine Fertigkeitsbeschränkung.",
+                "magicFumbleSkill": "Gilt nur für Zauber der gewählten Magieschule oder Arkane Kunde. Ohne Auswahl gilt keine Fertigkeitsbeschränkung.",
+                "focusSkill": "Gilt nur für Zauber der gewählten Magieschule. Ohne Auswahl wird die Fertigkeit des Quellobjekts verwendet, sofern dort eine eingestellt ist. Andernfalls gilt keine Fertigkeitsbeschränkung.",
                 "attribute1": "Gilt nur für Fertigkeiten, die dieses Attribut verwenden, unabhängig von der Reihenfolge. Sind beide Attributfilter gesetzt, müssen beide zutreffen.",
                 "attribute2": "Gilt nur für Fertigkeiten, die dieses Attribut verwenden, unabhängig von der Reihenfolge. Sind beide Attributfilter gesetzt, müssen beide zutreffen.",
                 "emphasis": "Benannter Schwerpunkt; der Modifikator wird bei der Probe zur Auswahl angeboten.",
@@ -349,7 +352,7 @@
                 "resourceBonus": "Zusätzlicher Puffer für erschöpfte und verzehrte Punkte; gilt nicht für kanalisierte Punkte ({target}).",
                 "splinterpoints": "Ändert die maximale Anzahl der Splitterpunkte.",
                 "splinterpointBonus": "Erhöht den gewährten Probenbonus beim Einsatz eines Splitterpunkts. Es gilt der höchste passende Bonus einschließlich des Standardbonus.",
-                "lowerfumbleresult": "Senkt das Ergebnis auf der Patzertabelle um den Wert.",
+                "lowerfumbleresult": "Senkt das Ergebnis auf der Magiepatzertabelle um die angegebene Anzahl an Tabellenstufen. Gilt für Zauberer und Priester; Kampfpatzer werden nicht verändert.",
                 "bonuscap": "Ändert die Obergrenze für Boni aus Ausrüstung und Magie.",
                 "npcattacks": "Ändert die Angriffswerte von NSC.",
                 "damagereduction": "Ändert die allgemeine Schadensreduktion.",

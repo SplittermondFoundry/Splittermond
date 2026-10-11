@@ -20,6 +20,12 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
     const lowerFumbleResultHandler = SkillFilterHandler({
         topLevelPath: "lowerfumbleresult",
         description: "splittermond.modifierHelper.descriptions.lowerfumbleresult",
+        helperAttributes: {
+            skill: { hint: "splittermond.modifierHelper.attributes.magicFumbleSkill", groupChoices: false },
+        },
+        attributeChoices: {
+            skill: Object.entries(splittermond.spellSkillsOption).map(([value, label]) => ({ value, label })),
+        },
     });
     registry.addHandler(SkillHandler.config.topLevelPath, SkillHandler);
     registry.addHandler(ActorSkillHandler.config.topLevelPath, ActorSkillHandler);

@@ -1503,6 +1503,78 @@ export function modifierHelperTest(context: QuenchBatchContext) {
             );
         }
 
+        it(
+            "limits magic fumble choices, blocks fractional table steps and persists an Arcane Lore filter",
+            withActiveEffect(
+                { name: "Helper magic fumble", type: "modifier", system: { modifiers: [], costModifiers: [] } },
+                async (effect, actor) => {
+                    const sheet = effect.sheet as SplittermondActiveEffectConfig;
+                    try {
+                        await sheet.render(true);
+                        control<HTMLButtonElement>(sheet.element, "[data-action=modifier-helper]").click();
+                        await passesEventually(helperElement, 2000, 50);
+                        await selectModifier("lowerfumbleresult", "[name=modifierValue]");
+                        const picker = control<HTMLDetailsElement>(helperElement(), '[data-attribute-picker="skill"]');
+                        control<HTMLElement>(picker, "summary").click();
+                        expect(picker.querySelector('[data-picker-value="blades"]')).to.equal(null);
+                        expect(picker.querySelector('[data-picker-value="acrobatics"]')).to.equal(null);
+                        expect(picker.querySelector('[data-picker-value="firemagic"]')).not.to.equal(null);
+                        control<HTMLElement>(picker, '[data-picker-value="arcanelore"]').click();
+                        const value = control<HTMLInputElement>(helperElement(), "[name=modifierValue]");
+                        for (const invalid of ["1.5", "-0.5"]) {
+                            change(helperElement(), "[name=modifierValue]", invalid);
+                            expect(value.getAttribute("aria-invalid")).to.equal("true");
+                            expect(
+                                control<HTMLElement>(
+                                    helperElement(),
+                                    `[id="${value.getAttribute("aria-errormessage")}"]`
+                                ).textContent
+                            ).to.equal("Bitte eine ganze Zahl als Anzahl der Tabellenstufen angeben.");
+                            control<HTMLButtonElement>(helperElement(), "[data-action=applyModifier]").click();
+                            expect(document.body.contains(helperElement())).to.equal(true);
+                            expect(effect.system.modifiers).to.have.length(0);
+                        }
+                        change(helperElement(), "[name=modifierValue]", "2");
+                        expect(value.getAttribute("aria-invalid")).not.to.equal("true");
+                        const raw = 'lowerfumbleresult skill="arcanelore" +2';
+                        expect(control<HTMLOutputElement>(helperElement(), "output").value).to.equal(raw);
+                        control<HTMLButtonElement>(helperElement(), "[data-action=applyModifier]").click();
+                        await passesEventually(
+                            () => {
+                                expect(effect.getFlag("splittermond", "rawInput")).to.equal(raw);
+                                expect(effect.system.modifiers).to.have.length(1);
+                                expect(document.querySelector(".modifier-helper")).to.equal(null);
+                            },
+                            2500,
+                            50
+                        );
+                        expect(
+                            await actor.modifier
+                                .getForId("lowerfumbleresult")
+                                .withAttributeValuesOrAbsent("skill", "arcanelore")
+                                .getModifiers()
+                                .sum()
+                        ).to.equal(2);
+                        expect(
+                            await actor.modifier
+                                .getForId("lowerfumbleresult")
+                                .withAttributeValuesOrAbsent("skill", "firemagic")
+                                .getModifiers()
+                                .sum()
+                        ).to.equal(0);
+                        control<HTMLButtonElement>(sheet.element, "[data-action=modifier-helper]").click();
+                        await passesEventually(helperElement, 2000, 50);
+                        expect(
+                            control<HTMLElement>(helperElement(), '[data-attribute-picker="skill"] summary').textContent
+                        ).to.include("Arkane Kunde");
+                    } finally {
+                        await closeHelper();
+                        await sheet.close();
+                    }
+                }
+            )
+        );
+
         it("places the value above all filters for speed, defense tick cost and fumble result at wide and narrow widths", async () => {
             const input = document.createElement("input");
             const helper = openModifierHelper(
@@ -1531,10 +1603,11 @@ export function modifierHelperTest(context: QuenchBatchContext) {
                             );
                         }
                     }
-                    change(helper.element, "[data-attribute=skill]", "blades");
+                    const skill = path === "lowerfumbleresult" ? "firemagic" : "blades";
+                    change(helper.element, "[data-attribute=skill]", skill);
                     change(helper.element, "[name=modifierValue]", "-3");
                     expect(control<HTMLOutputElement>(helper.element, "output").value).to.equal(
-                        `${path} skill="blades" -3`
+                        `${path} skill="${skill}" -3`
                     );
                     expect(control<HTMLInputElement>(helper.element, "[name=modifierValue]")).to.equal(value);
                 }

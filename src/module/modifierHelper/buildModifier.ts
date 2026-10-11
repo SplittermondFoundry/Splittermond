@@ -52,6 +52,12 @@ export function buildModifier(
             (!Number.isInteger(numeric) || numeric <= 0)
         )
             return invalid("value", "featureLevel");
+        if (
+            definition.path.toLowerCase() === "lowerfumbleresult" &&
+            Number.isFinite(numeric) &&
+            !Number.isInteger(numeric)
+        )
+            return invalid("value", "fumbleLevels");
         const normalizedValue = Number.isFinite(numeric) ? String(numeric) : value;
         if (
             definition.valueChoices?.length &&
