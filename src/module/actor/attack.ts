@@ -410,7 +410,7 @@ export default class Attack {
     }
 
     private async getAfterRollTickCost(checkReport: CheckReport) {
-        const base = this.isRanged ? 3 : await this.weaponSpeedAsync();
+        const base = this.isRanged ? 3 + (await this.actor.tickMalus.calculate()) : await this.weaponSpeedAsync();
         const isCritSuccess =
             totalDegreesOfSuccess(checkReport) >= splittermond.check.degreeOfSuccess.criticalSuccessThreshold;
         const successReduction = isCritSuccess
