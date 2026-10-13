@@ -6,7 +6,16 @@ import { SplittermondBaseActorSheet, SplittermondBaseItemSheet } from "module/da
 
 declare const foundry: any;
 declare const canvas: any;
-declare const DocumentSheetConfig: any;
+declare const DocumentSheetConfig: {
+    getSheetClassesForSubType(
+        documentName: string,
+        subType: string
+    ): {
+        defaultClass: string;
+        defaultClasses: Record<string, string>;
+        sheetClasses: Record<string, string>;
+    };
+};
 const mergeObject = foundry.utils.mergeObject;
 
 export function apiUtilsTest(context: QuenchBatchContext) {
@@ -183,51 +192,68 @@ export function apiUtilsTest(context: QuenchBatchContext) {
     });
 
     describe("Sheet Registration", () => {
+        // Minification can give test and production sheets the same class name.
+        const scope = "splittermond-quench";
         class TestItemSheet extends SplittermondBaseItemSheet {}
         class TestActorSheet extends SplittermondBaseActorSheet {}
         class TestActiveEffectSheet extends BaseActiveEffectConfig {}
 
         it("registers and unregisters an item sheet", () => {
-            foundryApi.sheets.items.register("splittermond", TestItemSheet, {
+            const previous = foundryApi.utils.deepClone(
+                DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")
+            );
+            foundryApi.sheets.items.register(scope, TestItemSheet, {
                 types: ["projectile"],
                 makeDefault: false,
             });
 
-            expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).to.include(TestItemSheet);
+            try {
+                expect(
+                    DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile").sheetClasses
+                ).to.have.property(`${scope}.${TestItemSheet.name}`);
+            } finally {
+                foundryApi.sheets.items.unregister(scope, TestItemSheet, { types: ["projectile"] });
+            }
 
-            foundryApi.sheets.items.unregister("splittermond", TestItemSheet);
-
-            expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).not.to.include(TestItemSheet);
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).to.deep.equal(previous);
         });
 
         it("registers and unregisters an actor sheet", () => {
-            foundryApi.sheets.actors.register("splittermond", TestActorSheet, {
+            const previous = foundryApi.utils.deepClone(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc"));
+            foundryApi.sheets.actors.register(scope, TestActorSheet, {
                 types: ["npc"],
                 makeDefault: false,
             });
 
-            expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).to.include(TestActorSheet);
+            try {
+                expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc").sheetClasses).to.have.property(
+                    `${scope}.${TestActorSheet.name}`
+                );
+            } finally {
+                foundryApi.sheets.actors.unregister(scope, TestActorSheet, { types: ["npc"] });
+            }
 
-            foundryApi.sheets.actors.unregister("splittermond", TestActorSheet);
-
-            expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).not.to.include(TestActorSheet);
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).to.deep.equal(previous);
         });
 
         it("registers and unregisters an active effect sheet", () => {
-            foundryApi.sheets.activeEffects.register("splittermond", TestActiveEffectSheet, {
+            const previous = foundryApi.utils.deepClone(
+                DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")
+            );
+            foundryApi.sheets.activeEffects.register(scope, TestActiveEffectSheet, {
                 types: ["base"],
                 makeDefault: false,
             });
 
-            expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")).to.include(
-                TestActiveEffectSheet
-            );
+            try {
+                expect(
+                    DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base").sheetClasses
+                ).to.have.property(`${scope}.${TestActiveEffectSheet.name}`);
+            } finally {
+                foundryApi.sheets.activeEffects.unregister(scope, TestActiveEffectSheet, { types: ["base"] });
+            }
 
-            foundryApi.sheets.activeEffects.unregister("splittermond", TestActiveEffectSheet);
-
-            expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")).not.to.include(
-                TestActiveEffectSheet
-            );
+            expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")).to.deep.equal(previous);
         });
     });
 }

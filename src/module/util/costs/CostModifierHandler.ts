@@ -4,7 +4,7 @@ import { times as timesCost } from "module/modifiers/expressions/cost";
 import { type Expression, of } from "module/modifiers/expressions/scalar";
 import type { FocusModifier, Value } from "module/modifiers/parsing";
 import { ModifierHandler, type ModifierType } from "module/modifiers";
-import { makeConfig } from "module/modifiers/ModifierConfig";
+import { makeConfig, modifierChoices } from "module/modifiers/ModifierConfig";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { splittermond } from "module/config";
 import { isMember } from "module/util/util";
@@ -21,17 +21,74 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     }
     static config = makeConfig({
         topLevelPath: "focus",
+        hideInHelper: true,
         subSegments: {
             reduction: {
+                description: "splittermond.modifierHelper.descriptions.focusReduction",
+                helperAttributes: {
+                    skill: { hint: "splittermond.modifierHelper.attributes.focusSkill", groupChoices: false },
+                    type: {
+                        label: "splittermond.modifierHelper.spellType",
+                        hint: "splittermond.modifierHelper.attributes.costType",
+                    },
+                },
+                attributeChoices: {
+                    skill: modifierChoices(
+                        splittermond.skillGroups.magic,
+                        (value) => `splittermond.skillLabel.${value}`
+                    ),
+                },
                 optionalAttributes: ["skill", "type"],
             },
             addition: {
+                description: "splittermond.modifierHelper.descriptions.focusAddition",
+                helperAttributes: {
+                    skill: { hint: "splittermond.modifierHelper.attributes.focusSkill", groupChoices: false },
+                    type: {
+                        label: "splittermond.modifierHelper.spellType",
+                        hint: "splittermond.modifierHelper.attributes.costType",
+                    },
+                },
+                attributeChoices: {
+                    skill: modifierChoices(
+                        splittermond.skillGroups.magic,
+                        (value) => `splittermond.skillLabel.${value}`
+                    ),
+                },
                 optionalAttributes: ["skill", "type"],
             },
             enhancedReduction: {
+                description: "splittermond.modifierHelper.descriptions.enhancedReduction",
+                helperAttributes: {
+                    skill: { hint: "splittermond.modifierHelper.attributes.focusSkill", groupChoices: false },
+                    type: {
+                        label: "splittermond.modifierHelper.spellType",
+                        hint: "splittermond.modifierHelper.attributes.costType",
+                    },
+                },
+                attributeChoices: {
+                    skill: modifierChoices(
+                        splittermond.skillGroups.magic,
+                        (value) => `splittermond.skillLabel.${value}`
+                    ),
+                },
                 optionalAttributes: ["skill", "type"],
             },
             enhancedAddition: {
+                description: "splittermond.modifierHelper.descriptions.enhancedAddition",
+                helperAttributes: {
+                    skill: { hint: "splittermond.modifierHelper.attributes.focusSkill", groupChoices: false },
+                    type: {
+                        label: "splittermond.modifierHelper.spellType",
+                        hint: "splittermond.modifierHelper.attributes.costType",
+                    },
+                },
+                attributeChoices: {
+                    skill: modifierChoices(
+                        splittermond.skillGroups.magic,
+                        (value) => `splittermond.skillLabel.${value}`
+                    ),
+                },
                 optionalAttributes: ["skill", "type"],
             },
         },

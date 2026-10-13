@@ -6,7 +6,7 @@ import { Expression as ScalarExpression, of } from "./expressions/scalar";
 import { Modifier } from "module/activeEffect";
 import type { ModifierRegistry } from "module/modifiers/ModifierRegistry";
 import { withErrorLogger } from "module/modifiers/parsing/valueProcessor";
-import { ParseErrors } from "module/modifiers/parsing/ParseErrors";
+import { ParseErrors, type ModifierDiagnostic } from "module/modifiers/parsing/ParseErrors";
 import type { IModifier, ModifierType } from "module/modifiers/index";
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
 import type { ActorProvider } from "module/modifiers/expressions/ActorProvider";
@@ -27,6 +27,7 @@ export interface AddModifierResult {
     modifiers: TaggedModifier[];
     costModifiers: TaggedCostModifier[];
     hasErrors: boolean;
+    diagnostics?: readonly ModifierDiagnostic[];
 }
 
 export function initAddModifier(
@@ -38,10 +39,10 @@ export function initAddModifier(
         const costModifiers: TaggedCostModifier[] = [];
 
         if (str == "") {
-            return { modifiers, costModifiers, hasErrors: false };
+            return { modifiers, costModifiers, hasErrors: false, diagnostics: [] };
         }
         const allErrors = new ParseErrors(str, item.name);
-        const { processCostValue, processScalarValue } = withErrorLogger(allErrors);
+        const { processCostValue, processScalarValue } = withErrorLogger(allErrors.withAttribute("value"));
         const parsedResult = parseModifiers(str);
         allErrors.push(...parsedResult.errors);
         const handlerCache = registry.getCache(allErrors.consumer, item, type);
@@ -127,7 +128,7 @@ export function initAddModifier(
         // Only display errors to the GM or the owner of the item
         // Otherwise players might get spoilers
         if (item.isOwner) allErrors.printAll();
-        return { modifiers, costModifiers, hasErrors: allErrors.hasErrors };
+        return { modifiers, costModifiers, hasErrors: allErrors.hasErrors, diagnostics: allErrors.diagnostics };
     };
 }
 

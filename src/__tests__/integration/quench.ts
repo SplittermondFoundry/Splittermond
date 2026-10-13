@@ -4,6 +4,7 @@ import { DamageProcessingTest } from "./DamageProcessingTest";
 import type { Quench, QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
 import { combatTest } from "./combat.test";
 import { activeEffectTest } from "./activeEffectConfig.test";
+import { modifierHelperTest } from "./modifierHelper.test";
 import { compendiumEffectAssignmentTest } from "./compendiumEffectAssignment.test";
 import { registerApiBatches } from "./api";
 import { registerMigrationBatches } from "./migrations";
@@ -33,6 +34,7 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.chatSystem", chatActionFeatureTest);
     quench.registerBatch("splittermond.damageProcessing", DamageProcessingTest);
     quench.registerBatch("splittermond.activeEffectConfig", activeEffectTest);
+    quench.registerBatch("splittermond.modifierHelper", modifierHelperTest);
     quench.registerBatch("splittermond.compendiumEffectAssignment", compendiumEffectAssignmentTest);
     console.groupEnd();
 }

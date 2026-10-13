@@ -6,6 +6,7 @@ import type { CostExpression } from "module/modifiers/expressions/cost";
 import type { Expression } from "module/modifiers/expressions/scalar";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import type { IModifier } from "module/modifiers/index";
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 
 export type AnyModifier = ScalarModifier | FocusModifier;
 
@@ -13,8 +14,8 @@ type ExpressionType<T extends AnyModifier> = T["value"] & (Expression | CostExpr
 type ResultType<T extends AnyModifier> = T extends ScalarModifier ? IModifier : ICostModifier;
 export abstract class ModifierHandler<TYPE extends AnyModifier> {
     constructor(
-        private readonly logErrors: (...messages: string[]) => void,
-        private readonly config: Config
+        private readonly logErrors: ModifierErrorLogger,
+        readonly config: Config
     ) {}
 
     processModifier(modifier: TYPE): ResultType<TYPE>[] {
@@ -67,7 +68,8 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
         Object.keys(modifier.attributes)
             .filter((key) => !knownAttributes.includes(key))
             .forEach((key) => {
-                this.logErrors(
+                this.logAttributeError(
+                    key,
                     foundryApi.format("splittermond.modifiers.parseMessages.unknownDescriptor", {
                         groupId: modifier.path,
                         attribute: key,
@@ -85,13 +87,15 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     }
 
     private reportMissingAttributeError(modifier: TYPE, pathConfig: ConfigSegment) {
-        const failedValidations = this.findMissingAttributes(modifier, pathConfig).map((attributeKey) =>
-            foundryApi.format("splittermond.modifiers.parseMessages.missingDescriptor", {
-                groupId: modifier.path,
-                attribute: attributeKey,
-            })
+        this.findMissingAttributes(modifier, pathConfig).forEach((attributeKey) =>
+            this.logAttributeError(
+                attributeKey,
+                foundryApi.format("splittermond.modifiers.parseMessages.missingDescriptor", {
+                    groupId: modifier.path,
+                    attribute: attributeKey,
+                })
+            )
         );
-        this.logErrors(...failedValidations);
     }
 
     private findMissingAttributes(modifier: TYPE, config: ConfigSegment) {
@@ -100,9 +104,15 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
         );
     }
 
-    protected reportInvalidDescriptor(path: string, descriptorName: string, descriptorValue: string | undefined) {
-        this.logErrors(
-            foundryApi.format("splittermond.modifiers.parseMessages.invalidDescriptorValue", {
+    protected reportInvalidDescriptor(
+        path: string,
+        descriptorName: string,
+        descriptorValue: string | undefined,
+        options: { messageKey?: string } = {}
+    ) {
+        this.logAttributeError(
+            descriptorName,
+            foundryApi.format(options.messageKey ?? "splittermond.modifiers.parseMessages.invalidDescriptorValue", {
                 groupId: path,
                 attribute: descriptorName,
                 value: descriptorValue ?? "",
@@ -117,5 +127,10 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
             return false;
         }
         return true;
+    }
+
+    private logAttributeError(attribute: string, message: string) {
+        if (this.logErrors.forAttribute) this.logErrors.forAttribute(attribute, message);
+        else this.logErrors(message);
     }
 }

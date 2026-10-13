@@ -8,6 +8,8 @@ import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
 import { SplittermondBaseItemSheet } from "module/data/SplittermondApplication";
 import { foundryApi } from "module/api/foundryApi";
 import { splittermond } from "module/config";
+import { createHtml } from "../../../../handlebarHarness";
+import { JSDOM } from "jsdom";
 
 function makeEffect(opts: {
     id?: string;
@@ -76,6 +78,67 @@ function makeSpellSheet(effects: ReturnType<typeof makeEffect>[], enricher?: Sin
         resolvedEnricher
     );
 }
+
+describe("Item property modifier helper", () => {
+    class PropertySheet extends SplittermondItemSheet {
+        prepare() {
+            return this._prepareContext({});
+        }
+    }
+
+    const sandbox = sinon.createSandbox();
+    beforeEach(() => {
+        sandbox
+            .stub(SplittermondBaseItemSheet.prototype, "_prepareContext" as keyof SplittermondBaseItemSheet)
+            .resolves({});
+        sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+        sandbox.stub(foundryApi.utils, "deepClone").callsFake((value) => structuredClone(value));
+    });
+    afterEach(() => sandbox.restore());
+
+    for (const type of [
+        "weapon",
+        "shield",
+        "armor",
+        "equipment",
+        "strength",
+        "statuseffect",
+        "spelleffect",
+        "mastery",
+        "npcfeature",
+        "culturelore",
+    ]) {
+        for (const isOwner of [true, false]) {
+            it(`renders the helper beside the ${type} modifier only for its owner: ${isOwner}`, async () => {
+                const item = { type, isOwner, system: { modifier: "defense +1" } };
+                const sheet = new PropertySheet(
+                    { document: item },
+                    (_document: unknown, field: string) =>
+                        field === "system.modifier" ? item.system.modifier : undefined,
+                    undefined,
+                    undefined,
+                    async () => ""
+                );
+                const context = await sheet.prepare();
+                context.itemProperties = context.itemProperties.map((group) => ({
+                    ...group,
+                    properties: group.properties.filter((property) => property.template === "input"),
+                }));
+                const dom = new JSDOM(createHtml("templates/sheets/item/properties.hbs", context));
+                try {
+                    const input = dom.window.document.querySelector<HTMLInputElement>('[name="system.modifier"]')!;
+                    expect(input.value).to.equal("defense +1");
+                    expect(
+                        dom.window.document.querySelectorAll('[data-action="modifier-helper-property"]')
+                    ).to.have.length(isOwner ? 1 : 0);
+                    if (isOwner) expect(input.parentElement!.querySelector("button")).not.to.equal(null);
+                } finally {
+                    dom.window.close();
+                }
+            });
+        }
+    }
+});
 
 describe("SplittermondItemEffectsSheet — effects part context", () => {
     let sandbox: SinonSandbox;

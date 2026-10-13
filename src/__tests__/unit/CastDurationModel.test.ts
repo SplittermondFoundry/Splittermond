@@ -253,6 +253,19 @@ describe("CastDurationModel", () => {
             });
         });
 
+        for (const skill of ["arcanelore", "firemagic", "acrobatics"] as const) {
+            it(`applies additive and multiplicative duration filters to a spell using ${skill}`, async () => {
+                const model = createModel(sandbox, { value: 10, unit: "T" });
+                model.parent?.updateSource({ skill });
+                const manager = model.document.actor.modifier;
+                const attributes = { skill, name: "TestMod", type: "innate" as const };
+                manager.add("item.castDuration", { ...attributes, unit: "T" }, of(-2));
+                expect(await model.inTicks()).to.equal(8);
+                manager.add("item.castDuration.multiplier", attributes, of(2));
+                expect(await model.inTicks()).to.equal(18);
+            });
+        }
+
         it("should handle cast duration multiplier", async () => {
             const model = createModel(sandbox, { value: 10, unit: "T" });
             const modifierManager = model.document.actor.modifier;

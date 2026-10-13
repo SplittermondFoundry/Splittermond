@@ -1,8 +1,28 @@
+export interface ModifierChoice {
+    value: string;
+    label: string;
+}
+
 export interface ConfigSegment {
     requiredAttributes: string[];
     optionalAttributes: string[];
     requiresValue: boolean;
-    subSegments?: Record<string, any>;
+    subSegments?: Record<string, ConfigSegment>;
+    description?: string;
+    hideInHelper?: boolean;
+    helperAlias?: string;
+    attributeChoices?: Record<string, readonly ModifierChoice[]>;
+    valueChoices?: readonly ModifierChoice[];
+    // true retains existing values for editing; "always" also omits the attribute from helper output.
+    helperAttributes?: Record<
+        string,
+        { label?: string; hint?: string; hidden?: boolean | "always"; groupChoices?: boolean }
+    >;
+    helperGroup?: { path: string; attribute: string; choice: ModifierChoice };
+}
+
+export function modifierChoices<T extends string>(values: readonly T[], label: (value: T) => string): ModifierChoice[] {
+    return values.map((value) => ({ value, label: label(value) }));
 }
 
 export type Config = { readonly topLevelPath: string } & Readonly<ConfigSegment>;
@@ -29,9 +49,11 @@ export function makeConfig<CONFIG extends PartialConfig>(
 
 function makeSubSegments<T extends Record<string, any>>(
     proto: T
-): { readonly [K in keyof T]: Readonly<T[K] & ConfigSegment> } {
+): Record<string, ConfigSegment> & { readonly [K in keyof T]: Readonly<T[K] & ConfigSegment> } {
     const mappedEntries = Object.entries(proto).map(([key, value]) => [key, makeConfigSegment(value)]);
-    return Object.fromEntries(mappedEntries) as { readonly [K in keyof T]: Readonly<T[K] & ConfigSegment> };
+    return Object.fromEntries(mappedEntries) as Record<string, ConfigSegment> & {
+        readonly [K in keyof T]: Readonly<T[K] & ConfigSegment>;
+    };
 }
 
 function makeConfigSegment<SEGMENT extends Record<string, any>>(proto: SEGMENT): Readonly<SEGMENT & ConfigSegment> {

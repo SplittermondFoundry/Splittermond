@@ -7,6 +7,8 @@ import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
+const spellSkillChoices = Object.entries(splittermond.spellSkillsOption).map(([value, label]) => ({ value, label }));
+
 export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
     constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
         super(logErrors, ItemModifierHandler.config, sourceItem, modifierType);
@@ -14,29 +16,52 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
 
     static config = makeConfig({
         topLevelPath: "item",
+        hideInHelper: true,
         subSegments: {
             damage: {
+                description: "splittermond.modifierHelper.descriptions.itemDamage",
+                helperAttributes: { features: { label: "splittermond.modifierHelper.damageFeatures" } },
                 optionalAttributes: ["item", "damageType", "itemType", "features", "skill", "spellType"],
             },
             weaponspeed: {
+                description: "splittermond.modifierHelper.descriptions.weaponSpeed",
                 optionalAttributes: ["item", "itemType", "skill"],
             },
             defenseTickCost: {
+                description: "splittermond.modifierHelper.descriptions.defenseTickCost",
                 optionalAttributes: ["defenseType", "item", "itemType", "skill"],
             },
             mergeFeature: {
+                description: "splittermond.modifierHelper.descriptions.mergeFeature",
                 requiredAttributes: ["feature"],
                 optionalAttributes: ["item", "itemType", "skill"],
             },
             addFeature: {
+                description: "splittermond.modifierHelper.descriptions.addFeature",
                 requiredAttributes: ["feature"],
                 optionalAttributes: ["item", "itemType", "skill"],
             },
             castDuration: {
+                description: "splittermond.modifierHelper.descriptions.castDuration",
+                // Cast duration is only consumed by spells; retain the parser attribute for existing input.
+                helperAttributes: {
+                    itemType: { hidden: true },
+                    skill: { hint: "splittermond.modifierHelper.attributes.castDurationSkill", groupChoices: false },
+                },
+                attributeChoices: { skill: spellSkillChoices },
                 requiredAttributes: ["unit"],
                 optionalAttributes: ["item", "itemType", "skill"],
                 subSegments: {
                     multiplier: {
+                        description: "splittermond.modifierHelper.descriptions.castDurationMultiplier",
+                        helperAttributes: {
+                            itemType: { hidden: true },
+                            skill: {
+                                hint: "splittermond.modifierHelper.attributes.castDurationSkill",
+                                groupChoices: false,
+                            },
+                        },
+                        attributeChoices: { skill: spellSkillChoices },
                         optionalAttributes: ["item", "itemType", "skill"],
                     },
                 },
@@ -58,7 +83,9 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
             return true;
         }
         if ("item" in modifier.attributes) {
-            this.reportInvalidDescriptor(modifier.path, "spellType", attributes.spellType ?? undefined);
+            this.reportInvalidDescriptor(modifier.path, "spellType", attributes.spellType ?? undefined, {
+                messageKey: "splittermond.modifiers.parseMessages.spellTypeWithItem",
+            });
             return false;
         }
         if ("skill" in modifier.attributes) {
@@ -66,7 +93,9 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
             const isValidSpellSkill = skill === "arcanelore" || isMember(splittermond.skillGroups.magic, skill);
             if (!isValidSpellSkill) {
                 if (isMember(splittermond.skillGroups.all, skill)) {
-                    this.reportInvalidDescriptor(modifier.path, "skill", skill);
+                    this.reportInvalidDescriptor(modifier.path, "skill", skill, {
+                        messageKey: "splittermond.modifiers.parseMessages.spellTypeWithSkill",
+                    });
                 }
                 return false;
             }
