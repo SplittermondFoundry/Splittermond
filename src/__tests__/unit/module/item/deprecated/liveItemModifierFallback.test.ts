@@ -176,6 +176,30 @@ describe("applyLiveItemModifiers", () => {
         expect(actor.addedModifiers).to.deep.equal([]);
     });
 
+    it("does not register modifier strings from legacy status items at level 0", () => {
+        const actor = makeActor();
+        const modifier = 'check.require rollType="safety"';
+        const item = makeItem("statuseffect", { modifier, level: 0 }, actor);
+
+        applyLiveItemModifiers(item);
+
+        expect(actor.addModifier.called).to.be.false;
+        expect(actor.addedModifiers).to.deep.equal([]);
+    });
+
+    [1, 2, null].forEach((level) => {
+        it(`registers modifier strings from legacy status items at level ${level}`, () => {
+            const actor = makeActor();
+            const modifier = 'check.require rollType="safety"';
+            const item = makeItem("statuseffect", { modifier, level }, actor);
+
+            applyLiveItemModifiers(item);
+
+            expect(actor.addModifier.calledOnceWith(item, modifier, "innate", level ?? 1)).to.be.true;
+            expect(actor.addedModifiers).to.deep.equal([]);
+        });
+    });
+
     it("substitutes ${skill} and ${name} on masteries before parsing", () => {
         const actor = makeActor(10);
         const item = makeItem(
