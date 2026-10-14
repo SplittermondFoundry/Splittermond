@@ -39,11 +39,14 @@ async function createToken(actor: SplittermondActor, scene: FoundryScene) {
     )[0] as TokenDocument;
 }
 
-export function withActor<P extends Array<any>, R>(fn: (actor: SplittermondActor, ...args: P) => Promise<R>) {
+export function withActor<P extends Array<any>, R>(
+    fn: (actor: SplittermondActor, ...args: P) => Promise<R>,
+    actorFactory: () => Promise<SplittermondActor> = createActor
+) {
     return async (...args: P) => {
-        const actor = await createActor();
+        const actor = await actorFactory();
         try {
-            return await fn(actor as SplittermondActor, ...args);
+            return await fn(actor, ...args);
         } finally {
             await Actor.deleteDocuments([actor.id]);
         }

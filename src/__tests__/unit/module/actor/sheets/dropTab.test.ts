@@ -15,6 +15,12 @@ import { MasteryDataModel } from "module/item/dataModel/MasteryDataModel";
 import { SplittermondActiveEffect } from "module/activeEffect";
 import { itemTypes, type ItemType } from "module/config/itemTypes";
 
+class TabRoutingSheet extends SplittermondCharacterSheet {
+    getDropTab(itemType: ItemType) {
+        return this._getDropTab(itemType);
+    }
+}
+
 describe("Actor sheet tabs after item drops", () => {
     const sandbox = sinon.createSandbox();
     const event = new Event("drop") as DragEvent;
@@ -48,6 +54,14 @@ describe("Actor sheet tabs after item drops", () => {
         sandbox.stub(foundryApi, "informUser");
     });
     afterEach(() => sandbox.restore());
+
+    for (const type of ["moonsign", "projectile"] as const) {
+        it(`has no destination tab for ${type}`, () => {
+            const actor = sandbox.createStubInstance(SplittermondActor);
+            const sheet = new TabRoutingSheet({ document: actor });
+            expect(sheet.getDropTab(type), `${type} has no destination tab section`).to.be.undefined;
+        });
+    }
 
     function droppedItem(type: ItemType, configured = true) {
         const item = sandbox.createStubInstance(SplittermondItem);

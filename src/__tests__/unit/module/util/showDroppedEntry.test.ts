@@ -27,7 +27,7 @@ describe("showDroppedEntry", () => {
 
     function addRow() {
         sheet.element.innerHTML =
-            '<section data-tab="effects"><li class="effect-card" data-effect-id="new"></li></section>';
+            '<section data-tab="effects"><ol class="effects-list"><li class="effect-card" data-effect-id="new"></li></ol></section>';
         const row = sheet.element.querySelector("li")!;
         const scroll = sandbox.stub();
         const animate = sandbox.stub();
@@ -43,8 +43,8 @@ describe("showDroppedEntry", () => {
         showDroppedEntry(sheet, "effects", '[data-effect-id="new"]');
         expect(changeTab.firstCall.args).to.deep.equal(["effects", "primary", { force: true }]);
         sinon.assert.callOrder(changeTab, scroll, animate);
-        expect(render.called).to.be.false;
-        expect(addEventListener.called).to.be.false;
+        expect(render.called, "Revealing an existing row must not request another render").to.be.false;
+        expect(addEventListener.called, "An existing row needs no pending render listener").to.be.false;
     });
 
     for (const alreadyRendered of [true, false]) {
@@ -53,7 +53,9 @@ describe("showDroppedEntry", () => {
             const changeTab = sandbox.stub(sheet, "changeTab");
             const render = sandbox.spy(sheet, "render");
             showDroppedEntry(sheet, "effects", '[data-effect-id="new"]');
-            if (!alreadyRendered) expect(changeTab.called).to.be.false;
+            if (!alreadyRendered) {
+                expect(changeTab.called, "Tab activation must wait until the pending render finishes").to.be.false;
+            }
 
             // A queued render can still precede the document update that adds the row.
             events.dispatchEvent(new Event("render"));
@@ -63,8 +65,8 @@ describe("showDroppedEntry", () => {
             const changes = changeTab.callCount;
             events.dispatchEvent(new Event("render"));
             expect(changeTab.callCount).to.equal(changes);
-            expect(animate.calledOnce).to.be.true;
-            expect(render.called).to.be.false;
+            expect(animate.calledOnce, "The new row is highlighted once, even after subsequent renders").to.be.true;
+            expect(render.called, "Waiting for a document update must not request another render").to.be.false;
             expect(removeEventListener.args.map(([type]) => type)).to.deep.equal(["render", "close"]);
         });
     }
@@ -77,7 +79,7 @@ describe("showDroppedEntry", () => {
         const { animate } = addRow();
         rendered = true;
         events.dispatchEvent(new Event("render"));
-        expect(changeTab.called).to.be.false;
-        expect(animate.called).to.be.false;
+        expect(changeTab.called, "Closing the sheet must cancel pending tab activation").to.be.false;
+        expect(animate.called, "Closing the sheet must cancel pending highlighting").to.be.false;
     });
 });

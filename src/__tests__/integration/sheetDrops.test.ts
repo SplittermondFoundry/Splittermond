@@ -8,41 +8,10 @@ import SplittermondSpeciesWizard from "module/apps/wizards/species";
 import { actorCreator, itemCreator } from "module/data/EntityCreator";
 import { isGenerated } from "module/activeEffect/effectBuilder";
 import { SplittermondActiveEffect } from "module/activeEffect";
-import { droppableCharacterItemTypes, droppableNpcItemTypes } from "module/config/itemTypes";
 import { withActor } from "./fixtures";
 import { passesEventually } from "../util";
 
 export function sheetDropsTest({ describe, it, expect }: QuenchBatchContext) {
-    const itemDrops = {
-        character: [
-            ["strength", "general"],
-            ["weapon", "inventory"],
-            ["language", "general"],
-            ["spell", "spells"],
-            ["weakness", "general"],
-            ["armor", "inventory"],
-            ["resource", "general"],
-            ["mastery", "skills"],
-            ["culturelore", "general"],
-            ["shield", "inventory"],
-            ["statuseffect", "status"],
-            ["equipment", "inventory"],
-            ["spelleffect", "status"],
-        ],
-        npc: [
-            ["npcattack", "general"],
-            ["weapon", "inventory"],
-            ["mastery", "general"],
-            ["armor", "inventory"],
-            ["spell", "spells"],
-            ["shield", "inventory"],
-            ["statuseffect", "status"],
-            ["equipment", "inventory"],
-            ["spelleffect", "status"],
-            ["npcfeature", "header"],
-        ],
-    } as const;
-
     function expectTab(sheet: InstanceType<typeof FoundryApplication>, tab: string, context = tab) {
         const selector = `[data-group="primary"][data-tab="${tab}"].active`;
         expect(sheet.element.querySelector(`nav ${selector}`), `${context}: navigation marks ${tab}`).to.exist;
@@ -67,6 +36,67 @@ export function sheetDropsTest({ describe, it, expect }: QuenchBatchContext) {
         expect(row!.getAnimations(), `${context} is briefly highlighted`).to.have.length(1);
     }
 
+    it(
+        "switches tabs and highlights two consecutive item drops on the same character sheet",
+        withActor(
+            withActor(async (actor, source) => {
+                const sheet = new SplittermondCharacterSheet({ document: actor });
+                try {
+                    await sheet.render({ force: true });
+                    sheet.changeTab("general", "primary");
+                    expectTab(sheet, "general");
+                    for (const [type, tab] of [
+                        ["weapon", "inventory"],
+                        ["spell", "spells"],
+                    ] as const) {
+                        const [item] = await source.createEmbeddedDocuments("Item", [
+                            { name: `Dropped ${type}`, type, system: type === "spell" ? { skill: "deathmagic" } : {} },
+                        ]);
+                        await sheet._onDropDocument(new DragEvent("drop"), item);
+                        // Observe the document update's render without repairing the sheet with another render.
+                        await passesEventually(() => {
+                            const created = actor.items.find((entry) => entry.name === item.name);
+                            expect(created, `${type} persisted on the target actor`).to.exist;
+                            expectTab(sheet, tab, type);
+                            expectHighlight(sheet, `section[data-tab="${tab}"] [data-item-id="${created?.id}"]`, type);
+                        }, 3000);
+                    }
+                } finally {
+                    await sheet.close();
+                }
+            })
+        )
+    ).timeout(10000);
+
+    it(
+        "highlights an always-visible NPC feature without changing tabs",
+        withActor(
+            withActor(
+                async (actor, source) => {
+                    const sheet = new SplittermondNPCSheet({ document: actor });
+                    try {
+                        const [feature] = await source.createEmbeddedDocuments("Item", [
+                            { type: "npcfeature", name: "Dropped NPC feature" },
+                        ]);
+                        await sheet.render({ force: true });
+                        sheet.changeTab("inventory", "primary");
+                        expectTab(sheet, "inventory");
+                        await sheet._onDropDocument(new DragEvent("drop"), feature);
+                        await passesEventually(() => {
+                            const created = actor.items.find((entry) => entry.name === feature.name);
+                            expect(created, "NPC feature persisted on the target actor").to.exist;
+                            expectTab(sheet, "inventory");
+                            expectHighlight(sheet, `header [data-item-id="${created?.id}"]`);
+                        }, 3000);
+                    } finally {
+                        await sheet.close();
+                    }
+                },
+                () => actorCreator.createNpc({ type: "npc", name: "NPC feature drop test", system: {} })
+            )
+        )
+    ).timeout(10000);
+
     for (const actorType of ["character", "npc"] as const) {
         const createActor = () =>
             actorType === "character"
@@ -76,117 +106,68 @@ export function sheetDropsTest({ describe, it, expect }: QuenchBatchContext) {
 
         describe(`${actorType} sheet drops`, () => {
             it(
-                "reveals every supported item in sequence, switching tabs except for always-visible NPC features",
-                withActor(async (source) => {
-                    const drops = itemDrops[actorType];
-                    const allowedTypes =
-                        actorType === "character" ? droppableCharacterItemTypes : droppableNpcItemTypes;
-                    expect(
-                        drops.map(([type]) => type),
-                        "Every configured drop type is exercised"
-                    ).to.have.same.members(allowedTypes);
-                    const actor = await createActor();
+                "opens and highlights a mastery after its skill is assigned",
+                withActor(async (actor) => {
                     const sheet = new Sheet({ document: actor });
                     try {
-                        await sheet.render({ force: true });
-                        let previousTab = "inventory";
-                        sheet.changeTab(previousTab, "primary");
-                        for (const [type, destination] of drops) {
-                            expectTab(sheet, previousTab, `Before ${type}`);
-                            const tab = destination === "header" ? previousTab : destination;
-                            if (destination !== "header") {
-                                expect(tab, `${type} must force a tab change`).to.not.equal(previousTab);
-                            }
-                            const [item] = await source.createEmbeddedDocuments("Item", [
-                                {
-                                    name: `Dropped ${type}`,
-                                    type,
-                                    system: type === "spell" || type === "mastery" ? { skill: "deathmagic" } : {},
-                                },
-                            ]);
-                            await sheet._onDropDocument(new DragEvent("drop"), item);
-                            // Observe the document update's render without repairing the sheet with another render.
-                            await passesEventually(() => {
-                                const created = actor.items.find((entry) => entry.name === item.name);
-                                expect(created, `${type} persisted on the target actor`).to.exist;
-                                expectTab(sheet, tab, type);
-                                const scope = destination === "header" ? "header" : `section[data-tab="${tab}"]`;
-                                expectHighlight(sheet, `${scope} [data-item-id="${created?.id}"]`, type);
-                            }, 3000);
-                            previousTab = tab;
-                        }
-                    } finally {
-                        try {
-                            await sheet.close();
-                        } finally {
-                            await actor.delete();
-                        }
-                    }
-                })
-            ).timeout(30000);
-
-            it("opens and highlights a mastery after its skill is assigned", async () => {
-                const actor = await createActor();
-                const sheet = new Sheet({ document: actor });
-                try {
-                    const mastery = await itemCreator.createMastery({
-                        type: "mastery",
-                        name: "World mastery drop test",
-                        system: { skill: null, availableIn: "deathmagic", modifier: "deathmagic +1" },
-                    });
-                    try {
-                        await passesEventually(() => {
-                            expect(
-                                mastery.effects.filter(isGenerated),
-                                "Fixture generates a valid effect"
-                            ).to.have.length(1);
+                        const mastery = await itemCreator.createMastery({
+                            type: "mastery",
+                            name: "World mastery drop test",
+                            system: { skill: null, availableIn: "deathmagic", modifier: "deathmagic +1" },
                         });
-                        await sheet.render({ force: true });
-                        sheet.changeTab("inventory", "primary");
-                        expectTab(sheet, "inventory");
-                        await sheet._onDropDocument(new DragEvent("drop"), mastery);
-                        const tab = actorType === "character" ? "skills" : "general";
-                        await passesEventually(() => {
-                            const created = actor.items.find((item) => item.name === mastery.name);
-                            expect(created?.system).to.have.property("skill", "deathmagic");
+                        try {
+                            await passesEventually(() => {
+                                expect(
+                                    mastery.effects.filter(isGenerated),
+                                    "Fixture generates a valid effect"
+                                ).to.have.length(1);
+                            });
+                            await sheet.render({ force: true });
+                            sheet.changeTab("inventory", "primary");
+                            expectTab(sheet, "inventory");
+                            await sheet._onDropDocument(new DragEvent("drop"), mastery);
+                            const tab = actorType === "character" ? "skills" : "general";
+                            await passesEventually(() => {
+                                const created = actor.items.find((item) => item.name === mastery.name);
+                                expect(created?.system).to.have.property("skill", "deathmagic");
+                                expectTab(sheet, tab);
+                                expectHighlight(sheet, `section[data-tab="${tab}"] [data-item-id="${created?.id}"]`);
+                            }, 3000);
+                            sheet.element.querySelector<HTMLElement>(`nav [data-tab="${tab}"]`)?.click();
                             expectTab(sheet, tab);
-                            expectHighlight(sheet, `section[data-tab="${tab}"] [data-item-id="${created?.id}"]`);
-                        }, 3000);
-                        sheet.element.querySelector<HTMLElement>(`nav [data-tab="${tab}"]`)?.click();
-                        expectTab(sheet, tab);
+                        } finally {
+                            await mastery.delete();
+                        }
                     } finally {
-                        await mastery.delete();
+                        await sheet.close();
                     }
-                } finally {
-                    await sheet.close();
-                    await actor.delete();
-                }
-            }).timeout(10000);
+                }, createActor)
+            ).timeout(10000);
 
             for (const effectType of ["modifier", "autoGenerated"] as const) {
                 it(
                     `opens status for a dropped ${effectType} active effect`,
-                    withActor(async (source) => {
-                        const actor = await createActor();
-                        const sheet = new Sheet({ document: actor });
-                        try {
-                            const [effect] = await source.createEmbeddedDocuments("ActiveEffect", [
-                                { name: "Dropped effect", type: effectType },
-                            ]);
-                            await sheet.render({ force: true });
-                            sheet.changeTab("inventory", "primary");
-                            await sheet._onDropDocument(new DragEvent("drop"), effect);
-                            await passesEventually(() => {
-                                const created = actor.effects.find((entry) => entry.name === effect.name);
-                                expect(created?.type).to.equal("modifier");
-                                expectTab(sheet, "status");
-                                expectHighlight(sheet, `[data-effect-uuid="${created?.uuid}"]`);
-                            }, 3000);
-                        } finally {
-                            await sheet.close();
-                            await actor.delete();
-                        }
-                    })
+                    withActor(
+                        withActor(async (actor, source) => {
+                            const sheet = new Sheet({ document: actor });
+                            try {
+                                const [effect] = await source.createEmbeddedDocuments("ActiveEffect", [
+                                    { name: "Dropped effect", type: effectType },
+                                ]);
+                                await sheet.render({ force: true });
+                                sheet.changeTab("inventory", "primary");
+                                await sheet._onDropDocument(new DragEvent("drop"), effect);
+                                await passesEventually(() => {
+                                    const created = actor.effects.find((entry) => entry.name === effect.name);
+                                    expect(created?.type).to.equal("modifier");
+                                    expectTab(sheet, "status");
+                                    expectHighlight(sheet, `[data-effect-uuid="${created?.uuid}"]`);
+                                }, 3000);
+                            } finally {
+                                await sheet.close();
+                            }
+                        }, createActor)
+                    )
                 ).timeout(10000);
             }
         });

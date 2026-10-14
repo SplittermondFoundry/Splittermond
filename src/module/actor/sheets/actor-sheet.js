@@ -925,6 +925,8 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
             case "spelleffect":
                 return "status";
             case "npcfeature":
+            case "moonsign":
+            case "projectile":
                 return undefined;
             default:
                 return "general";
