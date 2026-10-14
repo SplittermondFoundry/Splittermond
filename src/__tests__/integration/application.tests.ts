@@ -12,13 +12,12 @@ import type { FoundryCombatant, FoundryScene } from "module/api/foundryTypes";
 import TickBarHud from "../../module/apps/tick-bar-hud/tick-bar-hud";
 import { foundryApi } from "module/api/foundryApi";
 import { FoundryDragDrop } from "module/api/Application";
-import { createScene } from "./fixtures";
+import { useScene } from "./fixtures";
 import type SplittermondItem from "module/item/item";
 
 declare const game: any;
 declare const deepClone: any;
 declare const foundry: any;
-declare const Scene: FoundryScene;
 
 declare class Collection {}
 
@@ -313,31 +312,16 @@ export function applicationTests(context: QuenchBatchContext) {
         let tokens: TokenDocument[] = [];
         let sandbox: SinonSandbox;
         let scene: FoundryScene;
-        let originalScene: FoundryScene | null;
-
-        before(async () => {
-            /*
-             * For creating valid tokens we need a fully loaded and active scene. Unfortunately, scene loading happens
-             * asynchronously and there is no "scene loaded" event we could hook into. So we just wait a second after
-             * the scene was activated.
-             */
-            originalScene = foundryApi.currentScene;
-            scene = await createScene();
-            await scene.view();
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            await scene.activate();
-        });
-        after(async () => {
-            await Scene.deleteDocuments([scene.id]);
-            originalScene?.activate();
+        useScene({ before, after }, (created) => {
+            scene = created;
         });
         beforeEach(() => (sandbox = sinon.createSandbox()));
 
-        afterEach(() => {
-            Combat.deleteDocuments(combats.map((c) => c.id));
-            Actor.deleteDocuments(actors.map((a) => a.id));
-            tokens.forEach((t) => t.actor?.sheet.close());
-            scene.deleteEmbeddedDocuments(
+        afterEach(async () => {
+            await Combat.deleteDocuments(combats.map((c) => c.id));
+            await Actor.deleteDocuments(actors.map((a) => a.id));
+            await Promise.all(tokens.map((t) => t.actor?.sheet.close()));
+            await scene.deleteEmbeddedDocuments(
                 "Token",
                 tokens.map((t) => t.id)
             );
