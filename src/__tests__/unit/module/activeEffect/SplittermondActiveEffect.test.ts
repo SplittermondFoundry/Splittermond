@@ -104,8 +104,26 @@ describe("SplittermondActiveEffect", () => {
     });
 
     describe("getModifiers", () => {
-        [0, 1, 2, null].forEach((level) => {
-            it(`should ${level === 0 ? "exclude" : "include"} a required roll type from a status effect at level ${level}`, () => {
+        it("should exclude the safety-roll modifier of a level-zero status ActiveEffect", () => {
+            const item = sandbox.createStubInstance(SplittermondItem);
+            item.type = "statuseffect";
+            Object.assign(item, { system: { level: 0 } });
+            const modifier = Modifier.create("check.require", of(0), {
+                name: "Angsterfüllt",
+                type: "innate",
+                rollType: "safety",
+            });
+            const effect = createEffect(sandbox, {
+                type: "modifier",
+                system: mockModifierSystem([modifier]),
+                item,
+            });
+
+            expect(SplittermondActiveEffect.getModifiers([effect])).to.be.empty;
+        });
+
+        [1, 2, null].forEach((level) => {
+            it(`should include required roll types from status ActiveEffects at level ${level}`, () => {
                 const item = sandbox.createStubInstance(SplittermondItem);
                 item.type = "statuseffect";
                 Object.assign(item, { system: { level } });
@@ -120,7 +138,7 @@ describe("SplittermondActiveEffect", () => {
                     item,
                 });
 
-                expect(SplittermondActiveEffect.getModifiers([effect])).to.deep.equal(level === 0 ? [] : [modifier]);
+                expect(SplittermondActiveEffect.getModifiers([effect])).to.deep.equal([modifier]);
             });
         });
 

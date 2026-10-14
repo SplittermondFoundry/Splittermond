@@ -176,19 +176,26 @@ describe("applyLiveItemModifiers", () => {
         expect(actor.addedModifiers).to.deep.equal([]);
     });
 
-    [0, 1, 2, null].forEach((level) => {
-        it(`should ${level === 0 ? "skip" : "apply"} legacy status modifiers at level ${level}`, () => {
+    it("does not register modifier strings from legacy status items at level 0", () => {
+        const actor = makeActor();
+        const modifier = 'check.require rollType="safety"';
+        const item = makeItem("statuseffect", { modifier, level: 0 }, actor);
+
+        applyLiveItemModifiers(item);
+
+        expect(actor.addModifier.called).to.be.false;
+        expect(actor.addedModifiers).to.deep.equal([]);
+    });
+
+    [1, 2, null].forEach((level) => {
+        it(`registers modifier strings from legacy status items at level ${level}`, () => {
             const actor = makeActor();
             const modifier = 'check.require rollType="safety"';
             const item = makeItem("statuseffect", { modifier, level }, actor);
 
             applyLiveItemModifiers(item);
 
-            if (level === 0) {
-                expect(actor.addModifier.called).to.be.false;
-            } else {
-                expect(actor.addModifier.calledOnceWith(item, modifier, "innate", level ?? 1)).to.be.true;
-            }
+            expect(actor.addModifier.calledOnceWith(item, modifier, "innate", level ?? 1)).to.be.true;
             expect(actor.addedModifiers).to.deep.equal([]);
         });
     });
