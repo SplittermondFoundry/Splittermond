@@ -26,6 +26,8 @@
 
 ### Fixes
 
+- Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
+- Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
 - Sprachen können jetzt aus der Bibliothek auf Charakterbögen gezogen werden.
 - Neue Meisterschaften ohne Fertigkeit verwenden jetzt `null` statt einer leeren Zeichenfolge als Standardwert.
 - Die Schaltflächen von Proben- und Angriffsdialogen bleiben bei kleinen Fenstern auch mit vielen Modifikatoren erreichbar.
