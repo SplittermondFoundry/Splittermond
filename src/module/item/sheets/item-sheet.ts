@@ -10,6 +10,8 @@ import { splittermond } from "module/config/index.js";
 import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "module/item/availabilityParser";
 import type { ItemType } from "module/config/itemTypes";
 import type { HandlebarsRenderOptions } from "module/api/Application";
+import { openModifierHelper } from "module/modifierHelper";
+import { modifierTypeForItemType } from "module/activeEffect/modifierTypeResolver";
 import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
 
 interface ItemSheetData {
@@ -25,7 +27,7 @@ interface ItemSheetData {
 }
 
 interface SplittermondItemSheetData extends ItemSheetData {
-    itemProperties: any;
+    itemProperties: SplittermondItemSheetProperties;
     statBlock: any;
     typeLabel: string;
     item?: any;
@@ -43,6 +45,7 @@ interface InputItemProperty {
     label?: string;
     help?: string;
     choices?: Record<string, string>;
+    modifierHelper?: boolean;
 }
 
 interface ItemSheetPropertyDisplayProperty extends InputItemProperty {}
@@ -66,6 +69,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         actions: {
             "dec-value": SplittermondItemSheet.#decreaseValue,
             "inc-value": SplittermondItemSheet.#increaseValue,
+            "modifier-helper-property": SplittermondItemSheet.#modifierHelper,
         },
         tag: "form",
         classes: ["splittermond", "sheet", "item"],
@@ -146,6 +150,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         sheetProperties.forEach((grp) => {
             grp.properties.forEach(async (prop: InputItemProperty | ItemSheetPropertyDisplayProperty) => {
                 prop.value = this.resolveProperty(this.item, prop.field);
+                prop.modifierHelper = prop.field === "system.modifier" && this.item.isOwner;
                 /*
                  * These type guards exist because our multiselects cannot handle an undefined or null option well.
                  * However,Foundry seems to like to use null for nullable boolean values. If that is the case
@@ -224,6 +229,16 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
 
     static #increaseValue(_event: Event, target: HTMLElement): void {
         changeValue((input: number) => input + 1).for(target);
+    }
+
+    static #modifierHelper(this: SplittermondItemSheet): void {
+        if (!this.item.isOwner) return;
+        openModifierHelper(
+            this.item,
+            modifierTypeForItemType(this.item.type),
+            () => this.element.querySelector<HTMLInputElement>('[name="system.modifier"]'),
+            { append: true, item: this.item }
+        );
     }
 
     static #decreaseValue(_event: Event, target: HTMLElement): void {

@@ -9,18 +9,23 @@ import { isMember } from "module/util/util";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
 const commonConfig = {
-    optionalAttributes: ["skill", "attribute1", "attribute2", "emphasis"],
+    description: "splittermond.modifierHelper.descriptions.skills",
+    optionalAttributes: ["attribute1", "attribute2", "skill", "emphasis"],
     subSegments: {
         general: {
+            description: "splittermond.modifierHelper.descriptions.skillsGeneral",
             optionalAttributes: ["emphasis"],
         },
         magic: {
+            description: "splittermond.modifierHelper.descriptions.skillsMagic",
             optionalAttributes: ["emphasis"],
         },
         fighting: {
+            description: "splittermond.modifierHelper.descriptions.skillsFighting",
             optionalAttributes: ["emphasis"],
         },
         social: {
+            description: "splittermond.modifierHelper.descriptions.skillsSocial",
             optionalAttributes: ["emphasis"],
         },
     },
@@ -105,6 +110,7 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
 export class SkillHandler extends CommonSkillHandler {
     static config = makeConfig({
         topLevelPath: "skills",
+        helperAlias: "actor.skills",
         ...commonConfig,
     });
     constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {

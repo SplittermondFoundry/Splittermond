@@ -24,6 +24,10 @@ export class ModifierRegistry<TYPE extends AnyModifier> {
         return new ModifierCache(this.registeredHandlers, args);
     }
 
+    getConfigurations(...args: HandlerArgs) {
+        return Array.from(this.registeredHandlers.values(), (Handler) => new Handler(...args).config);
+    }
+
     private validateGroupId(groupId: string): void {
         if (this.registeredHandlers.has(groupId)) {
             throw new Error(`Modifier handler for groupId '${groupId}' is already registered.`);

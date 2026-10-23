@@ -14,9 +14,19 @@ import type { ScalarModifier } from "module/modifiers/parsing";
 import { ActorSplinterpointsHandler, SplinterpointsHandler } from "module/actor/modifiers/SplinterpointsHandler";
 import { isResourcePoints, registerResourcePointsHandlers } from "module/actor/modifiers/ResourcePointsHandler";
 import { derivedAttributes } from "module/config/attributes";
+import { modifierChoices } from "module/modifiers/ModifierConfig";
 
 export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier>) {
-    const lowerFumbleResultHandler = SkillFilterHandler({ topLevelPath: "lowerfumbleresult" });
+    const lowerFumbleResultHandler = SkillFilterHandler({
+        topLevelPath: "lowerfumbleresult",
+        description: "splittermond.modifierHelper.descriptions.lowerfumbleresult",
+        helperAttributes: {
+            skill: { hint: "splittermond.modifierHelper.attributes.magicFumbleSkill", groupChoices: false },
+        },
+        attributeChoices: {
+            skill: Object.entries(splittermond.spellSkillsOption).map(([value, label]) => ({ value, label })),
+        },
+    });
     registry.addHandler(SkillHandler.config.topLevelPath, SkillHandler);
     registry.addHandler(ActorSkillHandler.config.topLevelPath, ActorSkillHandler);
     splittermond.skillGroups.all.forEach((skill) => {
@@ -28,16 +38,24 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
     [
         "initiativewoundmalus",
         "woundmalus",
-        "woundmalus.nbrLevels",
         "woundmalus.levelmod",
         "woundmalus.mod",
         "focusregeneration.bonus",
         "healthregeneration.bonus",
     ].forEach((segment) => {
         const fullId = `actor.${segment}` as Lowercase<string>;
-        registry.addHandler(segment, BasicModifierHandler(segment, fullId));
-        registry.addHandler(fullId, BasicModifierHandler(fullId));
+        const options = { hideInHelper: segment === "woundmalus" };
+        registry.addHandler(segment, BasicModifierHandler(segment, fullId, options));
+        registry.addHandler(fullId, BasicModifierHandler(fullId, undefined, options));
     });
+    const woundLevelPath = "actor.woundmalus.nbrLevels";
+    const woundLevelChoices = modifierChoices(
+        Object.keys(splittermond.woundMalus),
+        (value) => `splittermond.modifierHelper.woundLevels.${value}`
+    );
+    for (const path of ["woundmalus.nbrLevels", woundLevelPath]) {
+        registry.addHandler(path, BasicModifierHandler(path, woundLevelPath, { valueChoices: woundLevelChoices }));
+    }
     registry.addHandler("tickmalus", TickHandicapHandler("tickmalus"));
     registry.addHandler("handicap", TickHandicapHandler("handicap"));
     registry.addHandler("bonuscap", BasicModifierHandler("bonuscap"));
@@ -52,8 +70,18 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
     registry.addHandler("sr", BasicModifierHandler("sr", damageReduction));
     registry.addHandler(damageReduction, BasicModifierHandler(damageReduction));
     splittermond.damageTypes.forEach((damageType) => {
-        [`resistance.${damageType}`, `weakness.${damageType}`].forEach((segment) => {
-            registry.addHandler(segment, BasicModifierHandler(segment));
+        ["resistance", "weakness"].forEach((path) => {
+            const segment = `${path}.${damageType}`;
+            registry.addHandler(
+                segment,
+                BasicModifierHandler(segment, undefined, {
+                    helperGroup: {
+                        path,
+                        attribute: "damageType",
+                        choice: { value: damageType, label: `splittermond.damageTypes.long.${damageType}` },
+                    },
+                })
+            );
         });
     });
     addDerivedValueHandlers(registry);

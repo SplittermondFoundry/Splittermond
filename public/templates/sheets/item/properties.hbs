@@ -10,8 +10,12 @@
         {{/inline}}
         {{#*inline "input"}}
             <label>{{localize templateData.label}}</label>
+            {{#if templateData.modifierHelper}}<div class="modifier-helper-property-input">{{/if}}
             <input name="{{templateData.field}}" type="text" value="{{templateData.value}}"
                    placeholder="{{localize templateData.placeholderText}}"/>
+            {{#if templateData.modifierHelper}}
+                <button type="button" class="modifier-helper-button" data-action="modifier-helper-property" data-tooltip="{{localize 'splittermond.modifierHelper.title'}}" aria-label="{{localize 'splittermond.modifierHelper.title'}}"><i class="fa fa-wand-magic-sparkles" aria-hidden="true"></i></button>
+            </div>{{/if}}
         {{/inline}}
         {{#*inline "textarea"}}
             <label>{{localize templateData.label}}</label>

@@ -5,6 +5,11 @@
                 <div class="form-group">
                     <label>{{localize "splittermond.activeEffect.effects.rawInput"}}</label>
                     <input type="text" name="splittermondRawInput" value="{{rawInput}}" {{#unless editable}}disabled{{/unless}} />
+                    <button class="modifier-helper-button" type="button" data-action="modifier-helper"
+                            data-tooltip="{{localize 'splittermond.modifierHelper.title'}}"
+                            aria-label="{{localize 'splittermond.modifierHelper.title'}}" {{#unless editable}}disabled{{/unless}}>
+                        <i class="fa fa-wand-magic-sparkles" aria-hidden="true"></i>
+                    </button>
                 </div>
                 <div class="help-text">{{{modifierHelpText}}}</div>
             {{/unless}}
