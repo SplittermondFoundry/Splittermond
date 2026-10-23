@@ -187,7 +187,7 @@ describe("applyLiveItemModifiers", () => {
         expect(actor.addedModifiers).to.deep.equal([]);
     });
 
-    [1, 2, null].forEach((level) => {
+    [1, 2].forEach((level) => {
         it(`registers modifier strings from legacy status items at level ${level}`, () => {
             const actor = makeActor();
             const modifier = 'check.require rollType="safety"';
@@ -195,7 +195,7 @@ describe("applyLiveItemModifiers", () => {
 
             applyLiveItemModifiers(item);
 
-            expect(actor.addModifier.calledOnceWith(item, modifier, "innate", level ?? 1)).to.be.true;
+            expect(actor.addModifier.calledOnceWith(item, modifier, "innate", level)).to.be.true;
             expect(actor.addedModifiers).to.deep.equal([]);
         });
     });

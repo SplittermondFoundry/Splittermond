@@ -33,7 +33,7 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
             case "strength":
                 return (item.system as { quantity?: number }).quantity ?? 1;
             case "statuseffect":
-                return (item.system as { level?: number }).level ?? 1;
+                return (item.system as StatusEffectDataModel).level;
             default:
                 return 1;
         }

@@ -122,7 +122,7 @@ describe("SplittermondActiveEffect", () => {
             expect(SplittermondActiveEffect.getModifiers([effect])).to.be.empty;
         });
 
-        [1, 2, null].forEach((level) => {
+        [1, 2].forEach((level) => {
             it(`should include required roll types from status ActiveEffects at level ${level}`, () => {
                 const item = sandbox.createStubInstance(SplittermondItem);
                 item.type = "statuseffect";
@@ -261,19 +261,6 @@ describe("SplittermondActiveEffect", () => {
                 item,
             });
             expect(effect.multiplier).to.equal(4);
-        });
-
-        it("should default to 1 for a statuseffect item without level", () => {
-            const item = sandbox.createStubInstance(SplittermondItem);
-            item.type = "statuseffect";
-            Object.assign(item, { system: {} });
-
-            const effect = createEffect(sandbox, {
-                type: "modifier",
-                system: mockModifier(),
-                item,
-            });
-            expect(effect.multiplier).to.equal(1);
         });
 
         it("should return 1 for an unrelated item type (weapon)", () => {

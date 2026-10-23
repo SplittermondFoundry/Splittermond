@@ -135,7 +135,7 @@ describe("SplittermondActor", () => {
     });
 
     describe("getVirtualStatusTokens", () => {
-        function setScheduledStatus(level: number | null) {
+        function setScheduledStatus(level: number) {
             const item = sandbox.createStubInstance(SplittermondItem);
             item.type = "statuseffect";
             sandbox.stub(item, "id").get(() => "status-id");
@@ -161,7 +161,7 @@ describe("SplittermondActor", () => {
             expect(actor.getVirtualStatusTokens()).to.be.empty;
         });
 
-        [1, 2, null].forEach((level) => {
+        [1, 2].forEach((level) => {
             it(`keeps status items scheduled at level ${level}`, () => {
                 setScheduledStatus(level);
 
