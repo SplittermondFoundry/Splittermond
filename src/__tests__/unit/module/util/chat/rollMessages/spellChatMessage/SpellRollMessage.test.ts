@@ -38,8 +38,9 @@ describe("SpellRollMessage", () => {
     });
 
     for (const tickCost of [3, 5]) {
-        it(`displays and consumes the supplied release cost of ${tickCost} ticks`, async () => {
-            const message = createSpellRollMessage(sandbox, tickCost);
+        it(`displays and consumes an updated release cost of ${tickCost} ticks`, async () => {
+            const message = createSpellRollMessage(sandbox);
+            message.tickCostHandler.updateSource({ baseTickCost: tickCost });
             expect(message.getData().actions.advanceToken).to.deep.contain({ value: `${tickCost}` });
 
             await message.handleGenericAction({ action: "advanceToken" });
@@ -47,6 +48,16 @@ describe("SpellRollMessage", () => {
             expect(message.actorReference.getAgent().addTicks.calledOnceWithExactly(tickCost, "", false)).to.be.true;
         });
     }
+
+    it("initializes the tick cost handler with the supplied release cost", () => {
+        const { spellReference, checkReport } = createSpellRollMessage(sandbox);
+
+        const message = withToObjectReturnsSelf(() =>
+            SpellRollMessage.initialize(spellReference.getItem(), checkReport, 7)
+        );
+
+        expect(message.tickCostHandler.baseTickCost).to.equal(7);
+    });
 
     it("should filter degree of success options that are too expensive on render", () => {
         const spellRollMessage = createSpellRollMessage(sandbox);
@@ -399,7 +410,7 @@ describe("SpellRollMessage", () => {
     });
 });
 
-function createSpellRollMessage(sandbox: SinonSandbox, tickCost = 3) {
+function createSpellRollMessage(sandbox: SinonSandbox) {
     const mockSpell = setUpMockSpellSelfReference(sandbox);
     setNecessaryDefaultsForSpellproperties(mockSpell, sandbox);
     const mockActor = setUpMockActor(sandbox);
@@ -426,7 +437,7 @@ function createSpellRollMessage(sandbox: SinonSandbox, tickCost = 3) {
                 succeeded: true,
                 maneuvers: [],
             },
-            tickCost
+            3
         );
     });
     injectParent(spellRollMessage);

@@ -28,7 +28,7 @@ describe("Spell release tick costs", () => {
     });
     afterEach(() => sandbox.restore());
 
-    function setUpRelease() {
+    function setUpSpellOnActorForRelease() {
         const spell = sandbox.createStubInstance(SplittermondSpellItem);
         spell.system = sandbox.createStubInstance(SpellDataModel);
         spell.roll.callThrough();
@@ -66,17 +66,17 @@ describe("Spell release tick costs", () => {
 
     for (const tickMalus of [0, 2, -2]) {
         it(`includes a tick malus of ${tickMalus} when releasing a spell`, async () => {
-            const { spell, actor, initialize } = setUpRelease();
+            const { spell, actor, initialize } = setUpSpellOnActorForRelease();
             actor.modifier.add("tickmalus", { name: "Tick malus", type: "innate" }, of(tickMalus));
 
-            await spell.roll({});
+            expect(await spell.roll({})).to.be.true;
 
             expect(initialize.firstCall.args[2]).to.equal(3 + Math.max(0, tickMalus));
         });
     }
 
     it("uses a fresh dice result instead of the synchronous cached result for release ticks", async () => {
-        const { spell, actor, initialize } = setUpRelease();
+        const { spell, actor, initialize } = setUpSpellOnActorForRelease();
         const die = createTestRoll("1d6", [6]);
         sandbox.stub(die, "clone").returns(die);
         const evaluate = sandbox.stub(die, "evaluate");
@@ -91,7 +91,7 @@ describe("Spell release tick costs", () => {
     });
 
     it("does not evaluate release ticks after cancelling the check", async () => {
-        const { spell, actor, skill, initialize } = setUpRelease();
+        const { spell, actor, skill, initialize } = setUpSpellOnActorForRelease();
         skill.roll.resolves(false);
         const tickMalus = sandbox.stub().returns(actor.tickMalus);
         sandbox.stub(actor, "tickMalus").get(tickMalus);
