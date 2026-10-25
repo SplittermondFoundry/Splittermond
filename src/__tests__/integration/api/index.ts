@@ -10,6 +10,7 @@ import { macroApiTest } from "./Macro.test";
 import { speakerApiTest } from "./speaker.test";
 import type { BatchRegistrar } from "../fixtures";
 import { worldTimeApiTests } from "./worldTime.test";
+import { applicationApiTest } from "./application.test";
 
 export function registerApiBatches(register: BatchRegistrar) {
     register("worldTime", worldTimeApiTests);
@@ -23,5 +24,6 @@ export function registerApiBatches(register: BatchRegistrar) {
     register("macro", macroApiTest);
     register("roll", foundryRollTest);
     register("speaker", speakerApiTest);
+    register("application", applicationApiTest);
     console.log("Splittermond | Initialized quench API tests");
 }

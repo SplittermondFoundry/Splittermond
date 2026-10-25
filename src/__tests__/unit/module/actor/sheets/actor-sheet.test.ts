@@ -47,14 +47,11 @@ describe("SplittermondActorSheet", () => {
     }
 
     beforeEach(() => {
-        superFunctionStub = sandbox.mock().callsFake((_e, doc) => doc);
+        superFunctionStub = sandbox
+            .stub(SplittermondBaseActorSheet.prototype, "_onDropItem")
+            .callsFake(async (_e, doc) => doc);
         deleteFunctionStub = sandbox.mock();
         sandbox.stub(foundryApi.utils, "mergeObject").callsFake((a, b) => ({ ...a, ...b }));
-        Object.defineProperty(SplittermondBaseActorSheet.prototype, "_onDropItem", {
-            value: superFunctionStub,
-            configurable: true,
-            writable: true,
-        });
 
         global.CONFIG = { splittermond: splittermond };
     });

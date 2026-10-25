@@ -7,6 +7,7 @@ import { buildEffectCardContext, SplittermondActiveEffect } from "module/activeE
 import { SplittermondActiveEffectCreationDialog } from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog";
 import { getAddModifier } from "module/item/item";
 import type { HandlebarsRenderOptions } from "module/api/Application";
+import { showDroppedEntry } from "module/util/showDroppedEntry";
 import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
 
 interface ItemEffectCardContext extends EffectCardContext {
@@ -101,6 +102,12 @@ export default class SplittermondItemEffectsSheet extends SplittermondItemSheet 
     }
 
     override async _onDropActiveEffect(event: DragEvent, document: SplittermondActiveEffect) {
+        const created = await this._createEffectCopy(event, document);
+        if (created) showDroppedEntry(this, "effects", `[data-effect-id="${created.id}"]`);
+        return created;
+    }
+
+    private async _createEffectCopy(event: DragEvent, document: SplittermondActiveEffect) {
         if (isGenerated(document) && document.parent !== this.item) {
             const payload: EffectCreationData = { ...document.toObject(), type: "modifier" };
             const [created] = await this.item.createEmbeddedDocuments("ActiveEffect", [payload]);
