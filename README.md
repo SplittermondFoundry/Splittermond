@@ -90,6 +90,53 @@ Der in Foundry eingebaute "Combat Tracker" lässt sich nun als Tickleiste verwen
 
 ![Screenshot](screenshots/combat-tracker.gif)
 
+### Weltzeit
+
+Bei der Spielerliste wird die gemeinsame Weltzeit als `Tag 2, 03:15 Uhr` angezeigt. Nach 365 Tagen erscheint
+zusätzlich das Jahr, beispielsweise `Jahr 1, Tag 4, 14:50 Uhr`. Tage beginnen bei 0. Eine vorhandene Weltzeit
+wird beim Systemstart nicht zurückgesetzt; reale Zeit zwischen Spielsitzungen wird nicht hinzugezählt.
+
+Die Spielleitung kann direkt um 1 Minute, 5 Minuten, 30 Minuten oder 6 Stunden vorstellen. Das Kalendermenü
+bietet dieselben und weitere Zeitschritte bis 30 Tage, jeweils vorwärts und rückwärts, sowie die Eingabe eines
+Zeitpunktes. Die Menübuttons ändern zunächst nur diese Eingabe. Erst **Zeit festlegen** übernimmt den Zeitpunkt
+in die Weltzeit und schließt das Menü. Schließen ohne Bestätigung verwirft die Datumseingabe.
+Die zusätzlichen Zeitschritte sind zunächst eingeklappt. Jahr, Tag, Stunde, Minute und Sekunde stehen in einer
+Zeile und lassen sich über die Pfeilbuttons, das Mausrad über der Zahl oder die Hoch-/Runter-Pfeiltasten im
+Eingabefeld anpassen. Überträge zur nächsten beziehungsweise vorherigen Einheit erfolgen automatisch;
+Sekunden werden in halben Schritten geändert.
+Die Schnellbuttons bei der Spielerliste ändern die Weltzeit sofort und aktualisieren dabei auch ein geöffnetes
+Menü. Automatische Tick-Updates erhalten eine gerade bearbeitete Datumseingabe. Zeitänderungen beeinflussen
+laufende Wirkzeiten; zurückgestellte Zeit stellt gelöschte Effekte nicht wieder her.
+
+- **Weltzeit ausblenden** versteckt die Anzeige für alle. Der Menübutton bleibt für die Spielleitung erreichbar.
+- **Zeitfortschritt nicht erfassen** blendet die Schnellbuttons aus und setzt die Tick-Übernahme aus. Uhrzeit und
+  Menübutton bleiben sichtbar; beim Fortsetzen erscheinen die Schnellbuttons wieder. Der Zeitpunkt kann
+  im Menü weiterhin bearbeitet, mit Zeitschritten angepasst und festgelegt werden. Beim Fortsetzen werden keine
+  ausgelassenen Ticks nachgeholt.
+- **Zeitablauf durch Ticks** übernimmt den tatsächlichen Kampffortschritt mit 120 Ticks pro Minute.
+  Rückwärtskorrekturen stellen auch die Weltzeit zurück. Ausblenden allein hält die Zeit nicht an.
+
+Die Uhr nutzt Foundrys Weltzeit. Andere Module können sie auch bei ausgesetzter Splittermond-Zeiterfassung verändern.
+Parallele Kämpfe werden nicht zeitlich koordiniert.
+Manuelle Änderungen der Weltzeit verschieben keine Kampfteilnehmer auf der Tickleiste.
+
+Der Zeitvertrag für zeitabhängige Funktionen ist `foundryApi.time.worldTime` in Sekunden, einschließlich halber
+Sekunden: Ein Tick entspricht 0,5 Sekunden. Die API liest Foundrys gespeicherten Wert `core.time` und verwendet
+ihn auch als Ausgangspunkt relativer Änderungen. Dadurch bleiben halbe Sekunden nach Serverabgleich und Neuladen
+erhalten, obwohl Foundrys synchronisierter Laufzeitwert `game.time.worldTime` sie abschneiden kann.
+Verbraucher beobachten den nativen `updateWorldTime`-Hook und vergleichen absolute Zeitpunkte aus unserer API.
+Der native Hook-Parameter `delta` darf nicht als genaue verstrichene Zeit aufsummiert werden: Nach einem
+Serverabgleich kann er vom tatsächlich gespeicherten Unterschied abweichen. Auch Rückwärtskorrekturen sind
+zu berücksichtigen. Anzeige, Zeitschritte und Kampffortschritt verwenden dieselbe Uhr; es gibt keinen zusätzlichen
+gespeicherten Resttick und keine zweite, nur für Effekte laufende Zeit. Ein Zeitpunkt lässt sich auch vor den
+Nullpunkt zurückstellen. Direkte Zeitaufrufe anderer Module werden durch diesen Adapter nicht korrigiert.
+Manuelle Zeitänderungen und Kampfaktionen werden auf demselben Client gemeinsam nacheinander verarbeitet,
+damit überlappende Speichervorgänge keinen Zeitfortschritt überschreiben.
+
+Für künftige tickgenaue Effekte muss auch der genaue Effektbeginn beziehungsweise Ablaufzeitpunkt erhalten bleiben.
+Foundry rundet native Effektstartzeiten und Wirkungsdauern in Sekunden beim Speichern auf ganze Zahlen;
+eine genaue Weltzeit allein behebt diese separate Einschränkung nicht.
+
 ### NSC Bogen
 
 Der NSC-Bogen bietet für Nicht-Spieler-Charaktere die Möglichkeit _abgeleitete Werte_ sowie eine Auswahl an Fertigkeiten einzutragen.

@@ -10,6 +10,17 @@ declare const User: User & FoundryDocument;
 
 export type BatchRegistrar = (name: string, batch: QuenchRegisterBatchFunction) => void;
 
+export function withWorldTimeClock(test: () => Promise<void>) {
+    return async () => {
+        const originalTime = foundryApi.time.worldTime;
+        try {
+            await test();
+        } finally {
+            await foundryApi.time.set(originalTime);
+        }
+    };
+}
+
 export async function createActor() {
     const actor = await Actor.create({ type: "character", name: `Test Actor${nextId()}` });
     return actor as SplittermondActor;

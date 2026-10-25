@@ -1,0 +1,38 @@
+<section>
+    <p class="world-time-current">{{label}}</p>
+    <div class="world-time-settings">
+        {{#each settings}}<label data-tooltip="{{localize hint}}"><input type="checkbox" name="{{key}}" {{#if checked}}checked{{/if}}> {{localize label}}</label>{{/each}}
+    </div>
+    <details class="world-time-extra-steps">
+        <summary>{{localize "splittermond.worldTime.steps"}}</summary>
+        <div class="world-time-step-grid">
+            {{#each steps}}
+            <div class="world-time-step">
+                <button type="button" data-action="adjustTime" data-seconds="-{{seconds}}" aria-label="{{rewindLabel}}">−</button>
+                <span>{{label}}</span>
+                <button type="button" data-action="adjustTime" data-seconds="{{seconds}}" aria-label="{{advanceLabel}}">+</button>
+            </div>
+            {{/each}}
+        </div>
+    </details>
+    <fieldset>
+        <legend>{{localize "splittermond.worldTime.set"}}</legend>
+        <div class="world-time-fields">
+            {{#each fields}}
+            <div class="world-time-field">
+                <label for="world-time-{{name}}">{{label}}</label>
+                <div class="world-time-spinner">
+                    <input id="world-time-{{name}}" name="{{name}}" type="number" min="{{min}}" max="{{max}}" step="{{step}}" data-seconds="{{seconds}}" value="{{value}}" required>
+                    <div class="world-time-arrows">
+                        <button type="button" data-action="adjustTime" data-seconds="{{seconds}}" aria-label="{{increaseLabel}}"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+                        <button type="button" data-action="adjustTime" data-seconds="-{{seconds}}" aria-label="{{decreaseLabel}}"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        <p class="world-time-preview"></p>
+        <p class="hint">{{localize "splittermond.worldTime.setHint"}}</p>
+        <button type="submit">{{localize "splittermond.worldTime.setButton"}}</button>
+    </fieldset>
+</section>

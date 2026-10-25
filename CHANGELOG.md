@@ -2,6 +2,8 @@
 
 ### Features
 
+- Die Weltzeit wird bei der Spielerliste angezeigt und kann von der Spielleitung vor- und zurückgestellt werden. Schnellbuttons stellen die Zeit um 1 Minute, 5 Minuten, 30 Minuten oder 6 Stunden vor. Im Menü werden Zeitschritte zunächst vorbereitet und mit „Zeit festlegen“ übernommen. Kampfticks zählen auf Wunsch mit (120 Ticks = 1 Minute); Anzeige und Zeiterfassung lassen sich unabhängig abschalten. Bei pausierter Zeiterfassung werden die Schnellbuttons ausgeblendet.
+  Halbe Sekunden bleiben auch nach Serverabgleich und Neuladen beim Lesen und Ändern der Weltzeit über die System-API erhalten.
 - Multiplikatoren sorgen bei additiven Modifikatoren jetzt für Mehrfachanwendung statt Multiplikation.
   D.h. ein Statuseffekt Stufe 2 mit einem Schadensmodifikator produziert jetzt eval(2W6) statt 2 * eval(1W6)
 - Modifikatoren können jetzt über aktive Effekte gehandhabt werden
