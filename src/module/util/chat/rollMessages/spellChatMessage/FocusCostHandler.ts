@@ -18,6 +18,7 @@ import { parseCostString, parseSpellEnhancementDegreesOfSuccess } from "../../..
 import { configureUseAction, configureUseOption } from "../ChatMessageUtils";
 import { PrimaryCost } from "../../../costs/PrimaryCost";
 import { settings } from "module/settings";
+import type { SpellRollMessage } from "./SpellRollMessage";
 
 let hasReducibleEnhancementCosts: () => boolean = () => false;
 settings
@@ -54,7 +55,10 @@ function FocusCostHandlerSchema() {
 
 type FocusCostHandlerType = DataModelSchemaType<typeof FocusCostHandlerSchema>;
 
-export class FocusCostHandler extends SplittermondDataModel<FocusCostHandlerType> implements ActionHandler {
+export class FocusCostHandler
+    extends SplittermondDataModel<FocusCostHandlerType, SpellRollMessage>
+    implements ActionHandler
+{
     public readonly handlesActions = ["consumeCosts"] as const;
     public readonly handlesDegreeOfSuccessOptions = [
         "channeledFocusUpdate",
@@ -150,7 +154,7 @@ export class FocusCostHandler extends SplittermondDataModel<FocusCostHandlerType
             options.push({
                 render: {
                     checked: this.spellEnhancement.checked,
-                    disabled: this.used,
+                    disabled: this.used || !!this.parent?.damageHandler.used,
                     action: "spellEnhancementUpdate",
                     multiplicity: "1",
                     text: `${this.spellReference.getItem().enhancementCosts} ${this.spellReference.getItem().enhancementDescription}`,
@@ -245,7 +249,7 @@ export class FocusCostHandler extends SplittermondDataModel<FocusCostHandlerType
     }
 
     private updateSpellEnhancement() {
-        if (this.spellEnhancement.cost === 0) {
+        if (this.spellEnhancement.cost === 0 || this.parent?.damageHandler.used) {
             return this.returnNoAction("spellEnhancementUpdate");
         }
         return {

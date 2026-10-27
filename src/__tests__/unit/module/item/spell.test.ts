@@ -406,6 +406,8 @@ describe("Spell item damage report", () => {
         Object.defineProperty(stub, "system", { value: system, enumerable: true, writable: false });
         Object.defineProperty(stub, "actor", { value: setUpActor(sandbox), enumerable: true, writable: false });
         stub.getForDamageRoll.callThrough();
+        stub.getValues.callThrough();
+        stub.getDamage.callThrough();
         defineValue(system, "damage", DamageModel.from("2W6"));
         defineValue(system, "damageType", "physical");
         defineValue(system, "costType", "V");

@@ -162,6 +162,44 @@ describe("SpellRollMessage", () => {
         expect(damageStub.called).to.be.true;
     });
 
+    it("locks the enhancement choice and its focus cost after applying damage", async () => {
+        const chatCard = sandbox.createStubInstance(SplittermondChatCard);
+        sandbox.stub(DamageInitializer, "rollFromDamageRoll").resolves(chatCard);
+        const message = createSpellRollMessage(sandbox);
+        message.updateSource({ openDegreesOfSuccess: 5 });
+        await message.handleGenericAction({ action: "spellEnhancementUpdate", multiplicity: "1" });
+        const costBeforeDamage = message.focusCostHandler.cost.render();
+        const remainingDegrees = message.openDegreesOfSuccess;
+        await message.handleGenericAction({ action: "applyDamage" });
+
+        await message.handleGenericAction({ action: "spellEnhancementUpdate", multiplicity: "1" });
+
+        expect(message.focusCostHandler.spellEnhancement.checked).to.equal(true);
+        expect(message.focusCostHandler.cost.render()).to.equal(costBeforeDamage);
+        expect(message.openDegreesOfSuccess).to.equal(remainingDegrees);
+        expect(
+            message.getData().degreeOfSuccessOptions.find((option) => option.action === "spellEnhancementUpdate")
+                ?.disabled
+        ).to.equal(true);
+    });
+
+    it("displays the selected variant and restores normal values on deselection", async () => {
+        const message = createSpellRollMessage(sandbox);
+        const spell = message.spellReference.getItem();
+        spell.system.enhanced.range = { value: "20m" };
+        spell.system.enhanced.features = ItemFeaturesModel.from("Kritisch 3");
+        message.updateSource({ openDegreesOfSuccess: 5 });
+
+        await message.handleGenericAction({ action: "spellEnhancementUpdate", multiplicity: "1" });
+        const enhanced = message.getData().spellValues;
+        await message.handleGenericAction({ action: "spellEnhancementUpdate", multiplicity: "1" });
+        const normal = message.getData().spellValues;
+
+        expect(enhanced).to.include({ enhanced: true, range: "20m", features: "Kritisch 3" });
+        expect(normal).to.include({ enhanced: false, range: "5m", features: "" });
+        expect(spell.system.range).to.equal("5m");
+    });
+
     it("should handle action activeDefense", async () => {
         const underTest = createSpellRollMessage(sandbox);
         underTest.checkReport.succeeded = true;

@@ -11,6 +11,7 @@ import SplittermondItem from "module/item/item";
 import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
+import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 
 export function setUpMockActor(sandbox: SinonSandbox): SinonStubbedInstance<SplittermondActor> {
     const actorMock = sandbox.createStubInstance(SplittermondActor);
@@ -26,6 +27,25 @@ export function setUpMockSpellSelfReference(
 ): SinonStubbedInstance<SplittermondSpellItem> & ItemReference<SinonStubbedInstance<SplittermondSpellItem>> {
     const spellMock = sandbox.createStubInstance(SplittermondSpellItem);
     spellMock.system = sandbox.createStubInstance(SpellDataModel);
+    Object.assign(spellMock.system, {
+        damage: DamageModel.from("1W6"),
+        damageType: "physical",
+        costType: "V",
+        range: "5m",
+        effectArea: "",
+        effectDuration: "",
+        enhanced: {
+            damage: null,
+            features: null,
+            damageType: null,
+            costType: null,
+            range: null,
+            effectArea: null,
+            effectDuration: null,
+        },
+    });
+    spellMock.getValues.callThrough();
+    spellMock.getDamage.returns("1W6");
     Object.defineProperty(spellMock.system, "features", {
         value: ItemFeaturesModel.emptyFeatures(),
         enumerable: true,

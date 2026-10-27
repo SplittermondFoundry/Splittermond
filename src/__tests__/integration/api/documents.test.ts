@@ -83,11 +83,12 @@ export function documentsApiTest(context: QuenchBatchContext) {
             "yields token, actor delta, and delta items for unlinked tokens; nothing delta for linked tokens",
             withScene(
                 withActor(async (actor, scene) => {
-                    const tokens = await scene.createEmbeddedDocuments("Token", [
+                    const [unlinkedToken] = await scene.createEmbeddedDocuments("Token", [
                         { type: "base", actorLink: false, actorId: actor.id, x: 0, y: 0 },
+                    ]);
+                    const [linkedToken] = await scene.createEmbeddedDocuments("Token", [
                         { type: "base", actorLink: true, actorId: actor.id, x: 100, y: 100 },
                     ]);
-                    const [unlinkedToken, linkedToken] = tokens;
                     await unlinkedToken.actor.createEmbeddedDocuments("Item", [
                         { type: "weapon", name: "Traverse Test Delta Weapon" },
                     ]);

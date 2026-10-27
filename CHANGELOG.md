@@ -2,6 +2,7 @@
 
 ### Features
 
+- Zauber können abweichende verstärkte Werte erhalten. Nicht überschriebene Eigenschaften folgen dem Normalwert; leere oder identische Eingaben stellen diese Übernahme wieder her. Die Verstärkungsauswahl einer Probe berücksichtigt Schaden, Merkmale und Schadensarten.
 - Beim Ablegen von Items oder aktiven Effekten auf Charakter- und NSC-Bögen sowie von aktiven Effekten auf Item-Bögen öffnet sich automatisch der zugehörige Tab. Der neue Eintrag wird ins Sichtfeld gescrollt und kurz hervorgehoben.
 - Multiplikatoren sorgen bei additiven Modifikatoren jetzt für Mehrfachanwendung statt Multiplikation.
   D.h. ein Statuseffekt Stufe 2 mit einem Schadensmodifikator produziert jetzt eval(2W6) statt 2 * eval(1W6)
