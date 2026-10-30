@@ -11,6 +11,7 @@ import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "module
 import type { ItemType } from "module/config/itemTypes";
 import type { HandlebarsRenderOptions } from "module/api/Application";
 import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
+import { propertyInputs, type PropertyGroup } from "./propertyTypes";
 
 interface ItemSheetData {
     cssClass: string;
@@ -25,7 +26,7 @@ interface ItemSheetData {
 }
 
 interface SplittermondItemSheetData extends ItemSheetData {
-    itemProperties: any;
+    itemProperties: PropertyGroup[];
     statBlock: any;
     typeLabel: string;
     item?: any;
@@ -34,24 +35,6 @@ interface SplittermondItemSheetData extends ItemSheetData {
 interface Localizer {
     localize: (key: string) => string;
 }
-
-interface InputItemProperty {
-    field: string;
-    value?: any;
-    template?: string;
-    placeholderText?: string;
-    label?: string;
-    help?: string;
-    choices?: Record<string, string>;
-}
-
-interface ItemSheetPropertyDisplayProperty extends InputItemProperty {}
-
-interface PropertyGroup {
-    properties: (InputItemProperty | ItemSheetPropertyDisplayProperty)[];
-}
-
-type SplittermondItemSheetProperties = PropertyGroup[];
 
 interface StatBlockEntry {
     label: string;
@@ -106,7 +89,7 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     }
 
     protected readonly localizer: Localizer;
-    private itemSheetProperties: any[];
+    private itemSheetProperties: PropertyGroup[];
     private availabilityParser: AvailabilityParser;
 
     constructor(
@@ -140,11 +123,10 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
         return data;
     }
 
-    private async _getItemProperties(): Promise<SplittermondItemSheetProperties> {
-        const promisesToAwait: Promise<string>[] = [];
-        const sheetProperties: SplittermondItemSheetProperties = foundryApi.utils.deepClone(this.itemSheetProperties);
-        sheetProperties.forEach((grp) => {
-            grp.properties.forEach(async (prop: InputItemProperty | ItemSheetPropertyDisplayProperty) => {
+    protected async _getItemProperties(): Promise<PropertyGroup[]> {
+        const sheetProperties: PropertyGroup[] = foundryApi.utils.deepClone(this.itemSheetProperties);
+        await Promise.all(
+            propertyInputs(sheetProperties).map(async (prop) => {
                 prop.value = this.resolveProperty(this.item, prop.field);
                 /*
                  * These type guards exist because our multiselects cannot handle an undefined or null option well.
@@ -159,16 +141,10 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
                 }
                 prop.placeholderText = prop.placeholderText ?? prop.label;
                 if (prop.help) {
-                    const promisedHelp = this.htmlEnricher(this.localizer.localize(prop.help));
-                    //Push promises first. Else, they will have ceased to exist.
-                    promisesToAwait.push(promisedHelp);
-                    prop.help = await promisedHelp;
+                    prop.help = await this.htmlEnricher(this.localizer.localize(prop.help));
                 }
-            });
-        });
-        //We await the promises in the foreach function, but we don't return properties there, so the outermost function
-        //has no way of knowing that stuff needs to be awaited. Thus, we await the promises here and return the properties
-        await Promise.all(promisesToAwait);
+            })
+        );
         return sheetProperties;
     }
 
@@ -258,12 +234,10 @@ export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     }
 
     private convertNullSelectSubmissions(formData: { object: Record<string, unknown> }): void {
-        this.itemSheetProperties.forEach((group: PropertyGroup) => {
-            group.properties.forEach((prop: InputItemProperty) => {
-                if (prop.template === "select" && prop.choices?.null && formData.object[prop.field] === "null") {
-                    formData.object[prop.field] = null;
-                }
-            });
+        propertyInputs(this.itemSheetProperties).forEach((prop) => {
+            if (prop.template === "select" && prop.choices?.null && formData.object[prop.field] === "null") {
+                formData.object[prop.field] = null;
+            }
         });
     }
 

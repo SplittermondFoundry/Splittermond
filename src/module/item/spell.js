@@ -23,6 +23,7 @@ import {
 import { toDisplayFormula } from "../util/damage/util";
 import { foundryApi } from "module/api/foundryApi.ts";
 import { filterFeatures } from "module/item/itemFeatureFilter.ts";
+import { resolveSpellValues } from "./spellValues";
 
 /**
  * @extends SplittermondItem
@@ -128,6 +129,14 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
     }
 
     get damage() {
+        return this.getDamage();
+    }
+
+    getValues({ enhanced = false } = {}) {
+        return resolveSpellValues(this.system, enhanced);
+    }
+
+    getDamage(options = {}) {
         const fromModifiers = this.actor.modifier
             .getForId("item.damage")
             .notSelectable()
@@ -138,14 +147,15 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
             .getModifiers()
             .map((m) => m.value)
             .reduce((a, b) => plus(a, b), of(0));
-        const mainComponent = condense(mapRoll(this.system.damage.asRoll()));
+        const mainComponent = condense(mapRoll(this.getValues(options).damage.asRoll()));
         return toDisplayFormula(asString(condenseCombineDamageWithModifiers(mainComponent, fromModifiers)));
     }
 
     /**
      * @return {principalComponent: ProtoDamageImplement, otherComponents: ProtoDamageImplement[]}
      */
-    getForDamageRoll() {
+    getForDamageRoll(options = {}) {
+        const values = this.getValues(options);
         const fromModifiers = this.actor.modifier
             .getForId("item.damage")
             .notSelectable()
@@ -157,18 +167,18 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
             .map((m) => {
                 const features = mergeFeatures(
                     ItemFeaturesModel.from(m.attributes.features ?? ""),
-                    filterFeatures(this, this.system.features)
+                    filterFeatures(this, values.features)
                 );
                 return {
                     damageRoll: DamageRoll.fromExpression(m.value, features),
-                    damageType: m.attributes.damageType ?? this.system.damageType,
+                    damageType: m.attributes.damageType ?? values.damageType,
                     damageSource: m.attributes.name ?? null,
                 };
             });
         return {
             principalComponent: {
-                damageRoll: DamageRoll.from(this.system.damage.calculationValue, this.system.features),
-                damageType: this.system.damageType,
+                damageRoll: DamageRoll.from(values.damage.calculationValue, values.features),
+                damageType: values.damageType,
                 damageSource: this.name,
             },
             otherComponents: fromModifiers,

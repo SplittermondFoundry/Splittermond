@@ -16,6 +16,14 @@
         "chooseSkill": "Choose a skill!",
         "damageType": "damage type",
         "damageCategory": "damage category",
+        "spellValues": {
+            "heading": "Spell effect",
+            "normal": "Normal",
+            "enhanced": "Enhanced",
+            "enhancementDescription": "Enhancement\ndescription",
+            "inherit": "Same as normal",
+            "inheritHint": "Enhanced values follow the normal value until overridden. To restore inheritance, clear the field, enter the normal value or select “Same as normal”."
+        },
         "channeledDamage": "channeled damage",
         "channelEnd": "End channel",
         "channelRevert": "Revert channel",

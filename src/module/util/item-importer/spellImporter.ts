@@ -48,7 +48,7 @@ export async function importSpell(spellName: string, rawData: string, folder: st
                 range: false,
                 effectArea: false,
             },
-        } as DataModelConstructorInput<SpellDataModelType>,
+        } as DataModelConstructorInput<Omit<SpellDataModelType, "enhanced">>,
     };
 
     const sectionLabels = [

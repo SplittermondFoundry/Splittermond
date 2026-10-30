@@ -19,6 +19,7 @@ import { CostBase } from "../../../costs/costTypes";
 import { foundryApi } from "module/api/foundryApi";
 import { asString, condense, mapRoll } from "module/modifiers/expressions/scalar";
 import { toDisplayFormula, toRollFormula } from "module/util/damage/util";
+import type { SpellRollMessage } from "./SpellRollMessage";
 
 function DamageActionHandlerSchema() {
     return {
@@ -39,7 +40,10 @@ function DamageActionHandlerSchema() {
 
 type DamageActionHandlerType = DataModelSchemaType<typeof DamageActionHandlerSchema>;
 
-export class DamageActionHandler extends SplittermondDataModel<DamageActionHandlerType> implements ActionHandler {
+export class DamageActionHandler
+    extends SplittermondDataModel<DamageActionHandlerType, SpellRollMessage>
+    implements ActionHandler
+{
     static defineSchema = DamageActionHandlerSchema;
 
     static initialize(
@@ -112,7 +116,7 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
                 const spell = this.spellReference.getItem();
                 const damages = this.totalDamage;
                 const rollOptions = {
-                    costBase: CostBase.create(spell.system.costType ?? "V"),
+                    costBase: CostBase.create(spell.getValues({ enhanced: this.isEnhanced }).costType ?? "V"),
                     grazingHitPenalty: 0 /*spells cannot be grazing hits*/,
                 };
                 return DamageInitializer.rollFromDamageRoll(
@@ -151,16 +155,18 @@ export class DamageActionHandler extends SplittermondDataModel<DamageActionHandl
 
     //TODO: should the check report be used here?
     private isOption() {
-        return (
-            !!this.spellReference.getItem().damage &&
-            this.spellReference.getItem().damage !== "0" &&
-            this.checkReportReference.get().succeeded
-        );
+        const spell = this.spellReference.getItem();
+        const damage = this.isEnhanced ? spell.getDamage({ enhanced: true }) : spell.damage;
+        return !!damage && damage !== "0" && this.checkReportReference.get().succeeded;
     }
 
     get totalDamage() {
-        const damage = this.spellReference.getItem().getForDamageRoll();
+        const damage = this.spellReference.getItem().getForDamageRoll({ enhanced: this.isEnhanced });
         damage.principalComponent.damageRoll.increaseDamage(this.damageAddition);
         return damage;
+    }
+
+    private get isEnhanced(): boolean {
+        return this.parent?.focusCostHandler.spellEnhancement.checked ?? false;
     }
 }

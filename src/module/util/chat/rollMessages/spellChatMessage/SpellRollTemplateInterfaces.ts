@@ -27,6 +27,15 @@ export function isAvailableAction(action: string): action is AvailableActions {
 }
 
 export interface SpellRollMessageRenderedData extends BaseChatCardRenderedData {
+    spellValues: {
+        enhanced: boolean;
+        features: string;
+        damageType: string;
+        costType: string;
+        range: string | null;
+        effectArea: string | null;
+        effectDuration: string | null;
+    };
     degreeOfSuccessOptions: DegreeOfSuccessOptionsPartialData;
     actions: Partial<Record<AvailableActions, object>>;
 }

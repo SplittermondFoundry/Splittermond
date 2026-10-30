@@ -920,7 +920,7 @@ export function modifierTest(context: QuenchBatchContext) {
             expect(subject.attacks.find((a) => a.name === "Spear of Destiny")?.damage).to.equal("6");
         });
 
-        it("should filter spell damage modifiers by spell type through generated effects", async () => {
+        it("applies generated spell-type damage modifiers once to both variants", async () => {
             const subject = await createActor("SpellDamageCharacter");
             const spells = await subject.createEmbeddedDocuments("Item", [
                 {
@@ -931,6 +931,7 @@ export function modifierTest(context: QuenchBatchContext) {
                         spellType: "Schaden",
                         damageType: "fire",
                         damage: DamageModel.from("3"),
+                        enhanced: { damage: DamageModel.from("6") },
                     },
                 },
                 {
@@ -955,8 +956,27 @@ export function modifierTest(context: QuenchBatchContext) {
             await waitForItemEffects(modifierItems);
             await subject.prepareData();
 
-            expect((spells[0] as SplittermondSpellItem).damage).to.equal("6");
-            expect((spells[1] as SplittermondSpellItem).damage).to.equal("3");
+            const fireball = spells.find((spell) => spell.name === "Fireball") as SplittermondSpellItem;
+            const control = spells.find((spell) => spell.name === "Flame Control") as SplittermondSpellItem;
+            expect(fireball.damage, "damage spell receives the modifier").to.equal("6");
+            expect(control.damage, "control spell keeps its base damage").to.equal("3");
+            for (const variant of [
+                { enhanced: false, baseDamage: "3", totalDamage: "6" },
+                { enhanced: true, baseDamage: "6", totalDamage: "9" },
+            ]) {
+                const options = { enhanced: variant.enhanced };
+                expect(fireball.getDamage(options), `enhanced=${variant.enhanced}: displayed damage`).to.equal(
+                    variant.totalDamage
+                );
+                const damage = fireball.getForDamageRoll(options);
+                expect(damage.principalComponent.damageRoll.getDamageFormula(), "unmodified base damage").to.equal(
+                    variant.baseDamage
+                );
+                expect(
+                    damage.otherComponents.map((component) => component.damageRoll.getDamageFormula()),
+                    "one +3 modifier component per variant"
+                ).to.deep.equal(["3"]);
+            }
         });
 
         it("should respond to cast duration modifiers", async () => {
