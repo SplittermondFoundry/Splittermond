@@ -134,6 +134,45 @@ describe("SplittermondActor", () => {
         sandbox.spy(actor, "update");
     });
 
+    describe("getVirtualStatusTokens", () => {
+        function setScheduledStatus(level: number) {
+            const item = sandbox.createStubInstance(SplittermondItem);
+            item.type = "statuseffect";
+            sandbox.stub(item, "id").get(() => "status-id");
+            Object.assign(item, {
+                name: "Brennend",
+                system: {
+                    level,
+                    combatEvent: {
+                        startTick: 10,
+                        interval: 5,
+                        repeats: 2,
+                        macroRef: { name: "Brandschaden", uuid: "Macro.fireDamage" },
+                        postDescription: true,
+                    },
+                },
+            });
+            Object.assign(actor, { items: [item] });
+        }
+
+        it("excludes level-zero status items from scheduled combat events", () => {
+            setScheduledStatus(0);
+
+            expect(actor.getVirtualStatusTokens()).to.be.empty;
+        });
+
+        [1, 2].forEach((level) => {
+            it(`keeps status items scheduled at level ${level}`, () => {
+                setScheduledStatus(level);
+
+                const tokens = actor.getVirtualStatusTokens();
+
+                expect(tokens).to.have.length(1);
+                expect(tokens[0].statusId).to.equal("status-id");
+            });
+        });
+    });
+
     describe("Spell Cost Reduction", () => {
         it("should initialize spell cost management", () => {
             sandbox.stub(foundryApi, "localize").callsFake((key) => key);
