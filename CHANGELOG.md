@@ -26,6 +26,8 @@
 
 ### Fixes
 
+- Der Tickzuschlag wird jetzt auch beim Auslösen von Zaubern und Fernkampfangriffen berücksichtigt.
+  Zauber ohne verkürzbare Auslösezeit bieten ebenfalls die Tick-Abrechnung an; die Verkürzung bleibt auf zwei Ticks begrenzt.
 - Sprachen können jetzt aus der Bibliothek auf Charakterbögen gezogen werden.
 - Neue Meisterschaften ohne Fertigkeit verwenden jetzt `null` statt einer leeren Zeichenfolge als Standardwert.
 - Die Schaltflächen von Proben- und Angriffsdialogen bleiben bei kleinen Fenstern auch mit vielen Modifikatoren erreichbar.

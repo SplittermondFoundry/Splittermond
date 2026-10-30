@@ -178,7 +178,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             };
             return SplittermondChatCard.create(
                 actor,
-                SpellRollMessage.initialize(spell, checkReport),
+                SpellRollMessage.initialize(spell, checkReport, 3),
                 getMessageConfig({ type: "spellRollMessage" })
             );
         }

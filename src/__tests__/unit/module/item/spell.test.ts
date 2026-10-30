@@ -9,12 +9,98 @@ import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import SplittermondActor from "../../../../module/actor/actor";
 import ModifierManager from "module/actor/modifiers/modifier-manager";
 import { createTestRoll, stubRollApi } from "../../RollMock";
-import { of, syncEvaluate } from "module/modifiers/expressions/scalar";
+import { of, roll, syncEvaluate } from "module/modifiers/expressions/scalar";
 import { of as ofCost } from "../../../../module/modifiers/expressions/cost";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import { DamageRoll } from "module/util/damage/DamageRoll";
 import { foundryApi } from "module/api/foundryApi";
 import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
+import Skill from "module/actor/skill";
+import { SpellRollMessage } from "module/util/chat/rollMessages/spellChatMessage/SpellRollMessage";
+import { SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
+import type { CheckReport } from "module/check";
+
+describe("Spell release tick costs", () => {
+    let sandbox: SinonSandbox;
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(foundryApi.utils, "duplicate").callsFake((value) => structuredClone(value));
+    });
+    afterEach(() => sandbox.restore());
+
+    function setUpSpellOnActorForRelease() {
+        const spell = sandbox.createStubInstance(SplittermondSpellItem);
+        spell.system = sandbox.createStubInstance(SpellDataModel);
+        spell.roll.callThrough();
+        sandbox.stub(spell, "spellType").get(() => "");
+        sandbox.stub(spell, "costs").get(() => "1");
+        sandbox.stub(spell, "enhancementCosts").get(() => "");
+        sandbox.stub(spell, "damage").get(() => "");
+        const actor = sandbox.createStubInstance(SplittermondActor);
+        Object.defineProperty(actor, "modifier", { value: new ModifierManager() });
+        Object.defineProperty(spell, "actor", { value: actor });
+        const skill = sandbox.createStubInstance(Skill);
+        sandbox.stub(spell, "skill").get(() => skill);
+        const report: CheckReport = {
+            succeeded: true,
+            degreeOfSuccess: { fromRoll: 0, modification: 0, limitedTo: 999 },
+            degreeOfSuccessMessage: "",
+            difficulty: 15,
+            defenseType: null,
+            hideDifficulty: false,
+            isCrit: false,
+            isFumble: false,
+            modifierElements: [],
+            roll: { dice: [], tooltip: "", total: 15 },
+            rollType: "standard",
+            skill: { attributes: {}, id: "lightmagic", points: 0 },
+            maneuvers: [],
+        };
+        skill.roll.resolves({ report, rollOptions: { style: 0, rolls: [], whisper: [], blind: false } });
+        const initialize = sandbox
+            .stub(SpellRollMessage, "initialize")
+            .returns(sandbox.createStubInstance(SpellRollMessage));
+        sandbox.stub(SplittermondChatCard, "create").returns(sandbox.createStubInstance(SplittermondChatCard));
+        return { spell, actor, skill, initialize };
+    }
+
+    for (const tickMalus of [0, 2, -2]) {
+        it(`includes a tick malus of ${tickMalus} when releasing a spell`, async () => {
+            const { spell, actor, initialize } = setUpSpellOnActorForRelease();
+            actor.modifier.add("tickmalus", { name: "Tick malus", type: "innate" }, of(tickMalus));
+
+            expect(await spell.roll({})).to.be.true;
+
+            expect(initialize.firstCall.args[2]).to.equal(3 + Math.max(0, tickMalus));
+        });
+    }
+
+    it("uses a fresh dice result instead of the synchronous cached result for release ticks", async () => {
+        const { spell, actor, initialize } = setUpSpellOnActorForRelease();
+        const die = createTestRoll("1d6", [6]);
+        sandbox.stub(die, "clone").returns(die);
+        const evaluate = sandbox.stub(die, "evaluate");
+        evaluate.onFirstCall().resolves(createTestRoll("1d6", [2]));
+        evaluate.onSecondCall().resolves(createTestRoll("1d6", [6]));
+        actor.modifier.add("tickmalus", { name: "Dice malus", type: "innate" }, roll(die));
+
+        await spell.roll({});
+
+        expect(initialize.firstCall.args[2]).to.equal(9);
+        expect(evaluate.callCount).to.equal(2);
+    });
+
+    it("does not evaluate release ticks after cancelling the check", async () => {
+        const { spell, actor, skill, initialize } = setUpSpellOnActorForRelease();
+        skill.roll.resolves(false);
+        const tickMalus = sandbox.stub().returns(actor.tickMalus);
+        sandbox.stub(actor, "tickMalus").get(tickMalus);
+
+        expect(await spell.roll({})).to.equal(false);
+        expect(tickMalus.called).to.be.false;
+        expect(initialize.called).to.be.false;
+    });
+});
 
 describe("Spell item availability display", () => {
     const sampleSpell = new SplittermondSpellItem(
