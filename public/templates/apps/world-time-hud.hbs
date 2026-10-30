@@ -1,0 +1,13 @@
+<section aria-label="{{localize 'splittermond.worldTime.title'}}">
+    {{#unless hidden}}<div class="world-time-label" data-tooltip="{{secondsLabel}}">{{label}}</div>{{/unless}}
+    {{#if isGM}}
+    <div class="world-time-buttons">
+        {{#unless hidden}}
+        {{#unless paused}}
+        {{#each steps}}<button type="button" data-action="advance" data-seconds="{{seconds}}" aria-label="{{advanceLabel}}" {{#if ../busy}}disabled{{/if}}>+{{label}}</button>{{/each}}
+        {{/unless}}
+        {{/unless}}
+        <button type="button" class="world-time-menu-button" data-action="menu" data-tooltip="{{localize 'splittermond.worldTime.title'}}" aria-label="{{localize 'splittermond.worldTime.title'}}"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i></button>
+    </div>
+    {{/if}}
+</section>
