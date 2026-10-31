@@ -17,6 +17,7 @@ import type { Expression } from "module/modifiers/expressions/scalar";
 import { SplittermondActiveEffect } from "module/activeEffect";
 import type { PreparedAction } from "module/actor/PreparedAction";
 import type SplittermondSpellItem from "../item/spell";
+import type { RollType } from "module/config/check";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 
@@ -35,6 +36,7 @@ declare class SplittermondActor extends Actor {
     public preparedAttacks: PreparedAction;
     public bonusGrants: { healthpoints: BonusGrant[]; focuspoints: BonusGrant[] };
     public readonly type: "character" | "npc";
+    public readonly defaultRollType: RollType | undefined;
 
     items: Collection<SplittermondItem>;
 
