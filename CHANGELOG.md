@@ -1,3 +1,9 @@
+## Unreleased
+
+### Fixes
+
+- Vorgeschriebene Würfelarten, etwa durch Angsterfüllt oder Rasend, haben jetzt Vorrang vor dem Standardwurf für NSC ohne Taktiker.
+
 ## 14.3.0
 
 ### Features
