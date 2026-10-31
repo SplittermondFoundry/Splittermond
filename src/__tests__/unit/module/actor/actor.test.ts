@@ -4,6 +4,8 @@ import { afterEach, beforeEach, describe, it } from "mocha";
 import SplittermondActor from "../../../../module/actor/actor.js";
 import SplittermondItem from "../../../../module/item/item.js";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
+import { NpcDataModel } from "module/actor/dataModel/NpcDataModel";
+import { NpcAttribute } from "module/actor/dataModel/NpcAttribute";
 import sinon from "sinon";
 import { HealthDataModel } from "module/actor/dataModel/HealthDataModel";
 import { FocusDataModel } from "module/actor/dataModel/FocusSchemaModel";
@@ -171,6 +173,132 @@ describe("SplittermondActor", () => {
                 expect(tokens[0].statusId).to.equal("status-id");
             });
         });
+    });
+
+    describe("NPC roll requirements", () => {
+        beforeEach(() => {
+            Object.defineProperty(actor, "type", { value: "npc" });
+            actor.system = Object.assign(sandbox.createStubInstance(NpcDataModel), {
+                attributes: {
+                    charisma: new NpcAttribute({ value: 2 }),
+                    agility: new NpcAttribute({ value: 2 }),
+                    intuition: new NpcAttribute({ value: 2 }),
+                    constitution: new NpcAttribute({ value: 2 }),
+                    mystic: new NpcAttribute({ value: 2 }),
+                    strength: new NpcAttribute({ value: 2 }),
+                    mind: new NpcAttribute({ value: 2 }),
+                    willpower: new NpcAttribute({ value: 2 }),
+                },
+                skills: actor.system.skills,
+                damageReduction: { value: 0 },
+            });
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            sandbox.stub(console, "warn");
+        });
+
+        for (const rollType of ["safety", "risk"] as const) {
+            it(`should prefer an explicit ${rollType} requirement over the NPC standard roll without a conflict`, async () => {
+                actor.prepareBaseData();
+                actor.modifier.add("check.require", { name: "Condition", type: "innate", rollType }, of(0));
+                const warnUser = sandbox.stub(foundryApi, "warnUser");
+
+                const result = await actor.skills.acrobatics.finalizeCheckInputData(
+                    [],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    "skill",
+                    false
+                );
+
+                expect(result?.rollType).to.equal(rollType);
+                expect(warnUser.called, "the NPC default must not cause a requirement conflict").to.be.false;
+            });
+        }
+
+        it("should keep the standard roll for an NPC without Taktiker or an explicit requirement", async () => {
+            actor.prepareBaseData();
+
+            const result = await actor.skills.acrobatics.finalizeCheckInputData(
+                [],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                "risk",
+                "skill",
+                false
+            );
+
+            expect(result?.rollType).to.equal("standard");
+        });
+
+        it("should allow an NPC with Taktiker to choose a risk roll", async () => {
+            const tactician = sandbox.createStubInstance(SplittermondItem);
+            Object.assign(tactician, { name: "Taktiker", type: "npcfeature" });
+            Object.defineProperty(actor, "items", { value: [tactician] });
+            actor.prepareBaseData();
+
+            const result = await actor.skills.acrobatics.finalizeCheckInputData(
+                [],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                "risk",
+                "skill",
+                false
+            );
+
+            expect(result?.rollType).to.equal("risk");
+        });
+
+        it("should release the NPC standard roll requirement when Taktiker is added", async () => {
+            actor.prepareBaseData();
+            const tactician = sandbox.createStubInstance(SplittermondItem);
+            Object.assign(tactician, { name: "Taktiker", type: "npcfeature" });
+            Object.defineProperty(actor, "items", { value: [tactician] });
+
+            actor.prepareBaseData();
+            const result = await actor.skills.acrobatics.finalizeCheckInputData(
+                [],
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                "risk",
+                "skill",
+                false
+            );
+
+            expect(result?.rollType).to.equal("risk");
+        });
+
+        for (const attributes of [{ skill: "stealth" }, { checkType: "attack" }]) {
+            it(`should keep the NPC standard roll when a requirement only matches ${JSON.stringify(attributes)}`, async () => {
+                actor.prepareBaseData();
+                actor.modifier.add(
+                    "check.require",
+                    { name: "Restricted requirement", type: "innate", rollType: "safety", ...attributes },
+                    of(0)
+                );
+
+                const result = await actor.skills.acrobatics.finalizeCheckInputData(
+                    [],
+                    undefined,
+                    undefined,
+                    undefined,
+                    undefined,
+                    "risk",
+                    "skill",
+                    false
+                );
+
+                expect(result?.rollType).to.equal("standard");
+            });
+        }
     });
 
     describe("Spell Cost Reduction", () => {
