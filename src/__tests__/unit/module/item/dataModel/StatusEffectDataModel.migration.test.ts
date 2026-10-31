@@ -2,6 +2,16 @@ import { expect } from "chai";
 import { from14_2_6_migrateCombatEvent, from14_3_0_normalizeStatusEffectLevel } from "module/item/dataModel/migrations";
 import { StatusEffectDataModel } from "module/item/dataModel/StatusEffectDataModel";
 
+describe("StatusEffect level schema", () => {
+    it("requires a non-null level with an initial value of 1", () => {
+        expect(StatusEffectDataModel.defineSchema().level).to.have.property("options").that.includes({
+            required: true,
+            nullable: false,
+            initial: 1,
+        });
+    });
+});
+
 describe("StatusEffect level migration (from 14.3.0)", () => {
     it("migrates an explicit null level to 1", () => {
         expect(from14_3_0_normalizeStatusEffectLevel({ level: null })).to.deep.equal({ level: 1 });
