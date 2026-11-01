@@ -4,7 +4,7 @@ import { Modifier, SplittermondActiveEffect } from "module/activeEffect";
 import type SplittermondActor from "module/actor/actor";
 import { SplittermondActiveEffectConfig } from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
 import { evaluate, of, plus, ref, times } from "module/modifiers/expressions/scalar";
-import { useScene, withActiveEffect, withActor } from "./fixtures";
+import { deleteTestCombats, useScene, withActiveEffect, withActor } from "./fixtures";
 import { passesEventually } from "../util";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import SplittermondItemEffectsSheet from "module/item/sheets/item-effects-sheet";
@@ -1089,12 +1089,14 @@ export function activeEffectTest(context: QuenchBatchContext) {
 
     describe("Combat-aware default duration units", () => {
         let combatScene: FoundryScene;
+        let combatIds: string[] = [];
         useScene({ before, after }, (created) => {
             combatScene = created;
         });
 
         afterEach(async () => {
-            await Combat.deleteDocuments(Array.from((game as any).combats.keys()));
+            await deleteTestCombats(combatIds);
+            combatIds = [];
             await combatScene.deleteEmbeddedDocuments(
                 "Token",
                 combatScene.tokens.map((t: TokenDocument) => t.id)
@@ -1102,7 +1104,8 @@ export function activeEffectTest(context: QuenchBatchContext) {
         });
 
         async function addActorToCombat(actor: SplittermondActor) {
-            const combat = (await Combat.create({})) as any;
+            const combat = await Combat.create({ scene: combatScene.id });
+            combatIds.push(combat.id);
             await combat.update({ active: true });
             await combat.startCombat();
             const tokenDocument = (

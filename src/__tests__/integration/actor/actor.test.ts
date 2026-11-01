@@ -13,7 +13,8 @@ import SplittermondSpellItem from "module/item/spell";
 import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import { FoundryDialog } from "module/api/Application";
 import SplittermondActorSheet from "module/actor/sheets/actor-sheet";
-import { withActor } from "../fixtures";
+import { deleteTestMessages, withActor } from "../fixtures";
+import type { FoundryChatMessage } from "module/api/ChatMessage";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import { passesEventually } from "../../util";
 import { Modifier } from "module/activeEffect";
@@ -482,25 +483,28 @@ export function actorTest(context: QuenchBatchContext) {
                 actor.modifier.addModifier(Modifier.create("item.damage", of(5), { name: "Test", type: "innate" }));
                 const sheet = await new SplittermondCharacterSheet({ document: actor }).render({ force: true });
 
-                const assertion = new Promise((resolve, reject) => {
-                    foundryApi.hooks.once("renderChatMessageHTML", (app) => {
-                        try {
-                            expect(app.type).to.equal("damageMessage");
-                            expect((app.system as DamageMessage).damageEvent.formulaToDisplay).to.equal("1W6 + 7");
-                            resolve("passed");
-                        } catch (e) {
-                            reject((e as Error).message);
-                        }
+                let messageId: string | undefined;
+                let hookId: number;
+                const rendered = new Promise<FoundryChatMessage>((resolve) => {
+                    hookId = foundryApi.hooks.once("renderChatMessageHTML", (message) => {
+                        messageId = message.id;
+                        resolve(message);
                     });
                 });
-                const damageLink = sheet.element.querySelector(
-                    'a.rollable[data-action="roll-damage"][data-damageimplements]'
-                );
-                damageLink?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-                sheet.close();
-
-                expect(damageLink, "Sheet has a damage link").to.exist;
-                expect(await assertion, "Chat message was created successfully").to.equal("passed");
+                try {
+                    const damageLink = sheet.element.querySelector(
+                        'a.rollable[data-action="roll-damage"][data-damageimplements]'
+                    );
+                    expect(damageLink, "Sheet has a damage link").to.exist;
+                    damageLink!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+                    const message = await rendered;
+                    expect(message.type).to.equal("damageMessage");
+                    expect((message.system as DamageMessage).damageEvent.formulaToDisplay).to.equal("1W6 + 7");
+                } finally {
+                    foundryApi.hooks.off("renderChatMessageHTML", hookId!);
+                    await sheet.close();
+                    if (messageId) await deleteTestMessages([messageId]);
+                }
             })
         );
         it(

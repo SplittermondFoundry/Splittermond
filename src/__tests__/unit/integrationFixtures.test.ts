@@ -4,10 +4,12 @@ import { foundryApi } from "module/api/foundryApi";
 import { withActor, withScene } from "../integration/fixtures";
 import SplittermondActor from "module/actor/actor";
 
+declare const game: object;
+
 describe("Scene fixture cleanup", () => {
     const sandbox = sinon.createSandbox();
-    const original = { id: "original", activate: sandbox.stub(), view: sandbox.stub() };
-    const temporary = { id: "temporary" };
+    const original = { id: "original", active: true, activate: sandbox.stub(), view: sandbox.stub() };
+    const temporary = { id: "temporary", active: false };
     let currentScene: { id: string };
     let deleteDocuments: sinon.SinonStub;
 
@@ -15,9 +17,14 @@ describe("Scene fixture cleanup", () => {
         original.activate.resolves();
         original.view.resolves();
         currentScene = original;
+        temporary.active = false;
         deleteDocuments = sandbox.stub().resolves([]);
         sandbox.define(globalThis, "Scene", { create: sandbox.stub().resolves(temporary), deleteDocuments });
+        sandbox.define(globalThis, "ui", { combat: { viewed: null } });
+        sandbox.define(globalThis, "canvas", { ready: true });
         sandbox.stub(foundryApi, "currentScene").get(() => currentScene);
+        sandbox.stub(foundryApi, "scenes").get(() => [original, temporary]);
+        sandbox.stub(foundryApi, "combats").get(() => []);
     });
     afterEach(() => {
         original.activate.reset();
@@ -29,6 +36,7 @@ describe("Scene fixture cleanup", () => {
         const result = await withScene(async (scene) => {
             expect(scene).to.equal(temporary);
             currentScene = temporary;
+            temporary.active = true;
             return "result";
         })();
 
@@ -42,6 +50,7 @@ describe("Scene fixture cleanup", () => {
         const result = await withScene(async (scene) => {
             expect(scene).to.equal(temporary);
             currentScene = temporary;
+            temporary.active = true;
             throw error;
         })().catch((caught: unknown) => caught);
 
@@ -84,6 +93,7 @@ describe("Actor fixture cleanup", () => {
         deleteDocuments = sandbox.stub().resolves([]);
         sandbox.define(Actor, "create", sandbox.stub().resolves(character));
         sandbox.define(Actor, "deleteDocuments", deleteDocuments);
+        sandbox.define(game, "messages", []);
     });
     afterEach(() => sandbox.restore());
 

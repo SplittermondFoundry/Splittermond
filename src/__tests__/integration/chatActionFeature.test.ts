@@ -1,4 +1,5 @@
-import { withActor, withScene } from "./fixtures.js";
+import { deleteTestMessages, withActor, withScene, withSocket } from "./fixtures.js";
+import { passesEventually } from "../util";
 import { ChatMessage } from "../../module/api/ChatMessage";
 import { handleChatAction, SplittermondChatCard } from "module/util/chat/SplittermondChatCard";
 import { foundryApi } from "module/api/foundryApi";
@@ -37,7 +38,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
     describe("SplittermondChatCard", () => {
         let messagesToDelete: string[] = [];
         afterEach(async () => {
-            await ChatMessage.deleteDocuments(messagesToDelete);
+            await deleteTestMessages(messagesToDelete);
             messagesToDelete = [];
         });
         it(
@@ -117,7 +118,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
     describe("RollMessages", () => {
         let messagesToDelete: string[] = [];
         afterEach(async () => {
-            await ChatMessage.deleteDocuments(messagesToDelete);
+            await deleteTestMessages(messagesToDelete);
             messagesToDelete = [];
         });
         it(
@@ -304,8 +305,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             withScene(
                 withActor(async (actor, scene) => {
                     if (!foundryApi.currentScene) {
-                        scene.activate();
-                        setTimeout(() => {}, 100); //Give Foundry some time to update the current scene
+                        await scene.activate();
                     }
                     const speaker = foundryApi.getSpeaker({ actor });
 
@@ -335,7 +335,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 const message = await foundryApi.createChatMessage(sampleMessageContent);
 
                 expect(message.id, "messageId is a string").to.be.a("string");
-                return ChatMessage.deleteDocuments([message.id]);
+                return deleteTestMessages([message.id]);
             })
         );
 
@@ -361,7 +361,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 expect(retrievedMessage.getFlag("splittermond", "chatCard")).to.deep.equal(
                     sampleMessageContent.flags.splittermond.chatCard
                 );
-                return ChatMessage.deleteDocuments([message.id]);
+                return deleteTestMessages([message.id]);
             })
         );
 
@@ -378,7 +378,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 };
                 const message = await foundryApi.createChatMessage(sampleMessageContent);
                 expect(message.rolls[0]).to.be.instanceOf(foundryApi.roll("1d6").constructor);
-                return ChatMessage.deleteDocuments([message.id]);
+                return deleteTestMessages([message.id]);
             })
         );
 
@@ -395,7 +395,7 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 };
                 const message = await foundryApi.createChatMessage(sampleMessageContent);
                 expect(message.rolls[0].dice[0].faces).to.equal(12);
-                return ChatMessage.deleteDocuments([message.id]);
+                return deleteTestMessages([message.id]);
             })
         );
 
@@ -414,13 +414,13 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                 };
                 const message = await foundryApi.createChatMessage(sampleMessageContent);
                 expect(message.whisper).to.deep.equal([foundryApi.currentUser.id]);
-                return ChatMessage.deleteDocuments([message.id]);
+                return deleteTestMessages([message.id]);
             })
         );
 
         it("should delete documents", async () => {
             const message = await foundryApi.createChatMessage({ content: "Random text content" });
-            await ChatMessage.deleteDocuments([message.id]);
+            await deleteTestMessages([message.id]);
 
             expect(foundryApi.messages.get(message.id), "message was not deleted").to.be.undefined;
         });
@@ -435,12 +435,22 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             expect(renderedHtml, "renderedHtml contains the content").to.contain(content);
         });
 
-        it("transfer events via socket", () => {
-            foundryApi.socket.on("system.splittermond.quench.test.event", (data) => {
-                expect(data instanceof Object && "test" in data).to.be.true;
-                expect((data as { test: unknown }).test).to.be.equal("test");
+        it("transfers events through the server to another socket connection", async () => {
+            await withSocket(async (receiver) => {
+                const channel = "system.splittermond";
+                const payload = { type: "quench-test", id: crypto.randomUUID(), test: "test" };
+                let received: unknown;
+                const listener = (data: unknown) => {
+                    if (data && typeof data === "object" && "id" in data && data.id === payload.id) received = data;
+                };
+                receiver.on(channel, listener);
+                try {
+                    foundryApi.socket.emit(channel, payload);
+                    await passesEventually(() => expect(received).to.deep.equal(payload));
+                } finally {
+                    receiver.off(channel, listener);
+                }
             });
-            foundryApi.socket.emit("system.splittermond.quench.test.event", { test: "test" });
         });
 
         it(
@@ -458,19 +468,21 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
                         resolve();
                     });
                 });
-                const sampleMessageContent = {
-                    user: foundryApi.currentUser.id,
-                    speaker: foundryApi.getSpeaker({ actor }),
-                    content: "Random text content",
-                };
-                const message = await foundryApi.createChatMessage(sampleMessageContent);
-                await callbackPromise;
-                expect(storedApp, "app is a chat message app").to.be.instanceOf(ChatMessage);
-                expect(storedHtml, "html is an HTMLElement ").to.be.instanceOf(HTMLElement);
-                expect(storedData, "data is the data of the chat message app").is.not.undefined;
-                return ChatMessage.deleteDocuments([message.id]).then(() => {
-                    Hooks.off("renderChatMessage", callbackId);
-                });
+                try {
+                    const sampleMessageContent = {
+                        user: foundryApi.currentUser.id,
+                        speaker: foundryApi.getSpeaker({ actor }),
+                        content: "Random text content",
+                    };
+                    const message = await foundryApi.createChatMessage(sampleMessageContent);
+                    await callbackPromise;
+                    expect(storedApp, "app is a chat message app").to.be.instanceOf(ChatMessage);
+                    expect(storedHtml, "html is an HTMLElement ").to.be.instanceOf(HTMLElement);
+                    expect(storedData, "data is the data of the chat message app").is.not.undefined;
+                    await deleteTestMessages([message.id]);
+                } finally {
+                    Hooks.off("renderChatMessageHTML", callbackId!);
+                }
             })
         );
 
