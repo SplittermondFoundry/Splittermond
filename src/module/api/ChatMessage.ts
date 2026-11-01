@@ -10,6 +10,7 @@ declare class ChatMessage extends FoundryDocument {
     /** the message content, an HTML string*/
     content: string;
     timestamp: number;
+    speaker: Speaker;
 
     rolls: Roll[];
 

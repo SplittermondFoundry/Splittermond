@@ -1,10 +1,15 @@
 import type SplittermondActor from "module/actor/actor";
 import type { FoundryActiveEffect } from "module/api/ActiveEffect";
-import type { FoundryScene, User } from "module/api/foundryTypes";
+import type { FoundryScene, Socket, User } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
+import { ChatMessage, type FoundryChatMessage } from "module/api/ChatMessage";
+import { passesEventually } from "../util";
 import type { QuenchBatchContext, QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
 
-declare const game: any;
+declare const ui: { combat: { viewed: foundry.documents.Combat | null } };
+declare const game: { messages: Collection<FoundryChatMessage> };
+declare const canvas: { ready: boolean };
+declare const foundry: { Game: { connect(): Promise<Socket & { disconnect(): void }> } };
 declare const Scene: FoundryScene;
 declare const User: User & FoundryDocument;
 
@@ -25,6 +30,41 @@ export async function createPlayer() {
     return user as User;
 }
 
+export async function deleteTestMessages(ids: string[]): Promise<void> {
+    const existingIds = ids.filter((id) => foundryApi.messages.get(id));
+    if (!existingIds.length) return;
+    for (const id of existingIds) {
+        // Creation resolves before Foundry finishes revealing the chat notification.
+        await passesEventually(() => {
+            const elements = document.querySelectorAll<HTMLElement>(`.chat-message[data-message-id="${id}"]`);
+            if (!elements.length || Array.from(elements).some((element) => element.hidden)) {
+                throw new Error(`Chat message ${id} is still rendering`);
+            }
+        }, 1500);
+    }
+    await ChatMessage.deleteDocuments(existingIds);
+}
+
+export async function deleteActorMessages(actorIds: string[]): Promise<void> {
+    await deleteTestMessages(
+        game.messages.filter((message) => actorIds.includes(message.speaker.actor ?? "")).map((message) => message.id)
+    );
+}
+
+export async function deleteTestCombats(ids: string[]): Promise<void> {
+    if (ui.combat.viewed && ids.includes(ui.combat.viewed.id)) ui.combat.viewed = null;
+    await Combat.deleteDocuments(ids);
+}
+
+export async function withSocket<R>(fn: (socket: Socket) => Promise<R>): Promise<R> {
+    const socket = await foundry.Game.connect();
+    try {
+        return await fn(socket);
+    } finally {
+        socket.disconnect();
+    }
+}
+
 async function createToken(actor: SplittermondActor, scene: FoundryScene) {
     return (
         await scene.createEmbeddedDocuments("Token", [
@@ -32,8 +72,8 @@ async function createToken(actor: SplittermondActor, scene: FoundryScene) {
                 type: "base",
                 actorLink: false,
                 actorId: actor.id,
-                x: scene._viewPosition.x,
-                y: scene._viewPosition.y,
+                x: 0,
+                y: 0,
             },
         ])
     )[0] as TokenDocument;
@@ -48,7 +88,11 @@ export function withActor<P extends Array<any>, R>(
         try {
             return await fn(actor, ...args);
         } finally {
-            await Actor.deleteDocuments([actor.id]);
+            try {
+                await deleteActorMessages([actor.id]);
+            } finally {
+                await Actor.deleteDocuments([actor.id]);
+            }
         }
     };
 }
@@ -65,17 +109,32 @@ export function withActiveEffect<P extends Array<any>, R>(
 
 async function createSceneFixture() {
     const originalScene = foundryApi.currentScene;
+    const originalActiveScene = foundryApi.scenes.find((scene) => scene.active);
+    const originalCombat = ui.combat.viewed;
+    const originalActiveCombats = foundryApi.combats.filter((combat) => combat.active);
     const scene = await createScene();
     return {
         scene,
         async cleanup() {
             try {
-                if (foundryApi.currentScene?.id === scene.id) {
-                    await originalScene?.activate();
-                    await originalScene?.view();
+                const restoreView = scene.active || foundryApi.currentScene?.id === scene.id;
+                if (scene.active) await originalActiveScene?.activate();
+                if (restoreView && originalScene) {
+                    // Activation can still be drawing; Foundry ignores a scene switch during that draw.
+                    await passesEventually(() => {
+                        if (!canvas.ready) throw new Error("Canvas is still drawing");
+                    }, 1500);
+                    await originalScene.view();
                 }
             } finally {
                 await Scene.deleteDocuments([scene.id]);
+                // Restore combat state without queuing a tracker render during scene cleanup.
+                await Promise.all(
+                    originalActiveCombats
+                        .filter((combat) => !combat.active)
+                        .map((combat) => combat.update({ active: true }, { render: false }))
+                );
+                ui.combat.viewed = originalCombat;
             }
         },
     };
@@ -121,18 +180,14 @@ export function withPlayer<P extends Array<any>, R>(fn: (player: User, ...args: 
     };
 }
 
-export function withUnlinkedToken<P extends Array<U>, R, U>(fn: (token: TokenDocument, ...args: P) => Promise<R>) {
+export function withUnlinkedToken<P extends unknown[], R>(fn: (token: TokenDocument, ...args: P) => Promise<R>) {
     return async (...args: P) =>
         withScene(
             withActor(async (actor, scene) => {
                 const token = await createToken(actor, scene);
-                try {
-                    return await fn(token, ...args);
-                } finally {
-                    await foundryApi.currentScene!.deleteEmbeddedDocuments("Token", [token.id]);
-                }
+                return await fn(token, ...args);
             })
-        );
+        )();
 }
 
 const idGenerator = (function* () {

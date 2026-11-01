@@ -1,15 +1,22 @@
 import type { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import { foundryApi } from "module/api/foundryApi";
 import { actorCreator } from "module/data/EntityCreator";
-import { ChatMessage } from "../../../module/api/ChatMessage";
+import { ChatMessage, type FoundryChatMessage } from "../../../module/api/ChatMessage";
 import { fields } from "module/data/SplittermondDataModel";
 import SplittermondCombat from "module/combat/combat";
 import { CharacterDataModel } from "module/actor/dataModel/CharacterDataModel";
 import SplittermondCharacterSheet from "../../../module/actor/sheets/character-sheet";
 import { Modifier } from "module/activeEffect";
 import { of } from "module/modifiers/expressions/scalar";
-import { withActiveEffect, withActor, withPlayer, withUnlinkedToken } from "../fixtures";
-import { User } from "module/api/foundryTypes";
+import {
+    deleteTestCombats,
+    deleteTestMessages,
+    withActiveEffect,
+    withActor,
+    withPlayer,
+    withUnlinkedToken,
+} from "../fixtures";
+import { type FoundryScene, User } from "module/api/foundryTypes";
 import type SplittermondActor from "module/actor/actor";
 
 declare const game: any;
@@ -22,31 +29,33 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     const { describe, it, expect, afterEach, before, after } = context;
 
     describe("ChatMessage", () => {
+        let message: FoundryChatMessage;
+        before(async () => {
+            message = await foundryApi.createChatMessage({ type: "base", content: "Quench API message" });
+        });
+        after(async () => {
+            if (message) await deleteTestMessages([message.id]);
+        });
         it("should be a class", () => {
             expect(typeof ChatMessage).to.equal("function");
         });
 
         (
             [
-                ["img", "string"],
-                ["name", "string"],
+                ["id", "string"],
+                ["content", "string"],
                 ["type", "string"],
                 ["uuid", "string"],
                 ["system", "object"],
-                ["folder", "object"],
+                ["whisper", "object"],
                 ["isOwner", "boolean"],
                 ["visible", "boolean"],
-                ["hasPlayerOwner", "boolean"],
+                ["timestamp", "number"],
             ] as const
         ).forEach(([property, type]) => {
             it(`should have a ${type} property ${property}`, () => {
-                game.items.forEach((item: FoundryDocument) => {
-                    expect(item, `Chat message ${item.id} does not have ${property}`).to.have.property(property);
-                    expect(
-                        typeof item[property as keyof typeof item],
-                        `chat message property ${property} is not ${type}`
-                    ).to.equal(type);
-                });
+                expect(message, `Chat message ${message.id} does not have ${property}`).to.have.property(property);
+                expect(typeof message[property], `chat message property ${property} is not ${type}`).to.equal(type);
             });
         });
 
@@ -71,6 +80,13 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         });
     });
     describe("Item", () => {
+        let item: FoundryDocument;
+        before(async () => {
+            item = await Item.create({ type: "weapon", name: "Quench API item" });
+        });
+        after(async () => {
+            if (item) await Item.deleteDocuments([item.id]);
+        });
         it("should be a class", () => {
             expect(typeof Item).to.equal("function");
         });
@@ -89,13 +105,10 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             ] as const
         ).forEach(([property, type]) => {
             it(`should have a ${type} property ${property}`, () => {
-                game.items.forEach((item: FoundryDocument) => {
-                    expect(item, `Item ${item.id} does not have ${property}`).to.have.property(property);
-                    expect(
-                        typeof item[property as keyof typeof item],
-                        `item property ${property} is not ${type}`
-                    ).to.equal(type);
-                });
+                expect(item, `Item ${item.id} does not have ${property}`).to.have.property(property);
+                expect(typeof item[property as keyof typeof item], `item property ${property} is not ${type}`).to.equal(
+                    type
+                );
             });
         });
 
@@ -133,8 +146,8 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 system: {},
             });
         });
-        after(() => {
-            Actor.deleteDocuments([actor.id]);
+        after(async () => {
+            await Actor.deleteDocuments([actor.id]);
         });
         (
             [
@@ -395,9 +408,12 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             it(
                 `should have a property called ${property}`,
                 withUnlinkedToken(async (sampleToken) => {
-                    expect(sampleToken, `Token does not have ${property}`).to.have.property(property);
+                    await (sampleToken.parent as FoundryScene).view();
+                    const token = sampleToken.object;
+                    expect(token, "Token is drawn on its scene").to.exist;
+                    expect(token, `Token does not have ${property}`).to.have.property(property);
                     expect(
-                        typeof sampleToken[property as keyof typeof sampleToken],
+                        typeof token[property as keyof typeof token],
                         `Token property ${property} is a function`
                     ).to.not.equal("function");
                 })
@@ -444,10 +460,12 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
             });
         });
 
-        it("should return null for an unset character", () => {
-            const gm = foundryApi.users.find((user) => user.isGM);
-            expect(gm?.character).to.be.null;
-        });
+        it(
+            "should return null for an unset character",
+            withPlayer(async (player) => {
+                expect(player.character).to.be.null;
+            })
+        );
 
         it(
             "should return an actor for a set character",
@@ -534,8 +552,8 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     describe("Folder", () => {
         let createdFolders = [] as Folder[];
 
-        afterEach(() => {
-            Folder.deleteDocuments(createdFolders.map((folder) => folder.id));
+        afterEach(async () => {
+            await Folder.deleteDocuments(createdFolders.map((folder) => folder.id));
             createdFolders = [];
         });
 
@@ -619,26 +637,29 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     });
 
     describe("Combat", () => {
+        let combat: foundry.documents.Combat;
+        before(async () => {
+            combat = await Combat.create({});
+        });
+        after(async () => {
+            if (combat) await deleteTestCombats([combat.id]);
+        });
         ["type", "uuid"].forEach((property) => {
             it(`should have a string property ${property}`, () => {
-                game.combats.forEach((combat: FoundryDocument) => {
-                    expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);
-                    expect(
-                        typeof combat[property as keyof typeof combat],
-                        `combat property ${property} is not a string`
-                    ).to.equal("string");
-                });
+                expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);
+                expect(
+                    typeof combat[property as keyof typeof combat],
+                    `combat property ${property} is not a string`
+                ).to.equal("string");
             });
         });
         ["system", "turns", "current", "scene"].forEach((property) => {
             it(`should have an object property ${property}`, () => {
-                game.combats.forEach((combat: FoundryDocument) => {
-                    expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);
-                    expect(
-                        typeof combat[property as keyof typeof combat],
-                        `combat property ${property} is not an object`
-                    ).to.equal("object");
-                });
+                expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);
+                expect(
+                    typeof combat[property as keyof typeof combat],
+                    `combat property ${property} is not an object`
+                ).to.equal("object");
             });
         });
         [
@@ -669,13 +690,11 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
 
         ["isActive", "started"].forEach((property) => {
             it(`should have a boolean property ${property}`, () => {
-                game.combats.forEach((combat: FoundryDocument) => {
-                    expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);
-                    expect(
-                        typeof combat[property as keyof typeof combat],
-                        `combat property ${property} is not a boolean`
-                    ).to.equal("boolean");
-                });
+                expect(combat, `Combat ${combat.id} does not have ${property}`).to.have.property(property);
+                expect(
+                    typeof combat[property as keyof typeof combat],
+                    `combat property ${property} is not a boolean`
+                ).to.equal("boolean");
             });
         });
 
@@ -708,8 +727,10 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
         });
         ["combat", "visible", "token"].forEach((property) => {
             it(`should have an accessor property ${property}`, () => {
-                const descriptor = new Combatant();
-                expect(descriptor, `Combatant does not have accessor ${property}`).to.not.be.undefined;
+                const combatant: foundry.documents.Combatant = new Combatant();
+                expect(combatant, `Combatant does not have accessor ${property}`).to.have.property(property);
+                expect(combatant[property as keyof typeof combatant], `Combatant accessor ${property} is defined`).not
+                    .to.be.undefined;
             });
         });
         ["prepareBaseData", "prepareDerivedData", "toObject", "setFlag", "getFlag", "updateSource"].forEach(
@@ -769,9 +790,9 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     describe("Macro", () => {
         const createdMacros: any[] = [];
 
-        afterEach(() => {
+        afterEach(async () => {
             if (createdMacros.length) {
-                Macro.deleteDocuments(createdMacros.map((m: any) => m.id));
+                await Macro.deleteDocuments(createdMacros.map((m: { id: string }) => m.id));
                 createdMacros.length = 0;
             }
         });

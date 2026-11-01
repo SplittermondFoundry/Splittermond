@@ -23,9 +23,11 @@ foundryApi.keybindings.register("splittermond", "test-keybinding", {
 export function foundryKeybindingsTest(context: QuenchBatchContext) {
     const { it, expect, afterEach } = context;
 
-    afterEach(() => {
+    afterEach(async () => {
         actualExecutor = () => {};
-        foundryApi.keybindings.set("splittermond", "test-keybinding", [
+        KeyboardManager.emulateKeypress(true, "Key9", { shiftKey: true, force: true });
+        KeyboardManager.emulateKeypress(true, "Key3", { shiftKey: true, force: true });
+        await foundryApi.keybindings.set("splittermond", "test-keybinding", [
             {
                 key: "Key9",
                 modifiers: ["Shift"],
@@ -43,12 +45,12 @@ export function foundryKeybindingsTest(context: QuenchBatchContext) {
             flag = true;
             return false;
         };
-        KeyboardManager.emulateKeypress(false, "Key9", { shiftKey: true });
+        KeyboardManager.emulateKeypress(false, "Key9", { shiftKey: true, force: true });
 
         expect(flag).to.be.true;
     });
 
-    it("should allow editing of keybindings", () => {
+    it("should allow editing of keybindings", async () => {
         let flag = false;
         actualExecutor = () => {
             flag = true;
@@ -56,8 +58,8 @@ export function foundryKeybindingsTest(context: QuenchBatchContext) {
 
         const keyActions = foundryApi.keybindings.get("splittermond", "test-keybinding");
         keyActions[0].key = "Key3";
-        foundryApi.keybindings.set("splittermond", "test-keybinding", keyActions);
-        KeyboardManager.emulateKeypress(false, "Key3", { shiftKey: true });
+        await foundryApi.keybindings.set("splittermond", "test-keybinding", keyActions);
+        KeyboardManager.emulateKeypress(false, "Key3", { shiftKey: true, force: true });
 
         expect(flag).to.be.true;
     });
