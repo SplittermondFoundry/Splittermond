@@ -1,6 +1,38 @@
 import { expect } from "chai";
-import { from14_2_6_migrateCombatEvent } from "module/item/dataModel/migrations";
+import { from14_2_6_migrateCombatEvent, from14_3_0_normalizeStatusEffectLevel } from "module/item/dataModel/migrations";
 import { StatusEffectDataModel } from "module/item/dataModel/StatusEffectDataModel";
+
+describe("StatusEffect level schema", () => {
+    it("requires a non-null level with an initial value of 1", () => {
+        expect(StatusEffectDataModel.defineSchema().level).to.have.property("options").that.includes({
+            required: true,
+            nullable: false,
+            initial: 1,
+        });
+    });
+});
+
+describe("StatusEffect level migration (from 14.3.0)", () => {
+    it("migrates an explicit null level to 1", () => {
+        expect(from14_3_0_normalizeStatusEffectLevel({ level: null })).to.deep.equal({ level: 1 });
+    });
+
+    [0, 1, 2].forEach((level) => {
+        it(`preserves level ${level}`, () => {
+            expect(from14_3_0_normalizeStatusEffectLevel({ level })).to.deep.equal({ level });
+        });
+    });
+
+    it("does not inject level into a partial update that omits it", () => {
+        const source = { description: "Updated description" };
+
+        expect(from14_3_0_normalizeStatusEffectLevel(source)).to.deep.equal({ description: "Updated description" });
+    });
+
+    it("leaves an undefined level for schema defaulting", () => {
+        expect(from14_3_0_normalizeStatusEffectLevel({ level: undefined })).to.deep.equal({ level: undefined });
+    });
+});
 
 describe("StatusEffect combatEvent migration (from 14.2.6)", () => {
     it("moves legacy timing fields into a combatEvent group without injecting defaults", () => {

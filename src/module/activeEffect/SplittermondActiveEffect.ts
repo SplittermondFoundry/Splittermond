@@ -12,6 +12,7 @@ import type { EffectType } from "module/activeEffect/dataModel/effectTypes";
 import type SplittermondWeaponItem from "module/item/weapon";
 import type SplittermondShieldItem from "module/item/shield";
 import type SplittermondArmorItem from "module/item/armor";
+import type { StatusEffectDataModel } from "module/item/dataModel/StatusEffectDataModel";
 
 interface HasActiveFlag {
     system: { active: boolean };
@@ -32,7 +33,7 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
             case "strength":
                 return (item.system as { quantity?: number }).quantity ?? 1;
             case "statuseffect":
-                return (item.system as { level?: number }).level ?? 1;
+                return (item.system as StatusEffectDataModel).level;
             default:
                 return 1;
         }
@@ -58,6 +59,8 @@ export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
                 return !(sourceItem as SplittermondArmorItem).system.equipped;
             case "spelleffect":
                 return !(sourceItem as unknown as HasActiveFlag).system.active;
+            case "statuseffect":
+                return (sourceItem.system as StatusEffectDataModel).level === 0;
             default:
                 return false;
         }
