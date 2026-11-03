@@ -20,6 +20,7 @@ import { addSplinterpointBonus } from "module/check/addSplinterpoint";
 import { getRollResultClass } from "../ChatMessageUtils";
 import { RollMessage } from "module/util/chat/rollMessages/RollMessage";
 import { totalDegreesOfSuccess } from "module/check/modifyEvaluation";
+import { splittermond } from "module/config";
 
 const classIdentifier = "SpellRollMessage";
 
@@ -115,9 +116,23 @@ export class SpellRollMessage extends RollMessage<
     }
 
     getData(): SpellRollMessageRenderedData {
+        const values = this.spellReference
+            .getItem()
+            .getValues({ enhanced: this.focusCostHandler.spellEnhancement.checked });
         const renderedActions: SpellRollMessageRenderedData["actions"] = {};
         this.renderActions().forEach((action) => (renderedActions[action.type] = action));
         return {
+            spellValues: {
+                enhanced: this.focusCostHandler.spellEnhancement.checked,
+                features: values.features.features,
+                damageType: values.damageType
+                    ? `splittermond.damageTypes.long.${values.damageType}`
+                    : "splittermond.damageTypes.long.none",
+                costType: values.costType ? splittermond.costTypeOptions[values.costType] : "splittermond.noDamage",
+                range: values.range,
+                effectArea: values.effectArea,
+                effectDuration: values.effectDuration,
+            },
             header: {
                 img: this.spellReference.getItem().img,
                 difficulty: `${this.checkReport.difficulty}`,

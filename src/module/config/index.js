@@ -819,13 +819,38 @@ splittermond.itemSheetProperties.spell = [
                 template: "input",
             },
             {
+                field: "system.enhancementCosts",
+                label: "splittermond.enhancementCosts",
+                template: "input",
+            },
+            {
                 field: "system.difficulty",
                 label: "splittermond.difficulty",
                 template: "input",
             },
             {
+                field: "system.castDuration.innateDuration",
+                label: "splittermond.castDuration",
+                template: "input",
+            },
+        ],
+    },
+    {
+        groupName: "splittermond.spellValues.heading",
+        columnLabels: {
+            normal: "splittermond.spellValues.normal",
+            comparison: "splittermond.spellValues.enhanced",
+            help: "splittermond.spellValues.inheritHint",
+        },
+        properties: [
+            {
                 field: "system.damage.stringInput",
                 label: "splittermond.damage",
+                template: "input",
+            },
+            {
+                field: "system.features.innateFeatures",
+                label: "splittermond.features",
                 template: "input",
             },
             {
@@ -846,8 +871,8 @@ splittermond.itemSheetProperties.spell = [
                 template: "input",
             },
             {
-                field: "system.castDuration.innateDuration",
-                label: "splittermond.castDuration",
+                field: "system.effectArea",
+                label: "splittermond.effectArea",
                 template: "input",
             },
             {
@@ -855,30 +880,30 @@ splittermond.itemSheetProperties.spell = [
                 label: "splittermond.effectDuration",
                 template: "input",
             },
-            {
-                field: "system.effectArea",
-                label: "splittermond.effectArea",
-                template: "input",
+        ].map((property) => ({
+            ...property,
+            comparison: {
+                ...property,
+                field:
+                    property.field.replace("system.", "system.enhanced.") +
+                    (["system.damage.stringInput", "system.features.innateFeatures"].includes(property.field)
+                        ? ""
+                        : ".value"),
             },
-            {
-                field: "system.enhancementCosts",
-                label: "splittermond.enhancementCosts",
-                template: "input",
-            },
+        })),
+    },
+    {
+        properties: [
             {
                 field: "system.enhancementDescription",
-                label: "splittermond.enhancementDescription",
-                template: "input",
-            },
-            {
-                field: "system.features.innateFeatures",
-                label: "splittermond.features",
-                template: "input",
+                label: "splittermond.spellValues.enhancementDescription",
+                template: "textarea",
             },
         ],
     },
     {
         groupName: "splittermond.degreeOfSuccessOptionsHeader",
+        layout: "options",
         properties: [
             {
                 field: "system.degreeOfSuccessOptions.castDuration",

@@ -26,6 +26,18 @@ import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffect
 declare const Item: any;
 declare const game: any;
 
+function inheritedSpellValues() {
+    return {
+        damage: null,
+        features: null,
+        damageType: null,
+        costType: null,
+        range: null,
+        effectArea: null,
+        effectDuration: null,
+    };
+}
+
 export function itemTest(this: any, context: QuenchBatchContext) {
     const { describe, it, expect, afterEach } = context;
     describe("foundry API compatibility", () => {
@@ -146,7 +158,7 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             expect(item.name).to.equal(itemData.name);
             expect(item.type).to.equal(itemData.type);
             expect(item.system).to.be.instanceOf(SpellDataModel);
-            expect(item.system.toObject()).to.deep.equal(itemData.system);
+            expect(item.system.toObject()).to.deep.equal({ ...itemData.system, enhanced: inheritedSpellValues() });
 
             await Item.deleteDocuments([item.id]);
         });
@@ -155,7 +167,7 @@ export function itemTest(this: any, context: QuenchBatchContext) {
         const sandbox = sinon.createSandbox();
         afterEach(() => sandbox.restore());
 
-        it("can import a spell", async () => {
+        it("imports spell text, opens its registered sheet and retains an enhancement edit after reopening", async () => {
             sandbox.stub(ItemImporter, "_folderDialog").returns(Promise.resolve(""));
             sandbox.stub(ItemImporter, "_skillDialog").returns(Promise.resolve("fightmagic"));
             const itemCreatorSpy = sandbox.spy(itemCreator, "createSpell");
@@ -165,18 +177,49 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             await ItemImporter.pasteEventhandler(probe);
 
             const item = await itemCreatorSpy.lastCall.returnValue;
-            const expectedItemSystem = {
-                ...Machtexplosion.expected.system,
-                features: {
-                    _document: null,
-                    internalFeatureList: Machtexplosion.expected.system.features.internalFeatureList,
-                    triedToFindDocument: false,
-                },
-            };
-            expect(item.system).to.deep.equal(expectedItemSystem);
-            expect("img" in item && item.img).to.equal("icons/svg/daze.svg");
+            let sheet = item.sheet;
+            try {
+                const expectedItemSystem = {
+                    ...Machtexplosion.expected.system,
+                    enhanced: inheritedSpellValues(),
+                    features: {
+                        _document: null,
+                        internalFeatureList: Machtexplosion.expected.system.features.internalFeatureList,
+                        triedToFindDocument: false,
+                    },
+                };
+                expect(item.system).to.deep.equal(expectedItemSystem);
+                expect(item.img).to.equal("icons/svg/daze.svg");
+                expect(sheet, "Foundry selects the spell sheet for imported items").to.be.instanceOf(
+                    SplittermondSpellSheet
+                );
+                await sheet.render(true);
+                sheet.changeTab("properties", "primary");
+                const enhancedDamage = sheet.element.querySelector<HTMLInputElement>(
+                    "[name='system.enhanced.damage.stringInput']"
+                );
+                expect(enhancedDamage?.value, "imported damage is inherited").to.equal("5W6");
 
-            await Item.deleteDocuments([item.id]);
+                enhancedDamage!.value = "6W6";
+                enhancedDamage!.dispatchEvent(new Event("change", { bubbles: true }));
+                await passesEventually(() => expect(item.system.enhanced.damage?.displayValue).to.equal("6W6"));
+                await sheet.close();
+                sheet = item.sheet;
+                await sheet.render(true);
+
+                expect(
+                    sheet.element.querySelector<HTMLInputElement>("[name='system.damage.stringInput']")?.value
+                ).to.equal("5W6");
+                expect(
+                    sheet.element.querySelector<HTMLInputElement>("[name='system.enhanced.damage.stringInput']")?.value
+                ).to.equal("6W6");
+                expect(item.system.enhancementDescription).to.equal(
+                    Machtexplosion.expected.system.enhancementDescription
+                );
+            } finally {
+                await sheet.close();
+                await SplittermondSpellItem.deleteDocuments([item.id]);
+            }
         });
     });
 

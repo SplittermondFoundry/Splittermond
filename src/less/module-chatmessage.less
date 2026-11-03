@@ -6,6 +6,15 @@
     //No styling! This class is a marker to attach JQuery hooks to elements
 }
 .splittermond {
+    .spell-values dl {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.1rem 0.5rem;
+        margin: 0.25rem 0;
+        dd {
+            margin: 0;
+        }
+    }
     .chat-card-segment {
         margin-top: 0.7rem;
         h3 {

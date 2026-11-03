@@ -467,6 +467,14 @@
         "noDamage": "Keine Schadensart",
         "damageType": "Schadenstyp",
         "damageCategory": "Schadensart",
+        "spellValues": {
+            "heading": "Zauberwirkung",
+            "normal": "Normal",
+            "enhanced": "Verstärkt",
+            "enhancementDescription": "Beschreibung\nVerstärkung",
+            "inherit": "Wie Normal",
+            "inheritHint": "Verstärkte Werte folgen dem Normalwert, bis eine Abweichung eingetragen wird. Zum Zurücksetzen das Feld leeren, den Normalwert eintragen oder „Wie Normal“ wählen."
+        },
         "channeled": "kanalisiert",
         "channeledAbbrev": "K",
         "channelEnd": "Kanalisierung aufgeben",
