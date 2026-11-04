@@ -32,6 +32,7 @@ import { Modifier } from "module/activeEffect";
 import sinon from "sinon";
 import { isGenerated } from "module/activeEffect/effectBuilder";
 import { parseCostString } from "module/util/costs/costParser";
+import CheckDialog from "module/apps/dialog/check-dialog";
 
 declare const ChatMessage: any;
 
@@ -1357,6 +1358,49 @@ export function modifierTest(context: QuenchBatchContext) {
                     50
                 );
             })
+        );
+
+        it(
+            "should prefer an explicit safety requirement in an NPC dialog without a conflict or confirmation",
+            withActor(
+                async (actor) => {
+                    await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
+                    const warnUser = sandbox.spy(foundryApi, "warnUser");
+                    const render = sandbox.spy(CheckDialog.prototype, "render");
+
+                    const dialogPromise = actor.skills.acrobatics.finalizeCheckInputData(
+                        [],
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        undefined,
+                        "skill"
+                    );
+                    try {
+                        const dialog = await waitFor(
+                            () => document.querySelector<HTMLElement>(".dialog-check"),
+                            "NPC check dialog not rendered"
+                        );
+                        const safetyButton = dialog.querySelector<HTMLButtonElement>("button[data-action='safety']");
+                        expect(safetyButton?.classList.contains("preset"), "safety is the NPC's preset roll").to.be
+                            .true;
+                        expect(warnUser.called, "the NPC default must not cause a requirement conflict").to.be.false;
+
+                        safetyButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
+
+                        const result = await dialogPromise;
+                        expect(result?.rollType).to.equal("safety");
+                        expect(document.querySelector("button[data-action='confirm']"), "no confirmation is required")
+                            .to.be.null;
+                    } finally {
+                        for (const rendered of render.returnValues) {
+                            await (await rendered).close();
+                        }
+                    }
+                },
+                () => actorCreator.createNpc({ type: "npc", name: "NPC roll requirement", system: {} })
+            )
         );
 
         it(
