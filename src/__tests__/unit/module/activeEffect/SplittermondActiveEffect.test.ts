@@ -6,6 +6,8 @@ import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import sinon, { type SinonSandbox } from "sinon";
 import SplittermondItem from "module/item/item";
 import { FoundryActiveEffect } from "module/api/ActiveEffect";
+import { Modifier } from "module/modifiers/impl/modifier";
+import { of } from "module/modifiers/expressions/scalar";
 
 interface CostModifierSystem {
     readonly asCostModifiers: ICostModifier[];
@@ -102,6 +104,44 @@ describe("SplittermondActiveEffect", () => {
     });
 
     describe("getModifiers", () => {
+        it("should exclude the safety-roll modifier of a level-zero status ActiveEffect", () => {
+            const item = sandbox.createStubInstance(SplittermondItem);
+            item.type = "statuseffect";
+            Object.assign(item, { system: { level: 0 } });
+            const modifier = Modifier.create("check.require", of(0), {
+                name: "Angsterfüllt",
+                type: "innate",
+                rollType: "safety",
+            });
+            const effect = createEffect(sandbox, {
+                type: "modifier",
+                system: mockModifierSystem([modifier]),
+                item,
+            });
+
+            expect(SplittermondActiveEffect.getModifiers([effect])).to.be.empty;
+        });
+
+        [1, 2].forEach((level) => {
+            it(`should include required roll types from status ActiveEffects at level ${level}`, () => {
+                const item = sandbox.createStubInstance(SplittermondItem);
+                item.type = "statuseffect";
+                Object.assign(item, { system: { level } });
+                const modifier = Modifier.create("check.require", of(0), {
+                    name: "Angsterfüllt",
+                    type: "innate",
+                    rollType: "safety",
+                });
+                const effect = createEffect(sandbox, {
+                    type: "modifier",
+                    system: mockModifierSystem([modifier]),
+                    item,
+                });
+
+                expect(SplittermondActiveEffect.getModifiers([effect])).to.deep.equal([modifier]);
+            });
+        });
+
         it("should collect modifiers from active, non-suppressed effects", () => {
             const modifier1 = mockModifier();
             const modifier2 = mockModifier();
@@ -221,19 +261,6 @@ describe("SplittermondActiveEffect", () => {
                 item,
             });
             expect(effect.multiplier).to.equal(4);
-        });
-
-        it("should default to 1 for a statuseffect item without level", () => {
-            const item = sandbox.createStubInstance(SplittermondItem);
-            item.type = "statuseffect";
-            Object.assign(item, { system: {} });
-
-            const effect = createEffect(sandbox, {
-                type: "modifier",
-                system: mockModifier(),
-                item,
-            });
-            expect(effect.multiplier).to.equal(1);
         });
 
         it("should return 1 for an unrelated item type (weapon)", () => {
