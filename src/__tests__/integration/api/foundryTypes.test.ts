@@ -14,6 +14,7 @@ import {
     withActiveEffect,
     withActor,
     withPlayer,
+    withScene,
     withUnlinkedToken,
 } from "../fixtures";
 import { type FoundryScene, User } from "module/api/foundryTypes";
@@ -397,6 +398,20 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 })
             );
         });
+    });
+
+    describe("Scene", () => {
+        it(
+            "provides finite positive canvas dimensions before the scene is viewed",
+            withScene(async (scene) => {
+                expect(foundryApi.currentScene?.id, "The fixture scene has not been viewed").not.to.equal(scene.id);
+
+                const { width, height } = scene.dimensions;
+
+                expect(width, "Unviewed scene canvas width").to.be.a("number").and.finite.and.greaterThan(0);
+                expect(height, "Unviewed scene canvas height").to.be.a("number").and.finite.and.greaterThan(0);
+            })
+        );
     });
 
     describe("Token", () => {

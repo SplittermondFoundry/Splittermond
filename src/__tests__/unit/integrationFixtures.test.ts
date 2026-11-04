@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import sinon from "sinon";
 import { foundryApi } from "module/api/foundryApi";
-import { withActor, withScene } from "../integration/fixtures";
+import { withActor, withScene, withUnlinkedToken } from "../integration/fixtures";
 import SplittermondActor from "module/actor/actor";
 
 declare const game: object;
@@ -9,7 +9,13 @@ declare const game: object;
 describe("Scene fixture cleanup", () => {
     const sandbox = sinon.createSandbox();
     const original = { id: "original", active: true, activate: sandbox.stub(), view: sandbox.stub() };
-    const temporary = { id: "temporary", active: false };
+    const temporary = {
+        id: "temporary",
+        active: false,
+        dimensions: { width: 4000, height: 3000 },
+        createEmbeddedDocuments: sandbox.stub(),
+        deleteEmbeddedDocuments: sandbox.stub(),
+    };
     let currentScene: { id: string };
     let deleteDocuments: sinon.SinonStub;
 
@@ -29,6 +35,8 @@ describe("Scene fixture cleanup", () => {
     afterEach(() => {
         original.activate.reset();
         original.view.reset();
+        temporary.createEmbeddedDocuments.reset();
+        temporary.deleteEmbeddedDocuments.reset();
         sandbox.restore();
     });
 
@@ -76,6 +84,61 @@ describe("Scene fixture cleanup", () => {
 
         expect(result).to.equal(error);
         expect(deleteDocuments.calledOnce).to.be.true;
+    });
+
+    describe("Unlinked token fixture cleanup", () => {
+        const token = { id: "token" };
+        let deleteActors: sinon.SinonStub;
+
+        beforeEach(() => {
+            const actor = sandbox.createStubInstance(SplittermondActor);
+            Object.defineProperty(actor, "id", { value: "actor" });
+            deleteActors = sandbox.stub().resolves([]);
+            sandbox.define(Actor, "create", sandbox.stub().resolves(actor));
+            sandbox.define(Actor, "deleteDocuments", deleteActors);
+            sandbox.define(game, "messages", []);
+            temporary.createEmbeddedDocuments.resolves([token]);
+            temporary.deleteEmbeddedDocuments.resolves([]);
+        });
+
+        it("forwards arguments and deletes its centered token before its actor and scene", async () => {
+            const result = await withUnlinkedToken(async (createdToken, input: string) => {
+                expect(createdToken).to.equal(token);
+                expect(input).to.equal("input");
+                return "result";
+            })("input");
+
+            expect(result).to.equal("result");
+            expect(temporary.createEmbeddedDocuments.firstCall.args).to.deep.equal([
+                "Token",
+                [{ type: "base", actorLink: false, actorId: "actor", x: 2000, y: 1500 }],
+            ]);
+            sinon.assert.calledOnceWithExactly(temporary.deleteEmbeddedDocuments, "Token", [token.id]);
+            sinon.assert.callOrder(temporary.deleteEmbeddedDocuments, deleteActors, deleteDocuments);
+        });
+
+        it("deletes the token from its parent scene when the callback fails", async () => {
+            const error = new Error("Token test failure");
+
+            const result = await withUnlinkedToken(async () => {
+                // The viewed scene is still the original, not the token's parent.
+                throw error;
+            })().catch((caught: unknown) => caught);
+
+            expect(result).to.equal(error);
+            sinon.assert.calledOnceWithExactly(temporary.deleteEmbeddedDocuments, "Token", [token.id]);
+            sinon.assert.callOrder(temporary.deleteEmbeddedDocuments, deleteActors, deleteDocuments);
+        });
+
+        it("still removes the actor and scene when token deletion fails", async () => {
+            const error = new Error("Token deletion failure");
+            temporary.deleteEmbeddedDocuments.rejects(error);
+
+            const result = await withUnlinkedToken(async () => undefined)().catch((caught: unknown) => caught);
+
+            expect(result).to.equal(error);
+            sinon.assert.callOrder(temporary.deleteEmbeddedDocuments, deleteActors, deleteDocuments);
+        });
     });
 });
 

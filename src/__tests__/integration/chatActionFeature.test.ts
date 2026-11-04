@@ -290,6 +290,12 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
         }
     });
     describe("chat feature API tests", () => {
+        let renderCallbackId: number | undefined;
+        afterEach(() => {
+            // A failed message creation may never trigger the one-shot render callback.
+            if (renderCallbackId !== undefined) Hooks.off("renderChatMessageHTML", renderCallbackId);
+            renderCallbackId = undefined;
+        });
         it("should deliver the current user", () => {
             const currentUser = foundryApi.currentUser;
             expect(isUser(currentUser), "current User adheres to our interface").to.be.true;
@@ -456,33 +462,23 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
         it(
             "passes application, html, and data to callback",
             withActor(async (actor) => {
-                let storedApp;
-                let storedHtml;
-                let storedData;
-                let callbackId: number;
-                const callbackPromise = new Promise<void>((resolve) => {
-                    callbackId = Hooks.on("renderChatMessageHTML", (app: any, html: any, data: any) => {
-                        storedApp = app;
-                        storedHtml = html;
-                        storedData = data;
-                        resolve();
-                    });
+                const callbackPromise = new Promise<[unknown, unknown, unknown]>((resolve) => {
+                    renderCallbackId = Hooks.once(
+                        "renderChatMessageHTML",
+                        (app: unknown, html: unknown, data: unknown) => resolve([app, html, data])
+                    );
                 });
-                try {
-                    const sampleMessageContent = {
-                        user: foundryApi.currentUser.id,
-                        speaker: foundryApi.getSpeaker({ actor }),
-                        content: "Random text content",
-                    };
-                    const message = await foundryApi.createChatMessage(sampleMessageContent);
-                    await callbackPromise;
-                    expect(storedApp, "app is a chat message app").to.be.instanceOf(ChatMessage);
-                    expect(storedHtml, "html is an HTMLElement ").to.be.instanceOf(HTMLElement);
-                    expect(storedData, "data is the data of the chat message app").is.not.undefined;
-                    await deleteTestMessages([message.id]);
-                } finally {
-                    Hooks.off("renderChatMessageHTML", callbackId!);
-                }
+                const sampleMessageContent = {
+                    user: foundryApi.currentUser.id,
+                    speaker: foundryApi.getSpeaker({ actor }),
+                    content: "Random text content",
+                };
+                const message = await foundryApi.createChatMessage(sampleMessageContent);
+                const [storedApp, storedHtml, storedData] = await callbackPromise;
+                expect(storedApp, "app is a chat message app").to.be.instanceOf(ChatMessage);
+                expect(storedHtml, "html is an HTMLElement ").to.be.instanceOf(HTMLElement);
+                expect(storedData, "data is the data of the chat message app").is.not.undefined;
+                await deleteTestMessages([message.id]);
             })
         );
 

@@ -3,7 +3,7 @@ import type { FoundryActiveEffect } from "module/api/ActiveEffect";
 import type { FoundryScene, Socket, User } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
 import { ChatMessage, type FoundryChatMessage } from "module/api/ChatMessage";
-import { passesEventually } from "../util";
+import { retryFor } from "../util";
 import type { QuenchBatchContext, QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
 
 declare const ui: { combat: { viewed: foundry.documents.Combat | null } };
@@ -35,7 +35,7 @@ export async function deleteTestMessages(ids: string[]): Promise<void> {
     if (!existingIds.length) return;
     for (const id of existingIds) {
         // Creation resolves before Foundry finishes revealing the chat notification.
-        await passesEventually(() => {
+        await retryFor(() => {
             const elements = document.querySelectorAll<HTMLElement>(`.chat-message[data-message-id="${id}"]`);
             if (!elements.length || Array.from(elements).some((element) => element.hidden)) {
                 throw new Error(`Chat message ${id} is still rendering`);
@@ -72,8 +72,9 @@ async function createToken(actor: SplittermondActor, scene: FoundryScene) {
                 type: "base",
                 actorLink: false,
                 actorId: actor.id,
-                x: 0,
-                y: 0,
+                // The fixture scene has not been viewed yet, so it has no saved view position.
+                x: scene.dimensions.width / 2,
+                y: scene.dimensions.height / 2,
             },
         ])
     )[0] as TokenDocument;
@@ -121,7 +122,7 @@ async function createSceneFixture() {
                 if (scene.active) await originalActiveScene?.activate();
                 if (restoreView && originalScene) {
                     // Activation can still be drawing; Foundry ignores a scene switch during that draw.
-                    await passesEventually(() => {
+                    await retryFor(() => {
                         if (!canvas.ready) throw new Error("Canvas is still drawing");
                     }, 1500);
                     await originalScene.view();
@@ -181,13 +182,16 @@ export function withPlayer<P extends Array<any>, R>(fn: (player: User, ...args: 
 }
 
 export function withUnlinkedToken<P extends unknown[], R>(fn: (token: TokenDocument, ...args: P) => Promise<R>) {
-    return async (...args: P) =>
-        withScene(
-            withActor(async (actor, scene) => {
-                const token = await createToken(actor, scene);
+    return withScene(
+        withActor(async (actor, scene, ...args: P) => {
+            const token = await createToken(actor, scene);
+            try {
                 return await fn(token, ...args);
-            })
-        )();
+            } finally {
+                await scene.deleteEmbeddedDocuments("Token", [token.id]);
+            }
+        })
+    );
 }
 
 const idGenerator = (function* () {

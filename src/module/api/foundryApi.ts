@@ -258,7 +258,7 @@ export const foundryApi = new (class FoundryApi {
                 // @ts-ignore
                 game.keybindings.register(namespace, action, data);
             },
-            set(namespace: string, action: string, data: KeybindingActionBinding[]): Promise<unknown> {
+            async set(namespace: string, action: string, data: KeybindingActionBinding[]): Promise<unknown> {
                 // @ts-ignore
                 return game.keybindings.set(namespace, action, data);
             },
