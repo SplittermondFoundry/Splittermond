@@ -293,7 +293,7 @@ export function from14_3_0_migratePositionalSkillSelectors(source: unknown) {
     return source;
 }
 
-export function from14_3_0_normalizeStatusEffectLevel(source: unknown) {
+export function from14_3_1_normalizeStatusEffectLevel(source: unknown) {
     if (hasKey(source, "level") && source.level === null) {
         source.level = 1;
     }

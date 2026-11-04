@@ -1,7 +1,7 @@
 import { DataModelSchemaType, fields, SplittermondDataModel } from "../../data/SplittermondDataModel";
 import { getDescriptorFields } from "./commonFields";
 import SplittermondItem from "../item";
-import { from14_2_6_migrateCombatEvent, from14_3_0_normalizeStatusEffectLevel, migrateModifiers } from "./migrations";
+import { from14_2_6_migrateCombatEvent, from14_3_1_normalizeStatusEffectLevel, migrateModifiers } from "./migrations";
 
 function StatusEffectDataModelSchema() {
     return {
@@ -42,7 +42,7 @@ export class StatusEffectDataModel extends SplittermondDataModel<StatusEffectDat
     static migrateData(source: unknown) {
         source = migrateModifiers(source);
         source = from14_2_6_migrateCombatEvent(source);
-        source = from14_3_0_normalizeStatusEffectLevel(source);
+        source = from14_3_1_normalizeStatusEffectLevel(source);
         return super.migrateData(source);
     }
 }
