@@ -15,89 +15,144 @@ import { passesEventually } from "../../util";
 
 export function tickMalusTest({ describe, it, expect }: QuenchBatchContext) {
     describe("Tick malus when releasing prepared actions", () => {
-        for (const kind of ["longrange", "spell", "spellWithoutReduction", "spellWithDice"] as const) {
-            it(
-                `persists the modified release cost and advances combat for ${kind}`,
-                withReleaseCombat(async (actor, combat, sandbox, messageIds) => {
-                    await actor.createEmbeddedDocuments("Item", [
-                        {
-                            type: "strength",
-                            name: "Tick malus test",
-                            system: {
-                                modifier:
-                                    kind === "spellWithDice"
-                                        ? "tickmalus.mod +6W1"
-                                        : "tickmalus.mod +2, tickmalus.armor.mod +1, tickmalus.shield.mod +1",
-                            },
-                        },
-                        kind === "longrange"
-                            ? {
-                                  type: "weapon",
-                                  name: "Test bow",
-                                  system: {
-                                      skill: "longrange",
-                                      attribute1: "agility",
-                                      attribute2: "strength",
-                                      damage: "1W6",
-                                      equipped: true,
-                                      weaponSpeed: 8,
-                                  },
-                              }
-                            : {
-                                  type: "spell",
-                                  name: "Test spell",
-                                  system: {
-                                      skill: "lightmagic",
-                                      spellType: "",
-                                      difficulty: "15",
-                                      costs: "1",
-                                      castDuration: { value: 8, unit: "T" },
-                                      degreeOfSuccessOptions: { castDuration: kind === "spell" },
-                                  },
-                              },
-                    ]);
-                    const tickMalus = kind === "spellWithDice" ? 6 : 4;
-                    await passesEventually(() =>
-                        expect(actor.modifier.getForId("tickmalus").getModifiers()).to.have.length(1)
-                    );
-                    expect(await actor.tickMalus.calculate()).to.equal(tickMalus);
-                    await actor.update({ name: `${actor.name} updated` });
-                    expect(await actor.tickMalus.calculate()).to.equal(tickMalus);
-                    sandbox.stub(Skill.prototype, "roll").resolves({
-                        report: reportFor(kind === "longrange" ? "longrange" : "lightmagic"),
-                        rollOptions: { style: 0, rolls: [], whisper: [], blind: false },
-                    });
-                    if (kind === "longrange") {
-                        const attack = actor.attacks.find((candidate) => candidate.skill.id === "longrange")!;
-                        expect(await attack.weaponSpeedAsync(), "preparation remains unchanged").to.equal(8);
-                        await attack.roll();
-                    } else {
-                        const spell = actor.spells[0];
-                        expect(await spell.castDuration.inTicks(), "focusing remains unchanged").to.equal(8);
-                        await spell.roll({});
-                    }
-                    const message = foundryApi.messages.get(messageIds[0]);
-                    if (!(message instanceof SplittermondChatMessage)) throw new Error("Missing roll chat message");
-                    const model = message.system;
-                    if (!(model instanceof SpellRollMessage || model instanceof AttackRollMessage)) {
-                        throw new Error("Unexpected roll model");
-                    }
-                    const releaseCost = 3 + tickMalus;
-                    expect(model.tickCostHandler.baseTickCost).to.equal(releaseCost);
-                    expect(model.getData().actions.advanceToken).to.deep.contain({ value: `${releaseCost}` });
-                    if (kind === "spell") {
-                        await handleChatAction({ action: "castDurationUpdate", multiplicity: "2" }, message.id);
-                    }
-                    const expectedTick = 10 + releaseCost - (kind === "spell" ? 2 : 0);
-                    await handleChatAction({ action: "advanceToken" }, message.id);
-                    expect(combat.combatants.contents[0].initiative).to.equal(expectedTick);
-                    await handleChatAction({ action: "advanceToken" }, message.id);
-                    expect(combat.combatants.contents[0].initiative, "release is only paid once").to.equal(
-                        expectedTick
-                    );
-                })
-            );
+        it(
+            "persists the combined tick malus and charges a ranged release once",
+            withReleaseCombat(async (actor, combat, sandbox, messageIds) => {
+                await createTestBow(actor);
+                await addTickMalus(actor, "tickmalus.mod +2, tickmalus.armor.mod +1, tickmalus.shield.mod +1", 4);
+                stubSkillCheck(sandbox, "longrange", 0);
+
+                const attack = actor.attacks.find((candidate) => candidate.skill.id === "longrange")!;
+                expect(await attack.weaponSpeedAsync(), "preparation remains unchanged").to.equal(8);
+                await attack.roll();
+
+                const message = expectReleaseCost(messageIds[0], 7);
+                await expectReleaseAdvancesCombatOnce(message, combat, 17);
+            })
+        );
+
+        it(
+            "persists the combined tick malus and charges a spell release with an EG reduction once",
+            withReleaseCombat(async (actor, combat, sandbox, messageIds) => {
+                await createTestSpell(actor, { castDuration: true });
+                await addTickMalus(actor, "tickmalus.mod +2, tickmalus.armor.mod +1, tickmalus.shield.mod +1", 4);
+                stubSkillCheck(sandbox, "lightmagic", 6);
+
+                await rollSpell(actor);
+
+                const message = expectReleaseCost(messageIds[0], 7);
+                await handleChatAction({ action: "castDurationUpdate", multiplicity: "2" }, message.id);
+                await expectReleaseAdvancesCombatOnce(message, combat, 15);
+            })
+        );
+
+        it(
+            "persists the combined tick malus and charges a spell without a release reduction option once",
+            withReleaseCombat(async (actor, combat, sandbox, messageIds) => {
+                await createTestSpell(actor, { castDuration: false });
+                await addTickMalus(actor, "tickmalus.mod +2, tickmalus.armor.mod +1, tickmalus.shield.mod +1", 4);
+                stubSkillCheck(sandbox, "lightmagic", 6);
+
+                await rollSpell(actor);
+
+                const message = expectReleaseCost(messageIds[0], 7);
+                await expectReleaseAdvancesCombatOnce(message, combat, 17);
+            })
+        );
+
+        it(
+            "evaluates a dice tick malus, persists the spell release cost and charges it once",
+            withReleaseCombat(async (actor, combat, sandbox, messageIds) => {
+                await createTestSpell(actor, { castDuration: false });
+                await addTickMalus(actor, "tickmalus.mod +6W1", 6);
+                stubSkillCheck(sandbox, "lightmagic", 6);
+
+                await rollSpell(actor);
+
+                const message = expectReleaseCost(messageIds[0], 9);
+                await expectReleaseAdvancesCombatOnce(message, combat, 19);
+            })
+        );
+    });
+
+    async function addTickMalus(actor: SplittermondActor, modifier: string, expected: number) {
+        await actor.createEmbeddedDocuments("Item", [
+            { type: "strength", name: "Tick malus test", system: { modifier } },
+        ]);
+        await passesEventually(() => expect(actor.modifier.getForId("tickmalus").getModifiers()).to.have.length(1));
+        expect(await actor.tickMalus.calculate()).to.equal(expected);
+        await actor.update({ name: `${actor.name} updated` });
+        expect(await actor.tickMalus.calculate()).to.equal(expected);
+    }
+
+    async function rollSpell(actor: SplittermondActor) {
+        const spell = actor.spells[0];
+        expect(await spell.castDuration.inTicks(), "focusing remains unchanged").to.equal(8);
+        await spell.roll({});
+    }
+
+    function expectReleaseCost(messageId: string, expected: number) {
+        const message = foundryApi.messages.get(messageId);
+        if (!(message instanceof SplittermondChatMessage)) throw new Error("Missing roll chat message");
+        const model = message.system;
+        if (!(model instanceof SpellRollMessage || model instanceof AttackRollMessage)) {
+            throw new Error("Unexpected roll model");
         }
+        expect(model.tickCostHandler.baseTickCost).to.equal(expected);
+        expect(model.getData().actions.advanceToken).to.deep.contain({ value: `${expected}` });
+        return message;
+    }
+
+    async function expectReleaseAdvancesCombatOnce(
+        message: SplittermondChatMessage,
+        combat: SplittermondCombat,
+        expectedTick: number
+    ) {
+        await handleChatAction({ action: "advanceToken" }, message.id);
+        expect(combat.combatants.contents[0].initiative).to.equal(expectedTick);
+        await handleChatAction({ action: "advanceToken" }, message.id);
+        expect(combat.combatants.contents[0].initiative, "release is only paid once").to.equal(expectedTick);
+    }
+}
+
+function createTestBow(actor: SplittermondActor) {
+    return actor.createEmbeddedDocuments("Item", [
+        {
+            type: "weapon",
+            name: "Test bow",
+            system: {
+                skill: "longrange",
+                attribute1: "agility",
+                attribute2: "strength",
+                damage: "1W6",
+                equipped: true,
+                weaponSpeed: 8,
+            },
+        },
+    ]);
+}
+
+function createTestSpell(actor: SplittermondActor, degreeOfSuccessOptions: { castDuration: boolean }) {
+    return actor.createEmbeddedDocuments("Item", [
+        {
+            type: "spell",
+            name: "Test spell",
+            system: {
+                skill: "lightmagic",
+                spellType: "",
+                difficulty: "15",
+                costs: "1",
+                castDuration: { value: 8, unit: "T" },
+                degreeOfSuccessOptions,
+            },
+        },
+    ]);
+}
+
+function stubSkillCheck(sandbox: SinonSandbox, skill: "longrange" | "lightmagic", degreesOfSuccess: number) {
+    sandbox.stub(Skill.prototype, "roll").resolves({
+        report: reportFor(skill, degreesOfSuccess),
+        rollOptions: { style: 0, rolls: [], whisper: [], blind: false },
     });
 }
 
@@ -135,10 +190,10 @@ function withReleaseCombat(
     });
 }
 
-function reportFor(skill: "longrange" | "lightmagic"): CheckReport {
+function reportFor(skill: "longrange" | "lightmagic", degreesOfSuccess: number): CheckReport {
     return {
         succeeded: true,
-        degreeOfSuccess: { fromRoll: skill === "lightmagic" ? 6 : 0, modification: 0, limitedTo: 999 },
+        degreeOfSuccess: { fromRoll: degreesOfSuccess, modification: 0, limitedTo: 999 },
         degreeOfSuccessMessage: "",
         difficulty: 15,
         defenseType: null,
