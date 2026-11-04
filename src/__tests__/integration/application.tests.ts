@@ -12,7 +12,7 @@ import type { FoundryCombatant, FoundryScene } from "module/api/foundryTypes";
 import TickBarHud from "../../module/apps/tick-bar-hud/tick-bar-hud";
 import { foundryApi } from "module/api/foundryApi";
 import { FoundryDragDrop } from "module/api/Application";
-import { useScene } from "./fixtures";
+import { deleteActorMessages, deleteTestCombats, useScene } from "./fixtures";
 import type SplittermondItem from "module/item/item";
 
 declare const game: any;
@@ -110,8 +110,9 @@ export function applicationTests(context: QuenchBatchContext) {
 
         beforeEach(() => (sandbox = sinon.createSandbox()));
 
-        afterEach(() => {
-            Actor.deleteDocuments(actors.map((a) => a.id));
+        afterEach(async () => {
+            await deleteActorMessages(actors.map((a) => a.id));
+            await Actor.deleteDocuments(actors.map((a) => a.id));
             actors = [];
             sandbox.restore();
         });
@@ -168,7 +169,7 @@ export function applicationTests(context: QuenchBatchContext) {
             const createdDocuments = await actor.createEmbeddedDocuments("Item", [getTestSpell()]);
             const spell = createdDocuments[0];
 
-            await tokenActionBar.render(true);
+            await renderActionBarForActor(actor);
             tokenActionBar.element
                 .querySelector("[data-action='prepareSpell']")
                 ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -318,7 +319,8 @@ export function applicationTests(context: QuenchBatchContext) {
         beforeEach(() => (sandbox = sinon.createSandbox()));
 
         afterEach(async () => {
-            await Combat.deleteDocuments(combats.map((c) => c.id));
+            await deleteTestCombats(combats.map((c) => c.id));
+            await deleteActorMessages(actors.map((a) => a.id));
             await Actor.deleteDocuments(actors.map((a) => a.id));
             await Promise.all(tokens.map((t) => t.actor?.sheet.close()));
             await scene.deleteEmbeddedDocuments(
@@ -332,7 +334,7 @@ export function applicationTests(context: QuenchBatchContext) {
         });
 
         async function createActiveCombat() {
-            const combat = (await Combat.create({})) as SplittermondCombat;
+            const combat = (await Combat.create({ scene: scene.id })) as SplittermondCombat;
             combats.push(combat);
             await combat.update({ active: true });
             await combat.startCombat();
@@ -505,33 +507,30 @@ export function applicationTests(context: QuenchBatchContext) {
             });
         });
 
-        it("should show previous tick button when not on current tick", () => {
-            it("should show previous tick button when not on current tick", async () => {
-                // Setup: Create combat and set viewedTick different from currentTick
-                const combat = await createActiveCombat();
-                const { combatant } = await createCombatant("Test Fighter", combat);
-                await combat.setInitiative(combatant.id, 10);
+        it("should show previous tick button when not on current tick", async () => {
+            const combat = await createActiveCombat();
+            const { combatant } = await createCombatant("Test Fighter", combat);
+            await combat.setInitiative(combatant.id, 10);
 
-                const tickBarHud = game.splittermond.tickBarHud as TickBarHud;
-                tickBarHud.currentTick = 10;
-                tickBarHud.viewedTick = 8; // Different from current tick
+            const tickBarHud = game.splittermond.tickBarHud as TickBarHud;
+            tickBarHud.currentTick = 10;
+            tickBarHud.viewedTick = 10;
 
-                await tickBarHud.render(false);
+            await tickBarHud.render(false);
 
-                // Action: Call moveScrollbar (assuming it's called during render or explicitly)
-                const scrollElement = tickBarHud.element.querySelector(".tick-bar-hud-scroll");
-                if (scrollElement) {
-                    (tickBarHud as any).moveScrollbar(100); // Some offset value
-                }
+            const nextTickButton = tickBarHud.element.querySelector<HTMLElement>('[data-action="next-ticks"]');
+            expect(nextTickButton, "next tick navigation is available").to.exist;
+            nextTickButton!.click();
 
-                // Result: Previous tick button should be visible
-                const previousTickButton = tickBarHud.element.querySelector(
-                    '.tick-bar-hud-nav-btn[data-action="previous-ticks"]'
-                ) as HTMLElement;
-                expect(previousTickButton).to.not.be.null;
-                expect(previousTickButton.style.width).to.not.equal("0px");
-                expect(previousTickButton.style.marginLeft).to.not.equal("-10px");
-                expect(previousTickButton.style.opacity).to.not.equal("0");
+            const previousTickButton = tickBarHud.element.querySelector(
+                '.tick-bar-hud-nav-btn[data-action="previous-ticks"]'
+            ) as HTMLElement;
+            expect(previousTickButton).to.not.be.null;
+            await passesEventually(() => {
+                expect(tickBarHud.viewedTick).to.be.greaterThan(tickBarHud.currentTick);
+                const style = getComputedStyle(previousTickButton);
+                expect(parseFloat(style.width)).to.be.greaterThan(0);
+                expect(style.opacity).to.equal("1");
             });
         });
     });
@@ -550,11 +549,7 @@ function getDataSets(nodeList: NodeListOf<HTMLElement>): Record<string, string |
  * @param actor
  */
 async function renderActionBarForActor(actor: SplittermondActor) {
-    return new Promise<void>((resolve) => {
-        setTimeout(async () => {
-            game.splittermond.tokenActionBar._currentActor = actor;
-            await game.splittermond.tokenActionBar.render(true);
-            resolve();
-        }, 200);
-    });
+    await new Promise<void>((resolve) => setTimeout(resolve, 200));
+    game.splittermond.tokenActionBar._currentActor = actor;
+    await game.splittermond.tokenActionBar.render(true);
 }
