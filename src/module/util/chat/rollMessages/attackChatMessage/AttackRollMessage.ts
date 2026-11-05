@@ -155,7 +155,8 @@ export class AttackRollMessage extends RollMessage<
         this.updateSource({
             openDegreesOfSuccess:
                 this.openDegreesOfSuccess +
-                (totalDegreesOfSuccess(newCheckReport) - totalDegreesOfSuccess(checkReport)),
+                (Math.max(0, totalDegreesOfSuccess(newCheckReport) - newCheckReport.maneuvers.length) -
+                    Math.max(0, totalDegreesOfSuccess(checkReport) - checkReport.maneuvers.length)),
         });
     }
 

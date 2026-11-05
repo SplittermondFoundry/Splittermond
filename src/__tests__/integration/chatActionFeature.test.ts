@@ -14,6 +14,8 @@ import type SplittermondWeaponItem from "module/item/weapon";
 import { AttackRollMessage } from "module/util/chat/rollMessages/attackChatMessage/AttackRollMessage";
 import type { AttackCheckReport } from "module/util/chat/rollMessages/attackChatMessage/interfaces";
 import type { DamageMessage } from "module/util/chat/damageChatMessage/DamageMessage";
+import sinon from "sinon";
+import type ActiveDefense from "module/actor/active-defense";
 
 declare const game: any;
 declare const Hooks: Hooks;
@@ -114,12 +116,152 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
         }
     });
 
+    describe("UntrainedSkillMessages", () => {
+        const sandbox = sinon.createSandbox();
+        let messagesToDelete: string[] = [];
+        afterEach(async () => {
+            sandbox.restore();
+            await ChatMessage.deleteDocuments(messagesToDelete);
+            messagesToDelete = [];
+        });
+
+        it(
+            "given a fresh untrained skill success, when spending a splinterpoint, then the persisted card still has zero roll EG",
+            withActor(async (actor) => {
+                await actor.update({ "system.skills.acrobatics.points": 0, "system.splinterpoints.value": 3 });
+                const roll = foundryApi.roll("8d1 + 7");
+                sandbox.stub(foundryApi, "roll").returns(roll);
+                const message = await actor.skills.acrobatics.roll({
+                    askUser: false,
+                    rollType: "standard",
+                    difficulty: 15,
+                });
+                if (!message || !("id" in message)) throw new Error("Expected a skill chat message");
+                messagesToDelete.push(message.id);
+                expect(message.rolls[0].total).to.equal(15);
+                expect(message.getFlag("splittermond", "check")).to.deep.include({
+                    skillPoints: 0,
+                    degreeOfSuccess: { fromRoll: 0, modification: 0, limitedTo: 0 },
+                });
+
+                await actor.useSplinterpointBonus(message);
+
+                const restored = new SplittermondChatMessage(foundryApi.messages.get(message.id).toObject());
+                expect(restored.getFlag("splittermond", "check")).to.deep.include({
+                    succeeded: true,
+                    availableSplinterpoints: 0,
+                    degreeOfSuccess: { fromRoll: 0, modification: 0, limitedTo: 0 },
+                });
+                const content = document.createElement("div");
+                content.innerHTML = restored.content;
+                expect(content.querySelector(".roll-total")?.textContent?.trim()).to.equal("18");
+                expect(content.querySelector(".use-splinterpoint")).to.equal(null);
+                expect(actor.splinterpoints.value).to.equal(2);
+            })
+        );
+
+        it(
+            "given a fresh untrained active defense, when spending a splinterpoint, then the persisted card grants only the base defense increase",
+            withActor(async (actor) => {
+                await actor.update({ "system.skills.acrobatics.points": 0, "system.splinterpoints.value": 3 });
+                const defense = actor.activeDefense.defense.find((entry: ActiveDefense) => entry.id === "acrobatics");
+                if (!defense) throw new Error("Expected an acrobatics active defense");
+                const baseDefense = await actor.derivedValues.defense.value.calculate();
+                const roll = foundryApi.roll("8d1 + 7");
+                sandbox.stub(foundryApi, "roll").returns(roll);
+                const message = await defense.roll({ askUser: false, rollType: "standard" });
+                if (!message || !("id" in message)) throw new Error("Expected an active defense chat message");
+                messagesToDelete.push(message.id);
+                expect(message.rolls[0].total).to.equal(15);
+                expect(message.getFlag("splittermond", "check")).to.deep.include({
+                    type: "defense",
+                    skillPoints: 0,
+                    degreeOfSuccess: { fromRoll: 0, modification: 0, limitedTo: 0 },
+                });
+
+                await actor.useSplinterpointBonus(message);
+
+                const restored = new SplittermondChatMessage(foundryApi.messages.get(message.id).toObject());
+                expect(restored.getFlag("splittermond", "check")).to.deep.include({
+                    succeeded: true,
+                    degreeOfSuccess: { fromRoll: 0, modification: 0, limitedTo: 0 },
+                });
+                const content = document.createElement("div");
+                content.innerHTML = restored.content;
+                expect(content.querySelector(".roll-total")?.textContent?.trim()).to.equal("18");
+                expect(content.querySelector(".degree-of-success-description")?.textContent?.trim()).to.equal(
+                    `${foundryApi.localize("splittermond.derivedAttribute.defense.short")}: ${baseDefense + 1}`
+                );
+                expect(actor.splinterpoints.value).to.equal(2);
+            })
+        );
+    });
+
     describe("RollMessages", () => {
         let messagesToDelete: string[] = [];
         afterEach(async () => {
             await ChatMessage.deleteDocuments(messagesToDelete);
             messagesToDelete = [];
         });
+        for (const kind of ["attack", "spell"] as const) {
+            it(
+                `given a failed ${kind} card, when a splinterpoint makes it barely succeed, then the persisted card offers no paid EG options and spends one point`,
+                withActor(async (actor) => {
+                    await actor.update({ "system.splinterpoints.value": 5, "system.splinterpoints.max": 5 });
+                    const [item] = await actor.createEmbeddedDocuments("Item", [
+                        {
+                            name: "Splinterpoint regression",
+                            type: kind === "attack" ? "weapon" : "spell",
+                            system:
+                                kind === "attack"
+                                    ? { skill: "blades", attribute1: "agility", attribute2: "strength", equipped: true }
+                                    : { skill: "lightmagic", costs: "4V1" },
+                        },
+                    ]);
+                    const card =
+                        kind === "attack"
+                            ? createAttackChatMessage(actor, item as SplittermondWeaponItem)
+                            : createSpellChatMessage(actor, item as SplittermondSpellItem);
+                    const model = card.system;
+                    if (!(model instanceof AttackRollMessage) && !(model instanceof SpellRollMessage)) {
+                        throw new Error("Expected a roll message");
+                    }
+                    model.updateSource({
+                        checkReport: {
+                            ...model.checkReport,
+                            roll: { total: 23, dice: [{ total: 8 }], tooltip: "" },
+                            difficulty: 26,
+                            succeeded: false,
+                            isCrit: false,
+                            degreeOfSuccess: { fromRoll: -1, modification: 0, limitedTo: 999 },
+                        },
+                        openDegreesOfSuccess: 0,
+                    });
+                    await card.sendToChat();
+                    const messageId = card.messageId!;
+                    messagesToDelete.push(messageId);
+
+                    await handleChatAction({ action: "useSplinterpoint" }, messageId);
+
+                    const persisted = foundryApi.messages.get(messageId);
+                    const restored = new SplittermondChatMessage(persisted.toObject()).system;
+                    if (!(restored instanceof AttackRollMessage) && !(restored instanceof SpellRollMessage)) {
+                        throw new Error("Expected a restored roll message");
+                    }
+                    expect(restored.checkReport.roll.total).to.equal(26);
+                    expect(restored.checkReport.succeeded).to.equal(true);
+                    expect(restored.checkReport.degreeOfSuccess.fromRoll).to.equal(0);
+                    expect(restored.openDegreesOfSuccess).to.equal(0);
+                    expect(restored.splinterPointUsed).to.equal(true);
+                    expect(restored.getData().degreeOfSuccessOptions).to.be.empty;
+                    expect(persisted.content).not.to.contain("NaN");
+                    expect(actor.splinterpoints.value).to.equal(4);
+
+                    await handleChatAction({ action: "useSplinterpoint" }, messageId);
+                    expect(actor.splinterpoints.value).to.equal(4);
+                })
+            );
+        }
         it(
             "actor should consume enhanced spell",
             withActor(async (actor) => {

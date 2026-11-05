@@ -150,7 +150,7 @@ export class SpellRollMessage extends RollMessage<
         this.updateSource({
             openDegreesOfSuccess:
                 this.openDegreesOfSuccess +
-                (totalDegreesOfSuccess(newCheckReport) - totalDegreesOfSuccess(checkReport)),
+                (Math.max(0, totalDegreesOfSuccess(newCheckReport)) - Math.max(0, totalDegreesOfSuccess(checkReport))),
         });
     }
 
