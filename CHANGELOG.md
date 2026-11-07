@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixes
+
+- Der Tickzuschlag wird jetzt auch beim Auslösen von Zaubern und Fernkampfangriffen berücksichtigt.
+  Zauber ohne verkürzbare Auslösezeit bieten ebenfalls die Tick-Abrechnung an; die Verkürzung bleibt auf zwei Ticks begrenzt.
+
 ## 14.3.1
 
 ### Fixes

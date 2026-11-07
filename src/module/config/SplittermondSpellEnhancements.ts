@@ -5,6 +5,7 @@ export const splittermondSpellEnhancement = {
         textTemplate: "splittermond.degreeOfSuccessOptions.castDuration",
         focusCostReduction: "0",
         castDurationReduction: 1, //TODO: check
+        maxTickReduction: 2,
         damageIncrease: 0,
     },
     exhaustedFocus: {

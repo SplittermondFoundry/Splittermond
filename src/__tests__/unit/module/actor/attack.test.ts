@@ -508,6 +508,37 @@ describe("Attack", () => {
     });
 
     describe("Tick calculation", () => {
+        for (const skill of splittermond.skillGroups.fighting) {
+            for (const critical of [false, true]) {
+                it(`includes the tick malus once when releasing a ${skill} attack (critical: ${critical})`, async () => {
+                    const actor = setUpActor(sandbox);
+                    for (const [path, value] of [
+                        ["tickmalus", 2],
+                        ["tickmalus.armor", 1],
+                        ["tickmalus.shield", 1],
+                    ] as const) {
+                        actor.modifier.add(path, { name: path, type: "innate" }, of(value));
+                    }
+                    const attack = Attack.initialize(actor, setUpAttackItem({ skill, weaponSpeed: 7 }));
+                    const report = getReport();
+                    report.report.degreeOfSuccess.fromRoll = critical ? 5 : 0;
+                    sandbox.stub(Skill.prototype, "roll").resolves(report);
+                    const initialize = sandbox
+                        .stub(AttackRollMessage, "initialize")
+                        .returns(sandbox.createStubInstance(AttackRollMessage));
+                    sandbox
+                        .stub(SplittermondChatCard, "create")
+                        .returns(sandbox.createStubInstance(SplittermondChatCard));
+
+                    await attack.roll();
+
+                    const base = attack.isRanged ? 3 : 7;
+                    expect(initialize.firstCall.lastArg).to.equal(base + 4 - (critical ? 1 : 0));
+                    expect(await attack.weaponSpeedAsync()).to.equal(attack.isRanged ? 7 : 11);
+                });
+            }
+        }
+
         function getReport(): { report: AttackCheckReport; rollOptions: object } {
             return {
                 report: {

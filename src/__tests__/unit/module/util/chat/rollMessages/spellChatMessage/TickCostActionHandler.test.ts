@@ -75,16 +75,93 @@ describe("TickCostActionHandler", () => {
             const options = underTest.renderDegreeOfSuccessOptions();
             expect(options).to.have.length(0);
         });
+
+        it("limits release reductions to two ticks even with a tick malus", () => {
+            const underTest = setUpTickActionHandler(sandbox);
+            underTest.updateSource({ baseTickCost: 8 });
+
+            expect(underTest.renderDegreeOfSuccessOptions().map((option) => option.render.multiplicity)).to.deep.equal([
+                "1",
+                "2",
+            ]);
+            underTest.useDegreeOfSuccessOption({ action: "castDurationUpdate", multiplicity: "2" }).action();
+            expect(underTest.tickCost).to.equal(6);
+            expect(underTest.renderDegreeOfSuccessOptions().map((option) => option.render.multiplicity)).to.deep.equal([
+                "2",
+            ]);
+
+            underTest.useDegreeOfSuccessOption({ action: "castDurationUpdate", multiplicity: "1" }).action();
+            expect(underTest.tickCost).to.equal(6);
+            underTest.useDegreeOfSuccessOption({ action: "castDurationUpdate", multiplicity: "2" }).action();
+            expect(underTest.tickCost).to.equal(8);
+        });
+
+        for (const { maximum, offered, additional } of [
+            { maximum: 1, offered: ["1"], additional: "2" },
+            { maximum: 4, offered: ["1", "2", "4"], additional: "1" },
+        ]) {
+            it(`uses the configured maximum of ${maximum} ticks for offering and applying reductions`, () => {
+                sandbox.stub(splittermond.spellEnhancement, "castDuration").value({
+                    ...splittermond.spellEnhancement.castDuration,
+                    maxTickReduction: maximum,
+                });
+                const underTest = setUpTickActionHandler(sandbox);
+                underTest.updateSource({ baseTickCost: 8 });
+
+                expect(
+                    underTest.renderDegreeOfSuccessOptions().map((option) => option.render.multiplicity)
+                ).to.deep.equal(offered);
+                underTest
+                    .useDegreeOfSuccessOption({ action: "castDurationUpdate", multiplicity: `${maximum}` })
+                    .action();
+                expect(underTest.tickCost).to.equal(8 - maximum);
+                expect(
+                    underTest.renderDegreeOfSuccessOptions().map((option) => option.render.multiplicity)
+                ).to.deep.equal([`${maximum}`]);
+
+                const rejected = underTest.useDegreeOfSuccessOption({
+                    action: "castDurationUpdate",
+                    multiplicity: additional,
+                });
+                expect(rejected.usedDegreesOfSuccess).to.equal(0);
+                rejected.action();
+                expect(underTest.tickCost).to.equal(8 - maximum);
+
+                underTest
+                    .useDegreeOfSuccessOption({ action: "castDurationUpdate", multiplicity: `${maximum}` })
+                    .action();
+                expect(underTest.tickCost).to.equal(8);
+            });
+        }
+
+        it("preserves the one-tick minimum when the configured reduction limit is higher", () => {
+            sandbox.stub(splittermond.spellEnhancement, "castDuration").value({
+                ...splittermond.spellEnhancement.castDuration,
+                maxTickReduction: 4,
+            });
+            const underTest = setUpTickActionHandler(sandbox);
+
+            expect(underTest.renderDegreeOfSuccessOptions().map((option) => option.render.multiplicity)).to.deep.equal([
+                "1",
+                "2",
+            ]);
+            const rejected = underTest.useDegreeOfSuccessOption({ action: "castDurationUpdate", multiplicity: "4" });
+            expect(rejected.usedDegreesOfSuccess).to.equal(0);
+            rejected.action();
+            expect(underTest.tickCost).to.equal(3);
+        });
     });
 
     describe("Consuming ticks", () => {
-        it("should not render action if its not an option", () => {
+        it("allows releasing spells without an option to reduce their release time", async () => {
             const underTest = setUpTickActionHandler(sandbox);
             underTest.updateSource({ isOption: false });
 
             const actions = underTest.renderActions();
 
-            expect(actions).to.have.length(0);
+            expect(actions).to.have.length(1);
+            await underTest.useAction({ action: "advanceToken" });
+            expect(underTest.actorReference.getAgent().addTicks.calledOnceWithExactly(3, "", false)).to.be.true;
         });
 
         it("should disable all options after consuming ticks", () => {
