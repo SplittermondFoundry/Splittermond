@@ -412,11 +412,15 @@ export default class Skill extends Modifiable(SplittermondDataModel<SkillType>) 
             .withAttributeValuesOrAbsent("checkType", checkType ?? "")
             .getModifiers();
 
-        if (matchingModifiers.length === 0) {
+        const rollTypes = matchingModifiers.map((m) => m.attributes.rollType as RollType);
+        if (rollTypes.length === 0 && this.actor.defaultRollType) {
+            rollTypes.push(this.actor.defaultRollType);
+        }
+
+        if (rollTypes.length === 0) {
             return programmatic;
         }
 
-        const rollTypes = matchingModifiers.map((m) => m.attributes.rollType as RollType);
         const hasConflict = new Set(rollTypes).size > 1;
 
         if (hasConflict) {

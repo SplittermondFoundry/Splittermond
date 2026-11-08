@@ -278,6 +278,7 @@ export default class SplittermondActor extends Actor {
             data.splinterpoints.max = splittermond.splinterpoints.max;
         }
 
+        this.defaultRollType = undefined;
         if (this.type === "npc") {
             if (parseInt(this.system.damageReduction.value) !== 0) {
                 this.modifier.add(
@@ -290,15 +291,7 @@ export default class SplittermondActor extends Actor {
                 );
             }
             if (!this.findItem().withType("npcfeature").withName("Taktiker")) {
-                this.modifier.add(
-                    "check.require",
-                    {
-                        name: foundryApi.localize("splittermond.notATactician"),
-                        type: "innate",
-                        rollType: "standard",
-                    },
-                    of(0)
-                );
+                this.defaultRollType = "standard";
             }
         }
     }

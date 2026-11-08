@@ -1,13 +1,30 @@
-## 14.3.0
+## Unreleased
 
 ### Features
 
-- Ein Modifikator-Helfer bietet an den Eingabefeldern eine Auswahl mit kurzen Erklärungen und passenden Attributen.
+- Ein Modifikator-Helfer bietet im Effektebereich von Items und in aktiven Effekten eine Auswahl mit kurzen Erklärungen und passenden Attributen.
   Für Ausrüstungsverbesserungen ergänzt er passende Zusatzmodifikatoren und weist auf Voraussetzungen und manuell zu berücksichtigende Wirkungen hin.
   Merkmalsvorschläge berücksichtigen Waffen, Rüstungen und Schilde; der Objektname und begrenzte Stufenauswahlen werden passend vorbelegt.
   Ungültige Zahlenwerte für Merkmalsstufen werden vor der Übernahme am Eingabefeld angezeigt.
   Bei der Magiepatzerreduktion werden nur Magieschulen und Arkane Kunde vorgeschlagen und Dezimalwerte abgewiesen.
   Beim erneuten Öffnen einer Auswahl bleibt der gewählte Eintrag sichtbar, auch in eingeklappten Kategorien.
+  Die Oberfläche steht auf Deutsch und Englisch zur Verfügung; Fehlermeldungen nennen das betroffene Attribut.
+
+### Fixes
+
+- Der Modifikator-Helfer lässt sich auch über HTTP-Verbindungen ohne `crypto.randomUUID()` öffnen.
+
+## 14.3.1
+
+### Fixes
+
+- Vorgeschriebene Würfelarten, etwa durch Angsterfüllt oder Rasend, haben jetzt Vorrang vor dem Standardwurf für NSC ohne Taktiker.
+
+## 14.3.0
+
+### Features
+
+- Beim Ablegen von Items oder aktiven Effekten auf Charakter- und NSC-Bögen sowie von aktiven Effekten auf Item-Bögen öffnet sich automatisch der zugehörige Tab. Der neue Eintrag wird ins Sichtfeld gescrollt und kurz hervorgehoben.
 - Multiplikatoren sorgen bei additiven Modifikatoren jetzt für Mehrfachanwendung statt Multiplikation.
   D.h. ein Statuseffekt Stufe 2 mit einem Schadensmodifikator produziert jetzt eval(2W6) statt 2 * eval(1W6)
 - Modifikatoren können jetzt über aktive Effekte gehandhabt werden
@@ -31,7 +48,6 @@
 
 ### Fixes
 
-- Der Modifikator-Helfer lässt sich auch über HTTP-Verbindungen ohne `crypto.randomUUID()` öffnen.
 - Sprachen können jetzt aus der Bibliothek auf Charakterbögen gezogen werden.
 - Neue Meisterschaften ohne Fertigkeit verwenden jetzt `null` statt einer leeren Zeichenfolge als Standardwert.
 - Die Schaltflächen von Proben- und Angriffsdialogen bleiben bei kleinen Fenstern auch mit vielen Modifikatoren erreichbar.
