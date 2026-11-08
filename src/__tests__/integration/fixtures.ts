@@ -161,8 +161,6 @@ export function useScene(
         fixture = await createSceneFixture();
         setup(fixture.scene);
         await fixture.scene.view();
-        // Keep the existing combat fixtures' grace period for canvas/token initialization.
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         await fixture.scene.activate();
     });
     after(async () => {

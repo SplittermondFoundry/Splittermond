@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import sinon from "sinon";
 import { foundryApi } from "module/api/foundryApi";
-import { withActor, withScene, withUnlinkedToken } from "../integration/fixtures";
+import { useScene, withActor, withScene, withUnlinkedToken } from "../integration/fixtures";
 import SplittermondActor from "module/actor/actor";
 
 declare const game: object;
@@ -13,6 +13,8 @@ describe("Scene fixture cleanup", () => {
         id: "temporary",
         active: false,
         dimensions: { width: 4000, height: 3000 },
+        view: sandbox.stub(),
+        activate: sandbox.stub(),
         createEmbeddedDocuments: sandbox.stub(),
         deleteEmbeddedDocuments: sandbox.stub(),
     };
@@ -24,6 +26,8 @@ describe("Scene fixture cleanup", () => {
         original.view.resolves();
         currentScene = original;
         temporary.active = false;
+        temporary.view.resolves();
+        temporary.activate.resolves();
         deleteDocuments = sandbox.stub().resolves([]);
         sandbox.define(globalThis, "Scene", { create: sandbox.stub().resolves(temporary), deleteDocuments });
         sandbox.define(globalThis, "ui", { combat: { viewed: null } });
@@ -35,6 +39,8 @@ describe("Scene fixture cleanup", () => {
     afterEach(() => {
         original.activate.reset();
         original.view.reset();
+        temporary.view.reset();
+        temporary.activate.reset();
         temporary.createEmbeddedDocuments.reset();
         temporary.deleteEmbeddedDocuments.reset();
         sandbox.restore();
@@ -84,6 +90,54 @@ describe("Scene fixture cleanup", () => {
 
         expect(result).to.equal(error);
         expect(deleteDocuments.calledOnce).to.be.true;
+    });
+
+    describe("Suite scene preparation", () => {
+        it("awaits viewing the scene and then activates it without an additional timer", async () => {
+            const clock = sandbox.useFakeTimers();
+            const beforeHook = sandbox.stub();
+            const afterHook = sandbox.stub();
+            let finishView!: () => void;
+            temporary.view.returns(new Promise<void>((resolve) => (finishView = resolve)));
+            useScene({ before: beforeHook, after: afterHook }, () => undefined);
+            const prepare = beforeHook.firstCall.args[0] as () => Promise<void>;
+            const cleanup = afterHook.firstCall.args[0] as () => Promise<void>;
+
+            const preparation = prepare();
+            try {
+                await clock.tickAsync(0);
+                sinon.assert.calledOnce(temporary.view);
+                sinon.assert.notCalled(temporary.activate);
+
+                finishView();
+                await clock.tickAsync(0);
+
+                sinon.assert.calledOnce(temporary.activate);
+                await preparation;
+            } finally {
+                finishView();
+                await clock.runAllAsync();
+                await preparation;
+                await cleanup();
+            }
+        });
+
+        it("removes the suite scene when viewing it fails", async () => {
+            const error = new Error("Scene view failure");
+            temporary.view.rejects(error);
+            const beforeHook = sandbox.stub();
+            const afterHook = sandbox.stub();
+            useScene({ before: beforeHook, after: afterHook }, () => undefined);
+            const prepare = beforeHook.firstCall.args[0] as () => Promise<void>;
+            const cleanup = afterHook.firstCall.args[0] as () => Promise<void>;
+
+            const result = await prepare().catch((caught: unknown) => caught);
+            await cleanup();
+
+            expect(result).to.equal(error);
+            sinon.assert.notCalled(temporary.activate);
+            sinon.assert.calledOnceWithExactly(deleteDocuments, [temporary.id]);
+        });
     });
 
     describe("Unlinked token fixture cleanup", () => {

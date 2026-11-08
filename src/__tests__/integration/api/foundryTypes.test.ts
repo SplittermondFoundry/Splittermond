@@ -25,6 +25,7 @@ declare const Combat: any;
 declare const Combatant: any;
 declare const ActiveEffect: any;
 declare const Macro: any;
+declare const canvas: { ready: boolean };
 
 export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     const { describe, it, expect, afterEach, before, after } = context;
@@ -401,6 +402,16 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
     });
 
     describe("Scene", () => {
+        it(
+            "resolves view with the requested scene's canvas ready",
+            withScene(async (scene) => {
+                await scene.view();
+
+                expect(foundryApi.currentScene?.id, "The requested scene is viewed").to.equal(scene.id);
+                expect(canvas.ready, "The canvas is ready when view resolves").to.be.true;
+            })
+        );
+
         it(
             "provides finite positive canvas dimensions before the scene is viewed",
             withScene(async (scene) => {
