@@ -155,6 +155,48 @@ describe("AttackRollMessage", () => {
     });
     describe("Splinterpoint usage", () => {
         [
+            { total: 23, maneuvers: 0, open: 0, expected: 0 },
+            { total: 20, maneuvers: 0, open: 0, expected: 0 },
+            { total: 26, maneuvers: 0, open: 0, expected: 1 },
+            { total: 26, maneuvers: 2, open: 0, expected: 0 },
+            { total: 26, maneuvers: 1, open: 0, expected: 0 },
+            { total: 29, maneuvers: 1, open: 0, expected: 1 },
+            { total: 32, maneuvers: 0, open: 1, expected: 2 },
+        ].forEach(({ total, maneuvers, open, expected }) => {
+            it(`given an attack of ${total} against 26 with ${maneuvers} maneuvers and ${open} open EG, when spending a splinterpoint, then ${expected} EG remain available`, async () => {
+                const underTest = createAttackRollMessage(sandbox);
+                (underTest.attackReference.get().adaptForGrazingHit as SinonStub).callThrough();
+                underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                    pointSpent: true,
+                    getBonus: () => Promise.resolve(3),
+                });
+                const report = fullCheckReport();
+                report.roll.total = total;
+                report.difficulty = 26;
+                report.succeeded = total >= 26;
+                report.degreeOfSuccess.fromRoll = Math.trunc((total - 26) / 3);
+                report.maneuvers = Array.from({ length: maneuvers }, (_, index) => ({
+                    uuid: `Item.maneuver${index}`,
+                    name: `Maneuver ${index}`,
+                    description: "",
+                }));
+                const selectedManeuvers = structuredClone(report.maneuvers);
+                underTest.updateSource({ checkReport: report, openDegreesOfSuccess: open });
+
+                await underTest.handleGenericAction({ action: "useSplinterpoint" });
+
+                expect(underTest.checkReport.roll.total).to.equal(total + 3);
+                expect(underTest.checkReport.maneuvers, "Selected maneuvers remain unchanged").to.deep.equal(
+                    selectedManeuvers
+                );
+                expect(underTest.openDegreesOfSuccess).to.equal(expected);
+                expect(
+                    underTest.getData().degreeOfSuccessOptions.some((option) => option.action === "damageUpdate")
+                ).to.equal(expected > 0);
+            });
+        });
+
+        [
             [3, 3],
             [5, 4],
         ].forEach(([splinterpointValue, increase]) => {

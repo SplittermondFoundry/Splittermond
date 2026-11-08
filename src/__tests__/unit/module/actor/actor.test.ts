@@ -454,6 +454,37 @@ describe("SplittermondActor", () => {
             };
             expect(passedCheckData.degreeOfSuccess.modification).to.equal(2);
         });
+
+        [
+            { total: 15, points: 0, limit: 0, expected: 0 },
+            { total: 18, points: 0, limit: 0, expected: 0 },
+            { total: 9, points: 0, limit: 0, expected: -1 },
+            { total: 12, points: 0, limit: 0, expected: 0 },
+            { total: 15, points: 5, limit: 999, expected: 1 },
+        ].forEach(({ total, points, limit, expected }) => {
+            it(`given a roll of ${total} against 15 with ${points} skill points, when spending a splinterpoint, then roll EG are ${expected} and bonus EG are preserved`, async () => {
+                sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+                actor.prepareBaseData();
+                asCharacter(actor).updateSource({ splinterpoints: { value: 1, max: 3 } });
+                sandbox.stub(Chat, "prepareCheckMessageData").resolves({
+                    content: "rendered",
+                    flags: { splittermond: { check: {} } },
+                });
+                const message = createLegacySkillCheckMessage();
+                message.rolls[0] = createTestRoll("2d10", [4, 4], total - 8);
+                const check = message.flags.splittermond.check;
+                check.skillPoints = points;
+                check.succeeded = total >= 15;
+                check.degreeOfSuccess.fromRoll = Math.min(Math.trunc((total - 15) / 3), limit);
+                check.degreeOfSuccess.limitedTo = limit;
+
+                await actor.useSplinterpointBonus(message);
+
+                expect(message.rolls[0]._total).to.equal(total + 3);
+                expect(check.degreeOfSuccess).to.deep.equal({ fromRoll: expected, modification: 2, limitedTo: limit });
+                expect(asCharacter(actor).splinterpoints.value).to.equal(0);
+            });
+        });
     });
 
     describe("Modifiers", () => {

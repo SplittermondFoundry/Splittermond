@@ -176,6 +176,32 @@ describe("SpellRollMessage", () => {
     });
     describe("Splinterpoint usage", () => {
         [
+            { total: 23, open: 0, expected: 0 },
+            { total: 20, open: 0, expected: 0 },
+            { total: 26, open: 0, expected: 1 },
+            { total: 32, open: 1, expected: 2 },
+        ].forEach(({ total, open, expected }) => {
+            it(`given a spell roll of ${total} against 26 with ${open} open EG, when spending a splinterpoint, then ${expected} EG remain available`, async () => {
+                const underTest = createSpellRollMessage(sandbox);
+                underTest.actorReference.getAgent().spendSplinterpoint.returns({
+                    pointSpent: true,
+                    getBonus: () => Promise.resolve(3),
+                });
+                const report = fullCheckReport();
+                report.roll.total = total;
+                report.difficulty = 26;
+                report.succeeded = total >= 26;
+                report.degreeOfSuccess.fromRoll = Math.trunc((total - 26) / 3);
+                underTest.updateSource({ checkReport: report, openDegreesOfSuccess: open });
+
+                await underTest.handleGenericAction({ action: "useSplinterpoint" });
+
+                expect(underTest.checkReport.roll.total).to.equal(total + 3);
+                expect(underTest.openDegreesOfSuccess).to.equal(expected);
+            });
+        });
+
+        [
             [3, 3],
             [5, 4],
         ].forEach(([splinterpointValue, increase]) => {
