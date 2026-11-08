@@ -180,11 +180,15 @@ describe("AttackRollMessage", () => {
                     name: `Maneuver ${index}`,
                     description: "",
                 }));
+                const selectedManeuvers = structuredClone(report.maneuvers);
                 underTest.updateSource({ checkReport: report, openDegreesOfSuccess: open });
 
                 await underTest.handleGenericAction({ action: "useSplinterpoint" });
 
                 expect(underTest.checkReport.roll.total).to.equal(total + 3);
+                expect(underTest.checkReport.maneuvers, "Selected maneuvers remain unchanged").to.deep.equal(
+                    selectedManeuvers
+                );
                 expect(underTest.openDegreesOfSuccess).to.equal(expected);
                 expect(
                     underTest.getData().degreeOfSuccessOptions.some((option) => option.action === "damageUpdate")
