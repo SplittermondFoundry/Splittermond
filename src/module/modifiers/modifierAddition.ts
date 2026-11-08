@@ -27,7 +27,7 @@ export interface AddModifierResult {
     modifiers: TaggedModifier[];
     costModifiers: TaggedCostModifier[];
     hasErrors: boolean;
-    diagnostics?: readonly ModifierDiagnostic[];
+    diagnostics: readonly ModifierDiagnostic[];
 }
 
 export function initAddModifier(

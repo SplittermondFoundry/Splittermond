@@ -85,7 +85,7 @@ export function modifierDescription(definition: ModifierDefinition): string {
 export function attributeChoices(definition: ModifierDefinition, attribute: string): readonly ModifierChoice[] {
     if (definition.pathSelection?.attribute === attribute) return definition.pathSelection.variants;
     const configured = definition.attributeChoices?.[attribute];
-    if (configured) return configured;
+    if (configured) return configured.suggestions ?? configured.values;
     switch (attribute) {
         case "skill":
             return modifierChoices(skillGroups.all, (value) => `splittermond.skillLabel.${value}`);

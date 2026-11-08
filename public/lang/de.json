@@ -37,6 +37,7 @@
     },
     "SETTINGS": {},
     "splittermond": {
+        "modifierDeprecatedPlaceholder": "Veraltet: Bitte aktive Effekte verwenden",
         "unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte erstellen Sie einen Fehlerbericht.",
         "chatCard": {
             "noGMConnected": "Aktion kann nicht ausgeführt werden, da kein berechtigter Nutzer (Spielleiter) verbunden ist.",
@@ -406,6 +407,7 @@
                 "category": "Kategorie"
             },
             "parseMessages": {
+                "attributeErrorMessage": "{attribute}: {message}",
                 "notAModifier": "Modifikator '{modifier}' hat kein korrektes Format.",
                 "duplicateEmphasis": "Modifikator '{modifier}' deklariert mehrere Schwerpunkte.",
                 "duplicateValue": "Modifikator '{modifier}' deklariert mehrere Modifikatorwerte.",

@@ -1,3 +1,4 @@
+import { collectModifierMessages } from "__tests__/unit/modifierErrorLogger";
 import { CheckModifierHandler } from "module/check/CheckModifierHandler";
 import sinon from "sinon";
 import SplittermondItem from "module/item/item";
@@ -22,7 +23,7 @@ describe("CheckModifierHandler", () => {
     it("should accept a modifier with a valid outcome category", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.result",
@@ -44,7 +45,7 @@ describe("CheckModifierHandler", () => {
     it("should not bake the multiplier into the value", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.result",
@@ -61,7 +62,7 @@ describe("CheckModifierHandler", () => {
         it(`should accept '${category}' as a valid category`, () => {
             const item = sandbox.createStubInstance(SplittermondItem);
             item.name = "Test Item";
-            const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+            const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
             const result = underTest.processModifier({
                 path: "check.result",
@@ -79,7 +80,7 @@ describe("CheckModifierHandler", () => {
     it("should accept a skill attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.result",
@@ -96,7 +97,7 @@ describe("CheckModifierHandler", () => {
     it("should pass an invalid skill attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.result",
@@ -113,7 +114,7 @@ describe("CheckModifierHandler", () => {
     it("should use item name when emphasis is not provided", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.result",
@@ -131,7 +132,7 @@ describe("CheckModifierHandler", () => {
     it("should use different modifier types", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "equipment");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "equipment");
 
         const result = underTest.processModifier({
             path: "check.result",
@@ -147,7 +148,7 @@ describe("CheckModifierHandler", () => {
     it("should log an error for invalid category", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.result",
@@ -164,7 +165,7 @@ describe("CheckModifierHandler", () => {
     it("should handle missing category attribute gracefully", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.result",
@@ -181,7 +182,7 @@ describe("CheckModifierHandler", () => {
     it("should accept a type attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.result",
@@ -198,7 +199,7 @@ describe("CheckModifierHandler", () => {
     it("should report a wrong type attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.result",

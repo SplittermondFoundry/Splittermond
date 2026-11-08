@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { type Config, IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import { of } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
@@ -27,8 +28,8 @@ export class CheckRequireModifierHandler extends ModifierHandler<ScalarModifier>
             },
         },
         attributeChoices: {
-            type: checkTypeChoices,
-            rollType: modifierChoices(rollTypes, (value) => `splittermond.rollType.${value}`),
+            type: { values: checkTypeChoices },
+            rollType: { values: modifierChoices(rollTypes, (value) => `splittermond.rollType.${value}`) },
         },
         requiredAttributes: ["rollType"],
         optionalAttributes: ["skill", "type"],
@@ -38,7 +39,7 @@ export class CheckRequireModifierHandler extends ModifierHandler<ScalarModifier>
     private readonly commonNormalizers: CommonNormalizers;
 
     constructor(
-        logErrors: (...message: string[]) => void,
+        logErrors: ModifierErrorLogger,
         private readonly sourceItem: IModifierSource,
         private readonly modifierType: ModifierType
     ) {

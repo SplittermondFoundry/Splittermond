@@ -3,6 +3,12 @@ export interface ModifierChoice {
     label: string;
 }
 
+export interface ModifierAttributeChoices {
+    values: readonly ModifierChoice[];
+    // Suggestions may be narrower than the values accepted by existing consumers.
+    suggestions?: readonly ModifierChoice[];
+}
+
 export interface ConfigSegment {
     requiredAttributes: string[];
     optionalAttributes: string[];
@@ -11,7 +17,7 @@ export interface ConfigSegment {
     description?: string;
     hideInHelper?: boolean;
     helperAlias?: string;
-    attributeChoices?: Record<string, readonly ModifierChoice[]>;
+    attributeChoices?: Record<string, ModifierAttributeChoices>;
     valueChoices?: readonly ModifierChoice[];
     // true retains existing values for editing; "always" also omits the attribute from helper output.
     helperAttributes?: Record<

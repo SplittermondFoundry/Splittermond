@@ -19,7 +19,7 @@ declare const DocumentSheetConfig: {
 const mergeObject = foundry.utils.mergeObject;
 
 export function apiUtilsTest(context: QuenchBatchContext) {
-    const { describe, it, expect } = context;
+    const { describe, it, expect, afterEach } = context;
 
     describe("mergeObject", () => {
         it("should not insert new keys when insertKeys is false", () => {
@@ -104,8 +104,8 @@ export function apiUtilsTest(context: QuenchBatchContext) {
     describe("fromUUID", () => {
         let items: Item[] = [];
 
-        afterEach(() => {
-            Item.deleteDocuments(items.map((item) => item.id));
+        afterEach(async () => {
+            await Item.deleteDocuments(items.map((item) => item.id));
             items = [];
         });
 
@@ -194,6 +194,18 @@ export function apiUtilsTest(context: QuenchBatchContext) {
     describe("Sheet Registration", () => {
         // Minification can give test and production sheets the same class name.
         const scope = "splittermond-quench";
+        const pendingCleanup = new Set<() => void>();
+        function registerCleanup(cleanup: () => void) {
+            pendingCleanup.add(cleanup);
+            return () => {
+                cleanup();
+                pendingCleanup.delete(cleanup);
+            };
+        }
+        afterEach(() => {
+            for (const cleanup of pendingCleanup) cleanup();
+            pendingCleanup.clear();
+        });
         class TestItemSheet extends SplittermondBaseItemSheet {}
         class TestActorSheet extends SplittermondBaseActorSheet {}
         class TestActiveEffectSheet extends BaseActiveEffectConfig {}
@@ -202,36 +214,36 @@ export function apiUtilsTest(context: QuenchBatchContext) {
             const previous = foundryApi.utils.deepClone(
                 DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")
             );
+            const unregister = registerCleanup(() =>
+                foundryApi.sheets.items.unregister(scope, TestItemSheet, { types: ["projectile"] })
+            );
             foundryApi.sheets.items.register(scope, TestItemSheet, {
                 types: ["projectile"],
                 makeDefault: false,
             });
 
-            try {
-                expect(
-                    DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile").sheetClasses
-                ).to.have.property(`${scope}.${TestItemSheet.name}`);
-            } finally {
-                foundryApi.sheets.items.unregister(scope, TestItemSheet, { types: ["projectile"] });
-            }
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile").sheetClasses).to.have.property(
+                `${scope}.${TestItemSheet.name}`
+            );
+            unregister();
 
             expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).to.deep.equal(previous);
         });
 
         it("registers and unregisters an actor sheet", () => {
             const previous = foundryApi.utils.deepClone(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc"));
+            const unregister = registerCleanup(() =>
+                foundryApi.sheets.actors.unregister(scope, TestActorSheet, { types: ["npc"] })
+            );
             foundryApi.sheets.actors.register(scope, TestActorSheet, {
                 types: ["npc"],
                 makeDefault: false,
             });
 
-            try {
-                expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc").sheetClasses).to.have.property(
-                    `${scope}.${TestActorSheet.name}`
-                );
-            } finally {
-                foundryApi.sheets.actors.unregister(scope, TestActorSheet, { types: ["npc"] });
-            }
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc").sheetClasses).to.have.property(
+                `${scope}.${TestActorSheet.name}`
+            );
+            unregister();
 
             expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).to.deep.equal(previous);
         });
@@ -240,18 +252,18 @@ export function apiUtilsTest(context: QuenchBatchContext) {
             const previous = foundryApi.utils.deepClone(
                 DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")
             );
+            const unregister = registerCleanup(() =>
+                foundryApi.sheets.activeEffects.unregister(scope, TestActiveEffectSheet, { types: ["base"] })
+            );
             foundryApi.sheets.activeEffects.register(scope, TestActiveEffectSheet, {
                 types: ["base"],
                 makeDefault: false,
             });
 
-            try {
-                expect(
-                    DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base").sheetClasses
-                ).to.have.property(`${scope}.${TestActiveEffectSheet.name}`);
-            } finally {
-                foundryApi.sheets.activeEffects.unregister(scope, TestActiveEffectSheet, { types: ["base"] });
-            }
+            expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base").sheetClasses).to.have.property(
+                `${scope}.${TestActiveEffectSheet.name}`
+            );
+            unregister();
 
             expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")).to.deep.equal(previous);
         });

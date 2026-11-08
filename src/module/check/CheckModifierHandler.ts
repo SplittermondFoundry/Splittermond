@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { type Config, IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import { Expression, isZero } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
@@ -26,8 +27,8 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
                     },
                 },
                 attributeChoices: {
-                    category: modifierChoices(successStates, mapSuccessMessage),
-                    type: checkTypeChoices,
+                    category: { values: modifierChoices(successStates, mapSuccessMessage) },
+                    type: { values: checkTypeChoices },
                 },
                 requiredAttributes: ["category"],
                 optionalAttributes: ["skill", "type"],
@@ -37,7 +38,7 @@ export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
     private readonly commonNormalizers: CommonNormalizers;
 
     constructor(
-        logErrors: (...message: string[]) => void,
+        logErrors: ModifierErrorLogger,
         private readonly sourceItem: IModifierSource,
         private readonly modifierType: ModifierType
     ) {

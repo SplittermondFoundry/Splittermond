@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { afterEach, beforeEach, describe, it } from "mocha";
 import { expect } from "chai";
 import sinon, { SinonSandbox, type SinonSpy } from "sinon";
@@ -15,7 +16,7 @@ describe("ModifierRegistry", () => {
     let consoleDebugSpy: SinonSpy;
 
     class TestHandler extends ModifierHandler<ScalarModifier> {
-        constructor(logErrors: (...messages: string[]) => void, _: IModifierSource, _modifierType: ModifierType) {
+        constructor(logErrors: ModifierErrorLogger, _: IModifierSource, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "test" }));
         }
         protected omitForValue(): boolean {
@@ -27,7 +28,7 @@ describe("ModifierRegistry", () => {
     }
 
     class AnotherTestHandler extends ModifierHandler<ScalarModifier> {
-        constructor(logErrors: (...messages: string[]) => void, _: IModifierSource, _modifierType: ModifierType) {
+        constructor(logErrors: ModifierErrorLogger, _: IModifierSource, _modifierType: ModifierType) {
             super(logErrors, makeConfig({ topLevelPath: "another" }));
         }
         protected omitForValue(): boolean {
@@ -232,7 +233,7 @@ describe("ModifierRegistry", () => {
 
     describe("getCache", () => {
         it("should return a ModifierCache instance", () => {
-            const mockLogErrors = sandbox.stub();
+            const mockLogErrors = { global: sandbox.stub(), forAttribute: sandbox.stub() };
             const mockItem = {} as IModifierSource;
             const mockType = "equipment" as ModifierType;
 
@@ -243,7 +244,7 @@ describe("ModifierRegistry", () => {
         });
 
         it("should return different cache instances for different calls", () => {
-            const mockLogErrors = sandbox.stub();
+            const mockLogErrors = { global: sandbox.stub(), forAttribute: sandbox.stub() };
             const mockItem = {} as IModifierSource;
             const mockType = "equipment" as ModifierType;
 
@@ -256,11 +257,11 @@ describe("ModifierRegistry", () => {
 
     describe("ModifierCache", () => {
         let cache: any;
-        let mockLogErrors: sinon.SinonStub;
+        let mockLogErrors: ModifierErrorLogger;
         let mockItem: IModifierSource;
 
         beforeEach(() => {
-            mockLogErrors = sandbox.stub();
+            mockLogErrors = { global: sandbox.stub(), forAttribute: sandbox.stub() };
             mockItem = { name: "Test Item" } as IModifierSource;
             cache = registry.getCache(mockLogErrors, mockItem, "equipment");
         });

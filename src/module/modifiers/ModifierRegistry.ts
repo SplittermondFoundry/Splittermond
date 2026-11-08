@@ -3,9 +3,9 @@ import { makeConfig } from "module/modifiers/ModifierConfig";
 import { IllegalStateException } from "module/data/exceptions";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import type { ModifierType } from "module/modifiers/index";
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 
-type ErrorLogger = (...messages: string[]) => void;
-type HandlerConstructorArgs = [logError: ErrorLogger, sourceItem: IModifierSource, type: ModifierType];
+type HandlerConstructorArgs = [logError: ModifierErrorLogger, sourceItem: IModifierSource, type: ModifierType];
 type HandlerConstructor<T extends ModifierHandler<any>> = new (...args: HandlerConstructorArgs) => T;
 type HandlerArgs<T extends ModifierHandler<any> = ModifierHandler<any>> = ConstructorParameters<HandlerConstructor<T>>;
 
@@ -113,7 +113,7 @@ class ModifierCache<TYPE extends AnyModifier> {
 }
 
 class NoActionModifierHandler<T extends AnyModifier> extends ModifierHandler<T> {
-    constructor(logErrors: ErrorLogger, _: IModifierSource, __: ModifierType) {
+    constructor(logErrors: ModifierErrorLogger, _: IModifierSource, __: ModifierType) {
         super(logErrors, makeConfig({ topLevelPath: "" }));
     }
 

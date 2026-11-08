@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { JSDOM } from "jsdom";
+import { DisposableJSDOM } from "__tests__/unit/DisposableJSDOM";
 import { initializeModifiers } from "module/modifiers";
 import { makeConfig } from "module/modifiers/ModifierConfig";
 import { modifierCatalogue, attributeChoices, modifierDescription } from "module/modifierHelper/catalogue";
@@ -15,6 +15,7 @@ import { serialize } from "module/modifiers/expressions/scalar/serialization";
 import { skillGroups } from "module/config/skillGroups";
 import { createHtml } from "../../../handlebarHarness";
 import { BarebonesModifierHandler } from "module/actor/modifiers/BarebonesModifierHandler";
+import { SkillFilterHandler } from "module/actor/modifiers/ActorModifierHandlers";
 import { damageTypes } from "module/config/damageTypes";
 import { source, module, definitions, definition, sampleValue, setupModifierHelperTests } from "./testUtils";
 
@@ -85,7 +86,7 @@ describe("Modifier helper", () => {
         });
         added.modifierRegistry.addHandler("extension", Handler);
         const discovered = modifierCatalogue(
-            added.modifierRegistry.getConfigurations(() => {}, source, null),
+            added.modifierRegistry.getConfigurations({ global: () => {}, forAttribute: () => {} }, source, null),
             []
         );
         expect(discovered.map((entry) => entry.path)).to.deep.equal(["extension.nested"]);
@@ -100,6 +101,54 @@ describe("Modifier helper", () => {
             []
         );
         expect(entries[1].requiredAttributes).to.deep.equal([]);
+    });
+
+    it("keeps existing skill filters valid when the helper suggests only spell skills", () => {
+        const duration = definition("item.castDuration");
+        expect(attributeChoices(duration, "skill").map((choice) => choice.value)).not.to.include("athletics");
+
+        const result = module.addModifier(source, 'item.castDuration unit="T" skill="athletics" +1', "innate");
+
+        expect(result.diagnostics).to.deep.equal([]);
+        expect(result.modifiers[0].modifier.attributes.skill).to.equal("athletics");
+    });
+
+    it("uses a registered skill restriction for both helper choices and handler diagnostics", () => {
+        const added = initializeModifiers();
+        added.modifierRegistry.addHandler(
+            "extension",
+            SkillFilterHandler({
+                topLevelPath: "extension",
+                optionalAttributes: ["skill"],
+                attributeChoices: {
+                    skill: { values: [{ value: "firemagic", label: "splittermond.skillLabel.firemagic" }] },
+                },
+            })
+        );
+        const [entry] = modifierCatalogue(
+            added.modifierRegistry.getConfigurations({ global: () => {}, forAttribute: () => {} }, source, "innate"),
+            []
+        );
+
+        const accepted = added.addModifier(source, 'extension skill="firemagic" +1', "innate");
+        const rejected = added.addModifier(source, 'extension skill="watermagic" +1', "innate");
+
+        expect(attributeChoices(entry, "skill").map((choice) => choice.value)).to.deep.equal(["firemagic"]);
+        expect(accepted.diagnostics).to.deep.equal([]);
+        expect(rejected.diagnostics).to.have.length(1);
+        expect(rejected.diagnostics[0]).to.include({ scope: "attribute", attribute: "skill" });
+    });
+
+    it("rejects a non-magic focus skill even though it is a known skill elsewhere", () => {
+        const reduction = definition("focus.reduction");
+        expect(attributeChoices(reduction, "skill").map((choice) => choice.value)).not.to.include("athletics");
+
+        const result = module.addModifier(source, 'focus.reduction skill="athletics" 1', "innate");
+
+        expect(result.hasErrors).to.equal(true);
+        expect(result.diagnostics).to.have.length(1);
+        expect(result.diagnostics[0]).to.include({ scope: "attribute", attribute: "skill" });
+        expect(result.costModifiers[0].modifier.attributes.skill).to.equal("athletics");
     });
 
     describe("progressive path selection", () => {
@@ -160,19 +209,15 @@ describe("Modifier helper", () => {
                 apply: () => true,
             });
             const context = await helper._prepareContext({});
-            const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
-            try {
-                const fields = [...dom.window.document.querySelectorAll<HTMLSelectElement>("[data-attribute]")];
-                expect(fields.map((field) => field.dataset.attribute)).to.deep.equal([
-                    "attribute1",
-                    "attribute2",
-                    "skill",
-                    "emphasis",
-                ]);
-                expect(fields.map((field) => field.value)).to.deep.equal(["agility", "strength", "acrobatics", ""]);
-            } finally {
-                dom.window.close();
-            }
+            using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+            const fields = [...dom.window.document.querySelectorAll<HTMLSelectElement>("[data-attribute]")];
+            expect(fields.map((field) => field.dataset.attribute)).to.deep.equal([
+                "attribute1",
+                "attribute2",
+                "skill",
+                "emphasis",
+            ]);
+            expect(fields.map((field) => field.value)).to.deep.equal(["agility", "strength", "acrobatics", ""]);
         });
 
         it("lists item functions directly while retaining cast-duration variants", () => {
@@ -216,31 +261,27 @@ describe("Modifier helper", () => {
         it("requires a wound variant instead of offering the ineffective base value", async () => {
             const helper = new ModifierHelper({ definitions, initial: "", validate: () => [], apply: () => true });
             const context = await helper._prepareContext({});
-            const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+            using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
             Object.defineProperty(helper, "element", { value: dom.window.document.body });
             sandbox.stub(helper, "render").resolves(helper);
-            try {
-                await helper._onRender(context);
-                helper.element.querySelector<HTMLButtonElement>('[data-category-heading="other"]')!.click();
-                helper.element.querySelector<HTMLElement>('[data-modifier-path="actor.woundmalus"]')!.click();
-                const selected = await helper._prepareContext({});
-                expect(selected.selectedPath).to.equal("actor.woundmalus");
-                expect(selected.pathSteps[0].value).to.equal("");
-                expect(selected.pathSteps[0].label).to.equal("Bitte auswählen");
-                expect(selected.pathSteps[0].choices.map((choice) => choice.value)).to.deep.equal([
-                    "actor.woundmalus.levelmod",
-                    "actor.woundmalus.mod",
-                    "actor.woundmalus.nbrLevels",
-                ]);
-                expect(selected.pathSteps[0].choices.some((choice) => choice.selected)).to.equal(false);
-                expect(selected.requiresValue).to.equal(false);
-                expect(selected.preview).to.equal("");
-                for (const path of ["woundmalus", "actor.woundmalus"]) {
-                    expect(definitions.some((entry) => entry.path === path)).to.equal(false);
-                    expect(module.addModifier(source, `${path} +1`, "innate").hasErrors).to.equal(false);
-                }
-            } finally {
-                dom.window.close();
+            await helper._onRender(context);
+            helper.element.querySelector<HTMLButtonElement>('[data-category-heading="other"]')!.click();
+            helper.element.querySelector<HTMLElement>('[data-modifier-path="actor.woundmalus"]')!.click();
+            const selected = await helper._prepareContext({});
+            expect(selected.selectedPath).to.equal("actor.woundmalus");
+            expect(selected.pathSteps[0].value).to.equal("");
+            expect(selected.pathSteps[0].label).to.equal("Bitte auswählen");
+            expect(selected.pathSteps[0].choices.map((choice) => choice.value)).to.deep.equal([
+                "actor.woundmalus.levelmod",
+                "actor.woundmalus.mod",
+                "actor.woundmalus.nbrLevels",
+            ]);
+            expect(selected.pathSteps[0].choices.some((choice) => choice.selected)).to.equal(false);
+            expect(selected.requiresValue).to.equal(false);
+            expect(selected.preview).to.equal("");
+            for (const path of ["woundmalus", "actor.woundmalus"]) {
+                expect(definitions.some((entry) => entry.path === path)).to.equal(false);
+                expect(module.addModifier(source, `${path} +1`, "innate").hasErrors).to.equal(false);
             }
         });
 

@@ -1,3 +1,4 @@
+import { collectModifierMessages } from "__tests__/unit/modifierErrorLogger";
 import SplittermondItem from "module/item/item";
 import { IndividualSkillHandlers } from "module/actor/modifiers/ActorModifierHandlers";
 import { condense, of } from "module/modifiers/expressions/scalar";
@@ -22,7 +23,7 @@ describe("ActorModifierHandlers", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
         const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
-        const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate");
+        const underTest = new IndividualSkillHandlerClass(collectModifierMessages(errorLogger), item, "innate");
         item.name = "Test Item";
 
         const result = underTest.processModifier({
@@ -42,7 +43,7 @@ describe("ActorModifierHandlers", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
         const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
-        const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate");
+        const underTest = new IndividualSkillHandlerClass(collectModifierMessages(errorLogger), item, "innate");
         item.name = "Test Item";
 
         const result = underTest.processModifier({
@@ -60,7 +61,7 @@ describe("ActorModifierHandlers", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
         const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
-        const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate");
+        const underTest = new IndividualSkillHandlerClass(collectModifierMessages(errorLogger), item, "innate");
         item.name = "Test Item";
 
         const result = underTest.processModifier({
@@ -77,7 +78,7 @@ describe("ActorModifierHandlers", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
         const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
-        const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate");
+        const underTest = new IndividualSkillHandlerClass(collectModifierMessages(errorLogger), item, "innate");
         item.name = "Test Item";
 
         const result = underTest.processModifier({
@@ -97,7 +98,7 @@ describe("ActorModifierHandlers", () => {
         const skill = "athletics";
         const item = sandbox.createStubInstance(SplittermondItem);
         const IndividualSkillHandlerClass = IndividualSkillHandlers(skill);
-        const underTest = new IndividualSkillHandlerClass(errorLogger, item, "innate");
+        const underTest = new IndividualSkillHandlerClass(collectModifierMessages(errorLogger), item, "innate");
         item.name = "Test Item";
 
         const result = underTest.processModifier({

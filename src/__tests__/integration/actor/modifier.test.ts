@@ -923,7 +923,7 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should filter spell damage modifiers by spell type through generated effects", async () => {
             const subject = await createActor("SpellDamageCharacter");
-            const spells = await subject.createEmbeddedDocuments("Item", [
+            const [damageSpell] = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "spell",
                     name: "Fireball",
@@ -934,6 +934,8 @@ export function modifierTest(context: QuenchBatchContext) {
                         damage: DamageModel.from("3"),
                     },
                 },
+            ]);
+            const [controlSpell] = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "spell",
                     name: "Flame Control",
@@ -956,10 +958,8 @@ export function modifierTest(context: QuenchBatchContext) {
             await waitForItemEffects(modifierItems);
             await subject.prepareData();
 
-            await passesEventually(() => {
-                expect((spells[0] as SplittermondSpellItem).damage).to.equal("6");
-                expect((spells[1] as SplittermondSpellItem).damage).to.equal("3");
-            });
+            expect((damageSpell as SplittermondSpellItem).damage).to.equal("6");
+            expect((controlSpell as SplittermondSpellItem).damage).to.equal("3");
         });
 
         it("should respond to cast duration modifiers", async () => {

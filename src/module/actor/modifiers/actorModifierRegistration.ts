@@ -24,7 +24,10 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
             skill: { hint: "splittermond.modifierHelper.attributes.magicFumbleSkill", groupChoices: false },
         },
         attributeChoices: {
-            skill: Object.entries(splittermond.spellSkillsOption).map(([value, label]) => ({ value, label })),
+            skill: {
+                values: modifierChoices(splittermond.skillGroups.all, (value) => `splittermond.skillLabel.${value}`),
+                suggestions: Object.entries(splittermond.spellSkillsOption).map(([value, label]) => ({ value, label })),
+            },
         },
     });
     registry.addHandler(SkillHandler.config.topLevelPath, SkillHandler);

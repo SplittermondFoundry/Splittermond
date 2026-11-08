@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
 import { ICostModifier } from "module/util/costs/spellCostManagement";
 import { times as timesCost } from "module/modifiers/expressions/cost";
@@ -7,13 +8,12 @@ import { ModifierHandler, type ModifierType } from "module/modifiers";
 import { makeConfig, modifierChoices } from "module/modifiers/ModifierConfig";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { splittermond } from "module/config";
-import { isMember } from "module/util/util";
 
 type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
 
 export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     constructor(
-        logErrors: (...message: string[]) => void,
+        logErrors: ModifierErrorLogger,
         private readonly sourceItem: IModifierSource,
         _: ModifierType
     ) {
@@ -33,10 +33,12 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
                     },
                 },
                 attributeChoices: {
-                    skill: modifierChoices(
-                        splittermond.skillGroups.magic,
-                        (value) => `splittermond.skillLabel.${value}`
-                    ),
+                    skill: {
+                        values: modifierChoices(
+                            splittermond.skillGroups.magic,
+                            (value) => `splittermond.skillLabel.${value}`
+                        ),
+                    },
                 },
                 optionalAttributes: ["skill", "type"],
             },
@@ -50,10 +52,12 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
                     },
                 },
                 attributeChoices: {
-                    skill: modifierChoices(
-                        splittermond.skillGroups.magic,
-                        (value) => `splittermond.skillLabel.${value}`
-                    ),
+                    skill: {
+                        values: modifierChoices(
+                            splittermond.skillGroups.magic,
+                            (value) => `splittermond.skillLabel.${value}`
+                        ),
+                    },
                 },
                 optionalAttributes: ["skill", "type"],
             },
@@ -67,10 +71,12 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
                     },
                 },
                 attributeChoices: {
-                    skill: modifierChoices(
-                        splittermond.skillGroups.magic,
-                        (value) => `splittermond.skillLabel.${value}`
-                    ),
+                    skill: {
+                        values: modifierChoices(
+                            splittermond.skillGroups.magic,
+                            (value) => `splittermond.skillLabel.${value}`
+                        ),
+                    },
                 },
                 optionalAttributes: ["skill", "type"],
             },
@@ -84,10 +90,12 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
                     },
                 },
                 attributeChoices: {
-                    skill: modifierChoices(
-                        splittermond.skillGroups.magic,
-                        (value) => `splittermond.skillLabel.${value}`
-                    ),
+                    skill: {
+                        values: modifierChoices(
+                            splittermond.skillGroups.magic,
+                            (value) => `splittermond.skillLabel.${value}`
+                        ),
+                    },
                 },
                 optionalAttributes: ["skill", "type"],
             },
@@ -129,7 +137,7 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
 
     private normalizeSkill(groupId: string, input: Value) {
         const normalized = this.normalizeAttribute(input, "skills");
-        if (normalized && !isMember(splittermond.skillGroups.magic, normalized)) {
+        if (normalized && !this.getAttributeChoices(groupId, "skill")?.some(({ value }) => value === normalized)) {
             this.reportInvalidDescriptor(groupId, "skill", normalized);
             //If the skill is invalid, but the item has a skill, use that one. If not use the invalid one,
             //because we don't want to accidentally make the modifier global.

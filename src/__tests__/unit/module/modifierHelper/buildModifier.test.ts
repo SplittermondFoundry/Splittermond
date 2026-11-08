@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import sinon from "sinon";
-import { JSDOM } from "jsdom";
+import { DisposableJSDOM } from "__tests__/unit/DisposableJSDOM";
 import { buildModifier, readModifierInput } from "module/modifierHelper/buildModifier";
 import { ModifierHelper } from "module/modifierHelper/ModifierHelper";
 import { createHtml } from "../../../handlebarHarness";
@@ -155,16 +155,12 @@ describe("Modifier helper", () => {
         it(`uses one value control for ${initial} without a mode switch`, async () => {
             const helper = new ModifierHelper({ definitions, initial, validate: () => [], apply: () => true });
             const context = await helper._prepareContext({});
-            const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
-            try {
-                const input = dom.window.document.querySelector<HTMLInputElement>("[name=modifierValue]")!;
-                expect(input.type).to.equal("text");
-                expect(input.value).to.equal(context.value);
-                expect(dom.window.document.querySelector("[name=valueMode]")).to.equal(null);
-                expect(module.addModifier(source, context.preview, "innate").hasErrors).to.equal(false);
-            } finally {
-                dom.window.close();
-            }
+            using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+            const input = dom.window.document.querySelector<HTMLInputElement>("[name=modifierValue]")!;
+            expect(input.type).to.equal("text");
+            expect(input.value).to.equal(context.value);
+            expect(dom.window.document.querySelector("[name=valueMode]")).to.equal(null);
+            expect(module.addModifier(source, context.preview, "innate").hasErrors).to.equal(false);
         });
     }
 
@@ -178,30 +174,26 @@ describe("Modifier helper", () => {
                     apply: () => true,
                 });
                 const context = await helper._prepareContext({});
-                const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+                using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
                 Object.defineProperty(helper, "element", { value: dom.window.document.body });
-                try {
-                    await helper._onRender(context);
-                    const select = helper.element.querySelector<HTMLSelectElement>("select[name=modifierValue]")!;
-                    expect(select, "fixed value selection").not.to.equal(null);
-                    expect(helper.element.querySelector("input[name=modifierValue]")).to.equal(null);
-                    expect(
-                        [...select.options]
-                            .filter((option) => option.value && !option.disabled)
-                            .map((option) => option.value)
-                    ).to.deep.equal(["1", "3", "5"]);
-                    expect(select.value).to.equal(String(Number(value)));
-                    expect(select.querySelector('[value="1"]')!.textContent).to.include("Zerbrechlich");
-                    expect(select.querySelector('[value="3"]')!.textContent).to.include("Schwächlich");
-                    for (const count of ["1", "3", "5"]) {
-                        select.value = count;
-                        select.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
-                        const raw = helper.element.querySelector<HTMLOutputElement>("output")!.value;
-                        expect(raw).to.equal(`actor.woundmalus.nbrLevels +${count}`);
-                        expect(module.addModifier(source, raw, "innate").hasErrors).to.equal(false);
-                    }
-                } finally {
-                    dom.window.close();
+                await helper._onRender(context);
+                const select = helper.element.querySelector<HTMLSelectElement>("select[name=modifierValue]")!;
+                expect(select, "fixed value selection").not.to.equal(null);
+                expect(helper.element.querySelector("input[name=modifierValue]")).to.equal(null);
+                expect(
+                    [...select.options]
+                        .filter((option) => option.value && !option.disabled)
+                        .map((option) => option.value)
+                ).to.deep.equal(["1", "3", "5"]);
+                expect(select.value).to.equal(String(Number(value)));
+                expect(select.querySelector('[value="1"]')!.textContent).to.include("Zerbrechlich");
+                expect(select.querySelector('[value="3"]')!.textContent).to.include("Schwächlich");
+                for (const count of ["1", "3", "5"]) {
+                    select.value = count;
+                    select.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+                    const raw = helper.element.querySelector<HTMLOutputElement>("output")!.value;
+                    expect(raw).to.equal(`actor.woundmalus.nbrLevels +${count}`);
+                    expect(module.addModifier(source, raw, "innate").hasErrors).to.equal(false);
                 }
             });
         }
@@ -225,27 +217,23 @@ describe("Modifier helper", () => {
                 apply,
             });
             const context = await helper._prepareContext({});
-            const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+            using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
             Object.defineProperty(helper, "element", { value: dom.window.document.body });
             sandbox.stub(foundryApi, "warnUser");
             sandbox.stub(helper, "close").resolves();
-            try {
-                await helper._onRender(context);
-                const select = helper.element.querySelector<HTMLSelectElement>("select[name=modifierValue]")!;
-                expect(select, "fixed value selection").not.to.equal(null);
-                expect(select.value).to.equal("2");
-                expect(select.selectedOptions[0].disabled).to.equal(true);
-                expect(select.getAttribute("aria-invalid")).to.equal("true");
-                await ModifierHelper.DEFAULT_OPTIONS.actions.applyModifier.call(helper);
-                expect(apply.called).to.equal(false);
-                select.value = "3";
-                select.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
-                expect(select.getAttribute("aria-invalid")).to.equal("false");
-                await ModifierHelper.DEFAULT_OPTIONS.actions.applyModifier.call(helper);
-                expect(apply.calledOnceWithExactly("actor.woundmalus.nbrLevels +3")).to.equal(true);
-            } finally {
-                dom.window.close();
-            }
+            await helper._onRender(context);
+            const select = helper.element.querySelector<HTMLSelectElement>("select[name=modifierValue]")!;
+            expect(select, "fixed value selection").not.to.equal(null);
+            expect(select.value).to.equal("2");
+            expect(select.selectedOptions[0].disabled).to.equal(true);
+            expect(select.getAttribute("aria-invalid")).to.equal("true");
+            await ModifierHelper.DEFAULT_OPTIONS.actions.applyModifier.call(helper);
+            expect(apply.called).to.equal(false);
+            select.value = "3";
+            select.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+            expect(select.getAttribute("aria-invalid")).to.equal("false");
+            await ModifierHelper.DEFAULT_OPTIONS.actions.applyModifier.call(helper);
+            expect(apply.calledOnceWithExactly("actor.woundmalus.nbrLevels +3")).to.equal(true);
         });
     });
 

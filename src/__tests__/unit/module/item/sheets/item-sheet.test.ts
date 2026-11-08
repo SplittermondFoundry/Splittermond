@@ -9,7 +9,7 @@ import { SplittermondBaseItemSheet } from "module/data/SplittermondApplication";
 import { foundryApi } from "module/api/foundryApi";
 import { splittermond } from "module/config";
 import { createHtml } from "../../../../handlebarHarness";
-import { JSDOM } from "jsdom";
+import { DisposableJSDOM } from "__tests__/unit/DisposableJSDOM";
 
 function makeEffect(opts: {
     id?: string;
@@ -79,7 +79,7 @@ function makeSpellSheet(effects: ReturnType<typeof makeEffect>[], enricher?: Sin
     );
 }
 
-describe("Item property modifier helper", () => {
+describe("Deprecated item modifier field", () => {
     class PropertySheet extends SplittermondItemSheet {
         prepare() {
             return this._prepareContext({});
@@ -109,7 +109,7 @@ describe("Item property modifier helper", () => {
         "culturelore",
     ]) {
         for (const isOwner of [true, false]) {
-            it(`renders the helper beside the ${type} modifier only for its owner: ${isOwner}`, async () => {
+            it(`retains the ${type} legacy value without offering the helper (owner: ${isOwner})`, async () => {
                 const item = { type, isOwner, system: { modifier: "defense +1" } };
                 const sheet = new PropertySheet(
                     { document: item },
@@ -124,17 +124,11 @@ describe("Item property modifier helper", () => {
                     ...group,
                     properties: group.properties.filter((property) => property.template === "input"),
                 }));
-                const dom = new JSDOM(createHtml("templates/sheets/item/properties.hbs", context));
-                try {
-                    const input = dom.window.document.querySelector<HTMLInputElement>('[name="system.modifier"]')!;
-                    expect(input.value).to.equal("defense +1");
-                    expect(
-                        dom.window.document.querySelectorAll('[data-action="modifier-helper-property"]')
-                    ).to.have.length(isOwner ? 1 : 0);
-                    if (isOwner) expect(input.parentElement!.querySelector("button")).not.to.equal(null);
-                } finally {
-                    dom.window.close();
-                }
+                using dom = new DisposableJSDOM(createHtml("templates/sheets/item/properties.hbs", context));
+                const input = dom.window.document.querySelector<HTMLInputElement>('[name="system.modifier"]')!;
+                expect(input.value).to.equal("defense +1");
+                expect(input.placeholder).to.equal("splittermond.modifierDeprecatedPlaceholder");
+                expect(dom.window.document.querySelector('[data-action="modifier-helper-property"]')).to.equal(null);
             });
         }
     }

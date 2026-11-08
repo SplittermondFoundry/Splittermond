@@ -21,8 +21,8 @@ module.costModifierRegistry.addHandler("focus", CostModifierHandler);
 
 export const catalogue = () =>
     modifierCatalogue(
-        module.modifierRegistry.getConfigurations(() => {}, source, "innate"),
-        module.costModifierRegistry.getConfigurations(() => {}, source, "innate")
+        module.modifierRegistry.getConfigurations({ global: () => {}, forAttribute: () => {} }, source, "innate"),
+        module.costModifierRegistry.getConfigurations({ global: () => {}, forAttribute: () => {} }, source, "innate")
     );
 export const definitions = catalogue();
 const translations: unknown = JSON.parse(readFileSync("public/lang/de.json", "utf8"));

@@ -1,3 +1,4 @@
+import { collectModifierMessages } from "__tests__/unit/modifierErrorLogger";
 import { describe } from "mocha";
 import { expect } from "chai";
 import { ModifierHandler } from "module/modifiers/ModiferHandler";
@@ -187,5 +188,5 @@ describe("Modifier handler", () => {
     });
 });
 function toLog(collector: string[] = []) {
-    return (...msgs: string[]) => collector.push(...msgs);
+    return collectModifierMessages((...msgs) => collector.push(...msgs));
 }

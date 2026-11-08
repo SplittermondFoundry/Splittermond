@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import type { ScalarModifier, Value } from "../modifiers/parsing";
 import { Modifier, MultiplicativeModifier } from "module/activeEffect";
 import { splittermond } from "../config";
@@ -5,12 +6,16 @@ import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";
+import { modifierChoices } from "module/modifiers/ModifierConfig";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
-const spellSkillChoices = Object.entries(splittermond.spellSkillsOption).map(([value, label]) => ({ value, label }));
+const spellSkillChoices = {
+    values: modifierChoices(splittermond.skillGroups.all, (value) => `splittermond.skillLabel.${value}`),
+    suggestions: Object.entries(splittermond.spellSkillsOption).map(([value, label]) => ({ value, label })),
+};
 
 export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
-    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+    constructor(logErrors: ModifierErrorLogger, sourceItem: IModifierSource, modifierType: ModifierType) {
         super(logErrors, ItemModifierHandler.config, sourceItem, modifierType);
     }
 

@@ -1,3 +1,4 @@
+import { DisposableJSDOM } from "__tests__/unit/DisposableJSDOM";
 import "../../foundryMocks.js";
 import { expect } from "chai";
 import { afterEach, beforeEach, describe, it } from "mocha";
@@ -1117,9 +1118,10 @@ describe("SplittermondActor", () => {
 
                 await actor.rollMagicFumble(3, "4V2", skill, false);
 
-                expect(chatStub.calledOnce).to.be.true;
+                expect(chatStub.callCount).to.equal(1);
                 expect(chatStub.firstCall.firstArg.content).not.to.be.null;
-                const chatContent = new JSDOM(chatStub.firstCall.firstArg.content).window.document.documentElement;
+                using dom = new DisposableJSDOM(chatStub.firstCall.firstArg.content);
+                const chatContent = dom.window.document.documentElement;
                 const activeFumble = chatContent.querySelector(".fumble-table-result-item-active");
                 expect(activeFumble?.textContent).to.contain(
                     `splittermond.fumbleTable.magic.sorcerer.${expectedResult}`
@@ -1140,9 +1142,10 @@ describe("SplittermondActor", () => {
 
             await actor.rollMagicFumble(3, "4V2", "firemagic", false);
 
-            expect(chatStub.calledOnce).to.be.true;
+            expect(chatStub.callCount).to.equal(1);
             expect(chatStub.firstCall.firstArg.content).not.to.be.null;
-            const chatContent = new JSDOM(chatStub.firstCall.firstArg.content).window.document.documentElement;
+            using dom = new DisposableJSDOM(chatStub.firstCall.firstArg.content);
+            const chatContent = dom.window.document.documentElement;
             const activeFumble = chatContent.querySelector(".fumble-table-result-item-active");
             expect(activeFumble?.textContent).to.contain("splittermond.fumbleTable.magic.priest.result3_20");
         });

@@ -169,7 +169,7 @@ export function SkillFilterHandler<CONFIG extends { topLevelPath: string }>(conf
             const preprocessed = super.buildModifier(modifier);
             return preprocessed.map((mod) => {
                 if (mod.attributes.skill) {
-                    mod.attributes.skill = this.commonNormalizers.normalizeSkill(mod.groupId, mod.attributes.skill);
+                    mod.attributes.skill = this.commonNormalizers.normalizeSkill(modifier.path, mod.attributes.skill);
                 }
                 return Modifier.create(mod.groupId, mod.value, mod.attributes, mod.selectable, this.actorProvider);
             });

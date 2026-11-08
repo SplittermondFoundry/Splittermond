@@ -1,14 +1,13 @@
 import type { ErrorMessage } from "module/modifiers/parsing/index";
 import { foundryApi } from "module/api/foundryApi";
 
-export interface ModifierDiagnostic {
-    attribute?: string;
-    message: string;
-}
+export type ModifierDiagnostic =
+    { scope: "modifier"; message: string } | { scope: "attribute"; attribute: string; message: string };
 
-export type ModifierErrorLogger = ((...messages: string[]) => void) & {
-    forAttribute?: (attribute: string, ...messages: string[]) => void;
-};
+export interface ModifierErrorLogger {
+    global(...messages: string[]): void;
+    forAttribute(attribute: string, ...messages: string[]): void;
+}
 
 export interface IErrorConsumer {
     push(...errors: ErrorMessage[]): number;
@@ -17,27 +16,28 @@ export interface IErrorConsumer {
 }
 
 export class ParseErrors implements IErrorConsumer {
-    private readonly errors: ModifierDiagnostic[] = [];
+    private readonly collectedDiagnostics: ModifierDiagnostic[] = [];
     constructor(
         private readonly modifierString: string,
         private readonly itemName: string
     ) {}
 
     get hasErrors(): boolean {
-        return this.errors.length > 0;
+        return this.collectedDiagnostics.length > 0;
     }
 
     get diagnostics(): readonly ModifierDiagnostic[] {
-        return this.errors;
+        return this.collectedDiagnostics;
     }
 
-    get consumer() {
-        return Object.assign((...errors: string[]) => this.push(...errors), {
+    get consumer(): ModifierErrorLogger {
+        return {
+            global: (...messages: string[]) => this.push(...messages),
             forAttribute: (attribute: string, ...messages: string[]) => this.pushAttribute(attribute, ...messages),
-        });
+        };
     }
     push(...errors: ErrorMessage[]): number {
-        return this.errors.push(...errors.map((message) => ({ message })));
+        return this.collectedDiagnostics.push(...errors.map((message) => ({ scope: "modifier" as const, message })));
     }
 
     pushKey(messageKey: string, templateArgs: Record<string, string>): void {
@@ -53,16 +53,26 @@ export class ParseErrors implements IErrorConsumer {
     }
 
     private pushAttribute(attribute: string, ...messages: string[]): number {
-        return this.errors.push(...messages.map((message) => ({ attribute, message })));
+        return this.collectedDiagnostics.push(
+            ...messages.map((message) => ({ scope: "attribute" as const, attribute, message }))
+        );
     }
 
     printAll(): void {
-        if (this.errors.length > 0) {
+        if (this.hasErrors) {
             const introMessage = foundryApi.format("splittermond.modifiers.parseMessages.allErrorMessage", {
                 str: this.modifierString,
                 objectName: this.itemName,
             });
-            foundryApi.reportError(`${introMessage}\n${this.errors.map(({ message }) => message).join("\n")}`);
+            const messages = this.collectedDiagnostics.map((diagnostic) =>
+                diagnostic.scope === "attribute"
+                    ? foundryApi.format("splittermond.modifiers.parseMessages.attributeErrorMessage", {
+                          attribute: diagnostic.attribute,
+                          message: diagnostic.message,
+                      })
+                    : diagnostic.message
+            );
+            foundryApi.reportError(`${introMessage}\n${messages.join("\n")}`);
         }
     }
 }

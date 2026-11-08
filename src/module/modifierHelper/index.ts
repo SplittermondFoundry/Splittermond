@@ -29,8 +29,8 @@ export function openModifierHelper(
     if (!modifierModule || !input || input.disabled || input.readOnly) return null;
     const { modifierRegistry, costModifierRegistry, addModifier } = modifierModule;
     const definitions = modifierCatalogue(
-        modifierRegistry.getConfigurations(() => {}, source, type),
-        costModifierRegistry.getConfigurations(() => {}, source, type)
+        modifierRegistry.getConfigurations({ global: () => {}, forAttribute: () => {} }, source, type),
+        costModifierRegistry.getConfigurations({ global: () => {}, forAttribute: () => {} }, source, type)
     );
     if (!definitions.length) return null;
     const helper = new ModifierHelper({
@@ -48,13 +48,19 @@ export function openModifierHelper(
                 type
             );
             if (result.hasErrors) {
-                return result.diagnostics?.length
+                return result.diagnostics.length
                     ? result.diagnostics
-                    : [{ message: foundryApi.localize("splittermond.modifierHelper.invalid") }];
+                    : [{ scope: "modifier", message: foundryApi.localize("splittermond.modifierHelper.invalid") }];
             }
             return result.modifiers.length + result.costModifiers.length > 0
                 ? []
-                : [{ attribute: "value", message: foundryApi.localize("splittermond.modifierHelper.noEffect") }];
+                : [
+                      {
+                          scope: "attribute",
+                          attribute: "value",
+                          message: foundryApi.localize("splittermond.modifierHelper.noEffect"),
+                      },
+                  ];
         },
         apply: (raw) => {
             const current = getInput();

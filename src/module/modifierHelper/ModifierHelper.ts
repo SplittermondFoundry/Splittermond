@@ -394,6 +394,7 @@ export class ModifierHelper extends SplittermondApplication {
         const raw = fragments.length && fragments.every((fragment) => fragment !== null) ? fragments.join(", ") : null;
         if (!this.selected && (this.group || !this.drafts.length))
             errors.push({
+                scope: "attribute",
                 attribute: "path",
                 message: foundryApi.localize(
                     `splittermond.modifierHelper.errors.${this.group ? "variant" : "modifier"}`
@@ -453,9 +454,13 @@ export class ModifierHelper extends SplittermondApplication {
         ];
         return inputs.flatMap(({ input, id }) => {
             const report = (error: ModifierDiagnostic) =>
-                errors.push({ ...error, attribute: this.featureAttribute(error.attribute, id) });
+                errors.push(
+                    error.scope === "attribute"
+                        ? { ...error, attribute: this.featureAttribute(error.attribute, id) }
+                        : error
+                );
             const raw = buildModifier(this.selected!, input, (attribute, messageKey) => {
-                report({ attribute, message: foundryApi.localize(messageKey) });
+                report({ scope: "attribute", attribute, message: foundryApi.localize(messageKey) });
             });
             if (raw) this.helperOptions.validate(raw).forEach(report);
             const adjustment = this.featureAdjustments.get(id ?? "primary")?.input;
@@ -463,6 +468,7 @@ export class ModifierHelper extends SplittermondApplication {
             const countValid = validFeatureCount(input.attributes.feature, input.value);
             if (!countValid) {
                 report({
+                    scope: "attribute",
                     attribute: "value",
                     message: foundryApi.localize("splittermond.modifierHelper.adjustments.invalidCount"),
                 });
@@ -470,15 +476,20 @@ export class ModifierHelper extends SplittermondApplication {
             const companion = countValid
                 ? buildFeatureAdjustment(input, adjustment, this.helperOptions.definitions, (attribute, key) => {
                       errors.push({
+                          scope: "attribute",
                           attribute: `adjustment-${id ?? "primary"}-${attribute}`,
                           message: foundryApi.localize(key),
                       });
                   })
                 : null;
             if (companion)
-                this.helperOptions
-                    .validate(companion)
-                    .forEach((error) => errors.push({ ...error, attribute: `adjustment-${id ?? "primary"}-enabled` }));
+                this.helperOptions.validate(companion).forEach((error) =>
+                    errors.push({
+                        ...error,
+                        scope: "attribute",
+                        attribute: `adjustment-${id ?? "primary"}-enabled`,
+                    })
+                );
             const element = this.element.querySelector<HTMLElement>(`[data-feature-adjustment="${id ?? "primary"}"]`);
             const preview = element?.querySelector<HTMLElement>("[data-adjustment-preview]");
             if (preview)
@@ -553,7 +564,7 @@ export class ModifierHelper extends SplittermondApplication {
         });
     }
 
-    private featureAttribute(attribute: string | undefined, rowId: string | undefined) {
+    private featureAttribute(attribute: string, rowId: string | undefined) {
         return rowId !== undefined && (attribute === "feature" || attribute === "value")
             ? `feature-${rowId}-${attribute}`
             : attribute;
@@ -590,6 +601,7 @@ export class ModifierHelper extends SplittermondApplication {
                     errors
                         .filter(
                             (error) =>
+                                error.scope === "attribute" &&
                                 error.attribute === attribute &&
                                 (this.showRequiredErrors || value.trim()) &&
                                 (attribute !== "path" || !value)
@@ -607,7 +619,9 @@ export class ModifierHelper extends SplittermondApplication {
             ...new Set(
                 errors
                     .filter(
-                        (error) => !error.attribute || !controls.some(({ attribute }) => attribute === error.attribute)
+                        (error) =>
+                            error.scope === "modifier" ||
+                            !controls.some(({ attribute }) => attribute === error.attribute)
                     )
                     .map((error) => error.message)
             ),

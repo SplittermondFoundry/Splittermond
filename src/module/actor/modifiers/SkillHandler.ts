@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { type Config, type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import type { SplittermondSkill } from "module/config/skillGroups";
@@ -32,7 +33,7 @@ const commonConfig = {
 } as const;
 class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
     constructor(
-        logErrors: (...message: string[]) => void,
+        logErrors: ModifierErrorLogger,
         config: Config,
         sourceItem: IModifierSource,
         modifierType: ModifierType
@@ -113,7 +114,7 @@ export class SkillHandler extends CommonSkillHandler {
         helperAlias: "actor.skills",
         ...commonConfig,
     });
-    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+    constructor(logErrors: ModifierErrorLogger, sourceItem: IModifierSource, modifierType: ModifierType) {
         super(logErrors, SkillHandler.config, sourceItem, modifierType);
     }
 }
@@ -122,7 +123,7 @@ export class ActorSkillHandler extends CommonSkillHandler {
         topLevelPath: "actor.skills",
         ...commonConfig,
     });
-    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+    constructor(logErrors: ModifierErrorLogger, sourceItem: IModifierSource, modifierType: ModifierType) {
         super(logErrors, ActorSkillHandler.config, sourceItem, modifierType);
     }
 }

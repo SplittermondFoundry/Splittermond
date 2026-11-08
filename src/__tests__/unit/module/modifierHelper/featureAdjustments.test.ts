@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import sinon from "sinon";
-import { JSDOM } from "jsdom";
+import { DisposableJSDOM } from "__tests__/unit/DisposableJSDOM";
 import { attributeChoices } from "module/modifierHelper/catalogue";
 import { buildModifier } from "module/modifierHelper/buildModifier";
 import { ModifierHelper } from "module/modifierHelper/ModifierHelper";
@@ -22,16 +22,12 @@ describe("Modifier helper", () => {
             apply: () => true,
         });
         const context = await helper._prepareContext({});
-        const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+        using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
         Object.defineProperty(helper, "element", { value: dom.window.document.body });
-        try {
-            await helper._onRender(context);
-            expect(helper.element.querySelector<HTMLOutputElement>("output")!.value).to.equal(
-                'item.mergeFeature feature="Verbesserter Kritischer Schaden" item="Schwert" +1, item.addFeature feature="Kritisch" item="Schwert" +2'
-            );
-        } finally {
-            dom.window.close();
-        }
+        await helper._onRender(context);
+        expect(helper.element.querySelector<HTMLOutputElement>("output")!.value).to.equal(
+            'item.mergeFeature feature="Verbesserter Kritischer Schaden" item="Schwert" +1, item.addFeature feature="Kritisch" item="Schwert" +2'
+        );
     });
 
     describe("feature improvement effects", () => {
@@ -67,7 +63,7 @@ describe("Modifier helper", () => {
                         validate: () => [],
                         apply: () => true,
                     });
-                    const dom = new JSDOM();
+                    using dom = new DisposableJSDOM();
                     const root = dom.window.document.body;
                     Object.defineProperty(helper, "element", { value: root });
                     const render = sandbox.stub(helper, "render").callsFake(async () => {
@@ -76,35 +72,29 @@ describe("Modifier helper", () => {
                         await helper._onRender(context);
                         return helper;
                     });
-                    try {
-                        await helper.render();
-                        root.querySelector<HTMLElement>(`[data-modifier-path="${path}"]`)!.click();
-                        await render.lastCall.returnValue;
-                        expect(root.querySelector<HTMLInputElement>("[data-attribute=item]")!.value).to.equal(
-                            "Testobjekt"
+                    await helper.render();
+                    root.querySelector<HTMLElement>(`[data-modifier-path="${path}"]`)!.click();
+                    await render.lastCall.returnValue;
+                    expect(root.querySelector<HTMLInputElement>("[data-attribute=item]")!.value).to.equal("Testobjekt");
+                    await ModifierHelper.DEFAULT_OPTIONS.actions.addFeature.call(helper);
+                    const pickers = [...root.querySelectorAll('[data-attribute-picker="feature"]')];
+                    expect(pickers).to.have.length(2);
+                    for (const picker of pickers) {
+                        const choices = [...picker.querySelectorAll<HTMLElement>("[data-picker-value]")].map(
+                            (option) => option.dataset.pickerValue
                         );
-                        await ModifierHelper.DEFAULT_OPTIONS.actions.addFeature.call(helper);
-                        const pickers = [...root.querySelectorAll('[data-attribute-picker="feature"]')];
-                        expect(pickers).to.have.length(2);
-                        for (const picker of pickers) {
-                            const choices = [...picker.querySelectorAll<HTMLElement>("[data-picker-value]")].map(
-                                (option) => option.dataset.pickerValue
+                        for (const [feature, types] of restrictions)
+                            expect(choices.includes(feature), `${type}: ${feature}`).to.equal(
+                                types.some((allowed) => allowed === type)
                             );
-                            for (const [feature, types] of restrictions)
-                                expect(choices.includes(feature), `${type}: ${feature}`).to.equal(
-                                    types.some((allowed) => allowed === type)
-                                );
-                            expect(choices).to.include("Kälteschutz");
-                            expect(choices).not.to.include("Behinderung");
-                        }
-                        const item = root.querySelector<HTMLInputElement>("[data-attribute=item]")!;
-                        item.value = "";
-                        item.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
-                        await helper.render();
-                        expect(root.querySelector<HTMLInputElement>("[data-attribute=item]")!.value).to.equal("");
-                    } finally {
-                        dom.window.close();
+                        expect(choices).to.include("Kälteschutz");
+                        expect(choices).not.to.include("Behinderung");
                     }
+                    const item = root.querySelector<HTMLInputElement>("[data-attribute=item]")!;
+                    item.value = "";
+                    item.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+                    await helper.render();
+                    expect(root.querySelector<HTMLInputElement>("[data-attribute=item]")!.value).to.equal("");
                 });
             }
         }
@@ -138,15 +128,11 @@ describe("Modifier helper", () => {
                 });
                 const context = await helper._prepareContext({});
                 expect(context.adjustment?.automatic).to.equal(false);
-                const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
-                try {
-                    const hint = dom.window.document.querySelector("[data-feature-adjustment]")!;
-                    expect(localize(context.adjustment!.hint)).to.include("Gegenstandseigenschaften manuell");
-                    expect(hint.textContent).to.include(context.adjustment!.hint);
-                    expect(hint.querySelector("input")).to.equal(null);
-                } finally {
-                    dom.window.close();
-                }
+                using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+                const hint = dom.window.document.querySelector("[data-feature-adjustment]")!;
+                expect(localize(context.adjustment!.hint)).to.include("Gegenstandseigenschaften manuell");
+                expect(hint.textContent).to.include(context.adjustment!.hint);
+                expect(hint.querySelector("input")).to.equal(null);
             }
             for (const type of ["weapon", "shield"] as const) {
                 const helper = new ModifierHelper({
@@ -175,21 +161,16 @@ describe("Modifier helper", () => {
                         validate: () => [],
                         apply: () => true,
                     });
-                    const dom = new JSDOM(
+                    using dom = new DisposableJSDOM(
                         createHtml("templates/apps/modifier-helper.hbs", await helper._prepareContext({}))
                     );
-                    try {
-                        const value =
-                            dom.window.document.querySelector<HTMLSelectElement>("select[name=modifierValue]");
-                        expect(value).not.to.equal(null);
-                        expect([...value!.options].map((option) => option.value)).to.deep.equal([
-                            "",
-                            ...Array.from({ length: maximum }, (_, index) => String(index + 1)),
-                        ]);
-                        expect(value!.value).to.equal("1");
-                    } finally {
-                        dom.window.close();
-                    }
+                    const value = dom.window.document.querySelector<HTMLSelectElement>("select[name=modifierValue]");
+                    expect(value).not.to.equal(null);
+                    expect([...value!.options].map((option) => option.value)).to.deep.equal([
+                        "",
+                        ...Array.from({ length: maximum }, (_, index) => String(index + 1)),
+                    ]);
+                    expect(value!.value).to.equal("1");
                 });
             }
         }
@@ -216,24 +197,20 @@ describe("Modifier helper", () => {
                 apply,
             });
             const context = await helper._prepareContext({});
-            const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+            using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
             Object.defineProperty(helper, "element", { value: dom.window.document.body });
             sandbox.stub(helper, "close").resolves();
             sandbox.stub(foundryApi, "warnUser");
-            try {
-                await helper._onRender(context);
-                const value = helper.element.querySelector<HTMLSelectElement>("[name=modifierValue]")!;
-                expect(value.value).to.equal("4");
-                expect(value.selectedOptions[0].disabled).to.equal(true);
-                await ModifierHelper.DEFAULT_OPTIONS.actions.applyModifier.call(helper);
-                expect(apply.called).to.equal(false);
-                value.value = "2";
-                value.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
-                await ModifierHelper.DEFAULT_OPTIONS.actions.applyModifier.call(helper);
-                expect(apply.firstCall.args[0]).to.equal('item.addFeature feature="Kälteschutz" +2, handicap +2');
-            } finally {
-                dom.window.close();
-            }
+            await helper._onRender(context);
+            const value = helper.element.querySelector<HTMLSelectElement>("[name=modifierValue]")!;
+            expect(value.value).to.equal("4");
+            expect(value.selectedOptions[0].disabled).to.equal(true);
+            await ModifierHelper.DEFAULT_OPTIONS.actions.applyModifier.call(helper);
+            expect(apply.called).to.equal(false);
+            value.value = "2";
+            value.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+            await ModifierHelper.DEFAULT_OPTIONS.actions.applyModifier.call(helper);
+            expect(apply.firstCall.args[0]).to.equal('item.addFeature feature="Kälteschutz" +2, handicap +2');
         });
         const cases = [
             [
@@ -402,21 +379,17 @@ describe("Modifier helper", () => {
                     apply: () => true,
                 });
                 const context = await helper._prepareContext({});
-                const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+                using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
                 Object.defineProperty(helper, "element", { value: dom.window.document.body });
-                try {
-                    await helper._onRender(context);
-                    expect(helper.element.querySelector<HTMLOutputElement>("output")!.value).to.equal(
-                        `item.addFeature feature="${feature}" +1`
-                    );
-                    expect(context.adjustment?.hint).not.to.equal(undefined);
-                    const checkbox = helper.element.querySelector<HTMLInputElement>("[data-adjustment-enabled]");
-                    if (checkbox) {
-                        expect(checkbox.disabled).to.equal(true);
-                        expect(checkbox.checked).to.equal(false);
-                    }
-                } finally {
-                    dom.window.close();
+                await helper._onRender(context);
+                expect(helper.element.querySelector<HTMLOutputElement>("output")!.value).to.equal(
+                    `item.addFeature feature="${feature}" +1`
+                );
+                expect(context.adjustment?.hint).not.to.equal(undefined);
+                const checkbox = helper.element.querySelector<HTMLInputElement>("[data-adjustment-enabled]");
+                if (checkbox) {
+                    expect(checkbox.disabled).to.equal(true);
+                    expect(checkbox.checked).to.equal(false);
                 }
             }
         });
@@ -432,23 +405,15 @@ describe("Modifier helper", () => {
                 const initial = `${path} feature="${feature}" +3`;
                 const helper = new ModifierHelper({ definitions, initial, validate: () => [], apply: () => true });
                 const context = await helper._prepareContext({});
-                const dom = new JSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
+                using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
                 Object.defineProperty(helper, "element", { value: dom.window.document.body });
-                try {
-                    expect(helper.element.querySelector<HTMLElement>(".modifier-helper-value")!.hidden).to.equal(
-                        hidden
-                    );
-                    await helper._onRender(context);
-                    expect(helper.element.querySelector<HTMLElement>(".modifier-helper-value")!.hidden).to.equal(
-                        hidden
-                    );
-                    expect(helper.element.querySelector<HTMLInputElement>("[name=modifierValue]")!.value).to.equal("3");
-                    expect(helper.element.querySelector<HTMLOutputElement>("output")!.value).to.equal(
-                        hidden ? `${path} feature="${feature}" +1` : initial
-                    );
-                } finally {
-                    dom.window.close();
-                }
+                expect(helper.element.querySelector<HTMLElement>(".modifier-helper-value")!.hidden).to.equal(hidden);
+                await helper._onRender(context);
+                expect(helper.element.querySelector<HTMLElement>(".modifier-helper-value")!.hidden).to.equal(hidden);
+                expect(helper.element.querySelector<HTMLInputElement>("[name=modifierValue]")!.value).to.equal("3");
+                expect(helper.element.querySelector<HTMLOutputElement>("output")!.value).to.equal(
+                    hidden ? `${path} feature="${feature}" +1` : initial
+                );
             });
         }
         for (const feature of ["Wuchtig", "Dornen"]) {

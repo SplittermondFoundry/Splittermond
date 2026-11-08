@@ -40,6 +40,10 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
         return this.getPathConfig(path)?.requiresValue ?? true;
     }
 
+    protected getAttributeChoices(path: string, attribute: string) {
+        return this.getPathConfig(path)?.attributeChoices?.[attribute]?.values;
+    }
+
     protected abstract omitForValue(value: ExpressionType<TYPE>): boolean;
 
     protected abstract buildModifier(modifier: TYPE, pathConfig: ConfigSegment): ResultType<TYPE>[];
@@ -79,7 +83,7 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     }
 
     private reportPathError(groupId: string) {
-        this.logErrors(foundryApi.format("splittermond.modifiers.parseMessages.unknownGroupId", { groupId }));
+        this.logErrors.global(foundryApi.format("splittermond.modifiers.parseMessages.unknownGroupId", { groupId }));
     }
 
     private noMissingAttributes(modifier: TYPE, config: ConfigSegment) {
@@ -123,14 +127,13 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     protected validateDescriptor(value: Value): value is string {
         const errors = validateDescriptors(value);
         if (errors.length > 0) {
-            this.logErrors(...errors);
+            this.logErrors.global(...errors);
             return false;
         }
         return true;
     }
 
     private logAttributeError(attribute: string, message: string) {
-        if (this.logErrors.forAttribute) this.logErrors.forAttribute(attribute, message);
-        else this.logErrors(message);
+        this.logErrors.forAttribute(attribute, message);
     }
 }

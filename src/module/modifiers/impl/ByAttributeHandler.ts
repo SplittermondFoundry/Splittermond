@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { type Config, type ModifierAttributes, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { Value } from "module/modifiers/parsing";
 import type { AnyModifier } from "module/modifiers/ModiferHandler";
@@ -10,7 +11,7 @@ export function ByAttributeHandler<T extends AnyModifier>(base: typeof ModifierH
     abstract class CommonHandler extends base {
         protected readonly commonNormalizers: CommonNormalizers;
         constructor(
-            logErrors: (...message: string[]) => void,
+            logErrors: ModifierErrorLogger,
             config: Config,
             protected readonly sourceItem: IModifierSource,
             protected readonly modifierType: ModifierType
@@ -18,7 +19,8 @@ export function ByAttributeHandler<T extends AnyModifier>(base: typeof ModifierH
             super(logErrors, config);
             this.commonNormalizers = new CommonNormalizers(
                 this.validateDescriptor.bind(this),
-                this.reportInvalidDescriptor.bind(this)
+                this.reportInvalidDescriptor.bind(this),
+                this.getAttributeChoices.bind(this)
             );
         }
         protected omitForValue(value: T["value"]): boolean {
