@@ -1,3 +1,9 @@
+## Unreleased
+
+### Fixes
+
+- Das Abrechnen von Fokuskosten auf Zauber-Chatkarten wartet jetzt auf die abgeschlossene Abbuchung.
+
 ## 14.3.1
 
 ### Fixes

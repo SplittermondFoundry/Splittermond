@@ -150,6 +150,59 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             })
         );
 
+        it(
+            "should await delayed focus persistence for successive enhanced spell casts",
+            withActor(async (actor) => {
+                await actor.update({
+                    system: {
+                        focus: {
+                            channeled: { entries: [] },
+                            exhausted: { value: 0 },
+                            consumed: { value: 0 },
+                        },
+                    },
+                });
+                const spell = (
+                    await actor.createEmbeddedDocuments("Item", [{ type: "spell", name: "Test Spell" }])
+                )[0] as SplittermondSpellItem;
+                await spell.update({ system: { costs: "4V1", skill: "lightmagic", enhancementCosts: "1EG/+1V1" } });
+                const originalUpdate = actor.update;
+                const pendingUpdates: ReturnType<SplittermondActor["update"]>[] = [];
+                actor.update = (...args: Parameters<SplittermondActor["update"]>) => {
+                    // Delay the real write, not the assertion: awaiting the chat action must still be sufficient.
+                    const update = new Promise<void>((resolve) => setTimeout(resolve, 100)).then(() =>
+                        originalUpdate.apply(actor, args)
+                    );
+                    pendingUpdates.push(update);
+                    return update;
+                };
+                try {
+                    for (const cast of [1, 2]) {
+                        const chatMessage = createSpellChatMessage(actor, spell);
+                        await chatMessage.sendToChat();
+                        const messageId = chatMessage.messageId!;
+                        messagesToDelete.push(messageId);
+                        await handleChatAction({ action: "spellEnhancementUpdate", multiplicity: 1 }, messageId);
+
+                        await handleChatAction({ action: "consumeCosts", multiplicity: 1 }, messageId);
+
+                        expect(actor.system.focus.exhausted.value, `exhausted focus after cast ${cast}`).to.equal(
+                            3 * cast
+                        );
+                        expect(actor.system.focus.consumed.value, `consumed focus after cast ${cast}`).to.equal(cast);
+                        expect(actor.system.focus.channeled.entries, `channeled focus after cast ${cast}`).to.be.empty;
+                    }
+                } finally {
+                    try {
+                        // Even a regression must finish its outstanding writes before withActor deletes the fixture.
+                        await Promise.all(pendingUpdates);
+                    } finally {
+                        actor.update = originalUpdate;
+                    }
+                }
+            })
+        );
+
         function createSpellChatMessage(actor: SplittermondActor, spell: SplittermondSpellItem): SplittermondChatCard {
             const checkReport: CheckReport = {
                 roll: {
