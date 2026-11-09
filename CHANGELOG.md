@@ -1,3 +1,10 @@
+## Unreleased
+
+### Fixes
+
+- Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
+- Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
+
 ## 14.3.1
 
 ### Fixes
