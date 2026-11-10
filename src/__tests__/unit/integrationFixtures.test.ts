@@ -8,26 +8,15 @@ declare const game: object;
 
 describe("Scene fixture cleanup", () => {
     const sandbox = sinon.createSandbox();
-    const original = { id: "original", active: true, activate: sandbox.stub(), view: sandbox.stub() };
-    const temporary = {
-        id: "temporary",
-        active: false,
-        dimensions: { width: 4000, height: 3000 },
-        view: sandbox.stub(),
-        activate: sandbox.stub(),
-        createEmbeddedDocuments: sandbox.stub(),
-        deleteEmbeddedDocuments: sandbox.stub(),
-    };
+    let original: ReturnType<typeof createSceneStub>;
+    let temporary: ReturnType<typeof createSceneStub>;
     let currentScene: { id: string };
     let deleteDocuments: sinon.SinonStub;
 
     beforeEach(() => {
-        original.activate.resolves();
-        original.view.resolves();
+        original = createSceneStub(sandbox, { id: "original", active: true });
+        temporary = createSceneStub(sandbox, { id: "temporary", active: false });
         currentScene = original;
-        temporary.active = false;
-        temporary.view.resolves();
-        temporary.activate.resolves();
         deleteDocuments = sandbox.stub().resolves([]);
         sandbox.define(globalThis, "Scene", { create: sandbox.stub().resolves(temporary), deleteDocuments });
         sandbox.define(globalThis, "ui", { combat: { viewed: null } });
@@ -36,15 +25,7 @@ describe("Scene fixture cleanup", () => {
         sandbox.stub(foundryApi, "scenes").get(() => [original, temporary]);
         sandbox.stub(foundryApi, "combats").get(() => []);
     });
-    afterEach(() => {
-        original.activate.reset();
-        original.view.reset();
-        temporary.view.reset();
-        temporary.activate.reset();
-        temporary.createEmbeddedDocuments.reset();
-        temporary.deleteEmbeddedDocuments.reset();
-        sandbox.restore();
-    });
+    afterEach(() => sandbox.restore());
 
     it("restores the original scene before deleting the viewed test scene when the test succeeds", async () => {
         const result = await withScene(async (scene) => {
@@ -55,7 +36,11 @@ describe("Scene fixture cleanup", () => {
         })();
 
         expect(result).to.equal("result");
-        sinon.assert.callOrder(original.activate, original.view, deleteDocuments);
+        expect(original.activate.calledBefore(original.view), "The original scene is activated before viewing it").to.be
+            .true;
+        expect(original.view.calledBefore(deleteDocuments), "The original scene is viewed before deleting the fixture")
+            .to.be.true;
+        expect(deleteDocuments.called, "The fixture scene is deleted").to.be.true;
         expect(deleteDocuments.firstCall.args).to.deep.equal([[temporary.id]]);
     });
 
@@ -69,7 +54,11 @@ describe("Scene fixture cleanup", () => {
         })().catch((caught: unknown) => caught);
 
         expect(result).to.equal(error);
-        sinon.assert.callOrder(original.activate, original.view, deleteDocuments);
+        expect(original.activate.calledBefore(original.view), "The original scene is activated before viewing it").to.be
+            .true;
+        expect(original.view.calledBefore(deleteDocuments), "The original scene is viewed before deleting the fixture")
+            .to.be.true;
+        expect(deleteDocuments.called, "The fixture scene is deleted").to.be.true;
         expect(deleteDocuments.firstCall.args).to.deep.equal([[temporary.id]]);
     });
 
@@ -106,13 +95,13 @@ describe("Scene fixture cleanup", () => {
             const preparation = prepare();
             try {
                 await clock.tickAsync(0);
-                sinon.assert.calledOnce(temporary.view);
-                sinon.assert.notCalled(temporary.activate);
+                expect(temporary.view.calledOnce, "The fixture scene is viewed once").to.be.true;
+                expect(temporary.activate.called, "Activation waits for viewing to finish").to.be.false;
 
                 finishView();
                 await clock.tickAsync(0);
 
-                sinon.assert.calledOnce(temporary.activate);
+                expect(temporary.activate.calledOnce, "The viewed fixture scene is activated once").to.be.true;
                 await preparation;
             } finally {
                 finishView();
@@ -135,8 +124,9 @@ describe("Scene fixture cleanup", () => {
             await cleanup();
 
             expect(result).to.equal(error);
-            sinon.assert.notCalled(temporary.activate);
-            sinon.assert.calledOnceWithExactly(deleteDocuments, [temporary.id]);
+            expect(temporary.activate.called, "A scene whose view failed is not activated").to.be.false;
+            expect(deleteDocuments.calledOnceWithExactly([temporary.id]), "Only the fixture scene is deleted once").to
+                .be.true;
         });
     });
 
@@ -167,8 +157,14 @@ describe("Scene fixture cleanup", () => {
                 "Token",
                 [{ type: "base", actorLink: false, actorId: "actor", x: 2000, y: 1500 }],
             ]);
-            sinon.assert.calledOnceWithExactly(temporary.deleteEmbeddedDocuments, "Token", [token.id]);
-            sinon.assert.callOrder(temporary.deleteEmbeddedDocuments, deleteActors, deleteDocuments);
+            expect(
+                temporary.deleteEmbeddedDocuments.calledOnceWithExactly("Token", [token.id]),
+                "Only the fixture token is deleted once"
+            ).to.be.true;
+            expect(temporary.deleteEmbeddedDocuments.calledBefore(deleteActors), "Token cleanup precedes actor cleanup")
+                .to.be.true;
+            expect(deleteActors.calledBefore(deleteDocuments), "Actor cleanup precedes scene cleanup").to.be.true;
+            expect(deleteDocuments.called, "The fixture scene is deleted").to.be.true;
         });
 
         it("deletes the token from its parent scene when the callback fails", async () => {
@@ -180,8 +176,14 @@ describe("Scene fixture cleanup", () => {
             })().catch((caught: unknown) => caught);
 
             expect(result).to.equal(error);
-            sinon.assert.calledOnceWithExactly(temporary.deleteEmbeddedDocuments, "Token", [token.id]);
-            sinon.assert.callOrder(temporary.deleteEmbeddedDocuments, deleteActors, deleteDocuments);
+            expect(
+                temporary.deleteEmbeddedDocuments.calledOnceWithExactly("Token", [token.id]),
+                "Only the fixture token is deleted once"
+            ).to.be.true;
+            expect(temporary.deleteEmbeddedDocuments.calledBefore(deleteActors), "Token cleanup precedes actor cleanup")
+                .to.be.true;
+            expect(deleteActors.calledBefore(deleteDocuments), "Actor cleanup precedes scene cleanup").to.be.true;
+            expect(deleteDocuments.called, "The fixture scene is deleted").to.be.true;
         });
 
         it("still removes the actor and scene when token deletion fails", async () => {
@@ -191,10 +193,24 @@ describe("Scene fixture cleanup", () => {
             const result = await withUnlinkedToken(async () => undefined)().catch((caught: unknown) => caught);
 
             expect(result).to.equal(error);
-            sinon.assert.callOrder(temporary.deleteEmbeddedDocuments, deleteActors, deleteDocuments);
+            expect(temporary.deleteEmbeddedDocuments.calledBefore(deleteActors), "Token cleanup precedes actor cleanup")
+                .to.be.true;
+            expect(deleteActors.calledBefore(deleteDocuments), "Actor cleanup precedes scene cleanup").to.be.true;
+            expect(deleteDocuments.called, "The fixture scene is deleted").to.be.true;
         });
     });
 });
+
+function createSceneStub(sandbox: sinon.SinonSandbox, props: { id: string; active: boolean }) {
+    return {
+        ...props,
+        dimensions: { width: 4000, height: 3000 },
+        view: sandbox.stub().resolves(),
+        activate: sandbox.stub().resolves(),
+        createEmbeddedDocuments: sandbox.stub(),
+        deleteEmbeddedDocuments: sandbox.stub(),
+    };
+}
 
 describe("Actor fixture cleanup", () => {
     const sandbox = sinon.createSandbox();

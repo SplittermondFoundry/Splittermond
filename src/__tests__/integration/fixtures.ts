@@ -72,7 +72,7 @@ async function createToken(actor: SplittermondActor, scene: FoundryScene) {
                 type: "base",
                 actorLink: false,
                 actorId: actor.id,
-                // The fixture scene has not been viewed yet, so it has no saved view position.
+                // Center fixture tokens to avoid camera jumps toward the scene's upper-left corner.
                 x: scene.dimensions.width / 2,
                 y: scene.dimensions.height / 2,
             },
