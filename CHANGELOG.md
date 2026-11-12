@@ -1,7 +1,18 @@
 ## Unreleased
 
+### Features
+
+- Ein Modifikator-Helfer bietet im Effektebereich von Items und in aktiven Effekten eine Auswahl mit kurzen Erklärungen und passenden Attributen.
+  Für Ausrüstungsverbesserungen ergänzt er passende Zusatzmodifikatoren und weist auf Voraussetzungen und manuell zu berücksichtigende Wirkungen hin.
+  Merkmalsvorschläge berücksichtigen Waffen, Rüstungen und Schilde; der Objektname und begrenzte Stufenauswahlen werden passend vorbelegt.
+  Ungültige Zahlenwerte für Merkmalsstufen werden vor der Übernahme am Eingabefeld angezeigt.
+  Bei der Magiepatzerreduktion werden nur Magieschulen und Arkane Kunde vorgeschlagen und Dezimalwerte abgewiesen.
+  Beim erneuten Öffnen einer Auswahl bleibt der gewählte Eintrag sichtbar, auch in eingeklappten Kategorien.
+  Die Oberfläche steht auf Deutsch und Englisch zur Verfügung; Fehlermeldungen nennen das betroffene Attribut.
+
 ### Fixes
 
+- Der Modifikator-Helfer lässt sich auch über HTTP-Verbindungen ohne `crypto.randomUUID()` öffnen.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
 - Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
 

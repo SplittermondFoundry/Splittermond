@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { type Config, type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import type { SplittermondSkill } from "module/config/skillGroups";
@@ -9,25 +10,30 @@ import { isMember } from "module/util/util";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
 const commonConfig = {
-    optionalAttributes: ["skill", "attribute1", "attribute2", "emphasis"],
+    description: "splittermond.modifierHelper.descriptions.skills",
+    optionalAttributes: { attribute1: null, attribute2: null, skill: null, emphasis: null },
     subSegments: {
         general: {
-            optionalAttributes: ["emphasis"],
+            description: "splittermond.modifierHelper.descriptions.skillsGeneral",
+            optionalAttributes: { emphasis: null },
         },
         magic: {
-            optionalAttributes: ["emphasis"],
+            description: "splittermond.modifierHelper.descriptions.skillsMagic",
+            optionalAttributes: { emphasis: null },
         },
         fighting: {
-            optionalAttributes: ["emphasis"],
+            description: "splittermond.modifierHelper.descriptions.skillsFighting",
+            optionalAttributes: { emphasis: null },
         },
         social: {
-            optionalAttributes: ["emphasis"],
+            description: "splittermond.modifierHelper.descriptions.skillsSocial",
+            optionalAttributes: { emphasis: null },
         },
     },
 } as const;
 class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
     constructor(
-        logErrors: (...message: string[]) => void,
+        logErrors: ModifierErrorLogger,
         config: Config,
         sourceItem: IModifierSource,
         modifierType: ModifierType
@@ -105,9 +111,10 @@ class CommonSkillHandler extends ByAttributeHandler(ModifierHandler<ScalarModifi
 export class SkillHandler extends CommonSkillHandler {
     static config = makeConfig({
         topLevelPath: "skills",
+        helperAlias: "actor.skills",
         ...commonConfig,
     });
-    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+    constructor(logErrors: ModifierErrorLogger, sourceItem: IModifierSource, modifierType: ModifierType) {
         super(logErrors, SkillHandler.config, sourceItem, modifierType);
     }
 }
@@ -116,7 +123,7 @@ export class ActorSkillHandler extends CommonSkillHandler {
         topLevelPath: "actor.skills",
         ...commonConfig,
     });
-    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+    constructor(logErrors: ModifierErrorLogger, sourceItem: IModifierSource, modifierType: ModifierType) {
         super(logErrors, ActorSkillHandler.config, sourceItem, modifierType);
     }
 }

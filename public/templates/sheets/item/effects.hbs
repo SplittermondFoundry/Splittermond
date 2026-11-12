@@ -3,6 +3,11 @@
         <div class="effects-add">
             <input type="text" class="effect-modifier-input"
                    placeholder="{{localize 'splittermond.effectsPanel.inputPlaceholder'}}"/>
+            <button class="modifier-helper-button" type="button" data-action="modifier-helper"
+                    data-tooltip="{{localize 'splittermond.modifierHelper.title'}}"
+                    aria-label="{{localize 'splittermond.modifierHelper.title'}}" {{#unless editable}}disabled{{/unless}}>
+                <i class="fa fa-wand-magic-sparkles" aria-hidden="true"></i>
+            </button>
             <button class="effect-add-button" type="button" data-action="add-effect">
                 <i class="fas fa-plus" aria-hidden="true"></i>
                 {{localize "splittermond.effectsPanel.add"}}

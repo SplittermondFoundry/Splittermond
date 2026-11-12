@@ -16,6 +16,7 @@ import type { SplittermondActiveEffect } from "module/activeEffect/SplittermondA
 import type { DurationMode } from "module/activeEffect/SplittermondActiveEffect";
 import { type DurationUnit } from "module/config/activeEffect";
 import { splittermond } from "module/config";
+import { openModifierHelper } from "module/modifierHelper";
 type ActiveEffectDocument = SplittermondActiveEffect;
 
 interface EffectsPartContext {
@@ -213,6 +214,9 @@ export class BaseActiveEffectConfig extends FoundryActiveEffectConfig {
 export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
     static DEFAULT_OPTIONS = {
         classes: ["splittermond"],
+        actions: {
+            "modifier-helper": SplittermondActiveEffectConfig.openHelper,
+        },
         form: {
             submitOnChange: true,
             closeOnSubmit: false,
@@ -233,6 +237,16 @@ export class SplittermondActiveEffectConfig extends FoundryActiveEffectConfig {
 
     get document(): ActiveEffectDocument {
         return super.document as ActiveEffectDocument;
+    }
+
+    private static openHelper(this: SplittermondActiveEffectConfig): void {
+        if (!this.document.isOwner || isGenerated(this.document)) return;
+        openModifierHelper(
+            this.#buildModifierSource(this.document.name),
+            this.getModifierType(),
+            () => this.element.querySelector<HTMLInputElement>("[name=splittermondRawInput]"),
+            { item: this.document.item }
+        );
     }
 
     protected async _onSubmitForm(formConfig: ApplicationFormConfiguration, event: Event | SubmitEvent): Promise<void> {

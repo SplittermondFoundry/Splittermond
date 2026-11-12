@@ -1,3 +1,4 @@
+import { collectModifierMessages } from "__tests__/unit/modifierErrorLogger";
 import { ActorSkillHandler, SkillHandler } from "module/actor/modifiers/SkillHandler";
 import sinon from "sinon";
 import SplittermondItem from "module/item/item";
@@ -27,7 +28,7 @@ describe("SkillHandler", () => {
         ).forEach(([name, group]) => {
             it(`should map ${name} skills`, () => {
                 const item = sandbox.createStubInstance(SplittermondItem);
-                const underTest = new ActorSkillHandler(errorLogger, item, "innate");
+                const underTest = new ActorSkillHandler(collectModifierMessages(errorLogger), item, "innate");
                 const result = underTest.processModifier({
                     path: `actor.skills.${name}`,
                     rawFragment: `actor.skills.${name} +2`,
@@ -48,7 +49,7 @@ describe("SkillHandler", () => {
     it("should accept a modifier with skill name", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new SkillHandler(errorLogger, item, "innate");
+        const underTest = new SkillHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "skills",
@@ -70,7 +71,7 @@ describe("SkillHandler", () => {
     it("should not bake the multiplier into the value", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new SkillHandler(errorLogger, item, "innate");
+        const underTest = new SkillHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "skills",
@@ -87,7 +88,7 @@ describe("SkillHandler", () => {
         it(`should accept a modifier with ${attr}`, () => {
             const item = sandbox.createStubInstance(SplittermondItem);
             item.name = "Test Item";
-            const underTest = new SkillHandler(errorLogger, item, "innate");
+            const underTest = new SkillHandler(collectModifierMessages(errorLogger), item, "innate");
 
             const attributes: Record<string, string> = {};
             attributes[attr] = "strength";
@@ -110,7 +111,7 @@ describe("SkillHandler", () => {
     it("should accept an emphasis attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new SkillHandler(errorLogger, item, "innate");
+        const underTest = new SkillHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "skills",
@@ -131,7 +132,7 @@ describe("SkillHandler", () => {
     it("should log an error for unknown skill", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new ActorSkillHandler(errorLogger, item, "innate");
+        const underTest = new ActorSkillHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "actor.skills",
@@ -148,7 +149,7 @@ describe("SkillHandler", () => {
     it("should log an error for unknown attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new ActorSkillHandler(errorLogger, item, "innate");
+        const underTest = new ActorSkillHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "actor.skills",

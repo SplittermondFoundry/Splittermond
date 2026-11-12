@@ -25,7 +25,7 @@ interface ItemSheetData {
 }
 
 interface SplittermondItemSheetData extends ItemSheetData {
-    itemProperties: any;
+    itemProperties: SplittermondItemSheetProperties;
     statBlock: any;
     typeLabel: string;
     item?: any;

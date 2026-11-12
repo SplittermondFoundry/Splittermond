@@ -24,6 +24,7 @@ import { ItemFeaturesModel } from "./module/item/dataModel/propertyModels/ItemFe
 import { toggleElement } from "./module/util/animatedDisplay";
 import { initializeActor } from "module/actor/index.js";
 import { initializeModifiers } from "module/modifiers/index.js";
+import { initializeModifierHelper } from "module/modifierHelper";
 import { initializeCosts } from "module/util/costs/index.js";
 import { addTicks } from "module/combat/addTicks.js";
 import { initializeCombat } from "module/combat/index.js";
@@ -107,6 +108,7 @@ Hooks.once("init", async function () {
     initializeItemMigrations(game.splittermond.API.migrations);
     initializeCosts(modifierModule.costModifierRegistry);
     initializeChecks(modifierModule.modifierRegistry);
+    initializeModifierHelper(modifierModule);
     chatActionFeature(CONFIG.ChatMessage);
 
     initializeCombat(CONFIG.Combat);

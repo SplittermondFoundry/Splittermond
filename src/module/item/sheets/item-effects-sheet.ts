@@ -6,6 +6,8 @@ import type { EffectCardContext } from "module/activeEffect";
 import { buildEffectCardContext, SplittermondActiveEffect } from "module/activeEffect";
 import { SplittermondActiveEffectCreationDialog } from "module/activeEffect/sheets/SplittermondActiveEffectCreationDialog";
 import { getAddModifier } from "module/item/item";
+import { openModifierHelper } from "module/modifierHelper";
+import { modifierTypeForItemType } from "module/activeEffect/modifierTypeResolver";
 import type { HandlebarsRenderOptions } from "module/api/Application";
 import { showDroppedEntry } from "module/util/showDroppedEntry";
 import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
@@ -23,6 +25,7 @@ export default class SplittermondItemEffectsSheet extends SplittermondItemSheet 
         actions: {
             ...super.DEFAULT_OPTIONS.actions,
             "add-effect": SplittermondItemEffectsSheet.#addEffect,
+            "modifier-helper": SplittermondItemEffectsSheet.#modifierHelper,
             "open-effect-dialog": SplittermondItemEffectsSheet.#openEffectDialog,
             "delete-effect": SplittermondItemEffectsSheet.#deleteEffect,
             "toggle-effect": SplittermondItemEffectsSheet.#toggleEffect,
@@ -126,6 +129,16 @@ export default class SplittermondItemEffectsSheet extends SplittermondItemSheet 
         await addModifierEffects(modifierFn, this.item, modifierString, "innate", "modifier");
         input.value = "";
         this.render();
+    }
+
+    static #modifierHelper(this: SplittermondItemEffectsSheet): void {
+        if (!this.item.isOwner) return;
+        openModifierHelper(
+            this.item,
+            modifierTypeForItemType(this.item.type),
+            () => this.element.querySelector<HTMLInputElement>(".effect-modifier-input"),
+            { append: true, submitOnChange: false, item: this.item }
+        );
     }
 
     static async #deleteEffect(this: SplittermondItemEffectsSheet, _event: Event, target: HTMLElement): Promise<void> {

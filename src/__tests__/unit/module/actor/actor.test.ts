@@ -1,3 +1,4 @@
+import { DisposableJSDOM } from "__tests__/unit/DisposableJSDOM";
 import "../../foundryMocks.js";
 import { expect } from "chai";
 import { afterEach, beforeEach, describe, it } from "mocha";
@@ -1139,24 +1140,33 @@ describe("SplittermondActor", () => {
             global.foundry.applications.api.DialogV2.prototype.render = function () {};
         });
 
-        it("should take fumble lowering modifier into account", async () => {
-            const testRoll = createTestRoll("2d10", [10, 10]); //Will set the fumble result to 20!
-            stubFoundryRoll(testRoll, sandbox);
-            const chatStub = sandbox.stub(foundryApi, "createChatMessage");
+        for (const [skill, filter, expectedResult] of [
+            ["firemagic", "", "result1_2"],
+            ["firemagic", 'skill="firemagic"', "result1_2"],
+            ["arcanelore", 'skill="arcanelore"', "result1_2"],
+            ["firemagic", 'skill="arcanelore"', "result3_20"],
+        ] as const) {
+            it(`should apply magic fumble reduction for ${skill} only when its filter matches: ${filter || "none"}`, async () => {
+                const testRoll = createTestRoll("2d10", [10, 10]); //Will set the fumble result to 20!
+                stubFoundryRoll(testRoll, sandbox);
+                const chatStub = sandbox.stub(foundryApi, "createChatMessage");
 
-            const item = sandbox.createStubInstance(SplittermondItem);
-            item.system = sandbox.createStubInstance(StrengthDataModel);
-            actor.addModifier(item, "lowerFumbleResult +1", "innate");
+                const item = sandbox.createStubInstance(SplittermondItem);
+                item.system = sandbox.createStubInstance(StrengthDataModel);
+                actor.addModifier(item, `lowerFumbleResult ${filter} +1`, "innate");
 
-            await actor.rollMagicFumble(3, "4V2", "firemagic", false);
+                await actor.rollMagicFumble(3, "4V2", skill, false);
 
-            expect(chatStub.calledOnce).to.be.true;
-            expect(chatStub.firstCall.firstArg.content).not.to.be.null;
-            const chatContent = new JSDOM(chatStub.firstCall.firstArg.content).window.document.documentElement;
-            const activeFumble = chatContent.querySelector(".fumble-table-result-item-active");
-            //20 sets the fumble result to the second entry, lowered by 1 to the first entry
-            expect(activeFumble?.textContent).to.contain("splittermond.fumbleTable.magic.sorcerer.result1_2");
-        });
+                expect(chatStub.callCount).to.equal(1);
+                expect(chatStub.firstCall.firstArg.content).not.to.be.null;
+                using dom = new DisposableJSDOM(chatStub.firstCall.firstArg.content);
+                const chatContent = dom.window.document.documentElement;
+                const activeFumble = chatContent.querySelector(".fumble-table-result-item-active");
+                expect(activeFumble?.textContent).to.contain(
+                    `splittermond.fumbleTable.magic.sorcerer.${expectedResult}`
+                );
+            });
+        }
 
         it("should use priest table for priests", async () => {
             const testRoll = createTestRoll("2d10", [10, 10]); //Will set the fumble result to 20!
@@ -1171,9 +1181,10 @@ describe("SplittermondActor", () => {
 
             await actor.rollMagicFumble(3, "4V2", "firemagic", false);
 
-            expect(chatStub.calledOnce).to.be.true;
+            expect(chatStub.callCount).to.equal(1);
             expect(chatStub.firstCall.firstArg.content).not.to.be.null;
-            const chatContent = new JSDOM(chatStub.firstCall.firstArg.content).window.document.documentElement;
+            using dom = new DisposableJSDOM(chatStub.firstCall.firstArg.content);
+            const chatContent = dom.window.document.documentElement;
             const activeFumble = chatContent.querySelector(".fumble-table-result-item-active");
             expect(activeFumble?.textContent).to.contain("splittermond.fumbleTable.magic.priest.result3_20");
         });

@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { type Config, IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import { of } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
@@ -7,7 +8,8 @@ import { rollType, type RollType } from "module/config/check";
 import { initMapper, LanguageMapper } from "module/util/LanguageMapper";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 import { validateMembered } from "module/check/validateMembered";
-import { checkTypeMapper, checkTypes } from "module/check/CheckModifierHandler";
+import { checkTypeMapper, checkTypes, checkTypeChoices } from "module/check/CheckModifierHandler";
+import { modifierChoices } from "module/modifiers/ModifierConfig";
 
 const rollTypes = Object.keys(rollType) as RollType[];
 
@@ -18,15 +20,24 @@ const rollTypeMapper: () => LanguageMapper<RollType> = initMapper(rollTypes)
 export class CheckRequireModifierHandler extends ModifierHandler<ScalarModifier> {
     static config: Config = makeConfig({
         topLevelPath: "check.require",
-        requiredAttributes: ["rollType"],
-        optionalAttributes: ["skill", "type"],
-        requiresValue: false,
+        description: "splittermond.modifierHelper.descriptions.checkRequire",
+        requiredAttributes: {
+            rollType: { values: modifierChoices(rollTypes, (value) => `splittermond.rollType.${value}`) },
+        },
+        optionalAttributes: {
+            skill: null,
+            type: {
+                values: checkTypeChoices,
+                label: "splittermond.modifierHelper.checkType",
+                hint: "splittermond.modifierHelper.attributes.checkType",
+            },
+        },
     });
 
     private readonly commonNormalizers: CommonNormalizers;
 
     constructor(
-        logErrors: (...message: string[]) => void,
+        logErrors: ModifierErrorLogger,
         private readonly sourceItem: IModifierSource,
         private readonly modifierType: ModifierType
     ) {

@@ -2,10 +2,12 @@ import { foundryApi } from "module/api/foundryApi";
 import type { FocusModifier, ScalarModifier, Value } from "module/modifiers/parsing";
 import { validateDescriptors } from "module/modifiers/parsing/validators";
 import type { Config, ConfigSegment } from "module/modifiers/ModifierConfig";
+import { getAttributeConfig } from "module/modifiers/ModifierConfig";
 import type { CostExpression } from "module/modifiers/expressions/cost";
 import type { Expression } from "module/modifiers/expressions/scalar";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
 import type { IModifier } from "module/modifiers/index";
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 
 export type AnyModifier = ScalarModifier | FocusModifier;
 
@@ -13,8 +15,8 @@ type ExpressionType<T extends AnyModifier> = T["value"] & (Expression | CostExpr
 type ResultType<T extends AnyModifier> = T extends ScalarModifier ? IModifier : ICostModifier;
 export abstract class ModifierHandler<TYPE extends AnyModifier> {
     constructor(
-        private readonly logErrors: (...messages: string[]) => void,
-        private readonly config: Config
+        private readonly logErrors: ModifierErrorLogger,
+        readonly config: Config
     ) {}
 
     processModifier(modifier: TYPE): ResultType<TYPE>[] {
@@ -36,7 +38,13 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     }
 
     requiresValue(path: string): boolean {
-        return this.getPathConfig(path)?.requiresValue ?? true;
+        const config = this.getPathConfig(path);
+        return config ? Object.prototype.hasOwnProperty.call(config.requiredAttributes, "value") : true;
+    }
+
+    protected getAttributeChoices(path: string, attribute: string) {
+        const config = this.getPathConfig(path);
+        return config ? getAttributeConfig(config, attribute)?.values : undefined;
     }
 
     protected abstract omitForValue(value: ExpressionType<TYPE>): boolean;
@@ -63,11 +71,12 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     }
 
     protected reportUnknownAttributes(modifier: TYPE, config: ConfigSegment) {
-        const knownAttributes = [...config.requiredAttributes, ...config.optionalAttributes];
+        const knownAttributes = Object.keys({ ...config.requiredAttributes, ...config.optionalAttributes });
         Object.keys(modifier.attributes)
             .filter((key) => !knownAttributes.includes(key))
             .forEach((key) => {
-                this.logErrors(
+                this.logAttributeError(
+                    key,
                     foundryApi.format("splittermond.modifiers.parseMessages.unknownDescriptor", {
                         groupId: modifier.path,
                         attribute: key,
@@ -77,7 +86,7 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     }
 
     private reportPathError(groupId: string) {
-        this.logErrors(foundryApi.format("splittermond.modifiers.parseMessages.unknownGroupId", { groupId }));
+        this.logErrors.global(foundryApi.format("splittermond.modifiers.parseMessages.unknownGroupId", { groupId }));
     }
 
     private noMissingAttributes(modifier: TYPE, config: ConfigSegment) {
@@ -85,24 +94,33 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     }
 
     private reportMissingAttributeError(modifier: TYPE, pathConfig: ConfigSegment) {
-        const failedValidations = this.findMissingAttributes(modifier, pathConfig).map((attributeKey) =>
-            foundryApi.format("splittermond.modifiers.parseMessages.missingDescriptor", {
-                groupId: modifier.path,
-                attribute: attributeKey,
-            })
+        this.findMissingAttributes(modifier, pathConfig).forEach((attributeKey) =>
+            this.logAttributeError(
+                attributeKey,
+                foundryApi.format("splittermond.modifiers.parseMessages.missingDescriptor", {
+                    groupId: modifier.path,
+                    attribute: attributeKey,
+                })
+            )
         );
-        this.logErrors(...failedValidations);
     }
 
     private findMissingAttributes(modifier: TYPE, config: ConfigSegment) {
-        return config.requiredAttributes.filter(
-            (requiredAttribute) => modifier.attributes[requiredAttribute] === undefined
+        return Object.keys(config.requiredAttributes).filter(
+            // The value processor has already moved value out of the raw attributes.
+            (requiredAttribute) => requiredAttribute !== "value" && modifier.attributes[requiredAttribute] === undefined
         );
     }
 
-    protected reportInvalidDescriptor(path: string, descriptorName: string, descriptorValue: string | undefined) {
-        this.logErrors(
-            foundryApi.format("splittermond.modifiers.parseMessages.invalidDescriptorValue", {
+    protected reportInvalidDescriptor(
+        path: string,
+        descriptorName: string,
+        descriptorValue: string | undefined,
+        options: { messageKey?: string } = {}
+    ) {
+        this.logAttributeError(
+            descriptorName,
+            foundryApi.format(options.messageKey ?? "splittermond.modifiers.parseMessages.invalidDescriptorValue", {
                 groupId: path,
                 attribute: descriptorName,
                 value: descriptorValue ?? "",
@@ -113,9 +131,13 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     protected validateDescriptor(value: Value): value is string {
         const errors = validateDescriptors(value);
         if (errors.length > 0) {
-            this.logErrors(...errors);
+            this.logErrors.global(...errors);
             return false;
         }
         return true;
+    }
+
+    private logAttributeError(attribute: string, message: string) {
+        this.logErrors.forAttribute(attribute, message);
     }
 }
