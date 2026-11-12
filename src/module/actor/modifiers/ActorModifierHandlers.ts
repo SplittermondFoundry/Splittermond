@@ -3,13 +3,13 @@ import { BarebonesModifierHandler } from "module/actor/modifiers/BarebonesModifi
 import type { ScalarModifier } from "module/modifiers/parsing";
 import type { IModifier } from "module/modifiers";
 import { Modifier, InverseModifier, MultiplicativeModifier } from "module/activeEffect";
-import type { ConfigSegment } from "module/modifiers/ModifierConfig";
+import type { ConfigSegment, ConfigInput } from "module/modifiers/ModifierConfig";
 
 export function IndividualSkillHandlers(skill: SplittermondSkill) {
     return class extends BarebonesModifierHandler({
         topLevelPath: skill,
         description: "splittermond.modifierHelper.descriptions.skill",
-        optionalAttributes: ["emphasis"],
+        optionalAttributes: { emphasis: null },
     }) {
         buildModifier(modifier: ScalarModifier): IModifier[] {
             const preprocessed = super.buildModifier(modifier);
@@ -29,7 +29,7 @@ export function IndividualSkillHandlers(skill: SplittermondSkill) {
 export function BasicModifierHandler(
     inputPath: string,
     groupId?: string,
-    options: Pick<ConfigSegment, "helperGroup" | "valueChoices" | "hideInHelper"> = {}
+    options: Partial<Pick<ConfigSegment, "helperGroup" | "requiredAttributes" | "hasEffect">> = {}
 ) {
     return class extends BarebonesModifierHandler(
         {
@@ -63,7 +63,7 @@ export function EmphasisAwareBasicHandler(inputPath: string, groupId?: string) {
         {
             topLevelPath: inputPath,
             description: "splittermond.modifierHelper.descriptions.npcattacks",
-            optionalAttributes: ["emphasis"],
+            optionalAttributes: { emphasis: null },
         },
         groupId
     ) {
@@ -157,12 +157,10 @@ export function TickHandicapHandler(inputPath: string) {
     };
 }
 
-export function SkillFilterHandler<CONFIG extends { topLevelPath: string }>(config: CONFIG, groupId?: string) {
-    const existingOptionalAttributes =
-        "optionalAttributes" in config && Array.isArray(config.optionalAttributes) ? config.optionalAttributes : [];
+export function SkillFilterHandler<CONFIG extends ConfigInput>(config: CONFIG, groupId?: string) {
     const enhancedConfig = {
         ...config,
-        optionalAttributes: [...existingOptionalAttributes, "skill"],
+        optionalAttributes: { skill: null, ...config.optionalAttributes },
     };
     return class extends BarebonesModifierHandler(enhancedConfig, groupId) {
         buildModifier(modifier: ScalarModifier): IModifier[] {

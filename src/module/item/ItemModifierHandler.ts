@@ -21,53 +21,63 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
 
     static config = makeConfig({
         topLevelPath: "item",
-        hideInHelper: true,
+        hasEffect: false,
         subSegments: {
             damage: {
                 description: "splittermond.modifierHelper.descriptions.itemDamage",
-                helperAttributes: { features: { label: "splittermond.modifierHelper.damageFeatures" } },
-                optionalAttributes: ["item", "damageType", "itemType", "features", "skill", "spellType"],
+                optionalAttributes: {
+                    item: null,
+                    damageType: null,
+                    itemType: null,
+                    features: { label: "splittermond.modifierHelper.damageFeatures" },
+                    skill: null,
+                    spellType: null,
+                },
             },
             weaponspeed: {
                 description: "splittermond.modifierHelper.descriptions.weaponSpeed",
-                optionalAttributes: ["item", "itemType", "skill"],
+                optionalAttributes: { item: null, itemType: null, skill: null },
             },
             defenseTickCost: {
                 description: "splittermond.modifierHelper.descriptions.defenseTickCost",
-                optionalAttributes: ["defenseType", "item", "itemType", "skill"],
+                optionalAttributes: { defenseType: null, item: null, itemType: null, skill: null },
             },
             mergeFeature: {
                 description: "splittermond.modifierHelper.descriptions.mergeFeature",
-                requiredAttributes: ["feature"],
-                optionalAttributes: ["item", "itemType", "skill"],
+                requiredAttributes: { value: null, feature: null },
+                optionalAttributes: { item: null, itemType: null, skill: null },
             },
             addFeature: {
                 description: "splittermond.modifierHelper.descriptions.addFeature",
-                requiredAttributes: ["feature"],
-                optionalAttributes: ["item", "itemType", "skill"],
+                requiredAttributes: { value: null, feature: null },
+                optionalAttributes: { item: null, itemType: null, skill: null },
             },
             castDuration: {
                 description: "splittermond.modifierHelper.descriptions.castDuration",
                 // Cast duration is only consumed by spells; retain the parser attribute for existing input.
-                helperAttributes: {
+                requiredAttributes: { value: null, unit: null },
+                optionalAttributes: {
+                    item: null,
                     itemType: { hidden: true },
-                    skill: { hint: "splittermond.modifierHelper.attributes.castDurationSkill", groupChoices: false },
+                    skill: {
+                        ...spellSkillChoices,
+                        hint: "splittermond.modifierHelper.attributes.castDurationSkill",
+                        groupChoices: false,
+                    },
                 },
-                attributeChoices: { skill: spellSkillChoices },
-                requiredAttributes: ["unit"],
-                optionalAttributes: ["item", "itemType", "skill"],
+
                 subSegments: {
                     multiplier: {
                         description: "splittermond.modifierHelper.descriptions.castDurationMultiplier",
-                        helperAttributes: {
+                        optionalAttributes: {
+                            item: null,
                             itemType: { hidden: true },
                             skill: {
+                                ...spellSkillChoices,
                                 hint: "splittermond.modifierHelper.attributes.castDurationSkill",
                                 groupChoices: false,
                             },
                         },
-                        attributeChoices: { skill: spellSkillChoices },
-                        optionalAttributes: ["item", "itemType", "skill"],
                     },
                 },
             },

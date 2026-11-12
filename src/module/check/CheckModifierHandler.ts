@@ -16,22 +16,22 @@ export const checkTypeChoices = modifierChoices(checkTypes, mapCheckTypes);
 export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
     static config: Config = makeConfig({
         topLevelPath: "check",
-        hideInHelper: true,
+        hasEffect: false,
         subSegments: {
             result: {
                 description: "splittermond.modifierHelper.descriptions.checkResult",
-                helperAttributes: {
+                requiredAttributes: {
+                    value: null,
+                    category: { values: modifierChoices(successStates, mapSuccessMessage) },
+                },
+                optionalAttributes: {
+                    skill: null,
                     type: {
+                        values: checkTypeChoices,
                         label: "splittermond.modifierHelper.checkType",
                         hint: "splittermond.modifierHelper.attributes.checkType",
                     },
                 },
-                attributeChoices: {
-                    category: { values: modifierChoices(successStates, mapSuccessMessage) },
-                    type: { values: checkTypeChoices },
-                },
-                requiredAttributes: ["category"],
-                optionalAttributes: ["skill", "type"],
             },
         },
     });

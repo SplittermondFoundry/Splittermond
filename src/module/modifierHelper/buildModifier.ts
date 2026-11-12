@@ -29,18 +29,21 @@ export function buildModifier(
         return buildModifier(variant.definition, { ...input, attributes }, onError);
     }
     const fragments = [definition.path];
-    const keys = [...new Set([...definition.requiredAttributes, ...definition.optionalAttributes])];
+    const keys = Object.keys({ ...definition.requiredAttributes, ...definition.optionalAttributes }).filter(
+        (key) => key !== "value"
+    );
     for (const key of keys) {
         const value = input.attributes[key]?.trim() ?? "";
         if (!value) {
-            if (definition.requiredAttributes.includes(key)) return invalid(key, "required");
+            if (Object.prototype.hasOwnProperty.call(definition.requiredAttributes, key))
+                return invalid(key, "required");
             continue;
         }
         const quoted = quoteAttribute(value);
         if (!quoted) return invalid(key, "attributeSyntax");
         fragments.push(`${key}=${quoted}`);
     }
-    if (definition.requiresValue) {
+    if (Object.prototype.hasOwnProperty.call(definition.requiredAttributes, "value")) {
         // Feature modifiers need a positive value internally, including features without a level.
         const value = isUnscaledFeature(definition, input.attributes.feature) ? "1" : input.value.trim();
         if (!value) return invalid("value", "required");
@@ -59,10 +62,8 @@ export function buildModifier(
         )
             return invalid("value", "fumbleLevels");
         const normalizedValue = Number.isFinite(numeric) ? String(numeric) : value;
-        if (
-            definition.valueChoices?.length &&
-            !definition.valueChoices.some((choice) => choice.value === normalizedValue)
-        )
+        const valueChoices = definition.requiredAttributes.value?.values;
+        if (valueChoices?.length && !valueChoices.some((choice) => choice.value === normalizedValue))
             return invalid("value", "valueChoice");
         const explicitSign = !definition.cost && !definition.path.toLowerCase().endsWith(".multiplier") && numeric >= 0;
         const compactValue = value.replace(/\s+/g, "");
@@ -81,7 +82,7 @@ export function buildModifier(
             return invalid("value", "costSyntax");
     }
     const expectedKeys = keys.filter((key) => input.attributes[key]?.trim());
-    if (definition.requiresValue) expectedKeys.push("value");
+    if (Object.prototype.hasOwnProperty.call(definition.requiredAttributes, "value")) expectedKeys.push("value");
     if (Object.keys(modifier.attributes).length !== expectedKeys.length) return invalid("value", "valueSyntax");
     if (expectedKeys.some((key) => !(key in modifier.attributes))) return invalid("value", "valueSyntax");
     const invalidAttribute = keys.find(

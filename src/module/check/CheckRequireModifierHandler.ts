@@ -21,19 +21,17 @@ export class CheckRequireModifierHandler extends ModifierHandler<ScalarModifier>
     static config: Config = makeConfig({
         topLevelPath: "check.require",
         description: "splittermond.modifierHelper.descriptions.checkRequire",
-        helperAttributes: {
+        requiredAttributes: {
+            rollType: { values: modifierChoices(rollTypes, (value) => `splittermond.rollType.${value}`) },
+        },
+        optionalAttributes: {
+            skill: null,
             type: {
+                values: checkTypeChoices,
                 label: "splittermond.modifierHelper.checkType",
                 hint: "splittermond.modifierHelper.attributes.checkType",
             },
         },
-        attributeChoices: {
-            type: { values: checkTypeChoices },
-            rollType: { values: modifierChoices(rollTypes, (value) => `splittermond.rollType.${value}`) },
-        },
-        requiredAttributes: ["rollType"],
-        optionalAttributes: ["skill", "type"],
-        requiresValue: false,
     });
 
     private readonly commonNormalizers: CommonNormalizers;

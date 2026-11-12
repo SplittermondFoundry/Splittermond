@@ -105,9 +105,12 @@ describe("Modifier handler", () => {
     });
 
     it("should report unknown attributes", () => {
-        const config = { ...TestModifierHandler.config };
-        config.subSegments!.one.requiredAttributes.push("required1");
-        config.subSegments!.one.optionalAttributes.push("optional1");
+        const config = makeConfig({
+            topLevelPath: "test",
+            subSegments: {
+                one: { requiredAttributes: { value: null, required1: null }, optionalAttributes: { optional1: null } },
+            },
+        });
 
         const errors: string[] = [];
         const probe = new TestModifierHandler(toLog(errors), config);
@@ -131,8 +134,10 @@ describe("Modifier handler", () => {
     });
 
     it("should report missing required attributes", () => {
-        const config = TestModifierHandler.config;
-        config.subSegments!.one.requiredAttributes.push("iamrequired");
+        const config = makeConfig({
+            topLevelPath: "test",
+            subSegments: { one: { requiredAttributes: { value: null, iamrequired: null } } },
+        });
         const errors: string[] = [];
         const probe = new TestModifierHandler(toLog(errors), config);
 
@@ -143,8 +148,10 @@ describe("Modifier handler", () => {
     });
     it("should not proceed for missing required attributes", () => {
         // Test that buildModifier is not called when required attributes are missing
-        const config = TestModifierHandler.config;
-        config.subSegments!.one.requiredAttributes.push("mustHave");
+        const config = makeConfig({
+            topLevelPath: "test",
+            subSegments: { one: { requiredAttributes: { value: null, mustHave: null } } },
+        });
 
         const errors: string[] = [];
         const probe = new TestModifierHandler(toLog(errors), config);

@@ -1,5 +1,5 @@
 import type { Config, ConfigSegment } from "module/modifiers/ModifierConfig";
-import { modifierChoices, type ModifierChoice } from "module/modifiers/ModifierConfig";
+import { getAttributeConfig, modifierChoices, type ModifierChoice } from "module/modifiers/ModifierConfig";
 import { attributes, derivedAttributes } from "module/config/attributes";
 import { skillGroups } from "module/config/skillGroups";
 import { damageTypes } from "module/config/damageTypes";
@@ -22,14 +22,14 @@ export function modifierCatalogue(
     const definitions = new Map<string, ModifierDefinition>();
     function visit(path: string, segment: ConfigSegment, cost: boolean, inheritedAlias?: string) {
         const helperAlias = segment.helperAlias ?? inheritedAlias;
-        if (!segment.hideInHelper)
+        if (segment.hasEffect)
             definitions.set(path.toLowerCase(), {
                 ...segment,
                 path,
                 cost,
                 helperAlias,
-                optionalAttributes: segment.optionalAttributes.filter(
-                    (key) => segment.helperAttributes?.[key]?.hidden !== "always"
+                optionalAttributes: Object.fromEntries(
+                    Object.entries(segment.optionalAttributes).filter(([, options]) => options?.hidden !== "always")
                 ),
             });
         for (const [name, child] of Object.entries(segment.subSegments ?? {})) {
@@ -53,7 +53,7 @@ function groupDefinitions(definitions: ModifierDefinition[]): ModifierDefinition
         const grouped = result.get(group.path) ?? {
             ...definition,
             path: group.path,
-            requiredAttributes: [group.attribute, ...definition.requiredAttributes],
+            requiredAttributes: { [group.attribute]: null, ...definition.requiredAttributes },
             pathSelection: { attribute: group.attribute, variants: [] },
         };
         grouped.pathSelection!.variants.push({ ...group.choice, definition });
@@ -84,8 +84,9 @@ export function modifierDescription(definition: ModifierDefinition): string {
 
 export function attributeChoices(definition: ModifierDefinition, attribute: string): readonly ModifierChoice[] {
     if (definition.pathSelection?.attribute === attribute) return definition.pathSelection.variants;
-    const configured = definition.attributeChoices?.[attribute];
-    if (configured) return configured.suggestions ?? configured.values;
+    const configured = getAttributeConfig(definition, attribute);
+    const choices = configured?.suggestions ?? configured?.values;
+    if (choices) return choices;
     switch (attribute) {
         case "skill":
             return modifierChoices(skillGroups.all, (value) => `splittermond.skillLabel.${value}`);

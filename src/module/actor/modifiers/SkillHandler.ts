@@ -11,23 +11,23 @@ import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
 const commonConfig = {
     description: "splittermond.modifierHelper.descriptions.skills",
-    optionalAttributes: ["attribute1", "attribute2", "skill", "emphasis"],
+    optionalAttributes: { attribute1: null, attribute2: null, skill: null, emphasis: null },
     subSegments: {
         general: {
             description: "splittermond.modifierHelper.descriptions.skillsGeneral",
-            optionalAttributes: ["emphasis"],
+            optionalAttributes: { emphasis: null },
         },
         magic: {
             description: "splittermond.modifierHelper.descriptions.skillsMagic",
-            optionalAttributes: ["emphasis"],
+            optionalAttributes: { emphasis: null },
         },
         fighting: {
             description: "splittermond.modifierHelper.descriptions.skillsFighting",
-            optionalAttributes: ["emphasis"],
+            optionalAttributes: { emphasis: null },
         },
         social: {
             description: "splittermond.modifierHelper.descriptions.skillsSocial",
-            optionalAttributes: ["emphasis"],
+            optionalAttributes: { emphasis: null },
         },
     },
 } as const;

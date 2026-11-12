@@ -432,8 +432,8 @@ describe("ModifierRegistry", () => {
                     attributes: {},
                 };
                 const mockConfig = {
-                    requiredAttributes: [],
-                    optionalAttributes: [],
+                    requiredAttributes: { value: null },
+                    optionalAttributes: {},
                 };
 
                 const result = handler.processModifier(mockModifier, mockConfig);

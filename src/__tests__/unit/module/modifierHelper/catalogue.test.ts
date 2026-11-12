@@ -27,7 +27,9 @@ describe("Modifier helper", () => {
             expect(entry.description, entry.path).to.be.a("string");
             expect(modifierDescription(entry)).not.to.include("splittermond.");
             const attributes = Object.fromEntries(
-                entry.requiredAttributes.map((key) => [key, attributeChoices(entry, key)[0]?.value ?? "test"])
+                Object.keys(entry.requiredAttributes)
+                    .filter((key) => key !== "value")
+                    .map((key) => [key, attributeChoices(entry, key)[0]?.value ?? "test"])
             );
             const raw = buildModifier(entry, { value: sampleValue(entry), attributes });
             expect(raw, entry.path).not.to.be.null;
@@ -50,16 +52,17 @@ describe("Modifier helper", () => {
             expect(context.preview).to.equal(buildModifier(canonical, { value: sampleValue(entry), attributes }));
         });
 
-        for (const key of [...entry.requiredAttributes, ...entry.optionalAttributes]) {
+        for (const key of Object.keys({ ...entry.requiredAttributes, ...entry.optionalAttributes }).filter(
+            (key) => key !== "value"
+        )) {
             const choices = attributeChoices(entry, key);
             if (!choices.length) continue;
             it(`offers accepted ${key} choices for ${entry.path}`, () => {
                 for (const choice of choices) {
                     const attributes = Object.fromEntries(
-                        entry.requiredAttributes.map((required) => [
-                            required,
-                            attributeChoices(entry, required)[0]?.value ?? "test",
-                        ])
+                        Object.keys(entry.requiredAttributes)
+                            .filter((key) => key !== "value")
+                            .map((required) => [required, attributeChoices(entry, required)[0]?.value ?? "test"])
                     );
                     attributes[key] = choice.value;
                     const raw = buildModifier(entry, { value: sampleValue(entry), attributes });
@@ -75,12 +78,11 @@ describe("Modifier helper", () => {
         const added = initializeModifiers();
         const Handler = BarebonesModifierHandler({
             topLevelPath: "extension",
-            hideInHelper: true,
+            hasEffect: false,
             subSegments: {
                 nested: {
-                    requiredAttributes: ["newRequired"],
-                    optionalAttributes: ["newOptional"],
-                    requiresValue: false,
+                    requiredAttributes: { newRequired: null },
+                    optionalAttributes: { newOptional: null },
                 },
             },
         });
@@ -90,17 +92,23 @@ describe("Modifier helper", () => {
             []
         );
         expect(discovered.map((entry) => entry.path)).to.deep.equal(["extension.nested"]);
-        expect(discovered[0].requiredAttributes).to.deep.equal(["newRequired"]);
-        expect(discovered[0].optionalAttributes).to.deep.equal(["newOptional"]);
-        expect(discovered[0].requiresValue).to.equal(false);
+        expect(discovered[0].requiredAttributes).to.deep.equal({ newRequired: null });
+        expect(discovered[0].optionalAttributes).to.deep.equal({ newOptional: null });
+        expect(discovered[0].requiredAttributes).not.to.have.property("value");
     });
 
     it("does not inherit parent attributes onto a subpath", () => {
         const entries = modifierCatalogue(
-            [makeConfig({ topLevelPath: "test", requiredAttributes: ["parentOnly"], subSegments: { child: {} } })],
+            [
+                makeConfig({
+                    topLevelPath: "test",
+                    requiredAttributes: { value: null, parentOnly: null },
+                    subSegments: { child: {} },
+                }),
+            ],
             []
         );
-        expect(entries[1].requiredAttributes).to.deep.equal([]);
+        expect(entries[1].requiredAttributes).to.deep.equal({ value: null });
     });
 
     it("keeps existing skill filters valid when the helper suggests only spell skills", () => {
@@ -119,8 +127,7 @@ describe("Modifier helper", () => {
             "extension",
             SkillFilterHandler({
                 topLevelPath: "extension",
-                optionalAttributes: ["skill"],
-                attributeChoices: {
+                optionalAttributes: {
                     skill: { values: [{ value: "firemagic", label: "splittermond.skillLabel.firemagic" }] },
                 },
             })
@@ -324,8 +331,12 @@ describe("Modifier helper", () => {
                 [
                     makeConfig({
                         topLevelPath: "extension",
-                        hideInHelper: true,
-                        subSegments: { nested: { subSegments: { future: { requiredAttributes: ["newField"] } } } },
+                        hasEffect: false,
+                        subSegments: {
+                            nested: {
+                                subSegments: { future: { requiredAttributes: { value: null, newField: null } } },
+                            },
+                        },
                     }),
                 ],
                 []
@@ -339,7 +350,7 @@ describe("Modifier helper", () => {
             ).to.deep.equal(["extension.nested", "extension.nested.future"]);
             expect(
                 group.entries.find((entry) => entry.path === "extension.nested.future")?.definition.requiredAttributes
-            ).to.deep.equal(["newField"]);
+            ).to.deep.equal({ value: null, newField: null });
         });
 
         it("discovers future item functions and their nested variants as separate families", () => {
@@ -347,7 +358,7 @@ describe("Modifier helper", () => {
                 [
                     makeConfig({
                         topLevelPath: "item",
-                        hideInHelper: true,
+                        hasEffect: false,
                         subSegments: { future: { subSegments: { multiplier: {} } } },
                     }),
                 ],
@@ -421,12 +432,15 @@ describe("Modifier helper", () => {
     it("uses the most specific registration regardless of registration order", () => {
         const entries = modifierCatalogue(
             [
-                makeConfig({ topLevelPath: "test.child", requiredAttributes: ["specific"] }),
-                makeConfig({ topLevelPath: "test", subSegments: { child: { optionalAttributes: ["general"] } } }),
+                makeConfig({ topLevelPath: "test.child", requiredAttributes: { value: null, specific: null } }),
+                makeConfig({ topLevelPath: "test", subSegments: { child: { optionalAttributes: { general: null } } } }),
             ],
             []
         );
-        expect(entries.find((entry) => entry.path === "test.child")?.requiredAttributes).to.deep.equal(["specific"]);
+        expect(entries.find((entry) => entry.path === "test.child")?.requiredAttributes).to.deep.equal({
+            value: null,
+            specific: null,
+        });
     });
 
     it("describes newly registered paths even without a translation", () => {

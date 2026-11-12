@@ -43,7 +43,7 @@ export function definition(path: string) {
 }
 
 export function sampleValue(entry: (typeof definitions)[number]): string {
-    return entry.valueChoices?.[0]?.value ?? (entry.cost ? "K1V1" : "2");
+    return entry.requiredAttributes.value?.values?.[0]?.value ?? (entry.cost ? "K1V1" : "2");
 }
 
 export function setupModifierHelperTests() {

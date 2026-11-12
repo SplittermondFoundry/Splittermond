@@ -2,6 +2,7 @@ import { foundryApi } from "module/api/foundryApi";
 import type { FocusModifier, ScalarModifier, Value } from "module/modifiers/parsing";
 import { validateDescriptors } from "module/modifiers/parsing/validators";
 import type { Config, ConfigSegment } from "module/modifiers/ModifierConfig";
+import { getAttributeConfig } from "module/modifiers/ModifierConfig";
 import type { CostExpression } from "module/modifiers/expressions/cost";
 import type { Expression } from "module/modifiers/expressions/scalar";
 import type { ICostModifier } from "module/util/costs/spellCostManagement";
@@ -37,11 +38,13 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     }
 
     requiresValue(path: string): boolean {
-        return this.getPathConfig(path)?.requiresValue ?? true;
+        const config = this.getPathConfig(path);
+        return config ? Object.prototype.hasOwnProperty.call(config.requiredAttributes, "value") : true;
     }
 
     protected getAttributeChoices(path: string, attribute: string) {
-        return this.getPathConfig(path)?.attributeChoices?.[attribute]?.values;
+        const config = this.getPathConfig(path);
+        return config ? getAttributeConfig(config, attribute)?.values : undefined;
     }
 
     protected abstract omitForValue(value: ExpressionType<TYPE>): boolean;
@@ -68,7 +71,7 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     }
 
     protected reportUnknownAttributes(modifier: TYPE, config: ConfigSegment) {
-        const knownAttributes = [...config.requiredAttributes, ...config.optionalAttributes];
+        const knownAttributes = Object.keys({ ...config.requiredAttributes, ...config.optionalAttributes });
         Object.keys(modifier.attributes)
             .filter((key) => !knownAttributes.includes(key))
             .forEach((key) => {
@@ -103,8 +106,9 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
     }
 
     private findMissingAttributes(modifier: TYPE, config: ConfigSegment) {
-        return config.requiredAttributes.filter(
-            (requiredAttribute) => modifier.attributes[requiredAttribute] === undefined
+        return Object.keys(config.requiredAttributes).filter(
+            // The value processor has already moved value out of the raw attributes.
+            (requiredAttribute) => requiredAttribute !== "value" && modifier.attributes[requiredAttribute] === undefined
         );
     }
 

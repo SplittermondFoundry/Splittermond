@@ -29,7 +29,9 @@ export function featureAdjustmentDefinition(
         }[adjustment.kind];
     const definition = definitions.find((entry) => entry.path.toLowerCase() === path?.toLowerCase());
     if (!definition) return undefined;
-    return adjustment?.kind === "skill" ? { ...definition, requiredAttributes: ["skill", "emphasis"] } : definition;
+    return adjustment?.kind === "skill"
+        ? { ...definition, requiredAttributes: { value: null, skill: null, emphasis: null } }
+        : definition;
 }
 
 export function buildFeatureAdjustment(

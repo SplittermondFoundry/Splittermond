@@ -18,6 +18,7 @@ import { featureAdjustment, validFeatureCount } from "./featureImprovementRules"
 import { featureAdjustmentContext, featureValueContext } from "./featureAdjustmentContext";
 import type { FeatureTarget } from "./featureChoices";
 import type { ModifierDiagnostic } from "module/modifiers/parsing/ParseErrors";
+import { getAttributeConfig } from "module/modifiers/ModifierConfig";
 import {
     canonicalDefinition,
     groupDescription,
@@ -146,11 +147,14 @@ export class ModifierHelper extends SplittermondApplication {
         const selected = this.selected;
         this.syncFeatureAdjustments();
         this.renderedFeatures = this.featureLayout();
-        const required = selected?.requiredAttributes ?? [];
-        const fields = [...new Set([...required, ...(selected?.optionalAttributes ?? [])])]
+        const required = selected?.requiredAttributes ?? {};
+        const fields = Object.keys({ ...required, ...selected?.optionalAttributes })
+            .filter((key) => key !== "value")
             .filter(
                 (key) =>
-                    required.includes(key) || !selected?.helperAttributes?.[key]?.hidden || !!this.input.attributes[key]
+                    Object.prototype.hasOwnProperty.call(required, key) ||
+                    !getAttributeConfig(selected!, key)?.hidden ||
+                    !!this.input.attributes[key]
             )
             .map((key) =>
                 attributeField(
@@ -176,7 +180,9 @@ export class ModifierHelper extends SplittermondApplication {
         const normalizedValue = value && Number.isFinite(Number(value)) ? String(Number(value)) : value;
         const featureValue = featureValueContext(this.input.attributes.feature, normalizedValue);
         const valueChoices = (
-            featureValue.valueChoices.length ? featureValue.valueChoices : (selected?.valueChoices ?? [])
+            featureValue.valueChoices.length
+                ? featureValue.valueChoices
+                : (selected?.requiredAttributes.value?.values ?? [])
         ).map(({ value, label }) => {
             const localized = foundryApi.localize(label);
             return { value, label: localized === label ? value : localized, selected: value === normalizedValue };
@@ -214,7 +220,7 @@ export class ModifierHelper extends SplittermondApplication {
             }),
             description,
             variantDescription: variantDescription === description ? "" : variantDescription,
-            requiresValue: selected?.requiresValue ?? false,
+            requiresValue: Object.prototype.hasOwnProperty.call(required, "value"),
             valueHidden: isUnscaledFeature(selected, this.input.attributes.feature),
             valueFirst:
                 ["item.damage", "item.defenseTickCost", "item.weaponspeed", "lowerfumbleresult"].includes(
@@ -291,10 +297,10 @@ export class ModifierHelper extends SplittermondApplication {
                 activatePicker(picker, async (path) => {
                     this.updatePreview();
                     this.selectedPath = path;
-                    const allowed = [
-                        ...(this.selected?.requiredAttributes ?? []),
-                        ...(this.selected?.optionalAttributes ?? []),
-                    ];
+                    const allowed = Object.keys({
+                        ...this.selected?.requiredAttributes,
+                        ...this.selected?.optionalAttributes,
+                    }).filter((key) => key !== "value");
                     this.input.attributes = Object.fromEntries(
                         Object.entries(this.input.attributes).filter(([key]) => allowed.includes(key))
                     );

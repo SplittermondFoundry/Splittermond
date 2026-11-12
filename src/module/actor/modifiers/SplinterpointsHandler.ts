@@ -8,11 +8,11 @@ function BaseSplinterpointsHandler(topLevelPath: string, groupId?: string) {
         topLevelPath: topLevelPath,
         helperAlias: groupId,
         description: "splittermond.modifierHelper.descriptions.splinterpoints",
-        helperAttributes: { skill: { hidden: "always" } },
+        optionalAttributes: { skill: { hidden: "always" } },
         subSegments: {
             bonus: {
                 description: "splittermond.modifierHelper.descriptions.splinterpointBonus",
-                optionalAttributes: ["skill"],
+                optionalAttributes: { skill: null },
             },
         },
     });

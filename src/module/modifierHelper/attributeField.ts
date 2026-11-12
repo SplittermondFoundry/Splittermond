@@ -5,6 +5,7 @@ import { allowsCustomAttribute, attributeChoices, type ModifierDefinition } from
 import type { ModifierHelperField } from "./templateInterface";
 import { isUnscaledFeature } from "./featureValue";
 import { isFeatureAvailable, type FeatureTarget } from "./featureChoices";
+import { getAttributeConfig } from "module/modifiers/ModifierConfig";
 
 export function attributeField(
     definition: ModifierDefinition,
@@ -27,7 +28,7 @@ export function attributeField(
     if (value && choices.length && !allowsCustomAttribute(key) && !choices.some((choice) => choice.selected)) {
         choices.push({ value, label: value, selected: true });
     }
-    const presentation = definition.helperAttributes?.[key];
+    const presentation = getAttributeConfig(definition, key);
     if (key === "skill" && presentation?.groupChoices === false)
         choices.sort((a, b) => a.label.localeCompare(b.label, "de"));
     const hintKey =
@@ -52,12 +53,12 @@ export function attributeField(
         key,
         label: label === labelKey ? key : label,
         hint: hint === hintKey ? "" : hint,
-        required: definition.requiredAttributes.includes(key),
+        required: Object.prototype.hasOwnProperty.call(definition.requiredAttributes, key),
         value,
         select: choices.length > 0 && !allowsCustomAttribute(key),
         searchable: ["feature", "skill"].includes(key) && choices.length > 0,
         isFeature: key === "feature",
-        valueAfter: key === "feature" && definition.requiresValue,
+        valueAfter: key === "feature" && Object.prototype.hasOwnProperty.call(definition.requiredAttributes, "value"),
         suggestions: key === "features" && choices.length > 0,
         choiceLabel:
             choices.find((choice) => choice.selected)?.label ??

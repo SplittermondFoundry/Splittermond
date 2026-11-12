@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { JSDOM } from "jsdom";
+import { getAttributeConfig } from "module/modifiers/ModifierConfig";
 import { attributeChoices, modifierDescription } from "module/modifierHelper/catalogue";
 import { ModifierHelper } from "module/modifierHelper/ModifierHelper";
 import { activateModifierPicker } from "module/modifierHelper/modifierPicker";
@@ -85,8 +86,8 @@ describe("Modifier helper", () => {
 
     for (const entry of definitions.filter(
         (entry) =>
-            [...entry.requiredAttributes, ...entry.optionalAttributes].includes("skill") &&
-            !entry.helperAttributes?.skill?.hidden
+            Object.keys({ ...entry.requiredAttributes, ...entry.optionalAttributes }).includes("skill") &&
+            !getAttributeConfig(entry, "skill")?.hidden
     )) {
         it(`provides searchable skill choices without duplicating values in ${entry.path}`, async () => {
             const helper = new ModifierHelper({
@@ -103,7 +104,7 @@ describe("Modifier helper", () => {
                 const picker = helper.element.querySelector<HTMLDetailsElement>('[data-attribute-picker="skill"]');
                 expect(picker).not.to.equal(null);
                 const focus = entry.path.startsWith("focus.");
-                const grouped = entry.helperAttributes?.skill?.groupChoices !== false;
+                const grouped = getAttributeConfig(entry, "skill")?.groupChoices !== false;
                 if (!grouped) {
                     expect(picker!.querySelector("[data-category-heading]")).to.equal(null);
                     const visible = [...picker!.querySelectorAll<HTMLElement>("[data-picker-value]")].filter(
@@ -172,7 +173,7 @@ describe("Modifier helper", () => {
                     (await helper._prepareContext({})).fields.find((field) => field.key === "skill")!.value
                 ).to.equal("firemagic");
                 expect(helper.element.querySelectorAll("[name=modifierValue]")).to.have.length(
-                    entry.requiresValue ? 1 : 0
+                    "value" in entry.requiredAttributes ? 1 : 0
                 );
                 picker!.querySelector<HTMLElement>('[data-picker-value=""]')!.click();
                 expect(helper.element.querySelector<HTMLInputElement>("[data-attribute=skill]")!.value).to.equal("");

@@ -20,13 +20,12 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
     const lowerFumbleResultHandler = SkillFilterHandler({
         topLevelPath: "lowerfumbleresult",
         description: "splittermond.modifierHelper.descriptions.lowerfumbleresult",
-        helperAttributes: {
-            skill: { hint: "splittermond.modifierHelper.attributes.magicFumbleSkill", groupChoices: false },
-        },
-        attributeChoices: {
+        optionalAttributes: {
             skill: {
                 values: modifierChoices(splittermond.skillGroups.all, (value) => `splittermond.skillLabel.${value}`),
                 suggestions: Object.entries(splittermond.spellSkillsOption).map(([value, label]) => ({ value, label })),
+                hint: "splittermond.modifierHelper.attributes.magicFumbleSkill",
+                groupChoices: false,
             },
         },
     });
@@ -47,7 +46,7 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
         "healthregeneration.bonus",
     ].forEach((segment) => {
         const fullId = `actor.${segment}` as Lowercase<string>;
-        const options = { hideInHelper: segment === "woundmalus" };
+        const options = { hasEffect: segment !== "woundmalus" };
         registry.addHandler(segment, BasicModifierHandler(segment, fullId, options));
         registry.addHandler(fullId, BasicModifierHandler(fullId, undefined, options));
     });
@@ -57,7 +56,10 @@ export function registerActorModifiers(registry: ModifierRegistry<ScalarModifier
         (value) => `splittermond.modifierHelper.woundLevels.${value}`
     );
     for (const path of ["woundmalus.nbrLevels", woundLevelPath]) {
-        registry.addHandler(path, BasicModifierHandler(path, woundLevelPath, { valueChoices: woundLevelChoices }));
+        registry.addHandler(
+            path,
+            BasicModifierHandler(path, woundLevelPath, { requiredAttributes: { value: { values: woundLevelChoices } } })
+        );
     }
     registry.addHandler("tickmalus", TickHandicapHandler("tickmalus"));
     registry.addHandler("handicap", TickHandicapHandler("handicap"));
