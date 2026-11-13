@@ -4,6 +4,17 @@
 
 - Zauber können abweichende verstärkte Werte erhalten. Nicht überschriebene Eigenschaften folgen dem Normalwert; leere oder identische Eingaben stellen diese Übernahme wieder her. Die Verstärkungsauswahl einer Probe berücksichtigt Schaden, Merkmale und Schadensarten.
 
+### Fixes
+
+- Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
+- Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
+
+## 14.3.1
+
+### Fixes
+
+- Vorgeschriebene Würfelarten, etwa durch Angsterfüllt oder Rasend, haben jetzt Vorrang vor dem Standardwurf für NSC ohne Taktiker.
+
 ## 14.3.0
 
 ### Features

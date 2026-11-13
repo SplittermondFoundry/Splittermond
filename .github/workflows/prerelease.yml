@@ -24,7 +24,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v7
               with:
-                  node-version: "24"
+                  node-version: "26"
                   cache: npm
                   cache-dependency-path: package-lock.json
             - name: Set new version in system.json
@@ -101,7 +101,7 @@ jobs:
                   cd dist/ && zip -r ../${{env.outputFile}} ./*; cd -
                   zip -r ${{env.outputFile}} README.md FoundryModule1.png screenshots
             - name: Upload release assets
-              uses: softprops/action-gh-release@v3.0.3
+              uses: softprops/action-gh-release@v3.0.4
               with:
                   generate_release_notes: true
                   draft: false
@@ -120,7 +120,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v7
               with:
-                  node-version: "24"
+                  node-version: "26"
             - name: Download dist artifact
               uses: actions/download-artifact@v8
               with:
