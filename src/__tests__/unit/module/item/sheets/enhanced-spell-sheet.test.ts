@@ -48,22 +48,13 @@ describe("Enhanced spell property form", () => {
             enhancementCosts: "1EG/+1V1",
             enhancementDescription: "",
             castDuration: CastDurationModel.from("1T"),
-            damage: DamageModel.from("1W6"),
-            features: ItemFeaturesModel.from("Scharf 2"),
-            damageType: "wind",
-            costType: "V",
-            range: "10m",
-            effectArea: "2 m Radius",
-            effectDuration: "5 min",
-            enhanced: {
-                damage: null,
-                features: null,
-                damageType: null,
-                costType: null,
-                range: null,
-                effectArea: null,
-                effectDuration: null,
-            },
+            damage: { base: DamageModel.from("1W6"), enhanced: null },
+            features: { base: ItemFeaturesModel.from("Scharf 2"), enhanced: null },
+            damageType: { base: "wind", enhanced: null },
+            costType: { base: "V", enhanced: null },
+            range: { base: "10m", enhanced: null },
+            effectArea: { base: "2 m Radius", enhanced: null },
+            effectDuration: { base: "5 min", enhanced: null },
         });
         const resolveProperty = (source: object, path: string) =>
             path
@@ -112,12 +103,12 @@ describe("Enhanced spell property form", () => {
 
     it("renders explicit no-type choices independently of inherited damage", async () => {
         const { spell, sheet } = setup();
-        spell.system.enhanced.damageType = { value: null };
+        spell.system.damageType.enhanced = "none";
 
         const groups = await sheet.properties();
-        const property = groups[1].properties.find((property) => property.field === "system.damageType")!;
+        const property = groups[1].properties.find((property) => property.field === "system.damageType.base")!;
 
-        expect(property.comparison?.value).to.equal("null");
+        expect(property.comparison?.value).to.equal("none");
         expect(property.comparison?.inherited).to.equal(false);
         expect(property.comparison?.choices).to.include({ "": "splittermond.spellValues.inherit" });
     });
@@ -125,101 +116,101 @@ describe("Enhanced spell property form", () => {
     it("does not turn displayed inherited values into overrides when a normal field changes", async () => {
         const { sheet } = setup();
         const data = {
-            "system.damage.stringInput": "3W6",
-            "system.enhanced.damage.stringInput": "1W6",
-            "system.enhanced.damageType.value": "wind",
+            "system.damage.base.stringInput": "3W6",
+            "system.damage.enhanced.stringInput": "1W6",
+            "system.damageType.enhanced": "wind",
         };
 
-        const result = await submitChange(sheet, "system.damage.stringInput", data);
+        const result = await submitChange(sheet, "system.damage.base.stringInput", data);
 
-        expect(result).to.deep.equal({ "system.damage.stringInput": "3W6" });
+        expect(result).to.deep.equal({ "system.damage.base.stringInput": "3W6" });
     });
 
     it("submits only the edited inherited field as an override", async () => {
         const { sheet } = setup();
-        const data = { "system.enhanced.damage.stringInput": "2W6", "system.enhanced.damageType.value": "wind" };
+        const data = { "system.damage.enhanced.stringInput": "2W6", "system.damageType.enhanced": "wind" };
 
-        const result = await submitChange(sheet, "system.enhanced.damage.stringInput", data);
+        const result = await submitChange(sheet, "system.damage.enhanced.stringInput", data);
 
-        expect(result).to.deep.equal({ "system.enhanced.damage.stringInput": "2W6" });
+        expect(result).to.deep.equal({ "system.damage.enhanced.stringInput": "2W6" });
     });
 
     it("parses enhanced features with the existing feature parser", async () => {
         const { sheet } = setup();
 
-        const result = await submitChange(sheet, "system.enhanced.features.innateFeatures", {
-            "system.enhanced.features.innateFeatures": "Kritisch 3",
+        const result = await submitChange(sheet, "system.features.enhanced.innateFeatures", {
+            "system.features.enhanced.innateFeatures": "Kritisch 3",
         });
 
         expect(result).to.deep.equal({
-            "system.enhanced.features.internalFeatureList": [{ name: "Kritisch", value: 3 }],
+            "system.features.enhanced.internalFeatureList": [{ name: "Kritisch", value: 3 }],
         });
     });
 
     for (const property of [
-        { key: "damage", field: "damage.stringInput", value: "1W6" },
-        { key: "features", field: "features.innateFeatures", value: "Scharf 2" },
-        { key: "damageType", field: "damageType.value", value: "wind" },
-        { key: "costType", field: "costType.value", value: "V" },
-        { key: "range", field: "range.value", value: "10m" },
-        { key: "effectArea", field: "effectArea.value", value: "2 m Radius" },
-        { key: "effectDuration", field: "effectDuration.value", value: "5 min" },
+        { key: "damage", field: "damage.enhanced.stringInput", value: "1W6" },
+        { key: "features", field: "features.enhanced.innateFeatures", value: "Scharf 2" },
+        { key: "damageType", field: "damageType.enhanced", value: "wind" },
+        { key: "costType", field: "costType.enhanced", value: "V" },
+        { key: "range", field: "range.enhanced", value: "10m" },
+        { key: "effectArea", field: "effectArea.enhanced", value: "2 m Radius" },
+        { key: "effectDuration", field: "effectDuration.enhanced", value: "5 min" },
     ]) {
         it(`restores inheritance when the enhanced ${property.key} is cleared`, async () => {
             const { sheet } = setup();
-            const field = `system.enhanced.${property.field}`;
+            const field = `system.${property.field}`;
 
             const result = await submitChange(sheet, field, { [field]: "" });
 
-            expect(result).to.deep.equal({ [`system.enhanced.${property.key}`]: null });
+            expect(result).to.deep.equal({ [`system.${property.key}.enhanced`]: null });
         });
 
         it(`restores inheritance when the enhanced ${property.key} matches normal`, async () => {
             const { sheet } = setup();
-            const field = `system.enhanced.${property.field}`;
+            const field = `system.${property.field}`;
 
             const result = await submitChange(sheet, field, { [field]: property.value });
 
-            expect(result).to.deep.equal({ [`system.enhanced.${property.key}`]: null });
+            expect(result).to.deep.equal({ [`system.${property.key}.enhanced`]: null });
         });
     }
 
     it("keeps zero damage as an explicit override", async () => {
         const { sheet } = setup();
 
-        const result = await submitChange(sheet, "system.enhanced.damage.stringInput", {
-            "system.enhanced.damage.stringInput": "0",
+        const result = await submitChange(sheet, "system.damage.enhanced.stringInput", {
+            "system.damage.enhanced.stringInput": "0",
         });
 
-        expect(result).to.deep.equal({ "system.enhanced.damage.stringInput": "0" });
+        expect(result).to.deep.equal({ "system.damage.enhanced.stringInput": "0" });
     });
 
     it("does not reset an untouched override when a normal edit makes both values equal", async () => {
         const { spell, sheet } = setup();
-        spell.system.enhanced.range = { value: "20m" };
+        spell.system.range.enhanced = "20m";
 
-        const result = await submitChange(sheet, "system.range", {
-            "system.range": "20m",
-            "system.enhanced.range.value": "20m",
+        const result = await submitChange(sheet, "system.range.base", {
+            "system.range.base": "20m",
+            "system.range.enhanced": "20m",
         });
 
-        expect(result).to.deep.equal({ "system.range": "20m", "system.enhanced.range.value": "20m" });
+        expect(result).to.deep.equal({ "system.range.base": "20m", "system.range.enhanced": "20m" });
     });
 
     it("compares edited values with the normal value submitted in the same form", async () => {
         const { spell, sheet } = setup();
-        spell.system.enhanced.range = { value: "30m" };
+        spell.system.range.enhanced = "30m";
         const html = createHtml("templates/sheets/item/properties.hbs", { itemProperties: await sheet.properties() });
         const { window } = new JSDOM(`<form>${html}</form>`);
         const form = window.document.querySelector("form")!;
-        form.querySelector<HTMLInputElement>("[name='system.range']")!.value = "20m";
-        form.querySelector<HTMLInputElement>("[name='system.enhanced.range.value']")!.value = "20m";
+        form.querySelector<HTMLInputElement>("[name='system.range.base']")!.value = "20m";
+        form.querySelector<HTMLInputElement>("[name='system.range.enhanced']")!.value = "20m";
 
         const result = sheet._prepareSubmitData(new window.SubmitEvent("submit"), form, {
-            object: { "system.range": "20m", "system.enhanced.range.value": "20m" },
+            object: { "system.range.base": "20m", "system.range.enhanced": "20m" },
         });
 
-        expect(result).to.deep.equal({ "system.range": "20m", "system.enhanced.range": null });
+        expect(result).to.deep.equal({ "system.range.base": "20m", "system.range.enhanced": null });
     });
 
     it("keeps an edited enhanced value when Enter submits before the change event", async () => {
@@ -227,16 +218,16 @@ describe("Enhanced spell property form", () => {
         const html = createHtml("templates/sheets/item/properties.hbs", { itemProperties: await sheet.properties() });
         const { window } = new JSDOM(`<form>${html}</form>`);
         const form = window.document.querySelector("form")!;
-        form.querySelector<HTMLInputElement>("[name='system.enhanced.damage.stringInput']")!.value = "2W6";
+        form.querySelector<HTMLInputElement>("[name='system.damage.enhanced.stringInput']")!.value = "2W6";
 
         const result = sheet._prepareSubmitData(new window.SubmitEvent("submit"), form, {
             object: {
-                "system.enhanced.damage.stringInput": "2W6",
-                "system.enhanced.damageType.value": "wind",
+                "system.damage.enhanced.stringInput": "2W6",
+                "system.damageType.enhanced": "wind",
             },
         });
 
-        expect(result).to.deep.equal({ "system.enhanced.damage.stringInput": "2W6" });
+        expect(result).to.deep.equal({ "system.damage.enhanced.stringInput": "2W6" });
     });
 
     async function submitChange(sheet: SpellSheet, field: string, data: Record<string, unknown>) {

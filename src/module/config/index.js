@@ -844,39 +844,39 @@ splittermond.itemSheetProperties.spell = [
         },
         properties: [
             {
-                field: "system.damage.stringInput",
+                field: "system.damage.base.stringInput",
                 label: "splittermond.damage",
                 template: "input",
             },
             {
-                field: "system.features.innateFeatures",
+                field: "system.features.base.innateFeatures",
                 label: "splittermond.features",
                 template: "input",
             },
             {
-                field: "system.damageType",
+                field: "system.damageType.base",
                 label: "splittermond.damageType",
                 template: "select",
-                choices: { ...damageTypeOptions, null: "splittermond.damageTypes.long.none" },
+                choices: { ...damageTypeOptions, none: "splittermond.damageTypes.long.none" },
             },
             {
-                field: "system.costType",
+                field: "system.costType.base",
                 label: "splittermond.damageCategory",
                 template: "select",
-                choices: { ...splittermond.costTypeOptions, null: "splittermond.noDamage" },
+                choices: { ...splittermond.costTypeOptions, none: "splittermond.noDamage" },
             },
             {
-                field: "system.range",
+                field: "system.range.base",
                 label: "splittermond.range",
                 template: "input",
             },
             {
-                field: "system.effectArea",
+                field: "system.effectArea.base",
                 label: "splittermond.effectArea",
                 template: "input",
             },
             {
-                field: "system.effectDuration",
+                field: "system.effectDuration.base",
                 label: "splittermond.effectDuration",
                 template: "input",
             },
@@ -884,11 +884,7 @@ splittermond.itemSheetProperties.spell = [
             ...property,
             comparison: {
                 ...property,
-                field:
-                    property.field.replace("system.", "system.enhanced.") +
-                    (["system.damage.stringInput", "system.features.innateFeatures"].includes(property.field)
-                        ? ""
-                        : ".value"),
+                field: property.field.replace(".base", ".enhanced"),
             },
         })),
     },

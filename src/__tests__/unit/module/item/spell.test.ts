@@ -193,10 +193,10 @@ describe("Spell item damage report", () => {
 
     it("should return the damage report", () => {
         const underTest = setUpSpell(sandbox);
-        defineValue(underTest.system, "damage", DamageModel.from("2W6"));
-        defineValue(underTest.system, "damageType", "light");
-        defineValue(underTest.system, "costType", "V");
-        defineValue(underTest.system, "features", ItemFeaturesModel.emptyFeatures());
+        defineValue(underTest.system, "damage", { base: DamageModel.from("2W6"), enhanced: null });
+        defineValue(underTest.system, "damageType", { base: "light", enhanced: null });
+        defineValue(underTest.system, "costType", { base: "V", enhanced: null });
+        defineValue(underTest.system, "features", { base: ItemFeaturesModel.emptyFeatures(), enhanced: null });
 
         const damages = underTest.getForDamageRoll();
 
@@ -206,10 +206,10 @@ describe("Spell item damage report", () => {
 
     it("should fill in properties from the item", () => {
         const underTest = setUpSpell(sandbox);
-        defineValue(underTest.system, "damage", DamageModel.from("2W6"));
-        defineValue(underTest.system, "damageType", "physical");
-        defineValue(underTest.system, "costType", "V");
-        defineValue(underTest.system, "features", ItemFeaturesModel.from("Wuchtig"));
+        defineValue(underTest.system, "damage", { base: DamageModel.from("2W6"), enhanced: null });
+        defineValue(underTest.system, "damageType", { base: "physical", enhanced: null });
+        defineValue(underTest.system, "costType", { base: "V", enhanced: null });
+        defineValue(underTest.system, "features", { base: ItemFeaturesModel.from("Wuchtig"), enhanced: null });
         const modifierProperties = {
             type: "magic" as const,
             name: "Klinge aus Licht",
@@ -379,8 +379,8 @@ describe("Spell item damage report", () => {
         const parser = getSpellAvailabilityParser({ localize: (str) => str.split(".").pop() ?? str }, []);
         const underTest = new SplittermondSpellItem({}, { splittermond: { ready: true } }, parser);
         defineValue(underTest, "actor", setUpActor(sandbox));
-        defineValue(underTest, "system", sandbox.createStubInstance(SpellDataModel));
-        defineValue(underTest.system, "damage", DamageModel.from("1W6 +2"));
+        defineValue(underTest, "system", setUpSpell(sandbox).system);
+        defineValue(underTest.system, "damage", { base: DamageModel.from("1W6 +2"), enhanced: null });
         defineValue(underTest.system, "spellType", "Schaden");
         const modifierProperties = {
             type: "magic" as const,
@@ -408,10 +408,13 @@ describe("Spell item damage report", () => {
         stub.getForDamageRoll.callThrough();
         stub.getValues.callThrough();
         stub.getDamage.callThrough();
-        defineValue(system, "damage", DamageModel.from("2W6"));
-        defineValue(system, "damageType", "physical");
-        defineValue(system, "costType", "V");
-        defineValue(system, "features", ItemFeaturesModel.emptyFeatures());
+        defineValue(system, "damage", { base: DamageModel.from("2W6"), enhanced: null });
+        defineValue(system, "damageType", { base: "physical", enhanced: null });
+        defineValue(system, "costType", { base: "V", enhanced: null });
+        defineValue(system, "features", { base: ItemFeaturesModel.emptyFeatures(), enhanced: null });
+        defineValue(system, "range", { base: "", enhanced: null });
+        defineValue(system, "effectArea", { base: "", enhanced: null });
+        defineValue(system, "effectDuration", { base: "", enhanced: null });
         return stub;
     }
 

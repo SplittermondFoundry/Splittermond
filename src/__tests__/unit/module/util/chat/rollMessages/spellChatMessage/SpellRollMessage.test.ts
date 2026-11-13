@@ -186,8 +186,8 @@ describe("SpellRollMessage", () => {
     it("displays the selected variant and restores normal values on deselection", async () => {
         const message = createSpellRollMessage(sandbox);
         const spell = message.spellReference.getItem();
-        spell.system.enhanced.range = { value: "20m" };
-        spell.system.enhanced.features = ItemFeaturesModel.from("Kritisch 3");
+        spell.system.range.enhanced = "20m";
+        spell.system.features.enhanced = ItemFeaturesModel.from("Kritisch 3");
         message.updateSource({ openDegreesOfSuccess: 5 });
 
         await message.handleGenericAction({ action: "spellEnhancementUpdate", multiplicity: "1" });
@@ -197,7 +197,7 @@ describe("SpellRollMessage", () => {
 
         expect(enhanced).to.include({ enhanced: true, range: "20m", features: "Kritisch 3" });
         expect(normal).to.include({ enhanced: false, range: "5m", features: "" });
-        expect(spell.system.range).to.equal("5m");
+        expect(spell.system.range.base).to.equal("5m");
     });
 
     it("should handle action activeDefense", async () => {

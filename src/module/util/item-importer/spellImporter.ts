@@ -16,14 +16,10 @@ export async function importSpell(spellName: string, rawData: string, folder: st
         img: splittermond.icons.spell.default,
         folder: folder,
         system: {
-            damage: {
-                stringInput: null,
-            },
-            damageType: null,
-            costType: null,
-            features: {
-                internalFeatureList: [] as ItemFeatureDataModel[],
-            },
+            damage: { base: { stringInput: null }, enhanced: null },
+            damageType: { base: "none", enhanced: null },
+            costType: { base: "none", enhanced: null },
+            features: { base: { internalFeatureList: [] as ItemFeatureDataModel[] }, enhanced: null },
             skill: "arcanelore" as SplittermondSkill,
             skillLevel: null,
             source: null,
@@ -32,10 +28,10 @@ export async function importSpell(spellName: string, rawData: string, folder: st
             difficulty: null,
             costs: null,
             castDuration: CastDurationModel.empty(),
-            range: null,
+            range: { base: null, enhanced: null },
             description: null,
-            effectDuration: null,
-            effectArea: null,
+            effectDuration: { base: null, enhanced: null },
+            effectArea: { base: null, enhanced: null },
             enhancementCosts: null,
             enhancementDescription: null,
             degreeOfSuccessOptions: {
@@ -48,7 +44,7 @@ export async function importSpell(spellName: string, rawData: string, folder: st
                 range: false,
                 effectArea: false,
             },
-        } as DataModelConstructorInput<Omit<SpellDataModelType, "enhanced">>,
+        } as DataModelConstructorInput<SpellDataModelType>,
     };
 
     const sectionLabels = [
@@ -105,7 +101,7 @@ export async function importSpell(spellName: string, rawData: string, folder: st
                 spellData.system.castDuration = CastDurationModel.from(sectionData).toObject();
                 break;
             case "Reichweite:":
-                spellData.system.range = sectionData;
+                spellData.system.range.base = sectionData;
                 break;
             case "Wirkung:":
                 spellData.system.description = sectionData;
@@ -113,10 +109,10 @@ export async function importSpell(spellName: string, rawData: string, folder: st
                 spellData.system.description = spellData.system.description.replace(/\s{2,}/g, " ");
                 break;
             case "Wirkungsdauer:":
-                spellData.system.effectDuration = sectionData;
+                spellData.system.effectDuration.base = sectionData;
                 break;
             case "Wirkungsbereich:":
-                spellData.system.effectArea = sectionData;
+                spellData.system.effectArea.base = sectionData;
                 break;
             case "Erfolgsgrade:":
                 let enhancementData = sectionData.match(/([0-9] EG) \(Kosten ([KV0-9+]+)\):? ([^]+)/);
@@ -144,12 +140,12 @@ export async function importSpell(spellName: string, rawData: string, folder: st
 
     let damage = /([0-9]*[wWdD][0-9]{1,2}[ \-+0-9]*)/.exec(spellData.system.description ?? "");
     if (damage) {
-        spellData.system.damage.stringInput = (damage[0] || "").trim();
-        spellData.system.damageType = "physical";
-        spellData.system.costType = "V";
+        spellData.system.damage.base.stringInput = (damage[0] || "").trim();
+        spellData.system.damageType.base = "physical";
+        spellData.system.costType.base = "V";
     } else {
-        spellData.system.damageType = null;
-        spellData.system.costType = null;
+        spellData.system.damageType.base = "none";
+        spellData.system.costType.base = "none";
     }
 
     const itemPromise = itemCreator.createSpell(spellData);

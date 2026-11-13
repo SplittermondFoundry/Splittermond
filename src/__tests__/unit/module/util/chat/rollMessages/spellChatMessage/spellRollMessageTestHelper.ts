@@ -28,26 +28,17 @@ export function setUpMockSpellSelfReference(
     const spellMock = sandbox.createStubInstance(SplittermondSpellItem);
     spellMock.system = sandbox.createStubInstance(SpellDataModel);
     Object.assign(spellMock.system, {
-        damage: DamageModel.from("1W6"),
-        damageType: "physical",
-        costType: "V",
-        range: "5m",
-        effectArea: "",
-        effectDuration: "",
-        enhanced: {
-            damage: null,
-            features: null,
-            damageType: null,
-            costType: null,
-            range: null,
-            effectArea: null,
-            effectDuration: null,
-        },
+        damage: { base: DamageModel.from("1W6"), enhanced: null },
+        damageType: { base: "physical", enhanced: null },
+        costType: { base: "V", enhanced: null },
+        range: { base: "5m", enhanced: null },
+        effectArea: { base: "", enhanced: null },
+        effectDuration: { base: "", enhanced: null },
     });
     spellMock.getValues.callThrough();
     spellMock.getDamage.returns("1W6");
     Object.defineProperty(spellMock.system, "features", {
-        value: ItemFeaturesModel.emptyFeatures(),
+        value: { base: ItemFeaturesModel.emptyFeatures(), enhanced: null },
         enumerable: true,
         writable: false,
     });

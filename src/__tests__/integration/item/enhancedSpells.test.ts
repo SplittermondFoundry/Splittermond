@@ -6,6 +6,7 @@ import type SplittermondActor from "module/actor/actor";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import SplittermondSpellItem from "module/item/spell";
 import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
+import { spellVariantProperties } from "module/item/dataModel/SpellValueVariants";
 import { SpellDataModel } from "module/item/dataModel/SpellDataModel";
 import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 import { ItemFeaturesModel } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
@@ -30,13 +31,15 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
             "loads an old spell without enhanced data and inherits later normal updates",
             withActor(async (actor) => {
                 const spell = await createSpell(actor);
-                expect(Object.values(spell.system.enhanced)).to.deep.equal(Array(7).fill(null));
+                expect(spellVariantProperties.map((key) => spell.system[key].enhanced)).to.deep.equal(
+                    Array(7).fill(null)
+                );
 
                 await spell.update({
-                    "system.damage.stringInput": "3W6",
-                    "system.range": "20m",
-                    "system.effectArea": "2 m Radius",
-                    "system.effectDuration": "5 min",
+                    "system.damage.base.stringInput": "3W6",
+                    "system.range.base": "20m",
+                    "system.effectArea.base": "2 m Radius",
+                    "system.effectDuration.base": "5 min",
                 });
 
                 expect(spell.getValues({ enhanced: true }).damage.displayValue).to.equal("3W6");
@@ -47,7 +50,7 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                 });
                 if (!(spell.system instanceof SpellDataModel)) throw new Error("Missing spell data model");
                 const restored = new SpellDataModel(spell.system.toObject());
-                expect(Object.values(restored.enhanced)).to.deep.equal(Array(7).fill(null));
+                expect(spellVariantProperties.map((key) => restored[key].enhanced)).to.deep.equal(Array(7).fill(null));
             })
         );
 
@@ -56,11 +59,11 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
             withActor(async (actor) => {
                 const spell = await createSpell(actor);
                 await spell.update({
-                    "system.features.internalFeatureList": [{ name: "Scharf", value: 2 }],
-                    "system.effectArea": "2 m Radius",
-                    "system.effectDuration": "5 min",
-                    "system.enhanced.damage.stringInput": "2W6",
-                    "system.enhanced.range.value": "20m",
+                    "system.features.base.internalFeatureList": [{ name: "Scharf", value: 2 }],
+                    "system.effectArea.base": "2 m Radius",
+                    "system.effectDuration.base": "5 min",
+                    "system.damage.enhanced.stringInput": "2W6",
+                    "system.range.enhanced": "20m",
                 });
                 const initial = spell.getValues({ enhanced: true });
                 expect(initial.damage.displayValue).to.equal("2W6");
@@ -74,13 +77,13 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                 });
 
                 await spell.update({
-                    "system.damage.stringInput": "3W6",
-                    "system.features.internalFeatureList": [{ name: "Kritisch", value: 3 }],
-                    "system.damageType": "fire",
-                    "system.costType": "E",
-                    "system.range": "30m",
-                    "system.effectArea": "4 m Radius",
-                    "system.effectDuration": "10 min",
+                    "system.damage.base.stringInput": "3W6",
+                    "system.features.base.internalFeatureList": [{ name: "Kritisch", value: 3 }],
+                    "system.damageType.base": "fire",
+                    "system.costType.base": "E",
+                    "system.range.base": "30m",
+                    "system.effectArea.base": "4 m Radius",
+                    "system.effectDuration.base": "10 min",
                 });
 
                 const updated = spell.getValues({ enhanced: true });
@@ -93,16 +96,8 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                     effectArea: "4 m Radius",
                     effectDuration: "10 min",
                 });
-                expect(
-                    spell.system.enhanced,
-                    "inherited properties remain unset rather than becoming copies"
-                ).to.include({
-                    features: null,
-                    damageType: null,
-                    costType: null,
-                    effectArea: null,
-                    effectDuration: null,
-                });
+                for (const key of ["features", "damageType", "costType", "effectArea", "effectDuration"] as const)
+                    expect(spell.system[key].enhanced, `${key} remains inherited`).to.equal(null);
             })
         );
 
@@ -112,27 +107,30 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                 const spell = await createSpell(actor);
 
                 await spell.update({
-                    "system.enhanced.damage.stringInput": "2W6",
-                    "system.enhanced.features.internalFeatureList": [{ name: "Kritisch", value: 3 }],
-                    "system.enhanced.damageType.value": null,
-                    "system.enhanced.costType.value": "K",
-                    "system.enhanced.range.value": "",
+                    "system.damage.enhanced.stringInput": "2W6",
+                    "system.features.enhanced.internalFeatureList": [{ name: "Kritisch", value: 3 }],
+                    "system.damageType.enhanced": "none",
+                    "system.costType.enhanced": "K",
+                    "system.range.enhanced": "",
                 });
-                await spell.update({ "system.description": "Unrelated update", "system.damage.stringInput": "4W6" });
+                await spell.update({
+                    "system.description": "Unrelated update",
+                    "system.damage.base.stringInput": "4W6",
+                });
 
-                expect(spell.system.enhanced.features?.document, "nested features retain their owning item").to.equal(
+                expect(spell.system.features.enhanced?.document, "nested features retain their owning item").to.equal(
                     spell
                 );
                 if (!(spell.system instanceof SpellDataModel)) throw new Error("Missing spell data model");
                 const restored = new SpellDataModel(spell.system.toObject());
-                expect(restored.enhanced.damage).to.be.instanceOf(DamageModel);
-                expect(restored.enhanced.damage?.displayValue).to.equal("2W6");
-                expect(restored.enhanced.features).to.be.instanceOf(ItemFeaturesModel);
-                expect(restored.enhanced.features?.featureValue("Kritisch")).to.equal(3);
-                expect(restored.enhanced.damageType).to.deep.equal({ value: null });
-                expect(restored.enhanced.costType).to.deep.equal({ value: "K" });
-                expect(restored.enhanced.range).to.deep.equal({ value: "" });
-                expect(restored.enhanced.effectArea).to.equal(null);
+                expect(restored.damage.enhanced).to.be.instanceOf(DamageModel);
+                expect(restored.damage.enhanced?.displayValue).to.equal("2W6");
+                expect(restored.features.enhanced).to.be.instanceOf(ItemFeaturesModel);
+                expect(restored.features.enhanced?.featureValue("Kritisch")).to.equal(3);
+                expect(restored.damageType.enhanced).to.equal("none");
+                expect(restored.costType.enhanced).to.deep.equal("K");
+                expect(restored.range.enhanced).to.deep.equal("");
+                expect(restored.effectArea.enhanced).to.equal(null);
             })
         );
 
@@ -145,15 +143,39 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                     effectDuration: "10 min",
                 });
 
-                await spell.update({ "system.effectArea": "2 m Radius" });
+                await spell.update({ "system.effectArea.base": "2 m Radius" });
 
-                expect(spell.system.enhanced.range).to.deep.equal({ value: "20m" });
-                expect(spell.system.enhanced.effectArea).to.equal(null);
+                expect(spell.system.range.enhanced).to.deep.equal("20m");
+                expect(spell.system.effectArea.enhanced).to.equal(null);
                 expect(spell.getValues({ enhanced: true })).to.include({
                     range: "20m",
                     effectArea: "2 m Radius",
                     effectDuration: "10 min",
                 });
+            })
+        );
+
+        it(
+            "migrates wrapped preview overrides without losing explicit zero, empty text or absent types",
+            withActor(async (actor) => {
+                const spell = await createSpell(actor, {
+                    damage: { stringInput: "0" },
+                    features: { internalFeatureList: [] },
+                    damageType: { value: null },
+                    costType: { value: null },
+                    range: { value: "" },
+                });
+                await spell.update({ "system.range.base": "30m", "system.damageType.base": "fire" });
+
+                if (!(spell.system instanceof SpellDataModel)) throw new Error("Missing spell data model");
+                const restored = new SpellDataModel(spell.system.toObject());
+
+                expect(restored.damage.enhanced?.calculationValue).to.equal("0");
+                expect(restored.features.enhanced?.innateFeatures).to.equal("");
+                expect(restored.damageType).to.deep.equal({ base: "fire", enhanced: "none" });
+                expect(restored.costType).to.deep.equal({ base: "V", enhanced: "none" });
+                expect(restored.range).to.deep.equal({ base: "30m", enhanced: "" });
+                expect(spell.getValues({ enhanced: true })).to.include({ damageType: null, costType: null, range: "" });
             })
         );
 
@@ -218,18 +240,33 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                 await passesEventually(() => expect(sheet!.rendered).to.equal(true));
                 sheet.changeTab("properties", "primary");
                 const entries = [
-                    { normal: "damage.stringInput", enhanced: "damage.stringInput", value: "1W6", override: "2W6" },
                     {
-                        normal: "features.innateFeatures",
-                        enhanced: "features.innateFeatures",
+                        normal: "damage.base.stringInput",
+                        enhanced: "damage.enhanced.stringInput",
+                        value: "1W6",
+                        override: "2W6",
+                    },
+                    {
+                        normal: "features.base.innateFeatures",
+                        enhanced: "features.enhanced.innateFeatures",
                         value: "Scharf 2",
                         override: "Kritisch 3",
                     },
-                    { normal: "damageType", enhanced: "damageType.value", value: "wind", override: "fire" },
-                    { normal: "costType", enhanced: "costType.value", value: "V", override: "E" },
-                    { normal: "range", enhanced: "range.value", value: "10m", override: "20m" },
-                    { normal: "effectArea", enhanced: "effectArea.value", value: "2 m Radius", override: "4 m Radius" },
-                    { normal: "effectDuration", enhanced: "effectDuration.value", value: "5 min", override: "10 min" },
+                    { normal: "damageType.base", enhanced: "damageType.enhanced", value: "wind", override: "fire" },
+                    { normal: "costType.base", enhanced: "costType.enhanced", value: "V", override: "E" },
+                    { normal: "range.base", enhanced: "range.enhanced", value: "10m", override: "20m" },
+                    {
+                        normal: "effectArea.base",
+                        enhanced: "effectArea.enhanced",
+                        value: "2 m Radius",
+                        override: "4 m Radius",
+                    },
+                    {
+                        normal: "effectDuration.base",
+                        enhanced: "effectDuration.enhanced",
+                        value: "5 min",
+                        override: "10 min",
+                    },
                 ];
 
                 for (const entry of entries) input(sheet, `system.${entry.normal}`).value = entry.value;
@@ -242,16 +279,18 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                             foundryApi.utils.resolveProperty(spell, `system.${entry.normal}`),
                             entry.normal
                         ).to.equal(entry.value);
-                    expect(Object.values(spell.system.enhanced)).to.deep.equal(Array(7).fill(null));
-                    expect(input(sheet!, "system.damage.stringInput").getAttribute("value")).to.equal("1W6");
+                    expect(spellVariantProperties.map((key) => spell.system[key].enhanced)).to.deep.equal(
+                        Array(7).fill(null)
+                    );
+                    expect(input(sheet!, "system.damage.base.stringInput").getAttribute("value")).to.equal("1W6");
                 });
-                for (const entry of entries) input(sheet, `system.enhanced.${entry.enhanced}`).value = entry.override;
+                for (const entry of entries) input(sheet, `system.${entry.enhanced}`).value = entry.override;
                 if (!(sheet.element instanceof HTMLFormElement)) throw new Error("Spell sheet is not a form");
                 sheet.element.requestSubmit();
                 await passesEventually(() => {
                     for (const entry of entries)
                         expect(
-                            foundryApi.utils.resolveProperty(spell, `system.enhanced.${entry.enhanced}`),
+                            foundryApi.utils.resolveProperty(spell, `system.${entry.enhanced}`),
                             entry.enhanced
                         ).to.equal(entry.override);
                 });
@@ -261,9 +300,7 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
 
                 for (const entry of entries) {
                     expect(input(sheet, `system.${entry.normal}`).value, entry.normal).to.equal(entry.value);
-                    expect(input(sheet, `system.enhanced.${entry.enhanced}`).value, entry.enhanced).to.equal(
-                        entry.override
-                    );
+                    expect(input(sheet, `system.${entry.enhanced}`).value, entry.enhanced).to.equal(entry.override);
                 }
             })
         );
@@ -273,39 +310,39 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
             withActor(async (actor) => {
                 const spell = await createSpell(actor);
                 await spell.update({
-                    "system.features.internalFeatureList": [{ name: "Scharf", value: 2 }],
-                    "system.effectArea": "2 m Radius",
-                    "system.effectDuration": "5 min",
-                    "system.enhanced.damage.stringInput": "2W6",
-                    "system.enhanced.features.internalFeatureList": [{ name: "Kritisch", value: 3 }],
-                    "system.enhanced.range.value": "20m",
-                    "system.enhanced.effectArea.value": "4 m Radius",
-                    "system.enhanced.effectDuration.value": "10 min",
+                    "system.features.base.internalFeatureList": [{ name: "Scharf", value: 2 }],
+                    "system.effectArea.base": "2 m Radius",
+                    "system.effectDuration.base": "5 min",
+                    "system.damage.enhanced.stringInput": "2W6",
+                    "system.features.enhanced.internalFeatureList": [{ name: "Kritisch", value: 3 }],
+                    "system.range.enhanced": "20m",
+                    "system.effectArea.enhanced": "4 m Radius",
+                    "system.effectDuration.enhanced": "10 min",
                 });
                 sheet = spellSheet(spell);
                 await sheet.render(true);
                 const fields = [
-                    { key: "damage", field: "damage.stringInput" },
-                    { key: "features", field: "features.innateFeatures" },
-                    { key: "range", field: "range.value" },
-                    { key: "effectArea", field: "effectArea.value" },
-                    { key: "effectDuration", field: "effectDuration.value" },
+                    { key: "damage", field: "damage.enhanced.stringInput" },
+                    { key: "features", field: "features.enhanced.innateFeatures" },
+                    { key: "range", field: "range.enhanced" },
+                    { key: "effectArea", field: "effectArea.enhanced" },
+                    { key: "effectDuration", field: "effectDuration.enhanced" },
                 ] as const;
 
-                for (const property of fields) input(sheet, `system.enhanced.${property.field}`).value = "";
+                for (const property of fields) input(sheet, `system.${property.field}`).value = "";
                 if (!(sheet.element instanceof HTMLFormElement)) throw new Error("Spell sheet is not a form");
                 sheet.element.requestSubmit();
                 await passesEventually(() => {
                     for (const property of fields)
-                        expect(spell.system.enhanced[property.key], property.key).to.equal(null);
+                        expect(spell.system[property.key].enhanced, property.key).to.equal(null);
                 });
 
                 await spell.update({
-                    "system.damage.stringInput": "3W6",
-                    "system.features.internalFeatureList": [{ name: "Scharf", value: 4 }],
-                    "system.range": "30m",
-                    "system.effectArea": "6 m Radius",
-                    "system.effectDuration": "15 min",
+                    "system.damage.base.stringInput": "3W6",
+                    "system.features.base.internalFeatureList": [{ name: "Scharf", value: 4 }],
+                    "system.range.base": "30m",
+                    "system.effectArea.base": "6 m Radius",
+                    "system.effectDuration.base": "15 min",
                 });
 
                 const values = spell.getValues({ enhanced: true });
@@ -314,8 +351,11 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                 expect(values).to.include({ range: "30m", effectArea: "6 m Radius", effectDuration: "15 min" });
                 await passesEventually(() => {
                     for (const property of fields)
-                        expect(input(sheet!, `system.enhanced.${property.field}`).value, property.key).to.equal(
-                            foundryApi.utils.resolveProperty(spell, `system.${property.field.replace(/\.value$/, "")}`)
+                        expect(input(sheet!, `system.${property.field}`).value, property.key).to.equal(
+                            foundryApi.utils.resolveProperty(
+                                spell,
+                                `system.${property.field.replace(".enhanced", ".base")}`
+                            )
                         );
                 });
             })
@@ -328,13 +368,13 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                 sheet = spellSheet(spell);
                 await sheet.render(true);
 
-                enter(sheet, "system.damage.stringInput", "3W6");
+                enter(sheet, "system.damage.base.stringInput", "3W6");
 
-                await passesEventually(() => expect(spell.system.damage.displayValue).to.equal("3W6"));
-                expect(spell.system.enhanced.damage).to.equal(null);
-                expect(spell.system.enhanced.damageType).to.equal(null);
+                await passesEventually(() => expect(spell.system.damage.base.displayValue).to.equal("3W6"));
+                expect(spell.system.damage.enhanced).to.equal(null);
+                expect(spell.system.damageType.enhanced).to.equal(null);
                 await passesEventually(() =>
-                    expect(input(sheet!, "system.enhanced.damage.stringInput").value).to.equal("3W6")
+                    expect(input(sheet!, "system.damage.enhanced.stringInput").value).to.equal("3W6")
                 );
             })
         );
@@ -346,31 +386,31 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                 sheet = spellSheet(spell);
                 await sheet.render(true);
 
-                enter(sheet, "system.enhanced.damage.stringInput", "2W6");
-                await passesEventually(() => expect(spell.system.enhanced.damage?.displayValue).to.equal("2W6"));
+                enter(sheet, "system.damage.enhanced.stringInput", "2W6");
+                await passesEventually(() => expect(spell.system.damage.enhanced?.displayValue).to.equal("2W6"));
                 await passesEventually(() =>
-                    expect(input(sheet!, "system.enhanced.damage.stringInput").getAttribute("value")).to.equal("2W6")
+                    expect(input(sheet!, "system.damage.enhanced.stringInput").getAttribute("value")).to.equal("2W6")
                 );
 
-                enter(sheet, "system.damage.stringInput", "2W6");
+                enter(sheet, "system.damage.base.stringInput", "2W6");
                 await passesEventually(() => {
-                    expect(spell.system.damage.displayValue).to.equal("2W6");
-                    expect(input(sheet!, "system.damage.stringInput").getAttribute("value")).to.equal("2W6");
+                    expect(spell.system.damage.base.displayValue).to.equal("2W6");
+                    expect(input(sheet!, "system.damage.base.stringInput").getAttribute("value")).to.equal("2W6");
                 });
-                expect(spell.system.enhanced.damage?.displayValue, "a normal edit preserves the override").to.equal(
+                expect(spell.system.damage.enhanced?.displayValue, "a normal edit preserves the override").to.equal(
                     "2W6"
                 );
-                enter(sheet, "system.damage.stringInput", "3W6");
+                enter(sheet, "system.damage.base.stringInput", "3W6");
                 await passesEventually(() => {
-                    expect(spell.system.damage.displayValue).to.equal("3W6");
-                    expect(input(sheet!, "system.damage.stringInput").getAttribute("value")).to.equal("3W6");
+                    expect(spell.system.damage.base.displayValue).to.equal("3W6");
+                    expect(input(sheet!, "system.damage.base.stringInput").getAttribute("value")).to.equal("3W6");
                 });
                 expect(spell.getValues({ enhanced: true }).damage.displayValue).to.equal("2W6");
 
-                enter(sheet, "system.enhanced.damage.stringInput", "3W6");
-                await passesEventually(() => expect(spell.system.enhanced.damage).to.equal(null));
+                enter(sheet, "system.damage.enhanced.stringInput", "3W6");
+                await passesEventually(() => expect(spell.system.damage.enhanced).to.equal(null));
                 expect(spell.getValues({ enhanced: true }).damage.displayValue).to.equal("3W6");
-                await spell.update({ "system.damage.stringInput": "4W6" });
+                await spell.update({ "system.damage.base.stringInput": "4W6" });
                 expect(spell.getValues({ enhanced: true }).damage.displayValue).to.equal("4W6");
             })
         );
@@ -382,34 +422,34 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                 sheet = spellSheet(spell);
                 await sheet.render(true);
 
-                input(sheet, "system.enhanced.damageType.value").value = "null";
-                input(sheet, "system.enhanced.costType.value").value = "null";
+                input(sheet, "system.damageType.enhanced").value = "none";
+                input(sheet, "system.costType.enhanced").value = "none";
                 if (!(sheet.element instanceof HTMLFormElement)) throw new Error("Spell sheet is not a form");
                 sheet.element.requestSubmit();
 
                 await passesEventually(() => {
-                    expect(spell.system.enhanced.damageType).to.deep.equal({ value: null });
-                    expect(spell.system.enhanced.costType).to.deep.equal({ value: null });
-                    expect(input(sheet!, "system.enhanced.damageType.value").value).to.equal("null");
-                    expect(input(sheet!, "system.enhanced.costType.value").value).to.equal("null");
+                    expect(spell.system.damageType.enhanced).to.equal("none");
+                    expect(spell.system.costType.enhanced).to.equal("none");
+                    expect(input(sheet!, "system.damageType.enhanced").value).to.equal("none");
+                    expect(input(sheet!, "system.costType.enhanced").value).to.equal("none");
                 });
-                expect(spell.system.damageType).to.equal("wind");
-                expect(spell.system.costType).to.equal("V");
+                expect(spell.system.damageType.base).to.equal("wind");
+                expect(spell.system.costType.base).to.equal("V");
 
-                input(sheet, "system.enhanced.damageType.value").value = "";
-                input(sheet, "system.enhanced.costType.value").value = "V";
+                input(sheet, "system.damageType.enhanced").value = "";
+                input(sheet, "system.costType.enhanced").value = "V";
                 if (!(sheet.element instanceof HTMLFormElement)) throw new Error("Spell sheet is not a form");
                 sheet.element.requestSubmit();
                 await passesEventually(() => {
-                    expect(spell.system.enhanced.damageType).to.equal(null);
-                    expect(spell.system.enhanced.costType).to.equal(null);
+                    expect(spell.system.damageType.enhanced).to.equal(null);
+                    expect(spell.system.costType.enhanced).to.equal(null);
                 });
-                await spell.update({ "system.damageType": "fire", "system.costType": "E" });
+                await spell.update({ "system.damageType.base": "fire", "system.costType.base": "E" });
 
                 expect(spell.getValues({ enhanced: true })).to.include({ damageType: "fire", costType: "E" });
                 await passesEventually(() => {
-                    expect(input(sheet!, "system.enhanced.damageType.value").value).to.equal("");
-                    expect(input(sheet!, "system.enhanced.costType.value").value).to.equal("");
+                    expect(input(sheet!, "system.damageType.enhanced").value).to.equal("");
+                    expect(input(sheet!, "system.costType.enhanced").value).to.equal("");
                 });
             })
         );
@@ -420,14 +460,14 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                 const spell = await createSpell(actor);
                 sheet = spellSheet(spell);
                 await sheet.render(true);
-                input(sheet, "system.enhanced.damage.stringInput").value = "1W6+1";
+                input(sheet, "system.damage.enhanced.stringInput").value = "1W6+1";
                 if (!(sheet.element instanceof HTMLFormElement)) throw new Error("Spell sheet is not a form");
 
                 sheet.element.requestSubmit();
 
-                await passesEventually(() => expect(spell.system.enhanced.damage?.displayValue).to.equal("1W6+1"));
-                expect(spell.system.enhanced.features).to.equal(null);
-                expect(spell.system.enhanced.damageType).to.equal(null);
+                await passesEventually(() => expect(spell.system.damage.enhanced?.displayValue).to.equal("1W6+1"));
+                expect(spell.system.features.enhanced).to.equal(null);
+                expect(spell.system.damageType.enhanced).to.equal(null);
             })
         );
     });
@@ -450,21 +490,19 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
             "keeps sheet overrides for area and duration independent of normal edits and uses them in chat",
             withActor(async (actor) => {
                 const spell = await createSpell(actor);
-                await spell.update({ "system.effectArea": "2 m Radius", "system.effectDuration": "5 min" });
+                await spell.update({ "system.effectArea.base": "2 m Radius", "system.effectDuration.base": "5 min" });
                 sheet = spellSheet(spell);
                 await sheet.render(true);
-                input(sheet, "system.enhanced.effectArea.value").value = "4 m Radius";
-                input(sheet, "system.enhanced.effectDuration.value").value = "10 min";
+                input(sheet, "system.effectArea.enhanced").value = "4 m Radius";
+                input(sheet, "system.effectDuration.enhanced").value = "10 min";
                 if (!(sheet.element instanceof HTMLFormElement)) throw new Error("Spell sheet is not a form");
 
                 sheet.element.requestSubmit();
-                await passesEventually(() =>
-                    expect(spell.system.enhanced).to.deep.include({
-                        effectArea: { value: "4 m Radius" },
-                        effectDuration: { value: "10 min" },
-                    })
-                );
-                await spell.update({ "system.effectArea": "3 m Radius", "system.effectDuration": "6 min" });
+                await passesEventually(() => {
+                    expect(spell.system.effectArea.enhanced).to.equal("4 m Radius");
+                    expect(spell.system.effectDuration.enhanced).to.equal("10 min");
+                });
+                await spell.update({ "system.effectArea.base": "3 m Radius", "system.effectDuration.base": "6 min" });
                 const message = await postSpell(spell);
 
                 expect(spellMessage(message).getData().spellValues).to.include({
@@ -488,20 +526,20 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
             withActor(async (actor) => {
                 const spell = await createSpell(actor);
                 await spell.update({
-                    "system.damage.stringInput": "1W6",
-                    "system.features.internalFeatureList": [{ name: "Scharf", value: 2 }],
-                    "system.damageType": "wind",
-                    "system.costType": "V",
-                    "system.range": "10m",
-                    "system.effectArea": "2 m Radius",
-                    "system.effectDuration": "5 min",
-                    "system.enhanced.damage.stringInput": "2W6",
-                    "system.enhanced.features.internalFeatureList": [{ name: "Kritisch", value: 3 }],
-                    "system.enhanced.damageType.value": "fire",
-                    "system.enhanced.costType.value": "K",
-                    "system.enhanced.range.value": "20m",
-                    "system.enhanced.effectArea.value": "4 m Radius",
-                    "system.enhanced.effectDuration.value": "10 min",
+                    "system.damage.base.stringInput": "1W6",
+                    "system.features.base.internalFeatureList": [{ name: "Scharf", value: 2 }],
+                    "system.damageType.base": "wind",
+                    "system.costType.base": "V",
+                    "system.range.base": "10m",
+                    "system.effectArea.base": "2 m Radius",
+                    "system.effectDuration.base": "5 min",
+                    "system.damage.enhanced.stringInput": "2W6",
+                    "system.features.enhanced.internalFeatureList": [{ name: "Kritisch", value: 3 }],
+                    "system.damageType.enhanced": "fire",
+                    "system.costType.enhanced": "K",
+                    "system.range.enhanced": "20m",
+                    "system.effectArea.enhanced": "4 m Radius",
+                    "system.effectDuration.enhanced": "10 min",
                 });
                 const first = await postSpell(spell);
                 const second = await postSpell(spell);
@@ -541,7 +579,7 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
                     effectArea: "2 m Radius",
                     effectDuration: "5 min",
                 });
-                expect(spell.system.damage.displayValue).to.equal("1W6");
+                expect(spell.system.damage.base.displayValue).to.equal("1W6");
 
                 await handleChatAction({ action: "spellEnhancementUpdate", multiplicity: 1 }, second);
                 expect(
@@ -594,7 +632,7 @@ export function enhancedSpellsTest({ describe, it, expect, beforeEach, afterEach
             "returns to normal values when enhancement is deselected before use",
             withActor(async (actor) => {
                 const spell = await createSpell(actor);
-                await spell.update({ "system.enhanced.damage.stringInput": "1W6+1" });
+                await spell.update({ "system.damage.enhanced.stringInput": "1W6+1" });
                 const message = await postSpell(spell);
                 await handleChatAction({ action: "spellEnhancementUpdate", multiplicity: 1 }, message);
                 expect(

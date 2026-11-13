@@ -90,15 +90,15 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
     }
 
     get range() {
-        return this.system.range;
+        return this.system.range.base;
     }
 
     get effectDuration() {
-        return this.system.effectDuration;
+        return this.system.effectDuration.base;
     }
 
     get effectArea() {
-        return this.system.effectArea;
+        return this.system.effectArea.base;
     }
 
     get description() {

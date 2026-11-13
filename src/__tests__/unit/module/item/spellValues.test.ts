@@ -21,42 +21,34 @@ describe("Enhanced spell values", () => {
         Object.assign(system, {
             skill: "windmagic",
             spellType: "Schaden",
-            damage: DamageModel.from("1W6"),
-            features: ItemFeaturesModel.emptyFeatures(),
-            damageType: "wind",
-            costType: "V",
-            range: "10m",
-            effectArea: "2m",
-            effectDuration: "5 T",
-            enhanced: {
-                damage: null,
-                features: null,
-                damageType: null,
-                costType: null,
-                range: null,
-                effectArea: null,
-                effectDuration: null,
-            },
+            damage: { base: DamageModel.from("1W6"), enhanced: null },
+            features: { base: ItemFeaturesModel.emptyFeatures(), enhanced: null },
+            damageType: { base: "wind", enhanced: null },
+            costType: { base: "V", enhanced: null },
+            range: { base: "10m", enhanced: null },
+            effectArea: { base: "2m", enhanced: null },
+            effectDuration: { base: "5 T", enhanced: null },
         });
         return system;
     }
 
     it("follows subsequent normal changes until the property has its own value", () => {
         const system = spellData();
-        Object.assign(system, { range: "20m", damage: DamageModel.from("2W6") });
+        system.range.base = "20m";
+        system.damage.base = DamageModel.from("2W6");
 
         const values = resolveSpellValues(system, true);
 
         expect(values.range).to.equal("20m");
         expect(values.damage.displayValue).to.equal("2W6");
-        expect(system.enhanced.range).to.equal(null);
+        expect(system.range.enhanced).to.equal(null);
     });
 
     it("keeps an explicit override independent even when both values were equal", () => {
         const system = spellData();
-        system.enhanced.range = { value: "10m" };
+        system.range.enhanced = "10m";
 
-        Object.assign(system, { range: "20m" });
+        system.range.base = "20m";
 
         expect(resolveSpellValues(system, true).range).to.equal("10m");
         expect(resolveSpellValues(system).range).to.equal("20m");
@@ -64,26 +56,24 @@ describe("Enhanced spell values", () => {
 
     it("resumes inheritance after resetting an override", () => {
         const system = spellData();
-        system.enhanced.range = { value: "30m" };
-        Object.assign(system, { range: "20m" });
+        system.range.enhanced = "30m";
+        system.range.base = "20m";
 
-        system.enhanced.range = null;
+        system.range.enhanced = null;
 
         expect(resolveSpellValues(system, true).range).to.equal("20m");
     });
 
     it("preserves zero damage, empty features and explicit absent types", () => {
         const system = spellData();
-        Object.assign(system, { features: ItemFeaturesModel.from("Kritisch 3") });
-        Object.assign(system.enhanced, {
-            damage: DamageModel.from("0"),
-            features: ItemFeaturesModel.emptyFeatures(),
-            damageType: { value: null },
-            costType: { value: null },
-            range: { value: "" },
-            effectArea: { value: "" },
-            effectDuration: { value: "" },
-        });
+        system.features.base = ItemFeaturesModel.from("Kritisch 3");
+        system.damage.enhanced = DamageModel.from("0");
+        system.features.enhanced = ItemFeaturesModel.emptyFeatures();
+        system.damageType.enhanced = "none";
+        system.costType.enhanced = "none";
+        system.range.enhanced = "";
+        system.effectArea.enhanced = "";
+        system.effectDuration.enhanced = "";
 
         const values = resolveSpellValues(system, true);
 
@@ -91,6 +81,15 @@ describe("Enhanced spell values", () => {
         expect(values.features.innateFeatures).to.equal("");
         expect([values.damageType, values.costType]).to.deep.equal([null, null]);
         expect([values.range, values.effectArea, values.effectDuration]).to.deep.equal(["", "", ""]);
+    });
+
+    it("resolves absent base types consistently for normal and inherited enhanced values", () => {
+        const system = spellData();
+        system.damageType.base = "none";
+        system.costType.base = "none";
+
+        expect(resolveSpellValues(system)).to.include({ damageType: null, costType: null });
+        expect(resolveSpellValues(system, true)).to.include({ damageType: null, costType: null });
     });
 
     for (const example of [
@@ -105,8 +104,8 @@ describe("Enhanced spell values", () => {
             );
             spell.name = example.name;
             spell.system = spellData();
-            spell.system.enhanced.damage = DamageModel.from(example.damage);
-            spell.system.enhanced.features = ItemFeaturesModel.from(example.features);
+            spell.system.damage.enhanced = DamageModel.from(example.damage);
+            spell.system.features.enhanced = ItemFeaturesModel.from(example.features);
             const modifier = new ModifierManager();
             modifier.add("item.damage", { name: "Bonus", type: "magic" }, of(2), false);
             Object.defineProperty(spell, "actor", { value: { modifier } });

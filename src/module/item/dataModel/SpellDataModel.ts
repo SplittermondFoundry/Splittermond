@@ -1,12 +1,12 @@
 import { DataModelSchemaType, fieldExtensions, fields, SplittermondDataModel } from "../../data/SplittermondDataModel";
 import SplittermondSpellItem from "../spell";
-import { damage, getDescriptorFields, validatedBoolean } from "./commonFields";
-import { ItemFeaturesModel } from "./propertyModels/ItemFeaturesModel";
+import { getDescriptorFields, validatedBoolean } from "./commonFields";
 import { CastDurationModel, parseCastDuration } from "./propertyModels/CastDurationModel";
 import { from0_12_20_migrateDamage, from0_12_20_migrateFeatures } from "./migrations";
 import type { SplittermondSkill } from "module/config/skillGroups";
 import { splittermond } from "module/config";
-import { enhancedSpellValuesSchema } from "./EnhancedSpellValues";
+import { spellValueVariantsSchema } from "./SpellValueVariants";
+import { from14_3_1_migrateSpellVariants } from "./spellValueMigrations";
 
 function SpellDataModelSchema() {
     return {
@@ -24,15 +24,10 @@ function SpellDataModelSchema() {
         spellType: new fields.StringField({ required: true, nullable: true }),
         costs: new fields.StringField({ required: true, nullable: true }),
         difficulty: new fields.StringField({ required: true, nullable: true }),
-        ...damage(),
-        range: new fields.StringField({ required: true, nullable: true }),
+        ...spellValueVariantsSchema(),
         castDuration: new fields.EmbeddedDataField(CastDurationModel, { required: true, nullable: false }),
-        effectDuration: new fields.StringField({ required: true, nullable: true }),
-        effectArea: new fields.StringField({ required: true, nullable: true }),
         enhancementDescription: new fields.StringField({ required: true, nullable: true }),
         enhancementCosts: new fields.StringField({ required: true, nullable: true }),
-        features: new fields.EmbeddedDataField(ItemFeaturesModel, { required: true, nullable: false }),
-        enhanced: new fields.SchemaField(enhancedSpellValuesSchema(), { required: true, nullable: false }),
         degreeOfSuccessOptions: new fields.SchemaField(
             {
                 castDuration: validatedBoolean(true),
@@ -59,23 +54,9 @@ export class SpellDataModel extends SplittermondDataModel<SpellDataModelType, Sp
         source = from0_12_20_migrateFeatures(source);
         source = from13_40_0_migrateCastDuration(source);
         source = from13_7_2_initSkill(source);
-        source = from14_3_0_migrateEnhancedSpellTextValues(source);
+        source = from14_3_1_migrateSpellVariants(source);
         return super.migrateData(source);
     }
-}
-
-export function from14_3_0_migrateEnhancedSpellTextValues(source: unknown): unknown {
-    if (!source || typeof source !== "object" || !("enhanced" in source)) return source;
-    const enhanced = source.enhanced;
-    if (!enhanced || typeof enhanced !== "object") return source;
-    for (const key of ["range", "effectArea", "effectDuration"] as const) {
-        if (!(key in enhanced)) continue;
-        const value: unknown = Reflect.get(enhanced, key);
-        if (typeof value !== "string") continue;
-        // The preview schema turned inherited text values into empty strings.
-        Reflect.set(enhanced, key, value ? { value } : null);
-    }
-    return source;
 }
 
 export function from13_40_0_migrateCastDuration(source: unknown): unknown {

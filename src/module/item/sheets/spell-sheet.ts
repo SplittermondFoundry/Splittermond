@@ -1,7 +1,7 @@
 import SplittermondItemSheet from "./item-sheet";
 import { parseCastDuration } from "module/item/dataModel/propertyModels/CastDurationModel.js";
 import type SplittermondSpellItem from "module/item/spell";
-import { enhancedSpellProperties, type EnhancedSpellProperty } from "module/item/dataModel/EnhancedSpellValues";
+import { spellVariantProperties, type SpellVariantProperty } from "module/item/dataModel/SpellValueVariants";
 import { parseFeatures } from "module/item/dataModel/propertyModels/ItemFeaturesModel";
 import type { PropertyGroup } from "./propertyTypes";
 
@@ -21,9 +21,9 @@ export default class SplittermondSpellSheet extends SplittermondItemSheet {
             for (const property of group.properties) {
                 const comparison = property.comparison;
                 if (!comparison) continue;
-                const key = enhancedSpellProperties.find((key) => comparison.field === spellInputField(key, true));
+                const key = spellVariantProperties.find((key) => comparison.field === spellInputField(key, true));
                 if (!key) continue;
-                const inherited = this.item.system.enhanced[key] === null;
+                const inherited = this.item.system[key].enhanced === null;
                 if (comparison.template === "select") {
                     comparison.choices = { "": "splittermond.spellValues.inherit", ...comparison.choices };
                 }
@@ -63,11 +63,11 @@ export default class SplittermondSpellSheet extends SplittermondItemSheet {
     ): object {
         const target = event.target;
         const changedField = target && "name" in target ? target.name : null;
-        for (const key of enhancedSpellProperties) {
+        for (const key of spellVariantProperties) {
             const field = spellInputField(key, true);
             // submitOnChange includes every named input, including displayed inherited values.
             if (changedField !== field && !hasEditedValue(form, field)) {
-                if (this.item.system.enhanced[key] === null) delete formData.object[field];
+                if (this.item.system[key].enhanced === null) delete formData.object[field];
                 continue;
             }
             const value = formData.object[field];
@@ -80,13 +80,16 @@ export default class SplittermondSpellSheet extends SplittermondItemSheet {
             );
             if (value.trim() === "" || value.trim() === normalValue.trim()) {
                 delete formData.object[field];
-                formData.object[`system.enhanced.${key}`] = null;
+                formData.object[`system.${key}.enhanced`] = null;
             }
         }
-        const features = formData.object["system.enhanced.features.innateFeatures"];
-        if (typeof features === "string") {
-            formData.object["system.enhanced.features.internalFeatureList"] = parseFeatures(features);
-            delete formData.object["system.enhanced.features.innateFeatures"];
+        for (const variant of ["base", "enhanced"]) {
+            const field = `system.features.${variant}.innateFeatures`;
+            const features = formData.object[field];
+            if (typeof features === "string") {
+                formData.object[`system.features.${variant}.internalFeatureList`] = parseFeatures(features);
+                delete formData.object[field];
+            }
         }
         if (formData.object["system.castDuration.innateDuration"] !== undefined) {
             const duration = formData.object["system.castDuration.innateDuration"];
@@ -97,10 +100,9 @@ export default class SplittermondSpellSheet extends SplittermondItemSheet {
     }
 }
 
-function spellInputField(key: EnhancedSpellProperty, enhanced = false): string {
-    const suffix =
-        key === "damage" ? ".stringInput" : key === "features" ? ".innateFeatures" : enhanced ? ".value" : "";
-    return `system.${enhanced ? "enhanced." : ""}${key}${suffix}`;
+function spellInputField(key: SpellVariantProperty, enhanced = false): string {
+    const suffix = key === "damage" ? ".stringInput" : key === "features" ? ".innateFeatures" : "";
+    return `system.${key}.${enhanced ? "enhanced" : "base"}${suffix}`;
 }
 
 function hasEditedValue(form: HTMLFormElement, field: string): boolean {

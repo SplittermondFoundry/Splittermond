@@ -47,11 +47,11 @@ export function genesisSpellImport(genesisSpell: GenesisSpell) {
             skillLevel: genesisSpell.schoolGrade,
             costs: genesisSpell.focus,
             difficulty: genesisSpell.difficulty,
-            damage: { stringInput: damage },
-            range: genesisSpell.castRange,
+            damage: { base: { stringInput: damage }, enhanced: null },
+            range: { base: genesisSpell.castRange, enhanced: null },
             castDuration: CastDurationModel.from(genesisSpell.castDuration).toObject(),
-            effectDuration: genesisSpell.spellDuration,
-            features: { internalFeatureList: [] },
+            effectDuration: { base: genesisSpell.spellDuration, enhanced: null },
+            features: { base: { internalFeatureList: [] }, enhanced: null },
             enhancementCosts: genesisSpell.enhancement,
             enhancementDescription: genesisSpell.enhancementDescription,
             degreeOfSuccessOptions: {
@@ -129,7 +129,7 @@ function validateSpell(protoSpell: ProtoSpell) {
         errors.push(foundryApi.format("splittermond.genesisImport.spellValidation.invalidDifficulty", { spellName }));
     }
     try {
-        new DamageModel(protoSpell.system.damage ?? { stringInput: null });
+        new DamageModel(protoSpell.system.damage?.base ?? { stringInput: null });
     } catch (e) {
         errors.push(foundryApi.format("splittermond.genesisImport.spellValidation.invalidDamage", { spellName }));
     }
