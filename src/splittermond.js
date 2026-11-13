@@ -34,6 +34,7 @@ import { getTimeUnitConversion } from "module/util/util.js";
 import { initializeChecks } from "module/check/index.js";
 import { initHook, initializeHooks, readyHook } from "module/hooks/index.ts";
 import { initializeActiveEffects } from "module/activeEffect/index.ts";
+import { initializeWorldTime } from "module/worldTime/index.ts";
 
 $.fn.closestData = function (dataName, defaultValue = "") {
     let value = this.closest(`[data-${dataName}]`)?.data(dataName);
@@ -110,6 +111,7 @@ Hooks.once("init", async function () {
     chatActionFeature(CONFIG.ChatMessage);
 
     initializeCombat(CONFIG.Combat);
+    initializeWorldTime();
     CONFIG.ui.combat = SplittermondCombatTracker;
 
     CONFIG.splittermond = {

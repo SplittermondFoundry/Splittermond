@@ -13,6 +13,7 @@ import {
     type Socket,
     type Speaker,
     type User,
+    type WorldTime,
 } from "./foundryTypes";
 import type { FoundryRoll, NumericTerm, OperatorTerm } from "./Roll";
 import { ChatMessage as ChatMessageApi, type FoundryChatMessage } from "./ChatMessage";
@@ -30,6 +31,34 @@ function notificationsAreLoaded() {
 }
 
 export const foundryApi = new (class FoundryApi {
+    get time(): WorldTime {
+        // @ts-ignore -- game is supplied by Foundry.
+        const nativeTime: WorldTime = game.time;
+        return {
+            get worldTime() {
+                // Foundry's server sync truncates the runtime clock, but core.time retains half seconds.
+                return foundryApi.settings.get<number>("core", "time");
+            },
+            advance(seconds) {
+                return nativeTime.set(this.worldTime + seconds);
+            },
+            set(seconds) {
+                return nativeTime.set(seconds);
+            },
+        };
+    }
+
+    configureCombatTime(secondsPerTick: number): void {
+        CONFIG.time.roundTime = secondsPerTick;
+        CONFIG.time.turnTime = 0;
+    }
+
+    placeWorldTimeHud(element: HTMLElement): void {
+        // @ts-ignore -- ui is supplied by Foundry.
+        const players: InstanceType<typeof FoundryApplication> = ui.players;
+        const activePlayers = players.element.querySelector("#players-active");
+        (activePlayers ?? players.element).prepend(element);
+    }
     /**
      * @param messageKey the key to an entry in the localization file
      * @param templateArgs the arguments to be inserted into the localized string
@@ -226,7 +255,7 @@ export const foundryApi = new (class FoundryApi {
 
     get settings() {
         return {
-            set(namespace: string, key: string, value: unknown): void {
+            set(namespace: string, key: string, value: unknown): Promise<unknown> {
                 // @ts-ignore
                 return game.settings.set(namespace, key, value);
             },
