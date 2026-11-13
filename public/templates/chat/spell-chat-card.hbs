@@ -4,6 +4,19 @@
         {{> chat-card-header alt="Icon attached to the spell"}}
     {{/with}}
     {{> roll-result rollResult}}
+    {{#with spellValues}}
+        <div class="chat-card-segment spell-values">
+            <strong>{{#if enhanced}}{{localize "splittermond.spellValues.enhanced"}}{{else}}{{localize "splittermond.spellValues.normal"}}{{/if}}</strong>
+            <dl>
+                <dt>{{localize "splittermond.damageType"}}</dt><dd>{{localize damageType}}</dd>
+                <dt>{{localize "splittermond.damageCategory"}}</dt><dd>{{localize costType}}</dd>
+                {{#if features}}<dt>{{localize "splittermond.features"}}</dt><dd>{{features}}</dd>{{/if}}
+                {{#if range}}<dt>{{localize "splittermond.range"}}</dt><dd>{{range}}</dd>{{/if}}
+                {{#if effectArea}}<dt>{{localize "splittermond.effectArea"}}</dt><dd>{{effectArea}}</dd>{{/if}}
+                {{#if effectDuration}}<dt>{{localize "splittermond.effectDuration"}}</dt><dd>{{effectDuration}}</dd>{{/if}}
+            </dl>
+        </div>
+    {{/with}}
     {{> degree-of-success-display degreeOfSuccessDisplay}}
     <div class="splittermond-chat-action-container chat-card-segment">
         {{> degree-of-success-options degreeOfSuccessOptions}}

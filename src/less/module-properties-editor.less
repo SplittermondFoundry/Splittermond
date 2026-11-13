@@ -2,9 +2,15 @@
 
 .splittermond {
     .properties-editor {
-        input {
+        input,
+        textarea {
             .base-input-style();
             line-height: unset; //negate the line height input from foundryvtt
+        }
+
+        textarea {
+            min-height: 0;
+            resize: vertical;
         }
 
         input[type="checkbox"] {
@@ -17,14 +23,13 @@
         padding: 7px;
         align-items: baseline;
         width: 100%;
-        min-height: 100px;
 
         justify-self: start;
         align-self: start;
         h3:extend(.border-wobbly-line-double) {
             .small-sheet-header();
             grid-column-start: 1;
-            grid-column-end: 3;
+            grid-column-end: -1;
             text-align: center;
             padding: 5px;
             width: 100%;
@@ -33,10 +38,65 @@
 
         > label {
             text-align: right;
+            white-space: pre-line;
             justify-items: start;
             //border-right: 2px groove rgba(255, 255, 255, 0.3);
             padding-right: 7px;
             margin-top: 7px;
+        }
+
+        .property-input {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            > input:not([type="checkbox"]),
+            > select,
+            > textarea,
+            > .row {
+                width: 100%;
+            }
+            > input,
+            > select,
+            > textarea {
+                min-width: 0;
+            }
+            &.property-inherited > input,
+            &.property-inherited > select {
+                font-style: italic;
+            }
+        }
+
+        .help-text {
+            grid-column-start: 2;
+            grid-column-end: -1;
+        }
+
+        &.properties-comparison {
+            grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 1.4fr));
+            .comparison-help {
+                grid-column-start: 1;
+                grid-column-end: -1;
+                margin: 0 0 0.4rem;
+                font-size: smaller;
+            }
+        }
+
+        &.properties-options {
+            grid-template-columns: minmax(0, 1fr) max-content max-content minmax(0, 1fr);
+            > label {
+                grid-column-start: 2;
+            }
+            > .property-input {
+                grid-column-start: 3;
+            }
+        }
+    }
+
+    &.sheet.item.spell .properties-editor:not(.properties-options) {
+        grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 1.4fr));
+        &:not(.properties-comparison) > .property-input {
+            grid-column-start: 2;
+            grid-column-end: -1;
         }
     }
 }

@@ -819,30 +819,13 @@ splittermond.itemSheetProperties.spell = [
                 template: "input",
             },
             {
+                field: "system.enhancementCosts",
+                label: "splittermond.enhancementCosts",
+                template: "input",
+            },
+            {
                 field: "system.difficulty",
                 label: "splittermond.difficulty",
-                template: "input",
-            },
-            {
-                field: "system.damage.stringInput",
-                label: "splittermond.damage",
-                template: "input",
-            },
-            {
-                field: "system.damageType",
-                label: "splittermond.damageType",
-                template: "select",
-                choices: { ...damageTypeOptions, null: "splittermond.damageTypes.long.none" },
-            },
-            {
-                field: "system.costType",
-                label: "splittermond.damageCategory",
-                template: "select",
-                choices: { ...splittermond.costTypeOptions, null: "splittermond.noDamage" },
-            },
-            {
-                field: "system.range",
-                label: "splittermond.range",
                 template: "input",
             },
             {
@@ -850,35 +833,73 @@ splittermond.itemSheetProperties.spell = [
                 label: "splittermond.castDuration",
                 template: "input",
             },
+        ],
+    },
+    {
+        groupName: "splittermond.spellValues.heading",
+        columnLabels: {
+            normal: "splittermond.spellValues.normal",
+            comparison: "splittermond.spellValues.enhanced",
+            help: "splittermond.spellValues.inheritHint",
+        },
+        properties: [
             {
-                field: "system.effectDuration",
-                label: "splittermond.effectDuration",
+                field: "system.damage.base.stringInput",
+                label: "splittermond.damage",
                 template: "input",
             },
             {
-                field: "system.effectArea",
+                field: "system.features.base.innateFeatures",
+                label: "splittermond.features",
+                template: "input",
+            },
+            {
+                field: "system.damageType.base",
+                label: "splittermond.damageType",
+                template: "select",
+                choices: { ...damageTypeOptions, none: "splittermond.damageTypes.long.none" },
+            },
+            {
+                field: "system.costType.base",
+                label: "splittermond.damageCategory",
+                template: "select",
+                choices: { ...splittermond.costTypeOptions, none: "splittermond.noDamage" },
+            },
+            {
+                field: "system.range.base",
+                label: "splittermond.range",
+                template: "input",
+            },
+            {
+                field: "system.effectArea.base",
                 label: "splittermond.effectArea",
                 template: "input",
             },
             {
-                field: "system.enhancementCosts",
-                label: "splittermond.enhancementCosts",
+                field: "system.effectDuration.base",
+                label: "splittermond.effectDuration",
                 template: "input",
             },
+        ].map((property) => ({
+            ...property,
+            comparison: {
+                ...property,
+                field: property.field.replace(".base", ".enhanced"),
+            },
+        })),
+    },
+    {
+        properties: [
             {
                 field: "system.enhancementDescription",
-                label: "splittermond.enhancementDescription",
-                template: "input",
-            },
-            {
-                field: "system.features.innateFeatures",
-                label: "splittermond.features",
-                template: "input",
+                label: "splittermond.spellValues.enhancementDescription",
+                template: "textarea",
             },
         ],
     },
     {
         groupName: "splittermond.degreeOfSuccessOptionsHeader",
+        layout: "options",
         properties: [
             {
                 field: "system.degreeOfSuccessOptions.castDuration",

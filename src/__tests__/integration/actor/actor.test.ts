@@ -182,7 +182,7 @@ export function actorTest(context: QuenchBatchContext) {
                 difficulty: "KW",
                 skill: "lightmagic",
                 skillLevel: 1,
-                range: "5m",
+                range: { base: "5m", enhanced: null },
                 enhancementCosts: "1 EG/+1V1",
                 enhancementDescription: "Das Ziel erhält den Zustand Geblendet 2.",
             });

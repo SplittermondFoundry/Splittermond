@@ -6,7 +6,16 @@ import { SplittermondBaseActorSheet, SplittermondBaseItemSheet } from "module/da
 
 declare const foundry: any;
 declare const canvas: any;
-declare const DocumentSheetConfig: any;
+declare const DocumentSheetConfig: {
+    getSheetClassesForSubType(
+        documentName: string,
+        subType: string
+    ): {
+        sheetClasses: Record<string, string>;
+        defaultClasses: Record<string, string>;
+        defaultClass: string;
+    };
+};
 const mergeObject = foundry.utils.mergeObject;
 
 export function apiUtilsTest(context: QuenchBatchContext) {
@@ -183,51 +192,74 @@ export function apiUtilsTest(context: QuenchBatchContext) {
     });
 
     describe("Sheet Registration", () => {
+        // Minification can give test classes the same name as a production sheet.
+        const scope = "splittermond-quench-tests";
         class TestItemSheet extends SplittermondBaseItemSheet {}
         class TestActorSheet extends SplittermondBaseActorSheet {}
         class TestActiveEffectSheet extends BaseActiveEffectConfig {}
 
         it("registers and unregisters an item sheet", () => {
-            foundryApi.sheets.items.register("splittermond", TestItemSheet, {
+            const originalSheets = structuredClone(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile"));
+            const spellSheets = structuredClone(DocumentSheetConfig.getSheetClassesForSubType("Item", "spell"));
+            foundryApi.sheets.items.register(scope, TestItemSheet, {
                 types: ["projectile"],
+                label: "Quench-Testbogen (Gegenstand)",
                 makeDefault: false,
             });
 
-            expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).to.include(TestItemSheet);
+            try {
+                expect(
+                    Object.values(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile").sheetClasses)
+                ).to.include("Quench-Testbogen (Gegenstand)");
+            } finally {
+                foundryApi.sheets.items.unregister(scope, TestItemSheet, { types: ["projectile"] });
+            }
 
-            foundryApi.sheets.items.unregister("splittermond", TestItemSheet);
-
-            expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).not.to.include(TestItemSheet);
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Item", "projectile")).to.deep.equal(originalSheets);
+            expect(
+                DocumentSheetConfig.getSheetClassesForSubType("Item", "spell"),
+                "spell sheets survive test cleanup"
+            ).to.deep.equal(spellSheets);
         });
 
         it("registers and unregisters an actor sheet", () => {
-            foundryApi.sheets.actors.register("splittermond", TestActorSheet, {
+            const originalSheets = structuredClone(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc"));
+            foundryApi.sheets.actors.register(scope, TestActorSheet, {
                 types: ["npc"],
+                label: "Quench-Testbogen (Akteur)",
                 makeDefault: false,
             });
 
-            expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).to.include(TestActorSheet);
+            try {
+                expect(
+                    Object.values(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc").sheetClasses)
+                ).to.include("Quench-Testbogen (Akteur)");
+            } finally {
+                foundryApi.sheets.actors.unregister(scope, TestActorSheet, { types: ["npc"] });
+            }
 
-            foundryApi.sheets.actors.unregister("splittermond", TestActorSheet);
-
-            expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).not.to.include(TestActorSheet);
+            expect(DocumentSheetConfig.getSheetClassesForSubType("Actor", "npc")).to.deep.equal(originalSheets);
         });
 
         it("registers and unregisters an active effect sheet", () => {
-            foundryApi.sheets.activeEffects.register("splittermond", TestActiveEffectSheet, {
+            const originalSheets = structuredClone(
+                DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")
+            );
+            foundryApi.sheets.activeEffects.register(scope, TestActiveEffectSheet, {
                 types: ["base"],
+                label: "Quench-Testbogen (Effekt)",
                 makeDefault: false,
             });
 
-            expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")).to.include(
-                TestActiveEffectSheet
-            );
+            try {
+                expect(
+                    Object.values(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base").sheetClasses)
+                ).to.include("Quench-Testbogen (Effekt)");
+            } finally {
+                foundryApi.sheets.activeEffects.unregister(scope, TestActiveEffectSheet, { types: ["base"] });
+            }
 
-            foundryApi.sheets.activeEffects.unregister("splittermond", TestActiveEffectSheet);
-
-            expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")).not.to.include(
-                TestActiveEffectSheet
-            );
+            expect(DocumentSheetConfig.getSheetClassesForSubType("ActiveEffect", "base")).to.deep.equal(originalSheets);
         });
     });
 }
