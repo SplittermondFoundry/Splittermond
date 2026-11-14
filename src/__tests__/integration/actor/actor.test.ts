@@ -414,6 +414,34 @@ export function actorTest(context: QuenchBatchContext) {
 
     describe("Actor functions", () => {
         it(
+            "should hide level-zero status combat events and restore their original schedule when reactivated",
+            withActor(async (actor) => {
+                const [item] = await actor.createEmbeddedDocuments("Item", [
+                    {
+                        type: "statuseffect",
+                        name: "Test combat event",
+                        system: {
+                            level: 1,
+                            combatEvent: { startTick: 10, interval: 5, repeats: 2 },
+                        },
+                    },
+                ]);
+                const scheduledEvents = actor.getVirtualStatusTokens();
+                expect(scheduledEvents).to.have.length(1);
+                expect(scheduledEvents[0]).to.include({ statusId: item.id, startTick: 10, interval: 5, times: 2 });
+
+                await item.update({ "system.level": 0 });
+
+                expect(actor.getVirtualStatusTokens()).to.be.empty;
+                expect(actor.items.get(item.id)).to.not.be.undefined;
+
+                await item.update({ "system.level": 1 });
+
+                expect(actor.getVirtualStatusTokens()).to.deep.equal(scheduledEvents);
+            })
+        );
+
+        it(
             "should increase derived values on hero level up",
             withActor(async (actor) => {
                 await actor.update({

@@ -6,6 +6,7 @@ import { QuenchBatchContext } from "@ethaks/fvtt-quench";
 import type SplittermondItem from "module/item/item";
 import type SplittermondSpellItem from "module/item/spell";
 import { withActor, withUnlinkedToken } from "../fixtures";
+import { fields } from "module/data/SplittermondDataModel";
 
 declare const DataModelValidationError: any;
 declare namespace foundry {
@@ -14,10 +15,10 @@ declare namespace foundry {
         class DataModel {
             constructor(data: any, context?: any);
             static defineSchema(): any;
-            static migrateData(): any;
+            static migrateData(source: object): object;
             toObject(): any;
             getFlag(): any;
-            updateSource(): any;
+            updateSource(data: object): object;
             parent: any;
             [x: string]: any;
         }
@@ -46,6 +47,14 @@ export function dataModelTest(context: QuenchBatchContext) {
                     name: new foundry.data.fields.StringField({ required: true, blank: false }),
                 };
             }
+
+            static migrateData(source: { name?: string; legacyName?: string }) {
+                if ("legacyName" in source) {
+                    source.name = source.legacyName;
+                    delete source.legacyName;
+                }
+                return source;
+            }
         };
         const TestParent = class extends foundry.abstract.DataModel {
             static defineSchema() {
@@ -55,8 +64,34 @@ export function dataModelTest(context: QuenchBatchContext) {
             }
         };
 
-        it("defines a migrate data method", () => {
-            expect(TestParent.migrateData).to.be.a("function");
+        it("migrates embedded model data before cleaning and validation during construction", () => {
+            const underTest = new TestParent({ child: { legacyName: "Migrated name" } });
+
+            expect(underTest.child.name).to.equal("Migrated name");
+            expect(underTest.child.toObject()).to.deep.equal({ name: "Migrated name" });
+        });
+
+        it("migrates embedded model updateSource deltas before cleaning and validation", () => {
+            const underTest = new TestParent({ child: { name: "Original name" } });
+
+            underTest.updateSource({ child: { legacyName: "Updated name" } });
+
+            expect(underTest.child.name).to.equal("Updated name");
+            expect(underTest.child.toObject()).to.deep.equal({ name: "Updated name" });
+        });
+
+        it("honors initial and nullable options for number fields", () => {
+            const Test = class extends foundry.abstract.DataModel {
+                static defineSchema() {
+                    return {
+                        number: new fields.NumberField({ required: true, nullable: false, initial: 7 }),
+                    };
+                }
+            };
+
+            expect(new Test({}).number).to.equal(7);
+            expect(Test.defineSchema().number.validate(null)).to.exist;
+            expect(Test.defineSchema().number.validate(0)).to.be.undefined;
         });
 
         it("injects a parent into embedded data", () => {

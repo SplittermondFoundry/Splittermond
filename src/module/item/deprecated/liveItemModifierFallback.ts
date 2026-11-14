@@ -100,6 +100,8 @@ function isSuppressedByItemState(item: SplittermondItem): boolean {
             return !(item.system as { equipped?: boolean | null }).equipped;
         case "spelleffect":
             return !(item.system as { active?: boolean | null }).active;
+        case "statuseffect":
+            return (item.system as StatusEffectDataModel).level === 0;
         default:
             return false;
     }
@@ -110,7 +112,7 @@ function multiplierFor(item: SplittermondItem): number {
         case "strength":
             return (item.system as StrengthDataModel).quantity ?? 1; //cast justified by case match
         case "statuseffect":
-            return (item.system as StatusEffectDataModel).level ?? 1; //cast justified by case match
+            return (item.system as StatusEffectDataModel).level; //cast justified by case match
         default:
             return 1;
     }
