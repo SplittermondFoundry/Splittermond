@@ -88,9 +88,7 @@ export class TickCostActionHandler extends SplittermondDataModel<TickCostActionH
 
     private reducesCostPastMinimum(effect: number): boolean {
         const reduction = this.tickReduction + effect;
-        return (
-            reduction > splittermond.spellEnhancement.castDuration.maxTickReduction || this.baseTickCost - reduction < 1
-        );
+        return reduction > splittermond.maxReleaseTickReduction || this.baseTickCost - reduction < 1;
     }
 
     public readonly handlesActions = ["advanceToken"] as const;

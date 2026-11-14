@@ -101,10 +101,7 @@ describe("TickCostActionHandler", () => {
             { maximum: 4, offered: ["1", "2", "4"], additional: "1" },
         ]) {
             it(`uses the configured maximum of ${maximum} ticks for offering and applying reductions`, () => {
-                sandbox.stub(splittermond.spellEnhancement, "castDuration").value({
-                    ...splittermond.spellEnhancement.castDuration,
-                    maxTickReduction: maximum,
-                });
+                sandbox.stub(splittermond, "maxReleaseTickReduction").value(maximum);
                 const underTest = setUpTickActionHandler(sandbox);
                 underTest.updateSource({ baseTickCost: 8 });
 
@@ -135,10 +132,7 @@ describe("TickCostActionHandler", () => {
         }
 
         it("preserves the one-tick minimum when the configured reduction limit is higher", () => {
-            sandbox.stub(splittermond.spellEnhancement, "castDuration").value({
-                ...splittermond.spellEnhancement.castDuration,
-                maxTickReduction: 4,
-            });
+            sandbox.stub(splittermond, "maxReleaseTickReduction").value(4);
             const underTest = setUpTickActionHandler(sandbox);
 
             expect(underTest.renderDegreeOfSuccessOptions().map((option) => option.render.multiplicity)).to.deep.equal([
