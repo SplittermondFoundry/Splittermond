@@ -6,6 +6,7 @@ import { serialize } from "module/modifiers/expressions/scalar/serialization";
 import { foundryApi } from "module/api/foundryApi";
 import { withActor } from "../fixtures";
 import { passesEventually } from "../../util";
+import sinon from "sinon";
 
 const MIGRATION_FLAG_SCOPE = "splittermond";
 const MIGRATION_FLAG_KEY = "bakedMultiplierV1MigrationDone";
@@ -20,16 +21,25 @@ function serializedValueOf(effect: SplittermondActiveEffect): unknown {
 }
 
 export function bakedMultiplierMigrationTest(context: QuenchBatchContext) {
-    const { describe, it, expect, afterEach } = context;
+    const { describe, it, expect, beforeEach, afterEach } = context;
 
     describe("regenerateBakedMultiplierEffects migration", () => {
+        const sandbox = sinon.createSandbox();
+        let originalMigrationFlag: unknown;
+        beforeEach(() => {
+            originalMigrationFlag = foundryApi.settings.get(MIGRATION_FLAG_SCOPE, MIGRATION_FLAG_KEY);
+        });
         afterEach(async () => {
-            await foundryApi.settings.set(MIGRATION_FLAG_SCOPE, MIGRATION_FLAG_KEY, false);
+            sandbox.restore();
+            await foundryApi.settings.set(MIGRATION_FLAG_SCOPE, MIGRATION_FLAG_KEY, originalMigrationFlag);
         });
 
         it(
             "should regenerate a baked-in strength.quantity multiplier effect to the un-baked form",
             withActor(async (actor) => {
+                // Exercise the real migration on real documents, without migrating the user's world.
+                sandbox.stub(foundryApi.collections, "actors").get(() => [actor]);
+                sandbox.stub(foundryApi.collections, "items").get(() => []);
                 await foundryApi.settings.set(MIGRATION_FLAG_SCOPE, MIGRATION_FLAG_KEY, false);
 
                 const [item] = await actor.createEmbeddedDocuments("Item", [

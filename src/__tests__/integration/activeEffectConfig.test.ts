@@ -4,7 +4,7 @@ import { Modifier, SplittermondActiveEffect } from "module/activeEffect";
 import type SplittermondActor from "module/actor/actor";
 import { SplittermondActiveEffectConfig } from "module/activeEffect/sheets/SplittermondActiveEffectConfig";
 import { evaluate, of, plus, ref, times } from "module/modifiers/expressions/scalar";
-import { useScene, withActiveEffect, withActor } from "./fixtures";
+import { deleteTestCombats, useScene, withActiveEffect, withActor } from "./fixtures";
 import { passesEventually } from "../util";
 import SplittermondCharacterSheet from "module/actor/sheets/character-sheet";
 import SplittermondItemEffectsSheet from "module/item/sheets/item-effects-sheet";
@@ -31,6 +31,14 @@ async function enterInSheet(sheet: SplittermondActiveEffectConfig, inputName: st
 
     const form = sheet.element.querySelector("form") as HTMLFormElement | null;
     form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+}
+
+async function closeDragSheets(...sheets: (SplittermondCharacterSheet | SplittermondItemEffectsSheet)[]) {
+    // Closing animations are unrelated to drag/drop and can exhaust Quench's test timeout.
+    const results = await Promise.allSettled(sheets.map((sheet) => sheet.close({ animate: false })));
+    for (const result of results) {
+        if (result.status === "rejected") throw result.reason;
+    }
 }
 
 export function activeEffectTest(context: QuenchBatchContext) {
@@ -681,12 +689,43 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     const [effect] = await source.createEmbeddedDocuments("ActiveEffect", [
                         { name: "Drag Test Effect" },
                     ]);
-                    const sourceSheet = await new SplittermondCharacterSheet({ document: source }).render({
-                        force: true,
-                    });
-                    const targetSheet = await new SplittermondCharacterSheet({ document: target }).render({
-                        force: true,
-                    });
+                    const sourceSheet = new SplittermondCharacterSheet({ document: source });
+                    const targetSheet = new SplittermondCharacterSheet({ document: target });
+                    try {
+                        await sourceSheet.render({ force: true });
+                        await targetSheet.render({ force: true });
+
+                        const dataTransfer = new DataTransfer();
+                        const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                        const dragStop = new DragEvent("drop", { dataTransfer });
+                        sourceSheet.element.querySelector(`[data-effect-id='${effect.id}']`)?.dispatchEvent(dragStart);
+                        targetSheet.element.dispatchEvent(dragStop);
+
+                        await passesEventually(() => {
+                            expect(target.effects.map((e: { name: string }) => e.name)).to.include("Drag Test Effect");
+                        });
+                    } finally {
+                        await closeDragSheets(sourceSheet, targetSheet);
+                    }
+                })
+            )
+        );
+
+        it("should drag an active effect between two items", async () => {
+            const itemIds: string[] = [];
+            try {
+                const sourceItem = await Item.create({ type: "weapon", name: "Drag Source Item" });
+                itemIds.push(sourceItem.id);
+                const targetItem = await Item.create({ type: "weapon", name: "Drag Target Item" });
+                itemIds.push(targetItem.id);
+                const [effect] = await sourceItem.createEmbeddedDocuments("ActiveEffect", [
+                    { name: "Drag Test Effect" },
+                ]);
+                const sourceSheet = new SplittermondItemEffectsSheet({ document: sourceItem });
+                const targetSheet = new SplittermondItemEffectsSheet({ document: targetItem });
+                try {
+                    await sourceSheet.render({ force: true });
+                    await targetSheet.render({ force: true });
 
                     const dataTransfer = new DataTransfer();
                     const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
@@ -695,43 +734,13 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     targetSheet.element.dispatchEvent(dragStop);
 
                     await passesEventually(() => {
-                        expect(target.effects.map((e: { name: string }) => e.name)).to.include("Drag Test Effect");
+                        expect(targetItem.effects.map((e: { name: string }) => e.name)).to.include("Drag Test Effect");
                     });
-
-                    await sourceSheet.close();
-                    await targetSheet.close();
-                })
-            )
-        );
-
-        it("should drag an active effect between two items", async () => {
-            const sourceItem = await Item.create({ type: "weapon", name: "Drag Source Item" });
-            const targetItem = await Item.create({ type: "weapon", name: "Drag Target Item" });
-            try {
-                const [effect] = await sourceItem.createEmbeddedDocuments("ActiveEffect", [
-                    { name: "Drag Test Effect" },
-                ]);
-                const sourceSheet = await new SplittermondItemEffectsSheet({ document: sourceItem }).render({
-                    force: true,
-                });
-                const targetSheet = await new SplittermondItemEffectsSheet({ document: targetItem }).render({
-                    force: true,
-                });
-
-                const dataTransfer = new DataTransfer();
-                const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
-                const dragStop = new DragEvent("drop", { dataTransfer });
-                sourceSheet.element.querySelector(`[data-effect-id='${effect.id}']`)?.dispatchEvent(dragStart);
-                targetSheet.element.dispatchEvent(dragStop);
-
-                await passesEventually(() => {
-                    expect(targetItem.effects.map((e: { name: string }) => e.name)).to.include("Drag Test Effect");
-                });
-
-                await sourceSheet.close();
-                await targetSheet.close();
+                } finally {
+                    await closeDragSheets(sourceSheet, targetSheet);
+                }
             } finally {
-                await Item.deleteDocuments([sourceItem.id, targetItem.id]);
+                await Item.deleteDocuments(itemIds);
             }
         });
 
@@ -822,12 +831,54 @@ export function activeEffectTest(context: QuenchBatchContext) {
                             system: { modifiers: [], costModifiers: [] },
                         },
                     ]);
-                    const sourceSheet = await new SplittermondCharacterSheet({ document: source }).render({
-                        force: true,
-                    });
-                    const targetSheet = await new SplittermondCharacterSheet({ document: target }).render({
-                        force: true,
-                    });
+                    const sourceSheet = new SplittermondCharacterSheet({ document: source });
+                    const targetSheet = new SplittermondCharacterSheet({ document: target });
+                    try {
+                        await sourceSheet.render({ force: true });
+                        await targetSheet.render({ force: true });
+
+                        const dataTransfer = new DataTransfer();
+                        const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                        const dragStop = new DragEvent("drop", { dataTransfer });
+                        sourceSheet.element.querySelector(`[data-effect-id='${effect.id}']`)?.dispatchEvent(dragStart);
+                        targetSheet.element.dispatchEvent(dragStop);
+
+                        await passesEventually(() => {
+                            const dropped = target.effects.find((e: { name: string }) => e.name === "Auto");
+                            expect(dropped, "dropped effect exists on target").to.exist;
+                            expect(dropped!.type, "dropped autoGenerated effect flips to modifier").to.equal(
+                                "modifier"
+                            );
+                            expect(dropped!.origin, "dropped effect origin is the target actor uuid").to.equal(
+                                target.uuid
+                            );
+                        });
+                    } finally {
+                        await closeDragSheets(sourceSheet, targetSheet);
+                    }
+                })
+            )
+        );
+
+        it("flips an autoGenerated effect to modifier when dragged between two items", async () => {
+            const itemIds: string[] = [];
+            try {
+                const sourceItem = await Item.create({ type: "weapon", name: "Auto Source Item" });
+                itemIds.push(sourceItem.id);
+                const targetItem = await Item.create({ type: "weapon", name: "Auto Target Item" });
+                itemIds.push(targetItem.id);
+                const [effect] = await sourceItem.createEmbeddedDocuments("ActiveEffect", [
+                    {
+                        name: "Auto",
+                        type: "autoGenerated",
+                        system: { modifiers: [], costModifiers: [] },
+                    },
+                ]);
+                const sourceSheet = new SplittermondItemEffectsSheet({ document: sourceItem });
+                const targetSheet = new SplittermondItemEffectsSheet({ document: targetItem });
+                try {
+                    await sourceSheet.render({ force: true });
+                    await targetSheet.render({ force: true });
 
                     const dataTransfer = new DataTransfer();
                     const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
@@ -836,52 +887,15 @@ export function activeEffectTest(context: QuenchBatchContext) {
                     targetSheet.element.dispatchEvent(dragStop);
 
                     await passesEventually(() => {
-                        const dropped = target.effects.find((e: { name: string }) => e.name === "Auto");
-                        expect(dropped, "dropped effect exists on target").to.exist;
+                        const dropped = targetItem.effects.find((e: { name: string }) => e.name === "Auto");
+                        expect(dropped, "dropped effect exists on target item").to.exist;
                         expect(dropped!.type, "dropped autoGenerated effect flips to modifier").to.equal("modifier");
-                        expect(dropped!.origin, "dropped effect origin is the target actor uuid").to.equal(target.uuid);
                     });
-
-                    await sourceSheet.close();
-                    await targetSheet.close();
-                })
-            )
-        );
-
-        it("flips an autoGenerated effect to modifier when dragged between two items", async () => {
-            const sourceItem = await Item.create({ type: "weapon", name: "Auto Source Item" });
-            const targetItem = await Item.create({ type: "weapon", name: "Auto Target Item" });
-            try {
-                const [effect] = await sourceItem.createEmbeddedDocuments("ActiveEffect", [
-                    {
-                        name: "Auto",
-                        type: "autoGenerated",
-                        system: { modifiers: [], costModifiers: [] },
-                    },
-                ]);
-                const sourceSheet = await new SplittermondItemEffectsSheet({ document: sourceItem }).render({
-                    force: true,
-                });
-                const targetSheet = await new SplittermondItemEffectsSheet({ document: targetItem }).render({
-                    force: true,
-                });
-
-                const dataTransfer = new DataTransfer();
-                const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
-                const dragStop = new DragEvent("drop", { dataTransfer });
-                sourceSheet.element.querySelector(`[data-effect-id='${effect.id}']`)?.dispatchEvent(dragStart);
-                targetSheet.element.dispatchEvent(dragStop);
-
-                await passesEventually(() => {
-                    const dropped = targetItem.effects.find((e: { name: string }) => e.name === "Auto");
-                    expect(dropped, "dropped effect exists on target item").to.exist;
-                    expect(dropped!.type, "dropped autoGenerated effect flips to modifier").to.equal("modifier");
-                });
-
-                await sourceSheet.close();
-                await targetSheet.close();
+                } finally {
+                    await closeDragSheets(sourceSheet, targetSheet);
+                }
             } finally {
-                await Item.deleteDocuments([sourceItem.id, targetItem.id]);
+                await Item.deleteDocuments(itemIds);
             }
         });
 
@@ -896,27 +910,26 @@ export function activeEffectTest(context: QuenchBatchContext) {
                             system: { modifiers: [], costModifiers: [] },
                         },
                     ]);
-                    const sourceSheet = await new SplittermondCharacterSheet({ document: source }).render({
-                        force: true,
-                    });
-                    const targetSheet = await new SplittermondCharacterSheet({ document: target }).render({
-                        force: true,
-                    });
+                    const sourceSheet = new SplittermondCharacterSheet({ document: source });
+                    const targetSheet = new SplittermondCharacterSheet({ document: target });
+                    try {
+                        await sourceSheet.render({ force: true });
+                        await targetSheet.render({ force: true });
 
-                    const dataTransfer = new DataTransfer();
-                    const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
-                    const dragStop = new DragEvent("drop", { dataTransfer });
-                    sourceSheet.element.querySelector(`[data-effect-id='${effect.id}']`)?.dispatchEvent(dragStart);
-                    targetSheet.element.dispatchEvent(dragStop);
+                        const dataTransfer = new DataTransfer();
+                        const dragStart = new DragEvent("dragstart", { bubbles: true, dataTransfer, cancelable: true });
+                        const dragStop = new DragEvent("drop", { dataTransfer });
+                        sourceSheet.element.querySelector(`[data-effect-id='${effect.id}']`)?.dispatchEvent(dragStart);
+                        targetSheet.element.dispatchEvent(dragStop);
 
-                    await passesEventually(() => {
-                        const dropped = target.effects.find((e: { name: string }) => e.name === "Manual");
-                        expect(dropped, "dropped effect exists on target").to.exist;
-                        expect(dropped!.type, "non-autoGenerated effect type is unchanged").to.equal("modifier");
-                    });
-
-                    await sourceSheet.close();
-                    await targetSheet.close();
+                        await passesEventually(() => {
+                            const dropped = target.effects.find((e: { name: string }) => e.name === "Manual");
+                            expect(dropped, "dropped effect exists on target").to.exist;
+                            expect(dropped!.type, "non-autoGenerated effect type is unchanged").to.equal("modifier");
+                        });
+                    } finally {
+                        await closeDragSheets(sourceSheet, targetSheet);
+                    }
                 })
             )
         );
@@ -1089,12 +1102,14 @@ export function activeEffectTest(context: QuenchBatchContext) {
 
     describe("Combat-aware default duration units", () => {
         let combatScene: FoundryScene;
+        let combatIds: string[] = [];
         useScene({ before, after }, (created) => {
             combatScene = created;
         });
 
         afterEach(async () => {
-            await Combat.deleteDocuments(Array.from((game as any).combats.keys()));
+            await deleteTestCombats(combatIds);
+            combatIds = [];
             await combatScene.deleteEmbeddedDocuments(
                 "Token",
                 combatScene.tokens.map((t: TokenDocument) => t.id)
@@ -1102,7 +1117,8 @@ export function activeEffectTest(context: QuenchBatchContext) {
         });
 
         async function addActorToCombat(actor: SplittermondActor) {
-            const combat = (await Combat.create({})) as any;
+            const combat = await Combat.create({ scene: combatScene.id });
+            combatIds.push(combat.id);
             await combat.update({ active: true });
             await combat.startCombat();
             const tokenDocument = (

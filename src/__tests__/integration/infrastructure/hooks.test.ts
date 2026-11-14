@@ -3,14 +3,16 @@ import { registerHook } from "module/hooks/registration";
 import { initializeHooks } from "module/hooks";
 import { fields } from "module/data/SplittermondDataModel";
 
-declare const Hooks: any;
-declare const foundry: any;
+type HookRegistry = NonNullable<Parameters<typeof initializeHooks>[0]>;
+declare const game: { splittermond: { API: { hooks: HookRegistry } } };
 
 export function hooksTest(context: QuenchBatchContext) {
     const { describe, it, expect, beforeEach, afterEach } = context;
 
     describe("hooks module (integration)", () => {
-        let registeredHooks: Record<string, any>;
+        let registeredHooks: HookRegistry;
+        const originalRegistry = game.splittermond.API.hooks;
+        let subscriptions: Array<{ unsubscribe(): void }> = [];
 
         beforeEach(() => {
             registeredHooks = {};
@@ -18,7 +20,9 @@ export function hooksTest(context: QuenchBatchContext) {
         });
 
         afterEach(() => {
-            initializeHooks(null);
+            subscriptions.forEach((subscription) => subscription.unsubscribe());
+            subscriptions = [];
+            initializeHooks(originalRegistry);
         });
 
         describe("registerHook with real Foundry Hooks", () => {
@@ -27,10 +31,12 @@ export function hooksTest(context: QuenchBatchContext) {
                     new fields.StringField({ required: true, nullable: false }),
                 ]);
                 let received = "";
-                hook.subscribe((val: any) => {
-                    received = val;
-                    return true;
-                });
+                subscriptions.push(
+                    hook.subscribe((val) => {
+                        received = val;
+                        return true;
+                    })
+                );
                 hook.call("testValue");
                 expect(received).to.equal("testValue");
             });
@@ -44,6 +50,7 @@ export function hooksTest(context: QuenchBatchContext) {
                     callCount++;
                     return true;
                 });
+                subscriptions.push(sub);
                 hook.call("first");
                 sub.unsubscribe();
                 hook.call("second");
@@ -68,7 +75,7 @@ export function hooksTest(context: QuenchBatchContext) {
                 const hook = registerHook("splittermond.integValid", () => [
                     new fields.NumberField({ required: true, nullable: false }),
                 ]);
-                expect(() => hook.call("not-a-number" as any)).to.throw("Failed to validate candidate");
+                expect(() => Reflect.apply(hook.call, hook, ["not-a-number"])).to.throw("Failed to validate candidate");
             });
 
             it("should register in the global hook registry", () => {
@@ -86,13 +93,15 @@ export function hooksTest(context: QuenchBatchContext) {
                     new fields.StringField({ required: true, nullable: false }),
                     new fields.NumberField({ required: true, nullable: false }),
                 ]);
-                let receivedP1: any;
-                let receivedP2: any;
-                hook.subscribe((p1: any, p2: any) => {
-                    receivedP1 = p1;
-                    receivedP2 = p2;
-                    return true;
-                });
+                let receivedP1: unknown;
+                let receivedP2: unknown;
+                subscriptions.push(
+                    hook.subscribe((p1, p2) => {
+                        receivedP1 = p1;
+                        receivedP2 = p2;
+                        return true;
+                    })
+                );
                 hook.call("hello", 42);
                 expect(receivedP1).to.equal("hello");
                 expect(receivedP2).to.equal(42);
