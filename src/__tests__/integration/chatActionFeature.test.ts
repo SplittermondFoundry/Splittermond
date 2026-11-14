@@ -203,25 +203,37 @@ export function chatActionFeatureTest(context: QuenchBatchContext) {
             await ChatMessage.deleteDocuments(messagesToDelete);
             messagesToDelete = [];
         });
-        for (const kind of ["attack", "spell"] as const) {
+        async function createSplinterpointAttackCard(actor: SplittermondActor): Promise<SplittermondChatCard> {
+            const [weapon] = await actor.createEmbeddedDocuments("Item", [
+                {
+                    name: "Splinterpoint attack",
+                    type: "weapon",
+                    system: { skill: "blades", attribute1: "agility", attribute2: "strength", equipped: true },
+                },
+            ]);
+            return createAttackChatMessage(actor, weapon as SplittermondWeaponItem);
+        }
+
+        async function createSplinterpointSpellCard(actor: SplittermondActor): Promise<SplittermondChatCard> {
+            const [spell] = await actor.createEmbeddedDocuments("Item", [
+                {
+                    name: "Splinterpoint spell",
+                    type: "spell",
+                    system: { skill: "lightmagic", costs: "4V1" },
+                },
+            ]);
+            return createSpellChatMessage(actor, spell as SplittermondSpellItem);
+        }
+
+        for (const { kind, createCard } of [
+            { kind: "attack", createCard: createSplinterpointAttackCard },
+            { kind: "spell", createCard: createSplinterpointSpellCard },
+        ]) {
             it(
                 `given a failed ${kind} card, when a splinterpoint makes it barely succeed, then the persisted card offers no paid EG options and spends one point`,
                 withActor(async (actor) => {
                     await actor.update({ "system.splinterpoints.value": 5, "system.splinterpoints.max": 5 });
-                    const [item] = await actor.createEmbeddedDocuments("Item", [
-                        {
-                            name: "Splinterpoint regression",
-                            type: kind === "attack" ? "weapon" : "spell",
-                            system:
-                                kind === "attack"
-                                    ? { skill: "blades", attribute1: "agility", attribute2: "strength", equipped: true }
-                                    : { skill: "lightmagic", costs: "4V1" },
-                        },
-                    ]);
-                    const card =
-                        kind === "attack"
-                            ? createAttackChatMessage(actor, item as SplittermondWeaponItem)
-                            : createSpellChatMessage(actor, item as SplittermondSpellItem);
+                    const card = await createCard(actor);
                     const model = card.system;
                     if (!(model instanceof AttackRollMessage) && !(model instanceof SpellRollMessage)) {
                         throw new Error("Expected a roll message");
