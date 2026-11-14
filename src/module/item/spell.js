@@ -203,17 +203,19 @@ export default class SplittermondSpellItem extends AttackableItem(SplittermondIt
             },
         };
 
-        return this.skill
-            .roll(options)
-            .then((result) =>
-                !result
-                    ? false
-                    : SplittermondChatCard.create(this.actor, SpellRollMessage.initialize(this, result.report), {
-                          ...result.rollOptions,
-                          type: "spellRollMessage",
-                      }).sendToChat()
-            )
-            .then((result) => result ?? true);
+        const result = await this.skill.roll(options);
+        if (!result) return false;
+
+        const tickCost = 3 + (await this.actor.tickMalus.calculate());
+        const chatResult = await SplittermondChatCard.create(
+            this.actor,
+            SpellRollMessage.initialize(this, result.report, tickCost),
+            {
+                ...result.rollOptions,
+                type: "spellRollMessage",
+            }
+        ).sendToChat();
+        return chatResult ?? true;
     }
 
     /**

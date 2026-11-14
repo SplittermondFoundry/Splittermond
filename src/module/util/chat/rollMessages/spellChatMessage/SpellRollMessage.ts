@@ -59,7 +59,7 @@ export class SpellRollMessage extends RollMessage<
 > {
     static defineSchema = SpellRollMessageSchema;
 
-    static initialize(spell: SplittermondSpellItem, checkReport: CheckReport) {
+    static initialize(spell: SplittermondSpellItem, checkReport: CheckReport, tickCost: number) {
         const reportReference = OnAncestorReference.for(SpellRollMessage)
             .identifiedBy("classIdentifier", classIdentifier)
             .references("checkReport");
@@ -72,7 +72,7 @@ export class SpellRollMessage extends RollMessage<
             classIdentifier: classIdentifier,
             splinterPointUsed: false,
             focusCostHandler: FocusCostHandler.initialize(actorReference, reportReference, spellReference).toObject(),
-            tickCostHandler: TickCostActionHandler.initialize(actorReference, spellReference, 3).toObject(),
+            tickCostHandler: TickCostActionHandler.initialize(actorReference, spellReference, tickCost).toObject(),
             damageHandler: DamageActionHandler.initialize(actorReference, spellReference, reportReference).toObject(),
             noActionOptionsHandler: NoActionOptionsHandler.initialize(spellReference).toObject(),
             noOptionsActionHandler: NoOptionsActionHandler.initialize(
