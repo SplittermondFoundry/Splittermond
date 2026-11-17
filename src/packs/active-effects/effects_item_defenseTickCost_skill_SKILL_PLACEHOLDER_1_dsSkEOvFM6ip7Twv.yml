@@ -14,7 +14,7 @@ system:
           implementation: additive
           selectable: false
           attributes:
-              name: item.defenseTickCost skill= -1
+              name: item.defenseTickCost skill="${skill}" -1
               type: innate
               skill: ""
     costModifiers: []
@@ -34,7 +34,7 @@ sort: 0
 flags:
     splittermond:
         durationMode: permanent
-        rawInput: item.defenseTickCost skill= -1
+        rawInput: item.defenseTickCost skill="${skill}" -1
 _stats:
     coreVersion: "14.365"
     systemId: splittermond

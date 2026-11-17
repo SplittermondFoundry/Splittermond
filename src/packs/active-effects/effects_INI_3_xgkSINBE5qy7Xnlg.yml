@@ -7,7 +7,7 @@ img: icons/svg/upgrade.svg
 system:
     changes: []
     modifiers:
-        - path: actor.initiative
+        - path: initiative
           serializedValue:
               type: amount
               amount: -3

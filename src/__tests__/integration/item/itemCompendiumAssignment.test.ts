@@ -52,7 +52,7 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
 
                 const effectModifiers = effect!.system?.modifiers ?? [];
                 expect(effectModifiers).to.have.length(1);
-                expect(effectModifiers[0].path).to.equal("actor.healthpoints");
+                expect(effectModifiers[0].path).to.equal("healthpoints");
                 expect(effectModifiers[0].serializedValue).to.deep.equal({ type: "amount", amount: 1 });
                 expect(effectModifiers[0].attributes?.name).to.equal("sturdy");
 

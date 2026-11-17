@@ -16,6 +16,7 @@ import { CostModifier as CostValue } from "module/util/costs/Cost";
 import { getFromRegistry } from "module/data/dataModelRegistry";
 import { IllegalStateException } from "module/data/exceptions";
 import type { ModifierEntry, CostModifierEntry } from "../types";
+import { from14_3_1_migrateDerivedValuePaths } from "./migrations";
 
 interface ModifierConstructor {
     new (
@@ -152,6 +153,10 @@ export class ActionEffectDataModel
     extends UnboundWarner(SplittermondActiveEffectDataModel<ActionEffectSchemaType, SplittermondActiveEffect>)
     implements HasModifiers, HasCostModifiers
 {
+    static migrateData(source: unknown) {
+        return super.migrateData(from14_3_1_migrateDerivedValuePaths(source));
+    }
+
     // Method form: ActiveEffectTypeDataModel.defineSchema contributes the `changes` field.
     static defineSchema() {
         return { ...super.defineSchema(), ...ActionEffectSchema() };

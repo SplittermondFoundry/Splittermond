@@ -1,4 +1,5 @@
 import type { EffectDataObject } from "module/activeEffect";
+import { from14_3_1_restoreDefenseSkillInput } from "./migrations/restoreDefenseSkillInput";
 
 export function stripSchwerpunktPrefix(name: string): string {
     if (name.startsWith("Schwerpunkt")) {
@@ -17,6 +18,7 @@ export function substituteSkill(skill: string | undefined) {
                 }
             }
         }
+        from14_3_1_restoreDefenseSkillInput(data);
         return data;
     };
 }
