@@ -60,6 +60,9 @@ interface StatBlockEntry {
 
 export default class SplittermondItemSheet extends SplittermondBaseItemSheet {
     static DEFAULT_OPTIONS = {
+        window: {
+            resizable: true,
+        },
         form: {
             submitOnChange: true,
         },

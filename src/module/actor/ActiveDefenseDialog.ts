@@ -19,11 +19,11 @@ export async function showActiveDefenseDialog(actor: SplittermondActor) {
 }
 export class ActiveDefenseDialog extends FoundryDialog {
     static DEFAULT_OPTIONS = {
-        window: { title: "splittermond.activeDefense" }, //foundry is nice enough to localize this
+        window: { title: "splittermond.activeDefense", resizable: true }, //foundry is nice enough to localize this
         position: {
             width: 500,
         },
-        classes: ["splittermond", "dialog"],
+        classes: ["splittermond", "dialog", "dialog-active-defense"],
     };
 
     constructor(

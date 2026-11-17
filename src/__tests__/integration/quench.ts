@@ -11,6 +11,7 @@ import { registerInfrastructureBatches } from "./infrastructure";
 import { registerActorBatches } from "./actor";
 import { registerItemBatches } from "./item";
 import { sheetDropsTest } from "./sheetDrops.test";
+import { windowResizingTest } from "./windowResizing.test";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}
@@ -31,6 +32,7 @@ function registerQuenchTests(quench: Quench) {
 
     quench.registerBatch("splittermond.applications", applicationTests);
     quench.registerBatch("splittermond.sheetDrops", sheetDropsTest);
+    quench.registerBatch("splittermond.windowResizing", windowResizingTest);
     quench.registerBatch("splittermond.combat", combatTest);
     quench.registerBatch("splittermond.chatSystem", chatActionFeatureTest);
     quench.registerBatch("splittermond.damageProcessing", DamageProcessingTest);

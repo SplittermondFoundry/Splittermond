@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Features
+
+- Itemfenster sowie Dialoge für Proben, aktive Abwehr und Schaden lassen sich in der Größe verändern.
+
 ### Fixes
 
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
