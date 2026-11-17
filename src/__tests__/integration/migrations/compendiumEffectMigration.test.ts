@@ -108,6 +108,7 @@ export function compendiumEffectMigrationTest(context: QuenchBatchContext) {
                     await sheet.close();
                 }
             })
-        );
+            // Rendering the real sheet and persisting its edit can exceed Quench's two-second default.
+        ).timeout(5000);
     });
 }
