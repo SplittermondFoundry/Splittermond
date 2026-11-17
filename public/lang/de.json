@@ -108,6 +108,14 @@
         "spells": "Zauber",
         "general": "Allgemein",
         "biography": "Biographie",
+        "biographyDetails": {
+            "hairColor": "Haarfarbe",
+            "eyeColor": "Augenfarbe",
+            "skinColor": "Haut-/Fellfarbe",
+            "height": "Körpergröße",
+            "weight": "Gewicht",
+            "birthplace": "Geburtsort"
+        },
         "skill": "Fertigkeit",
         "skills": "Fertigkeiten",
         "inventory": "Ausrüstung",

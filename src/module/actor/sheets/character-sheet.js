@@ -62,10 +62,18 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
     };
 
     /**
-     * @returns {Promise<import("./combatActionsTemplateInterface").CombatActionsTemplateData & ApplicationRenderContext & Record<string, unknown>>}
+     * @returns {Promise<import("./biographyTemplateInterface").BiographyTemplateData & import("./combatActionsTemplateInterface").CombatActionsTemplateData & ApplicationRenderContext & Record<string, unknown>>}
      */
     async _prepareContext() {
         const sheetData = await super._prepareContext();
+
+        sheetData.characterDetails = ["hairColor", "eyeColor", "skinColor", "height", "weight", "birthplace"].map(
+            (field) => ({
+                name: `system.${field}`,
+                label: `splittermond.biographyDetails.${field}`,
+                value: sheetData.system[field],
+            })
+        );
 
         sheetData.hasRestActions = true;
         sheetData.system.experience.heroLevelName = foundryApi.localize(

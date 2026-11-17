@@ -9,6 +9,7 @@ import { autoExpandInputs, changeValue } from "module/util/commonHtmlHandlers.js
 import { splittermond } from "module/config/index.js";
 import { getMasteryAvailabilityParser, getSpellAvailabilityParser } from "module/item/availabilityParser";
 import type { ItemType } from "module/config/itemTypes";
+import type { BiographyTemplateData } from "module/actor/sheets/biographyTemplateInterface";
 import type { HandlebarsRenderOptions } from "module/api/Application";
 import ApplicationRenderOptions = foundry.applications.types.ApplicationRenderOptions;
 
@@ -24,7 +25,7 @@ interface ItemSheetData {
     type: string;
 }
 
-interface SplittermondItemSheetData extends ItemSheetData {
+interface SplittermondItemSheetData extends ItemSheetData, BiographyTemplateData {
     itemProperties: any;
     statBlock: any;
     typeLabel: string;
