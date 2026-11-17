@@ -12,7 +12,7 @@ import type { FoundryCombatant, FoundryScene } from "module/api/foundryTypes";
 import TickBarHud from "../../module/apps/tick-bar-hud/tick-bar-hud";
 import { foundryApi } from "module/api/foundryApi";
 import { FoundryDragDrop } from "module/api/Application";
-import { useScene } from "./fixtures";
+import { useScene, withScene } from "./fixtures";
 import type SplittermondItem from "module/item/item";
 
 declare const game: any;
@@ -306,7 +306,9 @@ export function applicationTests(context: QuenchBatchContext) {
         });
     });
 
-    describe("Tick Bar Hud", () => {
+    describe("Tick Bar Hud", function () {
+        // Real canvas changes plus the scene fixture's grace period exceed Mocha's default two seconds.
+        this.timeout(10000);
         let combats: SplittermondCombat[] = [];
         let actors: SplittermondActor[] = [];
         let tokens: TokenDocument[] = [];
@@ -398,6 +400,125 @@ export function applicationTests(context: QuenchBatchContext) {
             expect(combatant.actor.token, "actor token is token").to.deep.equal(token);
             expect((game.splittermond.tickBarHud as TickBarHud).viewed).to.equal(combat);
         });
+
+        it(
+            "hides a scene-bound combat when viewing another scene and restores it on return",
+            withScene(async (otherScene) => {
+                const combat = await createActiveCombat();
+                await combat.update({ scene: scene.id });
+                const { combatant } = await createCombatant("Scene-bound fighter", combat);
+                await combat.setInitiative(combatant.id, 10);
+                await passesEventually(() => getCombatantItem(combatant.id));
+
+                await otherScene.view();
+
+                await passesEventually(() => {
+                    expect(foundryApi.currentScene).to.equal(otherScene);
+                    expect(document.querySelector(".tick-bar-hud-combatant-list-item")).to.be.null;
+                    expect(document.querySelector(".tick-bar-hud-nav-btn")).to.be.null;
+                    document.querySelectorAll(".tick-bar-hud-tick-special").forEach((element) => {
+                        expect(getComputedStyle(element).opacity, "empty special fields remain invisible").to.equal(
+                            "0"
+                        );
+                    });
+                });
+
+                await scene.view();
+
+                await passesEventually(() => getCombatantItem(combatant.id));
+                expect(combat.currentTick).to.equal(10);
+            })
+        );
+
+        it(
+            "keeps an unbound combat visible on another scene",
+            withScene(async (otherScene) => {
+                const combat = await createActiveCombat();
+                await combat.update({ scene: null });
+                const { combatant } = await createCombatant("Unbound fighter", combat);
+                await combat.setInitiative(combatant.id, 10);
+                await passesEventually(() => getCombatantItem(combatant.id));
+
+                await otherScene.view();
+
+                await passesEventually(() => getCombatantItem(combatant.id));
+                expect(foundryApi.currentScene).to.equal(otherScene);
+                expect(combat.currentTick).to.equal(10);
+            })
+        );
+
+        it(
+            "updates visibility when the combat is linked and unlinked without changing scenes",
+            withScene(async (otherScene) => {
+                const combat = await createActiveCombat();
+                await combat.update({ scene: null });
+                const { combatant } = await createCombatant("Relinked fighter", combat);
+                await combat.setInitiative(combatant.id, 10);
+                await otherScene.view();
+                await passesEventually(() => getCombatantItem(combatant.id));
+
+                await combat.update({ scene: scene.id });
+
+                await passesEventually(() => {
+                    expect(document.querySelector(".tick-bar-hud-combatant-list-item")).to.be.null;
+                    expect(document.querySelector(".tick-bar-hud-nav-btn")).to.be.null;
+                });
+
+                await combat.update({ scene: null });
+
+                await passesEventually(() => getCombatantItem(combatant.id));
+                expect(foundryApi.currentScene).to.equal(otherScene);
+            })
+        );
+
+        it(
+            "switches between scene combats without replaying status messages or macros",
+            withScene(async (otherScene) => {
+                const combat = await createActiveCombat();
+                await combat.update({ scene: scene.id });
+                const { combatant, actor } = await createCombatant("First scene fighter", combat);
+                await combat.setInitiative(combatant.id, 20);
+                const otherCombat = (await Combat.create({
+                    scene: otherScene.id,
+                    combatants: [{ actorId: actor.id, initiative: 10 }],
+                })) as SplittermondCombat;
+                try {
+                    await otherCombat.update({ active: true });
+                    await otherCombat.startCombat();
+                    const otherCombatant = otherCombat.combatants.contents[0];
+                    await passesEventually(() => getCombatantItem(combatant.id));
+                    sandbox.stub(actor, "getVirtualStatusTokens").returns([
+                        {
+                            statusId: "poison",
+                            name: "Poison",
+                            img: "icons/svg/poison.svg",
+                            level: 1,
+                            description: "Poisoned",
+                            startTick: 20,
+                            interval: 5,
+                            times: 2,
+                            postDescription: true,
+                            macroRef: { name: "Poison", uuid: "Macro.poison" },
+                        },
+                    ]);
+                    const messages = sandbox.spy(foundryApi, "createChatMessage");
+                    const macros = sandbox.spy(foundryApi.utils, "fromUUID");
+
+                    await otherScene.view();
+                    await passesEventually(() => getCombatantItem(otherCombatant.id));
+                    await scene.view();
+                    await passesEventually(() => getCombatantItem(combatant.id));
+
+                    expect(messages.called, "scene navigation must not emit status messages").to.be.false;
+                    expect(macros.called, "scene navigation must not execute status macros").to.be.false;
+                    expect(combat.currentTick).to.equal(20);
+                    expect(otherCombat.currentTick).to.equal(10);
+                } finally {
+                    // Delete the combat before withScene removes the scene it references.
+                    await Combat.deleteDocuments([otherCombat.id]);
+                }
+            })
+        );
 
         describe("_onRender", () => {
             it("should handle double-click to open character sheet", async () => {

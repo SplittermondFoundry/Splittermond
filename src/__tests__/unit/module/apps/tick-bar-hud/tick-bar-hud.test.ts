@@ -52,11 +52,29 @@ describe("TickBarHud", () => {
 
             expect(combats).to.be.empty;
         });
+
+        it("excludes a combat linked to another scene while retaining local and unbound combats", () => {
+            const currentScene = { id: "current" };
+            const local = createCombat(sandbox, { scene: currentScene });
+            const remote = createCombat(sandbox, { scene: { id: "other" }, isActive: true });
+            const unbound = createCombat(sandbox);
+            sandbox.stub(foundryApi, "currentScene").get(() => currentScene);
+            sandbox.stub(foundryApi, "combats").get(() => [remote, local, unbound]);
+
+            const hud = new TickBarHud();
+
+            expect(hud.combats).to.deep.equal([local, unbound]);
+            expect(hud.firstApplicableCombat).to.equal(local);
+        });
     });
 
     describe("_prepareContext", () => {
         const currentScene = { id: "sceneId" };
-        beforeEach(() => sandbox.stub(foundryApi, "currentScene").get(() => currentScene));
+        let viewedScene = currentScene;
+        beforeEach(() => {
+            viewedScene = currentScene;
+            sandbox.stub(foundryApi, "currentScene").get(() => viewedScene);
+        });
         it("should prepare basic context with empty ticks when no combat", async () => {
             sandbox.stub(foundryApi, "combats").get(() => []);
 
@@ -65,6 +83,69 @@ describe("TickBarHud", () => {
             expect(context.ticks).to.be.empty;
             expect(context.wait).to.be.empty;
             expect(context.keepReady).to.be.empty;
+        });
+
+        it("clears the previous combat and all tick lists after leaving its scene", async () => {
+            const combat = createCombat(sandbox, { scene: currentScene, started: true });
+            const combatant = addNewCombatant(sandbox, combat, { initiative: 10 });
+            addToCombatTurns(combat, combatant);
+            sandbox.stub(foundryApi, "combats").get(() => [combat]);
+            const hud = new TickBarHud();
+            expect((await hud._prepareContext({ parts: [] })).ticks).not.to.be.empty;
+
+            viewedScene = { id: "other" };
+            const context = await hud._prepareContext({ parts: [] });
+
+            expect(hud.viewed).to.be.null;
+            expect(context).to.include.all.keys("ticks", "wait", "keepReady");
+            expect(context.ticks).to.be.empty;
+            expect(context.wait).to.be.empty;
+            expect(context.keepReady).to.be.empty;
+            const dom = new JSDOM(createHtml("./templates/apps/tick-bar-hud.hbs", context));
+            expect(dom.window.document.querySelector(".tick-bar-hud-nav-btn")).to.be.null;
+            expect(dom.window.document.querySelector(".tick-bar-hud-combatant-list-item")).to.be.null;
+            dom.window.close();
+        });
+
+        it("does not replay status macros when switching between combats at different ticks", async () => {
+            const combat = createCombat(sandbox, { started: true });
+            const otherCombat = createCombat(sandbox, { started: true });
+            const combatant = addNewCombatant(sandbox, combat, { initiative: 20 });
+            addToCombatTurns(combat, combatant);
+            addToCombatTurns(otherCombat, addNewCombatant(sandbox, otherCombat, { initiative: 10 }));
+            combatant.actor.getVirtualStatusTokens.returns([
+                {
+                    statusId: "poison",
+                    name: "Poison",
+                    img: "",
+                    level: 1,
+                    description: "Poisoned",
+                    interval: 5,
+                    times: 2,
+                    startTick: 20,
+                    postDescription: false,
+                    macroRef: { name: "Poison", uuid: "Macro.poison" },
+                },
+            ]);
+            const combats = sandbox.stub(foundryApi, "combats").get(() => [combat]);
+            sandbox.stub(foundryApi, "currentUser").get(() => ({ id: "gm", isGM: true, active: true }));
+            sandbox.stub(foundryApi, "users").get(() => [{ id: "gm", isGM: true, active: true }]);
+            sandbox.stub(foundryApi, "getSpeaker").returns({ scene: "", actor: "", token: "", alias: "" });
+            const macros = sandbox.stub(foundryApi.utils, "fromUUID").resolves(null);
+            const hud = new TickBarHud();
+            await hud._prepareContext({ parts: [], isFirstRender: true });
+
+            combats.get(() => [otherCombat]);
+            await hud._prepareContext({ parts: [] });
+            combats.get(() => [combat]);
+            await hud._prepareContext({ parts: [] });
+
+            expect(macros.called, "view changes must not replay macros").to.be.false;
+
+            sandbox.stub(combatant, "initiative").value(25);
+            await hud._prepareContext({ parts: [] });
+
+            expect(macros.calledOnceWith("Macro.poison"), "the next actual tick still requests the macro").to.be.true;
         });
 
         it("should reset viewedTick when combat changes", async () => {
@@ -362,6 +443,7 @@ describe("TickBarHud", () => {
 
             const createChatMessageStub = sandbox.stub(foundryApi, "createChatMessage");
             const tickBarHud = new TickBarHud();
+            tickBarHud.viewed = combat;
             tickBarHud.lastStatusTick = 5; // Previous tick was 5
             tickBarHud.currentTick = 15;
 
@@ -400,6 +482,7 @@ describe("TickBarHud", () => {
             const createChatMessageStub = sandbox.stub(foundryApi, "createChatMessage");
 
             const tickBarHud = new TickBarHud();
+            tickBarHud.viewed = combat;
             tickBarHud.lastStatusTick = 5;
             tickBarHud.currentTick = 15;
 
@@ -437,6 +520,7 @@ describe("TickBarHud", () => {
             const createChatMessageStub = sandbox.stub(foundryApi, "createChatMessage");
 
             const tickBarHud = new TickBarHud();
+            tickBarHud.viewed = combat;
             tickBarHud.lastStatusTick = 5;
             tickBarHud.currentTick = 15;
 
@@ -477,6 +561,7 @@ describe("TickBarHud", () => {
                 .resolves(macro as unknown as Awaited<ReturnType<typeof foundryApi.utils.fromUUID>>);
 
             const tickBarHud = new TickBarHud();
+            tickBarHud.viewed = combat;
             tickBarHud.lastStatusTick = 5;
             tickBarHud.currentTick = 15;
 
@@ -520,6 +605,7 @@ describe("TickBarHud", () => {
             const fromUuidStub = sandbox.stub(foundryApi.utils, "fromUUID");
 
             const tickBarHud = new TickBarHud();
+            tickBarHud.viewed = combat;
             tickBarHud.lastStatusTick = 5;
             tickBarHud.currentTick = 15;
 
@@ -556,6 +642,7 @@ describe("TickBarHud", () => {
             const fromUuidStub = sandbox.stub(foundryApi.utils, "fromUUID");
 
             const tickBarHud = new TickBarHud();
+            tickBarHud.viewed = combat;
             tickBarHud.lastStatusTick = 5;
             tickBarHud.currentTick = 15;
 

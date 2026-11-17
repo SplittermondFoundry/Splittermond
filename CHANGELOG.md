@@ -2,6 +2,7 @@
 
 ### Fixes
 
+- Die Tickleiste blendet szenengebundene Kämpfe beim Szenenwechsel aus und bei der Rückkehr wieder ein, ohne Statusmeldungen oder Makros erneut auszulösen.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
 - Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
 

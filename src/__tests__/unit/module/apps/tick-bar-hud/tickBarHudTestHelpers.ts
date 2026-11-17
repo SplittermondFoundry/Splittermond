@@ -1,6 +1,6 @@
 import type { SinonSandbox, SinonStub, SinonStubbedInstance } from "sinon";
 import SplittermondCombat from "module/combat/combat";
-import type { FoundryCombatant } from "module/api/foundryTypes";
+import type { FoundryCombatant, FoundryScene } from "module/api/foundryTypes";
 import SplittermondActor from "module/actor/actor";
 import SplittermondActorSheet from "module/actor/sheets/actor-sheet";
 
@@ -9,7 +9,10 @@ const nextId = (function* () {
     while (true) yield id++;
 })();
 
-export function createCombat(sandbox: SinonSandbox, props: Partial<SplittermondCombat> = {}) {
+export function createCombat(
+    sandbox: SinonSandbox,
+    props: Partial<Omit<SplittermondCombat, "scene">> & { scene?: Pick<FoundryScene, "id"> | null } = {}
+) {
     const combat = sandbox.createStubInstance(SplittermondCombat);
     combat.update.callThrough();
     const combatants = [] as FoundryCombatant[];
@@ -20,7 +23,7 @@ export function createCombat(sandbox: SinonSandbox, props: Partial<SplittermondC
 
     Object.defineProperty(combat, "id", { value: combatId, enumerable: true, writable: false });
     Object.defineProperty(combat, "scene", {
-        value: props.currentScene ?? null,
+        value: props.scene ?? null,
         writable: false,
         enumerable: true,
     });

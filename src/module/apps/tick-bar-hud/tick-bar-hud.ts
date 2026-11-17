@@ -83,11 +83,12 @@ export default class TickBarHud extends SplittermondApplication {
 
         //saveguard against a botched calculation in a previous call
         const firstApplicableCombat = this.firstApplicableCombat;
+        const combatChanged = firstApplicableCombat !== this.viewed;
         if (isNaN(this.viewedTick)) {
             this.viewedTick = 0;
         }
 
-        if (firstApplicableCombat != this.viewed) {
+        if (combatChanged) {
             this.viewedTick = 0;
         }
 
@@ -192,7 +193,9 @@ export default class TickBarHud extends SplittermondApplication {
 
             const activatedStatusTokens: (StatusEffectMessageData & { combatant: FoundryCombatant })[] = [];
             const firedMacroPairs: FiredMacroPair[] = [];
-            const canEmitStatusEffectMessages = isFirstActiveGM(foundryApi.currentUser, foundryApi.users);
+            // Opening or switching the displayed combat is not a tick advance.
+            const canEmitStatusEffectMessages =
+                !options.isFirstRender && !combatChanged && isFirstActiveGM(foundryApi.currentUser, foundryApi.users);
 
             statusOnCombatants.forEach((combatant) => {
                 combatant.virtualTokens.forEach((element) => {
@@ -240,10 +243,6 @@ export default class TickBarHud extends SplittermondApplication {
                 });
             });
 
-            //Prevent reissuing of status effects when initializing foundry and rendering the HUD for the first time
-            if (options.isFirstRender) {
-                return data;
-            }
             for (let index = 0; index < activatedStatusTokens.length; index++) {
                 const element = activatedStatusTokens[index];
                 if (!element.virtualToken.postDescription) continue;
@@ -592,6 +591,9 @@ export function initTickBarHud(splittermond: Record<string, unknown>) {
     const tickBarHud = new TickBarHud();
     splittermond.tickBarHud = tickBarHud;
     foundryApi.combats.apps.push(tickBarHud);
+
+    // Viewing a different scene does not modify the combat collection.
+    foundryApi.hooks.on("canvasReady", () => tickBarHud.render(true));
 
     function renderForActiveCombatant(combatant: FoundryCombatant) {
         if (tickBarHud.combats.find((c) => c.isActive && c === combatant.combat)) {
