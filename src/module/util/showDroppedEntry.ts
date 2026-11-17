@@ -10,7 +10,7 @@ export function showDroppedEntry(
     function reveal(): boolean {
         if (tab) sheet.changeTab(tab, "primary", { force: true });
         const entry = sheet.element.querySelector(`${tab ? `section[data-tab="${tab}"]` : "header"} ${selector}`);
-        const row = entry?.closest(".list-item, .taglist-item, .effect-card");
+        const row = entry?.closest(".list-item, .taglist-item, .effect-card, .moonsign");
         if (!row) return false;
         row.scrollIntoView({ block: "nearest", inline: "nearest" });
         row.animate(

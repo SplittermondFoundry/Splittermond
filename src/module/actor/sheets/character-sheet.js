@@ -94,12 +94,6 @@ export default class SplittermondCharacterSheet extends SplittermondActorSheet {
             return wizard.render(true);
         }
 
-        if (itemData.type === "moonsign") {
-            const moonsignIds = this.actor.items.filter((i) => i.type === "moonsign")?.map((i) => i.id);
-            if (moonsignIds.length > 0) {
-                const deleted = await this.actor.deleteEmbeddedDocuments("Item", moonsignIds);
-            }
-        }
         return super._onDropDocument(_e, itemData);
     }
 

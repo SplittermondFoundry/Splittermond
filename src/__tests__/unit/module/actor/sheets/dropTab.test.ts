@@ -40,7 +40,7 @@ describe("Actor sheet tabs after item drops", () => {
         education: { character: null, npc: null },
         resource: { character: "general", npc: null },
         npcfeature: { character: null, npc: "header" },
-        moonsign: { character: null, npc: null },
+        moonsign: { character: "header", npc: null },
         language: { character: "general", npc: null },
         culturelore: { character: "general", npc: null },
         statuseffect: { character: "status", npc: "status" },
@@ -98,6 +98,7 @@ describe("Actor sheet tabs after item drops", () => {
             beforeEach(() => {
                 const actor = sandbox.createStubInstance(SplittermondActor);
                 Object.defineProperty(actor, "type", { value: actorType });
+                Object.defineProperty(actor, "items", { value: [] });
                 remove = sandbox
                     .stub<
                         Parameters<SplittermondActor["deleteEmbeddedDocuments"]>,

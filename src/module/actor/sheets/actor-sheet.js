@@ -901,6 +901,14 @@ export default class SplittermondActorSheet extends SplittermondBaseActorSheet {
 
             await newDocument.update({ system: { skill: selectedSkill.skill, level: selectedSkill.level } });
         }
+        if (newDocument.type === "moonsign" && this.actor.type === "character" && document.actor !== this.actor) {
+            const previousMoonsignIds = this.actor.items
+                .filter((item) => item.type === "moonsign" && item.id !== newDocument.id)
+                .map((item) => item.id);
+            if (previousMoonsignIds.length > 0) {
+                await this.actor.deleteEmbeddedDocuments("Item", previousMoonsignIds);
+            }
+        }
         showDroppedEntry(this, this._getDropTab(newDocument.type), `[data-item-id="${newDocument.id}"]`);
         return newDocument;
     }

@@ -22,16 +22,7 @@ export const itemTypes = [
     "spelleffect",
     "npcattack",
 ] as const;
-const prohibitedForCharacter = [
-    "projectile",
-    "species",
-    "culture",
-    "ancestry",
-    "education",
-    "npcfeature",
-    "moonsign",
-    "npcattack",
-];
+const prohibitedForCharacter = ["projectile", "species", "culture", "ancestry", "education", "npcfeature", "npcattack"];
 const allowedForNpc = [
     "mastery",
     "npcfeature",
