@@ -1,3 +1,4 @@
+import { collectModifierMessages } from "__tests__/unit/modifierErrorLogger";
 import { CheckRequireModifierHandler } from "module/check/CheckRequireModifierHandler";
 import sinon from "sinon";
 import SplittermondItem from "module/item/item";
@@ -41,7 +42,7 @@ describe("CheckRequireModifierHandler", () => {
             it(`should accept '${rollType}' as a valid rollType`, () => {
                 const item = sandbox.createStubInstance(SplittermondItem);
                 item.name = "Test Item";
-                const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+                const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
                 const result = underTest.processModifier({
                     path: "check.require",
@@ -63,7 +64,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should resolve German translations to internal codes", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -80,7 +81,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should resolve German grandmaster translations to internal codes", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -97,7 +98,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should log an error for invalid rollType and still return the raw value", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -115,7 +116,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should handle missing rollType attribute gracefully", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -132,7 +133,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should accept a skill filtering attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -150,7 +151,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should pass an invalid skill attribute through with an error", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -167,7 +168,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should accept a type filtering attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -185,7 +186,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should report a wrong type attribute", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -202,7 +203,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should use item name when emphasis is not provided", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -220,7 +221,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should use different modifier types", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "equipment");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "equipment");
 
         const result = underTest.processModifier({
             path: "check.require",
@@ -236,7 +237,7 @@ describe("CheckRequireModifierHandler", () => {
     it("should produce a modifier with the check.require path and zero placeholder value", () => {
         const item = sandbox.createStubInstance(SplittermondItem);
         item.name = "Test Item";
-        const underTest = new CheckRequireModifierHandler(errorLogger, item, "innate");
+        const underTest = new CheckRequireModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "check.require",

@@ -1,3 +1,4 @@
+import { collectModifierMessages } from "__tests__/unit/modifierErrorLogger";
 import { CostModifierHandler } from "module/util/costs/CostModifierHandler";
 import sinon from "sinon";
 import SplittermondSpellItem from "module/item/spell";
@@ -27,7 +28,7 @@ describe("CostModifierHandler", () => {
     describe("Case sensitivity", () => {
         it("should be case insensitive for addition", () => {
             const item = createItemWithSkill(sandbox, "deathmagic");
-            const underTest = new CostModifierHandler(errorLogger, item, "innate");
+            const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
             const result = underTest.processModifier({
                 path: "FOcuS.ADDition",
@@ -43,7 +44,7 @@ describe("CostModifierHandler", () => {
         });
         it("should be case insensitive for enhanced addition", () => {
             const item = createItemWithSkill(sandbox, "deathmagic");
-            const underTest = new CostModifierHandler(errorLogger, item, "innate");
+            const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
             const result = underTest.processModifier({
                 path: "focus.EnhancEdAddition",
@@ -59,7 +60,7 @@ describe("CostModifierHandler", () => {
         });
         it("should be case insensitive for reduction", () => {
             const item = createItemWithSkill(sandbox, "deathmagic");
-            const underTest = new CostModifierHandler(errorLogger, item, "innate");
+            const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
             const result = underTest.processModifier({
                 path: "FOcuS.REDucTIon",
@@ -75,7 +76,7 @@ describe("CostModifierHandler", () => {
         });
         it("should be case insensitive for enhanced Reduction", () => {
             const item = createItemWithSkill(sandbox, "deathmagic");
-            const underTest = new CostModifierHandler(errorLogger, item, "innate");
+            const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
             const result = underTest.processModifier({
                 path: "FOcuS.EnHaNcedREDucTIon",
@@ -92,7 +93,7 @@ describe("CostModifierHandler", () => {
     });
     it("should fail for invalid path", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate");
+        const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "invalid.path",
@@ -107,7 +108,7 @@ describe("CostModifierHandler", () => {
 
     it("should map addition to reduction", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate");
+        const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.addition",
@@ -124,7 +125,7 @@ describe("CostModifierHandler", () => {
 
     it("should map enhancedAddition to enhancedReduction", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate");
+        const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.enhancedreduction",
@@ -141,7 +142,7 @@ describe("CostModifierHandler", () => {
 
     it("should create use item skill if skill attribute is invalid", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate");
+        const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",
@@ -157,7 +158,7 @@ describe("CostModifierHandler", () => {
 
     it("should use the item skill if skill attribute is missing", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate");
+        const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",
@@ -173,7 +174,7 @@ describe("CostModifierHandler", () => {
 
     it("should handle null multiplier for addition paths", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate");
+        const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.addition",
@@ -190,7 +191,7 @@ describe("CostModifierHandler", () => {
 
     it("should handle items without skill property", () => {
         const item = createItemWithSkill(sandbox, null);
-        const underTest = new CostModifierHandler(errorLogger, item, "innate");
+        const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",
@@ -206,7 +207,7 @@ describe("CostModifierHandler", () => {
 
     it("should validate type attribute", () => {
         const item = createItemWithSkill(sandbox, "deathmagic");
-        const underTest = new CostModifierHandler(errorLogger, item, "innate");
+        const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",
@@ -222,7 +223,7 @@ describe("CostModifierHandler", () => {
 
     it("should handle invalid skill but no item skill fallback", () => {
         const item = createItemWithSkill(sandbox, null);
-        const underTest = new CostModifierHandler(errorLogger, item, "innate");
+        const underTest = new CostModifierHandler(collectModifierMessages(errorLogger), item, "innate");
 
         const result = underTest.processModifier({
             path: "focus.reduction",

@@ -67,11 +67,11 @@ function makeAddModifier(result: AddModifierResult): SinonStub {
 }
 
 function scalarResult(...tagged: TaggedModifier[]): AddModifierResult {
-    return { modifiers: tagged, costModifiers: [], hasErrors: false };
+    return { modifiers: tagged, costModifiers: [], diagnostics: [], hasErrors: false };
 }
 
 function emptyResult(): AddModifierResult {
-    return { modifiers: [], costModifiers: [], hasErrors: false };
+    return { modifiers: [], costModifiers: [], diagnostics: [], hasErrors: false };
 }
 
 function gmUser(id = "gm1") {
@@ -121,7 +121,7 @@ describe("migrateModifierToEffects", () => {
 
     it("preserves the modifier string when parsing reports errors", async () => {
         const item = makeItem("rubbish fragment");
-        const addModifier = makeAddModifier({ modifiers: [], costModifiers: [], hasErrors: true });
+        const addModifier = makeAddModifier({ modifiers: [], costModifiers: [], diagnostics: [], hasErrors: true });
 
         const result = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
 

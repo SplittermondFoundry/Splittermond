@@ -8,6 +8,8 @@ import SplittermondSpellSheet from "module/item/sheets/spell-sheet";
 import { SplittermondBaseItemSheet } from "module/data/SplittermondApplication";
 import { foundryApi } from "module/api/foundryApi";
 import { splittermond } from "module/config";
+import { createHtml } from "../../../../handlebarHarness";
+import { DisposableJSDOM } from "__tests__/unit/DisposableJSDOM";
 
 function makeEffect(opts: {
     id?: string;
@@ -76,6 +78,61 @@ function makeSpellSheet(effects: ReturnType<typeof makeEffect>[], enricher?: Sin
         resolvedEnricher
     );
 }
+
+describe("Deprecated item modifier field", () => {
+    class PropertySheet extends SplittermondItemSheet {
+        prepare() {
+            return this._prepareContext({});
+        }
+    }
+
+    const sandbox = sinon.createSandbox();
+    beforeEach(() => {
+        sandbox
+            .stub(SplittermondBaseItemSheet.prototype, "_prepareContext" as keyof SplittermondBaseItemSheet)
+            .resolves({});
+        sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+        sandbox.stub(foundryApi.utils, "deepClone").callsFake((value) => structuredClone(value));
+    });
+    afterEach(() => sandbox.restore());
+
+    for (const type of [
+        "weapon",
+        "shield",
+        "armor",
+        "equipment",
+        "strength",
+        "statuseffect",
+        "spelleffect",
+        "mastery",
+        "npcfeature",
+        "culturelore",
+    ]) {
+        for (const isOwner of [true, false]) {
+            it(`retains the ${type} legacy value without offering the helper (owner: ${isOwner})`, async () => {
+                const item = { type, isOwner, system: { modifier: "defense +1" } };
+                const sheet = new PropertySheet(
+                    { document: item },
+                    (_document: unknown, field: string) =>
+                        field === "system.modifier" ? item.system.modifier : undefined,
+                    undefined,
+                    undefined,
+                    async () => ""
+                );
+                const context = await sheet.prepare();
+                context.itemProperties = context.itemProperties.map((group) => ({
+                    ...group,
+                    properties: group.properties.filter((property) => property.template === "input"),
+                }));
+                using dom = new DisposableJSDOM(createHtml("templates/sheets/item/properties.hbs", context));
+                const input = dom.window.document.querySelector<HTMLInputElement>('[name="system.modifier"]')!;
+                expect(input.value).to.equal("defense +1");
+                expect(input.placeholder).to.equal("splittermond.modifierDeprecatedPlaceholder");
+                expect(dom.window.document.querySelector('[data-action="modifier-helper-property"]')).to.equal(null);
+            });
+        }
+    }
+});
 
 describe("SplittermondItemEffectsSheet — effects part context", () => {
     let sandbox: SinonSandbox;

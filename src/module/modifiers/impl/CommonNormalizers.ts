@@ -2,6 +2,7 @@ import type { Value } from "module/modifiers/parsing";
 import { normalizeDescriptor } from "module/modifiers/parsing/normalizer";
 import { isMember } from "module/util/util";
 import { splittermond } from "module/config";
+import type { ModifierChoice } from "module/modifiers/ModifierConfig";
 
 type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
 export class CommonNormalizers {
@@ -11,14 +12,21 @@ export class CommonNormalizers {
             path: string,
             descriptorName: string,
             descriptorValue: string | undefined
-        ) => void
+        ) => void,
+        private attributeChoices: (path: string, attribute: string) => readonly ModifierChoice[] | undefined = () =>
+            undefined
     ) {}
 
     normalizeSkill(path: string, skill: Value | undefined): string | undefined {
         const normalized = this.normalizeAttribute(skill, "skills");
         if (!normalized) {
             return undefined;
-        } else if (!isMember(splittermond.skillGroups.all, normalized)) {
+        }
+        const choices = this.attributeChoices(path, "skill");
+        const valid = choices
+            ? choices.some(({ value }) => value === normalized)
+            : isMember(splittermond.skillGroups.all, normalized);
+        if (!valid) {
             this.reportInvalidDescriptor(path, "skill", normalized);
             return normalized;
         } else {

@@ -1,0 +1,223 @@
+<div class="modifier-helper-content standard-form">
+    {{#*inline "modifierValue"}}
+        <section class="modifier-helper-value {{#unless compact}}modifier-helper-wide{{/unless}}" {{#if valueHidden}}hidden{{/if}}>
+            <label class="modifier-helper-control">
+                <span>{{localize valueLabel}} <span class="required-mark">*</span></span>
+                {{#if valueChoices.length}}
+                    <select name="modifierValue" aria-errormessage="{{valueErrorId}}" aria-describedby="{{valueErrorId}} {{valueHintId}}" required>
+                        <option value="">{{localize "splittermond.modifierHelper.chooseValue"}}</option>
+                        {{#if unsupportedValue}}<option value="{{value}}" selected disabled>{{localize "splittermond.modifierHelper.unsupportedValue"}}: {{value}}</option>{{/if}}
+                        {{#each valueChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                    </select>
+                {{else}}
+                    <input type="text" name="modifierValue" value="{{value}}" placeholder="{{valuePlaceholder}}" aria-errormessage="{{valueErrorId}}" aria-describedby="{{valueErrorId}} {{valueHintId}}" {{#unless valueHidden}}required{{/unless}} />
+                {{/if}}
+                <span class="modifier-helper-hint" id="{{valueHintId}}" data-value-hint aria-live="polite" hidden></span>
+            </label>
+            <span class="modifier-helper-error modifier-helper-wide" id="{{valueErrorId}}" data-error-for="value" aria-live="polite" hidden></span>
+        </section>
+    {{/inline}}
+    {{#*inline "featureAdjustment"}}
+        <section class="modifier-helper-adjustment modifier-helper-wide" data-feature-adjustment="{{rowId}}">
+            {{#if hint}}<p class="modifier-helper-hint">{{localize hint}}</p>{{/if}}
+            {{#if automatic}}
+                <label class="modifier-helper-adjustment-toggle">
+                    <input type="checkbox" data-adjustment-enabled {{#if enabled}}checked{{/if}} {{#if single}}disabled{{/if}} aria-errormessage="{{errorId}}" />
+                    <span>{{localize "splittermond.modifierHelper.adjustments.include"}} <code>{{target}}</code></span>
+                </label>
+                <span class="modifier-helper-error" id="{{errorId}}" aria-live="polite" hidden></span>
+                {{#if single}}<p class="modifier-helper-hint">{{localize "splittermond.modifierHelper.adjustments.single"}}</p>{{/if}}
+                <div class="modifier-helper-field-grid" data-adjustment-fields {{#unless enabled}}hidden{{/unless}}>
+                    {{#each fields}}
+                        <div class="modifier-helper-control">
+                            <label class="modifier-helper-label" id="{{listId}}-label" for="{{listId}}-input"><span>{{label}} <span class="required-mark">*</span></span></label>
+                            {{#if searchable}}{{> attributePicker}}
+                            {{else if select}}
+                                <select id="{{listId}}-input" data-attribute="{{key}}" aria-errormessage="{{listId}}-error">
+                                    <option value="">{{localize "splittermond.modifierHelper.unspecified"}}</option>
+                                    {{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                                </select>
+                            {{else}}<input id="{{listId}}-input" type="text" data-attribute="{{key}}" value="{{value}}" aria-errormessage="{{listId}}-error" />{{/if}}
+                            <span class="modifier-helper-error" id="{{listId}}-error" aria-live="polite" hidden></span>
+                        </div>
+                    {{/each}}
+                    {{#if sharpness}}
+                        <label class="modifier-helper-control">
+                            <span>{{localize "splittermond.modifierHelper.adjustments.currentSharpness"}}</span>
+                            <input type="number" min="0" max="4" step="1" data-attribute="currentLevel" value="{{currentLevel}}" aria-errormessage="{{id}}-currentLevel-error" />
+                            <span class="modifier-helper-error" id="{{id}}-currentLevel-error" aria-live="polite" hidden></span>
+                        </label>
+                        <label class="modifier-helper-control">
+                            <span>{{localize "splittermond.modifierHelper.adjustments.damageDie"}}</span>
+                            <select data-attribute="die" aria-errormessage="{{id}}-die-error">
+                                <option value="6" {{#if (eq die "6")}}selected{{/if}}>W6</option>
+                                <option value="10" {{#if (eq die "10")}}selected{{/if}}>W10</option>
+                            </select>
+                            <span class="modifier-helper-error" id="{{id}}-die-error" aria-live="polite" hidden></span>
+                        </label>
+                    {{/if}}
+                    <code class="modifier-helper-adjustment-preview modifier-helper-wide" data-adjustment-preview></code>
+                </div>
+            {{/if}}
+        </section>
+    {{/inline}}
+    {{#*inline "attributeChoice"}}
+        <div role="option" class="modifier-picker-option" data-picker-value="{{value}}" aria-selected="{{selected}}" tabindex="-1">{{label}}</div>
+    {{/inline}}
+    {{#*inline "attributePicker"}}
+        <input type="hidden" data-attribute="{{key}}" value="{{value}}" />
+        <details class="modifier-picker modifier-attribute-picker" data-attribute-picker="{{key}}">
+            <summary id="{{listId}}-input" aria-labelledby="{{listId}}-label {{listId}}-selected" aria-errormessage="{{listId}}-error" aria-describedby="{{listId}}-error{{#if hint}} {{listId}}-hint{{/if}}"><span id="{{listId}}-selected">{{choiceLabel}}</span><i class="fa fa-chevron-down" aria-hidden="true"></i></summary>
+            <div class="modifier-picker-popup">
+                <div class="modifier-helper-search">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    <input type="search" placeholder="{{localize 'splittermond.modifierHelper.search'}}" aria-label="{{localize 'splittermond.modifierHelper.search'}}: {{label}}" />
+                </div>
+                <div class="modifier-picker-list" role="listbox" aria-labelledby="{{listId}}-label">
+                    <div role="option" class="modifier-picker-option" data-picker-value="" aria-selected="{{#unless value}}true{{else}}false{{/unless}}" tabindex="-1">{{localize "splittermond.modifierHelper.unspecified"}}</div>
+                    {{#if choiceGroups.length}}
+                        {{#each ungroupedChoices}}{{> attributeChoice}}{{/each}}
+                        {{#each choiceGroups}}
+                            <div role="group" aria-label="{{localize label}}" data-choice-category="{{category}}">
+                                <button type="button" class="modifier-picker-category" data-category-heading="{{category}}" aria-expanded="false"><i class="fa fa-chevron-down" aria-hidden="true"></i><span>{{localize label}}</span><span class="modifier-picker-count" data-category-count></span></button>
+                                {{#each choices}}{{> attributeChoice}}{{/each}}
+                            </div>
+                        {{/each}}
+                    {{else}}
+                        {{#each choices}}{{> attributeChoice}}{{/each}}
+                    {{/if}}
+                </div>
+                <p class="modifier-picker-empty" hidden>{{localize noResults}}</p>
+            </div>
+        </details>
+    {{/inline}}
+    <section class="modifier-helper-selection">
+        <span>{{localize "splittermond.modifier"}}</span>
+        <details class="modifier-picker modifier-picker-main" {{#unless selectedPath}}open{{/unless}}>
+            <summary data-path-value="{{selectedPath}}" aria-label="{{localize 'splittermond.modifier'}}: {{selectedPath}}" aria-errormessage="{{selectionErrorId}}" aria-describedby="{{selectionErrorId}}"><span>{{#if selectedPath}}{{selectedPath}}{{else}}{{localize "splittermond.modifierHelper.chooseModifier"}}{{/if}}</span><i class="fa fa-chevron-down" aria-hidden="true"></i></summary>
+            <div class="modifier-picker-popup">
+                <div class="modifier-picker-toolbar">
+                    <label class="modifier-helper-search">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                        <input type="search" name="modifierSearch" value="{{search}}" placeholder="{{localize 'splittermond.modifierHelper.search'}}" aria-label="{{localize 'splittermond.modifierHelper.search'}}" />
+                    </label>
+                    <fieldset class="modifier-helper-modes">
+                        <legend>{{localize "splittermond.modifierHelper.sorting"}}</legend>
+                        {{#each sortModes}}
+                            <label><input type="radio" name="modifierSort" value="{{value}}" {{#if selected}}checked{{/if}} /><span>{{localize label}}</span></label>
+                        {{/each}}
+                    </fieldset>
+                </div>
+                <div class="modifier-picker-heading" aria-hidden="true"><span>{{localize "splittermond.modifier"}}</span><span>{{localize "splittermond.modifierHelper.explanation"}}</span></div>
+                <div class="modifier-picker-list" role="listbox" aria-label="{{localize 'splittermond.modifier'}}">
+                    {{#each categories}}<button type="button" class="modifier-picker-category" data-category-heading="{{value}}" data-category-parent="{{parent}}" aria-expanded="false"><i class="fa fa-chevron-down" aria-hidden="true"></i><span>{{localize label}}</span><span class="modifier-picker-count" data-category-count></span></button>{{/each}}
+                    {{#each modifiers}}
+                        <div role="option" class="modifier-picker-option" data-picker-value="{{path}}" data-modifier-path="{{path}}" data-category="{{category}}" data-search="{{search}}" aria-selected="{{selected}}" tabindex="{{#if selected}}0{{else}}-1{{/if}}"><span class="modifier-picker-path">{{path}}</span><span>{{description}}</span></div>
+                    {{/each}}
+                </div>
+                <p class="modifier-picker-empty" hidden>{{localize "splittermond.modifierHelper.noResults"}}</p>
+            </div>
+        </details>
+        <span class="modifier-helper-error" id="{{selectionErrorId}}" data-error-for="path" aria-live="polite" hidden></span>
+        {{#if description}}<p class="modifier-description">{{description}}</p>{{/if}}
+    </section>
+    <div class="modifier-helper-body">
+    {{#if pathSteps.length}}
+        <section class="modifier-helper-variants">
+            <div class="modifier-helper-field-grid">
+                {{#each pathSteps}}
+                    <div class="modifier-helper-control">
+                        <span>{{localize "splittermond.modifierHelper.variant"}} <span class="required-mark">*</span></span>
+                        <details class="modifier-picker modifier-variant-picker">
+                            <summary data-path-parent="{{path}}" data-path-value="{{value}}" aria-label="{{localize 'splittermond.modifierHelper.variant'}}: {{path}}" aria-errormessage="{{errorId}}" aria-describedby="{{errorId}}"><span>{{label}}</span><i class="fa fa-chevron-down" aria-hidden="true"></i></summary>
+                            <div class="modifier-picker-popup">
+                                <div class="modifier-picker-heading" aria-hidden="true"><span>{{localize "splittermond.modifierHelper.variant"}}</span><span>{{localize "splittermond.modifierHelper.explanation"}}</span></div>
+                                <div class="modifier-picker-list" role="listbox" aria-label="{{localize 'splittermond.modifierHelper.variant'}}: {{path}}">
+                                    {{#each choices}}<div role="option" class="modifier-picker-option" data-picker-value="{{value}}" aria-selected="{{selected}}" tabindex="{{#if selected}}0{{else}}-1{{/if}}"><span class="modifier-picker-path">{{label}}</span><span>{{description}}</span></div>{{/each}}
+                                </div>
+                            </div>
+                        </details>
+                        <span class="modifier-helper-error" id="{{errorId}}" data-error-for="path" aria-live="polite" hidden></span>
+                    </div>
+                {{/each}}
+            </div>
+            {{#if variantDescription}}<p class="modifier-description">{{variantDescription}}</p>{{/if}}
+        </section>
+    {{/if}}
+    {{#if fields.length}}
+        <fieldset class="modifier-helper-attributes">
+            <legend>{{localize "splittermond.modifierHelper.attributeHeading"}}</legend>
+            <div class="modifier-helper-field-grid">
+                {{#if valueFirst}}{{> modifierValue}}{{/if}}
+                {{#each fields}}
+                    <div class="modifier-helper-control {{#if wide}}modifier-helper-wide{{/if}}">
+                        <label class="modifier-helper-label" id="{{listId}}-label" for="{{listId}}-input">
+                            <span>{{label}}{{#if required}} <span class="required-mark">*</span>{{else}} <span class="modifier-helper-optional">({{localize "splittermond.modifierHelper.optional"}})</span>{{/if}}</span>
+                        </label>
+                        {{#if searchable}}
+                            {{> attributePicker}}
+                        {{else if suggestions}}
+                            <div class="modifier-picker modifier-feature-combobox">
+                                <div class="modifier-feature-input">
+                                    <input id="{{listId}}-input" type="text" data-attribute="{{key}}" value="{{value}}" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="{{listId}}" aria-errormessage="{{listId}}-error" aria-describedby="{{listId}}-error{{#if hint}} {{listId}}-hint{{/if}}" autocomplete="off" />
+                                    <button type="button" data-feature-toggle aria-label="{{localize 'splittermond.modifierHelper.showFeatures'}}" data-tooltip="{{localize 'splittermond.modifierHelper.showFeatures'}}" tabindex="-1"><i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+                                </div>
+                                <div class="modifier-picker-popup" hidden>
+                                    <div id="{{listId}}" class="modifier-picker-list" role="listbox" aria-labelledby="{{listId}}-label">
+                                        {{#each choices}}<div id="{{../listId}}-option-{{@index}}" role="option" class="modifier-picker-option" data-picker-value="{{value}}" aria-selected="false">{{label}}</div>{{/each}}
+                                    </div>
+                                </div>
+                            </div>
+                        {{else if select}}
+                            <select id="{{listId}}-input" data-attribute="{{key}}" aria-errormessage="{{listId}}-error" aria-describedby="{{listId}}-error{{#if hint}} {{listId}}-hint{{/if}}" {{#if required}}required{{/if}}>
+                                <option value="">{{localize "splittermond.modifierHelper.unspecified"}}</option>
+                                {{#each choices}}
+                                    <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                                {{/each}}
+                            </select>
+                        {{else}}
+                            <input id="{{listId}}-input" type="text" data-attribute="{{key}}" value="{{value}}" aria-errormessage="{{listId}}-error" aria-describedby="{{listId}}-error{{#if hint}} {{listId}}-hint{{/if}}" {{#if required}}required{{/if}} />
+                        {{/if}}
+                        <span class="modifier-helper-error" id="{{listId}}-error" data-error-for="{{key}}" aria-live="polite" hidden></span>
+                        {{#if hint}}<span class="modifier-helper-hint" id="{{listId}}-hint">{{hint}}</span>{{/if}}
+                    </div>
+                    {{#if valueAfter}}{{> modifierValue .. compact=true}}{{/if}}
+                    {{#if isFeature}}
+                        {{#with ../adjustment}}{{> featureAdjustment}}{{/with}}
+                        {{#if ../canAddFeature}}
+                            {{#each ../featureRows}}
+                                <div class="modifier-helper-field-grid modifier-helper-feature-row modifier-helper-wide" data-feature-row="{{id}}">
+                                    {{#with field}}
+                                        <div class="modifier-helper-control {{#if wide}}modifier-helper-wide{{/if}}">
+                                            <label class="modifier-helper-label" id="{{listId}}-label" for="{{listId}}-input"><span>{{label}} <span class="required-mark">*</span></span></label>
+                                            {{> attributePicker}}
+                                            <span class="modifier-helper-error" id="{{listId}}-error" aria-live="polite" hidden></span>
+                                        </div>
+                                    {{/with}}
+                                    {{> modifierValue @root compact=true value=value valueHidden=valueHidden valueErrorId=valueErrorId valueHintId=valueHintId valueLabel=valueLabel valueChoices=valueChoices unsupportedValue=unsupportedValue}}
+                                    {{#with adjustment}}{{> featureAdjustment}}{{/with}}
+                                    <button type="button" class="icon modifier-helper-remove-feature" data-action="removeFeature" data-feature-id="{{id}}" aria-label="{{localize 'splittermond.modifierHelper.removeFeature'}}" data-tooltip="{{localize 'splittermond.modifierHelper.removeFeature'}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                </div>
+                            {{/each}}
+                            <button type="button" class="modifier-helper-add-feature modifier-helper-wide" data-action="addFeature"><i class="fa fa-plus" aria-hidden="true"></i> {{localize "splittermond.modifierHelper.addFeature"}}</button>
+                        {{/if}}
+                    {{/if}}
+                {{/each}}
+            </div>
+        </fieldset>
+    {{/if}}
+    {{#if requiresValue}}{{#unless valueFirst}}{{#unless valueWithAttribute}}{{> modifierValue}}{{/unless}}{{/unless}}{{/if}}
+    </div>
+    <div class="modifier-helper-bottom">
+    {{#if hasResult}}<section class="modifier-helper-preview">
+        <span>{{localize "splittermond.modifierHelper.preview"}}</span>
+        <output aria-label="{{localize 'splittermond.modifierHelper.preview'}}">{{preview}}</output>
+    </section>{{/if}}
+    <p class="modifier-helper-error" data-error-general aria-live="polite" hidden></p>
+    <footer class="form-footer">
+        {{#if multiple}}<button type="button" data-action="addModifier" {{#unless selectedPath}}disabled{{/unless}}><i class="fa fa-plus" aria-hidden="true"></i> {{localize "splittermond.modifierHelper.addAnother"}}</button>{{/if}}
+        <button type="button" data-action="applyModifier" {{#unless hasResult}}disabled{{/unless}}><i class="fa fa-check" aria-hidden="true"></i> {{localize "splittermond.modifierHelper.apply"}}</button>
+        <button type="button" data-action="cancel"><i class="fa fa-times" aria-hidden="true"></i> {{localize "splittermond.cancel"}}</button>
+    </footer>
+    </div>
+</div>

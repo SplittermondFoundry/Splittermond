@@ -361,6 +361,7 @@ splittermond.itemSheetProperties = {
                 },
                 {
                     field: "system.modifier",
+                    placeholderText: "splittermond.modifierDeprecatedPlaceholder",
                     label: "splittermond.modifier",
                     template: "input",
                     help: "splittermond.modificatorHelpText",
@@ -394,6 +395,7 @@ splittermond.itemSheetProperties = {
                 },
                 {
                     field: "system.modifier",
+                    placeholderText: "splittermond.modifierDeprecatedPlaceholder",
                     label: "splittermond.modifier",
                     template: "input",
                     help: "splittermond.modificatorHelpText",
@@ -422,6 +424,7 @@ splittermond.itemSheetProperties = {
                 },
                 {
                     field: "system.modifier",
+                    placeholderText: "splittermond.modifierDeprecatedPlaceholder",
                     label: "splittermond.modifier",
                     template: "input",
                     help: "splittermond.modificatorHelpText",
@@ -475,6 +478,7 @@ splittermond.itemSheetProperties = {
                 },
                 {
                     field: "system.modifier",
+                    placeholderText: "splittermond.modifierDeprecatedPlaceholder",
                     label: "splittermond.modifier",
                     template: "input",
                     help: "splittermond.modificatorHelpText",
@@ -540,6 +544,7 @@ splittermond.itemSheetProperties = {
                 },
                 {
                     field: "system.modifier",
+                    placeholderText: "splittermond.modifierDeprecatedPlaceholder",
                     label: "splittermond.modifier",
                     template: "input",
                     help: "splittermond.modificatorHelpText",
@@ -553,6 +558,7 @@ splittermond.itemSheetProperties = {
             properties: [
                 {
                     field: "system.modifier",
+                    placeholderText: "splittermond.modifierDeprecatedPlaceholder",
                     label: "splittermond.modifier",
                     template: "input",
                     help: "splittermond.modificatorHelpText",
@@ -930,6 +936,7 @@ splittermond.itemSheetProperties.npcfeature = [
         properties: [
             {
                 field: "system.modifier",
+                placeholderText: "splittermond.modifierDeprecatedPlaceholder",
                 label: "splittermond.modifier",
                 template: "input",
                 help: "splittermond.modificatorHelpText",

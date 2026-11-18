@@ -23,7 +23,12 @@ export function registerResourcePointsHandlers(registry: ModifierRegistry<Scalar
 
 function ResourcePointsHandler(topLevelPath: ResourcePoints | `actor.${ResourcePoints}`) {
     const slug = topLevelPath.replace(/^actor\./, "") as ResourcePoints;
-    return class extends BarebonesModifierHandler({ topLevelPath, subSegments: { bonus: {} } }) {
+    return class extends BarebonesModifierHandler({
+        topLevelPath,
+        helperAlias: topLevelPath === slug ? `actor.${slug}` : undefined,
+        description: `splittermond.modifierHelper.descriptions.${slug}`,
+        subSegments: { bonus: { description: "splittermond.modifierHelper.descriptions.resourceBonus" } },
+    }) {
         protected buildModifier(modifier: ScalarModifier): IModifier[] {
             const canonicalGroupId = modifier.path.toLowerCase().endsWith(".bonus") ? `actor.${slug}.bonus` : slug;
             return super
