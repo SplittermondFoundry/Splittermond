@@ -1,6 +1,10 @@
 import { CombatPauseType } from "module/combat/index.js";
 import { askUserForTickAddition } from "module/combat/TickAdditionDialog.js";
 import { foundryApi } from "../api/foundryApi";
+import { FoundryCombat } from "module/api/Combat";
+import { elapsedCombatSeconds } from "module/worldTime/time";
+import { recordsCombatTime } from "module/worldTime/settings";
+import { queueWorldTimeChange } from "module/worldTime/service";
 
 /**
  * @param {SplittermondCombat} instance
@@ -14,14 +18,24 @@ foundryApi.hooks.on("combatStart", combatStartHook);
 /**
  * @param {SplittermondCombat} instance
  * @param {{round:number,turn:number}} updateData
+ * @param {{worldTime:{delta:number},diff?:boolean}} updateOptions
  */
-function combatRoundHook(instance, updateData) {
+function combatRoundHook(instance, updateData, updateOptions) {
     updateData.round = instance.calculateCurrentRound();
     updateData.turn = 0;
+    updateOptions.worldTime.delta = recordsCombatTime() ? instance.worldTimeDelta : 0;
+    // Negative ticks and tick 0 share round 1; retain the update carrying their elapsed time.
+    if (updateOptions.worldTime.delta !== 0) updateOptions.diff = false;
 }
 foundryApi.hooks.on("combatRound", combatRoundHook);
 
-export default class SplittermondCombat extends Combat {
+export default class SplittermondCombat extends FoundryCombat {
+    worldTimeDelta = 0;
+
+    getTimeDelta() {
+        // Foundry rounds clamp negative ticks to 1. Only an actual tick move supplies elapsed time.
+        return 0;
+    }
     _sortCombatants(a, b) {
         let iniA = parseFloat(a.initiative);
         let iniB = parseFloat(b.initiative);
@@ -75,6 +89,10 @@ export default class SplittermondCombat extends Combat {
     }
 
     async setInitiative(id, value, first = false) {
+        return queueWorldTimeChange(() => this.applyInitiative(id, value, first));
+    }
+
+    async applyInitiative(id, value, first = false, recordTime = true) {
         value = Math.round(value);
         if (value < CombatPauseType.wait) {
             if (!first) {
@@ -92,11 +110,19 @@ export default class SplittermondCombat extends Combat {
             }
         }
 
+        const previousTick = this.currentTick;
         await this.combatants.get(id).update({
             initiative: value,
         });
         if (this.started) {
-            await this.nextRound(); // I honestly have no clue what this is for.
+            this.worldTimeDelta = recordTime
+                ? elapsedCombatSeconds(previousTick, this.currentTick, CombatPauseType.wait)
+                : 0;
+            try {
+                await this.nextRound();
+            } finally {
+                this.worldTimeDelta = 0;
+            }
         }
     }
 
@@ -128,20 +154,23 @@ export default class SplittermondCombat extends Combat {
     }
 
     async rollInitiative(ids, { formula = null, updateTurn = true, messageOptions = {} } = {}) {
-        await super.rollInitiative(ids, {
-            formulaToDisplay: formula,
-            updateTurn: updateTurn,
-            messageOptions: messageOptions,
-        });
+        return queueWorldTimeChange(async () => {
+            await super.rollInitiative(ids, {
+                formulaToDisplay: formula,
+                updateTurn: updateTurn,
+                messageOptions: messageOptions,
+            });
 
-        if (this.started) {
-            let tick = this.currentTick;
-            for (const id of Array.isArray(ids) ? ids : [ids]) {
-                let combatant = this.combatants.get(id);
-                await this.setInitiative(combatant.id, Math.max(combatant.initiative + tick, tick));
+            if (this.started) {
+                let tick = this.currentTick;
+                for (const id of Array.isArray(ids) ? ids : [ids]) {
+                    let combatant = this.combatants.get(id);
+                    // Establishing initiative changes the order, but does not consume adventure time.
+                    await this.applyInitiative(combatant.id, Math.max(combatant.initiative + tick, tick), false, false);
+                }
+                return this.nextRound();
             }
-            return this.nextRound();
-        }
+        });
     }
 
     /**

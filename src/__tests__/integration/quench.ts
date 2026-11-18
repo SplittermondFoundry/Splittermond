@@ -10,6 +10,7 @@ import { registerMigrationBatches } from "./migrations";
 import { registerInfrastructureBatches } from "./infrastructure";
 import { registerActorBatches } from "./actor";
 import { registerItemBatches } from "./item";
+import { worldTimeTests } from "./worldTime.test";
 import { sheetDropsTest } from "./sheetDrops.test";
 
 declare const Hooks: any;
@@ -32,6 +33,7 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.applications", applicationTests);
     quench.registerBatch("splittermond.sheetDrops", sheetDropsTest);
     quench.registerBatch("splittermond.combat", combatTest);
+    quench.registerBatch("splittermond.worldTime", worldTimeTests);
     quench.registerBatch("splittermond.chatSystem", chatActionFeatureTest);
     quench.registerBatch("splittermond.damageProcessing", DamageProcessingTest);
     quench.registerBatch("splittermond.activeEffectConfig", activeEffectTest);
