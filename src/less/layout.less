@@ -79,7 +79,7 @@
 
         .character-details {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
             gap: @paddingMedium;
 
             label {
@@ -89,7 +89,7 @@
             }
 
             label > span:first-child {
-                flex: 0 0 110px;
+                flex: 0 0 100px;
             }
 
             input {
