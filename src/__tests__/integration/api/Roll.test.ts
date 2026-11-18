@@ -30,10 +30,14 @@ export function foundryRollTest(context: QuenchBatchContext) {
 
     describe("test API", () => {
         it("should fail if 1000 dice or more are requested", async () => {
-            foundryApi
+            await foundryApi
                 .roll("1000d6")
                 .evaluate()
-                .then(() => expect.fail("Expected test to throw an error"));
+                .then(
+                    () => expect.fail("Expected test to throw an error"),
+                    (error: unknown) =>
+                        expect(error).to.be.instanceOf(Error).with.property("message").that.includes("999")
+                );
         });
 
         it("should return a roll object", async () => {

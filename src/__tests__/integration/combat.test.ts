@@ -5,7 +5,7 @@ import type { SplittermondActiveEffect } from "module/activeEffect/SplittermondA
 import sinon, { type SinonSandbox } from "sinon";
 import type { FoundryCombatant, FoundryScene } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
-import { useScene, withActor } from "./fixtures";
+import { deleteActorMessages, deleteTestCombats, useScene, withActor } from "./fixtures";
 import { actorCreator } from "module/data/EntityCreator";
 import { expect } from "chai";
 import { passesEventually } from "../util";
@@ -25,10 +25,10 @@ export function combatTest(context: QuenchBatchContext) {
     beforeEach(() => (sandbox = sinon.createSandbox()));
 
     afterEach(async () => {
-        await Combat.deleteDocuments(combats.map((c) => c.id));
-        ui.combat.viewed = null;
+        await deleteTestCombats(combats.map((c) => c.id));
+        await deleteActorMessages(actors.map((a) => a.id));
         await Actor.deleteDocuments(actors.map((a) => a.id));
-        tokens.forEach((t) => t.actor?.sheet.close());
+        await Promise.all(tokens.map((t) => t.actor?.sheet.close()));
         await scene.deleteEmbeddedDocuments(
             "Token",
             tokens.map((t) => t.id)
@@ -40,7 +40,7 @@ export function combatTest(context: QuenchBatchContext) {
     });
 
     async function createActiveCombat() {
-        const combat = (await Combat.create({})) as SplittermondCombat;
+        const combat = (await Combat.create({ scene: scene.id })) as SplittermondCombat;
         combats.push(combat);
         await combat.update({ active: true });
         await combat.startCombat();
@@ -202,9 +202,7 @@ export function combatTest(context: QuenchBatchContext) {
         });
 
         it("does not start an existing timed effect's duration when its actor is drawn into a newly-started combat (core behavior)", async () => {
-            // Create an actor carrying a timed effect BEFORE any combat exists, so the
-            // effect's duration clock has not started yet.
-            await Combat.deleteDocuments(Array.from(foundryApi.combats.keys()));
+            // Leave other scenes' combats intact while creating an effect outside combat.
             ui.combat.viewed = null;
             const actor = await actorCreator.createCharacter({
                 type: "character",

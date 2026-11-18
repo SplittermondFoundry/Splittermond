@@ -27,3 +27,5 @@ export function passesEventually(expectation: () => void, timeout = 500, interva
 export function promiseIdentity<T>(input: T): Promise<T> {
     return Promise.resolve(input);
 }
+
+export { passesEventually as retryFor };

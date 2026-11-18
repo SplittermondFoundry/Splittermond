@@ -440,6 +440,49 @@ describe("FocusCostActionHandler", () => {
     });
 
     describe("useAction", () => {
+        it("should wait for the cost update before resolving without a value", async () => {
+            const underTest = setUpFocusActionHandler(sandbox);
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
+            const agent = underTest.casterReference.getAgent();
+            let finishUpdate!: () => void;
+            const update = new Promise<void>((resolve) => (finishUpdate = resolve));
+            agent.applyCost.returns(update);
+
+            const action = underTest.useAction({ action: "consumeCosts" });
+            let completed = false;
+            const completion = action.then(() => (completed = true));
+            try {
+                await Promise.resolve();
+                expect(agent.applyCost.calledOnce).to.be.true;
+                expect(completed, "the action must remain pending while costs are being persisted").to.be.false;
+
+                finishUpdate();
+                expect(await action).to.equal(undefined);
+            } finally {
+                finishUpdate();
+                await completion;
+            }
+        });
+
+        it("should propagate a rejected cost update", async () => {
+            const underTest = setUpFocusActionHandler(sandbox);
+            underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
+            const agent = underTest.casterReference.getAgent();
+            const failure = new Error("Could not persist focus costs");
+            let failUpdate!: (reason: Error) => void;
+            const update = new Promise<never>((_resolve, reject) => (failUpdate = reject));
+            // Observe the dependency too, so the broken implementation cannot leak an unhandled rejection.
+            const updateResult = update.catch((error: unknown) => error);
+            agent.applyCost.returns(update);
+
+            const action = underTest.useAction({ action: "consumeCosts" });
+            const actionResult = action.catch((error: unknown) => error);
+            failUpdate(failure);
+
+            expect(await updateResult).to.equal(failure);
+            expect(await actionResult, "the action must reject with the persistence error").to.equal(failure);
+        });
+
         it("should consume cost and mark handler as used when useAction is called", async () => {
             const underTest = setUpFocusActionHandler(sandbox);
             underTest.checkReportReference.get().degreeOfSuccess = { fromRoll: 0, modification: 0, limitedTo: 999 };
