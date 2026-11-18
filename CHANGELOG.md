@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Features
+
+- Zauber können abweichende verstärkte Werte erhalten. Nicht überschriebene Eigenschaften folgen dem Normalwert; leere oder identische Eingaben stellen diese Übernahme wieder her. Die Verstärkungsauswahl einer Probe berücksichtigt Schaden, Merkmale und Schadensarten.
+
 ### Fixes
 
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.

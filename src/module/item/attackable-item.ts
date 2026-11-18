@@ -42,7 +42,8 @@ function AttackableItem<TBase extends Constructor<SplittermondItem>>(Base: TBase
 
         get featuresList() {
             if ("features" in this.system && this.system.features) {
-                return this.system.features.featuresAsStringList();
+                const features = "base" in this.system.features ? this.system.features.base : this.system.features;
+                return features.featuresAsStringList();
             } else {
                 return [];
             }

@@ -35,9 +35,7 @@ describe("Genesis Spell Import", () => {
                     triedToFindDocument: false,
                 },
                 costs: "4V1",
-                damage: {
-                    stringInput: null,
-                },
+                damage: { base: { stringInput: null }, enhanced: null },
                 degreeOfSuccessOptions: {
                     castDuration: true,
                     channelizedFocus: false,
@@ -50,13 +48,11 @@ describe("Genesis Spell Import", () => {
                 },
                 description: "I",
                 difficulty: "KW",
-                effectDuration: "",
+                effectDuration: { base: "", enhanced: null },
                 enhancementCosts: "1 EG/+1V1",
                 enhancementDescription: "Das Ziel erhält den Zustand Geblendet 2.",
-                features: {
-                    internalFeatureList: [],
-                },
-                range: "5m",
+                features: { base: { internalFeatureList: [] }, enhanced: null },
+                range: { base: "5m", enhanced: null },
                 skill: "lightmagic",
                 skillLevel: 1,
             },
@@ -83,9 +79,7 @@ describe("Genesis Spell Import", () => {
                     triedToFindDocument: false,
                 },
                 costs: "K1",
-                damage: {
-                    stringInput: null,
-                },
+                damage: { base: { stringInput: null }, enhanced: null },
                 degreeOfSuccessOptions: {
                     castDuration: true,
                     channelizedFocus: true,
@@ -98,14 +92,12 @@ describe("Genesis Spell Import", () => {
                 },
                 description: "",
                 difficulty: "GW",
-                effectDuration: "K",
+                effectDuration: { base: "K", enhanced: null },
                 enhancementCosts: "2 EG/+K1V1",
                 enhancementDescription:
                     "Die Einstellung verbessert sich um insgesamt 2 Stufen (maximal auf Hilfsbereit).",
-                features: {
-                    internalFeatureList: [],
-                },
-                range: "Ber.",
+                features: { base: { internalFeatureList: [] }, enhanced: null },
+                range: { base: "Ber.", enhanced: null },
                 skill: "controlmagic",
                 skillLevel: 0,
             },
@@ -135,7 +127,7 @@ describe("Genesis Spell Import", () => {
             enhancementOptions: "Auslösezeit, Kanalisierter Fokus, Verzehrter Fokus",
         });
 
-        expect(importedSpell?.system.damage.stringInput).to.equal("1W6");
+        expect(importedSpell?.system.damage.base.stringInput).to.equal("1W6");
     });
 
     it("should import damage from description", () => {
@@ -158,7 +150,7 @@ describe("Genesis Spell Import", () => {
             enhancementOptions: "Auslösezeit, Erschöpfter Fokus, Verzehrter Fokus, Reichweite",
         });
 
-        expect(importedSpell?.system.damage.stringInput).to.equal("1W6");
+        expect(importedSpell?.system.damage.base.stringInput).to.equal("1W6");
     });
 
     it("should recognize several errors at once", () => {

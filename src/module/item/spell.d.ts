@@ -4,6 +4,7 @@ import { SpellDataModelType } from "./dataModel/SpellDataModel";
 import { DamageInitializer } from "../util/chat/damageChatMessage/initDamage";
 import type { PrimaryCost } from "module/util/costs/PrimaryCost";
 import type { CastDurationModel } from "module/item/dataModel/propertyModels/CastDurationModel";
+import type { SpellValues } from "./spellValues";
 
 type ProtoDamageImplement = Parameters<typeof DamageInitializer.rollFromDamageRoll>[0][number];
 declare class SplittermondSpellItem extends AttackableItem(SplittermondItem) {
@@ -33,7 +34,12 @@ declare class SplittermondSpellItem extends AttackableItem(SplittermondItem) {
 
     roll(options: any): Promise<boolean>;
     getCostsForFinishedRoll(degreeOfSuccess: number, successful: boolean): PrimaryCost;
-    getForDamageRoll(): { principalComponent: ProtoDamageImplement; otherComponents: ProtoDamageImplement[] };
+    getValues(options?: { enhanced?: boolean }): SpellValues;
+    getDamage(options?: { enhanced?: boolean }): string;
+    getForDamageRoll(options?: { enhanced?: boolean }): {
+        principalComponent: ProtoDamageImplement;
+        otherComponents: ProtoDamageImplement[];
+    };
 }
 
 export default SplittermondSpellItem;
