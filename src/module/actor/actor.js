@@ -1287,17 +1287,10 @@ export default class SplittermondActor extends Actor {
             checkMessageData.difficulty,
             checkMessageData.rollType
         );
-        if (
-            checkData.succeeded &&
-            parseInt(checkMessageData.skillPoints) === 0 &&
-            message.rolls[0]._total - checkMessageData.difficulty >= 3
-        ) {
-            checkData.degreeOfSuccess.fromRoll += 1;
-        }
-
         checkMessageData.succeeded = checkData.succeeded;
         checkMessageData.degreeOfSuccess = {
             ...checkData.degreeOfSuccess,
+            fromRoll: Math.min(checkData.degreeOfSuccess.fromRoll, checkMessageData.degreeOfSuccess.limitedTo),
             modification: checkMessageData.degreeOfSuccess.modification,
             limitedTo: checkMessageData.degreeOfSuccess.limitedTo,
         };

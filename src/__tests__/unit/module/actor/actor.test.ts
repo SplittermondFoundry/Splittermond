@@ -493,6 +493,87 @@ describe("SplittermondActor", () => {
             };
             expect(passedCheckData.degreeOfSuccess.modification).to.equal(2);
         });
+
+        function prepareSplinterpointRecalculation(total: number, points: number, limit: number) {
+            sandbox.stub(foundryApi, "localize").callsFake((key) => key);
+            actor.prepareBaseData();
+            asCharacter(actor).updateSource({ splinterpoints: { value: 1, max: 3 } });
+            sandbox.stub(Chat, "prepareCheckMessageData").resolves({
+                content: "rendered",
+                flags: { splittermond: { check: {} } },
+            });
+            const message = createLegacySkillCheckMessage();
+            message.rolls[0] = createTestRoll("2d10", [4, 4], total - 8);
+            const check = message.flags.splittermond.check;
+            check.skillPoints = points;
+            check.succeeded = total >= 15;
+            check.degreeOfSuccess.fromRoll = Math.min(Math.trunc((total - 15) / 3), limit);
+            check.degreeOfSuccess.limitedTo = limit;
+            return message;
+        }
+
+        it("given an untrained success, when spending a splinterpoint, then positive roll EG stay capped and bonus EG are preserved", async () => {
+            const message = prepareSplinterpointRecalculation(15, 0, 0);
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(message.rolls[0]._total).to.equal(18);
+            expect(message.flags.splittermond.check.succeeded, "The untrained check remains successful").to.equal(true);
+            expect(message.flags.splittermond.check.degreeOfSuccess).to.deep.equal({
+                fromRoll: 0,
+                modification: 2,
+                limitedTo: 0,
+            });
+            expect(asCharacter(actor).splinterpoints.value).to.equal(0);
+        });
+
+        it("given an untrained failure, when a splinterpoint leaves it below difficulty, then negative roll EG and bonus EG are preserved", async () => {
+            const message = prepareSplinterpointRecalculation(9, 0, 0);
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(message.rolls[0]._total).to.equal(12);
+            expect(message.flags.splittermond.check.succeeded, "The check remains below difficulty 15").to.equal(false);
+            expect(message.flags.splittermond.check.degreeOfSuccess).to.deep.equal({
+                fromRoll: -1,
+                modification: 2,
+                limitedTo: 0,
+            });
+            expect(asCharacter(actor).splinterpoints.value).to.equal(0);
+        });
+
+        it("given an untrained failure, when a splinterpoint reaches difficulty exactly, then the check succeeds with zero roll EG and preserved bonus EG", async () => {
+            const message = prepareSplinterpointRecalculation(12, 0, 0);
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(message.rolls[0]._total).to.equal(15);
+            expect(
+                message.flags.splittermond.check.succeeded,
+                "Reaching difficulty 15 changes failure to success"
+            ).to.equal(true);
+            expect(message.flags.splittermond.check.degreeOfSuccess).to.deep.equal({
+                fromRoll: 0,
+                modification: 2,
+                limitedTo: 0,
+            });
+            expect(asCharacter(actor).splinterpoints.value).to.equal(0);
+        });
+
+        it("given a trained success, when spending a splinterpoint, then an additional roll EG is granted and bonus EG are preserved", async () => {
+            const message = prepareSplinterpointRecalculation(15, 5, 999);
+
+            await actor.useSplinterpointBonus(message);
+
+            expect(message.rolls[0]._total).to.equal(18);
+            expect(message.flags.splittermond.check.succeeded, "The trained check remains successful").to.equal(true);
+            expect(message.flags.splittermond.check.degreeOfSuccess).to.deep.equal({
+                fromRoll: 1,
+                modification: 2,
+                limitedTo: 999,
+            });
+            expect(asCharacter(actor).splinterpoints.value).to.equal(0);
+        });
     });
 
     describe("Modifiers", () => {
