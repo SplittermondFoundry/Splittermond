@@ -2,6 +2,7 @@
 
 ### Fixes
 
+- Lange Zustandsintervalle oder Kämpfe über Tick 1000 setzen das Ende der Tickleiste nicht mehr auf Tick 50 zurück.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
 - Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
 
