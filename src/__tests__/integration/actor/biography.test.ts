@@ -65,7 +65,17 @@ export function biographyTest({ describe, it, expect }: QuenchBatchContext) {
             it(
                 `imports all six Genesis details in ${mode.name} mode without changing the size class`,
                 withActor(async (actor) => {
-                    await actor.update({ system: { ...details, eyeColor: "grün", species: { size: 5 } } });
+                    await actor.update({
+                        system: {
+                            hairColor: "braun",
+                            eyeColor: "grün",
+                            skinColor: "gebräunt",
+                            height: "1,75 m",
+                            weight: "80 kg",
+                            birthplace: "Arwingen",
+                            species: { size: 5 },
+                        },
+                    });
                     const data = {
                         ...genesis,
                         hairColor: "weißblond",
@@ -144,16 +154,30 @@ export function biographyTest({ describe, it, expect }: QuenchBatchContext) {
         );
 
         it(
-            "renders details as text when the character sheet is not editable",
+            "renders read-only details without overflowing their columns",
             withActor(async (actor) => {
-                await actor.update({ system: { ...details, biography: "<p>Geschichte</p><p>Zweiter Absatz</p>" } });
+                const readOnlyDetails = {
+                    ...details,
+                    hairColor: "dunkelkastanienbraun",
+                    birthplace: "Kristallmondhafen",
+                };
+                await actor.update({
+                    system: { ...readOnlyDetails, biography: "<p>Geschichte</p><p>Zweiter Absatz</p>" },
+                });
                 const sheet = new ReadOnlyCharacterSheet({ document: actor });
                 try {
                     await sheet.render({ force: true });
                     sheet.changeTab("editor", "primary");
                     expect(sheet.element.querySelector(".character-details input")).to.be.null;
-                    for (const value of Object.values(details)) {
+                    for (const value of Object.values(readOnlyDetails)) {
                         expect(sheet.element.querySelector(".character-details")?.textContent).to.include(value);
+                    }
+                    for (const label of sheet.element.querySelectorAll(".character-details label")) {
+                        const text = label.ownerDocument.createRange();
+                        text.selectNodeContents(label.lastElementChild!);
+                        expect(text.getBoundingClientRect().right, label.textContent ?? "detail column").to.be.at.most(
+                            label.getBoundingClientRect().right + 1
+                        );
                     }
                     const biography = sheet.element.querySelector(".character-biography > :last-child");
                     expect(biography?.querySelectorAll("p")).to.have.length(2);
