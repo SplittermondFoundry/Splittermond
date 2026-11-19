@@ -223,6 +223,23 @@ describe("TickBarHud", () => {
                 });
             }
 
+            it("keeps at most 1001 tick fields when moving a combatant back from tick 200 to 150", async () => {
+                const { combatant } = createCombatWithStatus(200, { times: 90 });
+                const hud = new TickBarHud();
+                const before = await hud._prepareContext({ parts: [] });
+                expect(before.ticks).to.have.length(1001);
+                expect(before.ticks[0]?.tickNumber).to.equal(200);
+                expect(before.ticks[before.ticks.length - 1]?.tickNumber).to.equal(1200);
+
+                sandbox.stub(combatant, "initiative").value(150);
+                const after = await hud._prepareContext({ parts: [] });
+
+                expect(after.ticks).to.have.length(1001);
+                expect(after.ticks[0]?.tickNumber).to.equal(150);
+                expect(after.ticks[after.ticks.length - 1]?.tickNumber).to.equal(1150);
+                expect(after.ticks[0].combatants.map((entry) => entry.id)).to.include(combatant.id);
+            });
+
             for (const interval of [NaN, Infinity]) {
                 it(`keeps the current combatant visible when a condition produces a non-finite maximum (${interval})`, async () => {
                     const { combatant } = createCombatWithStatus(60, { interval, times: 1 });
