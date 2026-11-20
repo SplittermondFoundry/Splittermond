@@ -137,6 +137,12 @@ function createCharacterData(
         culture: "Urban",
         education: "Scholar",
         biography: "<p>Test biography</p>",
+        hairColor: "",
+        eyeColor: "",
+        skinColor: "",
+        height: "",
+        weight: "",
+        birthplace: "",
         attributes: {
             charisma: attribute(2),
             agility: attribute(3),

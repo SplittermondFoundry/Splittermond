@@ -21,6 +21,7 @@ import { ItemFeaturesModel } from "../item/dataModel/propertyModels/ItemFeatures
 import { DamageModel } from "../item/dataModel/propertyModels/DamageModel";
 import { InverseModifier, SplittermondActiveEffect } from "module/activeEffect";
 import { genesisSpellImport } from "./genesisImport/spellImport";
+import { genesisBiographyImport } from "./genesisImport/biographyImport";
 import { addTicks } from "module/combat/addTicks";
 import { rollAttackFumble, rollMagicFumble } from "module/actor/fumble";
 import { FoundryDialog } from "module/api/Application.js";
@@ -873,7 +874,7 @@ export default class SplittermondActor extends Actor {
         let newData = this.toObject();
         let newItems = [];
         const effectAssignments = new Map();
-        newData.system = {};
+        newData.system = genesisBiographyImport(genesisData);
 
         newData.system.species = {
             value: genesisData.race,

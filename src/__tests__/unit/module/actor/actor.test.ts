@@ -51,6 +51,12 @@ describe("SplittermondActor", () => {
             culture: "Urban",
             education: "Scholar",
             biography: "<p>Test biography</p>",
+            hairColor: "",
+            eyeColor: "",
+            skinColor: "",
+            height: "",
+            weight: "",
+            birthplace: "",
             attributes: {
                 charisma: new CharacterAttribute({ initial: 2, species: 0, advances: 0 }),
                 agility: new CharacterAttribute({ initial: 3, species: 0, advances: 0 }),

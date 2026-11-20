@@ -5,9 +5,11 @@ import { modifierTest } from "./modifier.test";
 import { activeEffectMultiplierTest } from "./activeEffectMultiplier.test";
 import { actorTest } from "./actor.test";
 import { fearConditionTest } from "./fearCondition.test";
+import { biographyTest } from "./biography.test";
 
 export function registerActorBatches(register: BatchRegistrar) {
     register("main", actorTest);
+    register("biography", biographyTest);
     register("healthFocus", healthFocusTest);
     register("healthBonus", healthBonusTest);
     register("modifier", modifierTest);

@@ -9,6 +9,14 @@
         }
     },
     "splittermond": {
+        "biographyDetails": {
+            "hairColor": "Hair color",
+            "eyeColor": "Eye color",
+            "skinColor": "Skin/fur color",
+            "height": "Height",
+            "weight": "Weight",
+            "birthplace": "Birthplace"
+        },
         "notATactician": "Not a 'Taktiker'",
         "magicFumbleSorcerer": "Fumbled Spell (Sorcerer)",
         "magicFumblePriest": "Fumbled Spell (Priest)",
