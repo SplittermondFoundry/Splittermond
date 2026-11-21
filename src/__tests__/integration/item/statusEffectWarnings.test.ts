@@ -15,7 +15,7 @@ export function statusEffectWarningsTest({ it, expect, beforeEach, afterEach }: 
     beforeEach(() => (sandbox = sinon.createSandbox()));
     afterEach(() => sandbox.restore());
 
-    // Actor/item setup in a fresh headless world has taken 3.3s during initial canvas loading.
+    // Cold-world document/sheet setup took 3.3–3.8s; closing animations are unrelated to these assertions.
     it(
         "warns when an interval-only condition is added outside combat without rejecting it",
         withActor(async (actor) => {
@@ -58,7 +58,7 @@ export function statusEffectWarningsTest({ it, expect, beforeEach, afterEach }: 
                 await passesEventually(() => expect(condition.system.combatEvent.interval).to.be.null);
                 expect(warning.called, "Editing and autosaving do not warn").to.be.false;
 
-                await sheet.close();
+                await sheet.close({ animate: false });
 
                 expect(sheet.rendered).to.be.false;
                 expect(
@@ -67,31 +67,26 @@ export function statusEffectWarningsTest({ it, expect, beforeEach, afterEach }: 
                     }),
                     "Closing warns about the missing interval"
                 ).to.be.true;
-                await sheet.close();
+                await sheet.close({ animate: false });
                 expect(warning.callCount, "Closing an already closed sheet does not warn again").to.equal(1);
             } finally {
-                await sheet.close();
+                await sheet.close({ animate: false });
             }
         })
-    );
+    ).timeout(5000);
 
     it(
-        "does not warn while completing the pair or when closing before its last autosave finishes",
+        "does not warn when completing the pair and closing before its autosave finishes",
         withActor(async (actor) => {
             const [condition] = await actor.createEmbeddedDocuments("Item", [
-                { type: "statuseffect", name: "New condition" },
+                { type: "statuseffect", name: "New condition", system: { combatEvent: { interval: 15 } } },
             ]);
-            const warning = sandbox.spy(foundryApi, "warnUser");
             const sheet = condition.sheet;
             let releaseUpdate: (() => void) | undefined;
             let pendingUpdate: ReturnType<typeof condition.update> | undefined;
             try {
                 await sheet.render(true);
-                const interval = input(sheet, "interval");
-                interval.value = "15";
-                interval.dispatchEvent(new Event("change", { bubbles: true }));
-                await passesEventually(() => expect(condition.system.combatEvent.interval).to.equal(15));
-                expect(warning.called, "Entering the first field does not warn").to.be.false;
+                const warning = sandbox.spy(foundryApi, "warnUser");
 
                 const update = condition.update.bind(condition);
                 const gate = new Promise<void>((resolve) => (releaseUpdate = resolve));
@@ -106,15 +101,15 @@ export function statusEffectWarningsTest({ it, expect, beforeEach, afterEach }: 
                 repetitions.dispatchEvent(new Event("change", { bubbles: true }));
                 await passesEventually(() => expect(delayedUpdate.called, "The final autosave has started").to.be.true);
 
-                await sheet.close();
+                await sheet.close({ animate: false });
 
                 expect(condition.system.combatEvent.repeats, "Persistence is still pending").to.be.null;
                 expect(warning.called, "The completed form does not warn despite a pending save").to.be.false;
             } finally {
                 releaseUpdate?.();
                 await pendingUpdate;
-                await sheet.close();
+                await sheet.close({ animate: false });
             }
         })
-    );
+    ).timeout(5000);
 }

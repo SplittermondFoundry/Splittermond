@@ -8,7 +8,9 @@ import { withActor } from "./fixtures";
 import { passesEventually } from "../util";
 import sinon from "sinon";
 
-declare const ui: { combat: { viewed: unknown } };
+declare const ui: {
+    combat: { viewed: unknown; render(options: { force: boolean }): Promise<unknown> };
+};
 
 function withCombat(
     test: (
@@ -20,8 +22,10 @@ function withCombat(
 ) {
     return withActor(async (actor) => {
         const previousViewed = ui.combat.viewed;
+        const previousActiveCombats = foundryApi.combats.filter((entry) => entry.isActive);
         const combat = (await Combat.create({ active: true })) as SplittermondCombat;
         try {
+            ui.combat.viewed = combat;
             const [combatant] = (await combat.createEmbeddedDocuments("Combatant", [
                 { type: "base", actorId: actor.id, tokenId: null, defeated: false, group: null },
             ])) as FoundryCombatant[];
@@ -30,8 +34,24 @@ function withCombat(
             if (!(hud instanceof TickBarHud)) throw new Error("Tick bar HUD was not initialized");
             await test(actor, combat, combatant, hud);
         } finally {
-            await combat.delete();
-            ui.combat.viewed = previousViewed;
+            try {
+                // Drain sidebar renders before deleting the document they still reference.
+                try {
+                    await ui.combat.render({ force: true });
+                } finally {
+                    ui.combat.viewed = null;
+                    await combat.delete();
+                }
+            } finally {
+                try {
+                    await Promise.all(
+                        previousActiveCombats.map((entry) => entry.update({ active: true }, { render: false }))
+                    );
+                } finally {
+                    ui.combat.viewed = previousViewed;
+                    await ui.combat.render({ force: true });
+                }
+            }
         }
     });
 }
@@ -80,6 +100,12 @@ export function tickBarHudTest({ it, expect }: QuenchBatchContext) {
             const sheet = condition.sheet;
             try {
                 await sheet.render(true);
+                // Wait for the initial HUD before editing; document creation can finish before its render.
+                await passesEventually(() => {
+                    expect(condition.system.combatEvent.startTick).to.equal(75);
+                    expect(hud.element.querySelector('[data-tick="75"] .tick-bar-hud-status-effect-list-item')).not.to
+                        .be.null;
+                });
                 const repetitions = sheet.element.querySelector('input[name="system.combatEvent.repeats"]');
                 if (!(repetitions instanceof HTMLInputElement)) throw new Error("Repetition input was not found");
 
@@ -96,7 +122,7 @@ export function tickBarHudTest({ it, expect }: QuenchBatchContext) {
                         hud.element.querySelector('[data-tick="75"] .tick-bar-hud-status-effect-list-item'),
                         "Next condition marker remains visible"
                     ).not.to.be.null;
-                    expect(hud.element.querySelectorAll(".tick-bar-hud-ticks-scroll [data-tick]").length).to.be.at.most(
+                    expect(hud.element.querySelectorAll(".tick-bar-hud-ticks-scroll [data-tick]").length).to.equal(
                         1001
                     );
                 });
@@ -117,7 +143,7 @@ export function tickBarHudTest({ it, expect }: QuenchBatchContext) {
                     );
                 });
             } finally {
-                await sheet.close();
+                await sheet.close({ animate: false });
             }
         })
     ).timeout(5000);
@@ -151,7 +177,7 @@ export function tickBarHudTest({ it, expect }: QuenchBatchContext) {
                     expect(hud.element.querySelector(".tick-bar-hud-status-effect-list-item")).to.be.null;
                 });
             } finally {
-                await sheet.close();
+                await sheet.close({ animate: false });
             }
         })
     );
