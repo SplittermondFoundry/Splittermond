@@ -59,6 +59,56 @@ export function combatSceneBindingTests(context: QuenchBatchContext) {
         );
 
         it(
+            "links a second combat created through the tracker plus action to the viewed scene",
+            withCombatScene(async (scene, combats) => {
+                const existingCombat = (await Combat.create({ scene: scene.id, active: true })) as FoundryCombat;
+                await ui.combat.render({ force: true });
+                expect(ui.combat.viewed).to.equal(existingCombat);
+                const button = ui.combat.element.querySelector<HTMLElement>('[data-action="createCombat"]');
+                expect(button, "the tracker offers its plus action with an existing combat").not.to.be.null;
+
+                button!.click();
+                await passesEventually(() => expect(combats).to.have.length(2));
+
+                expect(combats[1]).not.to.equal(existingCombat);
+                expect(combats[1].scene).to.equal(scene);
+                expect(existingCombat.scene).to.equal(scene);
+                expect(scene.active, "creating another combat must not activate the scene for players").to.be.false;
+            })
+        );
+
+        it(
+            "links a combat created by adding a token to the viewed scene when no combat is available",
+            withActor(
+                withCombatScene(async (scene, combats, actor: SplittermondActor) => {
+                    expect(foundryApi.combats.filter((combat) => combat.scene === null || combat.scene === scene)).to.be
+                        .empty;
+                    const [document] = await scene.createEmbeddedDocuments("Token", [
+                        {
+                            actorId: actor.id,
+                            actorLink: true,
+                            x: scene._viewPosition.x,
+                            y: scene._viewPosition.y,
+                        },
+                    ]);
+                    const token = document as TokenDocument & {
+                        toggleCombatant(options: { active: boolean }): Promise<boolean>;
+                    };
+
+                    await token.toggleCombatant({ active: true });
+
+                    expect(combats).to.have.length(1);
+                    expect(combats[0].scene).to.equal(scene);
+                    expect(combats[0].combatants.contents.map((combatant) => combatant.tokenId)).to.deep.equal([
+                        token.id,
+                    ]);
+                    expect(scene.active, "adding a token to combat must not activate the scene for players").to.be
+                        .false;
+                })
+            )
+        );
+
+        it(
             "defaults a combat created without scene data to the viewed scene",
             withCombatScene(async (scene) => {
                 const combat = (await Combat.create({ active: true })) as FoundryCombat;

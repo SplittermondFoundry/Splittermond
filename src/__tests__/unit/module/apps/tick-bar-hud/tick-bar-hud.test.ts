@@ -68,6 +68,51 @@ describe("TickBarHud", () => {
         });
     });
 
+    describe("firstApplicableCombat", () => {
+        const currentScene = { id: "current" };
+        const bindings = [
+            { name: "two combats on the same scene", firstScene: currentScene, secondScene: currentScene },
+            { name: "an unbound combat followed by a scene combat", firstScene: null, secondScene: currentScene },
+            { name: "a scene combat followed by an unbound combat", firstScene: currentScene, secondScene: null },
+        ];
+
+        for (const { name, firstScene, secondScene } of bindings) {
+            describe(name, () => {
+                beforeEach(() => sandbox.stub(foundryApi, "currentScene").get(() => currentScene));
+
+                it("prefers the active combat over the earlier inactive combat", () => {
+                    const first = createCombat(sandbox, { scene: firstScene });
+                    const second = createCombat(sandbox, { scene: secondScene, isActive: true });
+                    sandbox.stub(foundryApi, "combats").get(() => [first, second]);
+
+                    const selected = new TickBarHud().firstApplicableCombat;
+
+                    expect(selected).to.equal(second);
+                });
+
+                it("keeps collection order when both combats are active", () => {
+                    const first = createCombat(sandbox, { scene: firstScene, isActive: true });
+                    const second = createCombat(sandbox, { scene: secondScene, isActive: true });
+                    sandbox.stub(foundryApi, "combats").get(() => [first, second]);
+
+                    const selected = new TickBarHud().firstApplicableCombat;
+
+                    expect(selected).to.equal(first);
+                });
+
+                it("falls back to the first combat when neither is active", () => {
+                    const first = createCombat(sandbox, { scene: firstScene });
+                    const second = createCombat(sandbox, { scene: secondScene });
+                    sandbox.stub(foundryApi, "combats").get(() => [first, second]);
+
+                    const selected = new TickBarHud().firstApplicableCombat;
+
+                    expect(selected).to.equal(first);
+                });
+            });
+        }
+    });
+
     describe("_prepareContext", () => {
         const currentScene = { id: "sceneId" };
         let viewedScene = currentScene;

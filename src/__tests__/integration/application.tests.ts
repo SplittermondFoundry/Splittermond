@@ -378,6 +378,17 @@ export function applicationTests(context: QuenchBatchContext) {
             return combatantItem;
         }
 
+        function expectDisplayedCombat(combat: SplittermondCombat, combatantId: string) {
+            getCombatantItem(combatantId);
+            expect(
+                document.querySelectorAll(".tick-bar-hud-combatant-list-item"),
+                "only one combat is displayed"
+            ).to.have.length(1);
+            expect(document.querySelector(".tick-bar-hud-tick-number.current-tick")?.textContent?.trim()).to.equal(
+                String(combat.currentTick)
+            );
+        }
+
         Object.entries(foundryUISelectors).forEach(([key, value]) => {
             it(`should contain a valid selector for ${key}`, () => {
                 expect(document.querySelector(value)).to.be.instanceOf(HTMLElement);
@@ -472,51 +483,124 @@ export function applicationTests(context: QuenchBatchContext) {
         );
 
         it(
-            "switches between scene combats without replaying status messages or macros",
+            "switches from scene A to B to an empty C and back to A without replaying status messages or macros",
+            withScene(
+                withScene(async (emptyScene, otherScene) => {
+                    const combat = await createActiveCombat();
+                    await combat.update({ scene: scene.id });
+                    const { combatant, actor } = await createCombatant("First scene fighter", combat);
+                    await combat.setInitiative(combatant.id, 20);
+                    const otherCombat = (await Combat.create({
+                        scene: otherScene.id,
+                        combatants: [{ actorId: actor.id, initiative: 10 }],
+                    })) as SplittermondCombat;
+                    try {
+                        await otherCombat.update({ active: true });
+                        await otherCombat.startCombat();
+                        const otherCombatant = otherCombat.combatants.contents[0];
+                        await passesEventually(() => getCombatantItem(combatant.id));
+                        sandbox.stub(actor, "getVirtualStatusTokens").returns([
+                            {
+                                statusId: "poison",
+                                name: "Poison",
+                                img: "icons/svg/poison.svg",
+                                level: 1,
+                                description: "Poisoned",
+                                startTick: 20,
+                                interval: 5,
+                                times: 2,
+                                postDescription: true,
+                                macroRef: { name: "Poison", uuid: "Macro.poison" },
+                            },
+                        ]);
+                        const messages = sandbox.spy(foundryApi, "createChatMessage");
+                        const macros = sandbox.spy(foundryApi.utils, "fromUUID");
+
+                        await otherScene.view();
+                        await passesEventually(() => getCombatantItem(otherCombatant.id));
+                        await emptyScene.view();
+                        await passesEventually(() => {
+                            expect(foundryApi.currentScene).to.equal(emptyScene);
+                            expect(document.querySelector(".tick-bar-hud-ticks-scroll .tick-bar-hud-tick")).to.be.null;
+                            expect(document.querySelector(".tick-bar-hud-combatant-list-item")).to.be.null;
+                            expect(document.querySelector(".tick-bar-hud-nav-btn")).to.be.null;
+                            document.querySelectorAll(".tick-bar-hud-tick-special").forEach((element) => {
+                                expect(
+                                    getComputedStyle(element).opacity,
+                                    "scene C has no visible special fields"
+                                ).to.equal("0");
+                            });
+                        });
+                        await scene.view();
+                        await passesEventually(() => getCombatantItem(combatant.id));
+
+                        expect(messages.called, "scene navigation must not emit status messages").to.be.false;
+                        expect(macros.called, "scene navigation must not execute status macros").to.be.false;
+                        expect(combat.currentTick).to.equal(20);
+                        expect(otherCombat.currentTick).to.equal(10);
+                    } finally {
+                        // Delete the combat before withScene removes the scene it references.
+                        await Combat.deleteDocuments([otherCombat.id]);
+                    }
+                })
+            )
+        );
+
+        it("switches between two started combats on the same scene without combining or advancing them", async () => {
+            const first = await createActiveCombat();
+            const { combatant: firstCombatant } = await createCombatant("First encounter fighter", first);
+            await first.setInitiative(firstCombatant.id, 20);
+            const second = await createActiveCombat();
+            const { combatant: secondCombatant } = await createCombatant("Second encounter fighter", second);
+            await second.setInitiative(secondCombatant.id, 10);
+            await second.update({ active: false });
+            await first.activate();
+            await passesEventually(() => expectDisplayedCombat(first, firstCombatant.id));
+
+            await first.update({ active: false });
+            await second.activate();
+            await passesEventually(() => expectDisplayedCombat(second, secondCombatant.id));
+            await second.update({ active: false });
+            await first.activate();
+            await passesEventually(() => expectDisplayedCombat(first, firstCombatant.id));
+
+            expect(first.scene).to.equal(scene);
+            expect(second.scene).to.equal(scene);
+            expect(first.started).to.be.true;
+            expect(second.started).to.be.true;
+            expect(first.currentTick).to.equal(20);
+            expect(second.currentTick).to.equal(10);
+        });
+
+        it(
+            "selects between scene-bound and unbound combats by activation and falls back to the unbound combat elsewhere",
             withScene(async (otherScene) => {
-                const combat = await createActiveCombat();
-                await combat.update({ scene: scene.id });
-                const { combatant, actor } = await createCombatant("First scene fighter", combat);
-                await combat.setInitiative(combatant.id, 20);
-                const otherCombat = (await Combat.create({
-                    scene: otherScene.id,
-                    combatants: [{ actorId: actor.id, initiative: 10 }],
-                })) as SplittermondCombat;
-                try {
-                    await otherCombat.update({ active: true });
-                    await otherCombat.startCombat();
-                    const otherCombatant = otherCombat.combatants.contents[0];
-                    await passesEventually(() => getCombatantItem(combatant.id));
-                    sandbox.stub(actor, "getVirtualStatusTokens").returns([
-                        {
-                            statusId: "poison",
-                            name: "Poison",
-                            img: "icons/svg/poison.svg",
-                            level: 1,
-                            description: "Poisoned",
-                            startTick: 20,
-                            interval: 5,
-                            times: 2,
-                            postDescription: true,
-                            macroRef: { name: "Poison", uuid: "Macro.poison" },
-                        },
-                    ]);
-                    const messages = sandbox.spy(foundryApi, "createChatMessage");
-                    const macros = sandbox.spy(foundryApi.utils, "fromUUID");
+                const bound = await createActiveCombat();
+                const { combatant: boundCombatant } = await createCombatant("Bound encounter fighter", bound);
+                await bound.setInitiative(boundCombatant.id, 20);
+                const unbound = await createActiveCombat();
+                await unbound.update({ scene: null, active: false });
+                const { combatant: unboundCombatant } = await createCombatant("Unbound encounter fighter", unbound);
+                await unbound.setInitiative(unboundCombatant.id, 10);
+                await bound.activate();
+                await passesEventually(() => expectDisplayedCombat(bound, boundCombatant.id));
 
-                    await otherScene.view();
-                    await passesEventually(() => getCombatantItem(otherCombatant.id));
-                    await scene.view();
-                    await passesEventually(() => getCombatantItem(combatant.id));
+                await bound.update({ active: false });
+                await unbound.activate();
+                await passesEventually(() => expectDisplayedCombat(unbound, unboundCombatant.id));
+                await unbound.update({ active: false });
+                await bound.activate();
+                await passesEventually(() => expectDisplayedCombat(bound, boundCombatant.id));
 
-                    expect(messages.called, "scene navigation must not emit status messages").to.be.false;
-                    expect(macros.called, "scene navigation must not execute status macros").to.be.false;
-                    expect(combat.currentTick).to.equal(20);
-                    expect(otherCombat.currentTick).to.equal(10);
-                } finally {
-                    // Delete the combat before withScene removes the scene it references.
-                    await Combat.deleteDocuments([otherCombat.id]);
-                }
+                await otherScene.view();
+                await passesEventually(() => expectDisplayedCombat(unbound, unboundCombatant.id));
+                await scene.view();
+                await passesEventually(() => expectDisplayedCombat(bound, boundCombatant.id));
+
+                expect(bound.scene).to.equal(scene);
+                expect(unbound.scene).to.be.null;
+                expect(bound.currentTick).to.equal(20);
+                expect(unbound.currentTick).to.equal(10);
             })
         );
 
