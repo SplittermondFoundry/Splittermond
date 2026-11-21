@@ -3,6 +3,7 @@ import { foundryApi } from "module/api/foundryApi";
 import { isMacro } from "module/api/Macro";
 import type { ApplicationFormConfiguration } from "module/api/Application";
 import type { StatusEffectDataModelType } from "module/item/dataModel/StatusEffectDataModel";
+import { warnIncompleteStatusEffectTimer } from "module/item/statusEffectTimer";
 
 interface MacroDropPayload {
     type: string;
@@ -21,6 +22,18 @@ export default class StatusEffectItemSheet extends SplittermondItemEffectsSheet 
         ...super.DEFAULT_OPTIONS,
         classes: ["splittermond", "sheet", "item", "statuseffect"],
     };
+
+    async close(options?: object): Promise<unknown> {
+        // Read the last input before the form disappears; its autosave may still be pending.
+        const form = this.rendered ? this.form : null;
+        const interval = form ? this.#readField(form, "system.combatEvent.interval").trim() : null;
+        const repeats = form ? this.#readField(form, "system.combatEvent.repeats").trim() : null;
+        const result = await super.close(options);
+        if (form && !this.rendered) {
+            warnIncompleteStatusEffectTimer(this.item.name, interval, repeats);
+        }
+        return result;
+    }
 
     async _onDrop(event: DragEvent): Promise<void> {
         const raw = event.dataTransfer?.getData("text/plain");

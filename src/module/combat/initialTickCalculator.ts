@@ -18,10 +18,7 @@ function setInitialTick(item: SplittermondItem) {
     if (!activeCombat.combatants.some((c) => c.actor?.id === item.actor?.id)) return;
 
     const interval = item.system.combatEvent.interval;
-    if (!interval) {
-        foundryApi.warnUser("splittermond.message.invalidStatusEffectInterval", { name: item.name });
-        return;
-    }
+    if (!interval) return;
 
     console.log("Splittermond | Adapting status effect to account for current combat.");
     const systemDataToUpdate = {

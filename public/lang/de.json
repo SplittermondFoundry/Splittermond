@@ -498,7 +498,8 @@
             "itemImported": "Das Item \"{name}\" wurde als \"{type}\" importiert!",
             "mangledTableData": "Tabellendaten sind beschädigt. Bitte überprüfen Sie Attribute und abgeleitete Werte.",
             "featureParsingFailure": "Merkmal '{feature}' konnte nicht in ein bekanntes Merkmal umgewandelt werden.",
-            "invalidStatusEffectInterval": "Der Intervallwert für den Zustand '{name}' ist ungültig.",
+            "statusEffectMissingInterval": "Zustand '{name}': Die Auslösezeit fehlt. Ohne sie erfolgen keine zeitgesteuerten Auslösungen. Bitte ergänze die Auslösezeit oder leere auch die Anzahl der Auslösungen.",
+            "statusEffectMissingRepeats": "Zustand '{name}': Die Anzahl der Auslösungen fehlt. Bei leerem Feld verwendet das System 90 Auslösungen. Bitte prüfe, ob das beabsichtigt ist.",
             "outdatedFeaturesModel": "Ein oder mehrere Objekte haben ein veraltetes Merkmale-Modell. Dies kann durch Bearbeiten dess 'Merkmal' Feldes behoben werden. Gefunden auf: {item}"
         },
         "masteryItem": {

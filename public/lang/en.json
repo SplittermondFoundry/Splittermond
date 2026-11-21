@@ -9,6 +9,10 @@
         }
     },
     "splittermond": {
+        "message": {
+            "statusEffectMissingInterval": "Condition '{name}': Trigger Interval is missing. No timed triggers occur without it. Please enter the interval or also clear Number of Triggers.",
+            "statusEffectMissingRepeats": "Condition '{name}': Number of Triggers is missing. The system uses 90 triggers when this field is empty. Please check whether this is intended."
+        },
         "notATactician": "Not a 'Taktiker'",
         "magicFumbleSorcerer": "Fumbled Spell (Sorcerer)",
         "magicFumblePriest": "Fumbled Spell (Priest)",
@@ -222,7 +226,6 @@
         "itemImported": "The item \"{name}\" was imported as \"{type}\"!",
         "mangledTableData": "table data is corrupted. Please check attributes and derived values.",
         "featureParsingFailure": "Feature '{feature}' did not resolve to a valid feature descriptor",
-        "invalidStatusEffectInterval": "The value for the interval on item '{name}' is invalid ",
         "outdatedFeaturesModel": "One or more objects have an outdated features model. This can be fixed by manually updating the 'features' property. Found on: {item}"
     },
     "settings": {

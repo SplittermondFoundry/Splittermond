@@ -6,6 +6,7 @@ import { foundryApi } from "module/api/foundryApi";
 import TickBarHud from "module/apps/tick-bar-hud/tick-bar-hud";
 import { withActor } from "./fixtures";
 import { passesEventually } from "../util";
+import sinon from "sinon";
 
 declare const ui: { combat: { viewed: unknown } };
 
@@ -36,6 +37,34 @@ function withCombat(
 }
 
 export function tickBarHudTest({ it, expect }: QuenchBatchContext) {
+    it(
+        "warns once for a repetitions-only condition in combat and stays silent for an untimed condition",
+        withCombat(async (actor) => {
+            const warning = sinon.spy(foundryApi, "warnUser");
+            try {
+                await actor.createEmbeddedDocuments("Item", [{ type: "statuseffect", name: "Untimed" }]);
+                expect(warning.called, "A condition without either timer field needs no warning").to.be.false;
+
+                const [condition] = await actor.createEmbeddedDocuments("Item", [
+                    { type: "statuseffect", name: "Repeats only", system: { combatEvent: { repeats: 6 } } },
+                ]);
+
+                await passesEventually(() => {
+                    expect(
+                        warning.calledOnceWithExactly("splittermond.message.statusEffectMissingInterval", {
+                            name: condition.name,
+                        }),
+                        "Creation produces one warning, without an additional interval warning"
+                    ).to.be.true;
+                });
+                expect(condition.system.combatEvent.startTick).to.be.null;
+                expect(actor.getVirtualStatusTokens()).to.be.empty;
+            } finally {
+                warning.restore();
+            }
+        })
+    );
+
     // Rendering the full bounded window and advancing combat took over 3s in the headless runtime.
     it(
         "keeps combatants and condition markers visible after clearing repetitions and advancing ticks",
