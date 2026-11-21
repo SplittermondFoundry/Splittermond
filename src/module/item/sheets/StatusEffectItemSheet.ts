@@ -55,6 +55,12 @@ export default class StatusEffectItemSheet extends SplittermondItemEffectsSheet 
 
     protected async _onSubmitForm(formConfig: ApplicationFormConfiguration, event: Event | SubmitEvent): Promise<void> {
         const form = isFormElement(event.currentTarget) ? event.currentTarget : null;
+        const interval = form ? this.#readField(form, "system.combatEvent.interval").trim() : "";
+        // Avoid exposing a technical document-validation error during autosave.
+        if (interval !== "" && !(Number(interval) > 0)) {
+            foundryApi.reportError("splittermond.message.statusEffectInvalidInterval", { name: this.item.name });
+            return;
+        }
         const system = this.item.system as Partial<StatusEffectDataModelType>;
         const previousUuid = system.combatEvent?.macroRef?.uuid ?? null;
         const submittedUuid = form ? this.#readField(form, MACRO_UUID_FIELD) : null;

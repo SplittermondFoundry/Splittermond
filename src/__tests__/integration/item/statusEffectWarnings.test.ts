@@ -3,6 +3,7 @@ import sinon, { type SinonSandbox } from "sinon";
 import { foundryApi } from "module/api/foundryApi";
 import { withActor } from "../fixtures";
 import { passesEventually } from "../../util";
+import { StatusEffectDataModel } from "module/item/dataModel/StatusEffectDataModel";
 
 function input(sheet: { element: HTMLElement }, field: string): HTMLInputElement {
     const element = sheet.element.querySelector(`input[name="system.combatEvent.${field}"]`);
@@ -14,6 +15,68 @@ export function statusEffectWarningsTest({ it, expect, beforeEach, afterEach }: 
     let sandbox: SinonSandbox;
     beforeEach(() => (sandbox = sinon.createSandbox()));
     afterEach(() => sandbox.restore());
+
+    it(
+        "reports an invalid interval without saving it and accepts a corrected positive fraction",
+        withActor(async (actor) => {
+            const [condition] = await actor.createEmbeddedDocuments("Item", [
+                {
+                    type: "statuseffect",
+                    name: "Invalid interval",
+                    system: { combatEvent: { interval: 15, repeats: 6 } },
+                },
+            ]);
+            const error = sandbox.spy(foundryApi, "reportError");
+            const update = sandbox.spy(condition, "update");
+            const sheet = condition.sheet;
+            try {
+                await sheet.render(true);
+                const interval = input(sheet, "interval");
+                interval.value = "0";
+                interval.dispatchEvent(new Event("change", { bubbles: true }));
+
+                await passesEventually(() => {
+                    expect(
+                        error.calledOnceWithExactly("splittermond.message.statusEffectInvalidInterval", {
+                            name: condition.name,
+                        }),
+                        "Autosave reports a readable interval error"
+                    ).to.be.true;
+                });
+                expect(condition.system.combatEvent.interval, "The previous saved interval is retained").to.equal(15);
+                expect(update.called, "Invalid input never reaches document persistence").to.be.false;
+
+                interval.value = "0.5";
+                interval.dispatchEvent(new Event("change", { bubbles: true }));
+
+                await passesEventually(() => expect(condition.system.combatEvent.interval).to.equal(0.5));
+                expect(error.callCount, "Correcting the input does not produce another error").to.equal(1);
+            } finally {
+                await sheet.close({ animate: false });
+            }
+        })
+    ).timeout(5000);
+
+    for (const interval of [0, -5]) {
+        it(
+            `still rejects interval ${interval} in the data model without going through the sheet`,
+            withActor(async (actor) => {
+                const [condition] = await actor.createEmbeddedDocuments("Item", [
+                    {
+                        type: "statuseffect",
+                        name: "Validated condition",
+                        system: { combatEvent: { interval: 15, repeats: 6 } },
+                    },
+                ]);
+                const model = condition.system;
+                if (!(model instanceof StatusEffectDataModel)) throw new Error("Unexpected condition data model");
+
+                expect(() => model.updateSource({ combatEvent: { interval } })).to.throw();
+
+                expect(model.combatEvent.interval).to.equal(15);
+            })
+        ).timeout(5000);
+    }
 
     // Cold-world document/sheet setup took 3.3–3.8s; closing animations are unrelated to these assertions.
     it(

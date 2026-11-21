@@ -501,6 +501,7 @@
             "statusEffectMissingInterval": "Zustand '{name}': Die Auslösezeit fehlt. Ohne sie erfolgen keine zeitgesteuerten Auslösungen. Bitte ergänze die Auslösezeit oder leere auch die Anzahl der Auslösungen.",
             "statusEffectMissingRepeats": "Zustand '{name}': Die Anzahl der Auslösungen fehlt. Bei leerem Feld verwendet das System 90 Auslösungen. Bitte prüfe, ob das beabsichtigt ist.",
             "statusEffectZeroRepeats": "Zustand '{name}': Die Anzahl der Auslösungen ist 0. Es erfolgen keine zeitgesteuerten Auslösungen. Andere Zustandswirkungen bleiben davon unberührt.",
+            "statusEffectInvalidInterval": "Zustand '{name}': Die Auslösezeit muss größer als 0 sein. Bitte gib einen positiven Wert ein oder lasse das Feld leer. Die Änderung wurde nicht gespeichert.",
             "outdatedFeaturesModel": "Ein oder mehrere Objekte haben ein veraltetes Merkmale-Modell. Dies kann durch Bearbeiten dess 'Merkmal' Feldes behoben werden. Gefunden auf: {item}"
         },
         "masteryItem": {
