@@ -11,6 +11,8 @@ export const foundryUISelectors = {
     sidebarButtons: "#sidebar menu button",
     sidebarExpansionToggle: "#sidebar menu button.collapse[data-action='toggleState']",
     controlPanel: "#ui-left-column-1",
+    sceneNavigationColumn: "#ui-left-column-2",
+    sceneNavigationMenus: "#scene-navigation .scene-navigation-menu",
 } as const;
 
 export function initMaxWidthTransitionForTickBarHud(tickBarHud: SplittermondApplication) {
@@ -30,30 +32,36 @@ export function initMaxWidthTransitionForTickBarHud(tickBarHud: SplittermondAppl
     initSidebarToggleListener(tickBarHud);
     initSidebarExpansionListener(tickBarHud);
     initSidebarMutationObserver(tickBarHud);
+    initSceneNavigationObservers(tickBarHud);
 }
 
 /**
- * Positions the tick bar hud to fill the space between ui-left-column-1 and sidebar
+ * Positions the tick bar between visible left-side controls and the sidebar.
  * Transition properties are given in the Less file
  */
 function positionTickBarHudBetweenElements(tickBarHud: SplittermondApplication) {
     try {
         const tickBarElement = tickBarHud.element.querySelector(".tick-bar-hud") as HTMLElement;
-        const availableWidth = calculateAvailableWidth(tickBarHud);
-        requestAnimationFrame(() => (tickBarElement.style.maxWidth = `${availableWidth}px`));
+        const { left, maxWidth } = calculateTickBarPosition(tickBarHud);
+        requestAnimationFrame(() => {
+            tickBarElement.style.left = `${left}px`;
+            tickBarElement.style.maxWidth = `${maxWidth}px`;
+        });
     } catch (e) {}
 }
 
 function positionTickBarHudBetweenElementsImmediately(tickBarHud: SplittermondApplication) {
     try {
         const tickBarElement = tickBarHud.element.querySelector(".tick-bar-hud") as HTMLElement;
-        const availableWidth = calculateAvailableWidth(tickBarHud);
-        tickBarElement.style.maxWidth = `${availableWidth}px`;
+        const { left, maxWidth } = calculateTickBarPosition(tickBarHud);
+        tickBarElement.style.left = `${left}px`;
+        tickBarElement.style.maxWidth = `${maxWidth}px`;
     } catch (e) {}
 }
 
-function calculateAvailableWidth(tickBarHud: SplittermondApplication): number {
-    const paddingForTickBar = 30;
+function calculateTickBarPosition(tickBarHud: SplittermondApplication) {
+    const paddingForTickBar = 15;
+    const defaultLeft = 110;
     const doc = tickBarHud.element.ownerDocument;
     if (!doc) throw new Error("Invalid tickBarHud");
 
@@ -67,12 +75,61 @@ function calculateAvailableWidth(tickBarHud: SplittermondApplication): number {
     }
 
     const leftColumnRect = leftColumn.getBoundingClientRect();
-    const leftEdge = leftColumnRect.right;
+    let left = Math.max(defaultLeft, leftColumnRect.right + paddingForTickBar);
+    const tickBarRect = tickBarElement.getBoundingClientRect();
+    // The navigation root and its empty menus can span the entire viewport.
+    // Only occupied, visible menus reserve space at the tick bar's height.
+    for (const menu of doc.querySelectorAll<HTMLElement>(foundryUISelectors.sceneNavigationMenus)) {
+        const visibility = window.getComputedStyle(menu).visibility;
+        const rect = menu.getBoundingClientRect();
+        if (
+            menu.childElementCount > 0 &&
+            visibility !== "hidden" &&
+            visibility !== "collapse" &&
+            rect.width > 0 &&
+            rect.height > 0 &&
+            rect.bottom > tickBarRect.top &&
+            rect.top < tickBarRect.bottom
+        ) {
+            left = Math.max(left, rect.right + paddingForTickBar);
+        }
+    }
 
     const sidebarRect = sidebar.getBoundingClientRect();
     const rightEdge = sidebarRect.left;
 
-    return rightEdge - leftEdge - paddingForTickBar;
+    return { left, maxWidth: Math.max(0, rightEdge - left - paddingForTickBar) };
+}
+
+function initSceneNavigationObservers(tickBarHud: SplittermondApplication) {
+    const column = tickBarHud.element.ownerDocument.querySelector(foundryUISelectors.sceneNavigationColumn);
+    if (!column) return;
+
+    const resizeObserver = new ResizeObserver(() => positionTickBarHudBetweenElements(tickBarHud));
+    const observeMenus = () => {
+        resizeObserver.disconnect();
+        column
+            .querySelectorAll(foundryUISelectors.sceneNavigationMenus)
+            .forEach((menu) => resizeObserver.observe(menu));
+        positionTickBarHudBetweenElements(tickBarHud);
+    };
+    // Observe the stable column because Foundry replaces the menus on render.
+    const mutationObserver = new MutationObserver(observeMenus);
+    mutationObserver.observe(column, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["class", "style"],
+    });
+    observeMenus();
+    tickBarHud.addEventListener(
+        "close",
+        () => {
+            mutationObserver.disconnect();
+            resizeObserver.disconnect();
+        },
+        { once: true }
+    );
 }
 
 function initSidebarToggleListener(tickBarHud: SplittermondApplication) {

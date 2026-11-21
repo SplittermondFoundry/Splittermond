@@ -2,6 +2,7 @@
 
 ### Fixes
 
+- Die Tickleiste weicht der sichtbaren Szenen- und Ebenenauswahl aus und passt ihre Breite bis zur Sidebar an.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
 - Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
 
