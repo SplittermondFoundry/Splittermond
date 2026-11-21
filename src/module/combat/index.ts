@@ -1,4 +1,5 @@
 import { setPreCreateItemHook } from "module/combat/initialTickCalculator";
+import { setPreCreateCombatHook } from "module/combat/sceneBinding";
 import SplittermondCombat from "module/combat/combat";
 import type { FoundryCombatant } from "module/api/foundryTypes";
 
@@ -16,6 +17,7 @@ export function initializeCombat(config: (typeof CONFIG)["Combat"]) {
     config.documentClass = SplittermondCombat;
 
     setPreCreateItemHook();
+    setPreCreateCombatHook();
     setTurnMarker(config);
 }
 

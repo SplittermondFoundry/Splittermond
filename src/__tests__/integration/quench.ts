@@ -3,6 +3,7 @@ import { chatActionFeatureTest } from "./chatActionFeature.test";
 import { DamageProcessingTest } from "./DamageProcessingTest";
 import type { Quench, QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
 import { combatTest } from "./combat.test";
+import { combatSceneBindingTests } from "./combatSceneBinding.test";
 import { activeEffectTest } from "./activeEffectConfig.test";
 import { compendiumEffectAssignmentTest } from "./compendiumEffectAssignment.test";
 import { registerApiBatches } from "./api";
@@ -32,6 +33,7 @@ function registerQuenchTests(quench: Quench) {
     quench.registerBatch("splittermond.applications", applicationTests);
     quench.registerBatch("splittermond.sheetDrops", sheetDropsTest);
     quench.registerBatch("splittermond.combat", combatTest);
+    quench.registerBatch("splittermond.combatSceneBinding", combatSceneBindingTests);
     quench.registerBatch("splittermond.chatSystem", chatActionFeatureTest);
     quench.registerBatch("splittermond.damageProcessing", DamageProcessingTest);
     quench.registerBatch("splittermond.activeEffectConfig", activeEffectTest);
