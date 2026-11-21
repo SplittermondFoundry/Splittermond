@@ -5,7 +5,7 @@ import { modifiers } from "module/config/modifiers";
 import { copyCompendiumEffectToItem } from "module/activeEffect/compendiumEffectAssignment.ts";
 import { pipe } from "module/util/util.ts";
 import { applyLiveItemModifiers } from "./deprecated/liveItemModifierFallback.ts";
-import { warnIncompleteStatusEffectTimer } from "./statusEffectTimer";
+import { warnStatusEffectTimer } from "./statusEffectTimer";
 
 /** @type {import("module/modifiers/modifierAddition").AddModifierResult extends object ? Function : never} */
 let _addModifier = null;
@@ -80,7 +80,7 @@ export default class SplittermondItem extends Item {
         if (foundryApi.currentUser.id !== userId) return;
         if (this.actor && this.type === "statuseffect") {
             const { interval, repeats } = this.system.combatEvent;
-            warnIncompleteStatusEffectTimer(this.name, interval, repeats);
+            warnStatusEffectTimer(this.name, interval, repeats);
         }
         const config = this.#modifierRebuildConfig();
         if (config) {

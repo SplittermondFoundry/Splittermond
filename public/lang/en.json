@@ -11,7 +11,8 @@
     "splittermond": {
         "message": {
             "statusEffectMissingInterval": "Condition '{name}': Trigger Interval is missing. No timed triggers occur without it. Please enter the interval or also clear Number of Triggers.",
-            "statusEffectMissingRepeats": "Condition '{name}': Number of Triggers is missing. The system uses 90 triggers when this field is empty. Please check whether this is intended."
+            "statusEffectMissingRepeats": "Condition '{name}': Number of Triggers is missing. The system uses 90 triggers when this field is empty. Please check whether this is intended.",
+            "statusEffectZeroRepeats": "Condition '{name}': Number of Triggers is 0. No timed triggers occur. Other condition effects are unaffected."
         },
         "notATactician": "Not a 'Taktiker'",
         "magicFumbleSorcerer": "Fumbled Spell (Sorcerer)",

@@ -500,6 +500,7 @@
             "featureParsingFailure": "Merkmal '{feature}' konnte nicht in ein bekanntes Merkmal umgewandelt werden.",
             "statusEffectMissingInterval": "Zustand '{name}': Die Auslösezeit fehlt. Ohne sie erfolgen keine zeitgesteuerten Auslösungen. Bitte ergänze die Auslösezeit oder leere auch die Anzahl der Auslösungen.",
             "statusEffectMissingRepeats": "Zustand '{name}': Die Anzahl der Auslösungen fehlt. Bei leerem Feld verwendet das System 90 Auslösungen. Bitte prüfe, ob das beabsichtigt ist.",
+            "statusEffectZeroRepeats": "Zustand '{name}': Die Anzahl der Auslösungen ist 0. Es erfolgen keine zeitgesteuerten Auslösungen. Andere Zustandswirkungen bleiben davon unberührt.",
             "outdatedFeaturesModel": "Ein oder mehrere Objekte haben ein veraltetes Merkmale-Modell. Dies kann durch Bearbeiten dess 'Merkmal' Feldes behoben werden. Gefunden auf: {item}"
         },
         "masteryItem": {

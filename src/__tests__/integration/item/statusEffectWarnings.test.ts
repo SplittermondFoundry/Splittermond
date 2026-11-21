@@ -39,6 +39,70 @@ export function statusEffectWarningsTest({ it, expect, beforeEach, afterEach }: 
     ).timeout(5000);
 
     it(
+        "warns once when adding a condition with zero repetitions and keeps the stored zero",
+        withActor(async (actor) => {
+            const warning = sandbox.spy(foundryApi, "warnUser");
+
+            const [condition] = await actor.createEmbeddedDocuments("Item", [
+                {
+                    type: "statuseffect",
+                    name: "Zero repetitions",
+                    system: { combatEvent: { interval: 15, repeats: 0 } },
+                },
+            ]);
+
+            await passesEventually(() => {
+                expect(
+                    warning.calledOnceWithExactly("splittermond.message.statusEffectZeroRepeats", {
+                        name: condition.name,
+                    }),
+                    "Creation warns specifically about zero repetitions"
+                ).to.be.true;
+            });
+            expect(actor.items.get(condition.id)).to.equal(condition);
+            expect(condition.system.combatEvent.repeats).to.equal(0);
+        })
+    ).timeout(5000);
+
+    it(
+        "warns about zero repetitions only after closing, not on autosave or a second close",
+        withActor(async (actor) => {
+            const [condition] = await actor.createEmbeddedDocuments("Item", [
+                {
+                    type: "statuseffect",
+                    name: "Edited repetitions",
+                    system: { combatEvent: { interval: 15, repeats: 6 } },
+                },
+            ]);
+            const warning = sandbox.spy(foundryApi, "warnUser");
+            const sheet = condition.sheet;
+            try {
+                await sheet.render(true);
+                const repetitions = input(sheet, "repeats");
+                repetitions.value = "0";
+                repetitions.dispatchEvent(new Event("change", { bubbles: true }));
+                await passesEventually(() => expect(condition.system.combatEvent.repeats).to.equal(0));
+                expect(warning.called, "Entering and autosaving zero do not warn").to.be.false;
+
+                await sheet.close({ animate: false });
+
+                expect(sheet.rendered).to.be.false;
+                expect(
+                    warning.calledOnceWithExactly("splittermond.message.statusEffectZeroRepeats", {
+                        name: condition.name,
+                    }),
+                    "Closing warns specifically about zero repetitions"
+                ).to.be.true;
+                expect(condition.system.combatEvent.repeats).to.equal(0);
+                await sheet.close({ animate: false });
+                expect(warning.callCount, "Closing an already closed sheet does not warn again").to.equal(1);
+            } finally {
+                await sheet.close({ animate: false });
+            }
+        })
+    ).timeout(5000);
+
+    it(
         "warns only after closing an edited condition, not on autosave or a second close",
         withActor(async (actor) => {
             const [condition] = await actor.createEmbeddedDocuments("Item", [
