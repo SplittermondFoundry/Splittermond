@@ -58,6 +58,7 @@ export default class StatusEffectItemSheet extends SplittermondItemEffectsSheet 
         const interval = form ? this.#readField(form, "system.combatEvent.interval").trim() : "";
         // Avoid exposing a technical document-validation error during autosave.
         if (interval !== "" && !(Number(interval) > 0)) {
+            event.preventDefault();
             foundryApi.reportError("splittermond.message.statusEffectInvalidInterval", { name: this.item.name });
             return;
         }

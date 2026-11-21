@@ -46,11 +46,17 @@ export function statusEffectWarningsTest({ it, expect, beforeEach, afterEach }: 
                 expect(condition.system.combatEvent.interval, "The previous saved interval is retained").to.equal(15);
                 expect(update.called, "Invalid input never reaches document persistence").to.be.false;
 
+                const submit = new SubmitEvent("submit", { bubbles: true, cancelable: true });
+                sheet.form?.dispatchEvent(submit);
+
+                expect(submit.defaultPrevented, "Invalid input must not trigger native form submission").to.be.true;
+                expect(update.called, "Submitting invalid input still does not persist it").to.be.false;
+
                 interval.value = "0.5";
                 interval.dispatchEvent(new Event("change", { bubbles: true }));
 
                 await passesEventually(() => expect(condition.system.combatEvent.interval).to.equal(0.5));
-                expect(error.callCount, "Correcting the input does not produce another error").to.equal(1);
+                expect(error.callCount, "Only the invalid change and submit produce an error").to.equal(2);
             } finally {
                 await sheet.close({ animate: false });
             }

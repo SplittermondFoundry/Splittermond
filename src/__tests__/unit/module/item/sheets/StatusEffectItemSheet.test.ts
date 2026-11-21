@@ -125,7 +125,9 @@ describe("StatusEffectItemSheet — form submission", () => {
     }
 
     function makeSubmitEvent(form: HTMLFormElement): Event {
-        return { currentTarget: form, type: "submit" } as unknown as Event;
+        const event = new Event("submit", { cancelable: true });
+        Object.defineProperty(event, "currentTarget", { value: form });
+        return event;
     }
 
     type WithSubmitForm = { _onSubmitForm: (formConfig: unknown, event: Event) => Promise<void> };
@@ -164,11 +166,13 @@ describe("StatusEffectItemSheet — form submission", () => {
                 "system.combatEvent.interval": interval,
                 "system.combatEvent.macroRef.uuid": "Macro.new",
             });
+            const event = makeSubmitEvent(form);
 
-            await (sheet as unknown as WithSubmitForm)._onSubmitForm({}, makeSubmitEvent(form));
+            await (sheet as unknown as WithSubmitForm)._onSubmitForm({}, event);
 
             expect(error.calledOnceWithExactly("splittermond.message.statusEffectInvalidInterval", { name: "Burning" }))
                 .to.be.true;
+            expect(event.defaultPrevented, "Invalid input must not trigger native form submission").to.be.true;
             expect(submit.called, "Invalid input must not reach autosave").to.be.false;
             expect(update.called).to.be.false;
             expect(resolveMacro.called).to.be.false;
