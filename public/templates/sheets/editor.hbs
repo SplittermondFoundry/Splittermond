@@ -1,4 +1,18 @@
-<section class="tab {{tabs.editor.id}} {{tabs.editor.cssClass}}" data-group="primary" data-tab="editor">
+<section class="tab {{tabs.editor.id}} {{tabs.editor.cssClass}} {{#if characterDetails}}character-biography{{/if}}" data-group="primary" data-tab="editor">
+    {{#if characterDetails}}
+        <div class="character-details">
+            {{#each characterDetails}}
+                <label>
+                    <span>{{localize label}}</span>
+                    {{#if ../editable}}
+                        <input type="text" name="{{name}}" value="{{value}}"/>
+                    {{else}}
+                        <span>{{value}}</span>
+                    {{/if}}
+                </label>
+            {{/each}}
+        </div>
+    {{/if}}
     {{#if editable}}
         <prose-mirror
                 name="{{editor.target}}"
@@ -8,6 +22,8 @@
                 value="{{editor.value}}">
             {{{editor.content}}}
         </prose-mirror>
+    {{else if characterDetails}}
+        <div>{{{editor.content}}}</div>
     {{else}}
         {{{editor.content}}}
     {{/if}}

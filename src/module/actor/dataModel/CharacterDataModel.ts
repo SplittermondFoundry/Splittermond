@@ -41,10 +41,21 @@ function CharacterDataModelSchema() {
         ancestry: new fields.StringField({ required: true, nullable: false }),
         culture: new fields.StringField({ required: true, nullable: false }),
         education: new fields.StringField({ required: true, nullable: false }),
+        hairColor: new fields.StringField({ required: true, nullable: false, initial: "" }),
+        eyeColor: new fields.StringField({ required: true, nullable: false, initial: "" }),
+        skinColor: new fields.StringField({ required: true, nullable: false, initial: "" }),
+        height: new fields.StringField({ required: true, nullable: false, initial: "" }),
+        weight: new fields.StringField({ required: true, nullable: false, initial: "" }),
+        birthplace: new fields.StringField({ required: true, nullable: false, initial: "" }),
     };
 }
 
 export type CharacterDataModelType = DataModelSchemaType<typeof CharacterDataModelSchema>;
+
+export type CharacterBiography = Pick<
+    CharacterDataModelType,
+    "hairColor" | "eyeColor" | "skinColor" | "height" | "weight" | "birthplace"
+>;
 
 export class CharacterDataModel extends SplittermondDataModel<CharacterDataModelType, SplittermondActor> {
     static defineSchema = CharacterDataModelSchema;

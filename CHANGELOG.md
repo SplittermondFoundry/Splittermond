@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Features
+
+- Charakterbögen bieten im Biographie-Reiter Felder für Haar-, Augen- und Haut-/Fellfarbe, Körpergröße, Gewicht und Geburtsort. Der Genesis-Import übernimmt diese Angaben; beim Aktualisieren bleiben vorhandene Einträge bei fehlenden Importwerten erhalten.
+
 ### Fixes
 
 - Der Tickzuschlag wird jetzt auch beim Auslösen von Zaubern und Fernkampfangriffen berücksichtigt.
