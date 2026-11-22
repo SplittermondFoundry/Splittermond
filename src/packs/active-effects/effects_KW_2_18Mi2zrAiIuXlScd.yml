@@ -7,7 +7,7 @@ img: icons/svg/upgrade.svg
 system:
     changes: []
     modifiers:
-        - path: actor.bodyresist
+        - path: bodyresist
           serializedValue:
               type: amount
               amount: 2

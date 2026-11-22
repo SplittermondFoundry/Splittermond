@@ -7,7 +7,7 @@ img: icons/svg/upgrade.svg
 system:
     changes: []
     modifiers:
-        - path: actor.focuspoints
+        - path: focuspoints
           serializedValue:
               type: amount
               amount: 5

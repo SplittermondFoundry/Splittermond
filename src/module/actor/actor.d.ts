@@ -18,6 +18,7 @@ import { SplittermondActiveEffect } from "module/activeEffect";
 import type { PreparedAction } from "module/actor/PreparedAction";
 import type SplittermondSpellItem from "../item/spell";
 import type { RollType } from "module/config/check";
+import type ActiveDefense from "./active-defense";
 
 export type DefenseType = "defense" | "mindresist" | "bodyresist" | "vtd" | "kw" | "gw";
 
@@ -44,9 +45,11 @@ declare class SplittermondActor extends Actor {
 
     public readonly skills: Record<SplittermondSkill, Skill>;
     public readonly attacks: Attack[];
+    public readonly activeDefense: Record<"defense" | "mindresist" | "bodyresist", ActiveDefense[]>;
     public spells: SplittermondSpellItem[];
 
     async activeDefenseDialog(type?: DefenseType): Promise<void>;
+    longRest(clearChanneled?: boolean, askUser?: boolean): Promise<FoundryDocument>;
 
     get splinterpoints(): { value: number; max: number };
 

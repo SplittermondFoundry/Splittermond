@@ -13,6 +13,7 @@ import type SplittermondWeaponItem from "module/item/weapon";
 import type SplittermondShieldItem from "module/item/shield";
 import type SplittermondArmorItem from "module/item/armor";
 import type { StatusEffectDataModel } from "module/item/dataModel/StatusEffectDataModel";
+import { from14_3_1_restoreDefenseSkillInput } from "./migrations/restoreDefenseSkillInput";
 
 interface HasActiveFlag {
     system: { active: boolean };
@@ -24,6 +25,10 @@ export type DurationMode = "timed" | "channelled" | "permanent";
  * Splittermond system subclass of ActiveEffect.
  */
 export class SplittermondActiveEffect extends SplittermondBaseActiveEffect {
+    static migrateData(source: unknown) {
+        return super.migrateData(from14_3_1_restoreDefenseSkillInput(source));
+    }
+
     declare type: EffectType | "base";
     declare system: ActionEffectDataModel | {};
     get multiplier(): number {

@@ -1,7 +1,8 @@
 import type { User } from "../api/foundryTypes";
 import type { VirtualToken } from "module/combat/VirtualToken";
 import type SplittermondActor from "module/actor/actor";
-import type { CheckReport } from "module/check";
+import type { DefenseType } from "module/actor/actor";
+import type ActiveDefense from "module/actor/active-defense";
 
 interface RollResultForSplittermond {
     total: number;
@@ -32,7 +33,10 @@ export const Chat: {
 
 export function canEditMessageOf(userId: string): boolean {}
 
-export async function calculateDefenseTickCost(data: CheckReport, totalDegreeOfSuccess: number): number {}
+export function calculateDefenseTickCost(
+    data: { defenseType: DefenseType | null; itemData?: ActiveDefense },
+    totalDegreeOfSuccess: number
+): Promise<number>;
 
 export function prepareCheckMessageData(
     actor: SplittermondActor,
