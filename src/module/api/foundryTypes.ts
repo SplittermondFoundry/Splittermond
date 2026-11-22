@@ -65,6 +65,13 @@ export interface Socket {
     emit: (key: string, object: object) => void;
 }
 
+export interface WorldTime {
+    /** Persisted seconds, preserving fractional ticks across Foundry server synchronization. */
+    readonly worldTime: number;
+    advance(seconds: number): Promise<number>;
+    set(seconds: number): Promise<number>;
+}
+
 export interface Hooks {
     once: (key: string, callback: (...args: any[]) => void) => number;
     on: (key: string, callback: (...args: any[]) => void) => number;
@@ -211,6 +218,7 @@ declare global {
     }
 
     const CONFIG: {
+        time: { roundTime: number; turnTime: number };
         Item: {
             documentClass: Function;
             dataModels: Record<string, unknown>;

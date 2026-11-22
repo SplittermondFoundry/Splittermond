@@ -37,6 +37,32 @@
     },
     "SETTINGS": {},
     "splittermond": {
+        "worldTime": {
+            "title": "Weltzeit",
+            "date": "Tag {day}, {hour}:{minute} Uhr",
+            "dateWithYear": "Jahr {year}, Tag {day}, {hour}:{minute} Uhr",
+            "minutes": "{value} min",
+            "hours": "{value} h",
+            "oneDay": "1 Tag",
+            "days": "{value} Tage",
+            "seconds": "Sekunden: {value}",
+            "advance": "Zeit um {time} vorstellen",
+            "rewind": "Zeit um {time} zurückstellen",
+            "steps": "Zeit vor- oder zurückstellen",
+            "set": "Aktuellen Zeitpunkt festlegen",
+            "setButton": "Zeit festlegen",
+            "year": "Jahr",
+            "day": "Tag",
+            "hour": "Stunde",
+            "minute": "Minute",
+            "second": "Sekunde",
+            "increaseField": "{unit} erhöhen",
+            "decreaseField": "{unit} verringern",
+            "changePreview": "Änderung der Weltzeit: {seconds} Sekunden",
+            "setHint": "Ein Jahr hat 365 Tage (Tag 0 bis 364). Zeitänderungen beeinflussen laufende Wirkzeiten. Zurückstellen stellt gelöschte Effekte nicht wieder her.",
+            "invalidTime": "Bitte einen gültigen Zeitpunkt eingeben: ganze Jahre, Tag 0–364, Stunde 0–23, Minute und Sekunde 0–59.",
+            "changeFailed": "Die Weltzeit konnte nicht geändert werden. Bitte Berechtigung, Zeiterfassung und Verbindung prüfen."
+        },
         "unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte erstellen Sie einen Fehlerbericht.",
         "chatCard": {
             "noGMConnected": "Aktion kann nicht ausgeführt werden, da kein berechtigter Nutzer (Spielleiter) verbunden ist.",
@@ -839,6 +865,18 @@
             }
         },
         "settings": {
+            "hideWorldTime": {
+                "name": "Weltzeit ausblenden",
+                "hint": "Blendet Zeit und Schnellbuttons für alle aus. Der Menübutton bleibt für die Spielleitung erreichbar."
+            },
+            "pauseWorldTime": {
+                "name": "Zeitfortschritt nicht erfassen",
+                "hint": "Blendet die Schnellbuttons aus und setzt die Tick-Übernahme aus. Uhrzeit und Menübutton bleiben sichtbar; beim Fortsetzen erscheinen die Schnellbuttons wieder. Es werden keine Ticks nachgeholt. Der Zeitpunkt kann im Menü weiterhin angepasst und festgelegt werden; andere Module können die Weltzeit weiterhin ändern."
+            },
+            "worldTimeFromTicks": {
+                "name": "Zeitablauf durch Ticks",
+                "hint": "Übernimmt vergangene Kampfticks und Rückwärtskorrekturen in die Weltzeit: 120 Ticks = 1 Minute. Parallele Kämpfe werden nicht zeitlich koordiniert."
+            },
             "reducibleEnhancementCosts": {
                 "name": "Reduzible Zauberverstärkungskosten",
                 "hint": "Erlaubt die Reduzierung der Verstärkungskosten durch die Verwendung von Erfolgsgraden."

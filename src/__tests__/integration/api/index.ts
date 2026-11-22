@@ -9,9 +9,11 @@ import { foundryTypeDeclarationsTest } from "./foundryTypes.test";
 import { macroApiTest } from "./Macro.test";
 import { speakerApiTest } from "./speaker.test";
 import type { BatchRegistrar } from "../fixtures";
+import { worldTimeApiTests } from "./worldTime.test";
 import { applicationApiTest } from "./application.test";
 
 export function registerApiBatches(register: BatchRegistrar) {
+    register("worldTime", worldTimeApiTests);
     register("apiConstants", apiConstantsTest);
     register("apiUtils", apiUtilsTest);
     register("cssVariables", cssVariablesTest);
