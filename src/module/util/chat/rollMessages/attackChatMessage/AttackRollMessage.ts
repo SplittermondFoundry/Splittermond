@@ -149,13 +149,16 @@ export class AttackRollMessage extends RollMessage<
             .spendSplinterpoint()
             .getBonus(this.checkReport.skill.id);
         const checkReport = this.checkReport;
+        const maneuverCost = checkReport.maneuvers.length;
+        const previousSpendableDegrees = Math.max(0, totalDegreesOfSuccess(checkReport) - maneuverCost);
         const newCheckReport = await addSplinterpointBonus(checkReport, await splinterPointBonus);
         const readaptedCheckReport = this.attackReference.get().adaptForGrazingHit(newCheckReport);
-        this.updateSource({ checkReport: readaptedCheckReport, splinterPointUsed: true });
+        const newSpendableDegrees = Math.max(0, totalDegreesOfSuccess(newCheckReport) - maneuverCost);
+        const additionalDegrees = newSpendableDegrees - previousSpendableDegrees;
         this.updateSource({
-            openDegreesOfSuccess:
-                this.openDegreesOfSuccess +
-                (totalDegreesOfSuccess(newCheckReport) - totalDegreesOfSuccess(checkReport)),
+            checkReport: readaptedCheckReport,
+            splinterPointUsed: true,
+            openDegreesOfSuccess: this.openDegreesOfSuccess + additionalDegrees,
         });
     }
 

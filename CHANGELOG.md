@@ -6,6 +6,8 @@
   Zauber ohne verkürzbare Auslösezeit bieten ebenfalls die Tick-Abrechnung an; die Verkürzung bleibt auf zwei Ticks begrenzt.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
 - Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
+- Splitterpunkte gewähren bei Angriffs- und Zauberproben nur tatsächlich verfügbare zusätzliche Erfolgsgrade. Negative Erfolgsgrade und durch Manöver gebundene Erfolgsgrade erzeugen keine freien Erfolgsgradoptionen mehr.
+- Bei Fertigkeitsproben und aktiver Abwehr mit 0 Fertigkeitspunkten bleibt die Begrenzung der gewürfelten Erfolgsgrade auch nach dem Einsatz eines Splitterpunkts erhalten.
 
 ## 14.3.1
 

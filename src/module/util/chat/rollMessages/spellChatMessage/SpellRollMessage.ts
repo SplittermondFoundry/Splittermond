@@ -145,12 +145,14 @@ export class SpellRollMessage extends RollMessage<
             .spendSplinterpoint()
             .getBonus(this.checkReport.skill.id);
         const checkReport = this.checkReport;
+        const previousSpendableDegrees = Math.max(0, totalDegreesOfSuccess(checkReport));
         const newCheckReport = await addSplinterpointBonus(checkReport, await splinterPointBonus);
-        this.updateSource({ checkReport: newCheckReport, splinterPointUsed: true });
+        const newSpendableDegrees = Math.max(0, totalDegreesOfSuccess(newCheckReport));
+        const additionalDegrees = newSpendableDegrees - previousSpendableDegrees;
         this.updateSource({
-            openDegreesOfSuccess:
-                this.openDegreesOfSuccess +
-                (totalDegreesOfSuccess(newCheckReport) - totalDegreesOfSuccess(checkReport)),
+            checkReport: newCheckReport,
+            splinterPointUsed: true,
+            openDegreesOfSuccess: this.openDegreesOfSuccess + additionalDegrees,
         });
     }
 
