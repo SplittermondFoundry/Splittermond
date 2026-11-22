@@ -2,10 +2,10 @@
 
 ### Fixes
 
-- Beschreibungen von NSC-Merkmalen, Stärken und Schwächen werden beim Überfahren des Namens wieder als Tooltip angezeigt.
-- Verzögert geladene Tooltips erscheinen nicht mehr, nachdem der zugehörige Eintrag verlassen oder neu gerendert wurde.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
 - Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
+- Beschreibungen von NSC-Merkmalen, Stärken und Schwächen werden beim Überfahren des Namens wieder als Tooltip angezeigt.
+- Verzögert geladene Tooltips erscheinen nicht mehr, nachdem der zugehörige Eintrag verlassen oder neu gerendert wurde.
 
 ## 14.3.1
 
