@@ -2,6 +2,7 @@
 
 ### Fixes
 
+- Die Tickleiste weicht der sichtbaren Szenen- und Ebenenauswahl aus und passt ihre Breite bis zur Sidebar an.
 - Der Tickzuschlag wird jetzt auch beim Auslösen von Zaubern und Fernkampfangriffen berücksichtigt.
   Zauber ohne verkürzbare Auslösezeit bieten ebenfalls die Tick-Abrechnung an; die Verkürzung bleibt auf zwei Ticks begrenzt.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.

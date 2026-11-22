@@ -11,6 +11,7 @@ import { registerInfrastructureBatches } from "./infrastructure";
 import { registerActorBatches } from "./actor";
 import { registerItemBatches } from "./item";
 import { sheetDropsTest } from "./sheetDrops.test";
+import { tickBarLayoutTests } from "./tickBarLayout.test";
 
 declare const Hooks: any;
 declare class Scene extends FoundryDocument {}
@@ -30,6 +31,7 @@ function registerQuenchTests(quench: Quench) {
     registerItemBatches(createRegistrar(quench, "item"));
 
     quench.registerBatch("splittermond.applications", applicationTests);
+    quench.registerBatch("splittermond.tickBarLayout", tickBarLayoutTests);
     quench.registerBatch("splittermond.sheetDrops", sheetDropsTest);
     quench.registerBatch("splittermond.combat", combatTest);
     quench.registerBatch("splittermond.chatSystem", chatActionFeatureTest);

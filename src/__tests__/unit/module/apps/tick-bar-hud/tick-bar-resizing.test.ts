@@ -20,6 +20,12 @@ async function setupTickBarHud() {
     // document-level siblings of the tick bar HUD application.
     const html = `
       <div id="ui-left-column-1" style="width: 200px; height: 100vh; position: absolute; left: 0; top: 0;"></div>
+      <div id="ui-left-column-2">
+        <nav id="scene-navigation">
+          <menu id="scene-navigation-viewed" class="scene-navigation-menu"><li>Scene</li></menu>
+          <menu id="scene-navigation-levels" class="scene-navigation-menu"><li>Ground</li></menu>
+        </nav>
+      </div>
       <div id="tick-bar-hud-application">
         ${createHtml("./templates/apps/tick-bar-hud.hbs", context)}
       </div>
@@ -41,6 +47,15 @@ async function setupTickBarHud() {
 
     Object.defineProperty(global, "window", { value: dom.window, writable: true });
     global.MutationObserver = dom.window.MutationObserver;
+    const resizeObservers: { callback: ResizeObserverCallback; observer: ResizeObserver }[] = [];
+    global.ResizeObserver = class implements ResizeObserver {
+        constructor(callback: ResizeObserverCallback) {
+            resizeObservers.push({ callback, observer: this });
+        }
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+    };
 
     afterEach(() => {
         dom.window.close();
@@ -49,9 +64,10 @@ async function setupTickBarHud() {
         global.requestAnimationFrame = undefined;
         //@ts-ignore
         global.MutationObserver = undefined;
+        Reflect.deleteProperty(global, "ResizeObserver");
     });
 
-    return { underTest, dom };
+    return { underTest, dom, resizeObservers };
 }
 
 describe("tick-bar-resizing", () => {
@@ -141,6 +157,129 @@ describe("tick-bar-resizing", () => {
     });
 
     describe("positionTickBarHudBetweenElements", () => {
+        async function setupNavigationOverlap() {
+            const fixture = await setupTickBarHud();
+            const { underTest, dom } = fixture;
+            const doc = dom.window.document;
+            const bar = underTest.element.querySelector<HTMLElement>(".tick-bar-hud")!;
+            bar.style.left = "110px";
+            const levels = doc.querySelector<HTMLElement>("#scene-navigation-levels")!;
+            sandbox
+                .stub(doc.querySelector("#ui-left-column-1")!, "getBoundingClientRect")
+                .returns(new dom.window.DOMRect(16, 16, 72, 968));
+            sandbox
+                .stub(doc.querySelector("#sidebar")!, "getBoundingClientRect")
+                .returns(new dom.window.DOMRect(800, 0, 200, 1000));
+            sandbox.stub(bar, "getBoundingClientRect").returns(new dom.window.DOMRect(110, 60, 670, 84));
+            sandbox
+                .stub(doc.querySelector("#scene-navigation")!, "getBoundingClientRect")
+                .returns(new dom.window.DOMRect(104, 16, 200, 968));
+            sandbox
+                .stub(doc.querySelector("#scene-navigation-viewed")!, "getBoundingClientRect")
+                .returns(new dom.window.DOMRect(104, 16, 170, 32));
+            const levelsRect = sandbox
+                .stub(levels, "getBoundingClientRect")
+                .returns(new dom.window.DOMRect(104, 56, 170, 80));
+            return { ...fixture, bar, levels, levelsRect };
+        }
+
+        it("places the bar beside overlapping levels and keeps its right edge before the sidebar", async () => {
+            const { underTest, bar } = await setupNavigationOverlap();
+
+            initMaxWidthTransitionForTickBarHud(underTest);
+            requestAnimationFrameStub.firstCall.firstArg();
+
+            expect(parseFloat(bar.style.left), "bar starts after the levels' right edge").to.be.greaterThan(274);
+            expect(
+                parseFloat(bar.style.left) + parseFloat(bar.style.maxWidth),
+                "bar ends before the sidebar"
+            ).to.be.lessThan(800);
+        });
+
+        for (const visibility of ["hidden", "collapse"] as const) {
+            it(`ignores ${visibility} navigation even when it occupies layout space`, async () => {
+                const { underTest, bar, levels } = await setupNavigationOverlap();
+                levels.style.visibility = visibility;
+
+                initMaxWidthTransitionForTickBarHud(underTest);
+                requestAnimationFrameStub.firstCall.firstArg();
+
+                expect(bar.style.left).to.equal("110px");
+            });
+        }
+
+        it("keeps the default position when navigation is above the bar or empty", async () => {
+            const { underTest, bar, levels } = await setupNavigationOverlap();
+            levels.replaceChildren();
+
+            initMaxWidthTransitionForTickBarHud(underTest);
+            requestAnimationFrameStub.firstCall.firstArg();
+
+            expect(bar.style.left).to.equal("110px");
+        });
+
+        it("uses the normal position when the scene navigation is missing", async () => {
+            const { underTest, dom, bar } = await setupNavigationOverlap();
+            dom.window.document.querySelector("#scene-navigation")!.remove();
+
+            initMaxWidthTransitionForTickBarHud(underTest);
+            requestAnimationFrameStub.firstCall.firstArg();
+
+            expect(bar.style.left).to.equal("110px");
+        });
+
+        it("does not assign a negative width when navigation reaches the sidebar", async () => {
+            const { underTest, dom, bar, levelsRect } = await setupNavigationOverlap();
+            levelsRect.returns(new dom.window.DOMRect(104, 56, 700, 80));
+
+            initMaxWidthTransitionForTickBarHud(underTest);
+            requestAnimationFrameStub.firstCall.firstArg();
+
+            expect(bar.style.maxWidth).to.equal("0px");
+        });
+
+        it("reclaims space after the level menu is removed by a navigation render", async () => {
+            const { underTest, bar, levels } = await setupNavigationOverlap();
+            initMaxWidthTransitionForTickBarHud(underTest);
+            requestAnimationFrameStub.firstCall.firstArg();
+            expect(parseFloat(bar.style.left)).to.be.greaterThan(274);
+            requestAnimationFrameStub.resetHistory();
+
+            levels.remove();
+            await expectEventually(() => requestAnimationFrameStub.called);
+            requestAnimationFrameStub.lastCall.firstArg();
+
+            expect(bar.style.left).to.equal("110px");
+        });
+
+        it("repositions when a navigation menu changes size", async () => {
+            const { underTest, dom, bar, levelsRect, resizeObservers } = await setupNavigationOverlap();
+            initMaxWidthTransitionForTickBarHud(underTest);
+            requestAnimationFrameStub.firstCall.firstArg();
+
+            levelsRect.returns(new dom.window.DOMRect(104, 56, 270, 80));
+            for (const { callback, observer } of resizeObservers) callback([], observer);
+            requestAnimationFrameStub.lastCall.firstArg();
+
+            expect(parseFloat(bar.style.left)).to.be.greaterThan(374);
+            expect(parseFloat(bar.style.left) + parseFloat(bar.style.maxWidth)).to.be.lessThan(800);
+        });
+
+        it("stops observing navigation when the HUD closes", async () => {
+            const { underTest, dom, levels, resizeObservers } = await setupNavigationOverlap();
+            const listeners = sandbox.spy(underTest, "addEventListener");
+            initMaxWidthTransitionForTickBarHud(underTest);
+            const disconnect = sandbox.spy(resizeObservers[0].observer, "disconnect");
+
+            listeners.withArgs("close").firstCall.args[1](new dom.window.Event("close"));
+            requestAnimationFrameStub.resetHistory();
+            levels.remove();
+            await new Promise<void>((resolve) => dom.window.queueMicrotask(resolve));
+
+            expect(requestAnimationFrameStub.called, "closed HUD ignores subsequent navigation changes").to.be.false;
+            expect(disconnect.calledOnce, "menu size observations are disconnected").to.be.true;
+        });
+
         it("should calculate correct max width when all elements present", async () => {
             const { underTest } = await setupTickBarHud();
             const leftColumn = underTest.element.ownerDocument.querySelector(
