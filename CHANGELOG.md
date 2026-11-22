@@ -4,6 +4,8 @@
 
 - Mitgelieferte Effekte für INI, GSW, LP, FO, VTD, KW und GW werden korrekt berücksichtigt; bereits vorhandene Effekte werden beim Laden korrigiert.
 - Der Modifikator von Beidhändiger Abwehr behält beim Bearbeiten seine zugeordnete Fertigkeit.
+- Der Tickzuschlag wird jetzt auch beim Auslösen von Zaubern und Fernkampfangriffen berücksichtigt.
+  Zauber ohne verkürzbare Auslösezeit bieten ebenfalls die Tick-Abrechnung an; die Verkürzung bleibt auf zwei Ticks begrenzt.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
 - Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
 
