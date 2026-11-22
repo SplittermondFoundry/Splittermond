@@ -52,6 +52,7 @@ export function foundryTypeDeclarationsTest(context: QuenchBatchContext) {
                 ["whisper", "object"],
                 ["isOwner", "boolean"],
                 ["visible", "boolean"],
+                ["hasPlayerOwner", "boolean"],
                 ["timestamp", "number"],
             ] as const
         ).forEach(([property, type]) => {

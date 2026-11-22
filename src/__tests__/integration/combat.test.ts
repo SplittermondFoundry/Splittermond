@@ -9,6 +9,7 @@ import { deleteActorMessages, deleteTestCombats, useScene, withActor } from "./f
 import { actorCreator } from "module/data/EntityCreator";
 import { expect } from "chai";
 import { passesEventually } from "../util";
+import { cleanupInOrder, closeSheets } from "./cleanup";
 import Combatant = foundry.documents.Combatant;
 
 declare const ui: { combat: { viewed: unknown } };
@@ -25,18 +26,27 @@ export function combatTest(context: QuenchBatchContext) {
     beforeEach(() => (sandbox = sinon.createSandbox()));
 
     afterEach(async () => {
-        await deleteTestCombats(combats.map((c) => c.id));
-        await deleteActorMessages(actors.map((a) => a.id));
-        await Actor.deleteDocuments(actors.map((a) => a.id));
-        await Promise.all(tokens.map((t) => t.actor?.sheet.close()));
-        await scene.deleteEmbeddedDocuments(
-            "Token",
-            tokens.map((t) => t.id)
-        );
-        sandbox.restore();
-        combats = [];
-        actors = [];
-        tokens = [];
+        try {
+            await cleanupInOrder(
+                () => deleteTestCombats(combats.map((c) => c.id)),
+                () => deleteActorMessages(actors.map((a) => a.id)),
+                () =>
+                    closeSheets(
+                        ...new Set([...actors, ...tokens.map((token) => token.actor)].map((actor) => actor.sheet))
+                    ),
+                () =>
+                    scene.deleteEmbeddedDocuments(
+                        "Token",
+                        tokens.map((t) => t.id)
+                    ),
+                () => Actor.deleteDocuments(actors.map((a) => a.id))
+            );
+        } finally {
+            sandbox.restore();
+            combats = [];
+            actors = [];
+            tokens = [];
+        }
     });
 
     async function createActiveCombat() {
@@ -49,6 +59,7 @@ export function combatTest(context: QuenchBatchContext) {
 
     async function createCombatant(name: string, combat: SplittermondCombat) {
         const actor = await actorCreator.createCharacter({ type: "character", name, system: {} });
+        actors.push(actor);
         const tokenDocument = (
             await scene.createEmbeddedDocuments("Token", [
                 {
@@ -60,7 +71,6 @@ export function combatTest(context: QuenchBatchContext) {
             ])
         )[0] as TokenDocument;
         console.debug("Token created");
-        actors.push(actor);
         tokens.push(tokenDocument);
         const combatants = await combat.createEmbeddedDocuments("Combatant", [
             {
@@ -215,7 +225,7 @@ export function combatTest(context: QuenchBatchContext) {
 
             // Now draw the actor into a freshly-started combat.
             const combat = await createActiveCombat();
-            await scene.createEmbeddedDocuments("Token", [
+            const createdTokens = await scene.createEmbeddedDocuments("Token", [
                 {
                     type: "base",
                     actorId: actor.id,
@@ -223,6 +233,7 @@ export function combatTest(context: QuenchBatchContext) {
                     y: scene._viewPosition.y,
                 },
             ]);
+            tokens.push(...(createdTokens as TokenDocument[]));
             const combatants = await combat.createEmbeddedDocuments("Combatant", [
                 {
                     type: "base",

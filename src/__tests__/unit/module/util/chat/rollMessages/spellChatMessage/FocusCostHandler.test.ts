@@ -452,6 +452,7 @@ describe("FocusCostActionHandler", () => {
             let completed = false;
             const completion = action.then(() => (completed = true));
             try {
+                // Let an already-resolved action notify its observer before asserting that it is still pending.
                 await Promise.resolve();
                 expect(agent.applyCost.calledOnce).to.be.true;
                 expect(completed, "the action must remain pending while costs are being persisted").to.be.false;

@@ -1,10 +1,68 @@
 import { expect } from "chai";
 import sinon from "sinon";
 import { foundryApi } from "module/api/foundryApi";
-import { useScene, withActor, withScene, withUnlinkedToken } from "../integration/fixtures";
+import { createItemFixture, useScene, withActor, withScene, withUnlinkedToken } from "../integration/fixtures";
 import SplittermondActor from "module/actor/actor";
+import SplittermondItem from "module/item/item";
 
 declare const game: object;
+
+describe("Item fixture cleanup", () => {
+    const sandbox = sinon.createSandbox();
+    let item: SplittermondItem;
+    let deleteDocuments: sinon.SinonStub;
+    let createItem: sinon.SinonStub;
+    beforeEach(() => {
+        item = sandbox.createStubInstance(SplittermondItem);
+        Object.defineProperty(item, "id", { value: "fixture-item" });
+        createItem = sandbox.stub(foundryApi, "createItem").resolves(item);
+        deleteDocuments = sandbox.stub().resolves([]);
+        sandbox.define(Item, "deleteDocuments", deleteDocuments);
+    });
+    afterEach(() => sandbox.restore());
+
+    it("awaits item deletion when the test fails", async () => {
+        let finishDeletion!: () => void;
+        let startDeletion!: () => void;
+        const deletion = new Promise<void>((resolve) => (finishDeletion = resolve));
+        const deletionStarted = new Promise<void>((resolve) => (startDeletion = resolve));
+        deleteDocuments.callsFake(() => {
+            startDeletion();
+            return deletion;
+        });
+        const failure = new Error("Test failed");
+        let finished = false;
+        const scenario = async () => {
+            await using fixture = await createItemFixture({ type: "weapon", name: "Test item" });
+            expect(fixture.item).to.equal(item);
+            throw failure;
+        };
+        const result = scenario().catch((error: unknown) => {
+            finished = true;
+            return error;
+        });
+        try {
+            await deletionStarted;
+            expect(deleteDocuments.calledOnceWithExactly([item.id])).to.be.true;
+            expect(finished).to.be.false;
+        } finally {
+            finishDeletion();
+        }
+        expect(await result).to.equal(failure);
+    });
+
+    it("deletes an already-created item when creating the second item fails", async () => {
+        const failure = new Error("Second item creation failed");
+        createItem.onSecondCall().rejects(failure);
+        const scenario = async () => {
+            await using _source = await createItemFixture({ type: "weapon", name: "Source" });
+            await using _target = await createItemFixture({ type: "weapon", name: "Target" });
+        };
+
+        expect(await scenario().catch((error: unknown) => error)).to.equal(failure);
+        expect(deleteDocuments.calledOnceWithExactly([item.id])).to.be.true;
+    });
+});
 
 describe("Scene fixture cleanup", () => {
     const sandbox = sinon.createSandbox();

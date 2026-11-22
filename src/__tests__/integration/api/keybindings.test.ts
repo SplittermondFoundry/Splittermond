@@ -25,6 +25,7 @@ export function foundryKeybindingsTest(context: QuenchBatchContext) {
 
     afterEach(async () => {
         actualExecutor = () => {};
+        // Restoring the binding does not release the keys pressed by the tests.
         KeyboardManager.emulateKeypress(true, "Key9", { shiftKey: true, force: true });
         KeyboardManager.emulateKeypress(true, "Key3", { shiftKey: true, force: true });
         await foundryApi.keybindings.set("splittermond", "test-keybinding", [

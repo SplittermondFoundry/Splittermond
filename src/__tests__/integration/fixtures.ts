@@ -4,6 +4,7 @@ import type { FoundryScene, Socket, User } from "module/api/foundryTypes";
 import { foundryApi } from "module/api/foundryApi";
 import { ChatMessage, type FoundryChatMessage } from "module/api/ChatMessage";
 import { retryFor } from "../util";
+import type SplittermondItem from "module/item/item";
 import type { QuenchBatchContext, QuenchRegisterBatchFunction } from "@ethaks/fvtt-quench";
 
 declare const ui: { combat: { viewed: foundry.documents.Combat | null } };
@@ -18,6 +19,16 @@ export type BatchRegistrar = (name: string, batch: QuenchRegisterBatchFunction) 
 export async function createActor() {
     const actor = await Actor.create({ type: "character", name: `Test Actor${nextId()}` });
     return actor as SplittermondActor;
+}
+
+export async function createItemFixture(data: object) {
+    const item = (await foundryApi.createItem(data)) as SplittermondItem;
+    return {
+        item,
+        async [Symbol.asyncDispose]() {
+            await Item.deleteDocuments([item.id]);
+        },
+    };
 }
 
 export async function createScene() {

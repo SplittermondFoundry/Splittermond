@@ -75,6 +75,7 @@ export function hooksTest(context: QuenchBatchContext) {
                 const hook = registerHook("splittermond.integValid", () => [
                     new fields.NumberField({ required: true, nullable: false }),
                 ]);
+                // Deliberately bypass the static parameter type to exercise the real runtime validator.
                 expect(() => Reflect.apply(hook.call, hook, ["not-a-number"])).to.throw("Failed to validate candidate");
             });
 
