@@ -1156,6 +1156,7 @@ splittermond.fumbleTable = {
 splittermond.weaponFeatures = itemFeatures;
 splittermond.itemFeatures = itemFeatures;
 splittermond.spellEnhancement = splittermondSpellEnhancement;
+splittermond.maxReleaseTickReduction = 2;
 splittermond.attackEnhancement = splittermondAttackEnhancements;
 splittermond.degreeOfSuccessThresholds = {
     critical: 5,
