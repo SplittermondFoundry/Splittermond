@@ -6,6 +6,7 @@ import { activeEffectMultiplierTest } from "./activeEffectMultiplier.test";
 import { actorTest } from "./actor.test";
 import { tickMalusTest } from "./tickMalus.test";
 import { fearConditionTest } from "./fearCondition.test";
+import { descriptionTooltipsTest } from "./descriptionTooltips.test";
 
 export function registerActorBatches(register: BatchRegistrar) {
     register("main", actorTest);
@@ -15,5 +16,6 @@ export function registerActorBatches(register: BatchRegistrar) {
     register("activeEffectMultiplier", activeEffectMultiplierTest);
     register("tickMalus", tickMalusTest);
     register("fearCondition", fearConditionTest);
+    register("descriptionTooltips", descriptionTooltipsTest);
     console.log("Splittermond | Initialized actor batches");
 }

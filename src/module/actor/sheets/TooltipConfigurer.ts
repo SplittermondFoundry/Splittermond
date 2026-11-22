@@ -36,6 +36,7 @@ interface TemplateContext {
 
 export class TooltipConfigurer {
     private activeTooltips: string[] = [];
+    private tooltipGeneration = 0;
     constructor(private sheet: SplittermondActorSheet) {}
     get actor(): SplittermondActor {
         return this.sheet.actor;
@@ -44,10 +45,17 @@ export class TooltipConfigurer {
         return this.sheet.element;
     }
 
-    private async renderTooltip(target: HTMLElement, hbsContent: TemplateContext, position: TooltipPosition) {
-        const contextWithId = this.enhanceById(hbsContent);
-        this.activeTooltips.push(contextWithId.id);
+    private async renderTooltip(
+        target: HTMLElement,
+        hbsContent: TemplateContext | Promise<TemplateContext>,
+        position: TooltipPosition
+    ) {
+        const generation = this.tooltipGeneration;
+        const contextWithId = this.enhanceById(await hbsContent);
         const rendered = await foundryApi.renderer(`${TEMPLATE_BASE_PATH}/sheets/actor/tooltip.hbs`, contextWithId);
+        // Enrichment and rendering may finish after mouseleave or a sheet render replaced the target.
+        if (generation !== this.tooltipGeneration || !target.isConnected) return;
+        this.activeTooltips.push(contextWithId.id);
         this.element.insertAdjacentHTML("beforeend", rendered);
         const tooltip = this.element.querySelector(`#${contextWithId.id}`) as HTMLElement;
         const css = this.selectPosition(position, target, tooltip);
@@ -111,11 +119,9 @@ export class TooltipConfigurer {
     }
 
     removeTooltips() {
-        this.activeTooltips = this.activeTooltips.filter((activeTooltip) => {
-            const foundTooltip = this.element.querySelector(`#${activeTooltip}`);
-            foundTooltip?.remove();
-            return !foundTooltip; // Keep those that were not found and thus not removed
-        });
+        this.tooltipGeneration++;
+        this.activeTooltips.forEach((id) => this.element.querySelector(`#${id}`)?.remove());
+        this.activeTooltips = [];
     }
 
     configureTooltips() {
@@ -131,15 +137,18 @@ export class TooltipConfigurer {
         this.setHover(".list.attack .value", (t) => this.displayAttackTooltip(t));
         this.setHover(".list.active-defense .value", (t) => this.displayActiveDefenseTooltip(t));
         this.setHover(".list.masteries [data-item-id] .taglist-item-name", (t) => this.displayInventoryTooltip(t));
+        this.setHover(".npcfeatures [data-item-id] .taglist-item-name", (t) => this.displayInventoryTooltip(t));
+        this.setHover('[data-item-type="strength"] [data-item-id] .name', (t) => this.displayInventoryTooltip(t));
+        this.setHover('[data-item-type="weakness"] [data-item-id] .name', (t) => this.displayInventoryTooltip(t));
     }
     private async displayInventoryTooltip(target: HTMLElement) {
         const itemId = closestData(target, "item-id") ?? "";
         const item = this.actor.items.get(itemId) as SplittermondItem | null;
         if (!item || !item.system.description) return;
-        const hbsContent = {
+        const hbsContent = foundryApi.utils.enrichHtml(item.system.description).then((descriptionHtml) => ({
             tooltipKind: TemplateKind.INVENTORY_TOOLTIP,
-            descriptionHtml: await foundryApi.utils.enrichHtml(item.system.description),
-        };
+            descriptionHtml,
+        }));
         return this.renderTooltip(target, hbsContent, TooltipPosition.BOTTOM_LEFT);
     }
 
@@ -147,12 +156,12 @@ export class TooltipConfigurer {
         const itemId = target?.dataset.itemId ?? "";
         const item = this.actor.items.get(itemId) as SplittermondSpellItem | null;
         if (!item) return;
-        const hbsContent = {
+        const hbsContent = foundryApi.utils.enrichHtml(item.system.description || "").then((descriptionHtml) => ({
             tooltipKind: TemplateKind.SPELL_TOOLTIP,
-            descriptionHtml: await foundryApi.utils.enrichHtml(item.system.description || ""),
+            descriptionHtml,
             enhancementCosts: item.system.enhancementCosts,
             enhancementDescription: item.system.enhancementDescription,
-        };
+        }));
         return this.renderTooltip(target, hbsContent, TooltipPosition.BOTTOM_LEFT);
     }
 
