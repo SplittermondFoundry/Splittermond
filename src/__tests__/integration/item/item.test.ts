@@ -202,8 +202,8 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             items.push(item);
             return item;
         }
-        afterEach(() => {
-            Item.deleteDocuments(items.map((i) => i.id));
+        afterEach(async () => {
+            await Item.deleteDocuments(items.map((i) => i.id));
             items = [];
         });
 
@@ -214,7 +214,7 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             featureInput!.value = value;
             featureInput!.dispatchEvent(new Event("input", { bubbles: true }));
             featureInput!.dispatchEvent(new Event("change", { bubbles: true }));
-            void sheet.close();
+            await sheet.close();
         }
 
         it("should save secondaryAttack features", async () => {
@@ -262,7 +262,7 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             featureInput?.parentElement
                 ?.querySelector("button[data-action='inc-value']")
                 ?.dispatchEvent(new PointerEvent("click", { bubbles: true }));
-            void sheet.close();
+            await sheet.close();
 
             expect(featureInput?.valueAsNumber, "Input was updated").to.equal(2);
             await passesEventually(() => expect(item.system.quantity).to.equal(2), 1000, 100);
@@ -282,7 +282,7 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             featureInput?.parentElement
                 ?.querySelector("button[data-action='dec-value']")
                 ?.dispatchEvent(new PointerEvent("click", { bubbles: true }));
-            void sheet.close();
+            await sheet.close();
 
             expect(featureInput?.valueAsNumber, "Input was updated").to.equal(1);
             await passesEventually(() => expect(item.system.quantity).to.equal(1), 1000, 100);
@@ -303,10 +303,10 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             return item;
         }
 
-        afterEach(() => {
-            sheets.forEach((s) => s.close());
+        afterEach(async () => {
+            await Promise.all(sheets.map((s) => s.close()));
             sheets = [];
-            Item.deleteDocuments(items.map((i) => i.id));
+            await Item.deleteDocuments(items.map((i) => i.id));
             items = [];
         });
 

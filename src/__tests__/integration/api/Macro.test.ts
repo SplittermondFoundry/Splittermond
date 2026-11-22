@@ -42,9 +42,9 @@ export function macroApiTest(context: QuenchBatchContext) {
     describe("executeMacroByUuid", () => {
         let createdMacros: MacroDocument[] = [];
 
-        afterEach(() => {
+        afterEach(async () => {
             for (const macro of createdMacros) {
-                macro.delete();
+                await macro.delete();
             }
             createdMacros = [];
             resetSignal();

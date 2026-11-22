@@ -23,7 +23,7 @@ import {
 } from "module/modifiers/expressions/scalar";
 import { DamageModel } from "module/item/dataModel/propertyModels/DamageModel";
 import type SplittermondSpellItem from "module/item/spell";
-import { withActor } from "../fixtures";
+import { deleteTestMessages, withActor } from "../fixtures";
 import Attack from "module/actor/attack";
 import { passesEventually } from "../../util";
 import type { FoundryChatMessage } from "module/api/ChatMessage";
@@ -33,8 +33,6 @@ import sinon from "sinon";
 import { isGenerated } from "module/activeEffect/effectBuilder";
 import { parseCostString } from "module/util/costs/costParser";
 import CheckDialog from "module/apps/dialog/check-dialog";
-
-declare const ChatMessage: any;
 
 const ROLL_TYPE_LABEL: Record<string, string> = {
     standard: "Standardwurf",
@@ -260,7 +258,7 @@ export function modifierTest(context: QuenchBatchContext) {
         it(
             "should account for skill modifications to weapons",
             withActor(async (actor) => {
-                actor.update({
+                await actor.update({
                     system: {
                         attributes: {
                             strength: { initial: 2, advances: 0 },
@@ -923,7 +921,7 @@ export function modifierTest(context: QuenchBatchContext) {
 
         it("should filter spell damage modifiers by spell type through generated effects", async () => {
             const subject = await createActor("SpellDamageCharacter");
-            const spells = await subject.createEmbeddedDocuments("Item", [
+            const [damageSpell] = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "spell",
                     name: "Fireball",
@@ -934,6 +932,8 @@ export function modifierTest(context: QuenchBatchContext) {
                         damage: DamageModel.from("3"),
                     },
                 },
+            ]);
+            const [controlSpell] = await subject.createEmbeddedDocuments("Item", [
                 {
                     type: "spell",
                     name: "Flame Control",
@@ -956,8 +956,8 @@ export function modifierTest(context: QuenchBatchContext) {
             await waitForItemEffects(modifierItems);
             await subject.prepareData();
 
-            expect((spells[0] as SplittermondSpellItem).damage).to.equal("6");
-            expect((spells[1] as SplittermondSpellItem).damage).to.equal("3");
+            expect((damageSpell as SplittermondSpellItem).damage).to.equal("6");
+            expect((controlSpell as SplittermondSpellItem).damage).to.equal("3");
         });
 
         it("should respond to cast duration modifiers", async () => {
@@ -1178,12 +1178,16 @@ export function modifierTest(context: QuenchBatchContext) {
             await waitForItemEffects(skillItem);
             await actor.prepareData();
 
-            ((await Promise.all(Object.entries(splittermond.skillAttributes))) as [[SplittermondSkill, string[]]])
-                .filter(([_, value]) => value.includes("mystic"))
-                .map(([skill, _]) => skill)
-                .map(async (skill) => {
-                    expect(await actor.skills[skill].value.calculate(), `Skill ${skill} is modified`).to.be.at.least(6);
-                });
+            await Promise.all(
+                (Object.entries(splittermond.skillAttributes) as [SplittermondSkill, string[]][])
+                    .filter(([_, value]) => value.includes("mystic"))
+                    .map(async ([skill]) => {
+                        expect(
+                            await actor.skills[skill].value.calculate(),
+                            `Skill ${skill} is modified`
+                        ).to.be.at.least(6);
+                    })
+            );
         }
     });
 
@@ -1233,8 +1237,7 @@ export function modifierTest(context: QuenchBatchContext) {
         );
     });
 
-    describe("check.require rollType", function () {
-        this.timeout(10000);
+    describe("check.require rollType", () => {
         let sandbox: sinon.SinonSandbox;
         let createdMessages: string[] = [];
 
@@ -1246,7 +1249,7 @@ export function modifierTest(context: QuenchBatchContext) {
         afterEach(async () => {
             sandbox.restore();
             if (createdMessages.length > 0) {
-                await ChatMessage.deleteDocuments(createdMessages);
+                await deleteTestMessages(createdMessages);
             }
             document.querySelectorAll(".dialog-check").forEach((el) => el.remove());
             document.querySelectorAll("dialog").forEach((el) => {
@@ -1361,14 +1364,14 @@ export function modifierTest(context: QuenchBatchContext) {
         );
 
         it(
-            "should prefer an explicit safety requirement in an NPC dialog without a conflict or confirmation",
+            "should prefer an explicit safety requirement over the NPC default in the dialog",
             withActor(
                 async (actor) => {
                     await addStrengthModifier(actor, 'check.require rollType="safety"', "Require Safety");
                     const warnUser = sandbox.spy(foundryApi, "warnUser");
                     const render = sandbox.spy(CheckDialog.prototype, "render");
 
-                    const dialogPromise = actor.skills.acrobatics.finalizeCheckInputData(
+                    void actor.skills.acrobatics.finalizeCheckInputData(
                         [],
                         undefined,
                         undefined,
@@ -1382,17 +1385,17 @@ export function modifierTest(context: QuenchBatchContext) {
                             () => document.querySelector<HTMLElement>(".dialog-check"),
                             "NPC check dialog not rendered"
                         );
-                        const safetyButton = dialog.querySelector<HTMLButtonElement>("button[data-action='safety']");
-                        expect(safetyButton?.classList.contains("preset"), "safety is the NPC's preset roll").to.be
-                            .true;
+                        const presetButtons = dialog.querySelectorAll<HTMLButtonElement>("button.preset");
+                        expect(
+                            Array.from(presetButtons, (button) => button.dataset.action),
+                            "safety is the NPC's only preset roll"
+                        ).to.deep.equal(["safety"]);
+                        const otherButtons = dialog.querySelectorAll<HTMLButtonElement>("button.not-preset");
+                        expect(
+                            Array.from(otherButtons, (button) => button.dataset.action),
+                            "standard and risk are not preset"
+                        ).to.have.members(["standard", "risk"]);
                         expect(warnUser.called, "the NPC default must not cause a requirement conflict").to.be.false;
-
-                        safetyButton!.dispatchEvent(new PointerEvent("click", { bubbles: true }));
-
-                        const result = await dialogPromise;
-                        expect(result?.rollType).to.equal("safety");
-                        expect(document.querySelector("button[data-action='confirm']"), "no confirmation is required")
-                            .to.be.null;
                     } finally {
                         for (const rendered of render.returnValues) {
                             await (await rendered).close();

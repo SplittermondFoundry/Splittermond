@@ -477,7 +477,9 @@ declare namespace foundry {
     namespace documents {
         import CombatHistoryData = foundry.documents.types.CombatHistoryData;
 
-        class Scene extends FoundryDocument {}
+        class Scene extends FoundryDocument {
+            dimensions: { width: number; height: number };
+        }
 
         class ActiveEffect extends FoundryDocument {}
 

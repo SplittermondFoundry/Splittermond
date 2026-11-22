@@ -62,6 +62,7 @@ export interface User {
 
 export interface Socket {
     on: (key: string, callback: (data: unknown) => void) => void;
+    off: (key: string, callback: (data: unknown) => void) => void;
     emit: (key: string, object: object) => void;
 }
 
@@ -162,6 +163,7 @@ declare global {
         /** this is at least true for all the purposes for which we use {@link TokenDocument}*/
         readonly parent: FoundryDocument;
         actor: Actor;
+        actorLink: boolean;
         x: number;
         y: number;
         get object(): Token;

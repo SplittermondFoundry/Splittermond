@@ -6,8 +6,6 @@ import type SplittermondItem from "module/item/item";
 import { splittermond } from "module/config";
 import { passesEventually } from "../../util";
 
-declare const Item: { deleteDocuments(ids: string[]): Promise<void> };
-
 function findEffectBySourceId(effects: unknown, sourceId: string): EffectDataObject | undefined {
     const arr = effects as unknown as unknown[];
     return arr.find(
@@ -21,19 +19,7 @@ function hasConfigSourceId(effect: unknown): boolean {
 }
 
 export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
-    const { describe, it, expect, afterEach } = context;
-
-    let items: SplittermondItem[] = [];
-
-    afterEach(() => {
-        Item.deleteDocuments(items.map((i) => i.id));
-        items = [];
-    });
-
-    async function add(item: SplittermondItem) {
-        items.push(item);
-        return item;
-    }
+    const { describe, it, expect } = context;
 
     describe("SplittermondItem._onCreate compendium effect assignment", function () {
         this.timeout(15000);
@@ -44,7 +30,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                     { type: "strength", name: "sturdy", system: {} },
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
-                await add(item);
                 await passesEventually(() => expect(item.effects).to.have.length(1));
 
                 const effect = item.effects.find((e: EffectDataObject) => e.type === "modifier");
@@ -81,7 +66,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                     },
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
-                await add(item);
                 await passesEventually(() => expect(item.effects).to.have.length(1));
 
                 const effect = findEffectBySourceId(item.effects, modifiers.arcanespeed);
@@ -103,7 +87,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                     },
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
-                await add(item);
 
                 const compendiumEffects = (item.effects as unknown as unknown[]).filter(hasConfigSourceId);
                 expect(compendiumEffects, "non-modifier item type has no compendium effects").to.have.length(0);
@@ -124,7 +107,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                     { type: "strength", name: "unbekannte staerke", system: {} },
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
-                await add(item);
 
                 await item.update({ name: "sturdy" });
 
@@ -143,7 +125,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                     { type: "strength", name: "sturdy", system: {} },
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
-                await add(item);
                 await passesEventually(() => expect(item.effects).to.have.length(1), robustTimeout, pollInterval);
 
                 await item.update({ name: "my custom strength" });
@@ -171,7 +152,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                     },
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
-                await add(item);
 
                 await item.update({ name: "Beidhändige Abwehr" });
 
@@ -200,7 +180,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                     { type: "strength", name: "sturdy", system: {} },
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
-                await add(item);
                 await passesEventually(() => expect(item.effects).to.have.length(1), robustTimeout, pollInterval);
                 await item.createEmbeddedDocuments("ActiveEffect", [
                     { name: "manual", type: "modifier", system: { modifiers: [], costModifiers: [] } },
@@ -241,7 +220,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                     { type: "weapon", name: "test sword", system: { modifier: "P+2", equipped: "left" } },
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
-                await add(item);
                 expect(item.effects.filter((e: EffectDataObject) => hasConfigSourceId(e))).to.have.length(0);
 
                 await item.update({ name: "renamed sword" });
@@ -274,7 +252,6 @@ export function itemCompendiumAssignmentTest(context: QuenchBatchContext) {
                     },
                 ]);
                 const item = rawItem as unknown as SplittermondItem;
-                await add(item);
                 await passesEventually(
                     () =>
                         expect(
