@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Features
+
+- Itemfenster sowie Dialoge für Proben, aktive Abwehr und Schaden lassen sich in der Größe verändern.
+
 ### Fixes
 
 - Der Tickzuschlag wird jetzt auch beim Auslösen von Zaubern und Fernkampfangriffen berücksichtigt.

@@ -10,6 +10,12 @@ type UserAction = "cancel" | "apply" | "skip" | null;
 export type UserAdjustments = ReturnType<DamageReportDialog["getUserAdjustments"]>;
 
 export class DamageReportDialog extends FoundryDialog {
+    static DEFAULT_OPTIONS = {
+        window: {
+            resizable: true,
+        },
+    };
+
     private currentUserAdjustment: number = 0;
     private wasAdjusted: boolean = false;
     private baseChange: boolean = false;

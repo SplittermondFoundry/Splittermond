@@ -67,6 +67,9 @@ export default class CheckDialog extends FoundryDialog {
 
     static DEFAULT_OPTIONS = {
         classes: ["splittermond", "dialog", "dialog-check"],
+        window: {
+            resizable: true,
+        },
         position: {
             width: 450,
         },
