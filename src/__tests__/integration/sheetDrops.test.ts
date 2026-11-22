@@ -69,6 +69,89 @@ export function sheetDropsTest({ describe, it, expect }: QuenchBatchContext) {
     ).timeout(10000);
 
     it(
+        "adds and replaces a moonsign through item drag data while preserving the active tab and splinterpoints",
+        withActor(
+            withActor(async (actor, source) => {
+                const sheet = new SplittermondCharacterSheet({ document: actor });
+                try {
+                    await actor.update({ "system.splinterpoints.value": 1 });
+                    const [equipment] = await actor.createEmbeddedDocuments("Item", [
+                        { type: "equipment", name: "Keep this equipment" },
+                    ]);
+                    await sheet.render({ force: true });
+                    sheet.changeTab("inventory", "primary");
+                    for (const name of ["First moonsign", "Replacement moonsign"]) {
+                        const system = {
+                            description: `<p>${name} description</p>`,
+                            source: "Test source",
+                            enhancement: `${name} enhancement`,
+                            secretGift: `${name} secret gift`,
+                        };
+                        const [moonsign] = await source.createEmbeddedDocuments("Item", [
+                            {
+                                type: "moonsign",
+                                name,
+                                img: "systems/splittermond/images/moonsign/der_blitz.png",
+                                system,
+                            },
+                        ]);
+                        const transfer = new DataTransfer();
+                        transfer.setData("text/plain", JSON.stringify(moonsign.toDragData()));
+
+                        await sheet._onDrop(new DragEvent("drop", { dataTransfer: transfer }));
+
+                        await passesEventually(() => {
+                            const signs = actor.items.filter((item) => item.type === "moonsign");
+                            expect(signs, "Exactly one moonsign persists after each drop").to.have.length(1);
+                            const created = signs[0];
+                            expect(created.name).to.equal(name);
+                            expect(created.img).to.equal(moonsign.img);
+                            expect(created.system).to.deep.include(system);
+                            expect(actor.items.get(equipment.id)).to.exist;
+                            expect(actor.system).to.have.nested.property("splinterpoints.value", 1);
+                            expect(source.items.get(moonsign.id), "The source item is preserved").to.exist;
+                            expectTab(sheet, "inventory");
+                            const entry = sheet.element.querySelector(`header [data-item-id="${created.id}"]`);
+                            expect(entry?.textContent).to.equal(name);
+                            const header = entry?.closest(".moonsign");
+                            expect(header?.getClientRects().length).to.be.greaterThan(0);
+                            expect(
+                                header?.querySelector<HTMLImageElement>(".moonsign-image")?.naturalWidth
+                            ).to.be.greaterThan(0);
+                            expect(header?.getAnimations(), "The moonsign header is highlighted").to.have.length(1);
+                        }, 3000);
+                    }
+                } finally {
+                    await sheet.close();
+                }
+            })
+        )
+    ).timeout(10000);
+
+    it(
+        "keeps an embedded moonsign when it is dropped on its own character sheet",
+        withActor(async (actor) => {
+            const [moonsign] = await actor.createEmbeddedDocuments("Item", [
+                { type: "moonsign", name: "Existing moonsign", system: { secretGift: "Keep this gift" } },
+            ]);
+            const sheet = new SplittermondCharacterSheet({ document: actor });
+            try {
+                await sheet.render({ force: true });
+                const event = new DragEvent("drop");
+                Object.defineProperty(event, "target", { value: sheet.element.querySelector(".moonsign") });
+
+                await sheet._onDropDocument(event, moonsign);
+
+                expect(actor.items.filter((item) => item.type === "moonsign")).to.have.length(1);
+                expect(actor.items.get(moonsign.id)).to.equal(moonsign);
+                expect(actor.items.get(moonsign.id)?.system).to.have.property("secretGift", "Keep this gift");
+            } finally {
+                await sheet.close();
+            }
+        })
+    );
+
+    it(
         "highlights an always-visible NPC feature without changing tabs",
         withActor(
             withActor(

@@ -82,4 +82,24 @@ describe("showDroppedEntry", () => {
         expect(changeTab.called, "Closing the sheet must cancel pending tab activation").to.be.false;
         expect(animate.called, "Closing the sheet must cancel pending highlighting").to.be.false;
     });
+
+    it("highlights a newly rendered moonsign without changing tabs or retaining listeners", () => {
+        const changeTab = sandbox.stub(sheet, "changeTab");
+        showDroppedEntry(sheet, undefined, '[data-item-id="new"]');
+        sheet.element.innerHTML =
+            '<header><div class="moonsign"><img class="moonsign-image"><label class="moonsign-label"><a data-item-id="new">Moon sign</a></label></div></header>';
+        const moonsign = sheet.element.querySelector(".moonsign")!;
+        const scroll = sandbox.stub();
+        const animate = sandbox.stub();
+        sandbox.define(moonsign, "scrollIntoView", scroll);
+        sandbox.define(moonsign, "animate", animate);
+
+        events.dispatchEvent(new Event("render"));
+        events.dispatchEvent(new Event("render"));
+
+        expect(scroll.calledOnce).to.be.true;
+        expect(animate.calledOnce).to.be.true;
+        expect(changeTab.called).to.be.false;
+        expect(removeEventListener.args.map(([type]) => type)).to.deep.equal(["render", "close"]);
+    });
 });

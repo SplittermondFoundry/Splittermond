@@ -74,7 +74,7 @@ describe("SplittermondActorSheet", () => {
             education: { character: false, npc: false },
             resource: { character: true, npc: false },
             npcfeature: { character: false, npc: true },
-            moonsign: { character: false, npc: false },
+            moonsign: { character: true, npc: false },
             language: { character: true, npc: false },
             culturelore: { character: true, npc: false },
             statuseffect: { character: true, npc: true },

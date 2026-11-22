@@ -293,7 +293,7 @@ splittermond.displayOptions = {
             width: 600,
         },
         moonsign: {
-            height: 300,
+            height: 500,
             width: 600,
         },
     },
