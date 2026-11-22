@@ -3,6 +3,7 @@ import { foundryApi } from "module/api/foundryApi";
 import { isMacro } from "module/api/Macro";
 import type { ApplicationFormConfiguration } from "module/api/Application";
 import type { StatusEffectDataModelType } from "module/item/dataModel/StatusEffectDataModel";
+import { warnStatusEffectTimer } from "module/item/statusEffectTimer";
 
 interface MacroDropPayload {
     type: string;
@@ -21,6 +22,18 @@ export default class StatusEffectItemSheet extends SplittermondItemEffectsSheet 
         ...super.DEFAULT_OPTIONS,
         classes: ["splittermond", "sheet", "item", "statuseffect"],
     };
+
+    async close(options?: object): Promise<unknown> {
+        // Read the last input before the form disappears; its autosave may still be pending.
+        const form = this.rendered ? this.form : null;
+        const interval = form ? this.#readField(form, "system.combatEvent.interval").trim() : null;
+        const repeats = form ? this.#readField(form, "system.combatEvent.repeats").trim() : null;
+        const result = await super.close(options);
+        if (form && !this.rendered) {
+            warnStatusEffectTimer(this.item.name, interval, repeats);
+        }
+        return result;
+    }
 
     async _onDrop(event: DragEvent): Promise<void> {
         const raw = event.dataTransfer?.getData("text/plain");
@@ -42,6 +55,13 @@ export default class StatusEffectItemSheet extends SplittermondItemEffectsSheet 
 
     protected async _onSubmitForm(formConfig: ApplicationFormConfiguration, event: Event | SubmitEvent): Promise<void> {
         const form = isFormElement(event.currentTarget) ? event.currentTarget : null;
+        const interval = form ? this.#readField(form, "system.combatEvent.interval").trim() : "";
+        // Avoid exposing a technical document-validation error during autosave.
+        if (interval !== "" && !(Number(interval) > 0)) {
+            event.preventDefault();
+            foundryApi.reportError("splittermond.message.statusEffectInvalidInterval", { name: this.item.name });
+            return;
+        }
         const system = this.item.system as Partial<StatusEffectDataModelType>;
         const previousUuid = system.combatEvent?.macroRef?.uuid ?? null;
         const submittedUuid = form ? this.#readField(form, MACRO_UUID_FIELD) : null;

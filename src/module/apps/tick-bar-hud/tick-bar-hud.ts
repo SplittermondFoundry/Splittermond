@@ -272,17 +272,22 @@ export default class TickBarHud extends SplittermondApplication {
             const combatRound: number | undefined = this.firstApplicableCombat?.round;
             if (combatRound !== undefined && isFinite(combatRound)) {
                 this.minTick = combatRound;
-                return;
+            } else {
+                console.warn(
+                    "Splittermond | Tick Bar HUD calculated a faulty minimum tick value. Setting -20 as min Tick."
+                );
+                this.minTick = -20;
             }
+        }
+        if (!isFinite(this.maxTick) || this.maxTick < this.minTick) {
+            this.maxTick = Math.max(this.minTick + 50, 50);
             console.warn(
-                "Splittermond | Tick Bar HUD calculated a faulty minimum tick value. Setting -20 as min Tick."
+                `Splittermond | Tick Bar HUD calculated a faulty maximum tick value. Setting ${this.maxTick} as max Tick.`
             );
-            this.minTick = -20;
         }
-        if (isNaN(this.maxTick) || !isFinite(this.maxTick) || this.maxTick > 1000) {
-            console.warn("Splittermond | Tick Bar HUD calculated a faulty maximum tick value. Setting 50 as max Tick.");
-            this.maxTick = 50;
-        }
+        // Bound the number of rendered ticks, not the absolute tick of a long-running combat.
+        const maximumTickSpan = 1000;
+        this.maxTick = Math.min(this.maxTick, this.minTick + maximumTickSpan);
     }
 
     private animateMouseMovement(event: Event, animation: (e: HTMLElement) => Keyframe[] | PropertyIndexedKeyframes) {

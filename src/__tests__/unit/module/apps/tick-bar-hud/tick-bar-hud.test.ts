@@ -5,6 +5,7 @@ import { foundryApi } from "module/api/foundryApi";
 import SplittermondCombat from "module/combat/combat";
 import TickBarHud from "module/apps/tick-bar-hud/tick-bar-hud";
 import type { FoundryCombatant } from "module/api/foundryTypes";
+import type { VirtualToken } from "module/combat/VirtualToken";
 import { JSDOM } from "jsdom";
 import { createHtml } from "__tests__/handlebarHarness";
 import { addNewCombatant, createCombat, type MockedCombatant } from "./tickBarHudTestHelpers";
@@ -160,6 +161,107 @@ describe("TickBarHud", () => {
             await tickBarHud._prepareContext({ parts: [] });
 
             expect(tickBarHud.minTick).to.equal(10);
+        });
+
+        describe("bounded tick ranges", () => {
+            function createCombatWithStatus(tick: number, status: Partial<VirtualToken> = {}) {
+                const combat = createCombat(sandbox, { isActive: true, started: true });
+                const combatant = addNewCombatant(sandbox, combat, { initiative: tick });
+                addToCombatTurns(combat, combatant);
+                combatant.actor.getVirtualStatusTokens.returns([
+                    {
+                        statusId: "burning",
+                        name: "Burning",
+                        img: "icons/svg/fire.svg",
+                        description: "",
+                        level: 1,
+                        startTick: tick + 15,
+                        interval: 15,
+                        times: 6,
+                        ...status,
+                    },
+                ]);
+                sandbox.stub(foundryApi, "combats").get(() => [combat]);
+                return { combat, combatant };
+            }
+
+            for (const tick of [30, 871, 2000]) {
+                it(`keeps a short condition's range and markers at combat tick ${tick}`, async () => {
+                    const { combatant } = createCombatWithStatus(tick);
+
+                    const context = await new TickBarHud()._prepareContext({ parts: [] });
+
+                    expect(context.ticks[0]?.tickNumber).to.equal(tick);
+                    expect(context.ticks[context.ticks.length - 1]?.tickNumber).to.equal(tick + 130);
+                    expect(context.ticks[0].combatants.map((entry) => entry.id)).to.include(combatant.id);
+                    expect(context.ticks.find((entry) => entry.tickNumber === tick + 15)?.statusEffects).to.have.length(
+                        1
+                    );
+                });
+            }
+
+            for (const { interval, times } of [
+                { interval: 15, times: 90 },
+                { interval: 1_000_000_000, times: 1 },
+            ]) {
+                it(`bounds a condition with ${times} repetitions every ${interval} ticks without losing nearby combatants`, async () => {
+                    const { combat, combatant } = createCombatWithStatus(60, { interval, times });
+                    const nextCombatant = addNewCombatant(sandbox, combat, { initiative: 80 });
+                    nextCombatant.actor.getVirtualStatusTokens.returns([]);
+                    addToCombatTurns(combat, nextCombatant);
+
+                    const context = await new TickBarHud()._prepareContext({ parts: [] });
+
+                    expect(context.ticks).to.have.length(1001);
+                    expect(context.ticks[0]?.tickNumber).to.equal(60);
+                    expect(context.ticks[context.ticks.length - 1]?.tickNumber).to.equal(1060);
+                    expect(context.ticks.flatMap((tick) => tick.combatants.map((entry) => entry.id))).to.have.members([
+                        combatant.id,
+                        nextCombatant.id,
+                    ]);
+                    expect(context.ticks.find((tick) => tick.tickNumber === 75)?.statusEffects).to.have.length(1);
+                });
+            }
+
+            it("keeps at most 1001 tick fields when moving a combatant back from tick 200 to 150", async () => {
+                const { combatant } = createCombatWithStatus(200, { times: 90 });
+                const hud = new TickBarHud();
+                const before = await hud._prepareContext({ parts: [] });
+                expect(before.ticks).to.have.length(1001);
+                expect(before.ticks[0]?.tickNumber).to.equal(200);
+                expect(before.ticks[before.ticks.length - 1]?.tickNumber).to.equal(1200);
+
+                sandbox.stub(combatant, "initiative").value(150);
+                const after = await hud._prepareContext({ parts: [] });
+
+                expect(after.ticks).to.have.length(1001);
+                expect(after.ticks[0]?.tickNumber).to.equal(150);
+                expect(after.ticks[after.ticks.length - 1]?.tickNumber).to.equal(1150);
+                expect(after.ticks[0].combatants.map((entry) => entry.id)).to.include(combatant.id);
+            });
+
+            for (const interval of [NaN, Infinity]) {
+                it(`keeps the current combatant visible when a condition produces a non-finite maximum (${interval})`, async () => {
+                    const { combatant } = createCombatWithStatus(60, { interval, times: 1 });
+
+                    const context = await new TickBarHud()._prepareContext({ parts: [] });
+
+                    expect(context.ticks[0]?.tickNumber).to.equal(60);
+                    expect(context.ticks[context.ticks.length - 1]?.tickNumber).to.equal(110);
+                    expect(context.ticks[0].combatants.map((entry) => entry.id)).to.include(combatant.id);
+                });
+            }
+
+            it("validates the maximum after recovering the minimum from a late combat round", async () => {
+                const combat = createCombat(sandbox, { isActive: true, started: true });
+                await combat.update({ round: 1400 });
+                sandbox.stub(foundryApi, "combats").get(() => [combat]);
+
+                const context = await new TickBarHud()._prepareContext({ parts: [] });
+
+                expect(context.ticks[0]?.tickNumber).to.equal(1400);
+                expect(context.ticks[context.ticks.length - 1]?.tickNumber).to.equal(1450);
+            });
         });
 
         it("should use default values when no combatants and no round", async () => {

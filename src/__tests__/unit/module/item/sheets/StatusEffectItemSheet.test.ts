@@ -102,7 +102,7 @@ describe("StatusEffectItemSheet — _onDrop macro handling", () => {
     });
 });
 
-describe("StatusEffectItemSheet — _onSubmitForm macroRef.uuid resolution", () => {
+describe("StatusEffectItemSheet — form submission", () => {
     let sandbox: SinonSandbox;
 
     beforeEach(() => {
@@ -125,7 +125,9 @@ describe("StatusEffectItemSheet — _onSubmitForm macroRef.uuid resolution", () 
     }
 
     function makeSubmitEvent(form: HTMLFormElement): Event {
-        return { currentTarget: form, type: "submit" } as unknown as Event;
+        const event = new Event("submit", { cancelable: true });
+        Object.defineProperty(event, "currentTarget", { value: form });
+        return event;
     }
 
     type WithSubmitForm = { _onSubmitForm: (formConfig: unknown, event: Event) => Promise<void> };
@@ -138,6 +140,7 @@ describe("StatusEffectItemSheet — _onSubmitForm macroRef.uuid resolution", () 
         const update = sinon.stub().resolves({});
         const mockItem = {
             type: "statuseffect",
+            name: "Burning",
             effects: [],
             system: { description: "", combatEvent: { macroRef: { name: null, uuid: macroRefUuid } } },
             update,
@@ -151,6 +154,47 @@ describe("StatusEffectItemSheet — _onSubmitForm macroRef.uuid resolution", () 
             sinon.stub().resolves("")
         );
         return { sheet, update };
+    }
+
+    for (const interval of ["0", "-5", "not a number"]) {
+        it(`reports an invalid interval (${interval}) without submitting or resolving a macro`, async () => {
+            const { sheet, update } = makeSheet("Macro.old");
+            const submit = stubSuperSubmitForm();
+            const resolveMacro = sandbox.stub(foundryApi.utils, "fromUUID").resolves(null);
+            const error = sandbox.stub(foundryApi, "reportError");
+            const form = makeForm({
+                "system.combatEvent.interval": interval,
+                "system.combatEvent.macroRef.uuid": "Macro.new",
+            });
+            const event = makeSubmitEvent(form);
+
+            await (sheet as unknown as WithSubmitForm)._onSubmitForm({}, event);
+
+            expect(error.calledOnceWithExactly("splittermond.message.statusEffectInvalidInterval", { name: "Burning" }))
+                .to.be.true;
+            expect(event.defaultPrevented, "Invalid input must not trigger native form submission").to.be.true;
+            expect(submit.called, "Invalid input must not reach autosave").to.be.false;
+            expect(update.called).to.be.false;
+            expect(resolveMacro.called).to.be.false;
+        });
+    }
+
+    for (const interval of ["", "0.5", "15"]) {
+        it(`submits an allowed interval (${interval}) without an error`, async () => {
+            const { sheet } = makeSheet("Macro.same");
+            const submit = stubSuperSubmitForm();
+            const error = sandbox.stub(foundryApi, "reportError");
+            const form = makeForm({
+                "system.combatEvent.interval": interval,
+                "system.combatEvent.macroRef.uuid": "Macro.same",
+            });
+            const event = makeSubmitEvent(form);
+
+            await (sheet as unknown as WithSubmitForm)._onSubmitForm({}, event);
+
+            expect(submit.calledOnce).to.be.true;
+            expect(error.called).to.be.false;
+        });
     }
 
     it("persists the resolved macro name via item.update when the typed uuid changes", async () => {
