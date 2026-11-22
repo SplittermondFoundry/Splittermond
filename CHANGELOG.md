@@ -3,6 +3,7 @@
 ### Fixes
 
 - Mondzeichen können wieder auf Charakterbögen gezogen werden und ersetzen vorhandene Mondzeichen erst nach erfolgreichem Hinzufügen.
+- Mondzeichen öffnen sich mit einer größeren Standardhöhe, damit Beschreibung und Eigenschaften ausreichend Platz haben.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
 - Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
 
