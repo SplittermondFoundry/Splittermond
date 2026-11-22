@@ -5,6 +5,8 @@
 - Lange Zustandsintervalle oder Kämpfe über Tick 1000 setzen das Ende der Tickleiste nicht mehr auf Tick 50 zurück.
 - Beim Schließen eines Zustandsbogens oder Hinzufügen eines Zustands zu einer Figur erscheint eine Warnung, wenn nur Auslösezeit oder Anzahl der Auslösungen ausgefüllt ist oder bei ausgefüllter Auslösezeit die Anzahl 0 beträgt.
 - Ungültige Auslösezeiten werden im Zustandsbogen mit einer verständlichen Fehlermeldung abgewiesen.
+- Der Tickzuschlag wird jetzt auch beim Auslösen von Zaubern und Fernkampfangriffen berücksichtigt.
+  Zauber ohne verkürzbare Auslösezeit bieten ebenfalls die Tick-Abrechnung an; die Verkürzung bleibt auf zwei Ticks begrenzt.
 - Angsterfüllt erzwingt auf Stufe 0 keine Sicherheitswürfe mehr.
 - Zustände auf Stufe 0 werden auf der Tickleiste ausgeblendet und lösen keine Beschreibungsmeldungen oder Makros mehr aus.
 
