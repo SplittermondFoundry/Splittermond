@@ -19,11 +19,8 @@ export function windowResizingTest({ it, expect }: QuenchBatchContext) {
     }
 
     function expectReachableButtons(app: InstanceType<typeof FoundryApplication>) {
-        resize(app, 720, 640);
-        resize(app, 520, 300);
         const content = app.element.querySelector<HTMLElement>(".window-content")!;
         expect(getComputedStyle(content).overflowY, "Compact dialogs allow scrolling").to.equal("auto");
-        content.scrollTop = content.scrollHeight;
         const button = app.element.querySelector<HTMLElement>(".form-footer button")!;
         expect(button, "Dialog has an action button").to.exist;
         const buttonBounds = button.getBoundingClientRect();
@@ -87,6 +84,12 @@ export function windowResizingTest({ it, expect }: QuenchBatchContext) {
             );
             await withApplication(dialog, async () => {
                 await dialog.render({ force: true });
+
+                resize(dialog, 720, 640);
+                resize(dialog, 520, 300);
+                const content = dialog.element.querySelector<HTMLElement>(".window-content")!;
+                content.scrollTop = content.scrollHeight;
+
                 expectReachableButtons(dialog);
             });
         })
@@ -98,6 +101,12 @@ export function windowResizingTest({ it, expect }: QuenchBatchContext) {
             const dialog = new ActiveDefenseDialog(actor, "<p>Active defense</p>".repeat(30));
             await withApplication(dialog, async () => {
                 await dialog.render({ force: true });
+
+                resize(dialog, 720, 640);
+                resize(dialog, 520, 300);
+                const content = dialog.element.querySelector<HTMLElement>(".window-content")!;
+                content.scrollTop = content.scrollHeight;
+
                 expectReachableButtons(dialog);
             });
         })
@@ -123,6 +132,12 @@ export function windowResizingTest({ it, expect }: QuenchBatchContext) {
             });
             await withApplication(dialog, async () => {
                 await dialog.render({ force: true });
+
+                resize(dialog, 720, 640);
+                resize(dialog, 520, 300);
+                const content = dialog.element.querySelector<HTMLElement>(".window-content")!;
+                content.scrollTop = content.scrollHeight;
+
                 expectReachableButtons(dialog);
             });
         })
