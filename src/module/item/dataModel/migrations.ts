@@ -238,7 +238,7 @@ function splitModifierString(modifiers: string): string[] {
 function hasStringKey(source: unknown, key: string): source is { [key]: string | any } {
     return hasKey(source, key) && typeof source[key] === "string";
 }
-function hasKey(source: unknown, key: string): source is { [key]: unknown } {
+export function hasKey(source: unknown, key: string): source is { [key]: unknown } {
     return isObject(source) && key in source;
 }
 

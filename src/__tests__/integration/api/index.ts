@@ -10,12 +10,14 @@ import { macroApiTest } from "./Macro.test";
 import { speakerApiTest } from "./speaker.test";
 import type { BatchRegistrar } from "../fixtures";
 import { applicationApiTest } from "./application.test";
+import { nullableStringsTest } from "./nullableStrings.test";
 
 export function registerApiBatches(register: BatchRegistrar) {
     register("apiConstants", apiConstantsTest);
     register("apiUtils", apiUtilsTest);
     register("cssVariables", cssVariablesTest);
     register("dataModel", dataModelTest);
+    register("nullableStrings", nullableStringsTest);
     register("documents", documentsApiTest);
     register("foundryTypes", foundryTypeDeclarationsTest);
     register("keybindings", foundryKeybindingsTest);

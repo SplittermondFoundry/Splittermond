@@ -112,12 +112,10 @@ export function itemTest(this: any, context: QuenchBatchContext) {
                     costs: "5000V5000",
                     skillLevel: 6,
                     description: "abc",
-                    damage: {
-                        stringInput: "500d10+200",
-                    },
-                    damageType: "physical",
-                    costType: "V",
-                    effectArea: "50km²",
+                    damage: { base: { stringInput: "500d10+200" }, enhanced: null },
+                    damageType: { base: "physical", enhanced: null },
+                    costType: { base: "V", enhanced: null },
+                    effectArea: { base: "50km²", enhanced: null },
                     enhancementDescription: "Obliterates everything",
                     enhancementCosts: "1",
                     degreeOfSuccessOptions: {
@@ -131,12 +129,10 @@ export function itemTest(this: any, context: QuenchBatchContext) {
                         effectArea: false,
                     },
                     difficulty: "",
-                    effectDuration: "",
+                    effectDuration: { base: "", enhanced: null },
                     spellType: "",
-                    features: {
-                        internalFeatureList: [],
-                    },
-                    range: "",
+                    features: { base: { internalFeatureList: [] }, enhanced: null },
+                    range: { base: "", enhanced: null },
                     source: "",
                 },
             };
@@ -155,7 +151,7 @@ export function itemTest(this: any, context: QuenchBatchContext) {
         const sandbox = sinon.createSandbox();
         afterEach(() => sandbox.restore());
 
-        it("can import a spell", async () => {
+        it("imports spell text, opens its registered sheet and retains an enhancement edit after reopening", async () => {
             sandbox.stub(ItemImporter, "_folderDialog").returns(Promise.resolve(""));
             sandbox.stub(ItemImporter, "_skillDialog").returns(Promise.resolve("fightmagic"));
             const itemCreatorSpy = sandbox.spy(itemCreator, "createSpell");
@@ -165,18 +161,51 @@ export function itemTest(this: any, context: QuenchBatchContext) {
             await ItemImporter.pasteEventhandler(probe);
 
             const item = await itemCreatorSpy.lastCall.returnValue;
-            const expectedItemSystem = {
-                ...Machtexplosion.expected.system,
-                features: {
-                    _document: null,
-                    internalFeatureList: Machtexplosion.expected.system.features.internalFeatureList,
-                    triedToFindDocument: false,
-                },
-            };
-            expect(item.system).to.deep.equal(expectedItemSystem);
-            expect("img" in item && item.img).to.equal("icons/svg/daze.svg");
+            let sheet = item.sheet;
+            try {
+                const expectedItemSystem = {
+                    ...Machtexplosion.expected.system,
+                    features: {
+                        base: {
+                            _document: null,
+                            internalFeatureList: Machtexplosion.expected.system.features.base.internalFeatureList,
+                            triedToFindDocument: false,
+                        },
+                        enhanced: null,
+                    },
+                };
+                expect(item.system).to.deep.equal(expectedItemSystem);
+                expect(item.img).to.equal("icons/svg/daze.svg");
+                expect(sheet, "Foundry selects the spell sheet for imported items").to.be.instanceOf(
+                    SplittermondSpellSheet
+                );
+                await sheet.render(true);
+                sheet.changeTab("properties", "primary");
+                const enhancedDamage = sheet.element.querySelector<HTMLInputElement>(
+                    "[name='system.damage.enhanced.stringInput']"
+                );
+                expect(enhancedDamage?.value, "imported damage is inherited").to.equal("5W6");
 
-            await Item.deleteDocuments([item.id]);
+                enhancedDamage!.value = "6W6";
+                enhancedDamage!.dispatchEvent(new Event("change", { bubbles: true }));
+                await passesEventually(() => expect(item.system.damage.enhanced?.displayValue).to.equal("6W6"));
+                await sheet.close();
+                sheet = item.sheet;
+                await sheet.render(true);
+
+                expect(
+                    sheet.element.querySelector<HTMLInputElement>("[name='system.damage.base.stringInput']")?.value
+                ).to.equal("5W6");
+                expect(
+                    sheet.element.querySelector<HTMLInputElement>("[name='system.damage.enhanced.stringInput']")?.value
+                ).to.equal("6W6");
+                expect(item.system.enhancementDescription).to.equal(
+                    Machtexplosion.expected.system.enhancementDescription
+                );
+            } finally {
+                await sheet.close();
+                await SplittermondSpellItem.deleteDocuments([item.id]);
+            }
         });
     });
 
