@@ -65,7 +65,7 @@ export async function migrateModifierToEffects(
 
     const modifierType = modifierTypeForItemType(item.type);
     const parseResult = addModifier(item, resolvedModifierString, modifierType);
-    if (parseResult.hasErrors) return false;
+    if (parseResult.diagnostics.length > 0) return false;
 
     await item.setFlag("splittermond", "systemModifier", modifierString);
     await item.update({ "system.modifier": "" });

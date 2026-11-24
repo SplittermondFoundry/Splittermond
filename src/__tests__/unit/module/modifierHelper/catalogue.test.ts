@@ -34,7 +34,7 @@ describe("Modifier helper", () => {
             const raw = buildModifier(entry, { value: sampleValue(entry), attributes });
             expect(raw, entry.path).not.to.be.null;
             const result = module.addModifier(source, raw!, "innate");
-            expect(result.hasErrors, raw!).to.equal(false);
+            expect(result.diagnostics, raw!).to.be.empty;
             expect(result.modifiers.length + result.costModifiers.length, raw!).to.be.greaterThan(0);
             expect(result.costModifiers.length > 0).to.equal(entry.cost);
             const canonical = canonicalDefinition(entry, definitions);
@@ -68,7 +68,7 @@ describe("Modifier helper", () => {
                     const raw = buildModifier(entry, { value: sampleValue(entry), attributes });
                     expect(raw, `${entry.path} ${key}=${choice.value}`).not.to.be.null;
                     const result = module.addModifier(source, raw!, "innate");
-                    expect(result.hasErrors, raw!).to.equal(false);
+                    expect(result.diagnostics, raw!).to.be.empty;
                 }
             });
         }
@@ -152,7 +152,7 @@ describe("Modifier helper", () => {
 
         const result = module.addModifier(source, 'focus.reduction skill="athletics" 1', "innate");
 
-        expect(result.hasErrors).to.equal(true);
+        expect(result.diagnostics).not.to.be.empty;
         expect(result.diagnostics).to.have.length(1);
         expect(result.diagnostics[0]).to.include({ scope: "attribute", attribute: "skill" });
         expect(result.costModifiers[0].modifier.attributes.skill).to.equal("athletics");
@@ -288,7 +288,7 @@ describe("Modifier helper", () => {
             expect(selected.preview).to.equal("");
             for (const path of ["woundmalus", "actor.woundmalus"]) {
                 expect(definitions.some((entry) => entry.path === path)).to.equal(false);
-                expect(module.addModifier(source, `${path} +1`, "innate").hasErrors).to.equal(false);
+                expect(module.addModifier(source, `${path} +1`, "innate").diagnostics).to.be.empty;
             }
         });
 
@@ -394,7 +394,7 @@ describe("Modifier helper", () => {
                 const entry = definition(family);
                 const raw = buildModifier(entry, { value: "2", attributes: { damageType } });
                 expect(raw).to.equal(`${family}.${damageType} +2`);
-                expect(module.addModifier(source, raw!, "innate").hasErrors).to.equal(false);
+                expect(module.addModifier(source, raw!, "innate").diagnostics).to.be.empty;
                 const restored = readModifierInput(raw!, definitions)!;
                 expect(restored.definition.path).to.equal(family);
                 expect(restored.input.attributes).to.deep.equal({ damageType });

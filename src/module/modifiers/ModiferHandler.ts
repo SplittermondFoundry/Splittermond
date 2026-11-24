@@ -39,7 +39,7 @@ export abstract class ModifierHandler<TYPE extends AnyModifier> {
 
     requiresValue(path: string): boolean {
         const config = this.getPathConfig(path);
-        return config ? Object.prototype.hasOwnProperty.call(config.requiredAttributes, "value") : true;
+        return config ? "value" in config.requiredAttributes : true;
     }
 
     protected getAttributeChoices(path: string, attribute: string) {

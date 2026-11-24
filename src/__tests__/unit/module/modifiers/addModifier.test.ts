@@ -203,7 +203,7 @@ describe("addModifier", () => {
     ).forEach(([input, canonicalGroupId, amount]) => {
         it(`should map '${input}' onto '${canonicalGroupId}'`, () => {
             const result = addModifier(item, input);
-            expect(result.hasErrors).to.be.false;
+            expect(result.diagnostics).to.be.empty;
             expect(result.modifiers).to.have.length(1);
             expect(result.modifiers[0].modifier).to.deep.contain({
                 path: canonicalGroupId,
@@ -218,7 +218,7 @@ describe("addModifier", () => {
 
     it("should reject unknown resource points subsegments", () => {
         const result = addModifier(item, "actor.healthpoints.woundmalus +1");
-        expect(result.hasErrors).to.be.true;
+        expect(result.diagnostics).not.to.be.empty;
         expect(result.modifiers).to.have.length(0);
     });
 
@@ -454,7 +454,7 @@ describe("addModifier", () => {
 
             expect(result.modifiers).to.have.length(1);
             expect(result.modifiers[0].modifier.attributes.spellType).to.equal("schaden");
-            expect(result.hasErrors).to.be.false;
+            expect(result.diagnostics).to.be.empty;
         });
 
         ["item='Schwert'", 'itemType="weapon"', "skill=blades"].forEach((attribute) => {

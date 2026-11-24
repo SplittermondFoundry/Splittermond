@@ -43,7 +43,7 @@ function makeTaggedCost(modifier: ICostModifier, rawFragment = "focus.reduction 
 }
 
 function makeAddModifierFn(result: Pick<AddModifierResult, "modifiers" | "costModifiers">): SinonStub {
-    return sinon.stub().returns({ ...result, diagnostics: [], hasErrors: false });
+    return sinon.stub().returns({ ...result, diagnostics: [] });
 }
 
 function makeItem(effects: any[] = []) {

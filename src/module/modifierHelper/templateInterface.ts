@@ -1,3 +1,4 @@
+// Keep these context interfaces in sync with public/templates/apps/modifier-helper.hbs.
 export interface ModifierHelperField {
     key: string;
     label: string;

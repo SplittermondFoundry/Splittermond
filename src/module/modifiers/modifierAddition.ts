@@ -26,7 +26,6 @@ export interface TaggedCostModifier {
 export interface AddModifierResult {
     modifiers: TaggedModifier[];
     costModifiers: TaggedCostModifier[];
-    hasErrors: boolean;
     diagnostics: readonly ModifierDiagnostic[];
 }
 
@@ -39,7 +38,7 @@ export function initAddModifier(
         const costModifiers: TaggedCostModifier[] = [];
 
         if (str == "") {
-            return { modifiers, costModifiers, hasErrors: false, diagnostics: [] };
+            return { modifiers, costModifiers, diagnostics: [] };
         }
         const allErrors = new ParseErrors(str, item.name);
         const { processCostValue, processScalarValue } = withErrorLogger(allErrors.withAttribute("value"));
@@ -128,7 +127,7 @@ export function initAddModifier(
         // Only display errors to the GM or the owner of the item
         // Otherwise players might get spoilers
         if (item.isOwner) allErrors.printAll();
-        return { modifiers, costModifiers, hasErrors: allErrors.hasErrors, diagnostics: allErrors.diagnostics };
+        return { modifiers, costModifiers, diagnostics: allErrors.diagnostics };
     };
 }
 

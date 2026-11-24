@@ -22,7 +22,7 @@ describe("Modifier helper", () => {
         it(`identifies the invalid field ${attribute} without notifying the owner`, () => {
             const report = sandbox.stub(foundryApi, "reportError");
             const result = module.addModifier(source, raw, "innate");
-            expect(result.hasErrors).to.equal(true);
+            expect(result.diagnostics).not.to.be.empty;
             expect(result).to.have.nested.property("diagnostics[0].attribute", attribute);
             expect(report.called).to.equal(false);
         });
@@ -57,7 +57,7 @@ describe("Modifier helper", () => {
                 const raw = buildModifier(definition(path), { value, attributes: { feature: "Scharf" } });
                 expect(raw).not.to.equal(null);
                 const result = module.addModifier(source, raw!, "innate");
-                expect(result.hasErrors).to.equal(false);
+                expect(result.diagnostics).to.be.empty;
                 const modifier = result.modifiers[0].modifier;
                 expect(parseFeatures(`${modifier.attributes.feature} ${syncEvaluate(modifier.value)}`)).to.deep.equal([
                     { name: "Scharf", value: Number(value) },
@@ -69,7 +69,7 @@ describe("Modifier helper", () => {
             const value = "${attributes.strength.value}";
             const raw = buildModifier(definition(path), { value, attributes: { feature: "Scharf" } });
             expect(raw).to.equal(`${path} feature="Scharf" ${value}`);
-            expect(module.addModifier(source, raw!, "innate").hasErrors).to.equal(false);
+            expect(module.addModifier(source, raw!, "innate").diagnostics).to.be.empty;
         });
     }
 
@@ -88,7 +88,7 @@ describe("Modifier helper", () => {
         it(`preserves supported magic fumble values: ${value}`, () => {
             const raw = buildModifier(definition("lowerfumbleresult"), { value, attributes: { skill: "arcanelore" } });
             expect(raw).not.to.equal(null);
-            expect(module.addModifier(source, raw!, "innate").hasErrors).to.equal(false);
+            expect(module.addModifier(source, raw!, "innate").diagnostics).to.be.empty;
         });
     }
 
@@ -142,7 +142,7 @@ describe("Modifier helper", () => {
         it(`uses the familiar trailing value notation for ${path} ${value}`, () => {
             const raw = buildModifier(definition(path), { value, attributes: {} });
             expect(raw).to.equal(expected);
-            expect(module.addModifier(source, raw!, "innate").hasErrors).to.equal(false);
+            expect(module.addModifier(source, raw!, "innate").diagnostics).to.be.empty;
         });
     }
 
@@ -160,7 +160,7 @@ describe("Modifier helper", () => {
             expect(input.type).to.equal("text");
             expect(input.value).to.equal(context.value);
             expect(dom.window.document.querySelector("[name=valueMode]")).to.equal(null);
-            expect(module.addModifier(source, context.preview, "innate").hasErrors).to.equal(false);
+            expect(module.addModifier(source, context.preview, "innate").diagnostics).to.be.empty;
         });
     }
 
@@ -193,7 +193,7 @@ describe("Modifier helper", () => {
                     select.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
                     const raw = helper.element.querySelector<HTMLOutputElement>("output")!.value;
                     expect(raw).to.equal(`actor.woundmalus.nbrLevels +${count}`);
-                    expect(module.addModifier(source, raw, "innate").hasErrors).to.equal(false);
+                    expect(module.addModifier(source, raw, "innate").diagnostics).to.be.empty;
                 }
             });
         }

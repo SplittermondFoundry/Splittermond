@@ -47,10 +47,8 @@ export function openModifierHelper(
                 raw,
                 type
             );
-            if (result.hasErrors) {
-                return result.diagnostics.length
-                    ? result.diagnostics
-                    : [{ scope: "modifier", message: foundryApi.localize("splittermond.modifierHelper.invalid") }];
+            if (result.diagnostics.length > 0) {
+                return result.diagnostics;
             }
             return result.modifiers.length + result.costModifiers.length > 0
                 ? []

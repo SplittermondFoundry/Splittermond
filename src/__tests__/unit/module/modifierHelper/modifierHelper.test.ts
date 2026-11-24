@@ -115,7 +115,7 @@ describe("Modifier helper", () => {
         for (const option of options) {
             expect(option.textContent, option.value).not.to.include("splittermond.");
             const result = module.addModifier(source, `check.result category="${option.textContent}" +1`, "innate");
-            expect(result.hasErrors, option.textContent ?? option.value).to.equal(false);
+            expect(result.diagnostics, option.textContent ?? option.value).to.be.empty;
             expect(result.modifiers[0].modifier.attributes.category).to.equal(option.value);
         }
     });
@@ -129,7 +129,7 @@ describe("Modifier helper", () => {
                 using dom = new DisposableJSDOM(createHtml("templates/apps/modifier-helper.hbs", context));
                 expect(dom.window.document.querySelector("[data-attribute=skill]")).to.equal(null);
                 expect(context.preview).to.equal("actor.splinterpoints +2");
-                expect(module.addModifier(source, initial, "innate").hasErrors).to.equal(false);
+                expect(module.addModifier(source, initial, "innate").diagnostics).to.be.empty;
             });
         }
 
@@ -552,7 +552,7 @@ describe("Modifier helper", () => {
             expect(dom.window.document.querySelectorAll("[name=modifierValue]")).to.have.length(1);
             const raw = buildModifier(definition("item.damage"), { value, attributes: {} });
             expect(raw).to.equal(`item.damage ${value.replace(/\s+/g, "")}`);
-            expect(module.addModifier(source, raw!, "innate").hasErrors).to.equal(false);
+            expect(module.addModifier(source, raw!, "innate").diagnostics).to.be.empty;
         }
         const helper = new ModifierHelper({
             definitions,

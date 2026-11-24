@@ -16,7 +16,7 @@ export interface ModifierAttributeOptions {
 
 export type ModifierAttributes = Readonly<Record<string, ModifierAttributeOptions | null>>;
 
-export type ConfigSegment = {
+export interface ConfigSegment {
     requiredAttributes: ModifierAttributes;
     optionalAttributes: ModifierAttributes;
     hasEffect: boolean;
@@ -24,7 +24,7 @@ export type ConfigSegment = {
     description?: string;
     helperAlias?: string;
     helperGroup?: { path: string; attribute: string; choice: ModifierChoice };
-};
+}
 
 export function modifierChoices<T extends string>(values: readonly T[], label: (value: T) => string): ModifierChoice[] {
     return values.map((value) => ({ value, label: label(value) }));
@@ -36,24 +36,26 @@ export function getAttributeConfig(
     config: ConfigSegment,
     attribute: string
 ): ModifierAttributeOptions | null | undefined {
-    if (Object.prototype.hasOwnProperty.call(config.requiredAttributes, attribute))
+    if (Object.prototype.hasOwnProperty.call(config.requiredAttributes, attribute)) {
         return config.requiredAttributes[attribute];
-    if (Object.prototype.hasOwnProperty.call(config.optionalAttributes, attribute))
+    }
+    if (Object.prototype.hasOwnProperty.call(config.optionalAttributes, attribute)) {
         return config.optionalAttributes[attribute];
+    }
     return undefined;
 }
 
 export type ConfigSegmentInput = Partial<Omit<ConfigSegment, "subSegments">> & {
-    subSegments?: Record<string, ConfigSegmentInput>;
+    subSegments?: Record<string, ConfigSegmentInput | ConfigSegment>;
     [key: string]: unknown;
 };
 
 export type ConfigInput = ConfigSegmentInput & { topLevelPath: string };
 
-type CompleteSegment<T extends ConfigSegmentInput> = Readonly<
+type CompleteSegment<T extends ConfigSegmentInput | ConfigSegment> = Readonly<
     T &
         ConfigSegment &
-        (T extends { subSegments: infer S extends Record<string, ConfigSegmentInput> }
+        (T extends { subSegments: infer S extends Record<string, ConfigSegmentInput | ConfigSegment> }
             ? { subSegments: { readonly [K in keyof S]: CompleteSegment<S[K]> } }
             : object)
 >;
@@ -62,7 +64,9 @@ export function makeConfig<CONFIG extends ConfigInput>(proto: CONFIG): CompleteS
     return makeConfigSegment(proto);
 }
 
-function makeConfigSegment<SEGMENT extends ConfigSegmentInput>(proto: SEGMENT): CompleteSegment<SEGMENT> {
+function makeConfigSegment<SEGMENT extends ConfigSegmentInput | ConfigSegment>(
+    proto: SEGMENT
+): CompleteSegment<SEGMENT> {
     return {
         ...proto,
         requiredAttributes: proto.requiredAttributes ?? { value: null },

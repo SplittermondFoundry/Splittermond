@@ -5,11 +5,23 @@ import { times as timesCost } from "module/modifiers/expressions/cost";
 import { type Expression, of } from "module/modifiers/expressions/scalar";
 import type { FocusModifier, Value } from "module/modifiers/parsing";
 import { ModifierHandler, type ModifierType } from "module/modifiers";
-import { makeConfig, modifierChoices } from "module/modifiers/ModifierConfig";
+import { makeConfig, modifierChoices, type ModifierAttributes } from "module/modifiers/ModifierConfig";
 import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { splittermond } from "module/config";
 
 type ValidMapper = Parameters<ReturnType<typeof normalizeDescriptor>["usingMappers"]>[0];
+
+const focusAttributes = {
+    skill: {
+        values: modifierChoices(splittermond.skillGroups.magic, (value) => `splittermond.skillLabel.${value}`),
+        hint: "splittermond.modifierHelper.attributes.focusSkill",
+        groupChoices: false,
+    },
+    type: {
+        label: "splittermond.modifierHelper.spellType",
+        hint: "splittermond.modifierHelper.attributes.costType",
+    },
+} satisfies ModifierAttributes;
 
 export class CostModifierHandler extends ModifierHandler<FocusModifier> {
     constructor(
@@ -25,71 +37,19 @@ export class CostModifierHandler extends ModifierHandler<FocusModifier> {
         subSegments: {
             reduction: {
                 description: "splittermond.modifierHelper.descriptions.focusReduction",
-                optionalAttributes: {
-                    skill: {
-                        values: modifierChoices(
-                            splittermond.skillGroups.magic,
-                            (value) => `splittermond.skillLabel.${value}`
-                        ),
-                        hint: "splittermond.modifierHelper.attributes.focusSkill",
-                        groupChoices: false,
-                    },
-                    type: {
-                        label: "splittermond.modifierHelper.spellType",
-                        hint: "splittermond.modifierHelper.attributes.costType",
-                    },
-                },
+                optionalAttributes: focusAttributes,
             },
             addition: {
                 description: "splittermond.modifierHelper.descriptions.focusAddition",
-                optionalAttributes: {
-                    skill: {
-                        values: modifierChoices(
-                            splittermond.skillGroups.magic,
-                            (value) => `splittermond.skillLabel.${value}`
-                        ),
-                        hint: "splittermond.modifierHelper.attributes.focusSkill",
-                        groupChoices: false,
-                    },
-                    type: {
-                        label: "splittermond.modifierHelper.spellType",
-                        hint: "splittermond.modifierHelper.attributes.costType",
-                    },
-                },
+                optionalAttributes: focusAttributes,
             },
             enhancedReduction: {
                 description: "splittermond.modifierHelper.descriptions.enhancedReduction",
-                optionalAttributes: {
-                    skill: {
-                        values: modifierChoices(
-                            splittermond.skillGroups.magic,
-                            (value) => `splittermond.skillLabel.${value}`
-                        ),
-                        hint: "splittermond.modifierHelper.attributes.focusSkill",
-                        groupChoices: false,
-                    },
-                    type: {
-                        label: "splittermond.modifierHelper.spellType",
-                        hint: "splittermond.modifierHelper.attributes.costType",
-                    },
-                },
+                optionalAttributes: focusAttributes,
             },
             enhancedAddition: {
                 description: "splittermond.modifierHelper.descriptions.enhancedAddition",
-                optionalAttributes: {
-                    skill: {
-                        values: modifierChoices(
-                            splittermond.skillGroups.magic,
-                            (value) => `splittermond.skillLabel.${value}`
-                        ),
-                        hint: "splittermond.modifierHelper.attributes.focusSkill",
-                        groupChoices: false,
-                    },
-                    type: {
-                        label: "splittermond.modifierHelper.spellType",
-                        hint: "splittermond.modifierHelper.attributes.costType",
-                    },
-                },
+                optionalAttributes: focusAttributes,
             },
         },
     });
