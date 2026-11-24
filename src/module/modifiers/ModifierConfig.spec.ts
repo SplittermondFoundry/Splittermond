@@ -20,8 +20,8 @@ export namespace configWithSubsegmentsGuaranteesTopLevelPath {
         topLevelPath: "some.path",
         subSegments: {
             subPath1: {
-                requiredAttributes: ["argument"],
-                optionalAttributes: ["opinion"],
+                requiredAttributes: { value: null, argument: null },
+                optionalAttributes: { opinion: null },
             },
         },
     };
@@ -35,8 +35,8 @@ export namespace makeConfigPreservesNonConfigInput {
         topLevelPath: "some.path",
         subSegments: {
             subPath1: {
-                requiredAttributes: ["argument"],
-                optionalAttributes: ["opinion"],
+                requiredAttributes: { value: null, argument: null },
+                optionalAttributes: { opinion: null },
             },
             subPath2: {
                 operator: (a: number, b: number) => a + b,
@@ -55,8 +55,9 @@ export namespace ensuresEveryThingIsReadOnly {
         topLevelPath: "some.path",
         subSegments: {
             subPath1: {
-                requiredAttributes: ["argument"],
-                optionalAttributes: ["opinion"],
+                requiredAttributes: { value: null, argument: null },
+                optionalAttributes: { opinion: null },
+
                 randomArray: [{ a: 1, b: 2 }],
             },
             subPath2: {
@@ -92,8 +93,8 @@ export namespace tracesDeeplyNestedSegment {
                         },
                     },
                 },
-                requiredAttributes: ["argument"],
-                optionalAttributes: ["opinion"],
+                requiredAttributes: { value: null, argument: null },
+                optionalAttributes: { opinion: null },
             },
         },
     };
@@ -113,8 +114,8 @@ export namespace complexExample {
         topLevelPath: "test.path",
         subSegments: {
             subPath1: {
-                requiredAttributes: ["arg1"],
-                optionalAttributes: ["opt1"],
+                requiredAttributes: { value: null, arg1: null },
+                optionalAttributes: { opt1: null },
             },
             subPath2: {
                 operator: (a: number, b: number) => a + b,
@@ -123,7 +124,7 @@ export namespace complexExample {
             subPath3: {
                 someFunction: () => "hello",
                 someNumber: 42,
-                requiredAttributes: ["required"],
+                requiredAttributes: { value: null, required: null },
             },
         },
     };

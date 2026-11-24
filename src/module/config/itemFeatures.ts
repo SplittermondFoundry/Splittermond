@@ -86,3 +86,20 @@ const itemImprovements = [
 
 export const itemFeatures = Array.from(new Set([...originalItemFeatures, ...itemImprovements])) as ItemFeature[];
 export type ItemFeature = (typeof originalItemFeatures)[number] | (typeof itemImprovements)[number];
+
+// The data model defaults every feature to 1, including unscaled features; it cannot supply this distinction.
+export const leveledItemFeatures: readonly ItemFeature[] = [
+    "Ablenkend",
+    "Auslöser",
+    "Defensiv",
+    "Durchdringung",
+    "Entwaffnend",
+    "Entwaffnungsschutz",
+    "Exakt",
+    "Kälteschutz",
+    "Kritisch",
+    "Parierwaffe",
+    "Reiterwaffe",
+    "Rückstoß",
+    "Scharf",
+];

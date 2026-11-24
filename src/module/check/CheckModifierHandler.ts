@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { type Config, IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import { Expression, isZero } from "module/modifiers/expressions/scalar";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
@@ -7,21 +8,37 @@ import { type CheckSuccessState, successStates } from "module/check/modifyEvalua
 import { initMapper, LanguageMapper } from "module/util/LanguageMapper";
 import { CommonNormalizers } from "module/modifiers/impl/CommonNormalizers";
 import { validateMembered } from "module/check/validateMembered";
+import { modifierChoices } from "module/modifiers/ModifierConfig";
+
+export const checkTypes = ["attack", "spell", "defense", "skill"] as const;
+export const checkTypeChoices = modifierChoices(checkTypes, mapCheckTypes);
 
 export class CheckModifierHandler extends ModifierHandler<ScalarModifier> {
     static config: Config = makeConfig({
         topLevelPath: "check",
+        hasEffect: false,
         subSegments: {
             result: {
-                requiredAttributes: ["category"],
-                optionalAttributes: ["skill", "type"],
+                description: "splittermond.modifierHelper.descriptions.checkResult",
+                requiredAttributes: {
+                    value: null,
+                    category: { values: modifierChoices(successStates, mapSuccessMessage) },
+                },
+                optionalAttributes: {
+                    skill: null,
+                    type: {
+                        values: checkTypeChoices,
+                        label: "splittermond.modifierHelper.checkType",
+                        hint: "splittermond.modifierHelper.attributes.checkType",
+                    },
+                },
             },
         },
     });
     private readonly commonNormalizers: CommonNormalizers;
 
     constructor(
-        logErrors: (...message: string[]) => void,
+        logErrors: ModifierErrorLogger,
         private readonly sourceItem: IModifierSource,
         private readonly modifierType: ModifierType
     ) {
@@ -99,7 +116,6 @@ function mapSuccessMessage(successState: CheckSuccessState): string {
     }
 }
 
-export const checkTypes = ["attack", "spell", "defense", "skill"] as const;
 export type CheckType = (typeof checkTypes)[number];
 
 export const checkTypeMapper: () => LanguageMapper<CheckType> = initMapper(checkTypes)

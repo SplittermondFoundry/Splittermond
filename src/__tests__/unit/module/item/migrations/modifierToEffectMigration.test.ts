@@ -67,11 +67,11 @@ function makeAddModifier(result: AddModifierResult): SinonStub {
 }
 
 function scalarResult(...tagged: TaggedModifier[]): AddModifierResult {
-    return { modifiers: tagged, costModifiers: [], hasErrors: false };
+    return { modifiers: tagged, costModifiers: [], diagnostics: [] };
 }
 
 function emptyResult(): AddModifierResult {
-    return { modifiers: [], costModifiers: [], hasErrors: false };
+    return { modifiers: [], costModifiers: [], diagnostics: [] };
 }
 
 function gmUser(id = "gm1") {
@@ -121,7 +121,11 @@ describe("migrateModifierToEffects", () => {
 
     it("preserves the modifier string when parsing reports errors", async () => {
         const item = makeItem("rubbish fragment");
-        const addModifier = makeAddModifier({ modifiers: [], costModifiers: [], hasErrors: true });
+        const addModifier = makeAddModifier({
+            modifiers: [],
+            costModifiers: [],
+            diagnostics: [{ scope: "modifier", message: "Invalid modifier" }],
+        });
 
         const result = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
 
@@ -129,6 +133,21 @@ describe("migrateModifierToEffects", () => {
         expect(item.update.called, "field is not cleared when parsing fails").to.be.false;
         expect(item.setFlag.called, "no backup flag is written when parsing fails").to.be.false;
         expect(item.createEmbeddedDocuments.called, "no effects are created when parsing fails").to.be.false;
+    });
+
+    it("preserves all source text when a valid fragment is accompanied by a diagnostic", async () => {
+        const item = makeItem("skills.acrobatics +2, rubbish fragment");
+        const addModifier = makeAddModifier({
+            ...scalarResult(makeTagged(makeScalarModifier("actor.skills"), "skills.acrobatics +2")),
+            diagnostics: [{ scope: "modifier", message: "Invalid trailing fragment" }],
+        });
+
+        const result = await migrateModifierToEffects(item as unknown as SplittermondItem, addModifier);
+
+        expect(result).to.equal(false);
+        expect(item.update.callCount, "the original text remains available for correction").to.equal(0);
+        expect(item.setFlag.callCount, "an incomplete migration is not marked as finished").to.equal(0);
+        expect(item.createEmbeddedDocuments.callCount, "no partial effects are persisted").to.equal(0);
     });
 
     it("resolves mastery skill and name placeholders before parsing", async () => {

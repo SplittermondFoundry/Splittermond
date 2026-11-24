@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import type { ScalarModifier, Value } from "module/modifiers/parsing";
 import { type Expression, isGreaterZero, isLessThanZero, isZero } from "module/modifiers/expressions/scalar";
@@ -13,14 +14,15 @@ export function BarebonesModifierHandler<CONFIG extends { topLevelPath: string }
         protected commonNormalizers: CommonNormalizers;
         static config = config;
         constructor(
-            logErrors: (...message: string[]) => void,
+            logErrors: ModifierErrorLogger,
             private readonly sourceItem: IModifierSource,
             private readonly modifierType: ModifierType
         ) {
             super(logErrors, config);
             this.commonNormalizers = new CommonNormalizers(
                 this.validateDescriptor.bind(this),
-                this.reportInvalidDescriptor.bind(this)
+                this.reportInvalidDescriptor.bind(this),
+                this.getAttributeChoices.bind(this)
             );
         }
         protected get actorProvider() {

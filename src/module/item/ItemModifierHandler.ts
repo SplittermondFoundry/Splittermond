@@ -1,3 +1,4 @@
+import type { ModifierErrorLogger } from "module/modifiers/parsing/ParseErrors";
 import type { ScalarModifier, Value } from "../modifiers/parsing";
 import { Modifier, MultiplicativeModifier } from "module/activeEffect";
 import { splittermond } from "../config";
@@ -5,39 +6,78 @@ import type { IModifierSource } from "module/modifiers/IModifierSource";
 import { type IModifier, makeConfig, ModifierHandler, type ModifierType } from "module/modifiers";
 import { type TimeUnit } from "module/config/timeUnits";
 import { isMember } from "module/util/util";
+import { modifierChoices } from "module/modifiers/ModifierConfig";
 import { ByAttributeHandler } from "module/modifiers/impl/ByAttributeHandler";
 
+const spellSkillChoices = {
+    values: modifierChoices(splittermond.skillGroups.all, (value) => `splittermond.skillLabel.${value}`),
+    suggestions: Object.entries(splittermond.spellSkillsOption).map(([value, label]) => ({ value, label })),
+};
+
 export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<ScalarModifier>) {
-    constructor(logErrors: (...message: string[]) => void, sourceItem: IModifierSource, modifierType: ModifierType) {
+    constructor(logErrors: ModifierErrorLogger, sourceItem: IModifierSource, modifierType: ModifierType) {
         super(logErrors, ItemModifierHandler.config, sourceItem, modifierType);
     }
 
     static config = makeConfig({
         topLevelPath: "item",
+        hasEffect: false,
         subSegments: {
             damage: {
-                optionalAttributes: ["item", "damageType", "itemType", "features", "skill", "spellType"],
+                description: "splittermond.modifierHelper.descriptions.itemDamage",
+                optionalAttributes: {
+                    item: null,
+                    damageType: null,
+                    itemType: null,
+                    features: { label: "splittermond.modifierHelper.damageFeatures" },
+                    skill: null,
+                    spellType: null,
+                },
             },
             weaponspeed: {
-                optionalAttributes: ["item", "itemType", "skill"],
+                description: "splittermond.modifierHelper.descriptions.weaponSpeed",
+                optionalAttributes: { item: null, itemType: null, skill: null },
             },
             defenseTickCost: {
-                optionalAttributes: ["defenseType", "item", "itemType", "skill"],
+                description: "splittermond.modifierHelper.descriptions.defenseTickCost",
+                optionalAttributes: { defenseType: null, item: null, itemType: null, skill: null },
             },
             mergeFeature: {
-                requiredAttributes: ["feature"],
-                optionalAttributes: ["item", "itemType", "skill"],
+                description: "splittermond.modifierHelper.descriptions.mergeFeature",
+                requiredAttributes: { value: null, feature: null },
+                optionalAttributes: { item: null, itemType: null, skill: null },
             },
             addFeature: {
-                requiredAttributes: ["feature"],
-                optionalAttributes: ["item", "itemType", "skill"],
+                description: "splittermond.modifierHelper.descriptions.addFeature",
+                requiredAttributes: { value: null, feature: null },
+                optionalAttributes: { item: null, itemType: null, skill: null },
             },
             castDuration: {
-                requiredAttributes: ["unit"],
-                optionalAttributes: ["item", "itemType", "skill"],
+                description: "splittermond.modifierHelper.descriptions.castDuration",
+                // Cast duration is only consumed by spells; retain the parser attribute for existing input.
+                requiredAttributes: { value: null, unit: null },
+                optionalAttributes: {
+                    item: null,
+                    itemType: { hidden: true },
+                    skill: {
+                        ...spellSkillChoices,
+                        hint: "splittermond.modifierHelper.attributes.castDurationSkill",
+                        groupChoices: false,
+                    },
+                },
+
                 subSegments: {
                     multiplier: {
-                        optionalAttributes: ["item", "itemType", "skill"],
+                        description: "splittermond.modifierHelper.descriptions.castDurationMultiplier",
+                        optionalAttributes: {
+                            item: null,
+                            itemType: { hidden: true },
+                            skill: {
+                                ...spellSkillChoices,
+                                hint: "splittermond.modifierHelper.attributes.castDurationSkill",
+                                groupChoices: false,
+                            },
+                        },
                     },
                 },
             },
@@ -58,7 +98,9 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
             return true;
         }
         if ("item" in modifier.attributes) {
-            this.reportInvalidDescriptor(modifier.path, "spellType", attributes.spellType ?? undefined);
+            this.reportInvalidDescriptor(modifier.path, "spellType", attributes.spellType ?? undefined, {
+                messageKey: "splittermond.modifiers.parseMessages.spellTypeWithItem",
+            });
             return false;
         }
         if ("skill" in modifier.attributes) {
@@ -66,7 +108,9 @@ export class ItemModifierHandler extends ByAttributeHandler(ModifierHandler<Scal
             const isValidSpellSkill = skill === "arcanelore" || isMember(splittermond.skillGroups.magic, skill);
             if (!isValidSpellSkill) {
                 if (isMember(splittermond.skillGroups.all, skill)) {
-                    this.reportInvalidDescriptor(modifier.path, "skill", skill);
+                    this.reportInvalidDescriptor(modifier.path, "skill", skill, {
+                        messageKey: "splittermond.modifiers.parseMessages.spellTypeWithSkill",
+                    });
                 }
                 return false;
             }

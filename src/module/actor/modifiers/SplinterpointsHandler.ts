@@ -6,9 +6,13 @@ export class ActorSplinterpointsHandler extends BaseSplinterpointsHandler("actor
 function BaseSplinterpointsHandler(topLevelPath: string, groupId?: string) {
     const config = makeConfig({
         topLevelPath: topLevelPath,
+        helperAlias: groupId,
+        description: "splittermond.modifierHelper.descriptions.splinterpoints",
+        optionalAttributes: { skill: { hidden: "always" } },
         subSegments: {
             bonus: {
-                optionalAttributes: ["skill"],
+                description: "splittermond.modifierHelper.descriptions.splinterpointBonus",
+                optionalAttributes: { skill: null },
             },
         },
     });
