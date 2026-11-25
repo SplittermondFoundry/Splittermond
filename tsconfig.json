@@ -1,5 +1,5 @@
 {
-    "extends": "@tsconfig/node24",
+    "extends": "@tsconfig/node26",
     "compilerOptions": {
         "target": "es2020",
         "module": "es2020",
